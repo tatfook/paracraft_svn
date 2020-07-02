@@ -1,0 +1,75 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandIndoor.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland indoor, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+
+function ShowIndoorItemView(value, mcmlNode)
+	local frame = page:GetNode("HomelandIndoorInventoryItemView");
+	local urls = {
+	    ["decorate"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&subclass=decorate",
+	    ["furniture"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&subclass=furniture",
+	    ["honor"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&subclass=honor",
+	    ["other"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&subclass=other",
+	    
+	    ["all"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&subclass=all",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            mcmlNode:SetValue(value);
+            page:GetNode("HomelandIndoorInventoryItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+<pe:editor style="margin:0px;padding:0px;background:;">
+<div style="width:702px;height:123px;"> 
+    <div style="float:right;width:702px;height:28px;padding-left:24px;">
+        <input type="radio" name="IndoorTabs" checked="checked" value="all" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_all_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_all_up_32bits.png;0 0 102 28" 
+            onclick="ShowIndoorItemView()"/>
+        <input type="radio" name="IndoorTabs" value="furniture" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Furniture_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Furniture_up_32bits.png;0 0 102 28" 
+            onclick="ShowIndoorItemView()"/>
+       <!-- <input type="radio" name="IndoorTabs" value="decorate" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Decorative_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Decorative_up_32bits.png;0 0 102 28" 
+            onclick="ShowIndoorItemView()"/>
+        <input type="radio" name="IndoorTabs" value="honor" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Honor_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Honor_up_32bits.png;0 0 102 28" 
+            onclick="ShowIndoorItemView()"/>-->
+        <input type="radio" name="IndoorTabs" value="other" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Other_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Other_up_32bits.png;0 0 102 28" 
+            onclick="ShowIndoorItemView()"/>
+    </div>
+    <div style="float:right;margin-top:0px;width:702px;height:95px;">
+        <iframe name="HomelandIndoorInventoryItemView" src="script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeindoor&amp;subclass=all"/>
+    </div>
+    <div style="float:right;margin-left:-40px;margin-top:-30px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+</div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

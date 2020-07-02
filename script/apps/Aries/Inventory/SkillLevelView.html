@@ -1,0 +1,42 @@
+﻿<!-- "script/apps/Aries/Inventory/SkillLevelView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SkillLevelView, by Andy, 2010/1/22</title>
+</head> 
+<body>
+<pe:mcml>
+<script type="text/npl" src="SkillLevelView.lua" refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+
+-- status: nil not available, 1 fetching all, 2 fetched. 
+dsItems = Eval("dsItems") or {status = nil, };
+
+function DS_Func_Aries_Skills(index)
+    return MyCompany.Aries.Inventory.SkillLevelViewPage.DS_Func_Skills(dsItems, index, pageCtrl);
+end
+
+function OnClickSkillTab(index)
+    index = tonumber(index);
+    local url = MyCompany.Aries.Inventory.SkillLevelViewPage.GetURL(index);
+    if(url) then
+	    page:SetValue("skill_progress_iframe", url);
+	    page:Refresh(0.1);
+    end
+end
+
+]]></script>
+
+<div style="margin-left:35px;margin-top:0px;width:400;height:160px;background:url();">
+
+</div>
+<br/>
+    
+    <div style="margin-left:30px;margin-top:-68px;width:250;height:300px;">
+        <iframe style ="height:350px"name="skill_progress_iframe" src="script/apps/Aries/Inventory/Skills/Architecture_Skill_Progress.html"/>
+    </div>
+
+</pe:mcml> 
+</body>
+</html>

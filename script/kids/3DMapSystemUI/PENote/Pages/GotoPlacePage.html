@@ -1,0 +1,80 @@
+<!-- "script/kids/3DMapSystemUI/PENote/Pages/GotoPlacePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GotoPlacePage, by Leio, 2009/10/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/PENote/Pages/GotoPlacePage.lua");
+Map3DSystem.App.PENote.GotoPlacePage.OnInit();
+local page = document:GetPageCtrl();
+
+function getFromName()
+    return Map3DSystem.App.PENote.GotoPlacePage.fromname or "";
+end
+function getToName()
+    return Map3DSystem.App.PENote.GotoPlacePage.toname or "";
+end
+function getContent()
+    return Map3DSystem.App.PENote.GotoPlacePage.content or "";
+end
+function getDate()
+    return Map3DSystem.App.PENote.GotoPlacePage.date or "";
+end
+function getTitleBg()
+    local goto_type = Map3DSystem.App.PENote.GotoPlacePage.goto_type or "";
+    local s = ""
+    if(goto_type == "spring_bottle")then
+        s = [[<div style="margin-left:0px;margin-top:0px;width:563px;height:115px;background:url(Texture/Aries/PENote/penote_title_2_32bits.png# 0 0 580 115)" />]]
+    else
+        s = [[<div style="margin-left:0px;margin-top:0px;width:492px;height:115px;background:url(Texture/Aries/PENote/penote_title_32bits.png# 0 0 492 115)" />]]
+    end
+    return s;
+end
+function getNPCBg()
+    local goto_type = Map3DSystem.App.PENote.GotoPlacePage.goto_type or "";
+    local s = ""
+    if(goto_type == "spring_bottle")then
+        s = [[<div style="margin-left:0px;margin-top:40px;width:256px;height:256px;background:url(Texture/Aries/PENote/npcs/alcalde_32bits.png)" />]]
+    else
+        s = [[<div style="margin-left:0px;margin-top:0px;width:238px;height:440px;background:url(Texture/Aries/PENote/penote_papa_32bits.png# 0 0 238 440)" />]]
+    end
+    return s;
+end
+]]></script>
+    
+    <div style="width:1018px;height:681px;background:url(Texture/Aries/PENote/penote_bg_32bits.png# 0 0 1018 681)">
+        <div style="float:left;width:800px;height:115px;margin-left:200px;margin-top:120px;" >
+        <%=getTitleBg() %>
+        </div>
+        <div style="margin-left:650px;margin-top:-40px;width:500px;height:500px;">
+        <%=getNPCBg() %>
+        </div>
+        <div style="margin-left:170px;margin-top:-430px;width:480px;height:320px;">
+            <div style="width:480px;height:280px;">
+            <%=getToName() %>
+            <br/>
+             <%=getContent() %>
+            </div>
+            <br/>
+            <div style="text-align:left;margin-left:360px;margin-top:0px;width:280px;">
+                <%=getFromName() %><br/>
+                <%=getDate()%></div>
+            </div>
+        </div>
+        
+        <div style="margin-left:760px;margin-top:-640px;">
+            <input type="button" style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/PENote/penote_close_32bits.png# 0 0 31 30" 
+                    onclick="Map3DSystem.App.PENote.GotoPlacePage.ClosePage()" />
+        </div>
+        <input type="button" style="width:150px;height:46px;margin-left:680px;margin-top:-110px;background:Texture/Aries/Common/Coming_32bits.png# 0 0 150 46" 
+                    onclick="Map3DSystem.App.PENote.GotoPlacePage.Goto()" />
+    </div>
+    
+</pe:mcml>
+</body>
+</html>
+

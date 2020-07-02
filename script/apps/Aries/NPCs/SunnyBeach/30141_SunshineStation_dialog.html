@@ -1,0 +1,122 @@
+﻿<!-- "script/apps/Aries/NPCs/SunnyBeach/30141_SunshineStation_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30141_SunshineStation_dialog, by Andy, 2009/11/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    -- check if the user is overheated
+    return (MyCompany.Aries.Quest.NPCs.SunshineStation.IsOverHeat());
+end;
+
+function EntryAction(from, to)
+    if(from == 2 and to == 3) then
+        local Player = MyCompany.Aries.Player;
+        local index = Player.GetMySkinColorIndex();
+        if(index) then
+            local indexes = Player.GetAvailableSkinColorIndex();
+            local pick;
+            while(true) do
+                pick = math.mod(math.ceil(math.random(0, 10000)), #(indexes)) + 1;
+                if(index ~= indexes[pick]) then
+                    break;
+                end
+            end
+            
+			local params = {
+				asset_file = "character/v5/09effect/ChangeColor/ChangeColor.x",
+				binding_obj_name = ParaScene.GetPlayer().name,
+				duration_time = 2600,
+				end_callback = function()
+					end,
+				stage1_time = 2000,
+				stage1_callback = function()
+                    Player.SetMySkinColorIndex(indexes[pick], true);
+                    MyCompany.Aries.Quest.NPCs.SunshineStation.SyncOverHeatTime();
+                    Map3DSystem.GSL_client:AddRealtimeMessage({name="anim", value=-1000-tostring(indexes[pick])});
+                    local command = System.App.Commands.GetCommand("Aries.Quest.DoAddValue");
+                    if(command) then
+	                    command:Call({
+		                    increment = { {id = 79001,value = 1}, },
+		                    });
+                    end
+				end,
+			};
+			local EffectManager = MyCompany.Aries.EffectManager;
+			EffectManager.CreateEffect(params);
+        end
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30141" />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='日光机'/>
+        </pe:template>
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = 'true' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    喔噢！不要这么快喜新厌旧嘛，十分钟之内如果沐浴太多次日光浴是会弄伤皮肤的哦。想变色就过会儿再来吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    我是神秘日光站，你想在我的沐浴下换一个新的肤色吗？不过我是变数很大的哦，不知道能不能把你变成你想要的颜色。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    我给你沐浴出的这个颜色看看你喜欢吗？如果还想再变颜色，十分钟之后再来吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

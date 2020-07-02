@@ -1,0 +1,684 @@
+﻿<!-- "script/apps/Aries/HaqiShop/AuctionHouse.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>author: LiXizhi</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="AuctionHouse.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+local AvatarBag = commonlib.gettable("MyCompany.Aries.Desktop.AvatarBag");
+local HaqiShop = commonlib.gettable("MyCompany.Aries.HaqiShop");
+local ItemManager = System.Item.ItemManager;
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local GenericTooltip = CommonCtrl.GenericTooltip:new();
+AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+AuctionHouse.OnInit();
+local page = Page;
+tabname = page:GetRequestParam("tab")
+
+if(tabname == "sell" or tabname == "buy") then
+    page:SetValue("AH_tabs", tabname);
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+function OnClickTreeNode(name,mcmlNode)
+	if(mcmlNode)then
+        local attr = mcmlNode:GetAttribute("param1", nil);
+        local ds = AuctionHouse.GetCategoryDS();
+        local node;
+		for node in commonlib.XPath.eachNode(ds, "//item") do
+			node.attr.checked = false;
+			if(attr == node.attr)then
+				node.attr.checked = true;
+			end
+		end
+		AuctionHouse.ChangeMarketDataSource(attr, true);
+    end
+end
+
+function OnClickFilterTreeNode(name, mcmlNode)
+    if(mcmlNode)then
+        local attr = mcmlNode:GetAttribute("param1", nil);
+        local ds = AuctionHouse.GetFilterCategoryDS();
+        local node;
+		for node in commonlib.XPath.eachNode(ds, "//item") do
+			node.attr.checked = false;
+			if(attr == node.attr)then
+				node.attr.checked = true;
+			end
+		end
+		AuctionHouse.ChangeFilterDataSource(attr, true);
+    end
+end
+
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+end
+
+function GetName(gsid)
+    if(not gsid)then return end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		return gsItem.template.name;
+    end
+end
+
+function GetLevelText(require_level)
+    if(require_level and require_level~=0) then
+        if(require_level <=Player.GetLevel() ) then
+            return format("等级:%d", require_level)
+        else
+            return format("<div style='color:#fe6102'>等级:%d</div>", require_level)
+        end
+    end
+end
+
+function GetCountText(gsid)
+    local has, _, _, copies = ItemManager.IfOwnGSItem(gsid);
+    if(has) then
+        return format("已有:%d个", copies);
+    end
+end
+
+function DS_MarketFunc(index)
+    return AuctionHouse.DS_MarketFunc(index);
+end
+
+function OnClickViewItem(name, mcmlNode)
+    AuctionHouse.OnClickViewItem(name);
+end
+
+function ShowPreviewPage(bShow)
+    local ctl = Page:FindControl("previewWnd")
+    if(ctl) then
+        ctl.visible = bShow;
+    end
+end
+
+function ClosePreviewPage()
+    ShowPreviewPage(false)
+end
+
+function OnClickPreviewItem(gsid, ...)
+    if(HaqiShop.CanPreviewItem(gsid)) then
+        HaqiShop.OnClickItem(gsid, nil, nil, page);
+        ShowPreviewPage(true)
+    else
+    --  关闭物品百科信息 2013.10.29
+     --   NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+     --   local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+     --   ItemGuides.OnClickViewItem(gsid);
+    end
+end
+function ResetPreviewModel()
+    HaqiShop.ResetPreviewModel(page);
+end
+
+function OnSearchItems()
+    if(page:GetValue("AH_tabs") == "buy") then
+        local last_search_text = page:GetUIValue("search_txt")
+        if(last_search_text and last_search_text~="") then
+            AuctionHouse.ChangeFilterDataSource(last_search_text, true);
+        end
+    else
+        page:SetValue("AH_tabs", "view"); -- select the view tabs
+
+        local last_search_text = page:GetUIValue("search_txt")
+        local ds = AuctionHouse.GetCategoryDS();
+        local node;
+	    for node in commonlib.XPath.eachNode(ds, "//item") do
+		    node.attr.checked = false;
+	    end
+        if(ds[1] and ds[1].name == "item") then
+            local attr = ds[1].attr;
+            if(attr) then
+                attr.label = format("搜寻:%s", last_search_text);
+                attr.full_text_search = last_search_text;
+                attr.menu = nil;
+                attr.class = nil;
+                attr.checked = true;
+            end
+        end
+        AuctionHouse.ChangeMarketDataSource(last_search_text, true);
+    end
+end
+
+function GetSellingItemName()
+	local item_name = "";
+	if(AuctionHouse.goods.gsid and AuctionHouse.goods.gsid ~= -999)then
+        if(AuctionHouse.goods.copies and AuctionHouse.goods.copies  > 1) then
+            item_name = format("%s X %d", AuctionHouse.goods.item.template.name or "undefined name", AuctionHouse.goods.copies);
+        else
+		    item_name = AuctionHouse.goods.item.template.name or "undefined name";
+        end
+	end
+	return item_name;
+end
+
+function ShowBag()
+    if(not AvatarBag.Visible)then
+        AvatarBag:Show("ItemsConsignment",AuctionHouse.SellingView,1, true);
+    else
+        AvatarBag.Hide();
+    end
+end
+
+function OnSelectTimePeriod(name, value)
+    AuctionHouse.goods.expire = tonumber(value)
+	Page:SetValue("txtCommission",AuctionHouse.GetAgentFee(AuctionHouse.goods.expire))
+	local i,v;
+	for i,v in ipairs(AuctionHouse.TimePeriodTable)do
+		if(v.value == value)then
+			v.selected = true;
+		else
+			v.selected = false;
+		end
+	end
+end
+
+function OnKeyupSellPrice()
+    local display_price = tonumber(Page:GetValue("txtSellPrice"))
+    if(display_price == nil) then
+        Page:SetValue("txtSellPrice", 0);
+    else
+        local sell_price = math.floor(display_price);
+        if(display_price ~= sell_price) then
+            Page:SetValue("txtSellPrice", sell_price);
+        end
+    end
+end
+
+function OnRefreshSellingData()
+    if(AvatarBag.Items and #AvatarBag.Items > 0)then
+		AuctionHouse.goods.gsid =AvatarBag.Items[1].gsid
+		AuctionHouse.goods.guid = AvatarBag.Items[1].guid;
+		AuctionHouse.goods.copies = AvatarBag.Items[1].copies;
+		AuctionHouse.goods.item = ItemManager.GetGlobalStoreItemInMemory(AuctionHouse.goods.gsid);
+		
+        local display_price = tonumber(Page:GetValue("txtSellPrice")) or 0
+        local sell_price = math.floor(display_price);
+        if(display_price ~= sell_price) then
+            Page:SetValue("txtSellPrice", sell_price);
+        end
+        AuctionHouse.goods.price = sell_price;
+        if(AuctionHouse.goods.item) then
+            local min_sell_price = AuctionHouse.goods.item.count*AuctionHouse.goods.copies
+            if(sell_price < min_sell_price or display_price ~= sell_price) then
+                Page:SetValue("txtSellPrice", tostring(min_sell_price));
+            end
+        end
+	end
+    local i,v;
+	for i,v in ipairs(AuctionHouse.TimePeriodTable)do
+		if(v.selected)then
+            AuctionHouse.goods.expire = tonumber(v.value);
+		end
+	end
+        
+	Page:SetValue("txtCommission",AuctionHouse.GetAgentFee(AuctionHouse.goods.expire))
+end
+
+local auction_gsid = page:GetRequestParam("auction_gsid")
+if(auction_gsid) then
+    auction_gsid = tonumber(auction_gsid);
+    local has, guid, _, copies = ItemManager.IfOwnGSItem(auction_gsid);
+    if(has) then
+        AuctionHouse.goods.gsid = auction_gsid;
+	    AuctionHouse.goods.guid = guid;
+	    AuctionHouse.goods.copies = copies;
+        AuctionHouse.goods.item = ItemManager.GetGlobalStoreItemInMemory(AuctionHouse.goods.gsid);
+
+        if(AuctionHouse.goods.item) then
+            local sell_price = AuctionHouse.goods.item.count*AuctionHouse.goods.copies
+            Page:SetValue("txtSellPrice", tostring(sell_price));
+            AuctionHouse.goods.price = sell_price;
+        end
+    end
+    if (tabname == "view") then
+        local _name=GetName(auction_gsid);
+        AuctionHouse.ChangeMarketDataSource(_name, true);
+    end
+end
+
+function CalcTotalPrice(price, gsid)
+    local money_gsid = AuctionHouse.GetCurrencyByGSID(gsid);
+    if(not money_gsid and money_gsid==984) then 
+        price = math.ceil(price + (price * AuctionHouse.buyer_fee_percent))
+        return tostring(price);
+    else
+        return tostring(price);
+    end
+end
+
+function GenEquipColorName(id,name,qty)
+    local color = GenericTooltip.GetEquipColor(qty);
+    return string.format([[<input type='button' class='titlebutton' onclick='OnClickItem' name='%s' 
+ style='float:left;width:100px;margin-top:1px;margin-left:5px;font-size:12px;text-align:left;color:%s;' 
+ value='%s'tooltip='%s'/>]],
+ id,color,name,name);
+end
+
+function GetMySellingItemsDataSource(index)
+    return AuctionHouse.GetItemDataSource("my_selling_item", index)
+end
+
+function OnClickCancelSell(auction_id)
+    if(auction_id) then
+        AuctionHouse.CancelSell(auction_id);
+    end
+end
+
+function OnCheckShowSellerName(name, bChecked)
+    AuctionHouse.show_seller_name = not bChecked;
+end
+
+function CanShowSellingPage()
+    --if(AuctionHouse.is_market or MyCompany.Aries.Player.GetVipLevel()>=4) then
+        return true;
+    --end
+end
+
+function GotoPage(name)
+    AuctionHouse.ChangeFilterDataSource(AuctionHouse.cur_filter_selection, true, name)
+end
+
+function OnChangeFilter()
+    AuctionHouse.ChangeFilterDataSource(AuctionHouse.cur_filter_selection, true, "filter_changed");
+end
+
+function OnClickBuy(auction_id)
+    if(auction_id) then
+        AuctionHouse.PurchaseItem({id = tonumber(auction_id)}, function()end);
+    end
+end
+
+function OnClickViewProfile(nid)
+    System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+end
+
+function GetItemPricing(gsid)
+    return AuctionHouse.GetPricingMCMLText(gsid);
+end
+]]></script>
+
+<aries:window width="825" height="535" title='<%=if_else(MyCompany.Aries.AuctionHouse.is_market, "寄售行", "商城")%>' onclose="ClosePage" icon="Texture/Aries/Common/Teen/mainbar/shop_32bits.png" >
+    <pe:div class="clientarea" style="margin-top:30px;background:;">
+        <pe:container zorder="1" style="position:relative;margin-left:370px;background:;font-size:12px;" class="default">
+            <form name="search_form">
+                <pe:if condition='<%=MyCompany.Aries.AuctionHouse.is_market%>'>
+                    <div style="float:left;width:60px;text-align:right;margin-top:1px;" class="bordertext">系别:</div>
+                    <select name="search_school" AllowUserEdit="false" onselect="OnChangeFilter" style="width:60px;height:22px;">
+                        <option value="" selected="true">全部</option>
+                        <option value="7">寒冰</option>
+                        <option value="6">烈火</option>
+                        <option value="8">风暴</option>
+                        <option value="11">死亡</option>
+                        <option value="10">生命</option>
+                        <option value="12">平衡</option>
+                        <option value="9">大地</option>
+                    </select>
+                    <div style="float:left;width:60px;text-align:right;margin-top:1px;" class="bordertext">品质:</div>
+                    <select name="search_quality" AllowUserEdit="false" onselect="OnChangeFilter" style="width:60px;height:22px;">
+                        <option value="" selected="true">全部</option>
+                        <option value="0">白</option>
+                        <option value="1">绿</option>
+                        <option value="2">蓝</option>
+                        <option value="3">紫</option>
+                        <option value="4">橙</option>
+                    </select>
+                </pe:if>
+                <pe:if condition='<%=not MyCompany.Aries.AuctionHouse.is_market%>'>
+                    <div style="float:left;width:240px"></div>
+                </pe:if>
+                <select name="search_txt" onselect="OnSearchItems" style="width:130px;height:22px;">
+                    <option value="">全部</option>
+                    <option>男</option>
+                    <option>女</option>
+                    <option>寒冰</option>
+                    <option>烈火</option>
+                    <option>风暴</option>
+                    <option>死亡</option>
+                    <option>生命</option>
+                    <option>药丸</option>
+                    <option>3级</option>
+                    <option>4级</option>
+                    <option>5级</option>
+                </select>
+                <input type="submit" value="搜寻" onclick="OnSearchItems" style="margin-top:0px;margin-left:3px;width:60px;height:24px;" class="defaultbutton"/>
+            </form>
+        </pe:container>
+        <pe:tabs name="AH_tabs" style="padding-left:80px;">
+            <pe:tab-item name="view" text="商城" condition='<%=AuctionHouse.is_market~=true%>' selected='true' >
+                <div style="position:relative;float:left;margin-left:340px;margin-top:-25px" class="bordertext">
+                    点击图标可以试穿或预览
+                </div>
+                <pe:container name="previewWnd" visible="false" zorder="3" style="position:relative;margin-left:-50px;margin-top:50px;width:224px;height:295px;background:;">
+                    <aries:window width="224" height="295" title='预览' onclose="ClosePreviewPage" mode="lite" >
+                        <input type="button" name="resetBtn" onclick="ResetPreviewModel" zorder="1" value="重置" style="position:relative;margin-left:170px;margin-top:5px;" />
+                        <div style="position:relative;margin-left:-16px;margin-top:0px;height:256px;width:256px;">
+                            <pe:canvas3d  minZoomDist="5" DefaultRotY="-0.9" DefaultLiftupAngle="0.1" name="HaqiShopAvatar" miniscenegraphname="AvatarMyselfTabCharacter" MaskTexture="Texture/Aries/Quest/previewmask.dds" IsInteractive="true"/>
+                        </div>
+                        <div style="position:relative;margin-top:220px;margin-left:36px;">
+                            <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;width:40px;height:15px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#1 0 51 21)"/>
+                            <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:60px;width:40px;height:15px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                        </div>
+                    </aries:window>
+                </pe:container>
+                <div style="float:left" class="subpane">
+                    <pe:treeview style="width:170px;" RememberScrollPos="true" DefaultNodeHeight="25" VerticalScrollBarStep="25" name="view_cate" DataSource='<%=MyCompany.Aries.AuctionHouse.GetCategoryDS()%>' class="defaulttreeview">
+                        <NodeTemplates>
+                            <NodeTemplate DataType="folder">
+                                <pe:treenode  text='<%=XPath("this|label")%>' 
+                                    expanded='<%=XPath("this|expanded")%>'
+                                    MouseOverBG=""
+                                    OnClick="OnClickFolder()" 
+                                    can_select = "true" 
+                                    style="font-weight:bold;color:#52dff4;font-size:13px;"
+                                    />
+                            </NodeTemplate>
+                            <NodeTemplate DataType="item">
+                                <pe:if condition='<%=XPath("this|checked") %>' >
+		                            <input type="button" class="listbutton_selected" onclick="OnClickTreeNode" param1='<%=XPath("this") %>'
+			                            style="width:120px;height:24px;text-align:left;color:#40dd2a" value='<%=XPath("this|label")%>'/>
+	                            </pe:if>
+	                            <pe:if condition='<%=not XPath("this|checked") %>' >
+		                            <input type="button" class="listbutton_unselected" onclick="OnClickTreeNode"  param1='<%=XPath("this") %>'
+			                            style="width:120px;height:24px;text-align:left;" value='<%=XPath("this|label")%>'/>
+	                            </pe:if>
+                            </NodeTemplate>
+                        </NodeTemplates>
+                    </pe:treeview>
+                </div>
+                <div style="float:left;" >
+                    <pe:gridview name="haqishopgrid" DataSource="<%=DS_MarketFunc %>" CellPadding="1" ItemsPerLine="4" AllowPaging="true" pagesize="16" DefaultNodeHeight="82">
+                        <Columns>
+                            <div class="border_bg10_css"  style="margin-left:2px;margin-top:2px;width:155px;height:100px;font-size:12;" >
+                                <div style="margin-top:1px;text-align:center;height:24px;" class="bordertext">
+                                    <%=GetName(Eval("gsid")) %>
+                                </div>
+                                <div style="float:left;margin-left:5px;margin-top:2px;">
+                                    <pe:item onclick="OnClickPreviewItem()"  param1='<%=Eval("index") %>' gsid='<%=Eval("gsid")%>' showdefaulttooltip="true" style="width:48px;height:48px;" />
+                                </div>
+                                <div style="float:left;margin-left:5px">
+                                    <div style="height:20px;margin-top:3px;margin-left:3px"><%=AuctionHouse.GetPricingMCMLText(Eval("gsid"))%></div>
+                                    <div style="margin-top:25px;margin-left:25px;">
+                                        <pe:if condition='<%=AuctionHouse.GetFirstShopItem(Eval("gsid"))~=nil %>'>
+                                            <input type="button" value="购买" onclick="AuctionHouse.OnClickBuyItem()" name='<%=Eval("gsid") %>' style="margin-top:1px;width:42px;height:22px;" />
+                                        </pe:if>
+                                        <pe:if condition='<%=AuctionHouse.GetFirstShopItem(Eval("gsid"))==nil %>'>
+                                            <input type="button" value="攻略" onclick="OnClickViewItem()" name='<%=Eval("gsid") %>' style="margin-top:1px;width:42px;height:22px;background-color:#ffffff80" tooltip="看攻略" class="button_lightgrey"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=AuctionHouse.is_market==true %>'>
+                                            <input type="button" tooltip="更多获取途径" onclick="OnClickViewItem()" name='<%=Eval("gsid") %>' style="margin-top:1px;margin-left:5px;width:24px;height:24px;background:url(Texture/Aries/HaqiShop/view_item_32bits.png#0 0 24 24);" class="defaultbutton"/>    
+                                        </pe:if>
+                                    </div>
+                                </div>
+                            </div>
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div style="text-align:center;margin-left:187px;margin-top:203px;width:177px;" class="defaultstyle">暂时没有该类商品</div>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                            <div style="text-align:center;margin-left:185px;margin-top:203px;width:177px;" class="defaultstyle">正在更新数据...</div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Bottom" height="0" style="margin-left:240px;margin-top:-38px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+                                <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+	                            <input type="button" name="page" class="pagertext" />
+                                <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                        </form>
+	                    </PagerTemplate>
+                    </pe:gridview>
+                </div>
+            </pe:tab-item>
+            <pe:tab-item name="buy" condition='<%=AuctionHouse.is_market==true and AuctionHouse.IsEnabled==true%>' text="寄售行" >
+                <div style="margin-left:10px;height:22px;">
+                     寄售行中可以购买其玩家出售的物品
+                </div>
+                <div>
+                    <div style="float:left;margin-left:5px;padding:5px;height:400px;width:170px;" class="subpane" >
+                        <pe:treeview RememberScrollPos="true" DefaultNodeHeight="25" VerticalScrollBarStep="25" name="view_cate" DataSource='<%=MyCompany.Aries.AuctionHouse.GetFilterCategoryDS()%>' class="defaulttreeview">
+                            <NodeTemplates>
+                                <NodeTemplate DataType="folder">
+                                    <pe:treenode  text='<%=XPath("this|text")%>' 
+                                        expanded='<%=XPath("this|expanded")%>'
+                                        MouseOverBG=""
+                                        OnClick="OnClickFolder()" 
+                                        can_select = "true" 
+                                        style="font-weight:bold;color:#52dff4;font-size:13px;"
+                                        />
+                                </NodeTemplate>
+                                <NodeTemplate DataType="item">
+                                    <pe:if condition='<%=XPath("this|checked") %>' >
+		                                <input type="button" class="listbutton_selected" onclick="OnClickFilterTreeNode" param1='<%=XPath("this") %>'
+			                                style="width:120px;height:24px;text-align:left;color:#40dd2a" value='<%=XPath("this|text")%>'/>
+	                                </pe:if>
+	                                <pe:if condition='<%=not XPath("this|checked") %>' >
+		                                <input type="button" class="listbutton_unselected" onclick="OnClickFilterTreeNode"  param1='<%=XPath("this") %>'
+			                                style="width:120px;height:24px;text-align:left;" value='<%=XPath("this|text")%>'/>
+	                                </pe:if>
+                                </NodeTemplate>
+                            </NodeTemplates>
+                        </pe:treeview>
+                    </div>
+                    <div class="subpane" style="float:left;margin-left:5px;height:400px;width:620px;">
+                        <div style="height:25px;margin-left:2px;margin-top:1px;margin-right:2px;" class="border_bg2_css" width="100%">
+                            <input type="button" name="0" value="名字" class="titlebutton" style="float:left;width:135px;text-align:left;margin-left:30px;"/>
+                            <input type="button" value="单价" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:60px;" enabled="false"/>
+                            <input type="button" value="数量" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:48px;" enabled="false"/>
+                            <input type="button" name="2" value="总价" class="titlebutton" style="float:left;text-align:left;width:70px;" />
+                            <input type="button" value="截止时间" class="titlebutton" style="float:left;text-align:right;width:80px;" enabled="false"/>
+                            <input type="button" name="2" value="寄售人" class="titlebutton" style="float:left;text-align:right;width:60px;" />
+                        </div>
+                        <pe:gridview DataSource="<%=MyCompany.Aries.AuctionHouse.GetAuctionQueryDS %>" name="sellingView"
+                            CellPadding="2" VerticalScrollBarStep="29" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="false" pagesize="20" >
+                            <Columns>
+                                <div style="height:27px;margin-top:0px;">
+                                    <input type="button" class="listbutton_selected" 
+                                            style="position:relative;width:600px;height:28px;background:"
+                                            name='<%=Eval("id")%>' value='<%=Eval("id")%>'/>
+                                    <div style="float:left;margin-top:1px;width:26px;height:26px;" class="block">
+                                        <pe:item isclickable="false" gsid='<%=Eval("gsid")%>' serverdata = '<%=Eval("serverdata")%>' showdefaulttooltip="true" style="width:26px;height:26px;"/>
+                                    </div>
+                                    <%=GenEquipColorName(Eval("id"),Eval("name"),Eval("qty"))%>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit"))%>'/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:70px;margin-top:2px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("display_price")) %>' tooltip='<%="总价:" .. tostring(Eval("display_price"))%>'/>
+                                    <pe:item gsid='<%=Eval("money_gsid")%>' style="margin-top:2px;margin-left:3px;width:24px;height:24px;position:relative;"/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:110px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("time")) %>' />
+                                    <div style="float:left;text-align:center;color:#52dff4;font-size:12px;width:80px">
+                                        <pe:if condition='<%=Eval("nname") == "" %>'>
+                                            <div style="margin-top:2px;text-align:center;width:80px;">隐藏</div>
+                                        </pe:if>
+                                        <pe:if condition='<%=Eval("nname") ~= "" %>'>
+                                            <input type="button" name='<%=Eval("nid") %>' tooltip="点击查看用户信息" onclick="OnClickViewProfile" style="color:#52dff4;background:;width:80px;" value='<%=Eval("nname")%>' />
+                                        </pe:if>
+                                    </div>
+                                    <input type="button" onclick="OnClickBuy" name='<%=Eval("id")%>' style="float:left;margin-top:1px;margin-left:20px;" class="linkbutton" value="购买" tooltip="购买此物品" />
+                                </div>
+                            </Columns>
+                            <EmptyDataTemplate>
+                                <div style="text-align:center;margin-top:10px;font-size:12px;color:#ff9900;" class="defaultstyle">
+                                    <pe:if condition='<%=AuctionHouse.has_searched==nil%>' >
+                                        按条件搜索，获取正在寄售的物品<br />
+                                        请点击左侧的分类, 或输入物品的名字并点击搜索<br />
+                                        可以输入名字的一部分
+                                    </pe:if>
+                                    <pe:if condition='<%=AuctionHouse.has_searched==true%>' >
+                                        没有人在出售物品
+                                    </pe:if>
+                                </div>
+                            </EmptyDataTemplate>
+                            <FetchingDataTemplate>
+                                <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                            </FetchingDataTemplate>
+                        </pe:gridview>
+                    </div>
+                </div>
+                <div>
+                    <div style="float:left;margin-left:5px;width:500px;">
+                        <pe:item is_container="true" isclickable="false" gsid='984' style="float:left;width:130px;margin-top:2px;height:20px" >
+                            <pe:item gsid='984' isenabled="false" style="width:20px;height:20px;"/>金币:
+                            <pe:slot type="count" gsid='984' style="float:left;margin-left:3px;" />
+                        </pe:item>
+                        <pe:item is_container="true" gsid='17264' tooltip_headerline="点击补充" style="float:left;width:100px;margin-top:2px;height:20px" >
+                            <pe:item gsid='17264' isenabled="false" style="width:20px;height:20px;"/>
+                            <pe:slot type="count" gsid='17264' style="float:left;margin-left:3px;" />
+                        </pe:item>
+                        <pe:item is_container="true" gsid='17290' tooltip_headerline="点击补充" style="float:left;width:100px;margin-top:2px;height:20px" >
+                            <pe:item gsid='17290' isenabled="false" style="width:20px;height:20px;"/>
+                            <pe:slot type="count" gsid='17290' style="float:left;margin-left:3px;" />
+                        </pe:item>
+                        <pe:item is_container="true" gsid='17291' tooltip_headerline="点击补充" style="float:left;width:100px;margin-top:2px;height:20px" >
+                            <pe:item gsid='17291' isenabled="false" style="width:20px;height:20px;"/>
+                            <pe:slot type="count" gsid='17291' style="float:left;margin-left:3px;" />
+                        </pe:item>
+                    </div>
+                    <div style="float:left;margin-left:10px;margin-top:5px;width:200px">
+                        <input type="button" name="pre" value="上一页" onclick="GotoPage" />
+                        <input type="button" class="bordertext" style="background:;width:50px;" name="pageindex" value='<%=format("第%d页", AuctionHouse.GetCurrentPageIndex()+1) %>'/>
+                        <input type="button" name="next" value="下一页" style="" onclick="GotoPage" />
+                    </div>
+                </div>
+            </pe:tab-item>
+            <pe:tab-item name="sell" condition='<%=AuctionHouse.is_market==true and AuctionHouse.IsEnabled==true%>' text="拍卖" >
+                <pe:if condition='<%=not CanShowSellingPage()%>'>
+                    <div style="margin:10px">
+                        魔法星4级以上才能远程寄售<br />
+                        你的魔法星等级不够， 请到主城中找交易所管理员出售你的物品
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=CanShowSellingPage()%>'>
+                <div style="margin:10px">
+                    <div align="right" style="position:relative;width:200px;">
+                    </div>
+                    操作提示：点击背包选择要出售的物品, 输入价格, 点击开始寄售
+                </div>
+                <div>
+                    <div style="float:left;margin-left:5px;padding:5px;height:380px;width:170px;" class="subpane" >
+                        <%=OnRefreshSellingData()%>
+                       <div style="margin-left:5px;">寄售物品</div>
+                        <div style=" margin-left:2px;margin-top:5px;">
+                            <div style="margin-left:2px;float:left;margin-top:2px;width:64px;height:64px;" class="block">
+                                <pe:item name="incomingItem" gsid='<%=AuctionHouse.goods.gsid or -999%>' onclick='<% CancelIncomingItem %>' HideCnt="true" showdefaulttooltip="true" style="width:64px;height:64px;"/>
+                                <pe:if condition='<%=AuctionHouse.goods.copies and AuctionHouse.goods.copies  > 1 %>'>
+                                    <div style="margin-top:-18px;text-align:right;font-size:14px;font-weight:bold;color:#ffffff" class="bordertext"><%= AuctionHouse.goods.copies%></div>
+                                </pe:if>
+                            </div>
+                            <input type="button" value="背包" class="defaultbutton"
+                                onclick="<%=ShowBag %>" tooltip="打开背包，就可以寄售你背包中的物品了。"
+                                style="margin-left:10px;margin-top:41px;width:40px;" /> 
+                        </div>
+                        <div style="margin-left:5px;float:left;margin-top:2px;height:25px;">
+                            <%=GetSellingItemName() or "点击背包选择物品"%>
+                        </div>
+                        <div style="margin-left:5px;margin-top:5px;">
+                            <div >所有物品的总卖价</div>
+                            <pe:item isclickable="false" gsid='<%=AuctionHouse.GetCurrencyByGSID(AuctionHouse.goods.gsid or -999) %>' style="float:left;margin-top:2px;width:20px;height:20px;"/>
+                            <input type="text" name="txtSellPrice" style="float:left;width:92px;height:25px;"  enable_ime="false" 
+                                onkeyup="OnKeyupSellPrice()"/>
+                        </div>
+                        <div style="margin-left:5px;margin-top:10px;">
+                            <div >寄售时间</div>
+                            <select style="width:112px;margin-top:5px;" name="SellPeriod" AllowUserEdit="false" 
+                                DataSource='<%=AuctionHouse.TimePeriodTable %>' 
+                                onselect='<%=OnSelectTimePeriod %>'>
+                                <option value='<%=Eval("value") %>'></option>
+                            </select>
+                        </div>
+                        <div style="margin-left:5px;margin-top:5px;">
+                            <div style="float:left">寄售费(银币):</div>
+                            <pe:label name="txtCommission" style="float:left;width:92px;height:25px;" />
+                        </div>
+
+                        <div style=" margin-left:5px;margin-top:10px;">
+                            <input type="checkbox" onclick="OnCheckShowSellerName" checked='<%=not AuctionHouse.show_seller_name %>' name="IsShowSellerName"/>
+                            <div for="IsShowSellerName" style="float:left" tooltip="买方是否可以看到你的名字" >匿名出售</div>
+                        </div>
+
+                        <input type="button" name="" zorder="2" text="开始寄售" onclick="AuctionHouse.OnClickSell"  class="defaultbutton"
+                            style="margin-left:10px;margin-top:10px;font-size:15;font-weight:bold;width:85px;height:28px;" />  
+                    </div>
+                    <div class="subpane" style="float:left;margin-left:5px;height:380px;width:620px;">
+                        <pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.Visible %>'>
+                            <pe:container zorder = "1" style="position:relative;margin-left:0px;margin-top:0px;background:;">
+                                <iframe src='script/apps/Aries/Desktop/AvatarBag.html' style="width:432px;height:433px;" class="window"></iframe>
+                            </pe:container>
+                        </pe:if>
+                        <div style="position:relative;">
+                            <pe:tabs name="my_items" style="margin-left:500px;height:27px;margin-top:-27px;" class="default_tabs">
+                                <pe:tab-item name="myitems" text="我寄售的物品" />
+                            </pe:tabs>
+                        </div>
+                        <div style="height:25px;margin-left:2px;margin-top:1px;margin-right:2px;" class="border_bg2_css" width="100%">
+                            <input type="button" name="0" value="名字" class="titlebutton" style="float:left;width:135px;text-align:left;margin-left:30px;"/>
+                            <input type="button" value="单价" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:60px;" enabled="false"/>
+                            <input type="button" value="数量" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:48px;" enabled="false"/>
+                            <input type="button" name="2" value="总价" class="titlebutton" style="float:left;text-align:left;width:70px;" />
+                            <input type="button" value="截止时间" class="titlebutton" style="float:left;text-align:right;width:80px;" enabled="false"/>
+                            <input type="button" name="2" value="寄售人" class="titlebutton" style="float:left;text-align:right;width:60px;" />
+                            <input type="button" name="2" value="取消寄售" class="titlebutton" style="float:left;text-align:right;width:60px;" />
+                        </div>
+                        <pe:gridview DataSource="<%=GetMySellingItemsDataSource %>" name="sellingView"
+                            CellPadding="2" VerticalScrollBarStep="29" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="false" pagesize="20" >
+                            <Columns>
+                                <div style="height:27px;margin-top:0px;">
+                                    <input type="button" class="listbutton_selected" 
+                                            style="position:relative;width:600px;height:28px;background:"
+                                            name='<%=Eval("id")%>' value='<%=Eval("id")%>'/>
+                                    <div style="float:left;margin-top:1px;width:26px;height:26px;" class="block">
+                                        <pe:item isclickable="false" gsid='<%=Eval("gsid")%>' serverdata = '<%=Eval("serverdata")%>' showdefaulttooltip="true" style="width:26px;height:26px;"/>
+                                    </div>
+                                    <%=GenEquipColorName(Eval("id"),Eval("name"),Eval("qty"))%>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit"))%>'/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:70px;margin-top:2px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("display_price")) %>' tooltip='<%="总价:" .. tostring(Eval("display_price"))%>'/>
+                                    <pe:item gsid='<%=Eval("money_gsid")%>' style="margin-top:2px;margin-left:3px;width:24px;height:24px;position:relative;"/>
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:110px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("time")) %>' />
+                                    <input type="button" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=if_else(Eval("showseller"), "显示", "隐藏") %>' />
+                                    <input type="button" onclick="OnClickCancelSell" name='<%=Eval("id")%>' style="float:left;margin-top:1px;margin-left:20px;" class="linkbutton" value="取消" tooltip="取消寄售此物品" />
+                                </div>
+                            </Columns>
+                            <EmptyDataTemplate>
+                                <div style="text-align:center;margin-top:10px;font-size:12px;color:#ff9900;" class="defaultstyle">
+                                    你没有正在寄售的物品, 点击左侧的背包开始寄售
+                                </div>
+                            </EmptyDataTemplate>
+                            <FetchingDataTemplate>
+                                <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                            </FetchingDataTemplate>
+                        </pe:gridview>
+                    </div>
+                </div>
+                <div>
+                    <pe:item gsid="0" style="float:left;margin-left:10px;width:240px;height:24px;" is_container="true" isclickable="false">
+                        <div style="font-weight:bold;margin-top:5px;">
+                            银币余额:<div style="float:left"><pe:slot type="count" gsid="0"></pe:slot></div>
+                        </div>
+                    </pe:item>
+                    <div style="float:left;margin-top:5px;color:#ff9900">[说明]卖家收款时扣除<%=format("%d%%", math.ceil(AuctionHouse.GetSellerFee()*100)) %>作为手续费, 非金币拍卖无手续费</div>
+                </div>
+                </pe:if>
+            </pe:tab-item>
+        </pe:tabs>
+    </pe:div>
+</aries:window>
+
+</pe:mcml> 
+</body>
+</html>

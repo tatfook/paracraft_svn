@@ -1,0 +1,412 @@
+<!-- "script/apps/Aries/FamilyServer/FamilyServerSelect.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>FamilyServerSelect. zrf/spring  2011.1.11</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FamilyServerSelect.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local FamilyServerSelect = commonlib.gettable("MyCompany.Aries.FamilyServer.FamilyServerSelect");
+--rookie = tonumber(pageCtrl:GetRequestParam("rookie")) or 0;
+from = pageCtrl:GetRequestParam("from");
+allworld = pageCtrl:GetRequestParam("allworld") or FamilyServerSelect.use_servers;
+
+if(allworld == "true") then
+    allworld = true;
+end
+
+--MyCompany.Aries.FamilyServer.FamilyServerSelect.OnInit(pageCtrl);
+if (from=="setting" and FamilyServerSelect.SwitchSvr==0) then
+    FamilyServerSelect.SwitchSvr = 1;    
+end
+
+FamilyServerSelect.OnInit(pageCtrl);
+
+function OnClose()
+    pageCtrl:CloseWindow(); 
+end
+
+function DS_Func_BigZone(index)
+    return FamilyServerSelect.DS_Func_BigZone(index);
+end
+
+function DS_Func_ServerList(index)
+    if(allworld == true) then
+        return MyCompany.Aries.FamilyServer.FamilyServerSelect.DS_AllWorld_Func(index, pageCtrl)
+    else
+--        if (rookie==1) then
+--            return MyCompany.Aries.FamilyServer.FamilyServerSelect.DS_Rookie_Func(index, pageCtrl)
+--        else
+            return MyCompany.Aries.FamilyServer.FamilyServerSelect.DS_Func(index, pageCtrl)
+--        end
+    end
+end
+
+function SwitchBigZone(zoneid)
+    FamilyServerSelect.SwitchBigZone(zoneid,pageCtrl);
+end
+
+function IsRecommendBigZone(zoneid)
+    return FamilyServerSelect.IsRecommendBigZone(zoneid)
+end
+
+function OnViewAllWorld()
+    if(not pageCtrl:GetRequestParam("allworld") and MyCompany.Aries.FamilyServer.FamilyServerSelect.dsAllWorlds) then
+        local url = pageCtrl:GetRequestURL();
+        url = System.localserver.UrlHelper.BuildURLQuery("script/apps/Aries/FamilyServer/FamilyServerSelect.html", {from=from, allworld="true", rookie=rookie});
+        pageCtrl:Init(url);
+    end
+end
+
+function GetLatencyMCML(gameserver_nid)
+    local latency = MyCompany.Aries.MainLogin.network_latency[gameserver_nid or ""];
+    if(latency) then
+        if(latency > 200) then
+            return format("<div style=\"float:left;color:#ff0000\">网络延迟: %s毫秒 (不好)</div>", latency);
+        elseif(latency > 100) then
+            return format("<div style=\"float:left;\">网络延迟: %s毫秒 (一般)</div>", latency);
+        else
+            return format("<div style=\"float:left;color:#008000\">网络延迟: %s毫秒 (流畅)</div>", latency);
+        end
+    else
+        return ""
+    end
+end
+]]></script>
+<div width="960px" height="560px">
+    <!--<div style="margin-left:134px;margin-top:104px;width:792px;height:483px;background:;">-->
+    <div style="margin-left:136px;margin-top:50px;width:717px;height:474px;background:url(Texture/Aries/Login/ServerSelect/windowbg_32bits.png#0 0 128 256:40 45 54 93)">
+        <pe:if condition='<%=Eval("from") == "setting"%>'>
+            <input style="position:relative;margin-left:680px;margin-top:-6px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    zorder="2" onclick="OnClose();" value=""/>
+        </pe:if>
+        <div style="margin-left:13px;margin-top:-17px;width:512px;height:64px;background:url(Texture/Aries/Login/ServerSelect/title_32bits.png)">
+        </div>
+        <div style="margin-left:468px;margin-top:-60px;width:218px;height:47px;background:url(Texture/Aries/Login/ServerSelect/searchinput_32bits.png#0 0 63 47:30 23 32 23)">
+            <form>
+            <input type="text" name="world_name" tooltip="请输入服务器编号或名字" style="margin-left:20px;margin-top:8px;width:151px;height:24px;background:;"/>
+            <input type="submit" name="btnSelectWorld" tooltip="快速进入" style="margin-left:1px;margin-top:6px;width:32px;height:32px;background:url(Texture/Aries/Login/ServerSelect/enter_32bits.png)" onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnClickSelectWorld"/>
+            </form>
+        </div>
+
+        <div style="margin-left:44px;margin-top:0px;width:1024px;height:10px;background:">
+            <div style="float:left;margin-left:100px;margin-top:5px;width:167px;height:21px;background:url(Texture/Aries/Login/ServerSelect/lastlogin_font.png# 0 0 167 21)">
+            </div>
+            <div style="position:relative;margin-left:280px;margin-top:5px;">               
+                <div style="float:left;padding-top:3px;margin-left:-248px;width:278px;height:56px;background:url()">
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people() ==-1%>'>
+                            <input type="button" enabled="false"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_grey_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==0%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_5_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_5_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==1%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_4_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_4_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==2%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_3_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_3_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==3%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_2_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_2_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==4%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_1_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_1_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()==5%>'>
+                            <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_0_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_0_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_seqno()%>'/>
+                        </pe:if>
+                        <div style="float:left;padding-top:0px;margin-left:14px;margin-top:-41spx;width:264px;height:51px;background:url()">
+                                <div style="float:left;position:relative;margin-top:0px;margin-left:40px;margin-top:-18px;font-size:12px;"><%=GetLatencyMCML(MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_nid())%></div>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_zoneid() == 0%>'>
+                                    <input type="button" enabled="false" zorder="4" value="电信" style="position:relative;color:#3030ff;font-weight:bold;font-size:12px;margin-left:-60px;width:50px;margin-top:15px;background:;" />
+                                </pe:if>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_zoneid() == 1000%>'>
+                                    <input type="button" enabled="false" zorder="4" value="联通" style="position:relative;color:#008000;font-weight:bold;font-size:12px;margin-left:-60px;width:50px;margin-top:15px;background:;" />
+                                </pe:if>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people() >=0%>'>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_type()=="last"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/lastlogin_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_type()=="friend"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/friendonline_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_type()=="full"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/full_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_type()==""%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/onlinecount_32bits.png);width:64px;height:64px;" /></pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people() <0%>'>
+                                <img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />
+                            </pe:if>
+                            <div style="float:left;margin-left:-20px;margin-top:7px;font-size:14px;width:80px;color:#044074">
+                                <input type="button" zorder = "3" enabled="false" style="margin-left:-4px;color:#044074;background:;" value='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_text()%>'/>
+                            </div>
+
+                            <div style="float:left;margin-left:-5px;margin-top:-9px;width:116px">
+                                <div style="margin-left:-14px;margin-top:17px;width:180px;height:32px;">
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=0%>'>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()<1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()<2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()<3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()<4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()<5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                    </pe:if>
+                                </div>
+                                <div style="margin-left:-17px;margin-top:-39px;width:180px;height:32px;">
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=1%>'><img zorder = "3" enabled="false" style="margin-left:3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=2%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=3%>'><img zorder = "3" enabled="false" style="margin-left:-1px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=4%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_people()>=5%>'><img zorder = "3" enabled="false" style="margin-left:-3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <div style="position:relative;margin-left:350px;margin-top:0px;">
+               <pe:if condition='<%=System.options.whereipfrom~=nil %>'>
+                    <div style="color:#008000;font-size:14px;">
+                        <div>
+                            检测到您的网络是:<div style="float:left;color:#008000;"><%=System.options.whereipfrom%></div>
+                        </div>
+                        <div style="margin-top:5px;font-size:16px;base-font-size:16;font-weight:bold">
+                            推荐使用<div style="float:left;color:#3030ff;" ><%=if_else(System.options.whereipfrom~="联通", "电信", "联通")%></div>服务器登录
+                        </div>
+                    </div>
+                </pe:if>
+            </div>
+            <div style="float:left;margin-left:10px;margin-top:70px;width:600px;height:1px;background:url(Texture/Aries/Login/ServerSelect/line.png# 0 0 1 1)">
+            </div>
+        </div>
+
+        <div style="margin-left:47px;margin-top:90px;">
+            <pe:gridview style="height:370px" DataSource="<%=DS_Func_ServerList%>" name="gvwServerList" ItemsPerLine="2" CellPadding="0"  AllowPaging='<%=Eval("allworld")%>' pagesize="8">
+                <Columns>
+                    <div style="float:left;margin-left:0px;padding-top:1px;padding-bottom:1px;" >
+                        <div style="float:left;display:block;margin-top:20px;font-size:14px;width:32px;text-align:right;color:#2c65a8">
+                            
+                            <pe:if condition='<%=Eval("zoneid") == 0%>'>
+                                <input type="button" enabled="false" zorder="4" value="电信" style="position:relative;color:#3030ff;font-weight:bold;font-size:12px;margin-left:-5px;margin-top:14px;background:;" />
+                                <div style="color:#3030ff;"><%=Eval("id")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("zoneid") == 1000%>'>
+                                <input type="button" enabled="false" zorder="4" value="联通" style="position:relative;color:#008000;font-weight:bold;font-size:12px;margin-left:-5px;margin-top:14px;background:;" />
+                                <div style="color:#008000;"><%=Eval("id")%></div>
+                            </pe:if>
+                        </div>
+                        <div style="float:left;padding-top:4px;width:278px;height:56px;background:url()"></div>
+                        <div style="float:left;padding-top:3px;margin-left:-278px;width:278px;height:56px;background:url()">
+                            <pe:if condition='<%=Eval("people")==-1%>'>
+                                <input type="button" enabled="false"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_grey_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==0%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_5_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_5_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==1%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_4_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_4_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==2%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_3_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_3_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==3%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_2_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_2_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==4%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_1_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_1_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==5%>'>
+                                <input type="button" 
+                                    Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_0_32bits.png;0 0 264 51"
+                                    MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_0_32bits.png;0 0 264 51"
+                                    style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                    onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnSelectWorld" name='<%=Eval("seqno")%>'/>
+                            </pe:if>
+                            <div style="float:left;padding-top:0px;margin-left:14px;margin-top:-41spx;width:264px;height:51px;background:url()">
+                                <pe:if condition='<%=Eval("people")>=0%>'>
+                                    <pe:if condition='<%=Eval("type")=="last"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/lastlogin_32bits.png);width:64px;height:64px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("type")=="friend"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/friendonline_32bits.png);width:64px;height:64px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("type")=="full"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/full_32bits.png);width:64px;height:64px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("type")==""%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/onlinecount_32bits.png);width:64px;height:64px;" /></pe:if>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("people")<0%>'>
+                                    <img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />
+                                </pe:if>
+                                <div style="float:left;margin-left:-20px;margin-top:7px;font-size:14px;width:80px;color:#044074">
+                                    <input type="button" zorder = "3" enabled="false" style="margin-left:-4px;color:#044074;background:;" value='<%=Eval("text")%>'/>
+                                </div>
+                                <div style="float:left;margin-left:-5px;margin-top:-9px;width:116px">
+                                    <div style="margin-left:-14px;margin-top:17px;width:180px;height:32px;">
+                                        <pe:if condition='<%=Eval("people")>=0%>'>
+                                            <pe:if condition='<%=Eval("people")<1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url();width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")<2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")<3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")<4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")<5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                            <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        </pe:if>
+                                    </div>
+                                    <div style="margin-left:-17px;margin-top:-39px;width:180px;height:32px;">
+                                        <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:-1px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:-3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <div style="margin-top:70px;">
+                        <b>请点击查看全部服务器</b>
+                    </div>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin-top:70px;">
+                        <b>正在获取服务器列表, 请稍候 ... </b>
+                    </div>
+                </FetchingDataTemplate>
+	            <PagerSettings Position="Bottom" height="36" style="margin-left:260px;margin-top:-20px;width:138px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate>
+	                <form>
+	                    <input type="button" name="pre" zorder=2 style="margin-top:3px;width:34px;height:33px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+	                    <div style="float:right;margin-top:2px;width:64px;">
+	                        <label name="page" style="color:#FFFFFF;margin-left:2px;text-align:center;width:53x;height:18px;margin:4px"/>
+	                    </div>
+	                    <input type="button" name="next" zorder=2 style="margin-top:3px;width:34px;height:33px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+	                </form>
+	            </PagerTemplate>
+            </pe:gridview>
+        </div>
+
+        <pe:if condition='<%=Eval("allworld") ~= true%>'>
+        <div style="margin-top:-65px;margin-left:80px;height:70px;width:350px;">
+                <pe:gridview style="height:70px" DataSource="<%=DS_Func_BigZone%>" name="bigzoneList" ItemsPerLine="2" VerticalScrollBarStep="35" >
+                    <Columns>                                       
+                            <pe:if condition='<%=IsRecommendBigZone(Eval("zoneid"))%>'>                              
+                                <input type="button" style="width:50px;height:50px;margin-top:0px;background:url(Texture/Aries/Login/NewAvatar/skin_on_32bits.png#0 0 64 64);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                                <input type="button" value='<%=Eval("name")%>' style="width:90px;height:32px;margin-top:5px;color:#044074;background:url(Texture/Aries/Common/ThemeKid/buttonbig_highlight_32bits.png#0 0 32 23: 8 7 8 7);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                            </pe:if>
+                            <pe:if condition='<%=not IsRecommendBigZone(Eval("zoneid"))%>'>
+                                <input type="button" style="width:50px;height:50px;margin-top:0px;background:url(Texture/Aries/Login/NewAvatar/skin_off_32bits.png#0 0 64 64);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                                <input type="button" value='<%=Eval("name")%>' style="width:90px;height:32px;margin-top:5px;color:#044074;background:url(Texture/Aries/Common/ThemeKid/buttonbig_32bits.png#0 0 32 23: 8 7 8 7);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                            </pe:if>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取运营商列表</b>
+                        </div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取运营商列表, 请稍候 ... </b>
+                        </div>
+                    </FetchingDataTemplate>
+
+                    <PagerTemplate>
+	                    <form>
+	                    </form>
+                    </PagerTemplate>
+                </pe:gridview>                
+        </div>
+        </pe:if>
+
+        <pe:if condition='<%=Eval("allworld") == true%>'>
+        <div style="margin-top:-60px;margin-left:10px;height:70px;width:300px;">
+                <pe:gridview style="height:70px" DataSource="<%=DS_Func_BigZone%>" name="bigzoneList" ItemsPerLine="2" VerticalScrollBarStep="35" >
+                    <Columns>                                       
+                            <pe:if condition='<%=IsRecommendBigZone(Eval("zoneid"))%>'>                              
+                                <input type="button" style="width:50px;height:50px;margin-top:0px;background:url(Texture/Aries/Login/NewAvatar/skin_on_32bits.png#0 0 64 64);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                                <input type="button" value='<%=Eval("name")%>' style="width:90px;height:32px;margin-top:5px;color:#044074;background:url(Texture/Aries/Common/ThemeKid/buttonbig_highlight_32bits.png#0 0 32 23: 8 7 8 7);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                            </pe:if>
+                            <pe:if condition='<%=not IsRecommendBigZone(Eval("zoneid"))%>'>
+                                <input type="button" style="width:50px;height:50px;margin-top:0px;background:url(Texture/Aries/Login/NewAvatar/skin_off_32bits.png#0 0 64 64);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                                <input type="button" value='<%=Eval("name")%>' style="width:90px;height:32px;margin-top:5px;color:#044074;background:url(Texture/Aries/Common/ThemeKid/buttonbig_32bits.png#0 0 32 23: 8 7 8 7);" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换运营商了"/>
+                            </pe:if>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取运营商列表</b>
+                        </div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取运营商列表, 请稍候 ... </b>
+                        </div>
+                    </FetchingDataTemplate>
+                    <PagerTemplate>
+	                    <form>
+	                    </form>
+                    </PagerTemplate>
+                </pe:gridview>                
+        </div>
+        </pe:if>
+        <div style="margin-left:430px;margin-top:-70px;width:256px;height:64px;background:">
+            <div style="float:left;margin-left:18px;margin-top:0px;width:256px;height:64px;background:url(Texture/Aries/Login/ServerSelect/legend_font.png#0 0 256 64)">
+            </div>
+        </div>
+        <pe:if condition='<%=Eval("allworld") ~= true%>'>
+        <input type="button" style="margin-left:-57px;margin-top:-138px;width:165px;height:165px;background:url(Texture/Aries/Login/ServerSelect/viewall_32bits.png#0 0 165 165)" onclick="OnViewAllWorld"/>
+        </pe:if>
+    </div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+

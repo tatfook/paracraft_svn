@@ -1,0 +1,316 @@
+<!--script/apps/Aries/Pet/MonsterHandBook/MonsterHandBook.html-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by Andy, 2009/4/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MonsterHandBook.lua" refresh="true"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemApp/Assets/AssetData.lua");
+local MonsterHandBook = commonlib.gettable("MyCompany.Aries.Pet.MonsterHandBook");
+MonsterHandBook.OnInit();
+
+local page = document:GetPageCtrl();
+local worldname = MonsterHandBook.curworldname;
+local selectMonster = MonsterHandBook.curitem;
+local curIslandMonsterList = MonsterHandBook.curworldList;
+
+function GetCurrentWorldCollectedOdds() 
+    local worldlist = {["61HaqiTown"] = "哈奇岛",FlamingPhoenixIsland = "火鸟岛",FrostRoarIsland = "寒冰岛",AncientEgyptIsland = "沙漠岛",};
+    local s = worldlist[MonsterHandBook.curworldname].."收集率";
+    local odds = tostring(MonsterHandBook.curworldList.killednumber).."/"..tostring(MonsterHandBook.curworldList.totalnumber);
+    s = string.format("<div>%s</div><div>%s</div>",s,odds);
+    return s;
+end
+
+function GetAllWorldCollectedOdds() 
+    local s = "总收集率";
+    local odds = tostring(MonsterHandBook.monsterListTable.killednumber).."/"..tostring(MonsterHandBook.monsterListTable.totalnumber);
+    s = string.format("<div>%s</div><div>%s</div>",s,odds);
+    return s;
+end
+
+function GetCurrentWorldSchedule()
+    local odds = MonsterHandBook.curworldList.killednumber*100/MonsterHandBook.curworldList.totalnumber;
+    if(odds > 99) then
+        odds = math.floor(odds);
+    else
+        odds = math.ceil(odds);
+    end
+    local s = string.format("%d%%",odds);
+    return s;
+end
+
+function GetAllWorldSchedule()
+    local odds = MonsterHandBook.monsterListTable.killednumber*100/MonsterHandBook.monsterListTable.totalnumber;
+    if(odds > 99) then
+        odds = math.floor(odds);
+    else
+        odds = math.ceil(odds);
+    end
+    local s = string.format("%d%%",odds);
+    return s;
+end
+
+function Get_progressbar_cur_Value()
+    local s = GetCurrentWorldSchedule();
+    local value = string.sub(s,string.find(s,"%d+"));
+    return tonumber(value);
+end
+
+function Get_progressbar_total_Value()
+    local s = GetAllWorldSchedule();
+    local value = string.sub(s,string.find(s,"%d+"));
+    return tonumber(value);
+end
+
+function ChangeIsland(tab_name,mcmlNode)
+    MonsterHandBook.curworldname = tab_name;
+    MonsterHandBook.curworldList = MonsterHandBook.monsterListTable[tab_name];
+    MonsterHandBook.curitem = MonsterHandBook.monsterListTable[tab_name][1];
+    
+    page:Refresh(0.1);
+end
+
+function GetDetails()
+    local s = "";
+    if(MonsterHandBook.curitem) then
+        local monster_info = MonsterHandBook.curitem;
+        if(monster_info) then
+            local details_school,details_hp,details_attack,details_resist,details_place,details_description;
+            if(HasKill()) then
+                details_school = "系别："..monster_info["school"];
+                details_hp = "血量："..monster_info["hp"];
+                details_attack = "攻击："..monster_info["attack"];
+                details_place = "出现地点："..monster_info["place"];
+                details_description = "详细："..monster_info["description"];
+            else
+                details_school = "系别：".."??";
+                details_hp = "血量：".."??";
+                details_attack = "攻击：".."??";
+                details_place = "出现地点：".."??";
+                details_description = "详细：".."??";
+            end
+            s = string.format("<div><font color='#FFFFFF'>%s</font></div><div><font color='#FFFFFF'>%s</font></div><div><font color='#FFFFFF'>%s</font></div><div><font color='#FFFFFF'>%s</font></div><div><font color='#FFFFFF'>%s</font></div>",details_school,details_hp,details_attack,details_place,details_description);
+        end
+    end
+    return s;
+end
+
+function GetModelValue() 
+	local asset = Map3DSystem.App.Assets.asset:new({filename = MonsterHandBook.curitem["asset"]});
+	local objParams = asset:getModelParams();
+    if(objParams ~= nil) then
+        objParams.facing = 0;
+        return commonlib.serialize_compact(objParams);
+	end  
+end
+
+function GetMonsterCard(index)
+    if(index and index > 0) then
+        return  MonsterHandBook.curitem["cards"][index];
+    end
+end
+
+function DS_Func_Items(index)
+    if(not index) then
+        return #MonsterHandBook.monsterListTable[MonsterHandBook.curworldname];
+    else
+        return MonsterHandBook.monsterListTable[MonsterHandBook.curworldname][index];
+    end
+end
+
+function HasGotten(index)
+    if(index) then
+        local i = tonumber(index);
+        if(curIslandMonsterList[i]) then
+            return curIslandMonsterList[i].haskill;
+        end
+    end
+end
+
+function OnSelected(gsid, mcmlNode)
+    local item = mcmlNode:GetPreValue("this", true);
+    MonsterHandBook.curitem = item;
+    page:Refresh(0.1);
+end
+
+function GetStatus(index)
+    if(curIslandMonsterList[i]) then
+        if(curIslandMonsterList[i].haskill) then
+            return "1";
+        else
+            return "2";
+        end
+    else
+        return "0";
+    end
+end
+
+function HasKill()
+    return selectMonster.haskill;
+end
+
+function GoToMonsterPosition()
+    MonsterHandBook.GoToMonsterPosition(worldname,selectMonster.displayname,selectMonster.position);
+end
+
+function ClosePage()
+    MonsterHandBook.curworldname = nil;
+    MonsterHandBook.curitem = nil;
+    page:CloseWindow();
+end
+]]></script>
+    <div style = "width:800px;height:540px;">
+        <div style = "position:relative;width:784px;height:488px;margin:5px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/handbook_bg.png#0 0 784 488);" >
+            <div style = "height:75px;" width = "100%">
+                <div style = "float:left;margin-left:80px;margin-top:-28px;width:180px;color:#FFFFFF;text-align:center;" >
+                    <!--<input name = "curodds" type="button" style = "margin-top:1px;width:126px;height:50px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 23 23)" />-->
+                    <div style = "margin-top:1px;padding-top:2px;width:126px;height:50px;font-weight:bold;font-size:14px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 23 23)">
+                        <%=GetCurrentWorldCollectedOdds() %>
+                    </div>
+                    <div style = "margin-top:-5px;width:180px;height:32px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 25 25)" >
+                        <pe:progressbar name="progressbar_cur"  isshowtooltip = "false" 
+                            background = "Texture/Aries/Common/ThemeKid/monsterhandbook/progressbar_bg_fawn.png:6 6 12 12" 
+                            blockimage = "Texture/Aries/Common/ThemeKid/monsterhandbook/progressbar_overlay_skyblue.png;0 0 165 10" 
+                            block_bg_autosize = "true" 
+                            style="margin-top:6px;margin-left:6px;width:165px;height:16px;"
+                            Minimum = "0" Maximum = "100" Value = "<%=Get_progressbar_cur_Value() %>" 
+                            /> 
+                        <div style="margin-top:-18px;text-align:center;color:#000000;"><%=GetCurrentWorldSchedule()%></div>
+                    </div>
+                </div>
+                <div style = "float:left;margin-left:17px;">
+                    <div style = "margin-top:-15px;width:240px;height:50px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/title_frame.png# 0 0 240 50);" >
+                        <div style = "margin-left:60px;margin-top:10px;width:110px;height:27px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/title.png# 0 0 107 27);">
+                        </div>
+                    </div>
+                </div>
+                <div style = "float:left;margin-left:25px;margin-top:-28px;width:180px;color:#FFFFFF;text-align:center;" >
+                    <!--<input name = "totalodds" type="button" style = "margin-top:1px;margin-left:53px;width:126px;height:50px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 23 23)" />-->
+                    <div style = "margin-top:1px;margin-left:53px;padding-top:2px;width:126px;height:50px;font-weight:bold;font-size:14px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 23 23)">
+                        <%=GetAllWorldCollectedOdds() %>
+                    </div>
+                    <!--<pe:progressbar Minimum = "0" Maximum = "100" value = "50" />-->
+                    <div style = "margin-top:-5px;width:180px;height:32px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 25 25)" >
+                        <pe:progressbar name="progressbar_total"  isshowtooltip = "false" 
+                            background = "Texture/Aries/Common/ThemeKid/monsterhandbook/progressbar_bg_fawn.png:6 6 12 12" 
+                            blockimage = "Texture/Aries/Common/ThemeKid/monsterhandbook/progressbar_overlay_skyblue.png;0 0 165 10" 
+                            block_bg_autosize = "true"
+                            style="margin-top:6px;margin-left:6px;width:165px;height:16px;"
+                            Minimum = "0" Maximum = "100" Value = "<%=Get_progressbar_total_Value() %>"
+                            /> 
+                        <div style="margin-top:-18px;text-align:center;color:#000000;"><%=GetAllWorldSchedule()%></div>
+                    </div>
+                </div>
+                <div style = "float:left;margin-left:1px;margin-top:-18px;width:32px;height:32px;" >
+                    <input style = "background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/closebutton.png)" type = "button" onclick = "ClosePage" class="closewindow"/>
+                </div>
+            </div>
+            <div style = "margin-left:1px;margin-top:-25px;">
+                <div style = "float:left;margin-left:63px;margin-top:1px;width:312px;height:351px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 25 25)">
+                    <pe:gridview name="monster_view"  DataSource='<%=DS_Func_Items%>' ItemsPerLine="3" AllowPaging="true" pagesize="9" RememberLastPage="true" >
+			            <Columns>
+                            <pe:if condition='<%=Eval("haskill")%>'>
+                                <div style="font-size:12px;margin-left:8px;margin-top:5px;width:92px;height:107px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/item_open.png#0 0 92 107);" >
+                                    <div style = "margin:20px;">
+                                        <pe:item isclickable = "false" onclick = "OnSelected" tooltip = '<%=Eval("tooltip")%>' use_mouse_offset="false" tooltip_offset_x="40" tooltip_offset_y="-55" is_lock_position="true" gsid='<%=Eval("gsid")%>' />
+                                    </div>                   
+                                    <div style = "margin-left:5px;margin-top:-10px;font-size:12px;text-align:center;">
+                                        <%=Eval("displayname")%>
+                                    </div>
+				                </div>
+                            </pe:if>
+                            <pe:if condition='<%=not Eval("haskill")%>'>
+                                <div style="font-size:12px;margin-left:8px;margin-top:5px;width:92px;height:107px;background-color:#C7C7C7;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/item_lock.png#0 0 92 107);" >
+                                    <div style = "margin:20px;" >
+                                        <pe:item onclick = "OnSelected" tooltip = '<%=Eval("tooltip")%>' use_mouse_offset="false" tooltip_offset_x="40" tooltip_offset_y="-55" is_lock_position="true"  greyifnothave = "true" style = "background-color:#969696;" gsid='<%=Eval("gsid")%>' />
+                                    </div>                   
+                                    <div style = "margin-left:5px;margin-top:-10px;font-size:12px;text-align:center;">
+                                        <%=Eval("displayname")%>
+                                    </div>
+				                </div>
+                            </pe:if>  
+			            </Columns>
+			            <EmptyDataTemplate>
+                            <b>没有配置怪物</b>
+			            </EmptyDataTemplate>
+			            <FetchingDataTemplate>
+                            <b>请稍等 ... </b>
+			            </FetchingDataTemplate>
+			            <PagerSettings Position="Bottom" height="1"/>
+                        <PagerTemplate AutoHidePager="true">
+				            <form>
+					            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:90px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageleft_32bits1.png#0 0 18 21)"/>
+	                            <div style="float:right;margin-left:10px;margin-top:0px;width:60px;">
+	                                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                            </div>
+	                            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:10px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageright_32bits1.png#0 0 18 21)"/>
+	                        </form>
+			            </PagerTemplate>
+		            </pe:gridview> 
+                </div>
+                <div style = "float:left;margin-left:30px;">
+                    <!--<iframe src = "script/apps/Aries/Pet/MonsterHandBook/MonsterDetail.html?gsid=10136" />-->
+                    <div style = "width:312px;height:230px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 25 25)">
+                        <div style = "margin-left:13px;margin-top:6px;width:44px;height:23px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/detail.png# 0 0 44 23)" />
+                        <div style = "margin-left:2px;margin-top:6px;width:304px;height:4px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/line.png: 1 1 2 2)" />
+                        <div style = "margin-left:1px;">
+                            <div style = "float:left;margin-left:5px;width:155px;">
+                                <%=GetDetails()%>
+                            </div>
+                            <div style = "float:left;margin-left:1px;">
+                                <pe:if condition='<%=HasKill()%>'>
+                                    <div zorder="5" style="margin-left:92px;margin-top:0px;width:50px;height:50px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/iskilled.png# 0 0 50 50)">
+                                    </div>
+                                </pe:if>
+                                <pe:if condition='<%=not HasKill()%>'>
+                                    <div style="margin-left:92px;margin-top:0px;width:50px;height:50px;">
+                                    </div>
+                                </pe:if>
+                                
+                                <div style="margin-left:-40px;margin-top:-90px;" >
+                                    <pe:canvas3d name="MonsterCanvas" IsInteractive="false" style="width:225px;height:225px;" DefaultRotY="-1.5" FieldOfView="1.047" miniscenegraphname="MonsterCanvasTurnButton" value='<%=GetModelValue() %>' MaskTexture="Texture/Aries/Quest/previewmask.dds" />
+                                </div>
+                                <div style="margin-left:1px;margin-top:-60px;">
+                                    <aries:miniscenecameramodifier miniscenename="MonsterCanvasTurnButton" type="rotateleft" zorder="2" style="float:left;margin-left:1px;width:38px;height:26px;background:url(Texture/Aries/Common/ThemeKid/rotate_left_32bits.png#0 0 38 26);"/>
+                                    <aries:miniscenecameramodifier miniscenename="MonsterCanvasTurnButton" type="rotateright" zorder="2" style="float:left;margin-left:60px;width:38px;height:26px;background:url(Texture/Aries/Common/ThemeKid/rotate_right_32bits.png#0 0 38 26);"/>
+                                </div>
+                                <input type="button" value = "追踪" onclick = "GoToMonsterPosition" style = "margin-left:30px;margin-top:-35px;width:80px;height:28px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/gotobutton.png# 0 0 80 28)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style = "margin-top:25px;width:312px;height:91px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/fram_bg_32bits.png: 6 6 25 25)">
+                        <div style = "margin-left:13px;margin-top:6px;width:89px;height:23px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/monster_cards.png# 0 0 89 23)">
+                        </div>
+                         <div style = "margin-left:2px;margin-top:6px;width:304px;height:4px;background:url(Texture/Aries/Common/ThemeKid/monsterhandbook/line.png: 1 1 2 2)">
+                        </div>
+                        <div style = "margin-top:5px;margin-left:12px;">
+                            <pe:item isclickable="false" style="float:left;margin-left:7px;width:32px;height:32px;" gsid = "<%=GetMonsterCard(1)%>"/>
+                            <pe:item isclickable="false" style="float:left;margin-left:7px;width:32px;height:32px;" gsid = "<%=GetMonsterCard(2)%>"/>
+                            <pe:item isclickable="false" style="float:left;margin-left:7px;width:32px;height:32px;" gsid = "<%=GetMonsterCard(3)%>"/>
+                            <pe:item isclickable="false" style="float:left;margin-left:7px;width:32px;height:32px;" gsid = "<%=GetMonsterCard(4)%>"/>
+                            <pe:item isclickable="false" style="float:left;margin-left:7px;width:32px;height:32px;" gsid = "<%=GetMonsterCard(5)%>"/>
+                        </div>
+                    </div>
+                </div>
+                <div style = "float:left;position:relative;margin-top:30px;margin-left:25px;" >
+                    <pe:tabs name = "monsterTabs" SelectedTextColor = "#00ffff" TextColor = "#00ffff" TextShadowQuality = "8" TextShadowColor = "#a02a2e48" TextFont = "System;14;bold" style = "width:62px;padding-left:62px;" TabPosition = "left" onclick = "ChangeIsland" DefaultNodeHeight = "46" ItemSpacing = "0">
+                        <pe:tab-item name = "61HaqiTown" SelectedTextColor = "#FFFF00" text = "哈奇岛" SelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/61HaqiTown_selected.png;0 0 52 46" UnSelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/61HaqiTown_unselected.png;0 0 52 46" selected = "true">
+                        </pe:tab-item>
+                        <pe:tab-item name = "FlamingPhoenixIsland" SelectedTextColor = "#FFFF00" text = "火鸟岛" SelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/FlamingPhoenixIsland_selected.png;0 0 52 46" UnSelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/FlamingPhoenixIsland_unselected.png;0 0 52 46" >
+                        </pe:tab-item>
+                        <pe:tab-item name = "FrostRoarIsland" SelectedTextColor = "#FFFF00" text = "寒冰岛" SelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/FrostRoarIsland_selected.png;0 0 52 46" UnSelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/FrostRoarIsland_unselected.png;0 0 52 46" >
+                        </pe:tab-item>
+                        <pe:tab-item name = "AncientEgyptIsland" SelectedTextColor = "#FFFF00" text = "沙漠岛" SelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/AncientEgyptIsland_selected.png;0 0 52 46" UnSelectedMenuItemBG = "Texture/Aries/Common/ThemeKid/monsterhandbook/AncientEgyptIsland_unselected.png;0 0 52 46" >
+                        </pe:tab-item>
+                    </pe:tabs>
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:mcml> 
+</body>
+</html>

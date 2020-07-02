@@ -1,0 +1,158 @@
+﻿<!-- "script/apps/Aries/NewProfile/NewProfileInfo.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NewProfileInfo, by leio, 2011/01/06</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+local NewProfileMain = commonlib.gettable("MyCompany.Aries.NewProfileMain");
+
+local page = document:GetPageCtrl();
+
+nid = NewProfileMain.GetSelectedNID();
+nid = tonumber(nid);
+nid_str = tostring(nid);
+--nid_str = MyCompany.Aries.ExternalUserModule:GetNidDisplayForm(nid_str)
+function IsMyself()
+    if(nid and nid == System.App.profiles.ProfileManager.GetNID()) then
+        return true;
+    end
+    return false;
+end
+function IsNotMyself()
+    return not IsMyself();
+end
+function OnVotePolularitySkipShowProfile()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("do_vote_other");
+
+    if(tonumber(nid)) then
+        NewProfileMain.OnVotePolularity(tonumber(nid), true);
+    end
+    OnClose();
+end
+function OnClose()
+    page:CloseWindow();
+end
+function Get_account_name()
+    return MyCompany.Aries.ExternalUserModule:GetConfigByNid(nid).account_name
+end
+
+function OnClickCheckFamily()
+    OnClose();
+    NPL.load("(gl)script/apps/Aries/Profile/FamilyProfile.lua");
+    MyCompany.Aries.FamilyProfilePage.ShowFamilyInfoOfNID(nid);
+end
+
+function IsSDK()
+	if(System.options.isAB_SDK)then
+        return true;
+    end    
+end
+
+function CopyNIDToClipboard()
+    ParaMisc.CopyTextToClipboard(nid_str.."")
+    NPL.load("(gl)script/ide/TooltipHelper.lua");
+    local BroadcastHelper = commonlib.gettable("CommonCtrl.BroadcastHelper");
+    BroadcastHelper.PushLabel({id="treasuretip", label = "数字账号 "..nid_str.." 复制到剪切板", max_duration=1000, color = "0 255 0", scaling=1.1, bold=true, shadow=true,});
+end
+
+]]></script>
+    <div style="position:relative;margin-left:30px;margin-top:0px;width:100px;height:100px;">
+        <aries:vip-sign nid='<%=Eval("nid")%>' style="width:64px;height:64px;" vip_icon="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar_and_level_bg_32bits.png"/>
+        <aries:mountpet-status2 name="mlel" nid='<%=Eval("nid")%>' type="mlel" style="margin-left:-70px;margin-top:5px;width:40px;height:24px;color:#003300;font-weight:bold;text-align:center;"/>
+    </div>
+    <div style="position:relative;margin-left:130px;margin-top:0px;padding-left:20px;padding-top:10px;">
+        <div style="margin-top:-6px;width:64px;height:32px;color:#000000;background:url(Texture/Aries/Profile/combat_school_level_tag_2_32bits.png)">
+            <aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' style="margin-left:8px;font-size:12px;"/>
+        </div>
+        <div style="font-size:12px;margin-top:-8px;width:64px;height:32px;color:#000000;background:url(Texture/Aries/Profile/combat_school_level_tag_2_32bits.png)">
+            <aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" style="margin-left:12px;margin-top:1px;width:22px;font-size:12px;"/>级
+        </div>
+    </div>
+    <div style="position:relative;float:left;margin-left:-10px;margin-top:4px;width:40px;height:228px;">
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="2" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="8" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="5" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="15" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="6" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="11" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+    </div>
+    <div style="position:relative;float:left;margin-top:30px;margin-left:18px;margin-right:-8px;width:224px;height:256px;">
+        <div style="width:200px;height:200px;">
+            <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID(Eval("nid")) == nil%>' >
+                <pe:player nid='<%=Eval("nid")%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:200px;height:200px;" IsInteractive="false"/>
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID(Eval("nid")) ~= nil%>' >
+                <div style="position:relative;margin-left:85px;margin-top:-25px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+                    <pe:slot nid='<%=Eval("nid")%>' bag="0" position="72" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+                </div>
+                <div style="position:relative;margin-left:-20x;margin-top:40px;">
+                    <pe:player nid='<%=Eval("nid")%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacterPartner" style="width:164px;height:164px;" IsInteractive="false"/>
+                </div>
+                <div style="position:relative;margin-left:70px;margin-top:40px;">
+                    <pe:player nid='<%=MyCompany.Aries.Player.GetPartnerNID(Eval("nid"))%>' name="AriesPlayerPartner" miniscenegraphname="AvatarMyselfTabCharacter" style="width:164px;height:164px;" IsInteractive="false"/>
+                </div>
+            </pe:if>
+        </div>
+    </div>
+    <div style="position:relative;float:left;margin-left:210px;margin-top:4px;width:40px;height:228px;">
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="4" style = "width:30px;height:30px;" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="17" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="9" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="16" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="7" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+        <div style="margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+            <pe:slot nid='<%=Eval("nid")%>' bag="0" position="10" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" isclickable="false"/>
+        </div>
+    </div>
+    <div style="position:relative;margin-left:55px;margin-top:220px;">
+        <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;width:40px;height:16px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_left.png#0 0 69 32)"/>
+        <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:55px;width:40px;height:16px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_right.png#0 0 69 32)"/>
+    </div>
+    <div style="margin-left:-25px;margin-top:241px;width:290px;height:46px;font-size:12px;font-color:#02334b;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+        <div style="margin-left:5px;margin-top:5px;height:15px;">
+            <div style="float:left;min-width:140px;"><%=format("%s:", Get_account_name())%><div style="float:left;" onclick="CopyNIDToClipboard" class="linkbutton" tooltip="复制帐号"><%=Eval("nid_str")%></div></div>
+            <div style="float:left;min-width:140px;">生日:<div style="float:left;"><aries:userinfo nid='<%=Eval("nid")%>' field="birthday" /></div></div>
+        </div>
+        <div style="margin-left:5px;margin-top:2px;">
+            <div style="float:left;min-width:140px;">家族:<div style="float:left;"><aries:userinfo tooltip="点击查看家族信息" class="linkbutton" onclick="OnClickCheckFamily" nid='<%=Eval("nid")%>' field="family" /></div></div>
+            <div style="float:left;min-width:140px;">人气值:<div style="float:left;"><aries:userinfo nid='<%=Eval("nid")%>' field="popularity" /></div></div>
+        </div>
+        <pe:if condition='<%=IsNotMyself()%>'>
+            <div style="position:relative;margin-left:226px;margin-top:-19px;">
+                <pe:goalpointer listen="do_vote_other" zorder="2000" style="position:relative;width:48px;height:21px;"></pe:goalpointer>
+                <input type="button" style="width:48px;height:21px;background:url(Texture/Aries/NewProfile/toupiao_32bits.png#0 0 48 21)" onclick="OnVotePolularitySkipShowProfile()" tooltip="给他投票" />
+            </div>
+        </pe:if>
+    </div>
+</pe:mcml> 
+</body>
+</html>

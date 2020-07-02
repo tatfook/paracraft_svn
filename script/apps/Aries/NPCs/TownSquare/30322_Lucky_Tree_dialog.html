@@ -1,0 +1,157 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30322_Lucky_Tree_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30322_Lucky_Tree_dialog, by zrf, 2010/12/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+state = page:GetRequestParam("state");
+state = tonumber(state);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+local Lucky_Tree = MyCompany.Aries.Quest.NPCs.Lucky_Tree;
+NPL.load("(gl)script/apps/Aries/ServerObjects/LuckyTree/LuckyTreeClientLogics.lua");
+local LuckyTreeClientLogics = commonlib.gettable("MyCompany.Aries.ServerObjects.LuckyTreeClientLogics");
+
+function Begin()
+    Lucky_Tree.DoShake();
+end
+function IsFirst()
+    local num = LuckyTreeClientLogics.GetTodayNum();
+    if(num == 0)then
+        return true;
+    end
+end
+
+function HasHammer()
+    local bHas = hasGSItem(17151);
+    return bHas;
+end
+
+function ExitAction(from, to)
+
+end
+function DoShop()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabTool","5001");
+end
+function GetGiftInfo()
+    local info = Lucky_Tree.info;
+    local s = string.format("恭喜你,奖励已经放到你的背包啦!手气不错，乘胜追击！使用小金锤再摇一次吧！");
+    if(info and info.level)then
+        local level = info.level;
+        local ss="";
+        if(level == 0)then
+            ss ="特等奖";
+        else
+            ss = string.format("%d等奖",level);
+        end
+        s = string.format("恭喜你获得%s,奖励已经放到你的背包啦!手气不错，乘胜追击！使用小金锤再摇一次吧！",ss);
+    end
+    return s;
+end
+function HasState_10()
+    if(state and state == 10)then
+        return true;
+    end
+end
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="name" source="{this}" value='有礼物的幸运树'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+       
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+                <pe:answer-if condition = '<%=HasState_10() %>' target_state = "10"/>
+			    <pe:answer-if condition = "true" target_state = "1"/> 
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+            我可是身上挂满极品道具的幸运树，每天你来这里摇我一次我就掉些礼物给你。在我这儿最好的宝贝可是价值1000魔豆的幸运大礼包，快来试试手气吧！
+		    <pe:answer template_id = "yaoyao">
+                <pe:answer-if condition = '<%=IsFirst() %>' target_state = "2"/>
+                <pe:answer-if condition = '<%=not IsFirst() %>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    嘿嘿,你今天还有一次空手摇宝贝的机会哦!快来试试吧!
+		    <pe:answer template_id = "start">
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=Begin() %>" />
+		    </pe:answer>
+		    <pe:answer template_id = "later">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=HasHammer() %>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=not HasHammer() %>' target_state = "5"/>
+		    </pe:answer>		    
+	    </pe:state>
+	    <pe:state id = "4">
+		    我身上的大宝贝太重了, 需要用小金锤才能摇下来哦,确定使用小金锤吗?
+		    <pe:answer template_id = "start">
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=Begin() %>" />
+		    </pe:answer>
+		    <pe:answer template_id = "later">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+            你今天已经空手摇了一次宝贝了，如果还想摇的话明天要继续来找我哦！
+		    <!--<pe:answer template_id = "buchongjinchui">
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=DoShop() %>"/>
+		    </pe:answer>-->
+		    <pe:answer template_id = "iknow">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "10">
+		    <%=GetGiftInfo() %>
+		    <pe:answer template_id = "zailaiyici">
+                <pe:answer-if condition = '<%=not HasHammer() %>' target_state = "5" />
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=Begin() %>"/>
+		    </pe:answer>
+		    <pe:answer template_id = "later">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

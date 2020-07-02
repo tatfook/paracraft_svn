@@ -1,0 +1,143 @@
+<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatMagicStarPage.lua");
+local CombatMagicStarPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatMagicStarPage");
+local page = document:GetPageCtrl();
+
+local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+local MagicStarHelpPage = commonlib.gettable("MyCompany.Aries.Help.MagicStarHelpPage");
+MagicStarHelpPage.TabValue = MagicStarHelpPage.TabValue or "1";
+
+function DS_Func_PropAdd(index)
+    if(index == nil) then
+        return 1;
+	else
+		return CombatMagicStarPage.Teen_SpecialList[index];
+	end	
+end
+
+function ShowValue(v)
+    if(not v)then return end
+    local s = string.format("%s%%",v);
+    return s;
+end
+
+function IsLvl(v)
+    local nid=MagicStarPage.nid;
+    local lvl = -1;
+    local mlvl = MagicStarPage.GetMlvl();
+    if (mlvl) then
+        lvl = tonumber(mlvl);
+    end
+
+    if (lvl >= v) then
+        return true
+    else
+        return false
+    end
+end
+
+function IsCurLvl(v)
+    local nid=MagicStarPage.nid;
+    local lvl = -1;
+    local mlvl = MagicStarPage.GetMlvl();
+    if (mlvl) then
+        lvl = tonumber(mlvl);
+    end
+
+    if (lvl == v) then
+        return true
+    else
+        return false
+    end
+end
+
+function NextVIPRight() 
+    local s="";
+    local lvl = -1;
+    local mlvl = MagicStarPage.GetMlvl();
+    if (mlvl) then
+        lvl = tonumber(mlvl);
+    end
+
+    if (lvl>=10) then
+        return "你已是顶级VIP, 尊享全部特权！";
+    else
+        local lvl_tips;
+        if (lvl==-1) then
+            lvl_tips=1;
+        else
+            lvl_tips=lvl+1;
+        end
+        s = string.format("VIP <font color='#ffff00'>%d</font> 级尊享特权: <font color='#ffff00'>%s</font>",lvl_tips,CombatMagicStarPage.Teen_SpecialList[lvl_tips].vipright);
+        return s;
+    end
+end
+
+function VipRightDesc(v)
+    local s=string.format("LV%d 专享",v);
+    return s;
+end
+]]></script>
+
+<div style="margin-left:-10px;margin-top:-2px;width:402px;height:380px;background:;">
+    <div style="color:#52dff4;font-size:14;margin-left:40px;margin-top:6px;" >魔法星加成，高级魔法星同时享有低级魔法星特权！</div>
+    <div style="color:#52dff4;font-size:12;width:380px;height:358px;margin-top:10px;margin-left:5px;" >
+        <div style="color:#52dff4;font-size:12;width:378px;height:40px;margin-top:1px;margin-left:1px;" class="border_bg3_css">
+        <div style="float:left;margin-left:10px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >魔法星<br/>等级</div>
+        <div style="float:left;margin-left:30px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >移动速度<br/>提升</div>
+        <div style="float:left;margin-left:30px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >经验获取<br/>提升</div>
+        <div style="float:left;margin-left:30px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >精力上限<br/>提升</div>
+        <div style="float:left;margin-left:20px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >等级<br/>特权</div>
+        </div>        
+        <pe:gridview DataSource="<%=DS_Func_PropAdd%>" name="propAdd" style="margin-left:0px;margin-top:0px;margin-right:0px;margin-bottom:0px;width:364px;height:315px;" 
+            VerticalScrollBarStep="35" CellPadding="0"  DefaultNodeHeight = "6" ItemsPerLine="1" AllowPaging="true" pagesize="11">
+            <Columns>  
+            <div style="margin-left:0px;margin-top:-1px;width:380px;height:24px;" class="static_block_2">
+                <pe:if condition='<%= not IsLvl(Eval("index")) %>'>
+                    <div style="float:left;margin-left:15px;width:50px;text-align:left;margin-top:0px;font-size:12;color:#bbbbbb;" ><%=Eval("index") %> 级</div>
+                    <div style="float:left;margin-left:25px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("speed")) %></div>
+                    <div style="float:left;margin-left:25px;width:60px;text-align:center;margin-top:0px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("exp")) %></div>
+                    <div style="float:left;margin-left:25px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("hp")) %></div>
+                    <input type="button" class="linkbutton" value='<%=VipRightDesc(Eval("index"))%>' tooltip='<%=Eval("vipright") %>' style="float:left;margin-left:15px;width:60px;text-align:center;margin-top:0px;font-size:11;color:#bbbbbb;height:20px;"/>
+                </pe:if>
+
+                <pe:if condition='<%=IsLvl(Eval("index")) %>'>
+                    <div style="float:left;margin-left:15px;width:50px;text-align:left;margin-top:0px;font-size:12;color:#98fffc;" ><%=Eval("index") %> 级</div>
+                    <div style="float:left;margin-left:25px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("speed")) %></div>
+                    <div style="float:left;margin-left:25px;width:60px;text-align:center;margin-top:0px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("exp")) %></div>
+                    <div style="float:left;margin-left:25px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("hp")) %></div>
+                    <input type="button" class="linkbutton" value='<%=VipRightDesc(Eval("index"))%>' tooltip='<%=Eval("vipright") %>' style="float:left;margin-left:15px;width:60px;text-align:center;margin-top:0px;font-size:12;color:#e0c427;height:20px;"/>
+                </pe:if>
+
+                <pe:if condition='<%=IsCurLvl(Eval("index")) %>'>
+                    <div style="position:relative;margin-left:1px;margin-top:-21px;width:382px;height:22px;" class="inborder_golden"></div>
+                </pe:if>
+
+            </div>    
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+
+        <div style="margin-left:10px;margin-top:-70px;width:380px;height:60px;"><%=NextVIPRight() %></div>
+    </div>
+    
+</div>
+</pe:mcml>
+</body>
+</html>
+

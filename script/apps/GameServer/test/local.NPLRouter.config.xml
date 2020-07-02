@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NPL Router server configuration file -->
+<NPLRouter>
+  <!--which ip and port this server listens to. As well as the nid of itself.-->
+  <config host="127.0.0.1" port="60001" nid="2901" 
+          public_files="config/NPLPublicFiles.xml" 
+          game_server_script="script/apps/GameServer/rest.lua" 
+          db_server_script = "script/apps/DBServer/DBServer.lua">
+  </config>
+  
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread-->
+  <npl_states>
+    <npl_state name="r1"/>
+    <!--<npl_state name="r2"/>
+    <npl_state name="r3"/>
+    <npl_state name="r4"/>-->
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="127.0.0.1" port="60001" nid="router1"/>
+    <address host="127.0.0.1" port="60001" nid="1001"/>
+    <address host="127.0.0.1" port="60001" nid="2001"/>
+    <address host="127.0.0.1" port="60001" nid="2901"/>
+  </npl_runtime_addresses>
+
+  <!--specify the the table id to nid-->
+  <table_nid_config>
+    <table table_begin = "0" table_end = "287"  nid="2001"/>
+    <table table_begin = "288" table_end = "575"  nid="2001"/>
+    <table table_begin = "576" table_end = "863"  nid="2001"/>
+  </table_nid_config>
+</NPLRouter>

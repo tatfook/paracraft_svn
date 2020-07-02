@@ -1,0 +1,77 @@
+﻿<!-- "script/apps/Aries/Books/CitizenHandbook.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CitizenHandbook, by Andy, 2009/8/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function DS_Func_CitizenHandbook(index)
+    if(index == nil) then
+        return 5;
+    elseif(index == 1) then
+        return {background = "Texture/Aries/Books/CitizenHandbook_v1/1.png;0 0 522 420", };
+    elseif(index == 2) then
+        return {background = "Texture/Aries/Books/CitizenHandbook_v1/2.png;0 0 522 420", };
+    elseif(index == 3) then
+        return {background = "Texture/Aries/Books/CitizenHandbook_v1/3.png;0 0 522 420", };
+    elseif(index == 4) then
+        return {background = "Texture/Aries/Books/CitizenHandbook_v1/4.png;0 0 522 420", };
+    elseif(index == 5) then
+        return {background = "Texture/Aries/Books/CitizenHandbook_v1/5.png;0 0 522 420", };
+    end
+end
+
+-- 19002_CitizenHandbook
+
+function Confirm()
+    local msg = { aries_type = "OnCloseReadingItem", gsid = 19002, wndName = "main"};
+    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<input type="button" onclick="Confirm()" style="margin-left:700px;margin-top:50px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-40px;margin-left:40px;padding-left:110px;padding-top:36px;padding-bottom:-10px;background:url(Texture/Aries/Books/Green_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_CitizenHandbook%>" name="CitizenHandbook" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("background")%>' style="margin-left:5px;margin-top:20px;width:522px;height:420px;" />
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-38px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+
+<div style="float:left;margin-left:115px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----公民手册----
+</div>
+<div style="float:left;margin-left:415px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----公民手册----
+</div>
+
+</pe:mcml> 
+</body>
+</html>

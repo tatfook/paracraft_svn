@@ -1,0 +1,130 @@
+﻿<!-- "script/apps/Aries/Desktop/DiagHelper.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DiagHelper,add by WD, Date: 2012/03/23</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/DiagHelper.lua");
+
+local DiagHelper = commonlib.gettable("MyCompany.Aries.Desktop.DiagHelper");
+DiagHelper:Init();
+
+function ClosePage()
+DiagHelper.CloseWindow()
+end
+
+function LinkHelpGuid(arg)
+    if ("检查卡牌" == arg)then
+        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+        local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+        MyCardsManager.ShowPage();
+    elseif("检查" == arg)then
+        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.lua");
+        local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+        CharacterBagPage.ShowPage()
+    elseif("去组队" == arg)then
+        NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+        local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+        LobbyClientServicePage.ShowPage();
+
+    else
+        local HelpLabel = arg;
+        if("去升级" == arg)then
+            local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+            local level = Combat.GetMyCombatLevel()
+ 
+            if(level > 0 and level < 10)then
+                HelpLabel = "0-10级升级指南"
+            elseif(level > 10 and level <= 20)then
+                HelpLabel = "10-20级升级指南"
+            elseif(level > 21 and level <= 30)then
+                HelpLabel = "21-30级升级指南"
+            elseif(level > 31 and level <= 40)then
+                HelpLabel = "31-40级升级指南"
+            elseif(level > 41 and level <= 50)then
+                HelpLabel = "41-50级升级指南" 
+            end
+        elseif("副本攻略" == arg)then
+            HelpLabel = "火焰山洞"
+        end
+
+        NPL.load("(gl)script/apps/Aries/Desktop/HelpMainList.teen.lua");
+        local HelpMainList = commonlib.gettable("MyCompany.Aries.Desktop.HelpMainList");
+        HelpMainList.ShowPage("HelpBook",HelpLabel);
+    end
+
+    --ClosePage();
+end
+
+]]></script>
+    <div style="width:760px;height:470px;background:url(Texture/Aries/Common/ThemeTeen/diag/bg_diag_32bits.png#0 0 760 470);">
+    
+        <div style="height:19px;">
+          <div class="windowlabel">战败诊断</div>
+          <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:712px;" />
+        </div>
+        <div style="margin-top:75px;margin-left:65px;position:relative;">
+        <div style="position:relative;width:65px;height:35px;background:url(texture/aries/common/themeteen/diag/bg_helpbuble_32bits.png#0 0 32 32:5 2 2 5)"/>
+        <input type="button" name="这里开始" text="这里开始" enabled="false" style="position:relative;width:65px;height:39px;margin-top:1px;background:;"  class = "lightgreen_btn_5530" onclick=""/>
+        </div>
+        
+        <div style="margin-top:25px;margin-left:345px;position:relative;">
+        <input type="button" name="去升级" text="去升级" style="width:65px;"  class = "lightgreen_btn_5530" onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:380px;margin-left:403px;position:relative;">
+        <input type="button" name="坐骑系统" text="坐骑" class = "lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:120px;margin-left:513px;position:relative;">
+        <input type="button" name="检查" text="检查" class = "oriange_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:67px;margin-left:455px;position:relative;">
+        <input type="button" name="去组队" text="去组队" style="width:65px;" class="oriange_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:210px;margin-left:65px;position:relative;">
+        <input type="button" name="检查卡牌" text="检查卡牌" style="width:91px;" class="oriange_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:248px;margin-left:65px;position:relative;">
+        <input type="button" name="配牌基本思路" text="配牌技巧" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:285px;margin-left:65px;position:relative;">
+        <input type="button" name="攻击技巧" text="出牌策略" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:378px;margin-left:65px;position:relative;">
+        <input type="button" name="副本攻略" text="副本攻略" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+        <div style="margin-top:78px;margin-left:608px;position:relative;">
+        <input type="button" name="装备获得" text="获得装备" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+        <div style="margin-top:213px;margin-left:608px;position:relative;">
+        <input type="button" name="极品装备" text="极品装备" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+        <div style="margin-top:255px;margin-left:608px;position:relative;">
+        <input type="button" name="强化装备" text="宝石强化" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+        <div style="margin-top:297px;margin-left:608px;position:relative;">
+        <input type="button" name="宠物的获得与培养" text="强力宠物" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+        <div style="margin-top:343px;margin-left:608px;position:relative;">
+        <input type="button" name="药水食物" text="药水食物" style="width:91px;" class="lightgreen_btn_5530"  onclick="LinkHelpGuid"/>
+        </div>
+
+
+
+
+    </div>
+
+</pe:mcml> 
+</body>
+</html>

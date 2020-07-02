@@ -1,0 +1,74 @@
+<!-- "script/tutorials/preboy/NewFilter1/ConfirmTrade.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="ConfirmTrade.lua"><![CDATA[
+MyCompany.Aries.Inventory.ConfirmTrade.OnInit()
+
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local gisd = pageCtrl:GetRequestParam("gsid");
+local gsid = tonumber(gsid);
+
+
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+
+function getdestriyNum()
+    return MyCompany.Aries.Inventory.ConfirmTrade.destroyNum;
+end
+
+
+function getPrice()
+      return MyCompany.Aries.Inventory.ConfirmTrade.price;
+end
+
+
+
+function OnCancle()
+     MyCompany.Aries.Inventory.ConfirmTrade.ClosePage();
+end
+
+
+
+function GetSellDesc()
+    local destroyNum = MyCompany.Aries.Inventory.ConfirmTrade.destroyNum;
+
+    return destroyNum.."个";
+    
+end
+
+
+]]></script>
+<div style = "width:466px;height:355px">
+   <div style = "width:366px;height:235px;padding:23px;margin-left:-210px;margin-top:-150px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:23 159 33 173)">
+      <div style = "width:311px;height:160px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+         <div style = "width:311px;height:160px;">
+             <div style = "float:right;margin-left:110px;margin-top:20px;padding-left:40px;padding-top:4px;width:80px;height:67px;margin:20px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)">
+             
+             
+            </div>
+             <div style = "margin-left:98px;margin-top:1px;color:#243b5d">你确定要出售<%=GetSellDesc()%></div>
+         </div>
+      </div>
+   </div>
+   
+   <div style="width:366px;height:48px;margin-top:-45px;margin-left:-250px">
+    <input type="button" style="margin-left:70px;width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/buy_btn_32bits.png#0 0 154 48)" onclick="MyCompany.Aries.Inventory.ConfirmTrade.OnOK()" />
+    <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="MyCompany.Aries.Inventory.ConfirmTrade.ClosePage()"/>
+   </div>
+</div>
+
+
+</pe:mcml>
+</body>
+</html>

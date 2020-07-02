@@ -1,0 +1,131 @@
+﻿<!-- "script/apps/Aries/Desktop/AriesSettingsPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>system settings, by LiXizhi, 2009/10/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="AriesSettingsPage.lua"><![CDATA[
+MyCompany.Aries.Desktop.AriesSettingsPage.OnInit();
+function TotalDragTime(value)
+    ParaCamera.GetAttributeObject():SetField("TotalDragTime", value)
+end
+function SmoothFramesNum(value)
+    ParaCamera.GetAttributeObject():SetField("SmoothFramesNum", math.floor(value))
+end
+]]></script>
+<div style="width:500px;height:320px;background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 465 196:50 50 50 100)">
+    <div style="padding-top:36px;padding-bottom:33px;padding-left:29px;padding-right:37px;height:280px">
+    <pe:tabs TextFont="System;12;norm" name="AriesCommonSettings">
+        <pe:tab-item name="Common" text="常用设置" selected="true" style="padding-left:5px"><div><form name="CommonSettingForm">
+            <div style="margin-top:5px">
+                <div style="width:100px;float:left;text-align:right">3D分辨率:</div>
+                <select name = "ScreenResolution" AllowUserEdit="false" style="height:23px">
+                    <option value="400 × 266">400 × 266</option>
+                    <option value="400 × 300">400 × 300</option>
+                    <option value="480 × 280">480 × 280</option>
+                    <option value="640 × 480">640 × 480</option>
+                    <option value="800 × 533">800 × 533</option>
+                    <option value="800 × 600">800 × 600</option>
+                    <option value="960 × 560" selected="true">960 × 560(默认)</option>
+                    <option value="1020 × 595">1020 × 595</option>
+                    <option value="1020 × 680">1020 × 680</option>
+                    <option value="1024 × 768">1024 × 768</option>
+                    <option value="1280 × 720">1280 × 720(推荐)</option>
+                    <option value="1440 × 900">1440 × 900</option>
+                    <option value="1600 × 800">1600 × 800</option>
+                </select><br />
+                <div tooltip="点击窗口右上角第二个按钮可以放大窗口, 也可以拖动右下角的窗口边框" style="margin-left:100px;color:#808080">数值越小, 程序运行的越流畅, 但是画面越模糊</div>
+                <pe:if condition='<%=not System.options.IsWebBrowser%>' >
+                    <input style="margin-left:100px;" type="checkbox" name="checkBoxFullScreenMode"/><div style="float:left;margin-left:5px;" tooltip="点击前面的方框更改设置">使用全屏显示</div><div style="float:left;margin-left:5px;color:#808080">全屏可以让画面更加流畅</div>
+                </pe:if>
+            </div>
+            <div style="margin-top:5px">
+                <div style="width:100px;float:left;text-align:right">3D画面质量:</div>
+                <select name = "graphic_quality" AllowUserEdit="false" style="height:23px">
+                    <!--<option value="1024" >简约模式 (适合DirectX 7.0 显卡)</option>-->
+                    <option value="-1" >较低画质 (可以提高运行速度)</option>
+                    <option value="0" selected="true">中等画质 (推荐使用)</option>
+                    <option value="1" >高等画质 (适合DirectX 9或以上的显卡)</option>
+                    <option value="2" >特效全开</option>
+                </select>
+            </div>
+            <div style="margin-top:10px">
+                <div style="width:100px;float:left;text-align:right">音量大小:</div>
+                <div style="float:left">
+                    <pe:sliderbar name="trackBarVolume" style="width:200px;margin-right:5px;" min="0" max="2" min_step="0.1" value="1"/>
+                </div>
+                <input type="checkbox" name="EnableSound" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.OnClickEnableSound"/> 开启声音
+            </div>
+            
+        </form></div></pe:tab-item>
+        <pe:tab-item name="Game" text="游戏设置" style="padding-left:5px">
+            <div>信息显示:</div>
+            <div style="margin-left:10px">
+                <input type="checkbox" name="checkBoxShowHeadOnDisplay" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.onclickShowHeadOnDisplay"/>显示玩家与怪物的名称<br />
+                <input type="checkbox" name="checkBoxEnableHeadonTextScaling" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.checkBoxEnableHeadonTextScaling"/>按照距离放缩人物头顶文字<br />
+                <input type="checkbox" name="checkBoxShowQuestTrackerWnd" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.onclickShowQuestTrackerWnd"/>显示任务追踪窗口<br />
+                <input type="checkbox" name="checkBoxFreeWindowSize" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.onclickFreeWindowSize"/>自由拉伸窗口尺寸<br />
+                <input type="checkbox" name="checkBoxEnableTeamInvite" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.checkBoxEnableTeamInvite"/>接收组队邀请
+                <input type="checkbox" name="checkBoxAllowAddFriend" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.checkBoxAllowAddFriend"/>允许添加好友<br />
+                <input type="checkbox" name="checkBoxDisableFamilyChat" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.checkBoxDisableFamilyChat"/>屏蔽家族聊天<br />
+                <input type="checkbox" name="checkBoxEnableFriendTeleport" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.checkBoxEnableFriendTeleport"/>允许好友传送到我身边<br />
+            </div>
+            <!--<div>信息屏蔽:</div>
+            <div style="margin-left:10px">拒绝好友请求，拒绝家族请求，拒绝交易请求，拒绝组队请求，拒绝所有消息，拒绝陌生人消息
+            </div>-->
+        </pe:tab-item>
+        <pe:tab-item name="Mouse" text="鼠标设置" style="padding-left:5px;padding-right:5px;">
+            <div>
+                <div style="width:100px;float:left;text-align:right">鼠标模式:</div>
+                <div style="float:left;">
+                   <input type="checkbox" name="checkBoxInverseMouse"/>反转鼠标控制模式<br />
+                   <input type="checkbox" name="checkBoxLockCamera" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.onclickLockCamera"/>锁定摄影机角度<br />
+                   拖拽总时间: <div style="float:left"><pe:sliderbar name="TotalDragTime" min="0" max="5" onchange="TotalDragTime"/></div><br />
+                   摄影机运动平滑帧数: <div style="float:left"><pe:sliderbar name="SmoothFramesNum" min="0" max="20" onchange="SmoothFramesNum"/></div><br />
+                </div><br />
+            </div>
+        </pe:tab-item>
+        <pe:tab-item name="Others" text="其他设置" style="padding-left:5px"><div><form name="OtherSettingForm">
+            <div style="margin-top:5px;">
+                <div style="width:100px;float:left;text-align:right">反锯齿:</div>
+                <div style="float:left;">
+                    <select style="margin-top:-2px;height:22px;" name="comboBoxMultiSampleType">
+                        <option value="0">不使用反锯齿</option>
+                        <option value="2">启动反锯齿 x 2</option>
+                        <!--<option value="4">启动反锯齿 x 4</option>-->
+                    </select>
+                    <select style="margin-top:-2px;height:22px;" name="comboBoxMultiSampleQuality">
+                        <option value="0">缺省质量</option>
+                        <option value="1">高质量</option>
+                        <!--<option value="2">超高质量</option>-->
+                    </select>
+                    <div style="color:#808080">注: 启动反锯齿, 可以使3D画面更柔和</div>
+                </div><br />
+                <div style="width:100px;float:left;text-align:right">可视距离:</div>
+                <div style="float:left">
+                    <pe:sliderbar name="trackBarViewDistance" style="width:250px" min="100" max="420" min_step="10" value="120"/>
+                    <div style="color:#808080">注: 数值越小运行速度越快</div>
+                </div><br />
+                <!--<div style="width:100px;float:left;text-align:right">全屏泛光:</div>
+                <div style="float:left;">
+                    <input type="checkbox" name="checkBoxUseGlow"/>使用全屏泛光
+                </div><br />-->
+                <div style="width:100px;float:left;text-align:right">3D物体阴影:</div>
+                <div style="float:left;">
+                    <input type="checkbox" name="checkBoxUseShadow"/>渲染所有物体阴影<span style="color:#808080">(关闭可以提高运行速度)</span>
+                </div><br />
+            </div>
+        </form></div></pe:tab-item>
+    </pe:tabs>
+    </div>
+    <div style="margin-top:5px;">
+      <input type="button" name="OK" style="margin-left:40px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.OnOK()"/>
+      <input type="button" name="Cancel" style="margin-left:100px;width:153px;height:49px;background:url(Texture/Aries/Common/Cancel_32bits.png# 0 0 153 49)" onclick="MyCompany.Aries.Desktop.AriesSettingsPage.OnCancel()"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!-- "script/apps/Aries/NPCs/TriumphSquare/30262_RiddleLampRankListPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30262_RiddleLampRankListPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.RiddleLampRankListPage.OnInit();
+
+function DS_Func_GameRankPage(index)
+    return MyCompany.Aries.Quest.NPCs.RiddleLampRankListPage.DS_Func_Items(index);
+end
+function OnClose()
+    page:CloseWindow();
+end
+function getTime(v)
+    v = 1000000 - v;
+    local hours,minutes,seconds = SecondesToHMS(v);
+    if(hours and minutes and seconds)then
+        local s = string.format("%d小时%d分%d秒",hours,minutes,seconds);
+	    return s;
+	end
+end
+function getMyScore()
+    local s;
+    if(MyCompany.Aries.Quest.NPCs.RiddleLampRankListPage.my_score)then
+        s = "你通过灯谜桥所用最短时间为：" .. getTime(MyCompany.Aries.Quest.NPCs.RiddleLampRankListPage.my_score)
+    else
+        s = "你通过灯谜桥所用最短时间为：未通过灯谜桥";
+    end
+    return s;
+end
+
+function SecondesToHMS(v)
+    v = tonumber(v);
+	if(v >= 0)then
+		local hours,minutes,seconds;
+		local t = 3600;
+		hours = math.floor(v/t);
+		v = v - hours*t;
+		
+		t = 60;
+		minutes = math.floor(v/t);
+		v = v - minutes*t;
+		
+		seconds = v;
+		return hours,minutes,seconds;
+	end
+end
+
+]]></script>
+<div style="margin-top:0px;width:955px;height:512px;background:url(Texture/Aries/NPCs/RiddleLamp/riddlelamp_ranklist_bg_32bits.png#0 0 955 512)">
+    <div style="position:relative;margin-top:-4px;margin-left:900px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose();" value=""/>
+    </div>
+  <div style="margin-left:0px;margin-top:97px;text-align:center;font-weight:bold;color:#ffffff;font-size:14;"><%=getMyScore() %></div>
+    <pe:gridview name="onehundredhit_gridview" style="margin-left:180px;margin-top:34px;width:660;height:250px" DataSource="<%=DS_Func_GameRankPage%>"  ItemsPerLine="1" AllowPaging="true" pagesize="6">
+        <Columns>
+        <a onclick="MyCompany.Aries.Quest.NPCs.RiddleLampRankListPage.ShowInfo" param1='<%=Eval("nid")%>' 
+            tooltip="点击查看个人资料" style="background:;">
+           <div style="width:650px;height:32px;">
+               <input type="button" Normal_BG="" MouseOver_BG="Texture/Aries/NPCs/OneHundredHitBoard/selection_mouseover.png" alwaysmouseover="true" style="width:640px;height:30px;background:;"/>
+               <div style="margin-top:-25px;margin-left:20px;height:25px;font-size:14px;font-weight:bold;">
+                    <div style="float:left;text-align:center;width:160px;"><%=Eval("index")%></div>
+                    <div style="float:left;text-align:center;width:200px;margin-left:20px;"><pe:name nid='<%=Eval("nid")%>' linked="false" /></div>
+                    <div style="float:left;text-align:center;width:200px;margin-left:20px;" ><%=getTime(Eval("score"))%></div>
+               </div>
+           </div>
+        </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>空</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>请稍等 ... </b>
+        </FetchingDataTemplate>
+        <PagerSettings Position="Bottom" height="30" style="margin-left:170px;margin-top:0px;" PreviousPageText="" NextPageText=""/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" style="width:64px;height:24px;background:Texture/Aries/NPCs/OneHundredHitBoard/pre_page_btn.png;"/>
+                <div style="float:left;width:100px;">
+                    <label name="page" style="text-align:center;color:#ffffff;width:100px;height:24px;"/>
+                </div>
+                <input type="button" name="next" style="width:64px;height:24px;background:Texture/Aries/NPCs/OneHundredHitBoard/next_page_btn.png;"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+</div>
+</pe:mcml>
+</body>
+</html>

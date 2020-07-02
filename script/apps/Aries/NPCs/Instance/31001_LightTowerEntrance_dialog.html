@@ -1,0 +1,169 @@
+﻿<!-- "script/apps/Aries/NPCs/Instance/31001_LightTowerEntrance_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30001_ChiefHilton_dialog, by Andy, 2009/7/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Instance = commonlib.gettable("MyCompany.Aries.Instance");
+
+NotHasBronze = function()
+    -- 17152_CopperKey
+    return (not hasGSItem(17152));
+end
+NotHasSilver = function()
+    -- 17153_SliverKey
+    return (not hasGSItem(17153));
+end
+NotHasGold = function()
+    -- 17154_GoldenKey
+    return (not hasGSItem(17154));
+end
+
+function DestroyItemFromKey(gsid)
+    -- 17152_CopperKey
+    -- 17153_SliverKey
+    -- 17154_GoldenKey
+    local bHas, guid = hasGSItem(gsid);
+    if(bHas) then
+	    ItemManager.DestroyItem(guid, 1, function(msg) 
+            if(msg.issuccess == true) then
+            end
+        end, function(msg) end);
+    end
+end
+
+EnterTrial = function()
+    Instance.EnterInstancePortal("HaqiTown_LightHouse_S1")
+end
+EnterBronze = function()
+    Instance.EnterInstancePortal("HaqiTown_LightHouse_S2");
+    --- NOTE: the item is destroyed in the instance enter stage
+    --DestroyItemFromKey(17152);
+end
+EnterSilver = function()
+    Instance.EnterInstancePortal("HaqiTown_LightHouse_S3");
+    --DestroyItemFromKey(17153);
+end
+EnterGold = function()
+    Instance.EnterInstancePortal("HaqiTown_LightHouse_S4");
+    --DestroyItemFromKey(17154);
+end
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="319763" />
+            <pe:placeholder id="name" source="{this}" value="暗白魔牛" />
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是暗白魔牛，被困在试炼之塔的第100层，快来打败塔里的怪物解救我吧。
+		    <pe:answer text="从第1层进入" template_id="start_lighthouse_from1">
+			    <pe:answer-if condition = "true" transition='<%=Eval("EnterTrial")%>' target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="从第8层进入" template_id="start_lighthouse_from8">
+			    <pe:answer-if condition = '<%=Eval("NotHasBronze")%>' target_state = "2"/>
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="从第26层进入" template_id="start_lighthouse_from26">
+			    <pe:answer-if condition = '<%=Eval("NotHasSilver")%>' target_state = "3"/>
+			    <pe:answer-if condition = "true" target_state = "6"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="从第61层进入" template_id="start_lighthouse_from61">
+			    <pe:answer-if condition = '<%=Eval("NotHasGold")%>' target_state = "4"/>
+			    <pe:answer-if condition = "true" target_state = "7"/>
+		    </pe:answer>
+		    <br/>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你现在没有铜钥匙，不能从第8层进入，想要获得铜钥匙，打败第7层的怪物开宝箱就可以了。
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    你现在没有银钥匙，不能从第26层进入，想要获得银钥匙，打败第25层的怪物开宝箱就可以了。
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你现在没有金钥匙，不能从第61层进入，想要获得金钥匙，打败第61层的怪物开宝箱就可以了。
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    进入第8层，需要扣你一个铜钥匙，祝你凯旋！
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition='<%=Eval("EnterBronze")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    进入第26层，需要扣你一个银钥匙，祝你凯旋！
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition='<%=Eval("EnterSilver")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    进入第61层，需要扣你一个金钥匙，祝你凯旋！
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition='<%=Eval("EnterGold")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        
+
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

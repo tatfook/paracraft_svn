@@ -1,0 +1,332 @@
+﻿<!-- "script/apps/Aries/Login/Tutorial/CombatTutorial_dialog.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 39002;
+npc_id = tonumber(npc_id);
+
+
+start_state = page:GetRequestParam("start_state") or 1;
+start_state = tonumber(start_state);
+
+function IsState6()
+    return (start_state == 6);
+end
+function IsState7()
+    return (start_state == 7);
+end
+function IsState8()
+    return (start_state == 8);
+end
+function IsState9()
+    return (start_state == 9);
+end
+function IsState10()
+    return (start_state == 10);
+end
+function IsState11()
+    return (start_state == 11);
+end
+function IsState12()
+    return (start_state == 12);
+end
+function IsState13()
+    return (start_state == 13);
+end
+function IsState14()
+    return (start_state == 14);
+end
+function IsState15()
+    return (start_state == 15);
+end
+function IsState16()
+    return (start_state == 16);
+end
+function IsState17()
+    return (start_state == 17);
+end
+
+function IsState19()
+    return (start_state == 19);
+end
+
+function DoExchange()
+	local ctl = CommonCtrl.GetControl("CombatTutorial_TemplatCommon");
+	if(ctl) then
+        _guihelper.MessageBox("1")
+        local asset = ParaAsset.LoadParaX("", "character/v5/10mobs/HaqiTown/RedCrab/RedCrab.x");
+		local ret_obj = ParaScene.CreateCharacter("", asset, "", true, 0.35, -1.57, 1);
+		ctl:ShowModel(ret_obj);
+    end
+    
+    --Map3DSystem.mcml_controls.GetClassByTagName("pe:player").RefreshContainingPageCtrls()
+end
+
+function StartFight()
+    MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+end
+
+function ContinueAfterHPIntro()
+    MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+end
+
+function ContinueAfterCardIntro()
+    MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+end
+
+function MobSpawn()
+	local rat = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30563);
+	if(rat and rat:IsValid() == true) then
+        rat:SetVisible(false);
+		local params = {
+			asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+			binding_obj_name = rat.name,
+            scale = 3,
+			start_position = nil,
+			duration_time = 1000,
+			force_name = nil,
+			begin_callback = function() end,
+			end_callback = nil,
+			stage1_time = 800,
+			stage1_callback = function()
+					local rat = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30563);
+					if(rat and rat:IsValid() == true) then
+						rat:SetVisible(true);
+					end
+				end,
+			stage2_time = nil,
+			stage2_callback = nil,
+		};
+		local EffectManager = MyCompany.Aries.EffectManager;
+		EffectManager.CreateEffect(params);
+	end
+    local viewmob_camera_setting = {9.1744527816772,0.27507531642914,1.0194290876389};
+	local att = ParaCamera.GetAttributeObject();
+	att:SetField("CameraObjectDistance", viewmob_camera_setting[1]);
+	att:SetField("CameraLiftupAngle", viewmob_camera_setting[2]);
+	att:SetField("CameraRotY", viewmob_camera_setting[3]);
+    
+	local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+	local player
+	if(Pet.GetRealPlayer) then
+		player = Pet.GetRealPlayer();
+	else
+		player = ParaScene.GetPlayer();
+	end
+
+	-- set view mob facing
+    player:SetFacing(viewmob_camera_setting[3]);
+    -- set view mob position
+    player:SetPosition(20031.10,2.07,20054.63);
+end
+
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+    if(to >= 1 and to <= 19) then
+        MyCompany.Aries.Quest.NPCs.CombatTutorial.PlayDialogAudio(to);
+        if(to == 1) then
+            MyCompany.Aries.Quest.NPCs.CombatTutorial.EndMovementTraining();
+        end
+    end
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from >= 1 and from <= 19) then
+        MyCompany.Aries.Quest.NPCs.CombatTutorial.StopDialogAudio(from);
+    end
+end
+
+function BeginMovementTraining()
+    MyCompany.Aries.Quest.NPCs.CombatTutorial.BeginMovementTraining();
+end
+
+name = "梅林";
+if(npc_id == 30563) then
+    name = "怪物名";
+elseif(npc_id == 39003) then
+    name = "船长法斯特";
+end
+
+]]>
+</script>
+    <pe:if condition='<%=(start_state and start_state>=1 and start_state<=6)%>' >
+        <div style="position:relative;margin-left:0px;margin-top:180px;">
+            <a name="skip_intro" style="font-size:12px;color:#308d03" onclick="MyCompany.Aries.Quest.NPCs.CombatTutorial.SkipCombatTutorial">跳过教程</a>
+        </div>
+    </pe:if>
+    <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_CombatTutorial_teen.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+        <pe:placeholder id="name" source="{this}" value='<%=Eval("name")%>'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="later" />
+        <pe:placeholder id="ok" />
+        <pe:placeholder id="thanks" />
+        <pe:placeholder id="giveyoustuff" />
+    </pe:template>
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+            <pe:answer-if condition = '<%=IsState6() %>' target_state = "6"/>
+            <pe:answer-if condition = '<%=IsState7() %>' target_state = "7"/>
+            <pe:answer-if condition = '<%=IsState8() %>' target_state = "8"/>
+            <pe:answer-if condition = '<%=IsState9() %>' target_state = "9"/>
+            <pe:answer-if condition = '<%=IsState10() %>' target_state = "10"/>
+            <pe:answer-if condition = '<%=IsState11() %>' target_state = "11"/>
+            <pe:answer-if condition = '<%=IsState12() %>' target_state = "12"/>
+            <pe:answer-if condition = '<%=IsState13() %>' target_state = "13"/>
+            <pe:answer-if condition = '<%=IsState14() %>' target_state = "14"/>
+            <pe:answer-if condition = '<%=IsState15() %>' target_state = "15"/>
+            <pe:answer-if condition = '<%=IsState16() %>' target_state = "16"/>
+            <pe:answer-if condition = '<%=IsState17() %>' target_state = "17"/>
+            <pe:answer-if condition = '<%=IsState19() %>' target_state = "19"/>
+            <pe:answer-if condition = 'true' target_state = "1"/>
+		</pe:answer>
+	</pe:state>
+
+    <pe:state id = "1">
+        我的勇士，你终于醒了？你受伤了，可以告诉我发生什么事情了吗？
+        <pe:answer template_id="whosdarklord">
+			<pe:answer-if condition = "true" target_state = "2"/>
+		</pe:answer>
+	</pe:state>
+
+	<pe:state id = "2">
+		你说的是那批见习魔法师吗？他们是被谁抓走的？
+        <pe:answer template_id="whatcanwedo">
+			<pe:answer-if condition = "true" target_state = "3"/>
+		</pe:answer>
+	</pe:state>
+
+	<pe:state id = "3">
+		我是守护魔法圣树的巨龙，应该也是你们这次魔法修行的老师，我的名字叫兰迪。他们抓了这批见习魔法师究竟是为了什么事情？
+        <pe:answer template_id="mayihelp">
+			<pe:answer-if condition = "true" transition="<%=MobSpawn()%>" target_state = "4"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "4">
+		圣物？他们也知道了这件事情？居然还有没走的暗黑魔族，你们太大胆了！让我巨龙兰迪来消灭你们。
+        <pe:answer template_id="nogivemeatry">
+			<pe:answer-if condition = "true" target_state = "5"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "5">
+		那这样你就去吧，期间我会向你介绍一下各系别魔法的特点，方便以后我唤醒你身体中的魔法力。
+        <pe:answer template_id="wellthen">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterHPIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "6">
+		原来还有一个漏网之鱼，刚好让我活动活动筋骨。如果把你带回去，男爵一定会好好奖赏我。
+        <pe:answer template_id="bringiton">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterHPIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "7">
+		小心受伤！屏幕下放的红色血条代表你的HP，当你受到伤害时候，你的HP会减少，如果HP为0，你将无法再继续战斗下去，一定要牢记！
+        <pe:answer template_id="ialreadyknow">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterHPIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "8">
+		风暴系是所有魔法中攻击力最高的，先用这个魔法好好教训一下它！
+        <!--<pe:answer template_id="okgivehimapunch">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "9">
+		虽然寒冰系攻击较弱，但是它拥有最高的HP和最强的防御魔法。
+        <!--<pe:answer template_id="ialreadyknow">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "10">
+		当心，你的HP严重不足，快使用生命系卡片，先给自己补充HP，别着急，我们一定可以打败它的！
+        <!--<pe:answer template_id="ialreadyknow">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "11">
+		居然来了2只怪物，这次就用火系魔法，群体攻击，一起都能对付！
+        <!--<pe:answer template_id="great">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "12">
+		怪物剩下的血不多了，用死亡系的吸血魔法吧，不但能消灭它，还能给自己补充HP！
+        <!--<pe:answer template_id="okletsdothis">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "13">
+		太棒了，你果真非常有天赋，我决定把保护小镇的重大使命托付给你和你的抱抱龙，你准备好了吗？
+        <pe:answer template_id="imready">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "14">
+		看来还是很轻松的嘛？看来某些事情要开始进行了，我现在就唤醒你身体中的魔法星，先选择一个你最想学习的魔法系别吧！
+        <pe:answer template_id="iwillpicknow">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "15">
+		<!--这里有一封推荐信，你的导师已经在等你了，我把我的魔杖送给你，祝你早日成为优秀魔法师！-->
+        好，看来你已经选好了喜欢的魔法系别。现在你闭上眼睛，我帮你进行唤醒仪式，拥有了魔法力之后你会有一段磨练期。
+        <pe:answer template_id="okey">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "16">
+        胜利了！底下是你的经验条，战斗胜利或完成任务都可以获得经验，当你把经验条存满，你的战斗等级就可以提升了！
+        <pe:answer template_id="ialreadyknow">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "17">
+		你已经拥有初步的魔法力了，我先把你送去不远处的彩虹渔港。在那里会有人指引你的，希望这段磨练期间你可以给我一个惊喜。
+        <pe:answer template_id="letsgo">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+
+    
+
+	<pe:state id = "19">
+		醒来吧，我的勇士，这里非常安全。我先教会你在这个全新世界的基础生存方法。
+        <pe:answer template_id="okey">
+			<pe:answer-if condition = "true" transition="<%=BeginMovementTraining()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

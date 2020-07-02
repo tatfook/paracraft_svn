@@ -1,0 +1,85 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_equipment_subpage,add by WD, 2011/08/02</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.lua");
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+Avatar_equipment_subpage:Init();
+local pageCtrl = document:GetPageCtrl();
+function GetDataSource(arg)
+    return Avatar_equipment_subpage:GetDataSource(arg);
+end
+
+function OnClickItem(arg)
+    Avatar_equipment_subpage:OnClickItem(arg,false);
+end
+]]></script>
+<pe:if condition='<%=System.options.version == "teen" %>'>
+    <div style="padding:1px;width:422px;height:290px;" class="border_bg2_css">
+        <pe:gridview name="pegvwEquipView2" DataSource="<%=GetDataSource %>" 
+            CellPadding="2" ItemsPerLine="8" AllowPaging="true" pagesize="40" >
+            <Columns>
+                <div style="margin-left:2px;margin-top:2px;width:48px;height:48px;" class="block">
+                    <pe:if condition='<%=#MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.DisplayItems ~= 0 %>'>
+                    <pe:slot onclick='<% OnClickItem %>'name='<%=Eval("guid")%>'  guid='<%=Eval("guid")%>'showdefaulttooltip="true" style="width:48px;height:48px;"/>
+                    </pe:if>
+                </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:152px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    <input type="button" name="pre" class="pagerleft" />
+                    <input type="button" name="page" class="pagertext" />
+                    <input type="button" name="next" class="pagerright" />
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div> 
+</pe:if>
+
+
+        <pe:if condition='<%=System.options.version == "kids" %>'>
+        <div style="padding:15px;width:442px;margin-left:-40px;height:375px;background:url(Texture/Aries/HaqiShop/bg4_32bits.png:20 20 20 20);" >
+        <pe:gridview name="pegvwEquipView" DataSource="<%=GetDataSource %>" 
+            CellPadding="2" ItemsPerLine="4" AllowPaging="true" pagesize="12" >
+            <Columns>
+                <div style="margin-left:5px;padding:10px;margin-top:2px;width:90px;height:90px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                    <pe:slot onclick='<% OnClickItem %>' guid='<%=Eval("guid")%>' HideCnt= "true" showdefaulttooltip="true" style="width:70px;height:70px;"/>               
+			    </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:152px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    <input type="button" name="pre" style="width:20px;margin-left:0px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+                    <div style="float:right;margin-top:-2px;width:64px;">
+	                    <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" style="margin-left:8px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+        </div> 
+        </pe:if>
+      
+</pe:mcml> 
+</body>
+</html>

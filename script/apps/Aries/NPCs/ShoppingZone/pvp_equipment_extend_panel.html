@@ -1,0 +1,298 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/pvp_equipment_extend_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="pvp_equipment_extend_panel.lua"><![CDATA[
+local pvp_equipment_extend_panel = MyCompany.Aries.Quest.NPCs.pvp_equipment_extend_panel;
+local pageCtrl = document:GetPageCtrl();
+pvp_equipment_extend_panel.OnInit();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local LOG = LOG;
+
+function RefreshPage()
+    pageCtrl:Refresh(0);
+end
+function ClosePage()
+    pageCtrl:CloseWindow();
+    pvp_equipment_extend_panel.selected_item = nil;
+end
+function DoShow(index)
+    local node = pvp_equipment_extend_panel.list[index];
+    if(node)then
+        pvp_equipment_extend_panel.DoShowNode(node.gsid);
+    end
+end
+function GetDesc()
+    if(pvp_equipment_extend_panel.selected_item and pvp_equipment_extend_panel.selected_item.desc)then
+        return pvp_equipment_extend_panel.selected_item.desc;
+    end
+end
+function DoExchange(index)
+    local node = pvp_equipment_extend_panel.list[index];
+    if(node and pvp_equipment_extend_panel.selected_item)then
+        local label = node.label;
+        local exid = tonumber(node.exid);
+        local gsid = tonumber(node.gsid);
+        local req_level = tonumber(node.req_level);
+        local req_rank_order = node.req_rank_order;
+        local combatlel = 0;
+		local bean = MyCompany.Aries.Pet.GetBean();
+        if(bean)then
+            combatlel = bean.combatlel;
+            if(combatlel < req_level)then
+                local s = string.format("这件装备要求战斗等级:%d级,你的级别还不够呢！",req_level);
+                _guihelper.MessageBox(s);
+                return
+            end
+        end
+        local rank_order = System.User.rank_order or 101;
+        if(rank_order >100 and req_rank_order and req_rank_order == "true")then
+            --local s = string.format("当天系别排名前100才能兑换%s！",label);
+            --_guihelper.MessageBox(s);
+            --return
+        end
+        local uncheck_maxnum = node.uncheck_maxnum;
+        local check_maxnum = true;
+        if (uncheck_maxnum and uncheck_maxnum == "true") then
+            check_maxnum = false;
+        end
+        local target_num = tonumber(node.target_num);
+        local gold_bean = tonumber(node.gold_bean);
+        local gold_bean_gisd = 17178;
+        local __,__,__,copies = hasGSItem(gold_bean_gisd);
+        copies = copies or 0;
+        local school = MyCompany.Aries.Combat.GetSchool();
+        local ex_school = pvp_equipment_extend_panel.selected_item.school;
+        if(school and ex_school and school ~= ex_school)then
+            local s = string.format("系别不对，不能兑换%s！",label);
+            _guihelper.MessageBox(s);
+            return
+        end
+        if(gold_bean and exid and gsid)then
+            if(hasGSItem(gsid) and check_maxnum)then
+                local s = string.format("你已经拥有%s了，不需要再兑换了！",label);
+                _guihelper.MessageBox(s);
+                return
+            end
+            if(copies < gold_bean)then
+                local s = string.format("很抱歉，你没有足够的金豆，不能兑换%s！",label);
+                _guihelper.MessageBox(s);
+                return
+            end
+            local s;
+            if(target_num)then
+                s = string.format("你确定要用%d个金豆来兑换%d个%s吗？",gold_bean,target_num,label);
+            else
+                s = string.format("你确定要用%d个金豆来兑换%s吗？",gold_bean,label);
+            end
+            _guihelper.Custom_MessageBox(s,function(result)
+	            if(result == _guihelper.DialogResult.Yes)then
+                    --如果成功
+                LOG.std("", "info","before pvp_equipment_extend_panel.DoExchange",{gsid = gsid});
+
+		        ItemManager.ExtendedCost( exid, nil, nil, function(msg)end, function(msg)
+                LOG.std("", "info","after pvp_equipment_extend_panel.DoExchange",msg);
+                        if(msg)then
+                            if(msg.issuccess)then
+                                RefreshPage()
+                                local s = string.format("恭喜你成功兑换了%s！",label);
+                                _guihelper.Custom_MessageBox(s,function(result)
+	                                if(result == _guihelper.DialogResult.OK)then
+	                                end
+                                end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                            else
+                            ClosePage();
+                            end
+                        end
+                    end)
+                        
+	            end
+            end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+        end
+    end
+end
+
+function GetBeanNum()
+    local __,__,__,copies = hasGSItem(17178);
+    copies = copies or 0;
+    return copies;
+end
+
+function DS_Func(index)
+    return pvp_equipment_extend_panel.DS_Func(index)
+end
+function GetDataSource(index)
+    return pvp_equipment_extend_panel.menu_datasource;
+end
+function OnClickNode(treenode)
+    if(not treenode or not treenode.parent)then return end
+    local parent = treenode.parent;
+    local parent_item = parent.mcmlNode:GetPreValue("this");
+    local item = treenode.mcmlNode:GetPreValue("this");
+    pvp_equipment_extend_panel.DoSelectedNode(parent_item.level,item.level)
+end
+function GetList(menu_datasource,index)
+    if(menu_datasource and index)then
+        local list = {};
+        local node;
+		for node in commonlib.XPath.eachNode(menu_datasource, "//root/folder/items") do
+			if(node.attr.index == index)then
+                local item_node;
+        		for item_node in commonlib.XPath.eachNode(node, "//item") do
+                    table.insert(list,item_node.attr);
+                end
+            end
+		end
+        return list;
+    end
+end
+function OnClickFolder(treenode)
+    local item = treenode.mcmlNode:GetPreValue("this");
+    if(item)then
+        item.is_closed = not item.is_closed;
+        pageCtrl:Refresh(0);
+    end
+end
+function GetExpanded(is_closed)
+    if(is_closed)then
+        return false;
+    else
+        return true
+    end
+end
+function IsSelected(item)
+    if(pvp_equipment_extend_panel.selected_item and pvp_equipment_extend_panel.selected_item == item)then
+        return true;
+    end
+end
+function GetTooltip(gold_bean)
+    if(gold_bean)then
+        local s = string.format("：%s个",gold_bean);
+        return s;
+    end
+end
+function HasExid(exid)
+    if(exid)then
+        return true;
+    end
+end
+]]></script>
+<div style="width:870px;height:512px;background:url(Texture/Aries/npcs/suit/tile_1_bg_32bits.png#0 0 64 507:30 30 30 30)">
+    <div style="position:relative;margin-left:830px;margin-top:-5px;">
+        <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    </div>
+    <div style="margin-left:369px;margin-top:13px;width:133px;height:22px;background:url(Texture/Aries/npcs/suit/pvp_title_32bits.png#0 0 133 22)"/>
+    <div style="margin-left:56px;margin-top:0px;width:758px;height:23px;background:url(Texture/Aries/npcs/suit/pvp_title2_32bits.png#0 0 758 23)"/>
+    <div style="float:left;margin-left:15px;margin-top:5px;width:180px;height:420px;background:url(Texture/Aries/npcs/suit/tile_2_bg_32bits.png#0 0 64 420:25 200 25 200)">
+         <pe:treeview name="menus" DataSource='<%=GetDataSource()%>'
+		         ItemOpenBG="Texture/aries/npcs/suit/close_32bits.png;0 0 13 13"
+                ItemCloseBG="Texture/aries/npcs/suit/open_32bits.png;0 0 13 13"
+                style="margin-left:10px;margin-top:15px;width:160px;height:390px;background:"
+                RememberScrollPos="true"
+                ItemToggleSize="13"
+                OnClick="OnClickNode"
+		        DefaultNodeHeight="20">
+	        <NodeTemplates>
+		        <NodeTemplate DataType="folder">
+                    <pe:treenode text='<%=XPath("this|label")%>' 
+                    style="color:#114c84;font-size:14;font-weight:bold;"
+                    expanded='<%=GetExpanded(XPath("this|is_closed"))%>'
+                OnClick="OnClickFolder"
+            MouseOverBG=""
+                    can_select = "true" 
+                    ></pe:treenode>
+                </NodeTemplate>
+                <NodeTemplate DataType="items">
+                    <pe:treenode text='<%=XPath("this|label")%>' 
+                    style="color:#114c84;font-size:12;"
+                    selected='<%=IsSelected(XPath("this"))%>'
+                    can_select = "true" 
+                    ></pe:treenode>
+                </NodeTemplate>
+	        </NodeTemplates>
+        </pe:treeview>
+    </div>
+    <div style="float:left;margin-left:10px;margin-top:5px;width:640px;height:420px;background:url(Texture/Aries/npcs/suit/tile_2_bg_32bits.png#0 0 64 420:25 200 25 200)">
+        <div style="float:left;margin-left:15px;margin-top:15px;width:294px;height:391px;background:url(Texture/Aries/npcs/suit/tile_3_bg_32bits.png#0 0 294 391)">
+            <div style="margin-left:20px;margin-top:20px;height:256px;width:256px;">
+                <pe:canvas3d DefaultRotY="-1.57" DefaultCameraObjectDist = "5" LookAtHeight="1.2" DefaultLiftupAngle="0.1" name="SuitAvatar" RenderTargetSize="256" miniscenegraphname="AvatarMyselfTabCharacter" 
+                    ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="false"/>
+            </div>
+            <div style="margin-left:20px;margin-top:50px;">
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:right;margin-left:0px;margin-top:0px;width:69px;height:32px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_left.png#0 0 69 32)"/>
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:right;margin-left:170px;margin-top:-32px;width:69px;height:32px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_right.png#0 0 69 32)"/>
+            </div>
+        </div>
+        <div style="float:left;margin-top:15px;font-size:12;color:#114c84">
+            <pe:gridview name="gvRooms" style="width:700px;height:800px" DataSource="<%=DS_Func%>"  ItemsPerLine="3" AllowPaging="true" pagesize="6">
+                    <Columns>
+                     <div style="float:left;margin-left:10px;font-size:12;color:#114c84">
+                      <pe:if condition='<%=Eval("isnew")%>'>
+                            <img zorder = 1 style="position:relative;width:45px;height:23px;margin-left:50px;margin-top:0px;background:url(Texture/Aries/Dock/NEW_magazine_32bits.png#0 0 45 23)" />
+                        </pe:if>
+                        <div style="margin-left:0px;margin-top:0px;width:90px;height:90px;background:url(Texture/Aries/npcs/suit/slot_bg_32bits.png#0 0 95 95: 30 30 30 30)">
+                            <pe:item gsid="<%=Eval('gsid') %>" isclickable = "false" showdefaulttooltip="true" style="margin-left:10px;margin-top:12px;width:70px;height:70px;"/>
+                        </div>
+                        <div>
+                            <pe:item gsid="<%=Eval('gold_bean_gsid') %>" isclickable = "false" showdefaulttooltip="true" style="float:left;margin-left:10px;margin-top:0px;width:20px;height:20px;"/>
+                            <div style="float:left;margin-left:2px;"><%=GetTooltip(Eval('gold_bean'))%></div>
+                        </div>
+                        <pe:if condition="<%=Eval('target_num')~= '' %>" >
+                            <div style="position:relative;margin-left:65px;margin-top:-50px;font-weight:bold;"><%=Eval('target_num') %></div>
+                        </pe:if>
+                        <pe:if condition="<%=HasExid(Eval('exid')) %>">
+                            <input type="button" name="<%=Eval('index') %>" onclick="DoExchange" value="兑换" style="margin-left:4px;margin-top:2px;width:87px;height:32px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+                        </pe:if>
+                        <pe:if condition="<%=not HasExid(Eval('exid')) %>">
+                            <input type="button" name="<%=Eval('index') %>" onclick="DoShow" value="查看" style="margin-left:4px;margin-top:2px;width:87px;height:32px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+                        </pe:if>
+                    </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>空</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>请稍等 ... </b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" height="1"/>
+                    <PagerTemplate>
+                        <form>
+                            <div style="margin-left:190px;margin-top:-110px;">
+                                <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                            <div style="float:right;margin-top:-2px;width:64px;">
+	                                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                            </div>
+	                            <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                            </div>
+                        </form>
+                    </PagerTemplate>
+                </pe:gridview>
+            <div style="margin-left:15px;margin-top:-120px;">
+                <div>已有金豆:<%=GetBeanNum() %></div>
+                <div style="margin-top:10px;">
+                金豆已经绝版，无法再获得。
+                <!--金豆需要参加玩家间的战斗获得：
+                <br />
+PK试炼场获胜可以获得3个，输了获得1个；
+<br />
+红蘑菇赛场获胜可以获得6个，输了获得4个。-->
+
+                </div>
+            </div>
+            <div style="position:relative;font-size:12;margin-top:-60px;color:#ff0000;padding:10px;">
+                <%=GetDesc() %>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

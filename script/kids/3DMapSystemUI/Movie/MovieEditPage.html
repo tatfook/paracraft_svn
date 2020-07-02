@@ -1,0 +1,80 @@
+﻿<!-- "script/kids/3DMapSystemUI/Movie/MovieEditPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>movie app by LiXizhi, 2008.8.19</title>
+</head>
+<body>
+<pe:mcml style="max-width:800px" align="center">
+<script type="text/npl" src="MovieEditPage.lua">
+Map3DSystem.Movie.MovieEditPage.OnInit();
+function g_MoviesView(params)
+    Map3DSystem.Movie.MovieEditPage.ShowMovieView(params)   
+end
+
+function g_AssetsView(params)
+   Map3DSystem.Movie.MovieEditPage.ShowMovieAssetsView(params)
+   Map3DSystem.Movie.MovieEditPage.SelectedDefaultPath();
+end
+</script>
+<div style="padding:5px;" width="100%">
+<a name="saveMovieBtn" onclick="Map3DSystem.Movie.MovieEditPage.Save" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px;background:url(Texture/3DMapSystem/common/disk.png)"/>保存</a>
+<a name="saveMovieBtn" onclick="Map3DSystem.Movie.MovieEditPage.SaveAs" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px;background:url(Texture/3DMapSystem/common/png-0057.png)"/>另存为</a>
+<a name="saveMovieBtn" onclick="Map3DSystem.Movie.MovieEditPage.OutPut" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px;background:url(Texture/3DMapSystem/common/books.png)"/>输出</a>
+<a name="setMovieInfoBtn" onclick="Map3DSystem.Movie.MovieEditPage.SetMovieInfo" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px;background:url(Texture/3DMapSystem/common/information.png)"/>设置</a>
+<a name="previewBtn" onclick="Map3DSystem.Movie.MovieEditPage.Preview" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px;background:url(Texture/3DMapSystem/common/PageRight.png)"/>预览</a>
+
+<hr/>
+<div style="padding:5px" >
+<div style="float:left" width="50%">
+<img style="background:url(Texture/3DMapSystem/AppIcons/VideoRecorder_64.dds);width:48px;height:48px;margin:3px" />
+<div style="float:left;margin:5px;">
+    <div><p name="fileName_label" style="font-size:14px;font-weight:bold"></p></div>   
+    <div style="margin-top:5px">说明</div>
+</div>
+<div style="margin-bottom:5px">
+     <div style="float:left" width="90%" height="98%">
+        <pe:custom oncreate="g_MoviesView" />     
+    </div>
+</div>
+</div>
+<div style="float:left;margin-left:3px;margin-top:-5px">
+ <div style="padding:5px" width="100%">
+<img style="background:url(Texture/3DMapSystem/AppIcons/theme_64.dds);width:48px;height:48px;margin:3px" />
+<div style="float:left;margin:5px;">
+    <div style="font-size:14px;font-weight:bold;">电影素材库</div>
+    <div>
+      <div style="float:left;margin-top:5px">所属电影:</div>
+      <select style="margin-top:2px;width:180px" name="CurMovie" onclick="Map3DSystem.Movie.MovieEditPage.MovieAssets_OnSelectMovie()">
+          <option selected="true" value="">缺省电影</option>
+      </select>
+    </div>
+</div>
+<div style="margin-bottom:5px">
+    <div style="float:left" width="90%" height="98%">
+        <pe:custom oncreate="g_AssetsView"/>
+    </div>
+    <div style="float:left;margin-left:3px;">
+        <div style="margin-bottom:5px;"><a tooltip="胶片" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-clip"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/AppIcons/CG_64.dds)"/></a></div>
+        <div style="margin-bottom:5px;"><a tooltip="摄像机" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-camera"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/AppIcons/VideoRecorder_64.dds)"/></a></div> 
+        <div style="margin-bottom:5px;"><a tooltip="天空" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-sky"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/MainBarIcon/Sky.png)"/></a></div> 
+       <div style="margin-bottom:5px;"><a tooltip="陆地" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-land"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/MainBarIcon/Terrain.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="海洋" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-ocean"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/MainBarIcon/Water.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="字幕" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-caption"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/AppIcons/Discussion_64.dds)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="人物" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-actor"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/Creator/Level1_NC.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="建筑" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-building"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/Creator/Level1_BCS.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="植物" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-plant"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/Creator/NM_Trees.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="特效" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-effect"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/Creator/NM_Particle.png)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="声音" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-sound"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/AppIcons/Noname2.dds)"/></a></div>
+       <div style="margin-bottom:5px;"><a tooltip="控件" name="switchClips" onclick="Map3DSystem.Movie.MovieEditPage.ShowAssetView" param1="pe:movie-control"><img style="width:25px;height:25px;background:url(Texture/3DMapSystem/AppIcons/Blueprint_64.dds)"/></a></div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+

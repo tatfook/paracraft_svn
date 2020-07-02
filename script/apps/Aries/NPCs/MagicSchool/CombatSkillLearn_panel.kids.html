@@ -1,0 +1,211 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn_panel.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CombatSkillLearn.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local npc_id = pageCtrl:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+function hasStoneCopies()
+    local _,_,_,magicstone_copies=hasGSItem(22000);
+    magicstone_copies = magicstone_copies or 0;
+    if(magicstone_copies > 0)then
+        return true;
+    end
+end
+function getStoneCopies()
+    local _,_,_,magicstone_copies=hasGSItem(22000);
+    magicstone_copies = magicstone_copies or 0;
+    return string.format("%d",magicstone_copies);
+end
+
+MyCompany.Aries.Quest.NPCs.CombatSkillLearn.OnInit(npc_id);
+
+function DS_Func_CombatSkillLearn(index)
+    return MyCompany.Aries.Quest.NPCs.CombatSkillLearn.DS_Func_CombatSkillLearn(index);
+end
+
+
+function getDesc()
+    local xmlRoot = ParaXML.LuaXML_ParseFile("config/Aries/Mentor/7Mentor.xml");
+    xmlnode="/Mentors/NPC_"..npc_id;
+    local desc;
+    local each_mentor;
+    for each_mentor in commonlib.XPath.eachNode(xmlRoot, xmlnode) do
+	    desc = each_mentor.attr.desc;
+    end
+    return desc
+end
+
+function getTitlepng()
+    local s;
+    if (npc_id == 30398 or npc_id == 30399 or npc_id == 30400 or npc_id == 30401 or npc_id == 30402 ) then
+        s=string.format("Texture/Aries/NPCs/MagicSchool/%d_title_32bits.png;0 0 83 92",npc_id);
+    elseif (npc_id == 30112) then
+        s=string.format("Texture/Aries/NPCs/MagicSchool/%d_title_32bits.png;0 0 93 91",npc_id);
+    else
+        s=""
+    end
+    return s
+end
+
+function getCardTip(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then return end
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=3",gsid);
+    return s;
+    --return string.format("page://script/apps/Aries/NPCs/MagicSchool/SkillCardTooltip.html?gsid=%d",gsid);
+end
+
+function getClassIcon(class_gsid)
+    local classicon={
+        [986]="Texture/Aries/Desktop/CombatCharacterFrame/card/fire.png", 
+        [987]="Texture/Aries/Desktop/CombatCharacterFrame/card/ice.png", 
+        [988]="Texture/Aries/Desktop/CombatCharacterFrame/card/storm.png", 
+        [989]="Texture/Aries/Desktop/CombatCharacterFrame/card/myth.png", 
+        [990]="Texture/Aries/Desktop/CombatCharacterFrame/card/life.png", 
+        [991]="Texture/Aries/Desktop/CombatCharacterFrame/card/death.png", 
+        [992]="Texture/Aries/Desktop/CombatCharacterFrame/card/balance.png",
+    }
+    local s;
+    if (classicon[class_gsid]) then
+        s = string.format("%s;0 0 30 30",classicon[class_gsid]);
+    else
+        s = ""
+    end
+    return s
+end
+
+function getIcon(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then 
+        local s = string.format("%s;0 0 44 44","Texture/Aries/Item/0_unkonwnMagic_Thumb_32bits.png");
+        return s
+    end
+
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s",gsItem.descfile or "");
+        return s;
+    end
+end
+
+function getStudyButton(skilltype)
+    skilltype=tonumber(skilltype)
+    if (skilltype==0) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/study_32bits.png#0 0 72 32)"
+        return s
+    end
+
+    if (skilltype==1) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/option_study_32bits.png#0 0 72 32)"
+        return s
+    end
+
+    if (skilltype==2) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/task_study_32bits.png#0 0 72 32)"
+        return s
+    end
+end
+
+
+function getCantStudyButton(skilltype)
+    if (skilltype==0) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/cant_study_32bits.png#0 0 72 32)"
+        return s
+    end
+
+    if (skilltype==1) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/option_cant_study_32bits.png#0 0 72 32)"
+        return s
+    end
+
+    if (skilltype==2) then
+        local s="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/task_cant_study_32bits.png#0 0 72 32)"
+        return s
+    end
+end
+]]></script>
+<div style="width:890px;height:500px;">
+<div style="float:left;margin-left:10px;margin-top:10px;width:783px;height:489px;background:url(Texture/Aries/NPCs/MagicSchool/reel_bg_32bits.png#0 0 783 489);">
+    <div style="position:relative;margin-left:732px;margin-top:35px;">
+        <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.ClosePage()" value=""/>
+    </div>
+    <div style="position:relative;margin-left:350px;margin-top:8px">
+        <img style="width:83px;height:92px;" src='<%=getTitlepng()%>' />
+    </div>
+    <div style="margin-left:60px;margin-top:57px;width:128px;height:42px;background:url(Texture/Aries/NPCs/MagicSchool/learnpoints_32bits.png#0 0 128 42);">
+        <div style="margin-left:0px;margin-top:10px;text-align:right;width:110px;height:42px;font-weight:bold;font-size:14;color:#224D81;" tooltip="找白龙导师可以洗点"><%=getStoneCopies()%></div>        
+    </div>
+    <div style="margin-left:75px;margin-top:25px;width:780px;height:15px;color:#114D81" ><%=getDesc()%></div>
+    <pe:gridview DataSource="<%=DS_Func_CombatSkillLearn%>" name="combat_skill_learn" style="margin-left:80px;margin-top:0px;margin-right:0px;margin-bottom:0px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "43" ItemsPerLine="1" AllowPaging="true" pagesize="6">
+        <Columns>  
+            <div style="margin-left:80px;margin-left:0px;width:550px;height:43px;">              
+                <div style="float:left;margin-left:0px;margin-top:15px;width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicSchool/skillicon_bg_32bits.png#0 0 40 41:8 8 8 8);">
+                    <pe:item  gsid='<%=Eval("gsid")%>' style="width:36px;height:36px;margin-left:2px;margin-top:2px;" />
+                    <!--<img style="width:36px;height:36px;margin-left:2px;margin-top:2px;" src="<%=getIcon(Eval('gsid')) %>" />-->
+					<input type="button" zorder="3" style="margin-top:-38px;width:38px;height:38px;background:;" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="10" tooltip_offset_y="-60"/>
+                </div>
+               	<div style="float:left;margin-left:10px;margin-top:15px;width:360px;height:38px;color:#ffffff;font-weight:bold;font-size:14px;background:url(Texture/Aries/NPCs/MagicSchool/skilldesc_bg_32bits.png#0 0 64 38:8 8 8 8);">
+                   	<div style="float:left;margin-left:20px;margin-top:7px;width:120px;" ><%=Eval("name") %></div>
+                   	<div style="float:left;margin-top:7px;width:175px;" ><%=Eval("tips") %></div>
+                    <img style="float:left;width:30px;height:30px;margin-left:5px;margin-top:5px;" src="<%=getClassIcon(Eval('classtype')) %>" />
+				</div>		
+                        								
+                <div style="float:left;margin-left:10px;margin-top:15px;width:85px;height:38px;background:url(Texture/Aries/NPCs/MagicSchool/skilldesc_bg_32bits.png#0 0 64 38:8 8 8 8);">
+                        <div style="margin-left:20px;margin-top:7px;color:#ffffff;font-weight:bold;font-size:14px;"><%=Eval("needlevel")%>级</div>
+                </div>
+                <div style="float:left;margin-left:15px;margin-top:18px;">
+                    <pe:if condition='<%=not Eval("skillHas")  and  Eval("skillCanStudy") %>'>                            
+                        <a onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.DoStudy" isbuttonstyle="true" style="<%=getStudyButton(Eval('skilltype')) %>" param1='<%=Eval("index")%>'>
+	                        <div style="width:72px;height:32px;" />
+                        </a>
+                    </pe:if>
+                    <pe:if condition='<%=( not Eval("skillHas")  and  not Eval("skillCanStudy") ) %>'>                                
+	                    <a onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.CanNotStudy" isbuttonstyle="true" style="<%=getCantStudyButton(Eval('skilltype')) %>" param1='<%=Eval("index")%>'>
+	                        <div style="width:72px;height:32px;" />
+                        </a>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("skillHas")%>'>
+                        <a onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.HasStudy" isbuttonstyle="true" style="width:72px;height:32px;background:url(Texture/Aries/NPCs/MagicSchool/had_32bits.png#0 0 72 32)" param1='<%=Eval("index")%>'>
+	                        <div style="width:72px;height:32px;" />
+                        </a>
+                    </pe:if>                    
+                    </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" tooltip="上一页" name="pre" zorder="2" style="margin-left:632px;margin-top:-210px;width:21px;height:21px;background:Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_up.png#0 0 21 21;"/>
+	            <!--
+                <div style="float:right;margin-top:4px;width:64px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+                -->
+	            <input type="button" tooltip="下一页" name="next" zorder="2" style="margin-left:632px;margin-top:-160px;width:21px;height:21px;background:Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_down.png#0 0 21 21;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

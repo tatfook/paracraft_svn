@@ -1,0 +1,88 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/TerraGenPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="TerraGenPage.lua"><![CDATA[
+Map3DSystem.App.Env.TerraGenPage.OnInit();
+]]></script>
+<form name="genHeightFieldFile">
+<div style="float:left;" tooltip="叠加时的中心坐标">x:</div>
+    <div style="float:left">
+        <pe:numericupdown style="width:80px" name="pos_x" value="266.67" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Env.TerraGenPage.OnSetPosX"/>
+    </div>
+    <br />
+<div style="float:left;" tooltip="叠加时的中心坐标">z:</div>
+    <div style="float:left">
+        <pe:numericupdown style="width:80px" name="pos_z" value="266.67" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Env.TerraGenPage.OnSetPosZ"/>
+        <input tooltip="使用当前人物的位置" style="margin-top:0px;margin-left:3px"type="button" name="CurrentPlayerPos" value="当前位置" onclick="Map3DSystem.App.Env.TerraGenPage.OnSetCurrentPlayerPos"/>
+    </div>
+    <br />
+<div style="float:left" tooltip="叠加半径">半径:</div>
+    <div style="float:left">
+        <pe:numericupdown style="width:80px" name="radius" value="32" valueformat="%.2f" min="5" max="4096" onchange="Map3DSystem.App.Env.TerraGenPage.OnSetRadius"/><br />
+    </div>    
+    <br />
+<pe:tabs name="TerraExportImport" > 
+<pe:tab-item text="叠加高度图" name="applyHF" selected="true">
+    <div style="float:left" tooltip="">方式:</div>
+    <div style="float:left">
+        <select name="MergeOperation">
+            <option value="0" selected="true">相加</option>
+            <option value="1">相减</option>
+            <option value="2">相乘</option>
+            <option value="3">相除</option>
+            <option value="4">取最小值</option>
+            <option value="5">取最大值</option>
+        </select>
+    </div><br />
+    <div style="float:left" tooltip="当前地形叠加时的权重">目标权重:</div>
+    <div style="float:left">
+        <pe:sliderbar style="width:150px" name="weight1" IsShowEditor="true" EditorFormat="%.2f" value="1" min="0" max="1" min_step="0.01"/>
+    </div><br />
+    <div style="float:left" tooltip="文件高度图在叠加时的权重">文件权重:</div>
+    <div style="float:left">
+        <pe:sliderbar style="width:150px" name="weight2" IsShowEditor="true" EditorFormat="%.2f" value="1" min="0" max="1" min_step="0.01"/>
+    </div><br />
+        
+    <div style="float:left" tooltip="叠加时和已有地形的边界过渡像素数目: 值越大, 过度越柔和">柔和:</div>
+    <div style="float:left">
+        <pe:sliderbar style="width:150px" name="smoothpixels" IsShowEditor="true" EditorFormat="%.2f" value="0" min="0" max="50" min_step="1"/>
+    </div><br />    
+    <input type="checkbox" name="useHeightMapRadius" checked="true"/><div style="float:left;" tooltip="此功能必须勾选">使用高度图文件半径</div>
+    <hr />
+    <div>
+        <input name="btnApplyTerraFile" type="submit" tooltip="叠加地形文件" value="叠加高度图..." onclick="Map3DSystem.App.Env.TerraGenPage.OnApplyHeightFieldFile"/>
+    </div>
+    <pe:treeview style="background:;">
+        <pe:treenode text="帮助说明" expanded="false">
+            <div>点击叠加高度图, 选择一个高度图文件, 它将叠加到中心位置(x,y) </div>
+            <div>【注】如果高度图文件很大, 可能需要保存世界后, 重新载入, 才能正确显示</div>
+            <div>【raw文件】raw是ParaEngine的高度图文件, 它是float32[size*size]数组. 您也可以从引擎提供的3dsmax插件导出地形</div>
+        </pe:treenode>
+    </pe:treeview>
+</pe:tab-item>
+<pe:tab-item text="生成高度图" name="genHF">
+    <div style="float:left;" tooltip="生成的高度图中每个点都是相对这个高度值">相对高度:</div>
+    <div style="float:left">
+        <pe:numericupdown style="width:60px" name="relative_y" value="0" valueformat="%.1f" min="0" max="40000"/>
+        <input tooltip="使用当前人物的高度" style="margin-top:0px;margin-left:3px"type="button" name="CurrentPlayerHeight" value="当前" onclick="Map3DSystem.App.Env.TerraGenPage.OnSetCurrentPlayerHeight"/>
+    </div>
+    <br />    
+    <hr />
+    <div>
+        <input name="btnGenTerraFile" type="submit" tooltip="生成地形到文件" value="生成高度图..." onclick="Map3DSystem.App.Env.TerraGenPage.OnGenHeightFieldFile"/>
+    </div>
+    <pe:treeview style="background:;">
+        <pe:treenode text="帮助说明" expanded="false">
+            <div>点击生成高度图, 将保存当前位置周围的区域(x,y,radius)到高度图文件</div>
+            <div>【raw文件】raw是ParaEngine的高度图文件, 它是float32[size*size]数组. 您也可以从引擎提供的3dsmax插件导出地形</div>
+        </pe:treenode>
+    </pe:treeview>
+</pe:tab-item>
+</pe:tabs>
+</form>
+</pe:mcml>
+</body>
+</html>
+

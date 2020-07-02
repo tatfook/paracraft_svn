@@ -1,0 +1,39 @@
+﻿<!-- "script/apps/Aquarius/Registration/RoomWebPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2008/11/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local worldpath = page:GetRequestParam("worldpath");
+local movie = page:GetRequestParam("movie");
+local worldslogan = page:GetRequestParam("worldslogan");
+page:SetNodeValue("worldslogan", worldslogan or "没有指定宣言");
+page:SetNodeValue("htmlCode", string.format("<a href='paraworldviewer://%s;movie=%s;'>\n点击进入世界\n</a>", worldpath or ParaWorld.GetWorldDirectory(), movie or ""));
+
+function OnCopyToClipboard()
+    ParaMisc.CopyTextToClipboard(page:GetUIValue("htmlCode"));
+end    
+]]></script>
+<div style="width:500px;padding:5px;" height="100%" class="box">
+<img src="Texture/3DMapSystem/AppIcons/NewWorld_64.dds" width="48" height="48"/>
+<div style="float:left;margin:10px;">恭喜！你的社区创建成功<br />
+宣言: <pe:label name="worldslogan" style="height:20px;font-weight:bold"/>
+</div>
+<hr />
+<div>
+您只需将下面代码放入你的网站即可。 你也可以修改这些代码，让它看起来更COOL
+</div><br />
+<form name="roomtemplate">
+  <textarea rows="5" name="htmlCode"></textarea>
+  <input type="button" class="defaultbutton" style="margin-right:10px;"value="拷贝到裁剪板" onclick="OnCopyToClipboard"/>
+   <a tooltip="点击申请" onclick="System.App.Commands.Call" param1="Profile.Aquarius.CreateRoom">再次申请</a><br />
+</form>
+</div>
+</pe:mcml> 
+</body>
+</html>

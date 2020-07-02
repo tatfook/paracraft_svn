@@ -1,0 +1,71 @@
+﻿<!-- "script/apps/Aquarius/Profile/basicinfo.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>a read-only user profile page</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="basicinfo.lua">
+MyCompany.Aquarius.basicinfoPage.OnInit();
+</script>
+<form name="basicinfoform">
+<div>
+<div style="float:left;padding:3px;">
+    <div style="padding:3px;background:url(Texture/Aquarius/Common/Container2_32bits.png: 4 4 4 4);">
+        <pe:profile-photo uid="loggedinuser" width="150" height="120"/>
+    </div>
+    <div style="padding-top:5px;padding-bottom:5px;padding-left:50px">
+        <a tooltip="上传你的真实头像" onclick="Map3DSystem.App.Commands.Call" param1="Profile.Aquarius.UploadProfilePhoto">更换头像</a>
+    </div>
+</div>
+<div style="float:left;padding:3px">
+  <div style="width:80px;float:left;text-align:right">昵称:</div><pe:name uid="loggedinuser" useyou="false" linked="false"/><br/>
+  <div style="width:80px;float:left;text-align:right">性别:</div>
+    <input type="radio" name="gender" value="male"/>男
+    <input type="radio" name="gender" value="female" checked="checked"/>女<br/>
+  <div style="width:80px;float:left;text-align:right">身份:</div>临时居民 <a href="#" tooltip="你可以变成永久居民, 建立属于自己的3D社群">如何改变身份</a><br/>  
+  <div style="width:80px;float:left;text-align:right">身份证号:</div>无<a href="#" tooltip="验证后, 你可以开通更多服务">如何获得身份证</a><br/>  
+  <div style="width:80px;float:left;text-align:right">年龄:</div>
+    <input name="age" type="text" value="0" style="width:40px;"/><br />
+  <div style="width:80px;float:left;text-align:right">血型:</div>
+    <select name="blood" AllowUserEdit="false">
+        <option value="0" selected="selected">保密</option>
+        <option value="1">O型</option>
+        <option value="2">A型</option>
+        <option value="3">B型</option>
+        <option value="4">AB型</option>
+    </select><br/>
+  <div style="width:80px;float:left;text-align:right">星座:</div>
+    <select name="horoscope" AllowUserEdit="false">
+        <option value="0" selected="selected">保密</option>
+        <option value="1">白羊座</option>
+        <option value="2">金牛座</option>
+        <option value="3">双子座</option>
+        <option value="4">巨蟹座</option>
+        <option value="5">狮子座</option>
+        <option value="6">处女座</option>
+        <option value="7">天秤座</option>
+        <option value="8">天蝎座</option>
+        <option value="9">射手座</option>
+        <option value="10">摩羯座</option>
+        <option value="11">水瓶座</option>
+        <option value="12">双鱼座</option>
+    </select><br/>  
+</div>
+</div>
+<div>
+    <div>个人简介:</div>
+    <textarea name="selfdescription" rows="3"></textarea>
+</div>
+<hr />
+<div>
+    <input type="submit" class="defaultbutton" name="save" value="保存" onclick="MyCompany.Aquarius.basicinfoPage.OnSubmit"/>
+    <input type="button" style="margin-left:5px" name="close" value="关闭" onclick="MyCompany.Aquarius.basicinfoPage.OnClose"/>
+    <label name="result" style="height:20px;margin-top:3px;margin-left:10px;color:#006600;font-weight:bold"/>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

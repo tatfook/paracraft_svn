@@ -1,0 +1,147 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30208_LazyPanda_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30208_LazyPanda_status, by Andy, 2009/8/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50240_HasCuredPandaLeg
+-- 50241_HasRescuedWithBalloon
+-- 50242_HasRescuedWithRope
+-- 50246_TalkedWithPanda
+-- 10114_FollowPet_Panda
+-- 50248_TalkedWithSophieDragonAboutPanda
+-- 17043_HaemostaticHerb
+
+state = 1;
+if(hasGSItem(50248)) then
+    state = 2;
+end
+if(not hasGSItem(50240) and hasGSItem(17043)) then
+    state = 3;
+end
+if(hasGSItem(50240)) then
+    state = 4;
+end
+if(hasGSItem(50241) and hasGSItem(50242)) then
+    state = 5;
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="width:820px;height:512px;margin-left:100px;margin-top:84px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:320px;margin-top:70px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:256px;height:32px;background:url()">
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;">
+        <pe:if condition='<%=Eval("state") == 1%>'>
+            <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/100108/RescuePanda_status1.png)">
+            <aries:questobjectivestatus gsids=""
+                force_status = "on"
+                on_bg = ""
+                off_bg = ""
+                tooltip = "小乖在龙龙乐园"
+                style="left:506px;top:200px;position:relative;width:220px;height:220px;"/>
+            
+            </div>
+        </pe:if>
+        <pe:if condition='<%=Eval("state") == 2%>'>
+            <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/100108/RescuePanda_status2.png)">
+            <aries:questobjectivestatus gsids="17006"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/LifeSpringWater_on_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/Schedule/100108/LifeSpringWater_off_32bits.png"
+                tooltip = "生命泉水在生命之泉处"
+                style="left:170px;top:230px;position:relative;width:128px;height:128px;"/>
+            <aries:questobjectivestatus gsids="17005"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/RainbowFlower_on_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/Schedule/100108/RainbowFlower_off_32bits.png"
+                tooltip = "七色花在龙源秘境七色丛林里"
+                style="left:282px;top:182px;position:relative;width:128px;height:128px;"/>
+            <aries:questobjectivestatus gsids="17030"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/NianNianGuo_on_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/Schedule/100108/NianNianGuo_off_32bits.png"
+                tooltip = "粘粘果在魔法密林里"
+                style="left:360px;top:240px;position:relative;width:128px;height:128px;"/>
+            <aries:questobjectivestatus gsids=""
+                force_status = "on"
+                on_bg = ""
+                off_bg = ""
+                tooltip = "材料齐了以后，记得来龙龙乐园找我！"
+                style="left:506px;top:162px;position:relative;width:200px;height:220px;"/>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=Eval("state") == 3%>'>
+            <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/100108/RescuePanda_status3.png)">
+            <aries:questobjectivestatus gsids=""
+                force_status = "on"
+                on_bg = ""
+                off_bg = ""
+                tooltip = "熊猫在雪山脚下的坑里"
+                style="left:276px;top:162px;position:relative;width:256px;height:220px;"/>
+            
+            </div>
+        </pe:if>
+        <pe:if condition='<%=Eval("state") == 4%>'>
+            <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/100108/RescuePanda_status4.png)">
+            
+            <aries:questobjectivestatus gsids="17041,50241"
+                conjunction = "or"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Balloon_on_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Balloon_off_32bits.png"
+                tooltip = "图书馆附近"
+                style="left:476px;top:162px;position:relative;width:128px;height:256px;"/>
+            <aries:questobjectivestatus gsids="17014,50242"
+                conjunction = "or"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Rope_on_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Rope_off_32bits.png"
+                tooltip = "探索号上"
+                style="left:396px;top:302px;position:relative;width:128px;height:128px;"/>
+            <aries:questobjectivestatus gsids="50241"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Tried_32bits.png"
+                off_bg = ""
+                tooltip = ""
+                style="left:510px;top:242px;position:relative;width:128px;height:128px;"/>
+            <aries:questobjectivestatus gsids="50242"
+                on_bg = "texture/Aries/Quest/Dragon/Schedule/100108/Tried_32bits.png"
+                off_bg = ""
+                tooltip = ""
+                style="left:396px;top:342px;position:relative;width:128px;height:128px;"/>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=Eval("state") == 5%>'>
+            <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/100108/RescuePanda_status5.png)">
+            <aries:questobjectivestatus gsids=""
+                force_status = "on"
+                on_bg = ""
+                off_bg = ""
+                tooltip = "竹子浮层：家园种植或他人赠送"
+                style="left:206px;top:162px;position:relative;width:456px;height:220px;"/>
+            
+            </div>
+        </pe:if>
+        <input style="margin-left:725px;margin-top:-457px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <!--<div style="margin-left:350px;margin-top:-100px;width:100px;height:65px">
+        <a style="width:132px;height:65px;padding:0px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusDragon.html">
+            <div style="margin-top:0px;width:132px;height:65px;">
+                <input type="button" style="margin:0px;width:132px;height:65px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" />
+            </div>
+        </a>
+    </div>-->
+  </div>
+</pe:mcml>
+</body>
+</html>

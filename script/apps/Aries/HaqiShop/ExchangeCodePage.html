@@ -1,0 +1,105 @@
+<!-- "script/apps/Aries/HaqiShop/ExchangeCodePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" >
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local exid = pageCtrl:GetRequestParam("exid");
+exid = tonumber(exid);
+local map =  NPCShopPage.GetExchangeCodeIDs()
+local check_gsid;
+if(exid and map and map[exid])then
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    check_gsid = map[exid].check_gsid;
+end
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function DoOpenGift()
+    if(hasGSItem(check_gsid))then
+        _guihelper.MessageBox("你已经兑换过奖励了！");
+        return
+    end
+    local code_text = pageCtrl:GetValue("code_text");	
+    code_text = code_text:gsub("%s","");
+	local len = string.len(code_text);
+	if(len == 0 ) then
+        _guihelper.MessageBox("激活码不能为空！");
+        return
+	end
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate and exTemplate.tos) then
+		local _,_tos,_gsid,_num;
+		for _,_tos in ipairs(exTemplate.tos) do
+			_gsid = _tos.key;	
+			if (_gsid) then
+				_gsid = tonumber(_gsid);
+				-- filter the mark items
+                local gsItem = ItemManager.GetGlobalStoreItemInMemory(_gsid);
+				if (gsItem.maxdailycount and gsItem.maxdailycount>0) then
+                    local obtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(gsItem.gsid);
+			        if (obtain and obtain.inday>=gsItem.maxdailycount) then
+                        _guihelper.MessageBox(format("激活码每天只能使用%d次！明天再来吧!", gsItem.maxdailycount));
+                        return;
+					end
+				end
+			end
+		end
+	end
+    ItemManager.UseVoucherCode(code_text,exid,function(msg)
+        if(msg.issuccess)then
+        else
+            if(msg.errorcode == 421)then
+                _guihelper.MessageBox("无效的激活码！");
+            else
+                NPCShopPage.OnProcessPurchaseErrorMsg(msg);
+                --_guihelper.MessageBox("领取失败！");
+            end            
+        end
+        ClosePage();
+    end);
+end
+function GetFocus()
+    local _editbox = pageCtrl:FindControl("code_text");
+    if(_editbox and _editbox.Focus)then
+	    _editbox:Focus();
+    end
+end
+function IsKidsVersion()
+    return CommonClientService.IsKidsVersion();
+end
+]]>
+</script>
+<div class="window" style="width:300px;">
+    <div class="titlebar" width="100%">
+      <div style="text-align:center;" class="windowlabel" >请输入激活码</div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+    </div>
+    <div class="clientarea" style="margin-left:10px;margin-right:10px;margin-top:5px;margin-bottom:10px;">
+        <input type="text" name="code_text" enable_ime="false"  style="margin-top:10px;height:23px;" />
+        <pe:if condition='<%=IsKidsVersion()%>' >
+            <input type="button" value="领取" style="margin-left:110px;margin-top:10px;width:60px;background:url(Texture/Aries/Common/ThemeKid/btn_thick_s_32bits.png:7 7 7 7)" onclick="DoOpenGift"/>
+        </pe:if>
+        <pe:if condition='<%=not IsKidsVersion()%>' >
+            <input type="button" value="领取" style="margin-left:110px;margin-top:10px;width:60px;" onclick="DoOpenGift"/>
+        </pe:if>
+        <div><%=NPCShopPage.exchange_code_mcmlCode %></div>
+    </div>
+</div>
+<%=GetFocus()%>
+</pe:mcml>
+</body>
+</html>
+

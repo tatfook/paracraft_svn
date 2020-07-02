@@ -1,0 +1,105 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/30345_CastMachine_compose_frame.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30345_CastMachine_compose_frame.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.page = document:GetPageCtrl();
+function getTitle()
+    local frame = MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame;
+    local s;
+    if(frame.exinfo)then
+        return string.format("%s(%s)",frame.exchanged_item_name,frame.exinfo)
+    else
+        return frame.exchanged_item_name;
+    end
+end
+
+function needItem_1()
+    if(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_gsid_1)then
+        return true;
+    end
+end
+function needItem_2()
+    if(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_gsid_2)then
+        return true;
+    end
+end
+function needItem_3()
+    if(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_gsid_3)then
+        return true;
+    end
+end
+function isShowAll()
+    if(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.state == "all")then
+        return true;
+    end
+end
+function isTopLevel()
+    local odds_next_level = MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.odds_next_level;
+    if(odds_next_level)then
+        return true;
+    end
+end
+function getNum(num1,num2)
+    local s = string.format("<div style = 'margin-left:10px;margin-top:2px;'>%d/%d<div>",num1 or 0,num2 or 0);
+    return s;
+end
+]]></script>
+<div style="color:#114D81;font-size:12;width:420px;">
+<div style="text-align:center;color:#114D81;font-weight:bold;font-size:14;"><%=getTitle()%></div>
+<pe:if condition='<%=isShowAll()%>'>
+    <div style="margin-top:0px;">
+    <div>你的抱抱龙当前建造技能等级为:<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.cast_level %></div>级</div>
+    </div>
+    <br/>
+    <div>当前技能条件下，建造<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.exchanged_item_name %></div>的成功率为：<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.odds %>%</div></div>
+    <div style="height:30px;">
+        <pe:if condition='<%=isTopLevel()%>'>
+        <div>提升为<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.cast_next_level %></div>级后，建造成功率为：<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.odds_next_level %>%</div></div>
+        </pe:if>
+    </div>
+    <img tooltip = '<%=getTitle()%>'style="width:96px;height:96px;margin-left:130px;margin-top:-10px;" src='<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.exchanged_item_icon %>'/>
+    <div style="margin-left:220px;margin-top:10px;height:40px;">
+    <pe:if condition='<%= MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.exchanged_item_price > 0%>'>
+    <div style="float:left;width:32px;height:19px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/CastMachine/bean_32bits.png#0 0 32 19"/><div style="float:left;margin-left:5px;">价值：<div style="float:left;color:#ff0000"><%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.exchanged_item_price %></div>奇豆</div>
+    </pe:if>
+    </div>
+</pe:if>
+<pe:if condition='<%= not isShowAll()%>'>
+    <div style="height:40px;" />
+    <br/>
+    <img tooltip = '<%=getTitle()%>'style="width:128px;height:128px;margin-left:146px;margin-top:10px;" src='<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.exchanged_item_icon %>'/>
+    <div style="height:40px;" />
+</pe:if>
+<div>
+<pe:if condition='<%=needItem_1()%>'>
+    <div style="float:left;margin-left:0px;margin-top:10px;width:100px;">
+    <img style="width:64px;height:64px;margin-left:18px;" tooltip = '<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_tooltip_1 %>' src='<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_icon_1 %>'/>
+    <br />
+    <div style="text-align:center;width:64px;height:24px;margin-left:18px;margin-top:5px;background:Texture/Aries/Quest/DrDoctor/AlmightyComposer/bg4.png#0 0 61 22:13 9 13 9"><%=getNum(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.has_item_num_1,MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_num_1) %></div>
+    </div>
+</pe:if>
+<pe:if condition='<%=needItem_2()%>'>
+    <div style="float:left;margin-left:0px;margin-top:10px;width:100px;">
+    <img style="width:64px;height:64px;margin-left:18px;" tooltip = '<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_tooltip_2 %>' src='<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_icon_2 %>'/>
+    <br />
+    <div style="text-align:center;width:64px;height:24px;margin-left:18px;margin-top:5px;background:Texture/Aries/Quest/DrDoctor/AlmightyComposer/bg4.png#0 0 61 22:13 9 13 9"><%=getNum(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.has_item_num_2,MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_num_2) %></div>
+    </div>
+</pe:if>
+<pe:if condition='<%=needItem_3()%>'>
+    <div style="float:left;margin-left:0px;margin-top:10px;width:100px;">
+    <img style="width:64px;height:64px;margin-left:18px;" tooltip = '<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_tooltip_3 %>' src='<%=MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_icon_3 %>'/>
+    <br />
+    <div style="text-align:center;width:64px;height:24px;margin-left:18px;margin-top:5px;background:Texture/Aries/Quest/DrDoctor/AlmightyComposer/bg4.png#0 0 61 22:13 9 13 9"><%=getNum(MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.has_item_num_3,MyCompany.Aries.Quest.NPCs.CastMachine_compose_frame.required_item_num_3) %></div>
+    </div>
+</pe:if>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

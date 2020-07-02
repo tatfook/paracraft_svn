@@ -1,0 +1,248 @@
+﻿ <!-- "script/apps/Aries/NewProfile/NewProfilePvP.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NewProfilePvP, by andy, 2011/5/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfilePvP.lua");
+local page = document:GetPageCtrl();
+MyCompany.Aries.NewProfile.NewProfilePvP.Init();
+function Confirm()
+    page:CloseWindow();
+end 
+
+function GotoGoldRankingList()
+    page:CloseWindow();
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMainWnd();
+end
+
+function GotoRankingHelper()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/RankingHelperPage.lua");
+    local RankingHelperPage = commonlib.gettable("MyCompany.Aries.Inventory.RankingHelperPage");
+    RankingHelperPage.ShowPage();
+end
+
+
+function DrawVLine(n,top,left,f)
+    local i;
+    local s = ""
+    for i = 1,n do
+        s = s .. string.format([[<div style="margin-left:%spx;margin-top:%spx;width:2px;height:28px;background:url(texture/aries/common/themekid/character/VLine_32bits.png);"/>]],
+        if_else(i == 1,left,left + (f or 0) * (i-1)),
+        if_else(i == 1,top,-28 )
+        );
+    end
+    return string.format([[<div style="position:relative;">%s</div>]],s);
+end
+
+function DrawHLine(n)
+    local i;
+    local s = ""
+    for i = 1,n do
+        s = s .. string.format([[<div style="margin-left:4px;margin-top:%spx;width:290px;height:2px;background:url(texture/aries/common/themekid/character/HLine_32bits.png);"/>]],
+        42
+        );
+    end
+    return string.format([[<div style="position:relative;">%s</div>]],s);
+end
+
+function GetTextFor1v1()
+    local text = MyCompany.Aries.NewProfile.NewProfilePvP.GetTextFor1v1();
+    return text;
+end
+
+function GetTextFor2v2()
+    local text = ""
+	local gearScore = MyCompany.Aries.Player.GetGearScore(MyCompany.Aries.NewProfile.nid);
+	if(gearScore < 1800 and gearScore >= 1000) then
+		text = "金龙王者组<br/>2v2"
+	else
+		text = "巨龙王者组<br/>2v2"
+	end
+	return text;
+end
+
+function Join1v1()
+    LobbyClientServicePage.MenuClick({Name = "pvp_1v1_join"});
+    Confirm();
+end
+
+function Join2v2()
+    LobbyClientServicePage.MenuClick({Name = "pvp_2v2_join_forkids"});
+    Confirm();
+end
+
+function Join3v3()
+    LobbyClientServicePage.MenuClick({Name = "pvp_3v3_join"});
+    Confirm();
+end
+
+]]></script>
+
+<div style="background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);" width="100%" height="100%">
+
+<div align="center" style="width:310px;height:290px;font-size:12px;color:#022a57;">
+<!-- 1 -->
+    <%=DrawVLine(1,10,68,80) %>
+    <%=DrawVLine(3,10,108,40) %>
+    <%=DrawVLine(1,10,242) %>
+<!-- 2-->
+    <%=DrawVLine(1,50,68,80) %>
+    <%=DrawVLine(3,50,108,40) %>
+    <%=DrawVLine(1,50,242) %>
+<!-- 3 -->
+    <%=DrawVLine(1,95,68,80) %>
+    <%=DrawVLine(3,95,108,40) %>
+    <%=DrawVLine(1,95,242) %>
+<!-- 4 -->
+    <%=DrawVLine(1,140,68,80) %>
+    <%=DrawVLine(3,140,108,40) %>
+    <%=DrawVLine(1,140,242) %>
+
+    <%=DrawHLine(4) %>
+    <div style="color:#022a57;margin-top:15px;">
+        <div style="float:left;width:70px;text-align:center;">项目</div>
+        <div style="float:left;width:40px;text-align:center;">胜利</div>
+        <div style="float:left;width:40px;text-align:center;">失败</div>
+        <div style="float:left;width:40px;text-align:center;">胜率</div>
+        <div style="float:left;width:60px;text-align:center;">当前积分</div>
+        <div style="float:left;width:60px;text-align:center;">排名积分</div>
+    </div>
+
+   <div style="width:304px;height:170px;">
+    <div style="position:relative;margin-left:0px;margin-top:12px;">
+        <pe:if condition='<%= System.options.version == "kids"%>'>
+            <div style="position:relative;width:77px;margin-top:10px;text-align:center;">3v3 积分赛</div>        
+            <div style="position:relative;margin-left:70px;margin-top:10px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","win_count") %></div>
+            <div style="position:relative;margin-left:98px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","lose_count") %> </div>
+            <div style="position:relative;margin-left:140px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","winning_rate") .. "%" %> </div>
+            <div style="position:relative;margin-left:188px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","rating") %> </div>
+            <div style="position:relative;margin-left:248px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","rating_weighted") %> </div>
+
+            <pe:if condition='<%= MyCompany.Aries.Player.GetGearScore() < 1000%>'>
+                <div style="position:relative;width:300px;margin-top:45px;text-align:center;">
+                    你的战斗力小于1000，不能参加2v2比赛
+                </div>
+            </pe:if>
+            <pe:if condition='<%= MyCompany.Aries.Player.GetGearScore() >= 1000%>'>
+                <div style="position:relative;width:77px;margin-top:45px;text-align:center;"><%= GetTextFor2v2() %></div>        
+                <div style="position:relative;margin-left:70px;margin-top:55px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","win_count") %> </div>
+                <div style="position:relative;margin-left:98px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","lose_count") %> </div>
+                <div style="position:relative;margin-left:140px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","winning_rate") .. "%" %> </div>
+                <div style="position:relative;margin-left:188px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","rating") %> </div>
+                <div style="position:relative;margin-left:248px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","rating_weighted") %> </div>
+            </pe:if>
+
+            <pe:if condition='<%= MyCompany.Aries.Player.GetGearScore() >= 1000%>'>
+                <div style="position:relative;width:310px;margin-top:90px;text-align:center;">
+                    你的战斗力已经超过1000，不能参加低战斗力的1v1比赛<br/>请前往拉斐尔城堡参与3v3比赛。
+                </div>
+            </pe:if>
+            <pe:if condition='<%= MyCompany.Aries.Player.GetGearScore() < 1000%>'>
+                <div style="position:relative;width:77px;margin-top:90px;text-align:center;"><%= GetTextFor1v1() %></div>        
+                <div style="position:relative;margin-left:70px;margin-top:100px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","win_count") %> </div>
+                <div style="position:relative;margin-left:98px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","lose_count") %> </div>
+                <div style="position:relative;margin-left:140px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","winning_rate") .. "%" %> </div>
+                <div style="position:relative;margin-left:188px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","rating") %> </div>
+                <div style="position:relative;margin-left:248px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","rating_weighted") %> </div>
+            </pe:if>   
+        </pe:if>
+        <pe:if condition='<%= System.options.version ~= "kids"%>'>
+            <div style="position:relative;width:77px;margin-top:0px;text-align:center;">红蘑菇 2v2 战斗积分</div>        
+            <div style="position:relative;margin-left:70px;margin-top:10px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","win_count") %></div>
+            <div style="position:relative;margin-left:98px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","lose_count") %> </div>
+            <div style="position:relative;margin-left:140px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","winning_rate") .. "%" %> </div>
+            <div style="position:relative;margin-left:188px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","rating") %> </div>
+            <div style="position:relative;margin-left:248px;margin-top:10px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("2v2","rating_weighted") %> </div>
+            <div style="position:relative;width:77px;margin-top:45px;text-align:center;">红蘑菇 1v1 战斗积分</div>        
+            <div style="position:relative;margin-left:70px;margin-top:55px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","win_count") %> </div>
+            <div style="position:relative;margin-left:98px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","lose_count") %> </div>
+            <div style="position:relative;margin-left:140px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","winning_rate") .. "%" %> </div>
+            <div style="position:relative;margin-left:188px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","rating") %> </div>
+            <div style="position:relative;margin-left:248px;margin-top:55px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1","rating_weighted") %> </div>
+        </pe:if>
+        <pe:if condition='<%= System.options.version == "kids"%>'>
+            <input type="button" value="参加1v1比赛" style="position:relative;margin-top:135px;margin-left:5px;width:90px;height:26px;font-size:14px;" class="button_highlight" onclick="Join1v1"/>
+            <div style="position:relative;margin-top:162px;margin-left:5px;width:90px;text-align:center;">
+                每天<br/>
+                16:00~22:00
+            </div>
+            <input type="button" value="参加2v2比赛" style="position:relative;margin-top:135px;margin-left:105px;width:90px;height:26px;font-size:14px;" class="button_highlight" onclick="Join2v2"/>
+            <div style="position:relative;margin-top:162px;margin-left:105px;width:90px;text-align:center;">
+                周五～周天<br/>
+                14:00~22:00
+            </div>
+            <input type="button" value="参加3v3比赛" style="position:relative;margin-top:135px;margin-left:205px;width:90px;height:26px;font-size:14px;" class="button_highlight" onclick="Join3v3"/>
+            <div style="position:relative;margin-top:162px;margin-left:205px;width:90px;text-align:center;">
+                周一～周四<br/>
+                16:00~22:00
+            </div>
+            <!--<input type="button" zorder = "3" value="现在就去排行榜看看吧！" tooltip="现在就去排行榜看看吧" onclick="GotoGoldRankingList()" style="width:160px;height:20px;margin-left:66px;margin-top:135px;font-size:12px;color:#022a57;padding-left:3px;padding-right:-5px;padding-bottom:-4px;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"/>-->
+        </pe:if>
+        <pe:if condition='<%= System.options.version ~= "kids"%>'>
+            <div style="position:relative;width:77px;margin-top:90px;text-align:center;">试炼场勇士 1v1</div>        
+            <div style="position:relative;margin-left:70px;margin-top:100px;width:40px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1_toc","win_count") %> </div>
+            <div style="position:relative;margin-left:98px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1_toc","lose_count") %> </div>
+            <div style="position:relative;margin-left:140px;margin-top:100px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("1v1_toc","winning_rate") .. "%" %> </div>
+            <div style="position:relative;margin-left:217px;margin-top:90px;width:68px;text-align:center;font-size:12px;"> 试炼场战绩<br/>每月清零 </div>
+            <input type="button" zorder = "3" value="现在就去排行榜看看吧！" tooltip="现在就去排行榜看看吧" onclick="GotoGoldRankingList()" style="width:160px;height:20px;margin-left:66px;margin-top:135px;font-size:12px;color:#022a57;padding-left:3px;padding-right:-5px;padding-bottom:-4px;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"/>
+            <input type="button" zorder = "3" value="积分计算方式" tooltip="查看积分计算方式" onclick="GotoRankingHelper()" style="width:80px;height:20px;margin-left:100px;margin-top:5px;font-size:12px;color:#022a57;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"/>
+        </pe:if>
+        
+        
+        <!--<div style="position:relative;margin-left:90px;margin-top:164px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","win_count") %> </div>
+        <div style="position:relative;margin-left:135px;margin-top:164px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","lose_count") %> </div>
+        <div style="position:relative;margin-left:176px;margin-top:164px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","winning_rate") .. "%" %> </div>
+        <div style="position:relative;margin-left:225px;margin-top:164px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("3v3","rating") %> </div>
+
+        <div style="position:relative;margin-left:90px;margin-top:203px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("4v4","win_count") %> </div>
+        <div style="position:relative;margin-left:135px;margin-top:203px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("4v4","lose_count") %> </div>
+        <div style="position:relative;margin-left:176px;margin-top:203px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("4v4","winning_rate") .. "%" %> </div>
+        <div style="position:relative;margin-left:225px;margin-top:203px;width:68px;text-align:center;font-size:12px;"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("4v4","rating") %> </div>-->
+
+        <!--<input type="button" zorder=2 tooltip="每胜利一场比赛可获得20基础积分" style="margin-left:230px;margin-top:84px;width:50px;height:150px;background:;"/>-->
+        <!--<div style="position:relative;margin-left:50px;margin-top:240px;width:68px;text-align:center"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("death","accuracy") .. " %" %> </div>
+        <div style="position:relative;margin-left:130px;margin-top:240px;width:68px;text-align:center"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("death","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:205px;margin-top:240px;width:68px;text-align:center"><%=MyCompany.Aries.NewProfile.NewProfilePvP.GetPvPStats("death","resist") .. " %" %> </div>-->
+    </div>
+  </div>
+  <div style="margin-left:40px;margin-top:45px;width:300px;height:90px;align:center;">
+    <pe:gridview DataSource="<%=MyCompany.Aries.NewProfile.NewProfilePvP.DS_Func%>" name="Item_Medals" 
+        VerticalScrollBarStep="48" CellPadding="1"  DefaultNodeHeight = "48" ItemsPerLine="4" AllowPaging="false" pagesize="3">
+        <Columns>
+            <div style="padding-left:7px;width:70px;height:70px;background:;">
+                <pe:if condition='<%=Eval("isempty")%>'>
+                    <img src='<%=Eval("slot")%>' style="margin-left:-3px;width:64px;height:64px;"/>
+                </pe:if>
+                <pe:if condition='<%=Eval("isnotempty")%>'>
+                    <pe:item gsid='<%=Eval("gsid")%>' zorder="-2" isclickable="false" style="margin-left:-3px;width:64px;height:64px;"/>
+                </pe:if>
+                <input type="button" zorder=2 tooltip='<%=Eval("tooltip")%>' style="margin-left:8px;margin-top:-64px;width:80px;height:80px;background:;"/>
+
+                
+                <input type="button" style="width:32px;height:32px;margin-left:35px;margin-top:-32px;background:url(Texture/Aries/NewProfile/medal_count_bg_32bits.png);"/>
+                <div style="position:relative;margin-left:20px;margin-top:-30px;width:64px;font-size:12px;text-align:center;color:#940a02;"> <%=Eval("count") or 0%> </div>
+                
+                
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>无徽章</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:45px;margin-top:20px;">数据加载中，请稍等......</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+
+</div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

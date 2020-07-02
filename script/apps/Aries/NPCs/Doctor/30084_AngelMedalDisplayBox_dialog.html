@@ -1,0 +1,289 @@
+<!-- "script/apps/Aries/NPCs/Doctor/30084_AngelMedalDisplayBox_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30084_AngelMedalDisplayBox_dialog, by Andy, 2009/11/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50181_DoctorInauguralQuest_Accept
+-- 50182_DoctorInauguralQuest_Complete
+
+-- 20010_AmateurClassDoctorMedal
+-- 20011_ThirdClassDoctorMedal
+-- 20012_SecondClassDoctorMedal
+-- 20013_FirstClassDoctorMedal
+
+-- 103: Get_Doctor_AmateurClassDoctorMedal
+-- 104: Get_Doctor_ThirdClassDoctorMedal
+-- 105: Get_Doctor_SecondClassDoctorMedal
+-- 106: Get_Doctor_FirstClassDoctorMedal
+
+
+
+-- 50183_DoctorHealOther_Counter
+local bHas, _, __, copies = hasGSItem(50183);
+if(bHas and copies) then
+    counttext = copies.."";
+else
+    counttext = "0";
+    copies = 0;
+end
+
+step = -1;
+
+if(hasGSItem(50182)) then
+    if(not hasGSItem(20010) and not hasGSItem(20011) and not hasGSItem(20012) and not hasGSItem(20013)) then
+        step = 0;
+    elseif(hasGSItem(20010) and not hasGSItem(20011) and not hasGSItem(20012) and not hasGSItem(20013)) then
+        step = 1;
+    elseif(not hasGSItem(20010) and hasGSItem(20011) and not hasGSItem(20012) and not hasGSItem(20013)) then
+        step = 2;
+    elseif(not hasGSItem(20010) and not hasGSItem(20011) and hasGSItem(20012) and not hasGSItem(20013)) then
+        step = 3;
+    elseif(not hasGSItem(20010) and not hasGSItem(20011) and not hasGSItem(20012) and hasGSItem(20013)) then
+        step = 4;
+    end
+else
+    step = -1;
+end
+
+function GetMedal_Amateur()
+    if(not hasGSItem(50182)) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:24px;">你还不是医生不能获得属于医生的荣誉，快去找苏菲，她会告诉你怎么成为医生。</div>]]);
+    else
+        GetMedal(20010);
+    end
+end
+function GetMedal_Third()
+    if(copies and copies < 50) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">要领取天使铜徽章，需要替他人照顾抱抱龙50次，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20011);
+end
+function GetMedal_Second()
+    if(copies and copies < 150) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">要领取天使银徽章，需要替他人照顾抱抱龙150次，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20012);
+end
+function GetMedal_First()
+    if(copies and copies < 500) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">要领取天使金徽章，需要替他人照顾抱抱龙500次，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20013);
+end
+
+function GetMedal(gsid)
+    -- 103: Get_Doctor_AmateurClassDoctorMedal
+    -- 104: Get_Doctor_ThirdClassDoctorMedal
+    -- 105: Get_Doctor_SecondClassDoctorMedal
+    -- 106: Get_Doctor_FirstClassDoctorMedal
+    
+    local name = "";
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem) then
+	    name = gsItem.template.name;
+    end
+    
+    -- Pick the medal through extended cost
+    if(gsid == 20010) then
+        -- exid 103: Get_Doctor_AmateurClassDoctorMedal
+        ItemManager.ExtendedCost(103, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 103: Get_Doctor_AmateurClassDoctorMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:25px">恭喜你获得%s，你可以在资料面板中看到它哦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20011) then
+        -- exid 104: Get_Doctor_ThirdClassDoctorMedal
+        ItemManager.ExtendedCost(104, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 104: Get_Doctor_ThirdClassDoctorMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:25px">恭喜你获得%s，你可以在资料面板中看到它哦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20012) then
+        -- exid 105: Get_Doctor_SecondClassDoctorMedal
+        ItemManager.ExtendedCost(105, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 105: Get_Doctor_SecondClassDoctorMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:25px">恭喜你获得%s，你可以在资料面板中看到它哦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20013) then
+        -- exid 106: Get_Doctor_FirstClassDoctorMedal
+        ItemManager.ExtendedCost(106, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 106: Get_Doctor_FirstClassDoctorMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:25px">恭喜你获得%s，你可以在资料面板中看到它哦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:655px;height:512px;background:url(texture/Aries/Quest/MedalStatus_panel_bg_32bits.png: 60 60 60 60)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+        <div style="width:256px;height:32px;background:url()">
+            <div style="margin-left:280px;margin-top:60px;width:180px;height:64px;">
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;">
+        <div style="width:1024px;height:512px;background:url()">
+            <div style="position:absolute;left:70px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Doctor/AngelMedal_level1_32bits.png)">
+            </div>
+            <div style="position:absolute;left:205px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Doctor/AngelMedal_level2_32bits.png)">
+            </div>
+            <div style="position:absolute;left:340px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Doctor/AngelMedal_level3_32bits.png)">
+            </div>
+            <div style="position:absolute;left:475px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Doctor/AngelMedal_level4_32bits.png)">
+            </div>
+            <div style="position:absolute;left:55px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:190px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:325px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:460px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <pe:if condition='<%=step >= 0%>'>
+                <aries:questobjectivestatus gsids="20010,20011,20012,20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20010_AmateurClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20010_AmateurClassDoctorMedal_grey.png;0 0 80 100"
+                    on_tooltip = "完成医生就职任务，每天可获得奖金500奇豆"
+                    off_tooltip = "完成医生就职任务，每天可获得奖金500奇豆"
+                    style="left:83px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= -1%>'>
+                <aries:questobjectivestatus gsids="20010,20011,20012,20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20010_AmateurClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20010_AmateurClassDoctorMedal_grey.png;0 0 80 100"
+                    style="left:83px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 1%>'>
+                <aries:questobjectivestatus gsids="20011,20012,20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20011_ThirdClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20011_ThirdClassDoctorMedal_grey.png;0 0 80 100"
+                    on_tooltip = "照料他人的抱抱龙50次，每天可获得奖金600奇豆"
+                    off_tooltip = "照料他人的抱抱龙50次，每天可获得奖金600奇豆"
+                    style="left:218px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 0%>'>
+                <aries:questobjectivestatus gsids="20011,20012,20013"
+                    on_bg = "texture/Aries/Quest/Doctor/20011_ThirdClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20011_ThirdClassDoctorMedal_grey.png;0 0 80 100"
+                    style="left:218px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 2%>'>
+                <aries:questobjectivestatus gsids="20012,20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20012_SecondClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20012_SecondClassDoctorMedal_grey.png;0 0 80 100"
+                    on_tooltip = "照料别的抱抱龙150次，每天可获得奖金800奇豆"
+                    off_tooltip = "照料别的抱抱龙150次，每天可获得奖金800奇豆"
+                    style="left:353px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 1%>'>
+                <aries:questobjectivestatus gsids="20012,20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20012_SecondClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20012_SecondClassDoctorMedal_grey.png;0 0 80 100"
+                    style="left:353px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 3%>'>
+                <aries:questobjectivestatus gsids="20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20013_FirstClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20013_FirstClassDoctorMedal_grey.png;0 0 80 100"
+                    on_tooltip = "照料别的抱抱龙500次，每天领取奖金1000奇豆"
+                    off_tooltip = "照料别的抱抱龙500次，每天领取奖金1000奇豆"
+                    style="left:490px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 2%>'>
+                <aries:questobjectivestatus gsids="20013"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Doctor/20013_FirstClassDoctorMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Doctor/20013_FirstClassDoctorMedal_grey.png;0 0 80 100"
+                    style="left:490px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <div style="position:absolute;left:125px;top:16px;width:512px;height:64px;background:url(texture/Aries/Quest/Doctor/MedalDisplayBox_title_32bits.png)">
+            </div>
+            
+            <div style="position:absolute;left:192px;top:346px;width:256px;height:64px;background:url(texture/Aries/Quest/Doctor/YellowShowBox_32bits.png)">
+                <div style="color:#339900;padding-left:16px;padding:8px;width:600px;">
+                你已经照顾他人的抱抱龙<div style="float:left;color:#FF0000;margin-left:-4px;margin-right:-4px;"><%=Eval("counttext")%></div>次！
+                </div>
+            </div>
+            <div style="position:absolute;left:60px;top:390px;width:512px;height:128px;background:url(texture/Aries/Quest/Doctor/SophieWord_32bits.png)">
+            </div>
+            <div style="position:absolute;left:490px;top:374px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/SophieHead_32bits.png)">
+            </div>
+            
+            <div style="margin-left:40px;margin-top:280px;width:700px;height:60px;">
+                <pe:if condition='<%=step == 0 or step == -1%>'>
+                    <div style="margin-left:42px;margin-top:20px;width:100px;height:64px;background:url();">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/FirstObtain_32bits.png#0 0 82 36)" onclick="GetMedal_Amateur"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 1%>'>
+                    <div style="margin-left:42px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_Third"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 2%>'>
+                    <div style="margin-left:174px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_Second"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 3%>'>
+                    <div style="margin-left:310px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_First"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 4%>'>
+                    <div style="margin-left:444px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+        <input style="margin-left:600px;margin-top:-522px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    
+  </div>
+</pe:mcml>
+</body>
+</html>

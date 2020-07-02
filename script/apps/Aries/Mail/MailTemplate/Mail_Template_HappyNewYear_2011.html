@@ -1,0 +1,160 @@
+﻿<!-- "script/apps/Aries/Mail/MailTemplate/Mail_Template_HappyNewYear_2011.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Scene/main.lua");
+local Scene = commonlib.gettable("MyCompany.Aries.Scene");
+local ItemManager = commonlib.gettable("System.Item.ItemManager");
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+local page = document:GetPageCtrl();
+local mail_id = page:GetRequestParam("id") or 0;
+mail_id = tonumber(mail_id);
+local mail_info = MyCompany.Aries.Quest.Mail.MailList.SystemTimerMails[mail_id] or {};
+mail_info = MyCompany.Aries.Quest.Mail.MailManager.GetCurMail() or mail_info;
+
+local gift_date = page:GetRequestParam("gift_date") or "";
+commonlib.echo("============gift_date");
+commonlib.echo(gift_date);
+function ClosePage()
+    page:CloseWindow();
+end
+
+local page = document:GetPageCtrl();
+local gift_maps = {
+    ["2011-02-04"] = 713,
+    ["2011-02-05"] = 714,
+    ["2011-02-06"] = 715,
+    ["2011-02-07"] = 716,
+    ["2011-02-08"] = 717,
+    ["2011-02-09"] = 718,
+    ["2011-02-10"] = 719,
+    ["2011-02-11"] = 720,
+    ["2011-02-12"] = 721,
+    ["2011-02-13"] = 722,
+    ["2011-02-14"] = 723,
+    ["2011-02-15"] = 724,
+    ["2011-02-16"] = 725,
+    ["2011-02-17"] = 726,
+}
+function getFromName()
+    return mail_info.sender or "";
+end
+function getContent()
+    return mail_info.content or "";
+end
+function getDate()
+    return ParaGlobal.GetDateFormat("yyyy-MM-dd");
+end
+function getTitleBg()
+    local s = mail_info.title_bg or "";
+    return s;
+end
+function getNPCBg()
+    local s = mail_info.npc_bg or ""
+   return s;
+end
+
+function GetGift()
+    local gsid = 50335;
+    local hasItem,guid = hasGSItem(gsid)
+	if(hasItem)then
+		local item = ItemManager.GetItemByGUID(guid);
+		if(item)then
+            local clientdata = item.clientdata;
+            commonlib.echo("==========clientdata");
+            commonlib.echo(clientdata);
+			if(not clientdata or clientdata == "")then
+				clientdata = "{}"
+			end
+            if(clientdata and type(clientdata)== "string")then
+			    clientdata = commonlib.LoadTableFromString(clientdata);
+            end
+            commonlib.echo("==========clientdata2");
+            commonlib.echo(clientdata);
+			--local today = Scene.GetServerDate() or ParaGlobal.GetDateFormat("yyyy-MM-dd");
+			local today = ParaGlobal.GetDateFormat("yyyy-MM-dd");
+            if(gift_date == today)then
+                if(clientdata and type(clientdata) == "table")then
+                    local function hasDate(gift_date)
+                        local k,v;
+                        for k,v in ipairs(clientdata) do
+                    	    if(gift_date and v.date == gift_date)then
+                                return true;
+                            end
+                        end
+                    end
+                    if(not hasDate(gift_date))then
+                        local exid = gift_maps[gift_date];
+                        if(exid)then
+                            ItemManager.ExtendedCost(exid, nil, nil, function(msg) 
+                                    commonlib.echo("==========HappyNewYear2011 ExtendedCost");
+				                    commonlib.echo(msg);
+				                    if(msg and msg.issuccess)then
+                                        table.insert(clientdata,{date = gift_date})
+                                         clientdata = commonlib.serialize_compact2(clientdata);
+                                        commonlib.echo("==========clientdata3");
+                                        commonlib.echo(clientdata);
+                                        ItemManager.SetClientData(guid,clientdata,function(msg)
+					                        LOG.std("", "info", "50335_NewYearGiftObtain_Tag", msg);
+					
+				                        end);
+				                    end
+		                    end);
+                        end
+                    end
+                   
+                end
+            end
+        end
+    end
+    ClosePage();
+  
+end
+
+]]></script>
+<div style="width:920px;height:512px;background:url(Texture/Aries/PENote/penote_bg2.png# 0 0 920 512)">
+    <div style="margin-left:650px;margin-top:40px;">
+    <input type="button" zorder=2 style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/PENote/penote_close_32bits.png# 0 0 31 30" 
+    onclick="ClosePage()" />
+    </div>
+
+    <div style="float:left;width:800px;height:128px;margin-left:200px;margin-top:0px;" >
+        <div style="margin-left:-100px;width:676px;height:115px;background:url(Texture/Aries/PENote/happynewyear_2011_32bits.png# 0 0 676 115)"/>
+    </div>
+    <div style="margin-left:550px;margin-top:-80px;width:500px;height:500px;">
+        <div style="margin-top:0px;">
+        <%=getNPCBg() %>
+        </div>
+    </div>
+    <div style="margin-left:170px;margin-top:-420px;width:370px;height:220px;">
+        <div style="height:150px;">
+            <pe:name customformat="亲爱的%s" linked="false"/>
+            <br/>
+            <%=getContent() %>
+        </div>
+        <br/>
+        <div style="color:#ff0000">温馨提示：即日起至元宵节，过期不候，记得每天来领新年大红包哦！</div>
+        <div style="text-align:left;margin-left:300px;margin-top:0px;width:280px;">
+            <%=getFromName() %>
+            <br/>
+            <%=getDate()%>
+            <br/>
+                <input type="button" style="width:100px;height:31px;margin-left:0px;margin-top:2px;background:Texture/Aries/Common/get_red_paper_32bits.png# 0 0 150 46" 
+                    onclick="GetGift()" />
+        </div>
+    </div>
+    
+</div>
+</pe:mcml>
+</body>
+</html>
+

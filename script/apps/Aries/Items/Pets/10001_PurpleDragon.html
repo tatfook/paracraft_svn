@@ -1,0 +1,101 @@
+<!-- "script/apps/Aries/Items/Pets/10001_PurpleDragon.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>10001_PurpleDragon, by Andy, 2009/6/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="10001_PurpleDragon.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    return (hasGSItem(10001));
+end;
+Condition2 = function()
+    return (not hasGSItem(10001));
+end;
+
+function EntryAction(from, to)
+    if(from == 2 and to == 3) then
+		ItemManager.PurchaseItem(10001, 1, function(msg)
+			if(msg) then
+				log("+++++++Purchase dragon return: +++++++\n")
+				commonlib.echo(msg);
+				if(msg.issuccess == true) then
+				    -- delete the NPC
+	                local dragon = ParaScene.GetCharacter("NPC:10001");
+	                if(dragon:IsValid() == true) then
+				        ParaScene.Delete(dragon);
+	                end
+				    -- init the newly borned pet
+				    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandProvider.lua");
+                    System.App.HomeLand.HomeLandProvider.PetInit(System.User.nid);
+				end
+			end
+		end);
+    end
+end
+
+function ExitAction(from, to)
+end
+]]></script>
+    <pe:dialog NPC_id = "11" width = "468" height = "317" style="background:url(Texture/Aries/Temp/MessageBoxAquaBlue.png# 0 0 468 317)" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    我在等我的好主人，你也要好好照顾你的抱抱龙哦！
+            </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "2">
+	        <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    我是抱抱龙的蛋，你可以带我回家嘛？<br/>
+		    我会变成很可爱的抱抱龙，你可以骑着我环游世界呢！
+		    </div>
+            <div style="width:200px;height:40px;">
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 37);">
+			        <pe:answer-if condition = "true" target_state = "3"/>
+		        </pe:answer>
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_Cancel_32bits.png#0 1 139 37);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-110px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    太好了，我终于有家了。<br/>
+		    我会一直跟着你，你是我最好的好伙伴！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

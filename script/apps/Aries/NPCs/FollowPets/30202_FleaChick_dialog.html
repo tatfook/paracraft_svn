@@ -1,0 +1,349 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30202_FleaChick_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30202_FleaChick_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+today = MyCompany.Aries.Scene.GetServerDate();
+
+-- 10107_FollowPetXJBB
+-- 50048_FleaChick_Feed
+-- 17009_BeehiveWorm
+
+local count = 0;
+local bHas, guid = hasGSItem(50048);
+if(bHas == true) then
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item and item.guid > 0) then
+        count = item.copies;
+    end
+end
+
+local hasGSItem_10107 = hasGSItem(10107);
+local r = math.random(0, 100);
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30202);
+feed_count = memory.feed_count or 0;
+
+Condition1 = function()
+    return (memory.dialog_state == 1);
+end;
+Condition2 = function()
+    return (memory.dialog_state == 2);
+end;
+Condition3 = function()
+    return (memory.dialog_state == 3);
+end;
+Condition4 = function()
+    return (memory.dialog_state == 4);
+end;
+Condition5 = function()
+    return (memory.dialog_state == 5);
+end;
+Condition6 = function()
+    return (memory.dialog_state == 6);
+end;
+Condition7 = function()
+    return (memory.dialog_state == 7);
+end;
+Condition8 = function()
+    return (memory.dialog_state == 8);
+end;
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+-- 10107_FollowPetXJBB
+-- 50048_FleaChick_Feed
+-- 17009_BeehiveWorm
+
+
+function SetFeedTime()
+	-- 50185_FleaChick_LastFeedDate
+	local bHas, guid = hasGSItem(50185);
+	if(bHas == true) then
+		local item = ItemManager.GetItemByGUID(guid);
+		if(item and item.guid > 0) then
+		    local today = MyCompany.Aries.Scene.GetServerDate() or ParaGlobal.GetDateFormat("yyyy-MM-dd");
+		    ItemManager.SetClientData(guid, today, function(msg) end);
+		end
+	end
+end
+
+function ExitAction(from, to)
+    if(from == 11 and (to == 4 or to == 6)) then
+        -- exid 107: Feed_FleaChick
+        ItemManager.ExtendedCost(107, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 107: Feed_FleaChick return: +++++++\n")
+		    commonlib.echo(msg);
+		    if(msg.issuccess == true) then
+		        -- set feed time to client data
+		        SetFeedTime();
+		    end
+        end);
+    elseif(from == 11 and to == 5) then
+        -- exid 108: Get_FleaChick
+        ItemManager.ExtendedCost(108, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 108: Get_FleaChick return: +++++++\n")
+		    commonlib.echo(msg);
+            if(msg.issuccess == true) then
+                SetFeedTime();
+                local chick = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30202, instance);
+                if(chick and chick:IsValid() == true) then
+                    local chickChar = chick:ToCharacter();
+                    chickChar:Stop();
+                    -- remove the chick from scene
+                    local params = {
+                        asset_file = "character/v5/09effect/Disappear/Disappear.x",
+                        binding_obj_name = chick.name,
+                        start_position = nil,
+                        duration_time = 1500,
+                        force_name = "FleaChickDisappearEffect",
+                        begin_callback = function() end,
+                        end_callback = nil,
+                        stage1_time = 800,
+                        stage1_callback = function()
+						        local EffectManager = MyCompany.Aries.EffectManager;
+						        EffectManager.StopBinding("FleaChickDisappearEffect");
+                                MyCompany.Aries.Quest.NPC.DeleteNPCCharacter(30202, instance);
+                            end,
+                        stage2_time = nil,
+                        stage2_callback = nil,
+                    };
+                    local EffectManager = MyCompany.Aries.EffectManager;
+                    EffectManager.CreateEffect(params);
+                end
+            end
+        end);
+    elseif(from == 11 and to == 7) then
+        -- exid 109: GetReward1_FleaChick
+        ItemManager.ExtendedCost(109, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 109: GetReward1_FleaChick return: +++++++\n")
+		    commonlib.echo(msg);
+		    if(msg.issuccess == true) then
+		        SetFeedTime();
+			    -- call hook for OnEggObtainFromFleaChick
+			    local hook_msg = { aries_type = "OnEggObtainFromFleaChick", wndName = "main"};
+			    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+		    end
+        end);
+    elseif(from == 11 and to == 8) then
+        -- exid 110: GetReward2_FleaChick
+        ItemManager.ExtendedCost(110, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 110: GetReward2_FleaChick return: +++++++\n")
+		    commonlib.echo(msg);
+		    if(msg.issuccess == true) then
+		        SetFeedTime();
+			    -- call hook for OnJoyBeanObtainFromFleaChick
+			    local hook_msg = { aries_type = "OnJoyBeanObtainFromFleaChick", wndName = "main"};
+			    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+		    end
+        end);
+    end
+    
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30202" />
+            <pe:placeholder id="name" source="{this}" value='跳蚤鸡'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			        <pe:answer-if condition = 'true' target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    我是跳蚤鸡，我最喜欢吃小青虫，你有小青虫喂我吗？
+		    <pe:answer text="喂你" template_id="feed">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+			    <pe:answer-if condition = '<%=Eval("Condition8")%>' target_state = "8"/>
+			    <pe:answer-if condition = 'true' target_state = "10"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你今天都有喂过我们啦，明天再来喂吧！如果你能坚持再给我喂<%=3 - Eval("feed_count")%>条虫，我就和你回家！
+		    <pe:answer text="喂你" template_id="feed">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你今天都有喂过我们啦，明天再来喂吧！如果你能坚持再给我喂<%=3 - Eval("feed_count")%>条虫，我会送礼物给你哦！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    你没有虫子呢，我不跟你玩了。去蜂窝树那摇点虫子下来吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    嗯，真好吃，别忘了改天再来喂我哦。再喂养我<%=2 - Eval("feed_count")%>次，我就和你回家！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    真是美味呀，你喂我吃了3次虫子，我太喜欢你了，快带我回家吧，我要天天和你在一起！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    嗯，真好吃，别忘了改天再来喂我哦。再喂养我<%=2 - Eval("feed_count")%>次，我就送你礼物！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    嗯嗯，我最爱吃虫子了，真美味，我生了3个鸡蛋，送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "8">
+		    你是个好心的小哈奇。我送给你400奇豆吧，明天再来喂我哦。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    TODO: BUG
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    <!--<pe:state id = "1">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    嗯，真好吃，别忘了改天再来喂我哦。
+            </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "2">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    嗯，真好吃，别忘了改天再来喂我哦。
+            </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    真是美味呀，你喂我吃了3次虫子，我忘不了你了，你收养我吧。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "4">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    嗯嗯，我最爱吃虫子了，真美味，我生了个鸡蛋，直接放到你背包里了。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "5">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    你是个好心的小哈奇，我送给你200奇豆吧。明天再来喂我哦。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "6">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    TODO: BUG
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>-->
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

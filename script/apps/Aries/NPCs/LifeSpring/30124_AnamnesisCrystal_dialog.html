@@ -1,0 +1,180 @@
+﻿<!-- "script/apps/Aries/NPCs/LifeSpring/30124_AnamnesisCrystal_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30124_AnamnesisCrystal_dialog, by Andy, 2009/9/11</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+    preferedAcinus = 21000 + instance;
+end
+
+local GameObject = MyCompany.Aries.Quest.GameObject;
+local NPC = MyCompany.Aries.Quest.NPC;
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local isDead = false;
+local bean = MyCompany.Aries.Pet.GetBean();
+if(bean)then
+    if(bean.health == 2)then
+        isDead = true;
+    end
+end
+
+-- 17011_MemoryCrystal
+
+Condition1 = function()
+    return (isDead == false);
+end;
+Condition2 = function()
+    return (hasGSItem(17011));
+end;
+Condition3 = function()
+    return (isDead == true and not hasGSItem(17011));
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 4 and to == 5) then
+	    ItemManager.PurchaseItem(17011, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 17011_MemoryCrystal return: +++++++\n")
+			    commonlib.echo(msg);
+			end
+	    end);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+local answer1 = "forest";
+local answer2 = "suesue";
+local answer3 = "level7";
+function OnSelectQuestion1(value, mcmlNode)
+    answer1 = value;
+end
+function OnSelectQuestion2(value, mcmlNode)
+    answer2 = value;
+end
+function OnSelectQuestion3(value, mcmlNode)
+    answer3 = value;
+end
+
+function ConditionAnswer()
+    if(answer1 == "forest" and answer2 == "sophie" and answer3 == "level8") then
+        return true;
+    end
+    return false;
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30124" />
+            <pe:placeholder id="name" source="{this}" value="记忆水晶" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = 'true' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是记忆水晶，你的抱抱龙还好吗？我是有特殊用途的，现在你还不能取走我。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你已经有记忆水晶了，不要太贪心呦。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    我就是你要找的记忆水晶，我知道你为什么而来，对于你的抱抱龙的死我也很伤心，但是你必须答对下面这个问题，才能把我带走。准备好了吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+	        <pe:editor style="background:;font-weight:bold;color:#6d2f00">
+                
+		        <div style="width:220px;float:left;">抱抱龙的诞生地的名称叫什么：</div>
+                <div style="width:80px;float:left;" ><input type="radio" name="DragonBirth" value="forest" id="Radio1" onclick="OnSelectQuestion1()"/>龙源密境</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="DragonBirth" value="spring" id="Radio2" onclick="OnSelectQuestion1()"/>生命之泉</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="DragonBirth" value="beach" id="Radio3" onclick="OnSelectQuestion1()"/>金色沙滩</div>
+                <br/>
+                <div style="width:220px;float:left;">第一个发现抱抱龙的人是：</div>
+                <div style="width:80px;float:left;" ><input type="radio" name="Discover" value="suesue" id="Radio4" onclick="OnSelectQuestion2()"/>苏苏</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="Discover" value="sophie" id="Radio5" onclick="OnSelectQuestion2()"/>苏菲</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="Discover" value="doctor" id="Radio6" onclick="OnSelectQuestion2()"/>怪博士</div>
+                <br/>
+                <div style="width:220px;float:left;">抱抱龙到几级的时候就可以飞了：</div>
+                <div style="width:80px;float:left;" ><input type="radio" name="Fly" value="level7" id="Radio7" onclick="OnSelectQuestion3()"/>7级</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="Fly" value="level8" id="Radio8" onclick="OnSelectQuestion3()"/>8级</div>
+			    <div style="width:80px;float:left;" ><input type="radio" name="Fly" value="level9" id="Radio9" onclick="OnSelectQuestion3()"/>9级</div>
+			</pe:editor>
+		    <pe:answer text="确定" template_id="ok_right">
+			    <pe:answer-if condition = '<%=Eval("ConditionAnswer")%>' target_state = "5"/>
+			    <pe:answer-if condition = 'true' target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    恭喜你！你答对了，获得了一块记忆水晶，你死去的抱抱龙只有靠这块记忆水晶保存它生前的所有记忆。记忆水晶已经放入你的背包里，快去看看吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    很可惜你答错了，看来你还不是很了解你的抱抱龙喔，这样可不是一个好主人，快去把你的抱抱龙了解清楚再来吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    error
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,129 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicMoneyBox/MagicMoneyBox.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MagicMoneyBox, by Spring, 2012/3/18</title>
+</head>
+<body>
+<pe:mcml>
+
+<script type="text/npl" src="MagicMoneyBox.teen.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local rEmoney={};
+
+for i=1,8 do
+    if (i<=8) then
+        rEmoney[i]={mlel=i,emoney=i*5000,};
+    end
+end
+
+function getmlel()
+    local cur_mlel=0;
+    local s;
+    local bean = MyCompany.Aries.Pet.GetBean();
+    if(bean) then
+        if (bean.mlel) then
+            cur_mlel=bean.mlel;
+        end
+    end    
+    commonlib.echo("==========cur_mlel:"..cur_mlel);
+    s =string.format("你的魔法星现在是 <font color='#ff0000'>%d</font> 级",cur_mlel);
+    return s;
+end
+
+function DS_Func_RewardsEmoney(index)
+    if(index == nil) then
+        return 1;
+	else
+		return rEmoney[index];
+	end	
+end
+
+function IsLvl(v)
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local lvl = tonumber(bean.mlel);
+    if (lvl == v) then
+        return true
+    else
+        return false
+    end
+end
+
+function GetEMoney()
+    MyCompany.Aries.Quest.NPCs.MagicMoneyBox.GetEmoney(page);
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+function CanGetSilver()
+    local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+    local ItemManager = System.Item.ItemManager;
+    local DailyJoybean_gsid = 50316;
+    local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(DailyJoybean_gsid);
+    if(VIP.IsVIP() and gsObtain.inday==0) then
+        return true
+    end
+    return false
+end
+
+]]></script>
+<aries:window title="魔法储值罐" width="410" height="460" onhelp="" onclose="OnClose()" mode="lite">
+    <div style="position:relative;width:397px;height:420px;margin-left:1px;margin-top:1px;"  class="border_bg1_css">
+    <div style="float:left;margin-left:10px;margin-top:8px;width:30px;height:31px;background:url(Texture/Aries/Common/magicMoneybox_ico.png#0 0 30 31)" ></div>     
+    <div style="margin-left:45px;margin-top:-25px;width:350px;height:60px;color:#52dff4;">              
+    魔法星每天都会在我这里存上银币，根据魔法星等级不同，存入的银币也不同。<%=getmlel()%>，你要领取你的魔法星存下的银币吗？
+    </div>
+
+    <div style="color:#52dff4;font-size:12;width:350px;height:280px;margin-top:16px;margin-left:25px;" class="border_bg8_css">
+            <div style="color:#52dff4;font-size:12;width:335px;height:35px;margin-top:8px;margin-left:8px;" class="border_bg3_css">	        
+			    <div style="float:left;margin-left:5px;width:140px;text-align:center;margin-top:6px;font-size:12;color:#52dff4;" >魔法星等级</div>
+			    <div style="float:left;margin-left:30px;width:150px;text-align:center;margin-top:6px;font-size:12;color:#52dff4;" >领取银币数</div>     		        
+            </div>	
+			<pe:gridview DataSource="<%=DS_Func_RewardsEmoney%>" name="reward_emoney" style="margin-left:0px;margin-top:0px;margin-right:0px;margin-bottom:0px;width:335px;height:225px;" 
+			    VerticalScrollBarStep="35"  ItemsPerLine="1" AllowPaging="false" pagesize="8">
+			    <Columns>  
+                <div style="margin-left:9px;margin-top:-1px;width:330px;height:29px;" class="static_block_2">
+                    <pe:if condition='<%= not IsLvl(Eval("index")) %>'>
+                        <div style="float:left;margin-left:45px;width:50px;text-align:left;margin-top:6px;font-size:12;color:#98fffc;" ><%=Eval("index") %> 级</div>			  
+                        <div style="float:left;margin-left:125px;font-size:12;margin-top:6px;" ><%=Eval("emoney") %></div>
+                    </pe:if>
+
+                    <pe:if condition='<%=IsLvl(Eval("index")) %>'>
+                        <div style="float:left;margin-left:45px;width:50px;text-align:left;margin-top:0px;font-size:12;color:#ff0000;" ><%=Eval("index") %> 级</div>			          
+                        <div style="float:left;margin-left:125px;font-size:12;color:#ff0000;" ><%=Eval("emoney") %></div>
+                    </pe:if> 
+                </div>                           
+			    </Columns>
+			    <EmptyDataTemplate>
+			        <b>Empty Items</b>
+			    </EmptyDataTemplate>
+			    <FetchingDataTemplate>
+			        <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+			    </FetchingDataTemplate>
+
+			</pe:gridview>
+            
+    </div>
+
+    <div style="margin-left:60px;margin-top:10px;width:412px;height:65px;">
+        <div style="margin-top:0px;width:152px;height:47px;">
+            <input type="button" class="defaultbutton" style="width:90px;height:30px;" value="领取银币" onclick="GetEMoney()" />
+        </div>
+        <pe:if condition='<%=CanGetSilver()%>'>
+            <div style="position:relative;margin-left:-5px;margin-top:-50px;width:100px;height:40px;background:" >
+                    <img zorder="1" enabled="false" class="animated_btn_overlay" width="100" height="35"/>
+            </div>                                                 
+        </pe:if>    
+        <div style="margin-left:180px; margin-top:-47px;width:152px;height:47px;">
+            <input type="button" class="default_btn_css" style="width:90px;height:30px;" value="以后再说" onclick="OnClose();"  />
+        </div>
+    </div>
+
+</div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

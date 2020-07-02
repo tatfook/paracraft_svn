@@ -1,0 +1,507 @@
+<!-- "script/apps/Aries/Desktop/function/Calendar.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+NPL.load("(gl)script/apps/Aries/Desktop/Calendar.kids.lua");
+local Calendar = commonlib.gettable("MyCompany.Aries.Desktop.Calendar");
+Calendar.OnInit();
+local pageCtrl = document:GetPageCtrl();
+if (actenable) then
+else
+	actenable=1
+end
+
+mindex=mindex or 1;
+_Calendar_clicked=_Calendar_clicked or false;
+if (next(Calendar.datasource)~=nil and (not _Calendar_clicked))	then
+	actname=Calendar.datasource[1].name;
+	actdesc=Calendar.datasource[1].desc or "";
+	if (actdesc=="") then
+		actworldname=Calendar.datasource[1].worldname;
+	end
+	actplace=Calendar.datasource[1].place;
+	actperiod=Calendar.datasource[1].period;	
+end	
+
+local leavehaqi = pageCtrl:GetRequestParam("leavehaqi") or "0";
+if (tonumber(leavehaqi)==1) then
+    leaveworld = true;
+else
+    leaveworld = false;
+end
+
+local paraoldv = pageCtrl:GetRequestParam("paraoldv") or "0";
+if (tonumber(paraoldv)==1) then
+    oldvalue_ = true;
+else
+    oldvalue_ = false;
+end
+
+function LeaveLaterClick()
+	if(not oldvalue_) then
+		ParaEngine.GetAttributeObject():SetField("IsWindowClosingAllowed", oldvalue_);
+	end
+	--如果正在玩flash游戏，恢复显示
+	Map3DSystem.App.MiniGames.InvokeFlashGameWindow(true);
+  pageCtrl:CloseWindow();
+end
+
+function SwitchUserClick()
+    local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+    Dock.OnSwitchUser();
+end
+
+function LeaveOKClick()
+    local dock=MyCompany.Aries.Desktop.Dock;
+    pageCtrl:CloseWindow();
+    paraworld.ShowMessage("正在退出魔法哈奇...", nil, _guihelper.MessageBoxButtons.Nothing);
+    dock.LeaveTown();
+end
+
+function ClosePage()
+    Calendar.ClosePage();
+end
+
+function DS_Func_Calendar(index)
+  return Calendar.DS_Func(index);
+end
+
+function DS_Func_reward(index)
+	return Calendar.DS_Func_reward(index,mindex);
+end
+
+function DS_Func_tags(index)
+	return Calendar.DS_Func_tags(index);
+end
+
+function DoClick(sName)
+	sName=tonumber(sName);
+	Calendar.FindDataSource(sName);
+	Calendar.TagFilter("recomm",false);
+	if (next(Calendar.datasource)~=nil)	then
+		actname=Calendar.datasource[1].name;
+		actdesc=Calendar.datasource[1].desc or "";
+		if (actdesc=="") then
+			actworldname=Calendar.datasource[1].worldname;
+		end
+		actplace=Calendar.datasource[1].place;
+		actperiod=Calendar.datasource[1].period;	
+		mindex=1;
+	end
+	if (IsWeekDay()==sName) then
+		actenable=1;
+	else
+		actenable=0;
+	end
+	pageCtrl:Refresh(0.1);
+end
+
+function TagFilter(index)
+	mindex=1;
+    Calendar.TagFilter(index,true);
+	if (next(Calendar.datasource)~=nil)	then
+		actname=Calendar.datasource[1].name;
+		actdesc=Calendar.datasource[1].desc or "";
+		if (actdesc=="") then
+			actworldname=Calendar.datasource[1].worldname;
+		end
+		actplace=Calendar.datasource[1].place;
+		actperiod=Calendar.datasource[1].period;	
+	end
+end
+
+function IsWeekDay()
+		local Scene = commonlib.gettable("MyCompany.Aries.Scene");
+		local week = Scene.GetDayOfWeek();	
+		return week;
+end
+
+-- @result 0: 等级不足, 1: 等级满足、当前也在活动时间内，2:等级满足、还未到活动时间, 3:时间已过
+function GetState(index)
+    return Calendar.GetState(index)
+end
+
+function JoinIn(index)
+    local act_npcid = Calendar.datasource[index].npcid;
+    if(not act_npcid)then
+    	local act_do = Calendar.datasource[index].doact;
+    	if (act_do=="pvegroup") then                  		
+            NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+            local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+--            LobbyClientServicePage.selected_game_type = "PvE";
+--            LobbyClientServicePage.__ShowPage();
+            
+            local pve_world = Calendar.datasource[index].worldname
+            LobbyClientServicePage.MenuClick({Name="open_world", worldname= pve_world});
+
+            ClosePage(); 
+      else
+      	return
+      end
+    else
+	    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+        WorldManager:GotoNPCAndDialog(act_npcid);
+	    ClosePage();
+    end
+end
+
+function getTimesTips(index)
+    local ItemManager = System.Item.ItemManager;
+    local hasGSItem = ItemManager.IfOwnGSItem;
+    local act_gsid=Calendar.datasource[index].actgsid;
+    local act_times=Calendar.datasource[index].times;
+
+    local s="";
+    if (act_gsid>0) then
+        local _,__,___,copies=hasGSItem(act_gsid);
+        local finished_times=act_times;
+        if (copies) then
+            finished_times = act_times - copies;
+        end
+        s = string.format("%d / %d",finished_times,act_times);
+    elseif (act_gsid==-1) then
+        local worldname=Calendar.datasource[index].worldname;
+        local cnt=0;
+        NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+        local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+        LobbyClientServicePage.DoLoadWorldInstanceCnt(function()
+	        cnt = LobbyClientServicePage.GetTodayCnt_WorldInstance(worldname) or 0;
+        end)
+        local finished_times = 3 - cnt;
+        s = string.format("%d / 3",finished_times);
+    else
+        s = "无次数限制";
+    end
+    return s;    
+end
+
+function GetPvPRank(ctype)
+	local s="";
+
+    if (ctype=="pk_all") then
+	    if (System.User.rank_order and System.User.rank_order>=0 and System.User.rank_order<101) then
+		    s=string.format("<div style=\"float:left;color:#ff0000\">第%d名</div>",System.User.rank_order);
+	    else
+		    s=string.format("<div style=\"float:left;margin-left:-3px;color:#ff0000\">没有上榜</div>");
+	    end
+    elseif (ctype=="pk_class") then
+	    if (System.User.rank_order_class and System.User.rank_order_class>=0 and System.User.rank_order_class<101) then
+		    s=string.format("<div style=\"float:left;color:#ff0000\">第%d名</div>",System.User.rank_order_class);
+	    else
+		    s=string.format("<div style=\"float:left;margin-left:-3px;color:#ff0000\">没有上榜</div>");
+	    end
+    end
+	return s;
+end
+
+function GetPvERank()
+	local s="";
+	if (System.User.pve_rank_order and System.User.pve_rank_order>0 and System.User.pve_rank_order<101) then
+		s=string.format("<div style=\"float:left;color:#ff0000\">第%d名</div>",System.User.pve_rank_order);
+	else
+		s=string.format("<div style=\"float:left;margin-left:-3px;color:#ff0000\">没有上榜</div>");
+	end
+	return s;
+end
+
+function GetCombatlvl()
+	local s="";
+	local bean = MyCompany.Aries.Pet.GetBean();
+	local mylevel;
+	if(bean) then
+		mylevel = bean.combatlel or 0;
+	end
+			
+	s=string.format("<div style=\"float:left;color:#ff0000\">%d 级</div>",mylevel);
+	return s;
+end
+
+function GetDesc(index)
+	_Calendar_clicked=true;
+	mindex=index;
+	actname=Calendar.datasource[index].name;
+	actdesc=Calendar.datasource[index].desc or "";
+	if (actdesc=="") then
+		actworldname=Calendar.datasource[index].worldname;
+	end	
+
+	actplace=Calendar.datasource[index].place;
+	actperiod=Calendar.datasource[index].disp_period;
+	pageCtrl:Refresh(0.1);
+end
+
+function GetHotTips()
+	return Calendar.GetHotTips();
+end
+
+function IsTagAll()
+	return Calendar.FuncIsTagAll();
+end
+
+function IsTagRecomm()
+	return Calendar.FuncIsTagRecomm();
+end
+]]>
+</script>
+
+<pe:if condition='<%=not Eval("leaveworld")%>'>
+<div style="position:relative;margin-left:900px;margin-top:-10px;width:48px;height:48px;">
+    <input type="button" onclick="ClosePage()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+</div> 
+</pe:if>
+<div style="width:930px;height:530px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg_32bits.png:20 20 20 20)">
+  <div style="position:relative;width:128px;height:32px;margin-left:388px;margin-top:15px;background:url(Texture/Aries/Desktop/ActivityNote/actlist_32bits.png#0 0 128 32);" />
+  <div style="position:relative;width:500px;height:28px;margin-left:10px;margin-top:40px;color:#f8ff88">
+  	<div style="float:left;margin-top:-3px;width:40px;height:25px;background:url(Texture/Aries/Desktop/GemMerge/tuijian_32bits.png# 0 0 40 25)" />
+  	: <%=GetHotTips()%>
+  </div>	
+	<div style="position:relative;margin-left:25px;margin-top:70px;">
+		<pe:if condition="<%=IsWeekDay()==1%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">
+			  	<pe:tab-item name="1" text="*星期一*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+
+		<pe:if condition="<%=IsWeekDay()==2%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">         		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="*星期二*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+
+		<pe:if condition="<%=IsWeekDay()==3%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">        		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="*星期三*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+
+		<pe:if condition="<%=IsWeekDay()==4%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">            		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="*星期四*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+
+		<pe:if condition="<%=IsWeekDay()==5%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">         		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="*星期五*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+            
+		<pe:if condition="<%=IsWeekDay()==6%>">
+			<pe:tabs name="card_class1" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">            		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="*星期六*" selected="true" style="width:70px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="星期日" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+
+		<pe:if condition="<%=IsWeekDay()==7%>">
+			<pe:tabs name="card_class7" onclick="DoClick" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/LobbyService/header_bg2_32bits.png;0 0 16 25: 7 7 7 7" UnSelectedMenuItemBG="" TextColor="#022a57" TextFont="System;12;norm">     		
+			  	<pe:tab-item name="1" text="星期一" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="2" text="星期二" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="3" text="星期三" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="4" text="星期四" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="5" text="星期五" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="6" text="星期六" style="width:50px;margin-left:0px;">  </pe:tab-item>
+			  	<pe:tab-item name="7" text="*星期日*" selected="true" style="width:70px;">  </pe:tab-item>
+			</pe:tabs>  
+		</pe:if>	
+                                    
+	</div>
+	<div style="width:510px;height:424px;margin-left:10px;margin-top:98px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7);" > 	
+    <div style="float:left;margin-left:2px;margin-top:3px;width:495px;height:25px;font-size:12px;background:url()" >
+        <input type="button" value="活动名称" style="float:left;margin-left:25px;width:60px;background:url();" enabled="false"/>
+        <input type="button" value="推荐等级" style="float:left;margin-left:25px;width:60px;background:url();" enabled="false"/>
+        <input type="button" value="时间" style="float:left;margin-left:20px;width:150px;background:url();" enabled="false"/>
+        <input type="button" value="次数" style="float:left;margin-left:25px;width:40px;background:url();" enabled="false"/>
+        <input type="button" value="操作" style="float:left;margin-left:35px;width:30px;background:url();" enabled="false"/>
+    </div>
+    <div style="float:left;margin-left:5px;margin-top:-2px;width:495px;height:1px;background:url(Texture/Aries/Common/ThemeTeen/others/blue_line_32bits.png);" />	 
+	  <pe:gridview name="actcalendar" DataSource="<%=DS_Func_Calendar%>"  ItemsPerLine="1">
+	    <Columns>
+            <div style="float:left;margin-left:1px;padding-top:1px;padding-bottom:1px;font-size:12px;" >  
+            	<input type="button" value='<%=Eval("name")%>' Normal_BG="" MouseOver_BG="Texture/Aries/LobbyService/selected_bg2_32bits.png" 
+            		 style="margin-left:9px;width:420px;height:25px;text-align:left;font-size:12px;background:" onclick="GetDesc" name='<%=Eval("index")%>' tooltip="点击查看详情"/> 
+            	<div style="float:left;margin-left:-300px;margin-top:5px;"><%=Eval("combatlvl_string")%></div>
+            	<div style="float:left;margin-left:-240px;margin-top:5px;"><%=Eval("disp_period")%></div>
+            	<div style="float:left;margin-left:-65px;margin-top:5px;"><%=getTimesTips(Eval("index"))%></div>
+            	<pe:if condition='<%=Eval("actenable")==1%>'>
+            		<pe:if condition='<%=GetState(Eval("index"))==1%>'>
+	            		<input type="button" value='参加' class="defaultbutton" style="text-align:center;font-size:12px;width:50px;height:20px;" onclick="JoinIn" name='<%=Eval("index")%>' tooltip="点击参加该活动"/> 
+	            	</pe:if>
+            		<pe:if condition='<%=GetState(Eval("index"))==2%>'>
+	            		<div style="float:left;text-align:center;width:70px;margin-top:5px;color:#ff9900">未来可接</div>
+	            	</pe:if>
+            		<pe:if condition='<%=GetState(Eval("index"))==3%>'>
+	            		<div style="float:left;text-align:center;width:70px;margin-top:5px;color:#999999">今天已过期</div>
+	            	</pe:if>	            	
+            		<pe:if condition='<%=GetState(Eval("index"))==0%>'>
+	            		<div style="float:left;text-align:center;width:70px;margin-top:5px;color:#d32807">等级不符</div>
+	            	</pe:if>
+							</pe:if>
+            	<pe:if condition='<%=Eval("actenable")==0%>'>
+            		<div style="float:left;text-align:center;width:70px;margin-top:5px;color:#999999">时间不符</div>	            	
+            	</pe:if>	
+            </div>
+            <div style="width:495px;height:1px;background:url(Texture/Aries/Common/ThemeTeen/others/blue_line_32bits.png);" />
+			</Columns>
+	    <EmptyDataTemplate>
+	      <b>空</b>
+	    </EmptyDataTemplate>
+	    <FetchingDataTemplate>
+	      <b>请稍等 ... </b>
+	    </FetchingDataTemplate>
+	    <PagerTemplate>
+	      <form>
+	      </form>
+	    </PagerTemplate>
+	  </pe:gridview>
+	</div>				        			
+
+	<div style="width:395px;height:338px;margin-left:523px;margin-top:-468px;font-size:12px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7);"> 
+			<div style="margin-left:5px;margin-top:5px;">你当前战斗等级: <%=GetCombatlvl()%>，当前成绩：
+<!--				<div style="margin-left:-5px;">【天梯总榜】<%=GetPvPRank("pk_all")%>【赛场系别】<%=GetPvPRank("pk_class")%>【BOSS挑战】<%=GetPvERank()%></div> -->
+                    <div style="margin-left:-5px;">【天梯总榜】<%=GetPvPRank("pk_all")%>【BOSS挑战】<%=GetPvERank()%></div>
+			</div>
+
+			<div style="width:392px;height:1px;background:url(Texture/Aries/Common/ThemeTeen/others/blue_line_32bits.png);" />
+			<div style="margin-left:10px;margin-top:5px;">活动简介：【<%=Eval("actname")%>】</div>
+			<div style="width:360px;margin-left:10px;margin-top:5px;">
+				<pe:if condition='<%=Eval("actdesc")==""%>'>
+						<aries:lobbyservice_template worldname='<%=Eval("actworldname")%>'>
+							<aries:lobbyservice_template_item property="world_description" style="font-size:12px;"/>
+						</aries:lobbyservice_template>		
+				</pe:if>
+				<pe:if condition='<%=Eval("actdesc")~=""%>'>
+					<%=Eval("actdesc")%>
+				</pe:if>				
+			</div>
+			<div style="width:360px;margin-left:10px;margin-top:5px;">活动地点：<%=Eval("actplace")%></div>
+			<div style="width:360px;margin-left:10px;margin-top:5px;">活动时间：<%=Eval("actperiod")%></div>
+			<div style="margin-left:10px;margin-top:5px;">活动奖励：
+				<div style="margin-left:5px;">
+	  			<pe:gridview name="act_reward_view" DataSource="<%=DS_Func_reward%>"  ItemsPerLine="11" AllowPaging="false" pagesize="33">
+	    			<Columns>					
+				      <div style="width:30px;height:30px;padding:2px;margin-left:2px;margin-top:2px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">                    	              
+	                  <pe:item gsid='<%=Eval("gsid")%>' showdefaulttooltip="true" isclickable="false"  style="width:28px;height:28px;margin-left:0px;margin-top:0px;"/>
+				      </div>
+						</Columns>
+						<EmptyDataTemplate>
+						</EmptyDataTemplate>
+						<FetchingDataTemplate>
+						</FetchingDataTemplate>
+					</pe:gridview>
+				</div>    				
+			</div>
+	</div>	
+
+	<div style="width:395px;height:125px;margin-left:523px;margin-top:-127px;font-size:12px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7);"> 
+        <div style="margin-left:8px;margin-top:5px;">活动分类：
+        <pe:if condition='<%=not IsTagAll() %>'>
+            <input type="button" value='全部' style="margin-top:-2px;font-weight:bolder;font-size:12;color:#022a57;background:" onclick="TagFilter" name="alltags" tooltip="点击列出全部活动"/> 
+        </pe:if>
+        <pe:if condition='<%=IsTagAll() %>'>
+            <input type="button" value='全部' isclickable="false" style="margin-top:-2px;font-weight:bolder;font-size:12;color:#fa0000;background:" /> 
+        </pe:if>
+
+        <pe:if condition='<%=not IsTagRecomm() %>'>
+            <input type="button" value='热门推荐' style="margin-top:-2px;font-weight:bolder;font-size:12;color:#022a57;background:" onclick="TagFilter" name="recomm" tooltip="点击列出当前热门推荐活动"/> 
+        </pe:if>
+        <pe:if condition='<%=IsTagRecomm() %>'>
+            <input type="button" value='热门推荐' isclickable="false" style="margin-top:-2px;font-weight:bolder;font-size:12;color:#fa0000;background:" /> 
+        </pe:if>
+        点击下面的分类查找相应奖励的活动
+      </div>
+			<div style="margin-left:5px;">
+				<pe:gridview name="act_tags" DataSource="<%=DS_Func_tags%>"  ItemsPerLine="7" AllowPaging="false" pagesize="20">
+				<Columns>				
+				    <pe:if condition='<%=Eval("lvl")==1 %>'>	
+				    <div style="margin-left:5px;margin-top:5px;">
+				            <pe:if condition='<%=Eval("clicked")==0 %>'>
+				            <input type="button" value='<%=Eval("tag")%>' style="font-weight:bolder;font-size:12;color:#022a57;background:" onclick="TagFilter" name='<%=Eval("index")%>' tooltip="点击列出该类活动"/> 
+				            </pe:if>
+				
+				            <pe:if condition='<%=Eval("clicked")==1 %>'>
+				            <input type="button" value='<%=Eval("tag")%>' isclickable="false" style="font-weight:bolder;font-size:12;color:#fa0000;background:" /> 
+				            </pe:if>
+				    </div>
+				    </pe:if>
+				    <pe:if condition='<%=Eval("lvl")==2 and not Eval("leaveworld")%>'>	
+				    <div style="margin-left:5px;margin-top:5px;">
+				            <pe:if condition='<%=Eval("clicked")==0 %>'>
+				            <input type="button" value='<%=Eval("tag")%>' style="font-size:10;color:#022a57;background:" onclick="TagFilter" name='<%=Eval("index")%>' tooltip="点击列出该类活动"/> 	                          
+				            </pe:if>
+				
+				            <pe:if condition='<%=Eval("clicked")==1 %>'>
+				            <input type="button" value='<%=Eval("tag")%>' isclickable="false" style="font-weight:bolder;font-size:12;color:#fa0000;background:" /> 
+				            </pe:if>
+				    </div>
+				    </pe:if>
+				
+				</Columns>
+				<EmptyDataTemplate>
+				</EmptyDataTemplate>
+				<FetchingDataTemplate>
+				</FetchingDataTemplate>
+				</pe:gridview>
+			</div>    				
+	</div>	
+
+<pe:if condition='<%=Eval("leaveworld")%>'>
+    <div style="float:left;margin-left:5px;margin-top:-60px;width:925px;height:25px;">     			
+       <input type="button" value="你要离开魔法哈奇吗？" zorder="1" style="width:920px;height:30px;font-size:14px;text-align:center;font-weight:bolder;color:#52dff4;background:url(Texture/Aries/Common/ThemeTeen/lightblueblock_32bits.png:5 5 5 5);"/>
+    </div>
+    <div style="height:49px;width:300px;margin-top:-30px;">
+	     <input type="button" name="No" text="" style="position:relative;margin-left:160px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/continuegame_32bits.png# 0 0 153 49)" onclick="LeaveLaterClick()"/>
+	     <input type="button" name="Yes" text="" style="position:relative;margin-left:600px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/LeaveImmediately_32bits.png# 0 0 153 49)" onclick="LeaveOKClick()"/>
+    </div>
+</pe:if>  
+	    
+</div>
+    
+</pe:mcml>
+</body>
+</html>
+

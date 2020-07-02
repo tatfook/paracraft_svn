@@ -1,0 +1,126 @@
+﻿<!-- "script/apps/Aries/NPCs/RockyForest/30127_Tutu_nymphora_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30127_Tutu_nymphora_dialog, by Leio, 2011/01/26</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function isFullLevel(gsid)
+    NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+    local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+    if(not gsid)then return end
+	local bHas,guid = hasGSItem(gsid);
+	if(bHas)then
+		local item = ItemManager.GetItemByGUID(guid);
+		local exp = 0;
+		if(item and item.GetExp)then
+			exp = item:GetExp();
+			local provider = CombatPetHelper.GetClientProvider();
+		    if(provider)then
+			    local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp or 0);
+                commonlib.echo({gsid = gsid,level = level,cur_exp = cur_exp,total_exp = total_exp,isfull = isfull});
+                return isfull;
+            end
+		end
+	end
+end
+
+function getPet()
+    ItemManager.PurchaseItem(10144, 1, function(msg) 
+		LOG.std("", "info","ItemManager.PurchaseItem 10144 nymphora", msg);
+	end);
+end
+function hasPet()
+    return hasGSItem(10144);
+end
+function hasFullLevelAllPets()
+	return isFullLevel(10117) and isFullLevel(10118) and isFullLevel(10119) and isFullLevel(10120) and isFullLevel(10121) and isFullLevel(10122) and isFullLevel(10123) and isFullLevel(10124) and isFullLevel(10125) and isFullLevel(10126) and isFullLevel(10127) and isFullLevel(10128);
+end
+function hasAllPets()
+    NPL.load("(gl)script/apps/Aries/NPCs/RockyForest/30127_Tutu.lua");
+    return MyCompany.Aries.Quest.NPCs.Tutu.IsFindAll();
+end
+
+isFullLevel(10117) 
+isFullLevel(10118)
+isFullLevel(10119) 
+isFullLevel(10120) 
+isFullLevel(10121) 
+isFullLevel(10122) 
+isFullLevel(10123)
+isFullLevel(10124) 
+isFullLevel(10125) 
+isFullLevel(10126)
+isFullLevel(10127) 
+isFullLevel(10128);
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30127" />
+            <pe:placeholder id="name" source="{this}" value='美女驯兽师-涂涂'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=hasPet()%>' target_state = "1"/>
+		        <pe:answer-if condition = '<%=hasFullLevelAllPets()%>' target_state = "2"/>
+		        <pe:answer-if condition = '<%=hasAllPets()%>' target_state = "3"/>
+		        <pe:answer-if condition = 'true' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "1">
+		   已经给过你一个蝴蝶精灵了，别想再找我要第二只了！
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "2">
+		   哎哟，不错，这么快就把十二生肖宠物练满级了嘛，来！给你一个特别的战宠——蝴蝶精灵，好好照顾它哦！
+		    <pe:answer template_id="thanks">
+			    <pe:answer-if condition = 'true' transition = '<%=getPet()%>' target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "3">
+		  你的十二生肖战宠还没练满级呢，先把它们带到最顶级才有资格得到蝴蝶精灵这样的稀有战宠！
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "4">
+          你没抓起十二生肖就想来领取蝴蝶精灵？天哪，拜托你先去水车湖畔看看天气预报，3级捕兽网可以在靓靓屋建造，也可以去凯旋广场抽奖获得，赶紧去抓齐了再来找我吧！
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

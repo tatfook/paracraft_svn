@@ -1,0 +1,508 @@
+<!-- "script/apps/Aries/Login/Tutorial/PickSchoolOfSpell.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="PickSchoolOfSpell.lua"><![CDATA[
+NPL.load("(gl)script/ide/MotionEx/MotionXmlToTable.lua");
+local MotionXmlToTable = commonlib.gettable("MotionEx.MotionXmlToTable");
+local Page = document:GetPageCtrl();
+
+local PickSchoolOfSpell = commonlib.gettable("MyCompany.Aries.Tutorial.PickSchoolOfSpell");
+PickSchoolOfSpell.OnInit();
+
+local schools = {
+   ["ice"]={name="ice",id = 987, exid = 1027, wand_gsid = 1029, displayname="寒冰系",text="具有最高的生命值和最强的防御能力。同时还具有较强的控制魔法，可化解敌方的护盾，反射攻击以及让对手眩晕和冰冻。"},
+   ["fire"]={name="fire",id = 986, exid = 1026, wand_gsid = 1028, displayname="烈火系",text="拥有最强的群攻能力，以及多种破除敌方护盾的手段。强大的持续伤害魔法和群体控制技能让敌人防不胜防！"},
+   ["storm"]={name="storm",id = 988, exid = 1028, wand_gsid = 1030, displayname="风暴系",text="具有最强的单体攻击能力，是团队挑战怪物首领时强大的战斗力量！"},
+   ["life"]={name="life",id = 990, exid = 1029, wand_gsid = 1031, displayname="生命系",text="可治疗和复活队友，是挑战高难度怪物不可或缺的辅助者，也是团队合作中最受欢迎的角色！"},
+   ["death"]={name="death",id = 991, exid = 1030, wand_gsid = 1032, displayname="死亡系",text="擅长吸血魔法，具有很强的生存能力。同时利用各种诅咒大幅提升自身和团队的攻击力！"},
+   --["myth"]={name="myth",id = 989},
+   --["balance"]={name="balance",id = 992},
+}
+
+local RepSkills={
+    ["ice"]={{gsid=22150},{gsid=22332},{gsid=22337},{gsid=22151},{gsid=22146},{gsid=22147},},
+    ["fire"]={{gsid=22105},{gsid=22113},{gsid=22111},{gsid=22117},{gsid=22114},{gsid=22331}},
+    ["storm"]={{gsid=22135},{gsid=22134},{gsid=22333},{gsid=22133},{gsid=22125},{gsid=22338},},
+    ["life"]={{gsid=22173},{gsid=22166},{gsid=22335},{gsid=22163},{gsid=22174},{gsid=22165},},
+    ["death"]={{gsid=22188},{gsid=22334},{gsid=22187},{gsid=22192},{gsid=22186},{gsid=22383},},
+};
+
+local Prop_School={
+    ["ice"]=  {attack=9, multi_attack=7,recover=1, defend=10,lifevalue=10,control=6,},
+    ["fire"]= {attack=9, multi_attack=10,recover=2, defend=5,lifevalue=7, control=4,},
+    ["life"]= {attack=7, multi_attack=2,recover=10,defend=8,lifevalue=9, control=2,},
+    ["death"]={attack=8, multi_attack=3,recover=6, defend=6,lifevalue=8, control=3,},
+    ["storm"]={attack=10,multi_attack=4,recover=1, defend=4,lifevalue=6, control=5,},
+--    ["earth"]={attack=6, multi_attack=4,recover=1, defend=8,lifevalue=7, control=10,},
+
+};
+
+local RookieSkillPlay={
+    ["ice"]="config/Aries/StaticMovies/AriesTutorialTeen_Ice_Show.xml",
+    ["fire"]="config/Aries/StaticMovies/AriesTutorialTeen_Fire_Show.xml",
+    ["storm"]="config/Aries/StaticMovies/AriesTutorialTeen_Storm_Show.xml",
+    ["life"]="config/Aries/StaticMovies/AriesTutorialTeen_Life_Show.xml",
+    ["death"]="config/Aries/StaticMovies/AriesTutorialTeen_Death_Show.xml",
+}
+
+local ThisSchool_RepSkills= ThisSchool_RepSkills or {};
+local ThisSchool_Prop= ThisSchool_Prop or {};
+
+skill_tips="请仔细选择, 今后无法更改";
+skill_school = skill_school or "";
+attack_v  = attack_v or 0;
+multi_attack_v  = multi_attack_v or 0;
+recover_v = recover_v or 0;
+defend_v = defend_v or 0;
+life_v = life_v or 0;
+control_v = control_v or 0;
+
+function GetWndHeight()
+    local _root = ParaUI.GetUIObject("root");
+    local _, __, width, height = _root:GetAbsPosition();    
+    return height
+end
+
+function OnClickRandom()
+    local nIndex = math.floor(math.random()*5+1)
+    if(schools[nIndex]) then
+        Page:SetUIValue("school_of_spell", schools[nIndex].name);
+        OnSelectSchool(schools[nIndex].name)
+    end
+end
+
+function OnMotionStop()
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.is_play_motion = false;
+    MotionXmlToTable.Clear();
+    PickSchoolOfSpell.cur_filepath = nil;
+end
+
+function Play()
+    MotionXmlToTable.Clear();
+    MotionXmlToTable.Play(cur_filepath,1,nil,Play);
+end
+
+function OnMotionPlay(filepath)
+    if(not filepath)then return end
+
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.is_play_motion = true;
+    -- force env timer function
+    MyCompany.Aries.Player.ForceActivateEnvTimerFunction()
+    PickSchoolOfSpell.cur_filepath = filepath
+    PickSchoolOfSpell.Play()  
+end
+
+function OnSelectSchool(school_name)
+    local school_name = string.lower(school_name);
+    local school = schools[school_name];
+
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchoolID = school.name;
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID = school.id;
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID = school.exid;
+    MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid = school.wand_gsid;
+    ThisSchool_RepSkills = commonlib.deepcopy(RepSkills[school_name]);
+    ThisSchool_Prop = commonlib.deepcopy(Prop_School[school_name]);
+    if (GetWndHeight()>=690 ) then
+        Page:SetUIEnabled("selected_btn690", true);
+    else
+        Page:SetUIEnabled("selected_btn560", true);
+    end
+
+    attack_v  = ThisSchool_Prop.attack;
+    multi_attack_v  = ThisSchool_Prop.multi_attack;
+    recover_v = ThisSchool_Prop.recover;
+    defend_v = ThisSchool_Prop.defend;
+    life_v = ThisSchool_Prop.lifevalue;
+    control_v = ThisSchool_Prop.control;
+
+    skill_school = school.displayname;
+    skill_tips = school.text or "";
+
+    -- 将背景中的玩家移走
+    local tmpNid=tostring(System.App.profiles.ProfileManager.GetNID());
+    local player = ParaScene.GetCharacter(tmpNid);
+    player:SetVisible(false);
+
+    Page:Refresh(0.1);  
+    local filepath=RookieSkillPlay[school_name];
+    OnMotionPlay(filepath);   
+end
+
+function OnFinished()
+	local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你选择了【%s】，确认后将无法更改！<br/>你选好了魔法系了吗？</div>",skill_school);
+	_guihelper.Custom_MessageBox(s,function(res)
+		if(res and res == _guihelper.DialogResult.Yes) then
+            NPL.load("(gl)script/kids/3DMapSystemApp/Assets/AsyncLoaderProgressBar.lua");
+            Map3DSystem.App.Assets.AsyncLoaderProgressBar:Reposition();
+            Page:CloseWindow();
+            OnMotionStop();
+            if (MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchoolID 
+                and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID
+                and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID
+                and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid) then
+        
+                local selected_school = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID;
+                local selected_exid = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID;
+                local selected_wand_gsid = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid;
+                local msg = {
+                    school = selected_school,
+                };
+		        paraworld.users.SetCombatSchool(msg, "SetCombatSchoolForSelf_"..selected_school, function(msg)
+                    if(msg.issuccess == true) then
+                        -- refresh local reference
+                        local ProfileManager = commonlib.gettable("System.App.profiles.ProfileManager");
+                        ProfileManager.GetUserInfo(nil, "SetCombatSchoolForSelf_"..selected_school.."_profilemanager", function() end, "access plus 1 minute");
+                        
+                        ---- continue with next stage
+                        --MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+
+                        if(System.options.version == "teen") then
+                            -- exchange the newbie wand according to player school
+				            Map3DSystem.Item.ItemManager.ExtendedCost(selected_exid, nil, nil, function(msg)
+					            if(msg.issuccess == true) then
+                                    local bHas, guid = Map3DSystem.Item.ItemManager.IfOwnGSItem(selected_wand_gsid);
+                                    if(bHas) then
+                                        Map3DSystem.Item.ItemManager.EquipItem(guid, function(msg)
+                                            -- next stage pip tutorial
+	                                        NPL.load("(gl)script/apps/Aries/Login/Tutorial/CombatPipTutorial.teen.lua");
+                                            MyCompany.Aries.Quest.NPCs.CombatPipTutorial.main(function()
+                                                -- continue with next stage
+                                                MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+                                            end);
+                                        end);
+                                    end
+                                    -- 自动学习本系0级小招
+	                                NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+	                                local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+                                    MyCardsManager.Init();
+			                        NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+			                        local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+                                    log("+++++++ TeenAutoStudy Enter+++++++\n")
+			                        CombatSkillLearn.TeenAutoStudy();
+					            end
+				            end, function(msg) end);
+                        end
+
+	                    --NPL.load("(gl)script/apps/Aries/Login/Tutorial/CombatPipTutorial.teen.lua");
+                        --MyCompany.Aries.Quest.NPCs.CombatPipTutorial.main(function()
+                            ---- continue with next stage
+                            --MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+                        --end);
+
+	                    -- send log information
+	                    paraworld.PostLog({action = "pick_combat_school_success"}, "pick_combat_school_success_log", function(msg)
+	                    end);
+                    else
+                        MyCompany.Aries.Quest.NPCs.CombatTutorial.Handler_Stage21();
+                    end
+		        end, nil, 10000, function()
+                    MyCompany.Aries.Quest.NPCs.CombatTutorial.Handler_Stage21();
+                end);
+            end 
+		
+        end 
+	end, _guihelper.MessageBoxButtons.YesNo, {yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+
+end
+
+function DS_Func_RepSkills(index)
+--    commonlib.echo(ThisSchool_RepSkills[index])
+	if(index == nil) then
+		return #(ThisSchool_RepSkills);
+	else
+        return ThisSchool_RepSkills[index];
+    end
+end
+
+function getIcon(gsid)
+    local ItemManager = System.Item.ItemManager;
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s",gsItem.descfile or "");
+        return s;
+    end
+end
+
+function getCardTip(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then return end
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",gsid);
+    return s;    
+end
+
+if (not PickSchoolOfSpell.IsInited) then
+    OnSelectSchool("life");
+    PickSchoolOfSpell.IsInited=true;
+end
+-- tricky: simply avoid loader UI intervening
+NPL.load("(gl)script/kids/3DMapSystemApp/Assets/AsyncLoaderProgressBar.lua");
+Map3DSystem.App.Assets.AsyncLoaderProgressBar:Reposition("_lb", 210, 5, 32, 160);
+]]></script>
+<form>
+
+<pe:if condition='<%=GetWndHeight()>=690 %>'>
+<div style="width:200px;height:688px" valign="center" class="window">
+    <div class="titlebar">
+        <div class="windowlabel">选择系别</div>
+    </div>
+    <div style="margin-left:5px;margin-top:2px;width:190px;height:665px;" class="clientarea">
+            <div style="padding-top:6px;padding-left:10px;width:186px;height:70px;">
+                <div style="float:left;margin-left:10px;margin-top:0px;width:70px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="坚厚的寒冰体力值和防御最强！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_ice_32bits.png)" value="ice" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;margin-left:15px;width:200px;margin-top:-5px;">寒冰系</div>
+
+                </div>
+                
+                <div style="float:left;margin-left:10px;margin-top:0px;width:70px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="烈火的奇怪招数总让敌方防不胜防！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_fire_32bits.png)" value="fire" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;margin-left:15px;width:200px;margin-top:-5px;">烈火系</div>
+                </div>
+            </div>
+            <div style="padding-top:6px;padding-left:10px;width:186px;height:70px;">
+               <div style="float:left;margin-left:10px;margin-top:0px;width:70px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="生命的补血魔法关键时刻十分管用！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_life_32bits.png)" value="life" onclick="OnSelectSchool" checked="checked" /><br />
+                    <div style="float:left;margin-left:15px;width:200px;margin-top:-5px;">生命系</div>
+                </div>
+                <div style="float:left;margin-left:10px;margin-top:0px;width:70px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="死亡的吸血魔法非常厉害！" padding="22" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_death_32bits.png)" value="death" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;margin-left:15px;width:200px;margin-top:-5px;">死亡系</div>
+                </div>
+            </div>
+            <div style="padding-top:6px;padding-left:10px;width:186px;height:70px;">
+                <div style="float:left;margin-left:10px;margin-top:0px;width:70px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="风暴的单体攻击无人能敌！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_storm_32bits.png)" value="storm" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;margin-left:15px;width:200px;margin-top:-5px;">风暴系</div>
+                </div>
+<!--                <div style="float:left;margin-left:10px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)">
+                    <input type="button" style="margin-left:9px;margin-top:20px;width:58px;height:32px;background:url(Texture/Aries/Login/Tutorial/random.png#0 0 58 32)" name="Random" onclick="OnClickRandom" /><br />
+                </div>-->
+            </div>
+
+        <div style="width:200px;height:16px;" align="center">
+        </div>
+        <div style="width:186px;height:110px;padding-top:2px;" class="subpane">
+            <div style="margin-left:5px;width:170px;padding-top:3px;display:inline;line-height:14px;font-size:12px;color:#ffff00;"><%=Eval("skill_school") %>：</div>
+            <div style="margin-left:10px;width:170px;padding-top:5px;display:inline;line-height:14px;font-size:12px;">
+            <%=Eval("skill_tips") %>
+            </div>
+        </div>
+
+        <div style="width:200px;height:3px;" align="center">
+        </div>
+        <div style="width:186px;height:160px;padding-top:2px;" class="subpane">
+            <div style="margin-left:5px;width:100px;padding-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">单攻：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("attack_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:69px;width:46px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:81px;width:34px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:92px;width:23px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==9 %>'><img zorder = "3" enabled="false" style="margin-left:103px;width:12px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:100px;padding-top:10px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">群攻：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("multi_attack_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:23px;width:92px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==3 %>'><img zorder = "3" enabled="false" style="margin-left:34px;width:81px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:46px;width:69px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:81px;width:34px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:92px;width:23px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:100px;margin-top:10px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">防御：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("defend_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:46px;width:69px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==5 %>'><img zorder = "3" enabled="false" style="margin-left:58px;width:57px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:69px;width:46px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:81px;width:34px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:92px;width:23px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:100px;margin-top:10px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">生命：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("life_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:69px;width:46px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:81px;width:34px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:92px;width:23px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==9 %>'><img zorder = "3" enabled="false" style="margin-left:103px;width:12px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:100px;margin-top:10px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">恢复：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("recover_v")==1 %>'><img zorder = "3" enabled="false" style="margin-left:12px;width:103px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("recover_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:23px;width:92px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("recover_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:69px;width:46px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:100px;margin-top:10px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">控制：</div>
+            <div style="margin-left:55px;width:115px;height:8px;margin-top:-8px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("control_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:23px;width:92px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==3 %>'><img zorder = "3" enabled="false" style="margin-left:34px;width:81px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:46px;width:69px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==5 %>'><img zorder = "3" enabled="false" style="margin-left:58px;width:57px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:69px;width:46px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:81px;width:34px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>                
+            </div>
+
+        </div>
+
+        <div style="width:200px;height:3px;" align="center">
+        </div>
+        <div style="width:186px;height:105px;padding-top:3px;" class="subpane">
+                <div style="margin-left:10px;color:#ffff00">
+                代表魔法:</div>
+                <div style="margin-left:20px;padding-top:3px;width:180px;height:95px;">
+                <pe:gridview style="margin-top:1px;" DataSource="<%=DS_Func_RepSkills%>" name="skillList" CellPadding="3" ItemsPerLine="3" AllowPaging="false" pagesize="6" >
+                    <Columns>    
+                        <img src='<%=getIcon(Eval("gsid")) %>' style="width:30px;height:30px;margin-left:10px;margin-top:0px;" />
+                        <input type="button" zorder="3" style="margin-left:-34px;width:34px;height:34px;background:;" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="10" tooltip_offset_y="-60"/>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>	  
+                </pe:gridview>
+                </div>
+        </div>
+        <div style="margin-top:6px;width:85px;height:35px;" align="center">
+            <input type="button" name="selected_btn690" enabled = "false"class="bordertext" value="选好了" 
+                        style="min-width:80px;height:30px;" onclick="OnFinished"/>
+        </div>
+
+    </div>
+</div>
+</pe:if>
+
+<!-- web version or game window's height less than 690 -->
+<pe:if condition='<%=GetWndHeight()<690 %>'>
+<div style="width:220px;height:560px" valign="center" class="window">
+    <div class="titlebar">
+        <div class="windowlabel">选择系别</div>
+    </div>
+    <div style="margin-left:5px;margin-top:2px;width:210px;height:535px;" class="clientarea">
+            <div style="padding-top:6px;padding-left:5px;width:205px;height:70px;">
+                <div style="float:left;margin-left:5px;margin-top:0px;width:60px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="坚厚的寒冰体力值和防御最强！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_ice_32bits.png)" value="ice" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;width:200px;margin-left:15px;margin-top:-5px;">寒冰系</div>
+
+                </div>
+                
+                <div style="float:left;margin-left:5px;margin-top:0px;width:60px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="烈火的奇怪招数总让敌方防不胜防！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_fire_32bits.png)" value="fire" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;width:200px;margin-left:15px;margin-top:-5px;">烈火系</div>
+                </div>
+
+               <div style="float:left;margin-left:5px;margin-top:0px;width:60px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="生命的补血魔法关键时刻十分管用！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_life_32bits.png)" value="life" onclick="OnSelectSchool" checked="checked" /><br />
+                    <div style="float:left;width:200px;margin-left:15px;margin-top:-5px;">生命系</div>
+                </div>
+            </div>
+            <div style="padding-top:6px;padding-left:5px;width:205px;height:70px;">
+                <div style="float:left;margin-left:5px;margin-top:0px;width:60px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="死亡的吸血魔法非常厉害！" padding="22" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_death_32bits.png)" value="death" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;width:200px;margin-left:15px;margin-top:-5px;">死亡系</div>
+                </div>
+
+                <div style="float:left;margin-left:5px;margin-top:0px;width:60px;height:69px;">
+                    <input type="radio" name="school_of_spell" background2="Texture/Aries/Common/ThemeTeen/selectedschool_bg_32bits.png;0 0 60 60" tooltip="风暴的单体攻击无人能敌！" style="padding:10px;width:38px;height:38px;background:url(Texture/Aries/Login/Tutorial/school_storm_32bits.png)" value="storm" onclick="OnSelectSchool" /><br />
+                    <div style="float:left;width:200px;margin-left:15px;margin-top:-5px;">风暴系</div>
+                </div>
+
+            </div>
+
+        <div style="width:210px;height:16px;" align="center">
+        </div>
+        <div style="width:210px;height:95px;padding-top:2px;" class="subpane">
+            <div style="margin-left:5px;width:170px;padding-top:3px;display:inline;line-height:14px;font-size:12px;color:#ffff00;"><%=Eval("skill_school") %>：</div>
+            <div style="margin-left:10px;width:190px;padding-top:5px;display:inline;line-height:14px;font-size:12px;">
+            <%=Eval("skill_tips") %>
+            </div>
+        </div>
+
+        <div style="width:210px;height:3px;" align="center">
+        </div>
+        <div style="width:205px;height:115px;padding-top:1px;" class="subpane">
+            <div style="margin-left:5px;width:70px;padding-top:1px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">单攻：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("attack_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:78px;width:52px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:91px;width:39px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:104px;width:26px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("attack_v")==9 %>'><img zorder = "3" enabled="false" style="margin-left:117px;width:13px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:70px;padding-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">群攻：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("multi_attack_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:26px;width:104px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==3 %>'><img zorder = "3" enabled="false" style="margin-left:39px;width:91px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:52px;width:78px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:91px;width:39px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("multi_attack_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:104px;width:26px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:70px;margin-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">防御：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("defend_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:52px;width:78px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==5 %>'><img zorder = "3" enabled="false" style="margin-left:65px;width:65px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:78px;width:52px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:91px;width:39px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("defend_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:104px;width:26px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:70px;margin-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">生命：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("life_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:78px;width:52px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:91px;width:39px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==8 %>'><img zorder = "3" enabled="false" style="margin-left:104px;width:26px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("life_v")==9 %>'><img zorder = "3" enabled="false" style="margin-left:117px;width:13px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:70px;margin-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">恢复：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("recover_v")==1 %>'><img zorder = "3" enabled="false" style="margin-left:13px;width:117px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("recover_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:26px;width:104px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("recover_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:78px;width:52px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+            </div>
+
+            <div style="margin-left:5px;width:70px;margin-top:5px;display:inline;line-height:12px;font-size:12px;color:#ffff00;">控制：</div>
+            <div style="margin-left:45px;width:130px;height:8px;margin-top:-9px;display:inline;background:url(Texture/Aries/Common/ThemeTeen/school_propbar_32bits.png#0 0 165 8: 1 1 1 1)">
+                <pe:if condition='<%=Eval("control_v")==2 %>'><img zorder = "3" enabled="false" style="margin-left:26px;width:104px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==3 %>'><img zorder = "3" enabled="false" style="margin-left:39px;width:91px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==4 %>'><img zorder = "3" enabled="false" style="margin-left:52px;width:78px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==5 %>'><img zorder = "3" enabled="false" style="margin-left:65px;width:65px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==6 %>'><img zorder = "3" enabled="false" style="margin-left:78px;width:52px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                <pe:if condition='<%=Eval("control_v")==7 %>'><img zorder = "3" enabled="false" style="margin-left:91px;width:39px;height:8px;background:url(Texture/Aries/Common/ThemeTeen/school_propmask_32bits.png#0 0 2 8);" /></pe:if>
+                
+            </div>
+
+        </div>
+
+        <div style="width:210px;height:3px;" align="center">
+        </div>
+        <div style="width:205px;height:115px;padding-top:5px;" class="subpane">
+                <div style="margin-left:10px;color:#ffff00">
+                代表魔法:</div>
+                <div style="margin-left:30px;width:180px;height:100px;">
+                <pe:gridview style="margin-top:2px;" DataSource="<%=DS_Func_RepSkills%>" name="skillList" CellPadding="6" ItemsPerLine="3" AllowPaging="false" pagesize="6" >
+                    <Columns>    
+                        <img src='<%=getIcon(Eval("gsid")) %>' style="width:30px;height:30px;margin-left:5px;margin-top:0px;" />
+                        <input type="button" zorder="3" style="margin-left:-34px;width:34px;height:34px;background:;" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="10" tooltip_offset_y="-60"/>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>	  
+                </pe:gridview>
+
+                </div>
+        </div>
+        <div style="margin-top:2px;width:85px;height:35px;" align="center">
+            <input type="button" name="selected_btn560" enabled = "false" class="bordertext" value="选好了" 
+                        style="min-width:80px;height:30px;" onclick="OnFinished"/>
+        </div>
+    </div>
+</div>
+</pe:if>
+
+</form>
+</pe:mcml>
+</body>
+</html>
+

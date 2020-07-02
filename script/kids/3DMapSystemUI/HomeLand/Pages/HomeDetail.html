@@ -1,0 +1,176 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/HomeDetail.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HomeDetail, by Leio, 2009/9/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+MyCompany.Aries.Inventory.HomeDetailPage.Init();
+local page = document:GetPageCtrl();
+local bean = MyCompany.Aries.Inventory.HomeDetailPage.bean;
+local master_name = "";
+if(bean)then
+    local homemaster_info = bean.homemaster_info;
+    if(homemaster_info)then
+        master_name = homemaster_info.nickname or "";
+    end
+end
+--在访问列表为空的时候的自定义文字
+function GetEmptyListDesc()
+    local s;
+    if(isMasterView())then
+        s = " 还没有人来过你的家哦，多出去找找朋友吧！"
+    else        
+        s = string.format("还没有人来过[%s]的家哦！",master_name);
+    end
+    return s;
+end
+function isGuestView()
+    return MyCompany.Aries.Inventory.HomeDetailPage.isGuestView();
+end
+function isMasterView()
+    return MyCompany.Aries.Inventory.HomeDetailPage.isMasterView();
+end
+function isMasterEdit()
+    return MyCompany.Aries.Inventory.HomeDetailPage.isMasterEdit();
+end
+function DS_Func_HomeVisitor(index)
+   return MyCompany.Aries.Inventory.HomeDetailPage.DS_Func_Items(index)
+end
+function getHomeName()
+    local s = MyCompany.Aries.Inventory.HomeDetailPage.getHomeName();
+    if(not s or s == "")then
+        s = string.format("温馨小家",master_name);
+    end
+    return s;
+end
+function getHomeStaticTitle()
+    local s = string.format("%s的家园",master_name);
+    return s;
+end
+page:SetValue("home_name",getHomeName());
+function getVisitNum()
+     local v = MyCompany.Aries.Inventory.HomeDetailPage.getVisitNum() or 0;
+     local s = string.format("脚印数：%d",v);
+     return s;
+end
+function getFlowerNum()
+     local v = MyCompany.Aries.Inventory.HomeDetailPage.getFlowerNum() or 0;
+     local s = string.format("鲜花数：%d",v);
+     return s;
+end
+function getBugNum()
+     local v = MyCompany.Aries.Inventory.HomeDetailPage.getBugNum() or 0;
+     local s = string.format("泥巴数：%d",v);
+     return s;
+end
+function canVote()
+    return MyCompany.Aries.Inventory.HomeDetailPage.CanVote();
+end
+function getMouseOverBG()
+    return "Texture/Aries/Homeland/vistor_tag_bg_selected_32bits.png;0 0 220 30";
+end
+function OnClickOwnerInfo()
+    --page:CloseWindow();
+    System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = MyCompany.Aries.Inventory.HomeDetailPage.nid});
+end
+]]></script>
+<div style="width:653px;height:467px;background:url(Texture/Aries/Homeland/v1/home_visit_info.png# 0 0 653 467)">
+    <div style="float:left;width:360px;">
+        <div style="margin-left:86px;margin-top:30px;width:172px;height:20px">
+               <pe:if condition='<%=isGuestView()%>'>
+                <div style="margin-top:-15px;color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"><%=getHomeName() %></div>
+                <div style="margin-top:-5px;color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"><%=getHomeStaticTitle() %></div>
+                 <input style="margin-left:-65px;margin-top:-30px;width:55px;height:28px;background:url(Texture/Aries/Friends/QuickLookProfile_32bits.png#0 0 55 28);" type="button" name="Police" value="" tooltip="主人资料"
+                        onclick="OnClickOwnerInfo()" />
+               </pe:if>
+                <pe:if condition='<%=isMasterView()%>'>
+                 <div style="float:left;margin-left:0px;margin-top:0px;width:140px;color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"><%=getHomeName() %></div>
+                <input style="float:left;margin-left:0px;margin-top:-10px;width:32px;height:32px;background:url(Texture/Aries/Homeland/modify_name_32bits.png);" type="button" name="" 
+                                tooltip="修改家园名称"
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoRename()" value=""/>
+               </pe:if>
+                <pe:if condition='<%=isMasterEdit()%>'>
+                 <input type="text" name="home_name" style="width:140px"/>
+                <input style="float:left;margin-left:0px;margin-top:-10px;width:32px;height:32px;background:url(Texture/Aries/Homeland/save_name_32bits.png);" type="button" name="" 
+                                tooltip="保存家园名称"
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoSave()" value=""/>
+               </pe:if>
+         </div>
+        <input style="margin-left:310px;margin-top:-50px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                        onclick="MyCompany.Aries.Inventory.HomeDetailPage.ClosePage()" value=""/>
+       <div style="float:left;margin-left:70px;margin-top:230px;width:300px;">
+                <div style="float:left;width:200px;text-align:left;font-size:14;font-weight:bold;color:#ffffff"><%=getVisitNum() %></div>
+
+       </div>
+       <div style="float:left;margin-left:70px;margin-top:20px;width:300px;">
+               <div style="float:left;width:200px;text-align:left;font-size:14;font-weight:bold;color:#ffffff"><%=getFlowerNum() %></div>
+               <pe:if condition='<%=canVote()%>'>
+               <input style="float:left;margin-left:150px;margin-top:-30px;width:122px;height:45px;background:url(Texture/Aries/Homeland/For_flowers_32bits.png#0 0 122 45);" type="button" name="" 
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoFlower()" value=""/>
+               </pe:if>
+               <pe:if condition='<%= not canVote()%>'>
+               <input style="float:left;margin-left:150px;margin-top:-30px;width:122px;height:45px;background:url(Texture/Aries/Homeland/For_flowers_disabled_32bits.png#0 0 122 45);" type="button" name="" 
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoFlower()" value=""/>
+               </pe:if>
+       </div>
+        <div style="float:left;margin-left:70px;margin-top:15px;width:300px;">
+               <div style="float:left;width:200px;text-align:left;font-size:14;font-weight:bold;color:#ffffff"><%=getBugNum() %></div>
+                <pe:if condition='<%=canVote()%>'>
+               <input style="float:left;margin-left:150px;margin-top:-30px;width:122px;height:45px;background:url(Texture/Aries/Homeland/Throwing_mud_32bits.png#0 0 122 45);" type="button" name="" 
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoPug()" value=""/>
+               </pe:if>
+                <pe:if condition='<%=not canVote()%>'>
+               <input style="float:left;margin-left:150px;margin-top:-30px;width:122px;height:45px;background:url(Texture/Aries/Homeland/Throwing_mud_disabled_32bits.png#0 0 122 45);" type="button" name="" 
+                                onclick="MyCompany.Aries.Inventory.HomeDetailPage.DoPug()" value=""/>
+               </pe:if>
+       </div>
+    </div>
+    <div style="float:left;width:280px;">
+     <div style="float:left;margin-left:20px;margin-top:80px;width:245px;height:355px;">
+            <pe:gridview DataSource="<%=DS_Func_HomeVisitor%>" name="ItemView" style="margin-left:2px;margin-top:5px;" CellPadding="0"  DefaultNodeHeight = "35" ItemsPerLine="1" AllowPaging="true" pagesize="250">
+                <Columns>
+                <div style="margin:2px;width:220px;height:30px;background:url(Texture/Aries/Homeland/vistor_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                    <a onclick="MyCompany.Aries.Inventory.HomeDetailPage.ShowUserInfo" param1='<%=Eval("nid")%>' 
+                        tooltip='点击查看个人资料'
+                        style="width:220px;height:35px;background:">
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=getMouseOverBG()%>' alwaysmouseover="true" style="float:right;margin-top:-2px;width:220px;height:30px;background:;"/>
+                       <div style="margin-top:-30px;width:220px;height:30px;font-size:12;color:#000000;">
+                                <aries:onlinestatus style="float:left;margin-left:1px;margin-top:1px;" width="32" height="26" nid='<%=Eval("nid")%>'/>
+                                <!--<img  zorder="1" style="float:left;margin-left:1px;margin-top:1px;width:30px;height:26px;background:Texture/Aries/Friends/FriendsWnd_BuddyIcon_Online_32bits.png#0 0 30 26"/>-->
+                                <div style="float:left;margin-left:2px;margin-top:4px;width:100px;text-align:left;"><%=Eval("nickname")%></div>
+                                <div style="float:left;width:80px;margin-top:4px;text-align:right"><%=Eval("visitdate")%></div>
+                        </div>
+                    </a>
+                </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <div style="float:left;text-align:center;font-size:12"><%=GetEmptyListDesc() %></div>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>稍等... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:80px;margin-top:-10px;width:0px;height:0px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+                        <div style="float:right;margin-top:4px;width:32px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+    </div>
+    <input type="button" zorder="1" tooltip = "快速访问家园" style="margin-left:215px;margin-top:-380px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="MyCompany.Aries.Inventory.HomeDetailPage.ShowFastChannelPage()"/>
+    
+    </div>
+   
+ 
+</div>
+</pe:mcml> 
+</body>
+</html>

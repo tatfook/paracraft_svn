@@ -1,0 +1,67 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30388_CatchFish_box.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/NPCs/TownSquare/30388_CatchFish.lua");
+local catchfish = MyCompany.Aries.Quest.NPCs.CatchFish;
+local fishes = catchfish.fishes;
+local gsid = page:GetRequestParam("gsid") or 0;
+local num = page:GetRequestParam("num") or 1;
+gsid = tonumber(gsid);
+num = tonumber(num);
+local name="";
+local bean = 0;
+if(fishes[gsid])then
+    name = fishes[gsid].label;
+    bean = fishes[gsid].price;
+end
+local page = document:GetPageCtrl();
+function DoQuit()
+    page:CloseWindow();
+end
+function getTitle()
+    return name;
+end
+function getGsid()
+    return gsid;
+end
+function getBean()
+    return bean;
+end
+function getNum()
+    if(num and num > 0)then
+        return string.format("x%d",num)
+    end
+end
+function DoCatchFish()
+    if(gsid == 50401) then 
+        return false;
+    else
+        return true;
+    end
+end
+]]></script>
+<div style="width:200px;height:240px;">
+	<div style="margin-left:0px;margin-top:0px;width:200px;height:240px;background:url(Texture/Aries/NPCs/CatchFish/item_bg_32bits.png# 0 0 200 240)">
+        <pe:if condition='<%=DoCatchFish()%>'>
+            <div style="margin-top:15px;text-align:center;"><%=getTitle() %></div>
+            <pe:item gsid='<%=getGsid() %>' style="width:64px;height:64px;margin-left:60;margin-top:30px;" isclickable="false"/>
+            <div style="position:relative;text-align:center;"><%=getNum()%></div>
+        </pe:if>
+        <pe:if condition='<%=not DoCatchFish()%>'>
+            <div style="margin-top:15px;text-align:center;color:#a00100;">鱼跑掉了...</div>
+            <div style="width:64px;height:64px;margin-left:60;margin-top:30px;background:url(Texture/Aries/NPCs/CatchFish/notgetfish.png)" ></div>
+        </pe:if>
+        <input type="button" onclick="DoQuit" value="" style="width:123px;height:37px;margin-left:40px;margin-top:70px;background:url(Texture/Aries/NPCs/CatchFish/ok_32bits.png# 0 0 123 37)" />
+	</div>
+</div>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,2129 @@
+<!-- script/apps/Aries/Desktop/ApparelTooltip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local gsid = page:GetRequestParam("gsid");
+local guid = page:GetRequestParam("guid");
+local nid = page:GetRequestParam("nid");
+local count = page:GetRequestParam("count");
+local is_compare = page:GetRequestParam("cmp") == "true";
+gsid = tonumber(gsid) or 0;
+guid = tonumber(guid);
+nid = tonumber(nid);
+state = tonumber(state) or 1;
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local hasOPCGSItem = ItemManager.IfOPCOwnGSItem;
+local equipOPCGSItem = ItemManager.IfOPCEquipGSItem;
+local Combat = MyCompany.Aries.Combat;
+
+bSkipDefaultName = false;
+
+--gsid = gsid+1000;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+local equipped_item, isEquipped = ItemManager.GetEquippedItem(gsItem);
+item_to_compare_url = "";
+if(equipped_item and not is_compare) then
+    item_to_compare_url = string.format("ApparelTooltip.html?gsid=%s&guid=%s&cmp=true", tostring(equipped_item.gsid), tostring(equipped_item.guid));
+end
+
+function IsGoldCard()
+    local isCard = false;
+    if(gsid >= 22101 and gsid <= 22999) then
+        isCard = true;
+    elseif(gsid >= 41101 and gsid <= 41999) then
+        isCard = true;
+    elseif(gsid >= 42101 and gsid <= 42999) then
+        isCard = true;
+    elseif(gsid >= 43101 and gsid <= 43999) then
+        isCard = true;
+    elseif(gsid >= 44101 and gsid <= 44999) then
+        isCard = true;
+    end
+
+	if(isCard and gsItem) then
+		-- 是否是炫彩卡
+		local GoldCardProp = gsItem.template.stats[99];
+		if (GoldCardProp) then									 
+            return true
+		else
+            return false
+		end	    
+    else
+        return false
+    end
+end
+
+function IsPet()
+    if (gsItem.template.class==11 and gsItem.template.subclass==1) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetPetMaxlvlProp()
+		NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+		local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+		local provider = CombatPetHelper.GetClientProvider();
+		local pets_map=provider:GetAllPets();
+        
+        local isvippet=pets_map[gsid].isvip or false;
+        local needschool=pets_map[gsid].school_requirement or "";
+        local requirelvl=pets_map[gsid].combatlevel_requirement or 0;
+		local maxlvl=pets_map[gsid].max_level+1;
+		local cards=pets_map[gsid].append_card_level[maxlvl] or {};
+        local addprop=pets_map[gsid].append_prop_level[maxlvl] or {};
+        
+        local schoolnm={[988]="风暴系",[990]="生命系",[991]="死亡系",[987]="寒冰系",[986]="烈火系",};
+        local s="";
+        if (next(addprop)~=nil) then
+            s="满级附加属性：";
+            for propid in pairs(addprop) do
+                s= string.format("%s %s",s,getGemStatWord_OfTypeValue(propid,addprop[propid]));
+            end
+            s= s .. "<br/>";
+        end
+
+        local _,cardid;
+        if (next(cards)~=nil) then
+            s= s .. "满级卡片："
+        end
+        for _,cardid in ipairs(cards) do
+            s=string.format("%s <pe:item gsid=\"%s\" style=\"width:36px;height:36px;margin-left:1px;margin-top:1px;\"/>",s,cardid);
+        end
+
+        if (isvippet) then
+            if (s=="") then
+                s=string.format("魔法星用户专用");
+            else
+                s=string.format("%s<br/>魔法星用户专用",s);
+            end
+        end
+
+        if (requirelvl>0) then
+            if (s=="") then
+                s=string.format("需要战斗等级：%d",requirelvl);
+            else
+                s=string.format("%s<br/>需要战斗等级：%d",s,requirelvl);
+            end
+        end
+
+        if (needschool~="") then            
+            if (s=="") then
+                s=string.format("%s专用",schoolnm[tonumber(needschool)]);
+            else
+                s=string.format("%s<br/>%s专用",s,schoolnm[tonumber(needschool)]);
+            end
+        end
+        return s;
+end
+
+function getCopies()
+    local bHas,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function getIcon()
+    if(gsItem)then
+        return gsItem.icon;
+    end
+end
+
+local item;
+if(nid) then
+    item = ItemManager.GetOPCItemByGUID(nid, guid);
+else
+    item = ItemManager.GetItemByGUID(guid);
+end
+
+function getName()
+    if(gsItem)then
+        if(item and item.CanHaveAddonProperty and item:CanHaveAddonProperty()) then
+            local attack_percentage = item:GetAddonAttackPercentage()
+            if(attack_percentage and attack_percentage > 0) then
+                return gsItem.template.name .. "+" .. attack_percentage;
+            else
+               return gsItem.template.name;    
+            end
+        end
+        return gsItem.template.name;    
+    end
+end
+function getBonusHP()
+    if(gsItem)then
+        return gsItem.template.stats[139];
+    end
+end
+function getBonusPowerPips()
+    if(gsItem)then
+        return gsItem.template.stats[102];
+    end
+end
+function getMagicBeanCost()
+    if(gsItem)then
+        return gsItem.count;
+    end
+end
+function getStat(id, sStyle)
+    if(gsItem)then
+        local s = gsItem.template.stats[id];
+        if(not sStyle) then
+            return s;
+        elseif(sStyle=="+%") then
+            return "+"..s.."%";
+        elseif(sStyle=="%") then
+            return s.."%";
+        elseif(sStyle=="+") then
+            return "+"..s;
+        end
+    end
+end
+
+function getStatExpireDays()
+    if(gsid == 1773 or gsid == 1774) then
+        return "";
+    end
+    if(gsItem)then
+        if(gsItem.template.expiretype == 1 and gsItem.template.expiretime) then
+            return tostring(gsItem.template.expiretime);
+        end
+    end
+    return "";
+end
+
+
+function getStatExpireRemainingDays()
+    if(not gsid) then
+        return "";
+    end
+    
+    if(gsid >= 1789 and gsid <= 1794) then
+        local expiretime;
+        if(gsItem)then
+            if(gsItem.template.expiretype == 1 and gsItem.template.expiretime) then
+                expiretime = gsItem.template.expiretime;
+            end
+        end
+        if(item and item.obtaintime and expiretime) then
+            local year, month, day = string.match(item.obtaintime, "^(%d-)%-(%d-)%-(%d-)%s.+$");
+		    if(year and month and day) then
+			    year = tonumber(year)
+			    month = tonumber(month)
+			    day = tonumber(day)
+                if(year and month and day) then
+                    local daysfrom_1900_1_1 = commonlib.GetDaysFrom_1900_1_1(year, month, day);
+                    local serverdate = MyCompany.Aries.Scene.GetServerDate() or ParaGlobal.GetDateFormat("yyyy-MM-dd");
+                    local year, month, day = string.match(serverdate, "^(%d+)%-(%d+)%-(%d+)$");
+		            if(year and month and day) then
+			            year = tonumber(year)
+			            month = tonumber(month)
+			            day = tonumber(day)
+                        if(year and month and day) then
+                            local daysfrom_1900_1_1_today = commonlib.GetDaysFrom_1900_1_1(year, month, day);
+                            if(daysfrom_1900_1_1_today and daysfrom_1900_1_1) then
+                                return tostring(daysfrom_1900_1_1 + expiretime - daysfrom_1900_1_1_today);
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return "";
+end
+
+function isGem()
+    if(gsItem)then
+	    if(gsItem.template.class == 3 and gsItem.template.subclass == 6) then
+            return true;
+        end
+    end
+end
+
+function IsVIP()
+    return MyCompany.Aries.VIP.IsVIPAndActivated();
+end
+
+function isNonCombatDetailItem()
+    if(gsid and gsid > 22001 and gsid < 22999) then
+        return true;
+    end
+    local i
+    for i = 101, 177 do
+        if(getStat(i)) then
+            return false;
+        end
+    end
+    return true;
+end
+
+function isSkipDefaultName()
+    return bSkipDefaultName;
+end
+
+function getCardIcon(gsid)
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        return gsItem.icon;
+    end
+end
+
+--632 RewardLevel3_GoldenGiftPack
+--633 RewardLevel5_GoldenGiftPack 
+--634 RewardLevel10_GoldenGiftPack
+--635 RewardLevel15_GoldenGiftPack
+--636 RewardLevel20_GoldenGiftPack
+--637 RewardLevel25_GoldenGiftPack
+--638 RewardLevel30_GoldenGiftPack
+local exid_map = {
+	[10] = 632,
+	[9] = 633,
+	[8] = 634,
+	[7] = 635,
+	[6] = 636,
+	[5] = 637,
+	[4] = 638,
+};
+local level_map = {
+	[10] = 3,
+	[9] = 5,
+	[8] = 10,
+	[7] = 15,
+	[6] = 20,
+	[5] = 25,
+	[4] = 30,
+};
+local content_map = {
+    [10] = "1星钱袋、1级玄玉、抱抱龙百科全书、绿色药丸、紫色药丸、橙色药丸",
+    [9] = "2星钱袋、1级玄玉x2、亲密丸x4、血红药丸",
+    [8] = "3星钱袋、1级玄玉x4、1级血精石、1级月光镜、亲密丸x8、暗黑药丸",
+    [7] = "4星钱袋、2级玄玉x3、1级血精石、1级月光镜、高级亲密丸x1",
+    [6] = "5星钱袋、2级玄玉x3、1级血精石、1级月光镜、抱抱龙技能手册",
+    [5] = "6星钱袋、3级玄玉x5、1级血精石、1级月光镜",
+    [4] = "7星钱袋、3级玄玉x5、2级血精石、2级月光镜",
+};
+
+if(System.options.version == "teen") then
+    content_map = {
+        [10] = "传送石 x 5，1星面包 x 1",
+        [9] = "经验强化药丸 x 1",
+        [8] = "5级红枣 x 3，小金锤 x 1",
+        [7] = "低级幸运符 x 3",
+        [6] = "PK入场券 x 3",
+        [5] = "5星面包 x 1",
+        [4] = "战宠口粮 x 3",
+    };
+end
+
+closest_level = 3;
+canopen_17150 = false;
+content_17150 = content_map[10];
+if(gsid == 17150) then
+    local bHas_17150, _, __, copies_17150 = hasGSItem(50320);
+    if(bHas_17150 and copies_17150) then
+	    closest_level = level_map[copies_17150];
+        content_17150 = content_map[copies_17150];
+	    if(closest_level) then
+		    local mylevel = Combat.GetMyCombatLevel();
+		    if(closest_level <= mylevel) then
+			    canopen_17150 = true;
+            else
+                canopen_17150 = false;
+		    end
+	    end
+    end
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17151) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17176) then
+    bSkipDefaultName = true;
+end
+
+
+if(gsid == 998 or gsid == 977) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12003) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12005) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17155 and gsid <= 17159) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17167) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16051) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16067 or gsid == 16086) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16068 or gsid == 16085) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 16052 and gsid <= 16057) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16077 or gsid == 16078 or gsid == 16079 or gsid == 16080 or gsid == 16081) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16083) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17160 and gsid <= 17162) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17163 and gsid <= 17166) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17169 and gsid <= 17172) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 30192 and gsid <= 30197) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17172) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17173 or gsid == 17174) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17180 and gsid <= 17184) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17192 or gsid == 17193) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17212) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17214) then
+    bSkipDefaultName = true;
+end
+
+
+
+
+if(gsid == 16066 or gsid == 16058 or gsid == 16059) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12001 or gsid == 12002) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12001 or gsid == 12002) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17175) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17178) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17179) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12006) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17213) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17215) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17211) then
+    bSkipDefaultName = true;
+end
+if(gsid == 17185) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17187) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17154) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17190 or gsid == 17191) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12007) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 17194 and gsid <= 17198) then
+    bSkipDefaultName = true;
+end
+
+
+
+if(gsid >= 17216 and gsid <= 17220) then
+    bSkipDefaultName = true;
+end
+
+
+
+if(gsid == 12008) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12009) then
+    bSkipDefaultName = true;
+end
+if(gsid == 12010) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12012 or gsid == 12013 or gsid == 12014 or gsid == 12017 or gsid == 12018) then
+    bSkipDefaultName = true;
+end
+
+if(gsid >= 16045 and gsid <= 16050) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 17148) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16069) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16070) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16071) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16072) then
+    bSkipDefaultName = true;
+end
+if(gsid == 16073) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16074 or gsid == 16084) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16075) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 16076) then
+    bSkipDefaultName = true;
+end
+
+if(gsid == 12015) then
+    bSkipDefaultName = true;
+end
+
+function get_closest_level()
+    return closest_level;
+end
+function get_canopen_17150()
+    return canopen_17150;
+end
+function get_content_17150()
+    return content_17150;
+end
+function getGSID()
+    return gsid;
+end
+
+function getGUID()
+    return guid;
+end
+
+combatlevel = 1;
+local bean = MyCompany.Aries.Pet.GetBean();
+if(bean) then
+	combatlevel = bean.combatlel;
+end
+
+myschool = "storm";
+local school = MyCompany.Aries.Combat.GetSchool();
+if(school) then
+	myschool = school;
+end
+
+item_school_name = "风暴";
+item_school = "storm";
+
+school_id = getStat(137) or getStat(169);
+if(school_id == 6) then
+    item_school_name = "烈火";
+    item_school = "fire";
+elseif(school_id == 7) then
+    item_school_name = "寒冰";
+    item_school = "ice";
+elseif(school_id == 8) then
+    item_school_name = "风暴";
+    item_school = "storm";
+elseif(school_id == 9) then
+    item_school_name = "神秘";
+    item_school = "myth";
+elseif(school_id == 10) then
+    item_school_name = "生命";
+    item_school = "life";
+elseif(school_id == 11) then
+    item_school_name = "死亡";
+    item_school = "death";
+elseif(school_id == 12) then
+    item_school_name = "平衡";
+    item_school = "balance";
+end
+
+last_card = nil;
+function HasOddCards()
+    local i;
+    local count = 0;
+    for i = 139, 150 do
+        if(getStat(i) ~= nil) then
+            count = count + 1;
+            last_card = i;
+        end
+    end
+    if(math.mod(count, 2) == 1) then
+        return true;
+    end
+    return false;
+end
+
+local gems;
+
+item_socket_count = 0;
+item_socket_count_max = 0;
+
+if(gsItem)then
+    -- 36 Item_Socket_Count(CS) 
+    item_socket_count = gsItem.template.stats[36] or 0;
+    item_socket_count_max = gsItem.template.stats[36] or 0;
+
+    -- getgemholecnt
+    if(System.options.version == "teen" and item and item.guid > 0 and item.GetHoleCount) then
+        local hole_count = item:GetHoleCount();
+        if(gsItem.template.class == 1) then
+            local subclass = gsItem.template.subclass;
+            if(subclass == 2 or subclass == 7 or subclass == 8 or subclass == 5 or subclass == 9) then
+                item_socket_count = 3 + hole_count;
+                item_socket_count_max = 6;
+            elseif(subclass == 10 or subclass == 11) then
+                item_socket_count = hole_count;
+                item_socket_count_max = 6;
+            elseif(subclass == 14 or subclass == 15 or subclass == 16 or subclass == 17) then
+                item_socket_count = hole_count;
+                item_socket_count_max = 3;
+            end
+        end
+    end
+end
+
+if(item and item.guid > 0 and item.GetSocketedGems) then
+    gems = item:GetSocketedGems();
+    if(gems) then
+        if(gems[1]) then
+            gem_1 = gems[1];
+        end
+        if(gems[2]) then
+            gem_2 = gems[2];
+        end
+        if(gems[3]) then
+            gem_3 = gems[3];
+        end
+        if(gems[4]) then
+            gem_4 = gems[4];
+        end
+        if(gems[5]) then
+            gem_5 = gems[5];
+        end
+        if(gems[6]) then
+            gem_6 = gems[6];
+        end
+        if(gems[7]) then
+            gem_7 = gems[7];
+        end
+        if(gems[8]) then
+            gem_8 = gems[8];
+        end
+        if(gems[9]) then
+            gem_9 = gems[9];
+        end
+        if(gems[10]) then
+            gem_10 = gems[10];
+        end
+    end
+end
+
+function get_gem_1()
+    if(item_socket_count > 0) then
+        gem_1 = gem_1 or 0;
+        return gem_1;
+    end
+end
+function get_gem_2()
+    if(item_socket_count > 1) then
+        gem_2 = gem_2 or 0;
+        return gem_2;
+    end
+end
+function get_gem_3()
+    if(item_socket_count > 2) then
+        gem_3 = gem_3 or 0;
+        return gem_3;
+    end
+end
+function get_gem_4()
+    if(item_socket_count > 3) then
+        gem_4 = gem_4 or 0;
+        return gem_4;
+    end
+end
+function get_gem_5()
+    if(item_socket_count > 4) then
+        gem_5 = gem_5 or 0;
+        return gem_5;
+    end
+end
+function get_gem_6()
+    if(item_socket_count > 5) then
+        gem_6 = gem_6 or 0;
+        return gem_6;
+    end
+end
+function get_gem_7()
+    if(item_socket_count > 6) then
+        gem_7 = gem_7 or 0;
+        return gem_7;
+    end
+end
+function get_gem_8()
+    if(item_socket_count > 7) then
+        gem_8 = gem_8 or 0;
+        return gem_8;
+    end
+end
+function get_gem_9()
+    if(item_socket_count > 8) then
+        gem_9 = gem_9 or 0;
+        return gem_9;
+    end
+end
+function get_gem_10()
+    if(item_socket_count > 9) then
+        gem_10 = gem_10 or 0;
+        return gem_10;
+    end
+end
+
+function getGemStatWord(id)
+    local gsid = gems[id];
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        local type, value;
+        for type, value in pairs(gsItem.template.stats) do
+            local word = getGemStatWord_OfTypeValue(type, value);
+            if(word) then
+                return word;
+            end
+        end
+    end
+end
+
+function getGemStatWord_OfTypeValue(type, value)
+    if(type and value) then
+        if(type == 101) then
+            return "HP+"..value;
+        elseif(type == 102) then
+            return "超级魔力点生成率:+"..value.."%";
+        elseif(type == 103) then
+            return "通用命中率:+"..value.."%";
+        elseif(type == 104) then
+            return "烈火命中率:+"..value.."%";
+        elseif(type == 105) then
+            return "寒冰命中率:+"..value.."%";
+        elseif(type == 106) then
+            return "风暴命中率:+"..value.."%";
+        elseif(type == 107) then
+            return "神秘命中率:+"..value.."%";
+        elseif(type == 108) then
+            return "生命命中率:+"..value.."%";
+        elseif(type == 109) then
+            return "死亡命中率:+"..value.."%";
+        elseif(type == 110) then
+            return "平衡命中率:+"..value.."%";
+        elseif(type == 111) then
+            return "通用攻击:+"..value.."%";
+        elseif(type == 112) then
+            return "烈火攻击:+"..value.."%";
+        elseif(type == 113) then
+            return "寒冰攻击:+"..value.."%";
+        elseif(type == 114) then
+            return "风暴攻击:+"..value.."%";
+        elseif(type == 115) then
+            return "神秘攻击:+"..value.."%";
+        elseif(type == 116) then
+            return "生命攻击:+"..value.."%";
+        elseif(type == 117) then
+            return "死亡攻击:+"..value.."%";
+        elseif(type == 118) then
+            return "平衡攻击:+"..value.."%";
+        elseif(type == 119) then
+            return "通用防御:+"..value.."%";
+        elseif(type == 120) then
+            return "烈火防御:+"..value.."%";
+        elseif(type == 121) then
+            return "寒冰防御:+"..value.."%";
+        elseif(type == 122) then
+            return "风暴防御:+"..value.."%";
+        elseif(type == 123) then
+            return "神秘防御:+"..value.."%";
+        elseif(type == 124) then
+            return "生命防御:+"..value.."%";
+        elseif(type == 125) then
+            return "死亡防御:+"..value.."%";
+        elseif(type == 126) then
+            return "平衡防御:+"..value.."%";
+        elseif(type == 182) then
+            return "治疗加成:+"..value.."%";
+        elseif(type == 183) then
+            return "被治疗加成:+"..value.."%";
+        elseif(type == 196) then
+            return "暴击率加成:+"..value.."%";
+        elseif(type == 204) then
+            return "韧性加成:+"..value.."%";
+        end
+    end
+end
+
+itemsetid = 0;
+itemset_name = "";
+if(gsItem)then
+    itemsetid = gsItem.template.itemsetid;
+    if(itemsetid and itemsetid ~= 0) then
+        itemset_name = Combat.GetItemSetName(itemsetid) or "";
+    end
+end
+
+function is_itemset_component()
+    if(itemsetid ~= 0) then
+        return true;
+    end
+end
+
+itemset_components_word = "";
+
+components_has_count = 0;
+components_all_count = 0;
+
+if(itemsetid ~= 0) then
+    local components = Combat.GetItemSetComponents(itemsetid);
+    if(components) then
+        local gsid, _;
+        for gsid, _ in pairs(components) do
+            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+            if(gsItem) then
+                local name = gsItem.template.name;
+                local equiped = false;
+                if(not nid) then
+                    equiped = equipGSItem(gsid)
+                else
+                    equiped = equipOPCGSItem(nid, gsid)
+                end
+                if(equiped) then
+                    itemset_components_word = itemset_components_word..string.format([[<div style="margin-left:20px;color:#844604">%s</div>]], name);
+                    components_has_count = components_has_count + 1;
+                else
+                    itemset_components_word = itemset_components_word..string.format([[<div style="margin-left:20px;color:#888888">%s</div>]], name);
+                end
+            end
+            components_all_count = components_all_count + 1;
+        end
+    end
+end
+
+itemset_name = itemset_name.."  ("..components_has_count.."/"..components_all_count..")";
+
+itemset_component_stats_word = "";
+
+if(itemsetid ~= 0) then
+    local stats = Combat.GetItemSetStats(itemsetid);
+    if(stats) then
+        local type, value;
+        for type, value in pairs(stats) do
+            if(components_has_count == components_all_count) then
+                local word = getGemStatWord_OfTypeValue(type, value);
+                if(word) then
+                    itemset_component_stats_word = itemset_component_stats_word..string.format([[<div style="margin-left:15px;color:#2f8926">%s</div>]], word);
+                end
+            else
+                local word = getGemStatWord_OfTypeValue(type, value);
+                if(word) then
+                    itemset_component_stats_word = itemset_component_stats_word..string.format([[<div style="margin-left:15px;color:#666666">%s</div>]], word);
+                end
+                --itemset_component_stats_word = itemset_component_stats_word..string.format([[<div style="margin-left:10px;color:#888888">未知套装属性</div>]]);
+            end
+        end
+    end
+end
+
+empty_socket_word = [[<img src="texture/Aries/Common/EmptySocket_32bits.png;0 0 24 24" style="width:24px;height:24px"/>可镶嵌宝石]];
+
+potencial_socket_word = [[<img src="texture/Aries/Common/PotencialSocket_32bits.png;0 0 24 24" style="width:24px;height:24px"/>可开槽]];
+potencial_socket_word_plus_div = [[<div style="margin-left:10px;">]]..potencial_socket_word..[[</div>]];
+
+
+potencial_socket_section = "";
+
+if(item_socket_count_max and item_socket_count) then
+    local remaining_unopened_slot = item_socket_count_max - item_socket_count;
+    if(remaining_unopened_slot > 0) then
+        local i;
+        for i = 1, remaining_unopened_slot do
+            potencial_socket_section = potencial_socket_section..potencial_socket_word_plus_div;
+        end
+    end
+end
+
+
+function GetBgBorderStyle()
+    if(is_compare) then
+        return "float:left;font-size:12px;padding:4px;background-color:#ffffffcc;background:url(Texture/Aries/Common/my_tooltip_border_bg.png:3 3 3 3);"
+    else
+        return "float:left;font-size:12px;padding:4px;background-color:#ffffffcc;background:url(Texture/Aries/Creator/border_bg_32bits.png:2 2 2 2);"
+    end
+end
+
+addon_perperty_section = ""
+if(item and item.CanHaveAddonProperty and item:CanHaveAddonProperty()) then
+    local attack_percentage = item:GetAddonAttackPercentage()
+    if(attack_percentage and attack_percentage > 0) then
+        addon_perperty_section = format([[<div style="margin-left:10px;font-size:12px;color:#ff0000;">强化攻击: +%s%%</div>]], attack_percentage);
+    else
+        addon_perperty_section = [[<div style="margin-left:10px;font-size:12px;color:#ff0000;">尚未强化</div>]];
+    end
+end
+
+]]></script>
+<pe:if condition='<%= item_to_compare_url~="" %>'>
+<div style="float:left;margin-left:-200px;width:200px;">
+    <div style="position:relative;padding-left:5px;font-size:12px;margin-top:-20px;height:20px;background-color:#ffffffcc;background:url(Texture/Aries/Common/my_tooltip_border_bg.png:3 3 3 3);">
+        我身上的
+    </div>
+    <iframe AutoSize="true" src='<%= item_to_compare_url%>'></iframe>
+</div>
+</pe:if>
+<div style='<%= GetBgBorderStyle()%>'>
+<pe:if condition='<%=isNonCombatDetailItem() == false%>'>
+    <pe:if condition='<%=isSkipDefaultName() ~= true%>'>
+        <div style="margin-left:30px;font-weight:bold;"><%=getName() %></div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=isNonCombatDetailItem() == true%>'>
+    <pe:if condition='<%=isSkipDefaultName() ~= true%>'>
+        <div style="margin-left:10px;font-weight:bold;"><%=getName() %></div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=IsPet()%>'>
+    <div style="margin-left:10px;"><%=GetPetMaxlvlProp() %></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12012%>'>
+    <div style="margin-left:20px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:25px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:10px;">使用后3天内有效</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12013%>'>
+    <div style="margin-left:20px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:25px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:10px;">使用后3天内有效</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12014%>'>
+    <div style="margin-left:20px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:25px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:10px;">使用后3天内有效</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12017%>'>
+    <div style="margin-left:20px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:25px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:10px;">使用后3天内有效</div>
+    <div style="margin-left:10px;">暴击率加成:+10%</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12018%>'>
+    <div style="margin-left:20px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:25px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:10px;">使用后3天内有效</div>
+    <div style="margin-left:10px;">韧性加成:+10%</div>
+</pe:if>
+
+<pe:if condition='<%=getStat(101) ~= nil%>'>
+    <div style="margin-left:30px;">HP<%=getStat(101, "+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(102) ~= nil%>'>
+    <div style="margin-left:10px;">超级魔力点生成率:<%=getStat(102, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(103) ~= nil%>'>
+    <div style="margin-left:10px;">通用命中率:<%=getStat(103, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(104) ~= nil%>'>
+    <div style="margin-left:10px;">烈火命中率:<%=getStat(104, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(105) ~= nil%>'>
+    <div style="margin-left:10px;">寒冰命中率:<%=getStat(105, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(106) ~= nil%>'>
+    <div style="margin-left:10px;">风暴命中率:<%=getStat(106, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(107) ~= nil%>'>
+    <div style="margin-left:10px;">神秘命中率:<%=getStat(107, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(108) ~= nil%>'>
+    <div style="margin-left:10px;">生命命中率:<%=getStat(108, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(109) ~= nil%>'>
+    <div style="margin-left:10px;">死亡命中率:<%=getStat(109, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(110) ~= nil%>'>
+    <div style="margin-left:10px;">平衡命中率:<%=getStat(110, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(111) ~= nil%>'>
+    <div style="margin-left:10px;">通用攻击:<%=getStat(111, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(112) ~= nil%>'>
+    <div style="margin-left:10px;">烈火攻击:<%=getStat(112, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(113) ~= nil%>'>
+    <div style="margin-left:10px;">寒冰攻击:<%=getStat(113, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(114) ~= nil%>'>
+    <div style="margin-left:10px;">风暴攻击:<%=getStat(114, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(115) ~= nil%>'>
+    <div style="margin-left:10px;">神秘攻击:<%=getStat(115, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(116) ~= nil%>'>
+    <div style="margin-left:10px;">生命攻击:<%=getStat(116, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(117) ~= nil%>'>
+    <div style="margin-left:10px;">死亡攻击:<%=getStat(117, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(118) ~= nil%>'>
+    <div style="margin-left:10px;">平衡攻击:<%=getStat(118, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(119) ~= nil%>'>
+    <div style="margin-left:10px;">通用防御:<%=getStat(119, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(120) ~= nil%>'>
+    <div style="margin-left:10px;">烈火防御:<%=getStat(120, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(121) ~= nil%>'>
+    <div style="margin-left:10px;">寒冰防御:<%=getStat(121, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(122) ~= nil%>'>
+    <div style="margin-left:10px;">风暴防御:<%=getStat(122, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(123) ~= nil%>'>
+    <div style="margin-left:10px;">神秘防御:<%=getStat(123, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(124) ~= nil%>'>
+    <div style="margin-left:10px;">生命防御:<%=getStat(124, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(125) ~= nil%>'>
+    <div style="margin-left:10px;">死亡防御:<%=getStat(125, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(126) ~= nil%>'>
+    <div style="margin-left:10px;">平衡防御:<%=getStat(126, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(182) ~= nil%>'>
+    <div style="margin-left:10px;">治疗加成:<%=getStat(182, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(183) ~= nil%>'>
+    <div style="margin-left:10px;">被治疗加成:<%=getStat(183, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(196) ~= nil%>'>
+    <div style="margin-left:10px;">暴击率加成:<%=getStat(196, "+%")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(204) ~= nil%>'>
+    <div style="margin-left:10px;">韧性加成:<%=getStat(204, "+%")%></div>
+</pe:if>
+<%=Eval("addon_perperty_section")%>
+
+<pe:if condition='<%=getStat(35) ~= nil%>'>
+    <div style="margin-left:10px;">提高镶嵌成功率:<%=getStat(35, "%")%></div>
+</pe:if>
+
+<pe:if condition='<%=getStat(167) ~= nil%>'>
+    <div style="margin-left:20px;">一共可放置<%=getStat(167)%>张卡片</div>
+</pe:if>
+<pe:if condition='<%=getStat(170) ~= nil%>'>
+    <div style="margin-left:10px;">单张卡片最多放置<%=getStat(170)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(171) ~= nil%>'>
+    <div style="margin-left:10px;">单张烈火系卡片最多放置<%=getStat(171)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(172) ~= nil%>'>
+    <div style="margin-left:10px;">单张寒冰系卡片最多放置<%=getStat(172)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(173) ~= nil%>'>
+    <div style="margin-left:10px;">单张风暴系卡片最多放置<%=getStat(173)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(174) ~= nil%>'>
+    <div style="margin-left:10px;">单张神秘系卡片最多放置<%=getStat(174)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(175) ~= nil%>'>
+    <div style="margin-left:10px;">单张生命系卡片最多放置<%=getStat(175)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(176) ~= nil%>'>
+    <div style="margin-left:10px;">单张死亡系卡片最多放置<%=getStat(176)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(177) ~= nil%>'>
+    <div style="margin-left:10px;">单张平衡系卡片最多放置<%=getStat(177)%>张</div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_1() ~= nil and get_gem_1() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_1")%>' style="width:24px;height:24px"/><%=getGemStatWord(1)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_1() ~= nil and get_gem_1() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_2() ~= nil and get_gem_2() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_2")%>' style="width:24px;height:24px"/><%=getGemStatWord(2)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_2() ~= nil and get_gem_2() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_3() ~= nil and get_gem_3() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_3")%>' style="width:24px;height:24px"/><%=getGemStatWord(3)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_3() ~= nil and get_gem_3() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_4() ~= nil and get_gem_4() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_4")%>' style="width:24px;height:24px"/><%=getGemStatWord(4)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_4() ~= nil and get_gem_4() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_5() ~= nil and get_gem_5() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_5")%>' style="width:24px;height:24px"/><%=getGemStatWord(5)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_5() ~= nil and get_gem_5() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_6() ~= nil and get_gem_6() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_6")%>' style="width:24px;height:24px"/><%=getGemStatWord(6)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_6() ~= nil and get_gem_6() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_7() ~= nil and get_gem_7() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_7")%>' style="width:24px;height:24px"/><%=getGemStatWord(7)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_7() ~= nil and get_gem_7() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_8() ~= nil and get_gem_8() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_8")%>' style="width:24px;height:24px"/><%=getGemStatWord(8)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_8() ~= nil and get_gem_8() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_9() ~= nil and get_gem_9() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_9")%>' style="width:24px;height:24px"/><%=getGemStatWord(9)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_9() ~= nil and get_gem_9() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<pe:if condition='<%=get_gem_10() ~= nil and get_gem_10() ~= 0%>'>
+    <div style="margin-left:10px;"><pe:item gsid='<%=Eval("gem_10")%>' style="width:24px;height:24px"/><%=getGemStatWord(10)%></div>
+</pe:if>
+<pe:if condition='<%=get_gem_10() ~= nil and get_gem_10() == 0%>'>
+    <div style="margin-left:10px;"><%=Eval("empty_socket_word")%></div>
+</pe:if>
+
+<%=Eval("potencial_socket_section")%>
+
+<pe:if condition='<%=is_itemset_component() == true%>'>
+    <div style="margin-left:10px;font-weight:bold;color:#844604"><%=Eval("itemset_name")%></div>
+    <%=Eval("itemset_components_word")%>
+    <%=Eval("itemset_component_stats_word")%>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() == 17150%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=get_canopen_17150() == true%>'>
+        <div style="margin-left:55px;"><%=Eval("closest_level")%>级可开启</div>
+    </pe:if>
+    <pe:if condition='<%=get_canopen_17150() == false%>'>
+        <div style="margin-left:55px;color:#FF0000"><%=Eval("closest_level")%>级可开启</div>
+    </pe:if>
+    <div style="margin-left:5px;">内含：<%=Eval("content_17150")%></div>
+    <pe:if condition='<%=get_canopen_17150() == true%>'>
+        <div style="margin-left:60px;">可领取</div>
+    </pe:if>
+    <pe:if condition='<%=get_canopen_17150() == false%>'>
+        <div style="margin-left:60px;color:#FF0000">未达到限制</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17151%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;color:#FF0000">摇幸运树-小镇广场</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17176%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:11px;color:#FF0000">每天只能使用10个</div>
+    <div style="margin-left:10px;color:#FF0000">摇面包树-小镇广场</div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() >= 17155 and getGSID() <= 17159%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:40px;">恢复<%=getStat(45,"%")%>HP</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17167%>'>
+    <div style="margin-left:50px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">使用：增加1点人气</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16051 or getGSID() == 16058 or getGSID() == 16059%>'>
+    <div style="margin-left:45px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:50px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 50</div>
+    <div style="margin-left:35px;">通用命中: + 1 %</div>
+    <div style="margin-left:35px;">通用攻击: + 2 %</div>
+    <div style="margin-left:35px;">通用防御: + 2 %</div>
+    <div style="margin-left:10px;">超级魔力点生成率: + 3 %</div>
+    <div style="margin-left:30px;">增加移动速度40%</div>
+    <div style="margin-left:35px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16066 or getGSID() == 16067 or getGSID() == 16068%>'>
+    <pe:if condition='<%=getGSID() == 16066%>'>
+        <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 16067 or getGSID() == 16068%>'>
+        <div style="margin-left:50px;font-weight:bold;"><%=getName() %></div>
+    </pe:if>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:50px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 100</div>
+    <div style="margin-left:35px;">通用命中: + 1 %</div>
+    <div style="margin-left:35px;">通用攻击: + 3 %</div>
+    <div style="margin-left:35px;">通用防御: + 3 %</div>
+    <div style="margin-left:10px;">超级魔力点生成率: + 6 %</div>
+    <div style="margin-left:30px;">增加移动速度60%</div>
+    <div style="margin-left:35px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16085 or getGSID() == 16086%>'>
+    <div style="margin-left:35px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:50px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 100</div>
+    <div style="margin-left:35px;">通用命中: + 1 %</div>
+    <div style="margin-left:35px;">通用攻击: + 3 %</div>
+    <div style="margin-left:35px;">通用防御: + 3 %</div>
+    <div style="margin-left:10px;">超级魔力点生成率: + 6 %</div>
+    <div style="margin-left:30px;">增加移动速度60%</div>
+    <div style="margin-left:35px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16071 or getGSID() == 16074 or getGSID() == 16076%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 150</div>
+    <div style="margin-left:35px;">通用命中: + 2 %</div>
+    <div style="margin-left:35px;">通用攻击: + 7 %</div>
+    <div style="margin-left:35px;">通用防御: + 4 %</div>
+    <div style="margin-left:10px;">超级魔力点生成率: + 8 %</div>
+    <div style="margin-left:30px;">增加移动速度80%</div>
+    <div style="margin-left:35px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16069%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 300</div>
+    <div style="margin-left:40px;">通用命中: + 3 %</div>
+    <div style="margin-left:40px;">通用攻击: + 10 %</div>
+    <div style="margin-left:40px;">通用防御: + 5 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:5px;color:#ff0000">这是赛场冠军才能拥有的尊贵坐骑！</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16070%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 200</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 9 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:5px;color:#ff0000">这是赛场英雄才能拥有的极品坐骑！</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16072%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 200</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 9 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:5px;color:#ff0000">这是赛场优胜家族的主力队员</div>
+    <div style="margin-left:25px;color:#ff0000">才能拥有的稀有坐骑！</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 16073%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 300</div>
+    <div style="margin-left:40px;">通用命中: + 3 %</div>
+    <div style="margin-left:40px;">通用攻击: + 10 %</div>
+    <div style="margin-left:40px;">通用防御: + 5 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:5px;color:#ff0000">这是赛场优胜家族族长或第一主力</div>
+    <div style="margin-left:35px;color:#ff0000">才能拥有的尊贵坐骑！</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16084%>'>
+    <div style="margin-left:45px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 150</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 7 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 8 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16075%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 300</div>
+    <div style="margin-left:40px;">通用命中: + 3 %</div>
+    <div style="margin-left:40px;">通用攻击: + 10 %</div>
+    <div style="margin-left:40px;">通用防御: + 5 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16077%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 200</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 9 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16078%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 200</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 9 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16079%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 150</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 7 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 8 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:20px;">3级魔法星能量才能驾驭</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16080%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:40px;">通用攻击: + 10 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 10 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16081%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 150</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 7 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 8 %</div>
+    <div style="margin-left:50px;">增加移动速度80%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+    <div style="margin-left:20px;">3级魔法星能量才能驾驭</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 16083%>'>
+    <div style="margin-left:55px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:55px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:50px;">HP + 150</div>
+    <div style="margin-left:40px;">通用命中: + 2 %</div>
+    <div style="margin-left:40px;">通用攻击: + 7 %</div>
+    <div style="margin-left:40px;">通用防御: + 4 %</div>
+    <div style="margin-left:20px;">超级魔力点生成率: + 8 %</div>
+    <div style="margin-left:35px;">增加移动速度70%</div>
+    <div style="margin-left:45px;">有效期：<%=getStat(46)%>天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 16052 and getGSID() <= 16057%>'>
+    <div style="margin-left:30px;font-weight:bold;"><%=getName() %></div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() == 12015%>'>
+    <div style="margin-left:18px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">购买保险单参加红蘑菇比赛</div>
+    <div style="margin-left:10px;">胜利后会获得100仙豆奖励</div>
+    <div style="margin-left:15px;">失败会获得80仙豆补偿</div>
+    <div style="margin-left:35px;color:#ff0000;">每周只能购买7份</div>
+</pe:if>
+
+<pe:if condition='<%= System.options.version =="kids" %>'>
+    <pe:if condition='<%=getGSID() == 998%>'>
+        <div style="margin-left:45px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">为魔法星补充能量</div>
+        <div style="margin-left:34px;">M值: +100</div>
+        <div style="margin-left:34px;">能量: +31</div>
+        <div style="margin-left:25px;">鼠标点击使用</div>
+    </pe:if>
+
+    <pe:if condition='<%=getGSID() == 977%>'>
+        <div style="margin-left:25px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">为魔法星补充能量</div>
+        <div style="margin-left:34px;">M值: +5</div>
+        <div style="margin-left:34px;">能量: +3</div>
+        <div style="margin-left:25px;">鼠标点击使用</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%= System.options.version =="teen" %>'>
+    <pe:if condition='<%=getGSID() == 998%>'>
+        <div style="margin-left:45px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">为魔法星补充能量</div>
+        <div style="margin-left:34px;">能量值: +100</div>
+        <div style="margin-left:25px;">鼠标点击使用</div>
+    </pe:if>
+
+    <pe:if condition='<%=getGSID() == 977%>'>
+        <div style="margin-left:25px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">为魔法星补充能量</div>
+        <div style="margin-left:34px;">能量值: +5</div>
+        <div style="margin-left:25px;">鼠标点击使用</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 17160 and getGSID() <= 17162%>'>
+    <pe:if condition='<%=getGSID() == 17160%>'>
+        <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">内含2级血晶玺x4、2级月光镜x4 </div>
+        <div style="margin-left:50px;color:#FF0000;">另送：低级镶嵌符</div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 17161%>'>
+        <div style="margin-left:25px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:30px;">5级红枣x10</div>
+        <div style="margin-left:15px;color:#FF0000;">另送：2级红枣x2</div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 17162%>'>
+        <div style="margin-left:100px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:30px;">内含亲密丸x20、智慧丸x5、力量丸x5</div>
+        <div style="margin-left:10px;color:#FF0000;">另送：爱心丸x1、敏捷丸x1、大象变身药丸x1</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17169%>'>
+    <div style="margin-left:100px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含高级亲密丸x10、高级智慧丸x5、高级力量丸x5</div>
+    <div style="margin-left:100px;color:#FF0000;">另送：高级亲密丸x2</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17170%>'>
+    <div style="margin-left:120px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：酷酷男头饰、酷酷男衣服、酷酷男鞋子、酷酷男书包</div>
+    <div style="margin-left:110px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:100px;"><pe:item gsid="17170" style="width:128px;height:128px;"/></div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17171%>'>
+    <div style="margin-left:120px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：乖乖女头饰、乖乖女衣服、乖乖女鞋子、乖乖女书包</div>
+    <div style="margin-left:110px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:100px;"><pe:item gsid="17171" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() >= 17163 and getGSID() <= 17166%>'>
+    <pe:if condition='<%=getGSID() == 17163%>'>
+        <div style="margin-left:100px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;color:#FF0000;">限时热销：2011年1月28日-2011年03月10日</div>
+        <div style="margin-left:90px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+        <div style="margin-left:80px;"><pe:item gsid="17163" style="width:128px;height:128px;"/></div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 17164%>'>
+        <div style="margin-left:100px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;color:#FF0000;">限时热销：2011年1月28日-2011年03月10日</div>
+        <div style="margin-left:90px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+        <div style="margin-left:80px;"><pe:item gsid="17164" style="width:128px;height:128px;"/></div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 17165%>'>
+        <div style="margin-left:100px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;color:#FF0000;">限时热销：2011年1月28日-2011年03月10日</div>
+        <div style="margin-left:90px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+        <div style="margin-left:80px;"><pe:item gsid="17165" style="width:128px;height:128px;"/></div>
+    </pe:if>
+    <pe:if condition='<%=getGSID() == 17166%>'>
+        <div style="margin-left:130px;font-weight:bold;"><%=getName() %></div>
+        <div style="margin-left:10px;">浮层：内含能量石 x 12  另送：魔幻飞毯变身药丸 x 2</div>
+        <div style="margin-left:30px;color:#FF0000;">限时热销：2011年1月28日-2011年03月10日</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 30192 and getGSID() <= 30197%>'>
+    <div style="margin-left:20px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:0px;"><pe:item gsid="<%=getGSID() %>" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17172%>'>
+    <div style="margin-left:80px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">所有战宠都喜欢吃，可增加战宠300点经验</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17185%>'>
+    <div style="margin-left:80px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">所有战宠都喜欢吃，可增加战宠1200点经验</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17211%>'>
+    <div style="margin-left:80px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">所有战宠都喜欢吃，可增加战宠2400点经验</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17187%>'>
+    <div style="margin-left:10px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:40px;">买2送1</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17154%>'>
+    <div style="margin-left:30px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">进入试炼之塔61层的钥匙</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12007%>'>
+    <div style="margin-left:30px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">一场战斗只消耗一个药丸</div>
+</pe:if>
+
+
+
+<pe:if condition='<%=getGSID() == 12003%>'>
+    <div style="margin-left:10px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">阳光海岸PK试炼场</div>
+    <div style="margin-left:35px;color:#FF0000;">当天有效</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12005%>'>
+    <div style="margin-left:30px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">参加阳光海岸的红蘑菇赛场</div>
+    <div style="margin-left:55px;color:#FF0000;">当天有效</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12001%>'>
+    <div style="margin-left:45px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:65px;">平日使用</div>
+    <div style="margin-left:10px;">使用后20场战斗经验加成100%</div>
+    <div style="margin-left:25px;">可以和假日努力药丸叠加</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12002%>'>
+    <div style="margin-left:45px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:65px;">假日使用</div>
+    <div style="margin-left:10px;">使用后20场战斗经验加成50%</div>
+    <div style="margin-left:25px;">可以和经验强化药丸叠加</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17175%>'>
+    <div style="margin-left:150px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:145px;">原价：199魔豆</div>
+    <div style="margin-left:145px;color:#FF0000;">现价：100魔豆</div>
+    <div style="margin-left:10px;">内含物品：能量石（价值100魔豆）X1、顶级宝石镶嵌符（价值99魔豆）X1</div>
+    <div style="margin-left:90px;color:#FF0000;">2011年4月1日-2011年4月7日（仅一周）</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17173%>'>
+    <div style="margin-left:90px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：浪漫头纱、浪漫婚纱裙、浪漫婚纱鞋</div>
+    <div style="margin-left:90px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:80px;"><pe:item gsid="17173" style="width:128px;height:128px;"/></div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17174%>'>
+    <div style="margin-left:90px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：帅气婚纱头、帅气婚纱礼服、帅气婚纱鞋</div>
+    <div style="margin-left:90px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:80px;"><pe:item gsid="17174" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17190%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：</div>
+    <div style="margin-left:10px;">炫彩头纱 +2% 通用攻击</div>
+    <div style="margin-left:10px;">炫彩婚纱裙 +2% 通用防御</div>
+    <div style="margin-left:10px;">炫彩婚纱女鞋 +2% 超级魔力点生成率</div>
+    <div style="margin-left:60px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:50px;"><pe:item gsid="17190" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17191%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：</div>
+    <div style="margin-left:10px;">炫彩婚纱头 +2% 通用攻击</div>
+    <div style="margin-left:10px;">炫彩婚纱礼服  +2% 通用防御</div>
+    <div style="margin-left:10px;">炫彩婚纱男鞋  +2% 超级魔力点生成率</div>
+    <div style="margin-left:60px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:50px;"><pe:item gsid="17191" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=IsGoldCard()%>'>
+    <div style="margin-left:4px;"><pe:item gsid='<%=getGSID()%>' style="width:151px;height:230px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 23000 and getGSID() <= 23999%>'>
+    <div style="margin-left:4px;"><pe:item gsid='<%=getGSID()%>' style="width:151px;height:230px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17180%>'>
+    <div style="margin-left:140px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：小王子踏青帽、小王子踏青衣、小王子踏青鞋、小王子翅膀</div>
+    <div style="margin-left:140px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:130px;"><pe:item gsid="17180" style="width:128px;height:128px;"/></div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17181%>'>
+    <div style="margin-left:140px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含物品：小仙女踏青帽、小仙女踏青衣、小仙女踏青鞋、小仙女翅膀</div>
+    <div style="margin-left:140px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <div style="margin-left:130px;"><pe:item gsid="17181" style="width:128px;height:128px;"/></div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17182%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：1颗能量石、另送1颗能量石</div>
+    <div style="margin-left:60px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <!--<div style="margin-left:30px;color:#FF0000;">活动时间：4月29日-5月6日</div>-->
+</pe:if>
+<pe:if condition='<%=getGSID() == 17183%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：1个面包棒、另送1个面包棒</div>
+    <div style="margin-left:60px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <!--<div style="margin-left:30px;color:#FF0000;">活动时间：4月29日-5月6日</div>-->
+</pe:if>
+<pe:if condition='<%=getGSID() == 17184%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：顶级镶嵌符 x 1、另送顶级镶嵌符 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+    <!--<div style="margin-left:50px;color:#FF0000;">活动时间：4月29日-5月6日</div>-->
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17192%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级月光镜 x 1、另送4级月光镜 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17193%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级血精玺 x 1、另送4级血精玺 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17194%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级紫晶石 x 1、另送4级紫晶石 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17195%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级黑晶石 x 1、另送4级黑晶石 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17196%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级绿晶石 x 1、另送4级绿晶石 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17197%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级蓝晶石 x 1、另送4级蓝晶石 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17198%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">内含：4级黄晶石 x 1、另送4级黄晶石 x 1</div>
+    <div style="margin-left:80px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17212%>'>
+    <div style="margin-left:50px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值1000魔豆的礼包，内含：</div>
+    <div style="margin-left:30px;">1个能量石（价值100魔豆）</div>
+    <div style="margin-left:30px;">1个仙兔坐骑（价值300魔豆）</div>
+    <div style="margin-left:30px;">1个10星面包（价值500魔豆）</div>
+    <div style="margin-left:15px;">1个顶级宝石镶嵌符（价值100魔豆）</div>
+    <div style="margin-left:50px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17216%>'>
+    <div style="margin-left:50px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值3400魔豆的礼包，内含：</div>
+    <div style="margin-left:30px;">10个暴击药丸（价值200魔豆）</div>
+    <div style="margin-left:30px;">10个韧性药丸（价值200魔豆）</div>
+    <div style="margin-left:30px;">10个耐力药丸（价值200魔豆）</div>
+    <div style="margin-left:30px;">10个攻击药丸（价值200魔豆）</div>
+    <div style="margin-left:30px;">10个防御药丸（价值200魔豆）</div>
+    <div style="margin-left:20px;">100个赛场门票（价值2000魔豆）</div>
+    <div style="margin-left:20px;">1个大客户保险单（价值100魔豆）</div>
+    <div style="margin-left:30px;">1个霸王虎坐骑（价值300魔豆）</div>
+    <div style="margin-left:50px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17217%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值65魔豆的礼包，内含：</div>
+    <div style="margin-left:10px;">5个假日努力药丸（价值10魔豆）</div>
+    <div style="margin-left:10px;">5个经验强化药丸（价值25魔豆）</div>
+    <div style="margin-left:10px;">20个自动战斗药丸（价值20魔豆）</div>
+    <div style="margin-left:20px;">1个小金锤（价值5魔豆）</div>
+    <div style="margin-left:20px;">1个5级红枣（价值5魔豆）</div>
+    <div style="margin-left:40px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17218%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值210魔豆的礼包，内含：</div>
+    <div style="margin-left:30px;">1个暴击药丸（价值20魔豆）</div>
+    <div style="margin-left:30px;">1个韧性药丸（价值20魔豆）</div>
+    <div style="margin-left:30px;">1个耐力药丸（价值20魔豆）</div>
+    <div style="margin-left:30px;">1个攻击药丸（价值20魔豆）</div>
+    <div style="margin-left:30px;">1个防御药丸（价值20魔豆）</div>
+    <div style="margin-left:25px;">5个赛场门票（价值100魔豆）</div>
+    <div style="margin-left:20px;">10个赛场保险单（价值10魔豆）</div>
+    <div style="margin-left:50px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17219%>'>
+    <div style="margin-left:45px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值375魔豆的礼包，内含：</div>
+    <div style="margin-left:30px;">5个面包棒（价值200魔豆）</div>
+    <div style="margin-left:10px;">20个经验强化药丸（价值100魔豆）</div>
+    <div style="margin-left:15px;">50个自动战斗药丸（价值50魔豆）</div>
+    <div style="margin-left:25px;">5个5级红枣（价值25魔豆）</div>
+    <div style="margin-left:45px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 17220%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <pe:if condition='<%=getGUID() ~= nil%>'>
+        <div style="margin-left:70px;">点击使用</div>
+    </pe:if>
+    <div style="margin-left:20px;">价值630魔豆的礼包，内含：</div>
+    <div style="margin-left:30px;">3个暴击药丸（价值60魔豆）</div>
+    <div style="margin-left:30px;">3个韧性药丸（价值60魔豆）</div>
+    <div style="margin-left:30px;">3个耐力药丸（价值60魔豆）</div>
+    <div style="margin-left:30px;">3个攻击药丸（价值60魔豆）</div>
+    <div style="margin-left:30px;">3个防御药丸（价值60魔豆）</div>
+    <div style="margin-left:20px;">15个赛场门票（价值300魔豆）</div>
+    <div style="margin-left:20px;">30个赛场保险单（价值30魔豆）</div>
+    <div style="margin-left:50px;">售价：<%=getMagicBeanCost() %>魔豆</div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() == 17214%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">增加自己家族活跃度1点</div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() == 12008%>'>
+    <div style="margin-left:70px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">在试炼场战斗失败的时候也能获得2个仙豆</div>
+</pe:if>
+<pe:if condition='<%=getGSID() == 12009%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:20px;">购买保险单参与比赛</div>
+    <div style="margin-left:10px;">胜利会获得4仙豆的奖励</div>
+    <div style="margin-left:10px;">失败会获得2仙豆的补偿</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12010%>'>
+    <div style="margin-left:90px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">打败暗黑男爵真身或者分身，一定会掉落火炎之翼</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 16045 and getGSID() <= 16048%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">抱抱龙等级要求：3级</div>
+    <div style="margin-left:20px;">药丸有效期：长期</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() >= 16049 and getGSID() <= 16050%>'>
+    <div style="margin-left:40px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;">抱抱龙等级要求：3级</div>
+    <div style="margin-left:20px;">药丸有效期：今天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17148%>'>
+    <div style="margin-left:60px;font-weight:bold;"><%=getName() %></div>
+    <div style="margin-left:10px;color:#ff0000;">到购物街找苏苏兑换高级装备</div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() == 17178%>'>
+    <div style="margin-left:45px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">积累到一定数量可兑换强力装备</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17179%>'>
+    <div style="margin-left:15px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">达尔莫德-挖取宝石</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 12006%>'>
+    <div style="margin-left:30px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">每天只能使用5次赛场门票</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17213%>'>
+    <div style="margin-left:18px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">哈奇大陆的通用货币</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 17215%>'>
+    <div style="margin-left:40px;font-weight:bold;text-align:center;width:100px;"><%=getName() %></div>
+    <div style="margin-left:10px;">到阳光海岸找“特殊物品管理员”</div>
+    <div style="margin-left:50px;">兑换骑士套装</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 1812%>'>
+    <div style="margin-left:5px;color:#ff0000;">这是挑战悬赏怪物首领的英雄</div>
+    <div style="margin-left:20px;color:#ff0000;">才能获得的终极装备！</div>
+</pe:if>
+
+
+<pe:if condition='<%=getGSID() >= 1766 and getGSID() <= 1770%>'>
+    <div style="margin-left:10px;color:#ff0000;font-weight:bold;">多克特博士的试验产品</div>
+    <div style="margin-left:35px;color:#ff0000;">有效期:7天</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 1773%>'>
+    <div style="margin-left:30px;">有效期至6月28号</div>
+    <div style="margin-left:15px;color:#ff0000">这是赛场优胜家族族长</div>
+    <div style="margin-left:5px;color:#ff0000">和第一主力才能拥有的奖品</div>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 1774%>'>
+    <div style="margin-left:30px;">有效期至6月28号</div>
+    <div style="margin-left:5px;color:#ff0000">这是赛场优胜家族主力队员</div>
+    <div style="margin-left:30px;color:#ff0000">才有拥有的奖品。</div>
+</pe:if>
+
+
+<pe:if condition='<%=getStatExpireDays() ~= ""%>'>
+    <div style="margin-left:25px;">有效期：<%=getStatExpireDays()%>天</div>
+</pe:if>
+<pe:if condition='<%=getStatExpireRemainingDays() ~= ""%>'>
+    <div style="margin-left:15px;">有效期剩余：<%=getStatExpireRemainingDays()%></div>
+</pe:if>
+
+
+
+<pe:if condition='<%=getStat(4) ~= nil%>'>
+    <div style="margin-left:10px;">清洁值<%=getStat(4,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(5) ~= nil%>'>
+    <div style="margin-left:10px;">心情值<%=getStat(5,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(7) ~= nil%>'>
+    <div style="margin-left:10px;">亲密度<%=getStat(7,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(20) ~= nil%>'>
+    <div style="margin-left:10px;">力量值:<%=getStat(20,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(19) ~= nil%>'>
+    <div style="margin-left:10px;">敏捷值:<%=getStat(19,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(18) ~= nil%>'>
+    <div style="margin-left:10px;">智慧值:<%=getStat(18,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(17) ~= nil%>'>
+    <div style="margin-left:10px;">爱心值:<%=getStat(17,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(3) and getStat(3) >= 0%>'>
+    <div style="margin-left:10px;">饥饿值<%=getStat(3,"+")%></div>
+</pe:if>
+<pe:if condition='<%=getStat(3) and getStat(3) < 0%>'>
+    <div style="margin-left:10px;">饥饿值<%=getStat(3)%></div>
+</pe:if>
+<pe:if condition='<%=getStat(21) ~= nil%>'>
+    <div style="margin-left:10px;">建造熟练度:<%=getStat(21,"+")%></div>
+</pe:if>
+
+<pe:if condition='<%=getStat(168) ~= nil%>'>
+    <pe:if condition='<%=getStat(168) <= combatlevel%>'>
+        <div style="margin-left:30px;">需要等级<%=getStat(168)%> </div>
+    </pe:if>
+    <pe:if condition='<%=getStat(168) > combatlevel%>'>
+        <div style="margin-left:30px;color:#FF0000">需要等级<%=getStat(168)%> </div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(169) ~= nil%>'>
+    <pe:if condition='<%=item_school == myschool%>'>
+        <div style="margin-left:30px;">需要系别<%=item_school_name%> </div>
+    </pe:if>
+    <pe:if condition='<%=item_school ~= myschool%>'>
+        <div style="margin-left:30px;color:#FF0000">需要系别<%=item_school_name%> </div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(138) ~= nil%>'>
+    <pe:if condition='<%=getStat(138) <= combatlevel%>'>
+        <div style="margin-left:30px;">级别限制:<%=getStat(138)%> </div>
+    </pe:if>
+    <pe:if condition='<%=getStat(138) > combatlevel%>'>
+        <div style="margin-left:30px;color:#FF0000">级别限制:<%=getStat(138)%> </div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(137) ~= nil%>'>
+    <pe:if condition='<%=item_school == myschool%>'>
+        <div style="margin-left:30px;">系别限制:<%=item_school_name%> </div>
+    </pe:if>
+    <pe:if condition='<%=item_school ~= myschool%>'>
+        <div style="margin-left:30px;color:#FF0000">系别限制:<%=item_school_name%> </div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(184) == 1%>'>
+    <div style="margin-left:30px;">带一个魔力点</div>    
+</pe:if>
+<pe:if condition='<%=getStat(185) == 1%>'>
+    <div style="margin-left:30px;">带一个超级魔力点</div>    
+</pe:if>
+<pe:if condition='<%=getStat(139) ~= nil%>'>
+    <div style="margin-left:40px;">包含卡片:</div>
+    <br/>
+    <pe:if condition='<%=HasOddCards() ~= true%>'>
+        <!--<img src='<%=getCardIcon(getStat(139))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+        <pe:item gsid='<%=getStat(139)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+    </pe:if>
+    <pe:if condition='<%=HasOddCards() == true%>'>
+        <pe:if condition='<%=last_card == 139%>'>
+            <!--<img src='<%=getCardIcon(getStat(139))%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(139)%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;"/>
+        </pe:if>
+        <pe:if condition='<%=last_card ~= 139%>'>
+            <!--<img src='<%=getCardIcon(getStat(139))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(139)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+        </pe:if>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(140) ~= nil%>'>
+    <!--<img src='<%=getCardIcon(getStat(140))%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;background:;"/>-->
+    <pe:item gsid='<%=getStat(140)%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;"/>
+    <br/>
+</pe:if>
+<pe:if condition='<%=getStat(141) ~= nil%>'>
+    <pe:if condition='<%=HasOddCards() ~= true%>'>
+        <!--<img src='<%=getCardIcon(getStat(141))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+        <pe:item gsid='<%=getStat(141)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+    </pe:if>
+    <pe:if condition='<%=HasOddCards() == true%>'>
+        <pe:if condition='<%=last_card == 141%>'>
+            <!--<img src='<%=getCardIcon(getStat(141))%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(141)%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;"/>
+        </pe:if>
+        <pe:if condition='<%=last_card ~= 141%>'>
+            <!--<img src='<%=getCardIcon(getStat(141))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(141)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+        </pe:if>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(142) ~= nil%>'>
+    <!--<img src='<%=getCardIcon(getStat(142))%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;background:;"/>-->
+    <pe:item gsid='<%=getStat(142)%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;"/>
+    <br/>
+</pe:if>
+<pe:if condition='<%=getStat(143) ~= nil%>'>
+    <pe:if condition='<%=HasOddCards() ~= true%>'>
+        <!--<img src='<%=getCardIcon(getStat(143))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+        <pe:item gsid='<%=getStat(143)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+    </pe:if>
+    <pe:if condition='<%=HasOddCards() == true%>'>
+        <pe:if condition='<%=last_card == 143%>'>
+            <!--<img src='<%=getCardIcon(getStat(143))%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(143)%>' style="margin-top:2px;margin-bottom:2px;margin-left:36px;width:71px;height:100px;"/>
+        </pe:if>
+        <pe:if condition='<%=last_card ~= 143%>'>
+            <!--<img src='<%=getCardIcon(getStat(143))%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;background:;"/>-->
+            <pe:item gsid='<%=getStat(143)%>' style="margin-top:2px;margin-bottom:2px;margin-left:0px;width:71px;height:100px;"/>
+        </pe:if>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(144) ~= nil%>'>
+    <!--<img src='<%=getCardIcon(getStat(144))%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;background:;"/>-->
+    <pe:item gsid='<%=getStat(144)%>' style="margin-top:2px;margin-bottom:2px;margin-left:8px;width:71px;height:100px;"/>
+    <br/>
+</pe:if>
+
+
+<!--<pe:if condition='<%=isGem() ~= nil%>'>
+    <div style="margin-left:10px;">找达尔莫德（购物街）可镶嵌或合成宝石</div>
+</pe:if>-->
+
+<pe:if condition='<%=getStat(180) == 1%>'>
+    <pe:if condition='<%=IsVIP() == true%>'>
+        <div style="margin-left:36px;">VIP可用</div>
+    </pe:if>
+    <pe:if condition='<%=IsVIP() ~= true%>'>
+        <div style="margin-left:36px;color:#FF0000">VIP可用</div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=getGSID() == 1823 or getGSID() == 1831 or getGSID() == 1841 or getGSID() == 1849 or getGSID() == 1858 or getGSID() == 1788%>'>
+    <div style="margin-left:10px;">这把武器具有隐藏的力量！</div>
+    <div style="margin-left:30px;">去咨询一下苏苏吧。</div>
+</pe:if>
+
+</div>
+</pe:mcml>
+</body>
+</html>
+

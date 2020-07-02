@@ -1,0 +1,146 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30420_Lucky_Tree_Bread_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30322_Lucky_Tree_dialog, by leio, 2011/04/11</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local max_num = 10;
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+state = page:GetRequestParam("state");
+state = tonumber(state);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+local Lucky_Tree_Bread = MyCompany.Aries.Quest.NPCs.Lucky_Tree_Bread;
+NPL.load("(gl)script/apps/Aries/ServerObjects/LuckyTree/LuckyTreeClientLogics.lua");
+local LuckyTreeClientLogics = commonlib.gettable("MyCompany.Aries.ServerObjects.LuckyTreeClientLogics");
+
+function Begin()
+    Lucky_Tree_Bread.DoShake();
+end
+
+function HasHammer()
+    local bHas = hasGSItem(17176);
+    return bHas;
+end
+
+function ExitAction(from, to)
+
+end
+function DoShop()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabTool","5001");
+end
+function GetGiftInfo()
+    local info = Lucky_Tree_Bread.info;
+    local s = string.format("恭喜你,奖励已经放到你的背包啦!手气不错，乘胜追击！使用面包棒再摇一次吧！");
+    if(info and info.level)then
+        local level = info.level;
+        local ss="";
+        if(level == 0)then
+            ss ="特等奖";
+        else
+            ss = string.format("%d等奖",level);
+        end
+        local num = max_num - Lucky_Tree_Bread.GetNum();
+        s = string.format("恭喜你获得%s,奖励已经放到你的背包啦!手气不错，乘胜追击！使用面包棒再摇一次吧！你今天还有%d次机会！",ss,num);
+    end
+    return s;
+end
+function IsMax_Today()
+    if(Lucky_Tree_Bread.GetNum()>= max_num)then
+        return true;
+    end
+end
+function HasState_10()
+    if(state and state == 10)then
+        return true;
+    end
+end
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+function GetTitle_Txt()
+    local num = max_num - Lucky_Tree_Bread.GetNum();
+    local s = string.format("这是魔导师们创造的经验面包树，上面全是5星级以上的高级面包，使用魔法面包棒可以把树上的面包敲下来。但每天最多只能使用10次，你今天还有%d次机会。",num);
+    return s;
+end
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="name" source="{this}" value='面包树'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+       
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+                <pe:answer-if condition = '<%=HasState_10() %>' target_state = "10"/>
+			    <pe:answer-if condition = "true" target_state = "1"/> 
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		    <%=GetTitle_Txt() %>
+		    <pe:answer template_id = "yaoyao_bread">
+			     <pe:answer-if condition = '<%=IsMax_Today() %>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=not HasHammer() %>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=HasHammer() %>' target_state = "11" transition="<%=Begin() %>" />
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		   面包棒用完了，快去商城购买新的吧。注意哦，每天你只有力气敲10下面包树。
+		    <pe:answer template_id = "buchongmianbao">
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=DoShop() %>"/>
+		    </pe:answer>
+		    <pe:answer template_id = "iknow">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "6">
+		    今天你已经精疲力尽拿不起面包棒了，明天休息好了再来吧！
+		    <pe:answer template_id = "iknow">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "10">
+		    <%=GetGiftInfo() %>
+		    <pe:answer template_id = "zailaiyici">
+			    <pe:answer-if condition = '<%=IsMax_Today() %>' target_state = "6"/>
+                <pe:answer-if condition = '<%=not HasHammer() %>' target_state = "5" />
+                <pe:answer-if condition = "true" target_state = "11" transition="<%=Begin() %>"/>
+		    </pe:answer>
+		    <pe:answer template_id = "later">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

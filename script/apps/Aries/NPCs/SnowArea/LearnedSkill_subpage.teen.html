@@ -1,0 +1,87 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/LearnedSkill_subpage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+local ItemManager = Map3DSystem.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/LearnedSkill_subpage.teen.lua");
+local LearnedSkill_subpage = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage");
+LearnedSkill_subpage:Init();
+
+function GetDataSource(arg)
+    return LearnedSkill_subpage:GetDataSource(arg);
+end
+
+function OnLearnNewSkill(arg)
+    if(not arg or arg == 0)then return end
+    LearnedSkill_subpage:OnLearnNewSkill(arg);
+end
+function DummyFunc()
+
+end
+function HasLearned(gsid)
+    return hasGSItem(gsid);
+end
+
+]]></script>
+    <div style="width:459px;height:438px;">
+        <pe:gridview VerticalScrollBarStep="358" RememberScrollPos="true" name="pegvwSKills" 
+            CellPadding="0" ItemsPerLine="2" AllowPaging="false" 
+            style="width:456px;height:438px;"
+            DataSource='<%=GetDataSource %>'DefaultNodeHeight="146" >
+		<Columns>
+            <div style="height:146px;width:223px;margin-top:0px;margin-left:5px;background:url(Texture/Aries/Common/ThemeTeen/spec/frame2_32bits.png#0 1 218 120: 7 7 7 7);">
+                <div style="height:64px;width:214px;margin-top:4px;margin-left:5px;background:url(Texture/Aries/Common/ThemeTeen/spec/frame1_32bits.png#0 0 209 64:77 34 40 23);">
+                    <pe:if condition='<%=Eval("gsid") == 21105 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21105_32bits.png#3 3 58 58);"/>
+                        <div style="position:relative;height:27px;width:53px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/cooking_32bits.png#0 0 53 27);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21106 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21106_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/magic_32bits.png#0 0 72 27);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21107 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21107_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/stuff_32bits.png#0 0 72 27);" />
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21108 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21108_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:70px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/jewelry_32bits.png#0 0 70 27);"/>
+                    </pe:if> 
+                    <pe:if condition='<%=Eval("gsid") == 21109 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21109_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/medic_32bits.png#0 0 72 27);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21110 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21110_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/mineral_32bits.png#0 0 72 27);"/>
+                    </pe:if>      
+                </div>
+                <div style="position:relative;text-align:left;margin-left:6px;width:195px;color:#52dff4;" >
+                <%=Eval("desc")%>
+                </div>
+                <div style="position:relative;width:181px;height:28px;margin-top:46px;"  >
+                    <pe:if condition='<%=not HasLearned(Eval("gsid"))%>'>
+                        <input zorder="2" type="button"  onclick="OnLearnNewSkill" 
+                            style="text-align:center;color:#52dff4;margin-left:76px;width:73px;" name='<%=Eval("gsid")%>'
+                            value='我要学习' />
+                    </pe:if>
+                    <pe:if condition='<%=HasLearned(Eval("gsid"))%>'>
+                        <input zorder="2" type="button"  onclick="OnLearnNewSkill" enabled ="false" 
+                        style="text-align:center;color:#52dff47f;margin-left:76px;width:73px;" name='<%=Eval("gsid")%>'
+                        value='已学习' />
+                    </pe:if>
+                </div>
+            </div>
+           
+		</Columns>	
+		</pe:gridview>
+    </div>
+</pe:mcml> 
+</body>
+</html>

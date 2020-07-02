@@ -1,0 +1,67 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30343_FisherHanter_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+function DoOpen()
+    MyCompany.Aries.Quest.NPCs.FisherHanter.DoOpen();
+end
+function IsEmpty()
+    MyCompany.Aries.Quest.NPCs.FisherHanter.DataAdapter();
+    return MyCompany.Aries.Quest.NPCs.FisherHanter.IsEmpty();
+end
+]]></script>
+    
+<pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="name" source="{this}" value='渔夫汉特'/>
+        <pe:placeholder id="ok" />
+        <pe:placeholder id="later" />
+        <pe:placeholder id="iknow" />
+    </pe:template>
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		    <pe:answer-if condition = "true" target_state = "1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "1">
+		哎哟，快到渔场去玩吧，让我看看你捕鱼是不是比我厉害呢！
+		    <pe:answer template_id = "sellseafood">
+			    <pe:answer-if condition = "<%=IsEmpty() %>"  target_state = "2"/>
+			    <pe:answer-if condition = "true" transition="<%=DoOpen() %>" target_state = "-1"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	</pe:state>
+	<pe:state id = "2">
+		你还没有海产物呢，赶紧去休闲渔场捕点来吧！
+		<pe:answer template_id = "iknow">
+			<pe:answer-if condition = "true"  target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

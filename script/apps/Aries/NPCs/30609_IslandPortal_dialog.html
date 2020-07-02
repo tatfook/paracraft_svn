@@ -1,0 +1,103 @@
+﻿<!-- "script/apps/Aries/NPCs/30609_IslandPortal_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30609_IslandPortal_dialog, by Spring, 2010/11/23</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30609);
+
+memory[instance] = memory[instance] or {};
+memory = memory[instance];
+
+local portal_item = System.SystemInfo.GetField("IslandPortal");
+local portal_gsid = portal_item[instance].portal_gsid;
+IsLightupPortal = hasGSItem(portal_gsid);
+
+npc_name=portal_item[instance].name;
+portal_id=portal_item[instance].id;
+
+CallQuest = function()
+    local command = System.App.Commands.GetCommand("Aries.Quest.DoAddValue");
+	if(command)then
+		command:Call({
+			increment = { {id = portal_id,value = 1}, },
+			});
+	end
+end
+
+LightupTeleport =  function()
+  System.Item.ItemManager.PurchaseItem(portal_gsid, 1, function(msg)
+			if(msg.issuccess) then
+				log("+++++++Purchase portal_item return: #"..tostring(gsid).." +++++++\n")
+				commonlib.echo(msg);
+    			local NPC = MyCompany.Aries.Quest.NPC;
+			    local portal_char = NPC.GetNpcCharacterFromIDAndInstance(30609, instance);
+			    if(portal_char) then
+				    local asset_keyname = portal_char:GetPrimaryAsset():GetKeyName();
+                    asset_file = "character/v5/09effect/DeliverDoorEfc/DeliverDoorEfc.x";
+				    if(asset_keyname ~= asset_file) then
+				    -- change the NPC name and character asset file
+					    NPC.ChangeCharacterAsset(30609, instance, asset_file);
+				    end
+                    portal_char:SetScale(1);
+			    end	
+	           CallQuest();
+            else
+                _guihelper.MessageBox("糟糕！怪物又封掉了这个传送门，你再去点一下"..npc_name.."吧！");
+			end
+		end, function() end, nil, "none");	
+   
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+function EntryAction(from, to)
+end 
+
+function ExitAction(from, to)
+end
+]]></script>
+     <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("npc_name")%>'/>
+            <pe:placeholder id="iknow" />
+        </pe:template>
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=not Eval("IsLightupPortal")%>' target_state = "1"/>
+		        <pe:answer-if condition = '<%=Eval("IsLightupPortal")%>' transition = '<%=Eval("CallQuest") %>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		        这里是<%=Eval("npc_name")%>，以后你可以通过地图直接传送过来了。
+		    <pe:answer text="确定" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("LightupTeleport") %>' target_state = "-1"/>
+		    </pe:answer>	
+	    </pe:state>
+	    <pe:state id = "2">
+		        你已经可以通过地图直接传送过来了。
+		    <pe:answer text="确定" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>	
+	    </pe:state>	    
+    </pe:dialog>    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!-- "script/kids/3DMapSystemQuest/forms/NPCRelation_Page.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>by Leio, 2008.12.24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="NPCRelation_Page.lua">
+Map3DSystem.Quest.NPCRelation_Page.OnInit();
+function g_ChainView(params)
+    Map3DSystem.Quest.NPCRelation_Page.g_ChainView(params)
+end
+</script>
+<div style="padding:5px">
+        <div style="float:left" width = "500px">
+             <div style="float:left;font-weight:bold;color:#808080">
+               <div style="float:left;font-weight:bold;width:60px;margin:2px">ID</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">Name</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posX</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posY</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posZ</div>
+            </div>
+            <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.NPC_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+                <Columns>
+                    <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("ID")%></div>
+                    <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("Name")%></div>
+                    <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posX")%></div>
+                    <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posY")%></div>
+                    <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posZ")%></div>
+                     <a tooltip = "移动摄像机到这个NPC的位置" onclick="Map3DSystem.Quest.Quest_Panel.OnMoveToNPC" param1='<%=Eval("ID")%>'>
+                        <img style="background:url(Texture/3DMapSystem/common/bug.png);width:16px;height:16px;margin-right:2px" />瞬移
+                    </a>
+                    <a tooltip = "选中" onclick="Map3DSystem.Quest.NPCRelation_Page.PushStartNode" param1='<%=Eval("ID")%>'>
+                        <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />开始
+                    </a>
+                    <a tooltip = "选中" onclick="Map3DSystem.Quest.NPCRelation_Page.PushFinishNode" param1='<%=Eval("ID")%>'>
+                        <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />结束
+                    </a>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在搜索, 请稍候 ... </b>
+                </FetchingDataTemplate>
+            </pe:gridview>
+        </div>
+        <div style="float:left">
+            <pe:custom oncreate="g_ChainView" />  
+        </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+ 

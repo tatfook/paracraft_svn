@@ -1,0 +1,105 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Areas/GoalTracker.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl" src="GoalTracker.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Creator/Game/Items/ItemClient.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/API/UserProfile.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/API/ExpTable.lua");
+ExpTable = commonlib.gettable("MyCompany.Aries.Creator.Game.API.ExpTable");
+GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
+local UserProfile = commonlib.gettable("MyCompany.Aries.Creator.Game.API.UserProfile");
+profile = UserProfile.GetUser();
+ItemClient = commonlib.gettable("MyCompany.Aries.Game.Items.ItemClient");
+GoalTracker = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.GoalTracker");
+GoalTracker.OnInit();
+names = commonlib.gettable("MyCompany.Aries.Game.block_types.names")
+
+function OnClick(name)
+    -- _guihelper.MessageBox("TODO:")
+end
+
+function OpenServerPage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ServerPage.lua");
+    local ServerPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.ServerPage");
+    ServerPage.ShowPage()
+end
+
+function OpenSkinPage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/SkinPage.lua");
+    local SkinPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.SkinPage");
+    SkinPage.ShowPage();
+end
+]]></script>
+<pe:container alignment="_rt" ClickThrough="true" style="position:relative;width:390px;margin-top:10px;background:;">
+    <!--<div style="float:left;" name="btnStamina" >
+        <div zorder="1" style="float:left;margin-top:1px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#118 45 20 23);width:20px;height:23px;"></div>
+        <input type="button" name="Stamina" onclick="OnClick" tooltip="点击补充体力" value='<%=tostring(profile:GetStamina())%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>      
+
+    <div style="float:left;margin-left:10px;" name="btnWater" >
+        <div zorder="1" style="float:left;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#232 45 20 22);width:20px;height:22px;"></div>
+        <input type="button" name="Water" onclick="OnClick" tooltip="点击补充水" value='<%=tostring(profile:GetWater())%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>
+
+    <div style="float:left;margin-left:10px;" name="btnFeed" >
+        <div zorder="1" style="float:left;margin-top:1px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#207 45 22 23);width:22px;height:23px;"></div>
+        <input type="button" name="Feed" onclick="OnClick" tooltip="点击补充口粮" value='<%=tostring(profile:GetFeed())%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>
+
+    <div style="float:left;margin-left:10px;" name="btnFertilizer" >
+        <div zorder="1" style="float:left;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#178 45 26 22);width:26px;height:22px;"></div>
+        <input type="button" name="Fertilizer" onclick="OnClick" tooltip="点击补充肥料" value='<%=tostring(profile:GetFertilizer())%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>
+    -->  
+</pe:container>
+<pe:container ClickThrough="true" style="margin-left:10px;margin-top:10px;background:;">
+    <div style="float:left;margin-left:5px;" name="btnGold" >
+        <div zorder="1" style="margin-top:1px;float:left;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#254 44 21 22);width:21px;height:22px;"></div>
+        <input type="button" name="Gold" onclick="OnClick" tooltip="点击补充金币" value='<%=tostring(profile:GetGold())%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>
+
+    <div style="float:left;margin-left:10px;" name="btnExp" >
+        <div zorder="1" style="float:left;margin-top:-3px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#389 44 26 26);width:26px;height:26px;">
+            <input type="button" zorder="2" name="Level" value='<%=tostring(profile:GetLevel())%>' style="color:#ffdd33;background:;width:26px;height:24px;" />
+        </div>
+        <input type="button" name="Exp" onclick="OnClick" tooltip='<%=GoalTracker.GetExpTip(profile:GetExp()) %>' value='<%=tostring(ExpTable.GetThisLevelExp(profile:GetExp()))%>' style="color:#ffdd33;margin-left:-13px;margin-top:0px;background:;width:56px;height:22px;" Normal_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 44 56 22" MouseOver_BG="Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;279 66 56 22"/>
+    </div>
+    <div style="float:left;margin-left:10px;margin-top:-5px;">
+        <div style="float: left; margin-left: 5px; background: url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12);background-color:#ffffff80">
+            <pe:mc_slot bagpos ='1' edit_mode="editor_only" style="width:32px;height:32px;" ContainerView="<%=GameLogic.GetDesktopEntity().inventoryView%>"/>
+        </div>
+        <div style="float: left; margin-left: 5px; background: url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12); background-color: #ffffff80;">
+            <pe:mc_slot bagpos ='2' edit_mode="editor_only" style="width:32px;height:32px;" ContainerView="<%=GameLogic.GetDesktopEntity().inventoryView%>"/>
+        </div>
+        <pe:if condition="<%= System.options.mc %>">
+            <div style="float: left; margin-left: 5px; background: url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12); background-color: #ffffff80;">
+                <input type="button" onclick="OpenServerPage" zorder="2" tooltip="点击打开服务器界面" value="多人&#10;游戏" style="text-singleline:false;color:#ffffff;background:;width:32px;height:32px;font-weight:6px;" />
+            </div>
+            <div style="float: left; margin-left: 5px; background: url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12); background-color: #ffffff80;">
+                <input type="button" onclick="OpenSkinPage" zorder="2" tooltip="点击打开换装页面" value="角色&#10;换装" style="text-singleline:false;color:#ffffff;background:;width:32px;height:32px;font-weight:6px;" />
+            </div>
+        </pe:if>
+        
+    </div>
+</pe:container>
+<pe:container name="editor" visible='<%=GameLogic.GameMode:IsEditor()%>' style="margin-left:5px;margin-top:20px;background:;">
+    <div style="float:left;margin-left:-6px;width:40px;height:42px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#270 89 31 34:15 16 15 16);">
+        <input name="cody" type="button" onclick="GoalTracker.OnClickCody" tooltip="创作百科" style="background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#216 203 30 32);margin-left:5px;margin-top:5px;width:30px;height:32px;"/>
+    </div>
+    <pe:container name="tip" visible='<%=GoalTracker.tip_text ~= nil %>' style="float:left;margin-left:10px;margin-top:-5px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12);padding:5px;padding-bottom:8px;">
+        <input type="button" name="text" onclick="GoalTracker.OnClickCody" style="height:49px;width:240px;text-singleline:false;text-wordbreak:true;background:;font-size:14px;color:#ffffff;" value='<%=GoalTracker.tip_text %>' />
+    </pe:container>
+    <!--<div style="margin-left:-6px;margin-top:-10px;width:40px;height:42px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#270 89 31 34:15 16 15 16);">
+        <input name="paidashi" type="button" onclick="" style="background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#245 202 34 36);margin-left:3px;margin-top:4px;width:34px;height:36px;"/>
+    </div>-->
+</pe:container>
+
+</pe:mcml>
+</body>
+</html>

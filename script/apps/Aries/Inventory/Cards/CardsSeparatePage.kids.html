@@ -1,0 +1,257 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/CardsSeparatePage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+local hasGSItem = ItemManager.IfOwnGSItem;
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+local CardsSeparatePage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.CardsSeparatePage");
+CardsSeparatePage.OnInit();
+function ClosePage()
+    page:CloseWindow();
+end
+function DS_Func_Cards(index)
+    return CardsSeparatePage.DS_Func_Cards(index)
+end
+function GetCnt(gsid)
+    return CardsSeparatePage.GetCnt(gsid);
+end
+function MaxCount()
+    if(CardsSeparatePage.selected_gsid)then
+        return GetCnt(CardsSeparatePage.selected_gsid)
+    end
+    return 0;
+end
+function DoClick(gsid)
+    if(not gsid)then return end
+    local __,guid= hasGSItem(gsid);
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item)then
+        CardsSeparatePage.selected_gsid = item.gsid;
+        CardsSeparatePage.selected_guid = guid;
+        page:Refresh(0);
+        page:SetValue("count", 1);
+    EnableButton();
+    end
+end
+function DoRemove()
+    CardsSeparatePage.selected_gsid = nil;
+    CardsSeparatePage.selected_guid = nil;
+    page:Refresh(0);
+    EnableButton();
+end
+function GetSelectedGsid()
+    return CardsSeparatePage.selected_gsid;
+end
+
+
+function DoSeparate()
+    local rune_guid = CardsSeparatePage.selected_guid;
+    local rune_gsid = CardsSeparatePage.selected_gsid;
+    if(rune_guid and rune_gsid)then
+        local count = page:GetValue("count");
+        count = tonumber(count);
+        local max = MaxCount();
+        count = math.min(count,max);
+        if(count == 0)then
+            _guihelper.MessageBox("你没有需要被分解的卡牌！");
+            return
+        end
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(rune_gsid);
+	    if(gsItem)then
+		    local apparel_quality = gsItem.template.stats[221];
+		    if(apparel_quality and apparel_quality > 1)then
+                NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+                _guihelper.Custom_MessageBox("确认要分解吗？",function(result)
+	                if(result == _guihelper.DialogResult.Yes)then
+                        ItemManager.DestroyCardToMagicDirt(rune_guid, rune_gsid, count, function(msg)
+                            if(msg and msg.issuccess)then
+                                DoRemove();
+                                CardsSeparatePage.LoadCards();
+                            end
+                        end)
+                        CardsSeparatePage.DoShake(function()
+                        end)
+	                end
+                end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+                return
+		    end
+	    end
+        ItemManager.DestroyCardToMagicDirt(rune_guid, rune_gsid, count, function(msg)
+            if(msg and msg.issuccess)then
+                DoRemove();
+                CardsSeparatePage.LoadCards();
+            end
+        end)
+        CardsSeparatePage.DoShake(function()
+        end)
+    end
+end
+function EnableButton()
+    local btn = page:FindUIControl("separate_btn");
+    if(btn)then
+        if(CardsSeparatePage.selected_gsid)then
+            btn.enabled = true;
+        else
+            btn.enabled = false;
+        end
+    end
+end
+
+function OnDecrease()
+    local count = page:GetValue("count");
+    count = tonumber(count);
+    local max = MaxCount();
+    if(count) then
+        count = count - 1;
+        if(count < 1) then
+            count = max;
+        end
+        page:SetValue("count", count);
+    end
+end
+
+function OnIncrease()
+    local count = page:GetValue("count");
+    local max = MaxCount();
+    count = tonumber(count);
+    if(count) then
+        count = count + 1;
+        if(count > max) then
+            count = 1;
+        end
+        page:SetValue("count", count);
+    end
+end
+function OnKeyUp()
+    local count = page:GetValue("count");
+    count = tonumber(count) or 1;
+    local max = MaxCount();
+    if(count < 1)then
+        count = 1;
+        page:SetValue("count", count);
+    elseif(count > max)then
+        count = max;
+        page:SetValue("count", count);
+    else
+        -- page:SetValue("count", count);
+    end
+end
+function ZeroCnt()
+    if(not CardsSeparatePage.selected_gsid)then
+        page:SetValue("count", 0);
+    else
+        page:SetValue("count", 1);
+    end
+end
+function GetCountDesc()
+    return format("分解数量(1-%d)", MaxCount());
+end
+function CardFilter_Toggle(index)
+    CardsSeparatePage.CardFilter_Toggle(index);
+    CardsSeparatePage.LoadCards();
+end
+function DS_Func_Card_Filter(index)
+    return CardsSeparatePage.DS_Func_Card_Filter(index);
+end
+function DoCardSelectedAll()
+    if(CardsSeparatePage.CardFilter_IsSelectedAll())then
+        CardsSeparatePage.CardFilter_SelectedAll(false);
+    else
+        CardsSeparatePage.CardFilter_SelectedAll(true);
+    end
+    CardsSeparatePage.LoadCards();
+end
+ZeroCnt();
+]]></script>
+<aries:window width="760" height="470" title="卡牌分解" icon="Texture/Aries/Common/ThemeTeen/wintitle/card_icon_32bits.png" onclose="ClosePage">
+    <div style="color:#ffffff;margin-top:25px;margin:5px;padding-top:5px;" width="100%" height="100%" class="subpane">
+        <div style="float:left;width:350px;height:430px;">
+            <div style="padding:20px;text-align:center;">请放入你要分解的卡片</div>
+            <div style="margin-left:100px;margin-top:30px;width:161px;height:242px;" class="block">
+                <pe:item style="margin-left:5px;margin-top:6px;width:151px;height:230px;" gsid="<%=GetSelectedGsid()%>" onclick="DoRemove"/>
+            </div>
+            <div style="margin-left:98px;margin-top:5px;">
+                <input type="button" style="width:23px;height:25px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 18 22)" onclick="OnDecrease()" class="button"/>
+                <div style="float:right;padding-left:50px;padding-top:2px;width:116px;height:30px;" class="property_bg_css">
+                    <input type="text" name="count" enable_ime="false"  value="1" onkeyup="OnKeyUp" style="width:60px;height:20px;background:;" />
+                </div>
+                <input type="button" style="margin-left:0px;width:23px;height:25px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)" onclick="OnIncrease()" class="button"/>
+                <div style="margin-left:48px;"><%=GetCountDesc() %></div>
+            </div>
+            <input type="button" value="分解" enabled="false" style="margin-left:135px;margin-top:10px;width:80px;height:25px;" name="separate_btn" class="button_highlight" onclick="DoSeparate()"/>
+        </div>
+        <div style="float:left;width:395px;height:430px;">
+            <div style="height:75px;">
+               <div>说明：</div>
+               <div>点击要分解的卡片，加到左侧分解功能区。</div>
+               <div>点击“分解”按钮，将卡片分解到魔尘。</div>
+            </div>
+            <div>
+                <div class="tab_selected" style="margin-left:2px;width:60px;padding-top:4px;height:25px;text-align:center;">卡片</div>
+                <div style="position:relative;margin-left:2px;margin-top:300px;">
+                    <div style="float:left">
+                        <input type="button" value="全部" onclick="DoCardSelectedAll" class="button_highlight" />
+                    </div>
+                    <div style="float:left;margin-top:4px;">
+                        <pe:gridview name="card_filter_view" DataSource="<%=DS_Func_Card_Filter%>"  ItemsPerLine="20" AllowPaging="false" pagesize="500">
+                            <Columns>
+                                <div >
+                                    <div style="float:left;width:16px;height:16px;">
+                                        <pe:if condition='<%=Eval("selected")%>'>
+                                            <input type="button" name='<%=Eval("index")%>' onclick="CardFilter_Toggle" background='Texture/Aries/Common/ThemeTeen/checkbox_32bits.png' style="width:16px;height:16px;"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=not Eval("selected")%>'>
+                                            <input type="button" name='<%=Eval("index")%>' onclick="CardFilter_Toggle" background='Texture/Aries/Common/ThemeTeen/uncheckbox_32bits.png' style="width:16px;height:16px;"/>
+                                        </pe:if>
+                                    </div>
+                                    <div style="float:left;"><%=Eval("label")%></div>
+                                </div>
+                            </Columns>
+                            <EmptyDataTemplate>
+                            </EmptyDataTemplate>
+                            <FetchingDataTemplate>
+                            </FetchingDataTemplate>
+                        </pe:gridview>
+                    </div>
+                </div>
+                <div style="width:392px;height:330px;" class="border_bg7_css">
+                     <pe:gridview name="cards_view" DataSource="<%=DS_Func_Cards%>" style="margin-left:3px;margin-top:3px;" ItemsPerLine="8" AllowPaging="true" pagesize="48" >
+                    <Columns>
+                        <div style="margin-left:2px;margin-top:2px;width:46px;height:46px;" class="block">
+                            <!--<pe:slot guid='<%=Eval("guid")%>' style="width:46px;height:46px;" onclick="DoClick" />-->
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:46px;height:46px;" onclick="DoClick" ShowCount='<%=GetCnt(Eval("gsid"))%>'/>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    <div style="text-align:center;" class="defaultstyle"></div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                    <div style="text-align:center;" class="defaultstyle"></div>
+                    </FetchingDataTemplate>
+	                <PagerSettings Position="Bottom" style="margin-left:245px;margin-top:-2px;width:260px;height:25px;"/>
+				        <PagerTemplate AutoHidePager="true">
+					        <form>
+						        <input type="button" class="button_highlight" name="pre" invisibleondisabled="false" style="width:50px;" value="上一页" zorder="2"/>
+							        <input type="button" name="page" style="width:35px;" class="pagerbuttontext" /> 
+						        <input type="button" class="button_highlight" name="next" invisibleondisabled="false" style="width:50px;" value="下一页" zorder="2"/>
+	                        </form>
+				        </PagerTemplate>
+                </pe:gridview>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

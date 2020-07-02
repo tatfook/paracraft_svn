@@ -1,0 +1,550 @@
+﻿<!-- "script/apps/Aries/CombatRoom/ResetRoomPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="ResetRoomPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/AntiIndulgenceArea.lua");
+local AntiIndulgenceArea = commonlib.gettable("MyCompany.Aries.Desktop.AntiIndulgenceArea");
+local page = document:GetPageCtrl();
+local ResetRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.ResetRoomPage");
+ResetRoomPage.OnInit();
+
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+NPL.load("(gl)script/apps/Aries/Chat/BadWordFilter.lua");
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClient.lua");
+local LobbyClient = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClient");
+local game_info = ResetRoomPage.game_info;
+function ClosePage()
+    ResetRoomPage.ClosePage();
+end
+function checkGuardMap(map)
+    if(not map)then return end
+    map.storm = map.storm or 0;
+    map.fire = map.fire or 0;
+    map.life = map.life or 0;
+    map.death = map.death or 0;
+    map.ice = map.ice or 0;
+    if(map.storm <= 0 and map.fire <= 0 and map.life <= 0 and map.death <= 0 and map.ice <= 0)then
+        return nil;
+    end
+    return map;
+end
+function getRequirementTag()
+    local maps = {
+        "storm",
+        "fire",
+        "life",
+        "death",
+        "ice",
+    };
+    local s = "";
+    local k,v;
+    for k,v in ipairs(maps) do
+        local checked = page:GetValue(v);
+        if(checked)then
+            if(s == "")then
+                s = v;
+            else
+                s = string.format("%s|%s",s,v)
+            end
+        end
+    end
+    local len = ParaMisc.GetUnicodeCharNum(s);
+    if(len == 0)then
+        s = nil;
+    end
+    return s;
+end
+function GetTemplate()
+    local game_info = ResetRoomPage.game_info;
+    if(game_info)then
+        local game_templates = LobbyClientServicePage.GetGameTemplates()
+        if(game_templates and game_info)then
+            local template = game_templates[game_info.keyname];
+            return template;
+        end
+    end
+end
+function doReset()
+    local template = ResetRoomPage.selected_template;
+    if(not template)then
+        _guihelper.MessageBox("请选择一个副本！")
+        return
+    end
+    local name = page:GetValue("title");
+    local keyname = template.keyname;
+    local leader_text = page:GetValue("leader_text");
+    local min_level;
+    local max_level;
+    if(ResetRoomPage.selected_game_type == "PvE")then
+        min_level = page:GetValue("pve_min_level");
+        max_level = template.max_level;
+    elseif(ResetRoomPage.selected_game_type == "PvP")then
+        min_level = page:GetValue("min_level");
+        max_level = page:GetValue("max_level");
+    end
+    min_level = tonumber(min_level);
+    max_level = tonumber(max_level);
+    local max_players = page:GetValue("max_players");
+    max_players = tonumber(max_players);
+
+    local game_type = page:GetValue("game_type");
+
+    if(game_type == "PvP")then
+        max_players = template.max_players;
+    end
+	name = MyCompany.Aries.Chat.BadWordFilter.FilterString(name);
+	local len = ParaMisc.GetUnicodeCharNum(name);
+    if(len == 0)then
+        _guihelper.MessageBox("房间名称不能为空！")
+        return        
+    elseif(len > 16)then
+        _guihelper.MessageBox("房间名称最多16个字，换一个吧！")
+        return
+    end
+    len = ParaMisc.GetUnicodeCharNum(leader_text);
+    if(len > 60)then
+        _guihelper.MessageBox("队长声明太长了，换一个吧！")
+        return
+    end
+
+    local password = page:GetValue("password");
+	local len = ParaMisc.GetUnicodeCharNum(password);
+    if(len == 0)then
+        password = nil;
+    end
+    if(len > 6)then
+        _guihelper.MessageBox("密码最长6位，换一个吧！")
+        return
+    end
+    local requirement_tag = getRequirementTag();
+
+    local function get_value(name)
+        local value = page:GetValue(name);
+        value = tonumber(value);
+        if(value and value <= 0)then
+            value = nil;
+        end
+        return value;
+    end
+
+    local magic_star_level = page:GetValue("magic_star_level");
+    magic_star_level = tonumber(magic_star_level);
+    if(magic_star_level < 0)then
+        magic_star_level = nil;
+    end
+    local hp = get_value("hp");
+    local attack = get_value("attack");
+    local hit = get_value("hit");
+    local cure = get_value("cure");
+
+    local guard_map = {
+        storm = get_value("guard_storm"), 
+        fire = get_value("guard_fire"), 
+        life = get_value("guard_life"), 
+        death = get_value("guard_death"), 
+        ice = get_value("guard_ice"),
+    }
+    guard_map = checkGuardMap(guard_map);
+    local game = {
+        id = game_info.id,
+        name = name,
+        leader_text = leader_text,
+        min_level = min_level,
+        max_level = max_level,
+        max_players = max_players,
+        password = password,
+        requirement_tag = requirement_tag,
+        magic_star_level = magic_star_level,
+        hp = hp,
+        attack = attack,
+        hit = hit,
+        cure = cure,
+        guard_map = guard_map,
+    }
+    commonlib.echo("=============reset_game");
+    commonlib.echo(game);
+    ClosePage();
+    LobbyClientServicePage.DoResetGame(game);
+end
+function OnSelectGame(index)
+    index = tonumber(index);
+    ResetRoomPage.OnSelectGame(index);
+    if(ResetRoomPage.selected_template)then
+        page:SetValue("description",ResetRoomPage.selected_template.name);
+    end
+end
+function getHpList()
+    local list = {
+    }
+    local k;
+    for k = 0,5 do
+        local v = k * 1000;
+        local node = {
+            text = string.format("%d",v),
+            value = tostring(v),
+        }
+        table.insert(list,node);
+    end
+    local bFind;
+   if(game_info)then
+        local selected_value = tostring(game_info.hp);
+        local k,v;
+        for k,v in ipairs(list) do
+            if(v.value == selected_value)then
+                v.selected = "true";
+                bFind = true;
+                break;
+            end
+        end
+    end
+    if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function getCombatPropList_Gruad(key)
+    local list = {
+    }
+    local k;
+    for k = 0,15 do
+        local v = k * 10;
+        local node = {
+            text = string.format("%d%%",v),
+            value = tostring(v),
+        }
+        table.insert(list,node);
+    end
+    local bFind;
+    if(game_info and game_info.guard_map and key)then
+        local selected_value = tostring(game_info.guard_map[key]);
+        local k,v;
+        for k,v in ipairs(list) do
+            if(v.value == selected_value)then
+                v.selected = "true";
+                bFind = true;
+                break;
+            end
+        end
+    end
+    if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function getCombatPropList(key)
+    local list = {
+    }
+    local k;
+    for k = 0,35 do
+        local v = k * 10;
+        local node = {
+            text = string.format("%d%%",v),
+            value = tostring(v),
+        }
+        table.insert(list,node);
+    end
+    local bFind;
+    if(game_info and key)then
+        local selected_value = tostring(game_info[key]);
+        local k,v;
+        for k,v in ipairs(list) do
+            if(v.value == selected_value)then
+                v.selected = "true";
+                bFind = true;
+                break;
+            end
+        end
+    end
+    if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function getMagicStarLevelList()
+    local list = {
+        {text = "无", value = -1},
+    }
+    local k;
+    for k = 0,10 do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+    local bFind;
+    if(game_info)then
+        local selected_value = tostring(game_info.magic_star_level);
+        local k,v;
+        for k,v in ipairs(list) do
+            if(v.value == selected_value)then
+                v.selected = "true";
+                 bFind = true;
+                break;
+            end
+        end
+    end
+     if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function getSelectList(name)
+    local selected_template = ResetRoomPage.selected_template;
+    if(not selected_template)then return end;
+    local min_level = selected_template.min_level or 1;
+    local max_level = selected_template.max_level or 50;
+    if(name == "max_players")then
+        min_level = 1;
+        max_level = selected_template.max_players or 4;
+    end
+    local list = {};
+    local k;
+    for k = min_level,max_level do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+
+    local selected_value;
+    local bFind;
+     if(ResetRoomPage.selected_game_type == "PvE")then
+        if(name == "min_level")then
+            selected_value = game_info.min_level;
+        elseif(name == "max_players")then
+            selected_value = game_info.max_players;
+        end
+    end
+    if(ResetRoomPage.selected_game_type == "PvP")then
+        if(name == "min_level")then
+            selected_value = game_info.min_level;
+        elseif(name == "max_level")then
+            selected_value = game_info.max_level;
+        end
+    end
+    selected_value = tostring(selected_value);
+    local k,v;
+    for k, v in ipairs(list)do
+        if(v.value == selected_value)then
+            v.selected = "true";
+             bFind = true;
+            break;
+        end
+    end
+     if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+
+function GetKeyName()
+    local template = ResetRoomPage.selected_template;
+    if(not template)then
+        return
+    end
+    local keyname = template.keyname;
+    return keyname;
+end
+function HasLoots()
+    if(ResetRoomPage.loots_list)then
+        return true;
+    end
+end
+function DS_Func_Loots(index)
+	if(not ResetRoomPage.loots_list)then return nil end
+	if(index == nil) then
+		return #(ResetRoomPage.loots_list);
+	else
+		return ResetRoomPage.loots_list[index];
+	end
+end
+if(game_info)then
+    page:SetValue("title",game_info.name or "");
+    page:SetValue("leader_text",game_info.leader_text or "");
+    page:SetValue("password",game_info.password or "");
+
+    page:SetValue("storm",false);
+    page:SetValue("fire",false);
+	page:SetValue("life",false);
+	page:SetValue("death",false);
+	page:SetValue("ice",false);
+    if(game_info.requirement_tag)then
+        local requirement_tag = game_info.requirement_tag;
+        local school
+        for school in string.gfind(requirement_tag, "[^|]+") do
+        	page:SetValue(school,true);
+        end
+    end
+end
+]]></script>
+<div class="window" style="width:950px;height:550px;">
+<div class="titlebar" width="100%">
+    <div class="windowlabel" >修改房间进入条件</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="clientarea" style="">
+<div>
+<div style="float:left;margin-left:5px;width:660;height:290px;">
+    <div style="margin-top:5px;padding-left:5px;padding-right:5px;">
+        <div style="float:left;">队伍名称：</div>
+        <input type="text" style="float:left;height:25px;" name="title" />
+    </div>
+    <div style="position:relative;margin-left:510px;margin-top:2px;width:256px;height:128px;">
+    </div>
+    <div style="padding-left:5px;padding-top:2px;width:63px;height:25px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">目标副本</div>
+    <div style="padding-left:5px;margin-top:-2px;width:660px;height:160px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+     <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+            <aries:lobbyservice_template_item property="world_label" style="width:256px;"/>
+        </aries:lobbyservice_template>
+    </div>
+    <div style="padding-left:5px;padding-top:2px;width:63px;height:25px;margin-top:5px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">进入条件</div>
+    <div style="padding-left:5px;margin-top:-2px;width:660px;height:160px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+   <div style="margin-top:5px;">
+        <div style="float:left;">职业要求：</div>
+        <input style="float:left;" type="checkbox" name="storm" checked="true" onclick="doClickCheckBox"/>风暴
+        <input style="float:left;" type="checkbox" name="fire" checked="true" onclick="doClickCheckBox"/>烈火
+        <input style="float:left;" type="checkbox" name="life" checked="true" onclick="doClickCheckBox"/>生命
+        <input style="float:left;" type="checkbox" name="death" checked="true" onclick="doClickCheckBox"/>死亡
+        <input style="float:left;" type="checkbox" name="ice" checked="true" onclick="doClickCheckBox"/>寒冰
+    </div>
+    <div>
+        <pe:if condition='<%=MyCompany.Aries.CombatRoom.ResetRoomPage.selected_game_type == "PvE"%>'>
+            <div style="float:left;">最低等级：</div>
+            <div style="float:left;" >
+                <select style="float:left;" name="pve_min_level" AllowUserEdit="false" DataSource='<%=getSelectList("min_level") %>' />
+            </div>
+            <div style="float:left;margin-left:5px;" >最多人数：</div>
+            <select style="float:left;" name="max_players" AllowUserEdit="false" DataSource='<%=getSelectList("max_players") %>' />
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.CombatRoom.ResetRoomPage.selected_game_type == "PvP"%>'>
+            <div style="float:left;">等级要求：</div>
+            <div style="float:left;" >
+                <select style="float:left;" name="min_level" AllowUserEdit="false" DataSource='<%=getSelectList("min_level") %>' />
+                <div style="float:left;" >到</div>
+                <select style="float:left;" name="max_level" AllowUserEdit="false"  DataSource='<%=getSelectList("max_level") %>' />
+            </div>
+        </pe:if>
+
+    </div>
+    <div>
+        <div style="float:left;">设置密码：</div>
+        <input type="text" style="width:100px;height:25px;float:left;" name="password" enable_ime="false"/>
+        <div style="float:left;color:#6b6b77;margin-left:5px;"><div style="margin-top:-2px;">只能是数字或字母</div><div style="margin-top:-2px;">不填表示无密码</div></div>
+    </div>
+     <div>
+        <div style="float:left;">魔法星:</div>
+        <div style="float:left;">
+            <select style="height:22px;" name="magic_star_level" AllowUserEdit="false" DataSource='<%=getMagicStarLevelList() %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">血量:</div>
+        <div style="float:left;">
+            <select style="height:22px;" name="hp" AllowUserEdit="false" DataSource='<%=getHpList() %>' />
+        </div>
+        
+    </div>
+    <div>
+        <div style="float:left;">本系攻击:</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="attack" AllowUserEdit="false" DataSource='<%=getCombatPropList("attack") %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">本系命中:</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="hit" AllowUserEdit="false" DataSource='<%=getCombatPropList("hit") %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">治疗加成:</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="cure" AllowUserEdit="false" DataSource='<%=getCombatPropList("cure") %>' />
+        </div>
+    </div>
+    <div>
+        <div style="float:left;">防御力:</div>
+        <div style="float:left;">风暴</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="guard_storm" AllowUserEdit="false" DataSource='<%=getCombatPropList_Gruad("storm") %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">烈火</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="guard_fire" AllowUserEdit="false" DataSource='<%=getCombatPropList_Gruad("fire") %>' />
+        </div>
+        
+        <div style="float:left;margin-left:5px;">生命</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="guard_life" AllowUserEdit="false" DataSource='<%=getCombatPropList_Gruad("life") %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">死亡</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="guard_death" AllowUserEdit="false" DataSource='<%=getCombatPropList_Gruad("death") %>' />
+        </div>
+        <div style="float:left;margin-left:5px;">寒冰</div>
+        <div style="float:left;">
+            <select style="width:65px;height:22px;" name="guard_ice" AllowUserEdit="false" DataSource='<%=getCombatPropList_Gruad("ice") %>' />
+        </div>
+    </div>
+    </div>
+    <div style="padding-left:5px;padding-top:2px;width:63px;height:25px;margin-top:5px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">队长声明</div>
+    <div style="padding-left:5px;margin-top:-2px;width:660px;height:40px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+        <textarea rows="2" name="leader_text"/>
+    </div>
+</div>
+<div style="float:left;margin-left:5px;">
+    <div style="padding-left:5px;padding-top:2px;width:63px;height:25px;margin-top:5px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">副本介绍</div>
+    <div style="padding-left:5px;margin-top:-2px;width:256px;height:470px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+            <aries:lobbyservice_template_item property="pic" style="margin-left:-5px;margin-top:0px;width:255px;height:255px;"/>
+            <pe:treeview style="margin-left:3px;background:;height:146px;" ShowIcon="false" >
+                <aries:lobbyservice_template_item property="world_description" style="font-size:12px;"/>
+            </pe:treeview>
+        </aries:lobbyservice_template>
+        <div >
+        <pe:if condition='<%=HasLoots() %>'>
+          <div>可能掉落:</div>
+         <pe:gridview name="loots_view" style="width:400px;height:128px" DataSource="<%=DS_Func_Loots%>"  ItemsPerLine="6" AllowPaging="false" pagesize="12">
+                <Columns>
+                <div style="margin-left:2px;margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+                        <pe:item gsid='<%=Eval("gsid") %>' isclickable="false" showdefaulttooltip="true" style="width:30px;height:30px;"/>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="width:280px;height:60px;"/>
+                <PagerTemplate>
+                    <form>
+                       <div style="margin-left:150px;margin-top:-105px;">
+                                <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                            <div style="float:right;margin-top:-2px;width:40px;">
+	                                <label name="page" style="color:#FFFFFF;text-align:center;width:40px;height:18px;margin:4px"/>
+	                            </div>
+	                            <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                            </div>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </pe:if>
+        </div>
+    </div>
+</div>
+</div>
+<div>
+    <input type="button" class="button_highlight" value="保存" onclick="doReset()" style="margin-left:20px;font-size:12px;margin-top:-20px;width:80px;height:22px;" />
+    <input type="button" class="button" value="取消" onclick="ClosePage()" style="margin-left:20px;font-size:12px;margin-top:-20px;width:80px;height:22px;" />
+</div>
+    
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

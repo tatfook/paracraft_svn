@@ -1,0 +1,123 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/FollowPetManager.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FollowPetManager, by Andy, 2009/12/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FollowPetManager.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Inventory.FollowPetManagerPage.Init();
+
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+
+-- status: nil not available, 1 fetching all, 2 fetching online, 3 fetched. 
+dsFollowPets = Eval("dsFollowPets") or {status = nil, };
+
+if(dsFollowPets[1]) then
+    MyCompany.Aries.Inventory.FollowPetManagerPage.ViewPetInfo(dsFollowPets[1].gsid, nid);
+end
+
+function DS_Func_FollowPets(index)
+    return MyCompany.Aries.Inventory.FollowPetManagerPage.DS_Func_FollowPets(nid, dsFollowPets, index, page);
+end
+
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30";
+
+function DoToggleHome()
+    MyCompany.Aries.Inventory.FollowPetManagerPage.ToggleCurrentSelected()
+end
+
+function DoSpecial()
+    MyCompany.Aries.Inventory.FollowPetManagerPage.DoSpecialCurrentSelected()
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="width:632px;height:486px;background:url(Texture/Aries/Homeland/followpetmanager_bg_32bits.png# 0 0 632 486)">
+    <div style="float:right;margin-top:4px;margin-left:50px;width:200px;height:60px;color:#4c7aaa">
+        <div style="float:left;margin-left:120px;margin-top:100px;">
+            <label name="followpetcount"/>
+        </div>
+        <div style="float:left;margin-left:160px;margin-top:-48px;width:600px;height:30px;color:#ffffff;font-size:14;font-weight:bold;">
+            <pe:name nid='<%=Eval("nid")%>' linked="false"/>(<%=Eval("nid")%>)<div style="float:left;margin-left:6px;">的宠物</div>
+        </div>
+        <div style="float:left;margin-left:530px;margin-top:-76px;width:600px;height:30px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+        </div>
+    </div>
+    <div style="margin-left:30px;margin-top:24px;width:220px;height:360px;background:;">
+        <pe:gridview DataSource="<%=DS_Func_FollowPets%>" name="FollowPetsManager" style="margin-left:0px;margin-top:0px;margin-right:-4px;margin-bottom:0px;" 
+            VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="250">
+            <Columns>
+                <div style="width:212px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                    <pe:if condition='<%=Eval("bshow")%>'>
+                        <a style="width:212px;height:30px;margin:0px;padding:0px;background:;"
+                            onclick="MyCompany.Aries.Inventory.FollowPetManagerPage.ViewPetInfo" param1='<%=Eval("gsid")%>'>
+                            <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:212px;height:30px;background:;"/>
+                            <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:212px;height:30px;">
+                                <a width="30" height="26" style="padding:0px;background:;"
+                                    onclick="MyCompany.Aries.Inventory.FollowPetManagerPage.ViewPetInfo" param1='<%=Eval("gsid")%>'>
+                                    <!--<aries:onlinestatus width="32" height="26" nid='<%=Eval("nid")%>'/>-->
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="margin-top:-3px;width:32px;height:32px" isclickable="false"/>
+                                </a>
+                                <div style="float:right;margin-left:6px;margin-top:3px;width:108px;font-size:12pt;color:#000000">
+                                    <div style="width:300px;">
+                                        <%=Eval("name")%>
+                                    </div>
+                                </div>
+                                <!--<input type="button" zorder="1" style="float:right;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="OnClickHomeland()" name='<%=Eval("nid")%>'/>
+                                <input type="button" zorder="1" style="float:right;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/FriendsWnd_Phone2_32bits.png" onclick="OnClickPhone()" name='<%=Eval("nid")%>'/>-->
+                            </div>
+                        </a>
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageLeft.png;"/>
+	                <div style="float:right;margin-top:4px;width:64px;">
+	                    <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageRight.png;"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+    <div style="float:left;margin-left:270px;margin-top:-410px;width:350px;height:400px;background:;">
+        <div style="margin-left:50px;margin-top:0px;width:256px;height:256px;">
+            <pe:canvas3d name="FollowPetCanvas" DefaultRotY="-0.7" miniscenegraphname="FollowPetManager_miniscene" style="width:256px;height:256px"/>
+            <aries:miniscenecameramodifier miniscenename="FollowPetManager_miniscene" type="rotateleft" zorder="2" style="float:left;margin-left:-50px;margin-top:-36px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_left_32bits.png#0 0 36 36)"/>
+            <aries:miniscenecameramodifier miniscenename="FollowPetManager_miniscene" type="rotateright" zorder="2" style="float:left;margin-left:250px;margin-top:-36px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_right_32bits.png#0 0 36 36)"/>
+        </div>
+        <div style="margin-left:20px;margin-top:20px;width:320px;height:100px;">
+            <label name="petdesc" style="margin-left:0px;margin-top:0px;width:300px;height:200px;" autosize="true"></label>
+        </div>
+        <pe:if condition='<%=Eval("nid") == System.App.profiles.ProfileManager.GetNID()%>'>
+            <div style="margin-left:10px;margin-top:-8px;width:620px;height:100px;">
+                <input type="button" enabled="false" style="margin-left:4px;width:153;height:49px;background:;" 
+                            onclick="DoToggleHome" name="btn_togglehome" />
+                <input type="button" enabled="false" style="margin-left:10px;width:153;height:49px;background:;" 
+                            onclick="DoSpecial" name="btn_special" />
+                <input type="button" enabled="false" style="margin-left:-236px;width:153;height:49px;background:;" 
+                            onclick="DoToggleHome" name="btn_togglehome_single" />
+            </div>
+        </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

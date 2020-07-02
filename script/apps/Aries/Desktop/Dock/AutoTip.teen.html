@@ -1,0 +1,90 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/AutoTip.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="AutoTips.lua" refresh="false"><![CDATA[
+local page = document:GetPageCtrl();
+local tiptype = page:GetRequestParam("tiptype");
+local gsid = page:GetRequestParam("gsid");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+local AutoTips = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips");
+AutoTips.OnInit(tiptype,page,gsid);
+
+function ClosePage()
+    AutoTips.ClosePage(true);
+end
+
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+firsttip = system_looptip.firsttip;
+
+function IsFirstTip()
+    if (system_looptip.firsttip) then
+        system_looptip.firsttip =false;
+    end
+    return firsttip
+end
+
+function DS_Func_AutoTip(index)
+    return MyCompany.Aries.Desktop.AutoTips.DS_Func_AutoTip(index);
+end
+
+function doClick(name)
+    MyCompany.Aries.Desktop.AutoTips.ClickBtn(tonumber(name));
+end
+
+function GetText()
+    local s = string.format("%d秒自动关闭",AutoTips.interval/1000)
+    return s;
+end
+
+function GetTipsNum()
+    return AutoTips.GetTipsNum();
+end
+
+function SetActiveTimer()
+    AutoTips.SetActiveTimer();
+    page:SetValue("active_timer",AutoTips.TimerIsEnabled());
+end
+--page:SetValue("active_timer",AutoTips.TimerIsEnabled());
+
+GuideElfasset_table = {
+    name = "guideElf",
+    AssetFile="character/v6/01human/ElfTasha/ElfTasha.x",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+function GetTip()
+    return DS_Func_AutoTip(1);
+end
+]]></script>
+<aries:window title="提示" width="430" onhelp="" onclose="ClosePage" mode="lite">
+    <div style="position:relative;margin-left:-35px;margin-top:2px;width:200px;height:160px;">
+        <pe:canvas3d name="guideElf" style="margin-top:-10px;width:200px;height:200px;" RenderTargetSize="200" DefaultRotY="-1.35" DefaultCameraObjectDist = "5.0" IsInteractive="false" LookAtHeight="1.0" DefaultLiftupAngle="0.02"  miniscenegraphname='guideelf' value='<%=commonlib.serialize(Eval("GuideElfasset_table"))%>'/>    
+    </div>
+    <div style="margin-left:120px;base-font-size:15;font-size:15px;color:#ffffff;shadow-quality:8;shadow-color:#22222222;text-shadow:true;">    
+        <pe:if condition='<%=GetTip()~=nil%>' >
+            <div style="min-height:80px;margin-left:0px;width:285px;">
+                <%=GetTip().tip %>
+            </div>
+            <div style="margin-left:190px;margin:10px;width:70px;height:30px;">
+                <input type="button" onclick='doClick'  name='1' zorder="2" value='<%=GetTip().tipbtn%>' style="margin-top:0px;width:78px;height:30px;" class="default_btn_css"/>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=GetTip()==nil%>' >
+            <div style="min-height:80px;">现在没有新的提示信息哦！</div>
+        </pe:if>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,220 @@
+﻿<!-- "script/apps/Aries/Inventory/TabMountOthers.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TabMountOthers.lua"><![CDATA[
+local page = document:GetPageCtrl();
+
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/PetState.lua");
+--初始化
+MyCompany.Aries.Inventory.TabMountOthersPage.OnInit();
+local nid = MyCompany.Aries.Inventory.TabMountOthersPage.nid or page:GetRequestParam("nid");
+--hook 龙的语言
+MyCompany.Aries.Inventory.TabMountOthersPage.RegisterHook();
+
+local bean;
+if(nid)then
+    bean = MyCompany.Aries.Pet.GetBean(nid);
+end
+commonlib.echo("================TabMountOthersPage show pet data:")
+commonlib.echo(bean);
+commonlib.echo(MyCompany.Aries.Inventory.TabMountOthersPage.language);
+
+function GetNID()
+    return nid;
+end
+function GetName()
+    return "抱抱龙";
+end
+function GetHealth()
+    local health = "";
+    if(bean)then
+	    if(bean.health == 0)then
+		    health = "健康";
+--	    elseif(bean.health == 1)then
+--		    health = "生病";
+--	    elseif(bean.health == 2)then
+--		    health = "死亡";
+	    end
+	end
+    return health;
+end
+
+function GetLevel()
+    local level = 0;
+    if(bean)then
+        if(bean.level)then
+            level = bean.level;
+        end
+    end
+    --return level + 1;
+    return level;
+end
+
+local level = GetLevel();
+if(level < 10) then
+    level_number_margin_left = 23;
+elseif(level < 20) then
+    level_number_margin_left = 16;
+else
+    level_number_margin_left = 14;
+end
+
+health_icon = "";
+if(bean)then
+--    if(bean.health == 0)then
+	    health_icon = "Texture/Aries/Inventory/healthy_icon_32bits.png";
+--    elseif(bean.health == 1)then
+--	    health_icon = "Texture/Aries/Inventory/sick_icon_32bits.png";
+--    elseif(bean.health == 2)then
+--	    health_icon = "Texture/Aries/Inventory/dead_icon_32bits.png";
+--    end
+end
+
+function IsPanelOpen()
+    local s = MyCompany.Aries.Inventory.TabMountOthersPage.GetPanelState();
+    if(s == true) then
+        return true;
+    end
+    return false;
+end
+
+function OpenTakeCarePanel()
+    MyCompany.Aries.Inventory.TabMountOthersPage.SetPanelState(true);
+    page:Refresh(0.01);
+end
+
+function CloseTakeCarePanel()
+    MyCompany.Aries.Inventory.TabMountOthersPage.SetPanelState(false);
+    page:Refresh(0.01);
+end
+
+dsItems = Eval("dsItems") or {status = nil, };
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.TabMountOthersPage.DS_Func_Items(dsItems, index, page);
+end
+
+function GetMountPetIFrame_URL()
+    local health = 0;
+    local level = 0;
+    if(bean)then
+        health = bean.health or 0;
+        level = bean.level or 0;
+    end
+    local s = string.format("script/apps/Aries/Inventory/MountPetView.html?nid=%s",tostring(nid));
+    return s;
+end
+
+function HasLanguage()
+    if(MyCompany.Aries.Inventory.TabMountOthersPage.language and MyCompany.Aries.Inventory.TabMountOthersPage.language ~= "")then
+        return true;
+    end
+end
+function GetPetLanguage()
+    return MyCompany.Aries.Inventory.TabMountOthersPage.language or "";
+end
+function isNotDead_Func()
+--    if(bean)then
+--        if(bean.health ~= 2)then
+            return true;
+--        end
+--    end
+--    return false;
+end
+
+function OnClickOwnerInfo()
+    page:CloseWindow();
+    System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+end
+]]></script>
+<pe:editor style="margin:0px;padding:0px;background:;">
+<pe:if condition='<%=not IsPanelOpen()%>'>
+    <div style="float:right;width:150px;height:469px;background:;">
+    </div>
+</pe:if>
+    <div style="float:right;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+        <!--<div style="float:right;margin-left:50px;margin-top:15px;width:260px;height:60px;background:Texture/alphadot.png">-->
+        <div style="float:right;margin-left:50px;margin-top:15px;width:260px;height:48px;">
+            <div style="float:right;width:50px;height:16px;">
+            </div>
+            <br/>
+            <div style="float:right;width:50px;height:16px;">
+            </div>
+            <div style="float:right;width:110px;height:32px;">
+                <!--<iframe name="AriesMountPetName" src="script/apps/Aries/Inventory/MountPetName.html"/>-->
+                <div style="float:left;margin-top:-16px;margin-left:-40px;width:250px;background:;text-align:center;color:#FFFFFF;">
+                    <aries:mountpetname nid='<%=GetNID()%>' style="color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"/>
+                    <input style="margin-left:0px;margin-top:-8px;width:68px;height:35px;background:url(Texture/Aries/Friends/QuickLookProfile_32bits.png#0 0 68 35);" type="button" name="Police" value="" tooltip="主人资料"
+                        onclick="OnClickOwnerInfo()" />
+                    <pe:name nid='<%=GetNID()%>'  style="margin-left:0px;color:#FFFFFF;font-size:14;font-weight:bold;" customformat="%s的抱抱龙" linked="false"/>
+                    <!--text-align:center;-->
+                    
+                    
+                </div>
+            </div>
+        </div>
+        <div style="float:right;margin-left:1px;margin-top:8px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="MyCompany.Aries.Inventory.TabMountOthersPage.ClosePage();" value=""/>
+        </div>
+        <div style="float:right;margin-left:-30px;margin-top:8px;width:308px;height:350px;">
+            <iframe src='<%=GetMountPetIFrame_URL()%>'/>
+            <pe:if condition='<%=HasLanguage()%>'>
+            <img  style="float:left;padding:15px;text-align:left;margin-left:50px;margin-top:-390px;width:200px;height:90px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41)">
+            </img>
+            <div  style="float:left;padding:15px;text-align:left;font-size:12;margin-left:50px;margin-top:-390px;width:200px;height:90px;">
+            <%=GetPetLanguage()%>
+            </div>
+            </pe:if>
+        </div>
+        <pe:if condition='<%=isNotDead_Func()%>'>
+        <div style="margin-top:14px;">
+            <pe:if condition='<%=not IsPanelOpen()%>'>
+                <input type="button" style="margin-left:100px;width:153;height:49px;background:url(Texture/Aries/Inventory/CareForOthers_32bits.png#0 0 153 49)" 
+                            onclick="OpenTakeCarePanel" name="btn_opentakecare" value=""/>
+            </pe:if>
+            <pe:if condition='<%=IsPanelOpen()%>'>
+                <input type="button" style="margin-left:100px;width:153;height:49px;background:url(Texture/Aries/Inventory/CareForOthers_32bits.png#0 0 153 49)" 
+                            onclick="CloseTakeCarePanel" name="btn_closetakecare" value=""/>
+            </pe:if>
+        </div>
+        </pe:if>
+    </div>
+<pe:if condition='<%=IsPanelOpen()%>'>
+    <div style="float:right;width:360px;height:410px;margin-left:-8px;margin-top:30px;">
+        <div style="float:right;width:322px;height:410px;background:url(Texture/Aries/Inventory/right_panel2_32bits.png# 16 0 48 436: 20 64 20 64);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#3 3 72 68:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick = "MyCompany.Aries.Inventory.TabMountOthersPage.OnClickItem"/>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </div>
+</pe:if>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

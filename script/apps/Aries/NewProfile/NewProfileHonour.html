@@ -1,0 +1,48 @@
+﻿ <!-- "script/apps/Aries/NewProfile/NewProfileHonour.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NewProfileHonour, by zrf, 2011/1/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileHonour.lua");
+local page = document:GetPageCtrl();
+MyCompany.Aries.NewProfile.NewProfileHonour.Init();
+function Confirm()
+    page:CloseWindow();
+end 
+
+]]></script>
+
+<div style="height:300px;">
+    <pe:gridview DataSource="<%=MyCompany.Aries.NewProfile.NewProfileHonour.DS_Func%>" name="Item_Medals" 
+        VerticalScrollBarStep="48" CellPadding="1"  DefaultNodeHeight = "48" ItemsPerLine="5" AllowPaging="false" pagesize="25">
+        <Columns>
+            <div style="padding-top:4px;padding-left:8px;width:58px;height:58px;background:url(Texture/Aries/NewProfile/bg_equip_32bits.png:10 10 10 10);">
+
+                <pe:if condition='<%=Eval("isempty")%>'>
+                    <img src='<%=Eval("slot")%>' style="margin-left:-3px;width:48px;height:48px;"/>
+                </pe:if>
+                <pe:if condition='<%=Eval("isnotempty")%>'>
+                    <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" style="margin-left:-3px;width:48px;height:48px;"/>
+                </pe:if>
+                <input type="button" zorder=2 tooltip='<%=Eval("tooltip")%>' style="margin-left:8px;margin-top:-64px;width:48px;height:64px;background:;"/>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>无徽章</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:45px;margin-top:20px;">数据加载中，请稍等......</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+
+</div>
+
+
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!-- "script/apps/Aries/NPCs/FriendsShipPark/30182_PopularityMedalDisplayBox.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30182_PopularityMedalDisplayBox by Andy,LiXizhi 2009/12/27</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30182_PopularityMedalDisplayBox.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+MyCompany.Aries.Quest.NPCs.PopularityMedalDisplayBox.OnInit()
+
+popularity = MyCompany.Aries.Quest.NPCs.PopularityMedalDisplayBox.GetPopularity()
+
+function OnClose()
+    page:CloseWindow();
+end
+
+function DS_Func_PopMedal(index)
+    return MyCompany.Aries.Quest.NPCs.PopularityMedalDisplayBox.DS_Func_PopMedal(index);
+end
+
+function HasMedal(index)
+    if(index<=0) then
+        return true
+    end
+    local medal = DS_Func_PopMedal(index);
+    if(medal) then
+        return hasGSItem(medal.gsid);
+    end
+end
+
+function GetTooltip(index)
+    local medal = DS_Func_PopMedal(index);
+    if(medal) then
+        if(HasMedal(index-1)) then
+            return string.format("人气值达到%d", medal.req_pop)
+        end
+    end
+end
+]]></script>
+<div style="width:655px;height:512px;background:url(texture/Aries/Quest/MedalStatus_panel_bg2_32bits.png: 60 60 60 60)">
+    <div style="position:relative;margin-left:600px;margin-top:-10px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose();" value=""/>
+    </div>
+    <img style="margin-left:210px;margin-top:20px;width:256px;height:64px;background:url(Texture/Aries/Quest/Popularity/panel_title_32bits.png)" />
+    <div style="margin-left:50px;margin-top:30px;height:235px;">
+        <pe:gridview style="height:235px;" name="popularity_medal_gridview" CellPadding="0" DataSource="<%=DS_Func_PopMedal%>" ItemsPerLine="4" >
+            <Columns>
+                <div style="float:left;width:137px;">
+                    <img style="margin-left:20px;width:128px;height:32px;" src='<%=string.format("Texture/Aries/Quest/Popularity/PopName_level%s_32bits.png", Eval("index"))%>'/><br />
+                    <div style="width:128px;height:128px;margin-left:6px;margin-top:10px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+                        <aries:questobjectivestatus gsids='<%=tostring(Eval("gsid"))%>'
+                            conjunction = "or"
+                            on_bg = '<%=string.format("texture/Aries/Quest/Popularity/PopMedal_level%d.png;0 0 80 100", Eval("index")) %>'
+                            off_bg = '<%=string.format("texture/Aries/Quest/Popularity/PopMedal_level%d_grey.png;0 0 80 100", Eval("index")) %>'
+                            off_tooltip = '<%=GetTooltip(Eval("index"))%>'
+                            style="left:28px;top:15px;width:80px;height:100px;"/>
+                    </div>
+                    <div style="margin-left:30px;margin-top:10px;">
+                        <div style="float:left;width:93px;">
+                            <pe:if condition='<%=HasMedal(Eval("index")-1)%>'>
+                                <pe:if condition='<%=HasMedal(Eval("index"))%>'>
+                                    <img style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)"/>
+                                </pe:if>
+                                <pe:if condition='<%=not HasMedal(Eval("index"))%>'>
+                                    <a style="background:;" param1='<%=Eval("index")%>' onclick="MyCompany.Aries.Quest.NPCs.PopularityMedalDisplayBox.GetMedal">
+                                        <pe:if condition='<%=Eval("index") == 1%>'>
+                                            <input type="button" alwaysmouseover="true" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/FirstObtain_32bits.png#0 0 82 36)"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=Eval("index") > 1%>'>
+                                            <input type="button" alwaysmouseover="true" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)"/>
+                                        </pe:if>
+                                    </a>
+                                </pe:if>    
+                             </pe:if>   
+                        </div>
+                    </div>
+                </div>
+            </Columns>
+        </pe:gridview>
+    </div>
+    <div style="margin-left:190px;width:256px;height:64px;background:url(texture/Aries/Quest/Doctor/YellowShowBox_32bits.png)">
+        <div style="color:#339900;padding-left:30px;padding:8px;font-size:14px;font-weight:bold;">
+        你目前的人气值为<div style="float:left;color:#FF0000;margin-left:-4px;margin-right:-4px;"><%=MyCompany.Aries.Quest.NPCs.PopularityMedalDisplayBox.GetPopularity()%></div>了！
+        </div>
+    </div>
+    <div style="margin-left:75px;margin-top:-20px;width:600px;height:64px;color:#FFFFFF;font-size:14px;font-weight:bold;">
+        在你的资料面板中，有投票按钮，其他哈奇点击后就可以为你增加人气值哦！
+    </div>
+  </div>
+</pe:mcml>
+</body>
+</html>

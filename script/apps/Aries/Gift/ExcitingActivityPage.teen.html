@@ -1,0 +1,413 @@
+<!-- "script/apps/Aries/Gift/ExcitingActivityPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Gift/ExcitingActivityPage.lua");
+local ExcitingActivityPage = commonlib.gettable("MyCompany.Aries.Gift.ExcitingActivityPage");
+ExcitingActivityPage.OnInit();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+
+function ClosePage()
+	if (not System.User.pop_UpdateLog) then
+		System.User.pop_UpdateLog = true;
+		NPL.load("(gl)script/apps/Aries/Login/ClientUpdaterPage.lua");
+		local ClientUpdaterPage = commonlib.gettable("MyCompany.Aries.Login.ClientUpdaterPage");
+		local _verbuild = ClientUpdaterPage.GetClientVersion();
+		local _ver = string.match(_verbuild,"(.*)Build");
+
+		local _key = string.format("MyCardsManager.pop_UpdateLog_%s",System.User.nid);
+		local Player = commonlib.gettable("MyCompany.Aries.Player");
+		Player.SaveLocalData(_key, _ver);	
+	end
+    pageCtrl:CloseWindow();
+end
+
+function DS_Func_gifts(index)
+    return ExcitingActivityPage.DS_Func_gifts(index)
+end
+
+function GetLoots()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node and node.d_exname=="npcact") then
+        local loots = {};  
+        local k,v;
+        for k,v in ipairs(node.rewards) do
+            local gsid = tonumber(v);
+            if (gsid>0) then
+                table.insert(loots,{gsid = gsid,});
+            end
+        end
+        return loots;
+
+    else
+        if(node and node.sum_rewards)then
+            local loots = {};
+            local arr = commonlib.split(node.sum_rewards,";")
+            local k,v;
+            for k,v in ipairs(arr) do
+                local temp = commonlib.split(v,",")
+                local gsid = tonumber(temp[1]);
+                local cnt = temp[2];
+                table.insert(loots,{gsid = gsid,cnt = cnt});
+            end
+            return loots;
+        end
+    end
+end
+
+ExcitingActivityPage.loots = GetLoots();
+_node = ExcitingActivityPage.GetSelectedNode()
+if (_node and not _node.d_exname) then
+    CommonClientService.Fill_List(ExcitingActivityPage.loots,12);
+end
+
+function DS_Func_loots(index)
+    if(not ExcitingActivityPage.loots)then return 0 end
+	if(index == nil) then
+		return #(ExcitingActivityPage.loots);
+	else
+		return ExcitingActivityPage.loots[index];
+	end
+end
+
+function DS_Func_npcloots(index)
+    if(not ExcitingActivityPage.loots)then return 0 end
+	if(index == nil) then
+		return #(ExcitingActivityPage.loots);
+	else
+		return ExcitingActivityPage.loots[index];
+	end
+end
+
+function IsNPCact_hasRewards()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node and node.d_exname=="npcact") then
+        if (#(ExcitingActivityPage.loots)>0) then
+            return true
+        else
+            return false
+        end
+    end    
+end
+
+function NPCactCanJoin()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node and node.d_exname=="npcact") then
+        if (node.npcid ~= -1) then
+            return true
+        end
+        return false
+    end
+end
+
+function DoSelected(index)
+    ExcitingActivityPage.DoSelected(index);
+end
+function IsSelected(index)
+    if(ExcitingActivityPage.selected_index == index)then
+        return true;
+    end
+end
+
+function DoJoin()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node and node.d_exname=="npcact") then
+        if (node.keywords) then
+            NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+            local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");		            
+            LobbyClientServicePage.MenuClick({Name = node.keywords});    
+            ClosePage();  
+        elseif (node.npcid ~= -1) then
+	        local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+            WorldManager:GotoNPCAndDialog(node.npcid);
+	        ClosePage();            
+        end
+    end
+end
+
+function DoOpen()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node.d_exname) then
+        if(node.d_exname == "media" or node.d_exname == "sun_gift" or node.d_exname == "moon_gift")then        
+            local code_text = pageCtrl:GetValue("code_text_"..node.d_exname);	
+	        local len = string.len(code_text);
+	        if(len == 0 ) then
+                _guihelper.MessageBox("激活码不能为空！");
+                return
+	        end            
+            if(node.d_exid)then
+                ItemManager.UseVoucherCode(code_text,node.d_exid,function(msg)
+                    if(msg.issuccess)then
+                        pageCtrl:Refresh(0);
+                    else
+                        if(msg.errorcode == 421)then
+                            _guihelper.MessageBox("无效的激活码！");
+                        else
+                            _guihelper.MessageBox("领取失败！");
+                        end            
+                    end
+                end);
+            end
+        elseif(node.d_exname == "client")then                      
+            if(node.d_exid)then
+	            ItemManager.ExtendedCost(node.d_exid,nil,nil,function(msg)
+                    if(msg.issuccess)then
+                        pageCtrl:Refresh(0);
+                    else
+                        _guihelper.MessageBox("领取失败！");
+                    end
+                end)        
+            end
+        end
+    else 
+        if (node.d_recharge) then 
+            NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+            local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+            PurchaseMagicBean.Show()         
+        else
+            ExcitingActivityPage.DoOpen()
+        end
+    end
+end
+
+function CanOpen()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if(node)then
+        if(node.act_gsid)then
+            if(hasGSItem(node.act_gsid))then
+                return false;
+            end
+        end        
+        if(node.temp_opened)then
+            return false;
+        end
+        return true;
+    end   
+end
+
+function GetValue(key)
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if(node)then
+        if (key=="d_desc") then
+            local _str = string.gsub(node.d_desc,"\r","")
+            local _str = string.gsub(_str,"\n","</div><div>")
+            local _str = string.format("<div>%s</div>",_str);
+            return _str;
+        else
+            return node[key];
+        end
+    end
+end
+
+function IsExtraGift()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node.d_exname) then
+        return true
+    end
+    return false
+end
+
+function GetBtnValue()
+    local node = ExcitingActivityPage.GetSelectedNode();
+    if (node.d_recharge) then
+        return "充值领奖"
+    end
+    return "领取奖励"
+end
+]]>
+</script>
+<aries:window width="650" height="400" title="精彩活动" icon="Texture/Aries/Common/ThemeTeen/ElfGift/elf_ico_32bits.png" isdeepbg="true" onclose="ClosePage()">
+   <div class="border_bg1_css" style="float:left;width:220px;height:365px;margin-left:5px;margin-top:30px;">
+        <pe:gridview name="grid_view_gifts" style="margin-top:5px;" DataSource="<%=DS_Func_gifts%>" ItemsPerLine="1" AllowPaging="true" pagesize="8">
+	        <Columns>
+                <div style="margin-left:5px;">
+                    <pe:if condition='<%=IsSelected(Eval("index"))%>'>
+                        <input type="button" value='<%=Eval("d_title")%>'  class="highlight_btn_css" style="width:210px;height:40px;text-align:center;"/>
+                    </pe:if>
+                    <pe:if condition='<%=not IsSelected(Eval("index"))%>'>
+                        <input type="button" name='<%=Eval("index")%>' value='<%=Eval("d_title")%>' onclick="DoSelected" class="quest_btn2_css" style="width:210px;height:40px;text-align:center;"/>
+                    </pe:if>
+                </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+                 <PagerSettings Position="Bottom" style="margin-left:5px;margin-top:-5px;width:260px;height:25px;"/>
+				    <PagerTemplate AutoHidePager="true">
+					    <form>
+						    <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						    <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                    </form>
+				    </PagerTemplate>
+        </pe:gridview>  
+   </div>
+   <div class="border_bg1_css" style="float:left;width:420px;height:365px;margin-left:2px;margin-top:30px;padding:10px;color:#ffffff">
+       <pe:if condition='<%=GetValue("d_isUpdateDoc")==1%>'>
+             <%=MyCompany.Aries.Desktop.HelpMainList.GetFrame(GetValue("d_url")) %>
+       </pe:if>
+       <pe:if condition='<%=GetValue("d_isUpdateDoc")==0%>'>
+           <div style="margin-top:10px;">
+               <div style="float:left;font-weight:bold;color:#ffffff">活动名称:</div>
+               <div style="float:left;color:#ffea8f"><%=GetValue("d_name")%></div>
+           </div>
+           <pe:if condition='<%=not IsExtraGift()%>' >
+               <div style="margin-top:10px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动时间:</div>
+                   <div style="float:left"><%=GetValue("d_time")%></div>
+               </div>
+               <div style="margin-top:10px;height:80px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动描述:</div>
+                   <div style="float:left"><%=GetValue("d_desc")%></div>
+               </div>
+           </pe:if>
+
+            <pe:if condition='<%=GetValue("d_exname")== "media"%>'>                
+                <div style="margin-top:10px;">媒体礼包领取方式：</div>
+                <div style="margin-top:5px;">
+                    <a href="http://www.61.com/haqi2/active/16170.html">点击这里</a>
+                    选择任一媒体网站领取，将生成的礼包激活码复制粘贴至下方输入框内，点击领取即刻尊享100元豪礼！<span style="margin-let:5px;">注：每个媒体的激活码数量有限哦，猎人们赶快行动了！</span></div>
+                <div style="margin-top:10px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_media" enable_ime="false"  style="float:left;width:260px;height:23px;" />                    
+                </div>               
+            </pe:if>
+            <pe:if condition='<%=GetValue("d_exname") == "sun_gift"%>'>                
+                <div style="margin-top:10px;">快乐分享包领取方式：</div>
+                <div style="margin-top:5px;">
+                    提示：请参阅官网活动公告，会有领取连结喔。  <a href="http://www.primo168.tw/MAGIC/#view%2Findex.aspx%3Fpage%3D1895">进入『快乐分享包』领取页面</a>
+                </div>
+                <div style="margin-top:10px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_sun_gift" enable_ime="false"  style="float:left;width:260px;height:23px;" />                    
+                </div>
+            </pe:if>
+
+            <pe:if condition='<%=GetValue("d_exname") == "moon_gift"%>'>                
+                <div style="margin-top:10px;">月亮礼包领取方式：</div>
+                <div style="margin-top:5px;">
+                    提示：请到相关网站领取激活码。
+                </div>
+                <div style="margin-top:10px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_moon_gift" enable_ime="false"  style="float:left;width:260px;height:23px;" />
+                </div>
+            </pe:if>
+
+            <pe:if condition='<%=GetValue("d_exname") == "client"%>'>                
+                <pe:if condition='<%=System.options.IsWebBrowser%>'>
+                    <div style="margin-top:10px;">温馨提示：</div>
+                    <div style="margin-top:5px;">你现在使用的是网页版，登录进行游戏有时会存在等待加载的情况，我们建议您下载微型客户端，能更好的保证游戏的流畅性。</div>
+                    <div style="margin-top:5px;">首次使用微端登录后即可领取“微端登录大礼包哦”，赶快行动吧。</div>
+                    <div style="margin-top:10px;">
+                        <input type="button" value="下载微型客户端" onclick="OnClickDownloadClient" style="width:120px;margin-left:5px;margin-top:2px;" class="highlight_btn_css"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=not System.options.IsWebBrowser%>'>
+                    <div style="margin-top:10px;">
+                        <div style="float:left;margin-top:2px;">首次使用微端登录后即可领取“微端登录大礼包哦”，赶快行动吧。</div>
+                    </div>                    
+                </pe:if>
+            </pe:if>
+
+           <pe:if condition='<%=GetValue("d_exname")== "npcact"%>' >
+               <div style="margin-top:10px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动时间:</div>
+                   <div style="float:left"><%=GetValue("d_time")%></div>
+               </div>
+               <div style="margin-top:10px;height:80px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动描述:</div>
+                   <div style="float:left"><%=GetValue("d_desc")%></div>
+               </div>
+           </pe:if>
+
+           <pe:if condition='<%=GetValue("d_exname")~= "npcact"%>' >
+               <div style="margin-top:10px;height:100px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动奖励:</div>
+                   <div style="float:left">
+                                                                                                                   <div style="position:relative;width:400px;height:400px;">
+                        <pe:gridview name="grid_view_loots" style="margin-top:5px;" DataSource="<%=DS_Func_loots%>" ItemsPerLine="6" AllowPaging="true" pagesize="12">
+	                        <Columns>
+                                <div style="margin-left:0px;">
+                                    <div style="width:52px;height:52px;padding:4px;" class="block">
+                                        <pe:item gsid='<%=Eval("gsid") %>' ShowCount='<%=Eval("cnt") %>'  isclickable="false" showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                                    </div>
+                                </div>
+	                        </Columns>
+	                        <EmptyDataTemplate>
+                                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                                 <PagerSettings Position="Bottom" style="margin-left:5px;margin-top:-205px;width:260px;height:25px;"/>
+				                    <PagerTemplate AutoHidePager="true">
+					                    <form>
+						                    <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							                    <input type="button" name="page" class="pagerbuttontext" /> 
+						                    <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                                    </form>
+				                    </PagerTemplate>
+                        </pe:gridview>  
+                    </div>
+               
+                   </div>
+               </div>
+               <div style="margin-left:310px;margin-top:30px;">
+                   <pe:if condition='<%=CanOpen()%>'>
+                        <input type="button" style="width:80px;" class="highlight_btn_css" value='<%= GetBtnValue() %>' onclick="DoOpen"/>
+                   </pe:if>
+                   <pe:if condition='<%=not CanOpen()%>'>
+                        <input type="button" style="width:80px;" enabled="false" class="highlight_btn_css" value='<%= GetBtnValue() %>' />
+                   </pe:if>
+               </div>
+           </pe:if>
+
+           <pe:if condition='<%=GetValue("d_exname")== "npcact" %>' >
+               <pe:if condition='<%=IsNPCact_hasRewards()%>' >
+               <div style="margin-top:10px;height:100px;">
+                   <div style="float:left;font-weight:bold;color:#ffffff">活动奖励:</div>
+                   <div style="float:left">
+                        <div style="position:relative;width:400px;height:400px;">
+                        <pe:gridview name="grid_view_npcloots" style="margin-top:5px;" DataSource="<%=DS_Func_npcloots%>" ItemsPerLine="6" AllowPaging="false" pagesize="6">
+	                        <Columns>
+                                <div style="margin-left:0px;">
+                                    <div style="width:52px;height:52px;padding:4px;" class="block">
+                                        <pe:item gsid='<%=Eval("gsid") %>' isclickable="false" showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                                    </div>
+                                </div>
+	                        </Columns>
+	                        <EmptyDataTemplate>
+                                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>                                 
+                        </pe:gridview>  
+                    </div>               
+                   </div>
+               </div>
+               </pe:if>
+               <div style="margin-left:310px;margin-top:30px;">
+                   <pe:if condition='<%=NPCactCanJoin()%>'>
+                        <input type="button" style="width:80px;" class="highlight_btn_css" value='参加活动' onclick="DoJoin"/>
+                   </pe:if>
+               </div>
+           </pe:if>
+       </pe:if>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/MagicCardUnpackMotion.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/ide/Director/Movie.lua");
+local Movie = commonlib.gettable("Director.Movie");
+NPL.load("(gl)script/ide/Director/CardMovieHelper.lua");
+local CardMovieHelper = commonlib.gettable("Director.CardMovieHelper");
+NPL.load("(gl)script/apps/Aries/Inventory/Cards/MagicCardShopPage.lua");
+local MagicCardShopPage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MagicCardShopPage");
+local page = document:GetPageCtrl();
+function LoadMovieSource()
+     local total_time = 0;
+	local all_str="";
+    local RenderParent="movie_item_parent";
+    local AssetFile="script/apps/Aries/Animation/MagicCardUnpackContent.html"; 
+	local card_width = 113;
+    local card_height = 172;
+    local dx = 9;
+    local duration = 400;
+    local step = 150;
+	local k,v;
+	local len = #MagicCardShopPage.card_source_list;
+    local total_time = 0;
+
+    local page_width = 720;
+    local page_height = 130;
+    local end_x = 80;
+	local end_y = 300;
+    local _, __, screen_width, screen_height = ParaUI.GetUIObject("root"):GetAbsPosition();
+    end_y = (screen_height - page_height  - card_height) / 2 + 60;
+    end_y = math.max(end_y,50);
+	for k,v in ipairs(MagicCardShopPage.card_source_list) do
+		local zorder = 1000 - k;
+        local from_x = len * (card_width + dx);
+		local to_x = (k - 1) * (card_width + dx);
+        
+		local from_y = 0;
+		local to_y = 0;
+
+		
+		local start_time = k * step;
+		local end_time = start_time + duration;
+		local wait_time = end_time + duration * 8;
+		local end_time_2 = wait_time + duration;
+        total_time = end_time_2;
+
+        local str_1 = string.format([[<Frame Time="%d" Visible="true" X="%d" Y="%d" ScaleX="1" ScaleY="1" Width="%d" Height="%d" tag="%d" AssetFile="%s" ZOrder="%d"  FrameType="easeInQuad"/>]],start_time,from_x,from_y,card_width,card_height,k,AssetFile,zorder);
+        local str_2 = string.format([[<Frame Time="%d" Visible="true" X="%d" Y="%d" ScaleX="1" ScaleY="1" Width="%d" Height="%d" tag="%d" AssetFile="%s" ZOrder="%d" FrameType="easeInQuad"/>]],end_time,to_x,to_y,card_width,card_height,k,AssetFile,zorder);
+        local str_3 = string.format([[<Frame Time="%d" Visible="true" X="%d" Y="%d" ScaleX="1" ScaleY="1" Width="%d" Height="%d" tag="%d" AssetFile="%s" ZOrder="%d" />]],wait_time,to_x,to_y,card_width,card_height,k,AssetFile,zorder);
+        local str_4 = string.format([[<Frame Time="%d" Visible="false" X="%d" Y="%d" ScaleX="1" ScaleY="1" Width="%d" Height="%d" tag="%d" AssetFile="%s" ZOrder="%d" FrameType="easeInQuad"/>]],end_time_2,end_x,end_y,card_width,card_height,k,AssetFile,zorder);
+		local s = string.format([[<MotionLine TargetType="Mcml" RenderParent="%s" DisableAnim="true">%s%s%s%s</MotionLine>]],RenderParent,str_1,str_2,str_3,str_4);
+		all_str = all_str .. s;
+	end
+
+	 all_str = string.format([[
+     <Motions>
+        <Motion Duration="%d" >
+             %s
+        </Motion>
+    </Motions>
+    ]],total_time,all_str);
+	return all_str;
+end
+function PlayCallback()
+end
+function StopCallback()
+	local _this = ParaUI.GetUIObject("MagicCardShopPage.MotionContainer");
+	if(_this:IsValid()) then
+        _this.visible = false;
+    end        
+end
+function DoPlay()
+    local player = Movie.CreateOrGetPlayer("card_movie_player");
+    player.runtime_datasource = MagicCardShopPage.card_source_list;
+    page:CallMethod("card_movie_player","DoPlay");
+end
+]]></script>
+<pe:container alignment="_ct"  style="margin-left:-360px;margin-top:-120px;width:720px;height:130px;background:;">
+    <div style="width:720px;height:130px;">
+    <pe:div name="movie_item_parent" style="position:relative;width:720px;height:130px;margin-left:10px;margin-top:0px;background:;" />
+    <aries:movie name="card_movie_player" begin="PlayCallback" end="StopCallback" DataSource="<%=LoadMovieSource()%>" /> 
+    <%=DoPlay()%>
+    </div>
+</pe:container>   
+</pe:mcml> 
+</body>
+</html>

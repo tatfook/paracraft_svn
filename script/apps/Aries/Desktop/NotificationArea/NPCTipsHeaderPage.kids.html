@@ -1,0 +1,28 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationArea/NPCTipsHeaderPage.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="NPCTipsPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+NPCTipsPage = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.NPCTipsPage");
+tip = NPCTipsPage.GetCurLoopTip() or {is_empty=true};
+
+function OnClickTip()
+    NPCTipsPage.PopTip(true);
+end
+]]></script>
+<div style="width:260px;height:64px;" onclick="OnClickTip" tooltip="点击查看">
+    <div style="float:left;">
+        <img src='<%=(tip.npc_icon or "Texture/Aries/NPCs/Portrait/common_tip_elf_32bits.png") %>' style="width:64px;height:64px"/>
+    </div>
+    <div class="titlebar" style="float:left;margin-top:8px;margin-left:-18px;padding-left:20px;height:48px;">
+        <div style="float:left;margin-top:3px;"><img uiname="NPCTipsHeaderPage_questicon" src="Texture/Aries/HeadOn/exclamation.png;0 0 13 51" style="width:10px;height:40px;" /></div>
+        <div style="float:left;margin-left:3px;margin-top:10px;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:#fcf73c;shadow-color:#8000468e;text-shadow:true">
+            <%=tip.title or "小精灵提示" %>
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

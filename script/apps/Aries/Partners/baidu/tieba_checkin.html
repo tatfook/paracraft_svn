@@ -1,0 +1,115 @@
+<!-- "script/apps/Aries/Partners/baidu/tieba_checkin.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2012.10.25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="tieba_checkin.lua"><![CDATA[
+local Platforms = commonlib.gettable("MyCompany.Aries.Partners.Platforms");
+local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+tieba_checkin = commonlib.gettable("MyCompany.Aries.Partners.baidu.tieba_checkin");
+tieba_checkin.OnInit();
+
+function OnClosePage()
+    Page:CloseWindow();
+end
+
+
+if(System.options.version == "kids") then
+    tieba_checkin.url = ExternalUserModule:GetConfig().tieba_url or "http://tieba.baidu.com/f?kw=%C4%A7%B7%A8%B9%FE%C6%E6";
+    tieba_checkin.title = "魔法哈奇";
+else
+    tieba_checkin.url = "http://tieba.baidu.com/f?kw=%C4%A7%B7%A8%B9%FE%C6%E62";
+    tieba_checkin.title = "魔法哈奇2";
+end
+-- tieba_checkin.url_match = "^http://tieba%.baidu%.com/f%?kw=%%C4%%A7%%B7%%A8%%B9%%FE%%C6%%E6";
+tieba_checkin.url_match = "^"..tieba_checkin.url:gsub("([%?%%%.])", "%%%1")
+
+PageState = "unloaded";
+
+
+function OnOpenExternalPage()
+    ParaGlobal.ShellExecute("open", tieba_checkin.url, "", "", 1);
+end
+
+function OnGetReward()
+   if(not tieba_checkin.IsRewardReceived()) then
+        Page:Refresh();
+        --Page:CallMethod("mybrowser","Refresh");
+   else
+        OnClosePage();
+        _guihelper.MessageBox("你今天已经领过奖励了， 明天再来吧");
+   end 
+end
+
+function OnPageChanged(url)
+    if(PageState == "unloaded") then
+        PageState = "authenticating";
+        Page:SetValue("tips", PageState);
+    end
+    
+    NPL.load("(gl)script/ide/timer.lua");
+
+    if(tieba_checkin.mytimer) then 
+        tieba_checkin.mytimer:Change();
+    end
+    tieba_checkin.mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+	    if(not tieba_checkin.IsRewardReceived()) then
+            if(url:match(tieba_checkin.url_match)) then
+                local content = Page:CallMethod("mybrowser","GetContent", "")
+                --echo(content)
+                
+                if(content) then 
+                    if(not content:match("j_cansign") and content:match("_signed")) then
+                        local ItemManager = Map3DSystem.Item.ItemManager;
+                        ItemManager.ExtendedCost( tieba_checkin.reward_exid, nil, nil, function(msg)end, function(msg)
+		                    if(msg and msg.issuccess == true)then
+                                OnClosePage();
+			                    _guihelper.MessageBox("恭喜! 你已经签到成功了. 奖励已发，明天记得再来哦~");
+		                    end
+	                    end);
+                    end
+                end
+            end
+        end
+    end})
+    tieba_checkin.mytimer:Change(2000);
+end
+
+function OnClickTieba()
+    
+end
+]]></script>
+<div class="window" style="width:980px;height:560px;" valign="center" align="center">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" ><%=format("《%s》百度贴吧 签到", tieba_checkin.title) %></div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClosePage" class="closewindow"/>
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div style="margin-left:-1px;margin-bottom:2px;height:25px;padding-left:10px;padding-top:2px;" width="100%" class="inborder2">
+            <pe:powerpoint name="tips" ClickThrough="true" value="unloaded">
+	            <div name="unloaded">
+                    内置IE浏览器请放心登录, 如果没有页面弹出请点击<a name="share" href="http://tieba.baidu.com/f?kw=%C4%A7%B7%A8%B9%FE%C6%E6">这里</a>
+	            </div>
+                <div name="authenticating">
+                    <%=format("快来增加《%s》贴吧的排名吧！", tieba_checkin.title) %>点击网页<span style="color:#a03030">右边的签到</span>按钮！ <input type="button" style="margin-top:-1px;font-size:12px;height:24px;font-weight:bold" class="button_highlight" value="我已签到, 领取奖励!" onclick="OnGetReward"/>
+                    <div style="float:left;width:150px;" align="right">
+                        <input type="button" style="margin-top:-1px;font-size:12px;font-weight:bold;width:130px;height:24px;" class="button_highlight" value="用浏览器打开贴吧" onclick="OnOpenExternalPage"/>
+                    </div>
+	            </div>
+            </pe:powerpoint>
+        </div>
+        <div width="100%" height="100%" class="inborder2" style="margin-top:0px;padding:2px;margin-bottom:3px;">
+            <div style="position:relative;text-align:center;margin-top:50px" >
+                正在打开《魔法哈奇》百度贴吧, 请耐心等待...
+            </div>
+            <pe:webbrowser name="mybrowser" url='<%=tieba_checkin.url%>' onchange="OnPageChanged"></pe:webbrowser>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

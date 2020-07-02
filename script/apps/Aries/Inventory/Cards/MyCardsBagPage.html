@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/MyCardsBagPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"  refresh="true"><![CDATA[
+--NPL.load("(gl)script/apps/Aries/Inventory/Cards/MyCardsManager.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+local pageCtrl = document:GetPageCtrl();
+MyCardsManager.Set_MyCardsBagPageCtrl(pageCtrl)
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+function DS_Func_Aries_Items(index)
+    return MyCardsManager.Bag_DS_Func_Items(index);
+end
+function doClick(gsid)
+    gsid = tonumber(gsid)
+    MyCardsManager.DoRemove(gsid)
+end
+function getCardTip(templategsid)
+    templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d",templategsid);
+end
+function isOpenedBag(index)
+    index = tonumber(index);
+    if(index and index <= MyCardsManager.canEquipNum)then
+        return true;
+    end
+end
+function getIcon(gsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s;0 0 44 44",gsItem.descfile or "");
+        return s;
+    end
+end
+]]></script>
+<div>
+<div style="margin-left:82px;margin-top:0px;width:180px;height:36px;background:url(Texture/Aries/Combat/BagPack/Card/TitleCombatBag_32bits.png#0 0 180 36)">
+</div>
+<div style="margin-left:20px;margin-top:10px;width:343px;height:300px;background:url(Texture/Aries/Combat/BagPack/Card/deep_blue_bg_32bits.png#0 0 206 190:60 60 60 60)">
+    <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="margin-left:10px;margin-top:20px;" CellPadding="0"  DefaultNodeHeight = "55" ItemsPerLine="6" AllowPaging="false" pagesize="30">
+        <Columns>
+            <div style="margin-left:5px;padding-top:2px;padding-left:2px;width:48px;height:48px;background:url(Texture/Aries/Combat/BagPack/Card/bg3_32bits.png#0 0 40 41:15 15 15 15)">
+                <div>
+                    <img src='<%=getIcon(Eval("gsid")) %>' style="width:44px;height:44px;" />
+                    <pe:if condition='<%=Eval("gsid") ~= 0%>'>
+				        <input type="button" zorder="1" style="margin-left:0px;margin-top:-44px;width:44px;height:44px;background:;" name= '<%=Eval("gsid") %>' onclick="doClick"   tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="20" tooltip_offset_y="-45"/>
+                    </pe:if>
+                </div>
+                <pe:if condition='<%=not isOpenedBag(Eval("index"))%>'>
+                    <img zorder="2" style="margin-left:-2px;margin-top:-46px;width:48px;height:48px;background:url(Texture/Aries/Combat/BagPack/Card/bg3_gray_32bits.png#0 0 40 41:15 15 15 15);" />
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:70px;margin-top:30px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:95px;margin-top:-90px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+	            <div style="float:right;margin-top:4px;width:64px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="margin-left:20px;margin-top:10px;width:343px;height:98px;font-size:12;background:url(Texture/Aries/Combat/BagPack/Card/info_bg_32bits.png#0 0 212 98 :50 40 50 40)">
+<div style="padding:10px;">
+<div>点击【携带】可把卡片放入战斗背包，战斗时使用</div>
+<br />
+<div>点击【补充】可增加耐久度，耐久度为0时无法战斗</div>
+<br />
+<div>点击【收回】可把卡片从战斗背包中移出来</div>
+</div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,118 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30341_HaqiGroupSettingPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function ClosePage()
+    if(pageCtrl)then
+        pageCtrl:CloseWindow();
+    end
+end
+local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info or {};
+commonlib.echo("======group_info");
+commonlib.echo(group_info);
+local join_requirement = group_info.join_requirement or {};
+local combat_level = join_requirement[1] or 0;
+local magic_star_level = join_requirement[2] or -1;
+function getSelectList()
+    local min_level = 0;
+    local max_level = 50;
+    local list = {};
+    local k;
+    for k = min_level,max_level do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+
+    local selected_value = tostring(combat_level);
+    local k,v;
+    for k, v in ipairs(list)do
+        if(v.value == selected_value)then
+            v.selected = "true";
+             bFind = true;
+            break;
+        end
+    end
+     if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function getMagicStarLevelList()
+    local list = {
+        
+    }
+    local k;
+    for k = 0,10 do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+    local bFind;
+    local selected_value = tostring(magic_star_level);
+    local k,v;
+    for k,v in ipairs(list) do
+        if(v.value == selected_value)then
+            v.selected = "true";
+                bFind = true;
+            break;
+        end
+    end
+     if(not bFind)then
+        list[1].selected = "true";
+    end
+    return list;
+end
+function DoSave()
+    local combat_level = pageCtrl:GetValue("combat_level");
+    combat_level = tonumber(combat_level);
+    local magic_star_level = pageCtrl:GetValue("magic_star_level");
+    magic_star_level = tonumber(magic_star_level);
+    local setting = {
+        combat_level,
+        magic_star_level,
+    };
+    MyCompany.Aries.Quest.NPCs.HaqiGroupManage.SaveGroupSetting(setting);
+    pageCtrl:CloseWindow();
+end
+]]></script>
+<div style="font-size:12px;width:400px;height:250px;margin-left:0px;margin-top:0px;background:Texture/Aries/Common/bg.png#0 0 64 64: 14 14 14 14" >
+    <input style="margin-left:370px;margin-top:-10px;width:40px;height:40px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    <div style="margin-left:10px;padding-left:5px;padding-top:2px;width:63px;height:25px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">加入条件</div>
+    <div style="margin-left:10px;padding-left:5px;margin-top:-2px;width:380px;height:160px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+        <div style="margin-top:5px;">
+            <div style="float:left;">战斗等级：</div>
+            <div style="float:left;" >
+                <select style="float:left;" name="combat_level" AllowUserEdit="false" DataSource='<%=getSelectList() %>' />
+            </div>
+        </div>
+        <div style="margin-top:5px;">
+            <div style="float:left;">魔法星等级:</div>
+            <div style="float:left;">
+                <select style="height:22px;" name="magic_star_level" AllowUserEdit="false" DataSource='<%=getMagicStarLevelList() %>' />
+            </div>
+        </div>
+    </div>
+    <div>
+        <input type="button" value="保存" tooltip="保存条件" onclick="DoSave()" style="margin-left:320px;width:60px;font-size:12px;" />
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

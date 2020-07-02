@@ -1,0 +1,286 @@
+﻿<!-- "script/apps/Aries/Quest/QuestTrackerPane.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestWeeklyPage.lua");
+local QuestWeeklyPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestListPage.lua");
+local QuestListPage = commonlib.gettable("MyCompany.Aries.Quest.QuestListPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPage.lua");
+local QuestTrackerPage = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPage");
+NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+local pageCtrl = document:GetPageCtrl();
+QuestTrackerPane.OnInit();
+function GetSource()
+    return QuestTrackerPane.tree_view_data;
+end
+function GetTooltipString(questid,state)
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        local state_label="";
+        if(state == 0)then
+            state_label = "可以完成"
+        elseif(state == 1)then
+            state_label = "进行中"
+        elseif(state == 2)then
+            state_label = "可接"
+        elseif(state == 9)then
+            state_label = "锁定"
+        end
+        if(System.options.isAB_SDK)then
+            desc = string.format("<b>点击查看详情</b><br/><b>任务标题:</b>%s(%d)<br/><b>任务描述:</b>%s<br/><b>任务状态:</b>%s",template.Title,questid,template.Detail,state_label);
+        else
+            desc = string.format("<b>点击查看详情</b><br/><b>任务标题:</b>%s<br/><b>任务描述:</b>%s<br/><b>任务状态:</b>%s",template.Title,template.Detail,state_label);
+        end
+    end
+    return CommonClientService.GetTooltipString(desc)
+end
+function ShowQuestInListPage(questid)
+    questid = tonumber(questid);
+    local provider = QuestClientLogics.GetProvider();
+   
+    if(provider and questid)then
+        local hasAccept = provider:HasAccept(questid);
+        local type = "accepted_quest";
+        if(not hasAccept)then
+            type = "can_accept_quest";
+        end
+        if(QuestHelp.HasTimeStamp(questid))then
+            QuestWeeklyPage.ShowPage(questid)
+        else
+            QuestListPage.ShowPage(questid);
+        end
+    end
+end
+function GetName(internal_questid,internal_track_id,goal_type)
+    return string.format("%d_%d_%s",internal_questid,internal_track_id,goal_type);
+end
+function ParseName(name)
+    local internal_questid,internal_track_id,goal_type = string.match(name,"(.+)_(.+)_(.+)");
+    internal_questid = tonumber(internal_questid);
+    internal_track_id = tonumber(internal_track_id);
+    return internal_questid,internal_track_id,goal_type;
+end
+function IsTracked(questid,goalid)
+    local is_active = QuestTrackerPane.FindPath_IsActive(questid,goalid);
+    return is_active;     
+end
+function DoJump(name,mcmlNode)
+    local params = mcmlNode:GetPreValue("this", true);
+    if(params) then
+        if(not QuestHelp.Jump_Enabled_Kids(params.internal_questid,true))then
+            return
+        end
+        if(params.ShowArrowPointer) then
+            NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/ArrowPointer.lua");
+            local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");	
+            ArrowPointer.RemoveArrow("quest_tip");
+        end
+        QuestTrackerPane.TrackCurrentGoal(params.internal_track_id);
+        QuestTrackerPane.DoJump(params.internal_questid,params.internal_track_id,params.goal_type);
+    end
+end
+
+function DoHelpFunc(internal_help_func,mcmlNode)
+    if(not internal_help_func)then return end
+    local params = mcmlNode:GetPreValue("this", true);
+    if(params) then
+        if(params.ShowArrowPointer) then
+            NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/ArrowPointer.lua");
+            local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");	
+            ArrowPointer.RemoveArrow("quest_tip");
+        end
+        QuestTrackerPane.TrackCurrentGoal(params.internal_track_id);
+    end
+	NPL.DoString(internal_help_func);
+end
+function GetQuestGroup1(questid)
+    if(not questid)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        return template.QuestGroup1 or 0;
+    end
+end
+function IsExpanded() 
+    return QuestTrackerPane.is_expanded;
+end
+function DoExpanded() 
+    if(QuestTrackerPane.is_expanded)then
+        QuestTrackerPane.is_expanded = false;
+    else
+        QuestTrackerPane.is_expanded = true;
+    end
+    QuestTrackerPane.SaveState();
+    pageCtrl:Refresh(0);
+end
+function OnSize()
+    pageCtrl:Refresh();
+end
+function DoChangeShowState_1()
+    QuestTrackerPane.DoChangeShowState(1);
+     if(not QuestTrackerPane.tree_view_data_1 or (#QuestTrackerPane.tree_view_data_1 == 0))then
+        _guihelper.MessageBox("你当前没有已接任务，快去接受任务吧");
+    end
+end
+function DoChangeShowState_2()
+    QuestTrackerPane.DoChangeShowState(2);
+end
+
+function OnCanvasCreated()
+    QuestTrackerPane.is_fade_out = true;
+end
+function HasHelpFunc(s)
+    if(s and s ~= "")then
+        return true;
+    end
+end
+]]></script>
+<div style="width:250px;max-height:245px;">
+     <pe:container ClickThrough="true" name="canvas" style="margin-left:-30px;width:300px;height:22px;background:;">
+        <pe:if condition="<%=IsExpanded() %>">
+            <input type="button" value="任务大全" onclick="MyCompany.Aries.Desktop.QuestArea.ShowQuestListPage"  style="font-size:12px;float:left;margin-top:0px;margin-right:2px;width:60px;height:23px;margin-left:112px;background:url(Texture/Aries/Common/ThemeKid/tab_unselected_32bits.png#0 0 32 18: 6 6 6 6);" />
+            <pe:if condition='<%=MyCompany.Aries.Quest.QuestTrackerPane.show_state == 1 %>'>
+                <input type="button" value="当前" style="font-size:12px;float:left;margin-top:0px;width:42px;height:23px;background:url(Texture/Aries/Common/ThemeKid/tab_selected_32bits.png#0 0 32 19: 6 6 6 6);" />
+                <input type="button" value="可接" onclick="DoChangeShowState_2"  style="font-size:12px;float:left;margin-top:0px;width:42px;height:23px;background:url(Texture/Aries/Common/ThemeKid/tab_unselected_32bits.png#0 0 32 18: 6 6 6 6);" />
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Quest.QuestTrackerPane.show_state == 2 %>'>
+                <input type="button" value="当前" onclick="DoChangeShowState_1"  style="font-size:12px;float:left;margin-top:0px;width:42px;height:23px;background:url(Texture/Aries/Common/ThemeKid/tab_unselected_32bits.png#0 0 32 18: 6 6 6 6);" />
+                <input type="button" value="可接" style="font-size:12px;float:left;margin-top:0px;width:42px;height:23px;background:url(Texture/Aries/Common/ThemeKid/tab_selected_32bits.png#0 0 32 19: 6 6 6 6);" />
+            </pe:if>
+            <input type="button" onclick="DoExpanded" tooltip="隐藏任务追踪" style="float:left;margin-left:2px;margin-top:0px;width:16px;height:17px;background:url(Texture/Aries/ChatSystem/kids/min_32bits.png#0 0 16 17);" />
+        </pe:if>
+        <pe:if condition="<%=not IsExpanded() %>">
+            <div style="float:left;width:66px;height:22px;margin-left:132px;" />
+            <input type="button" value="任务大全" onclick="MyCompany.Aries.Desktop.QuestArea.ShowQuestListPage"  style="font-size:12px;float:left;margin-top:0px;margin-right:2px;width:60px;height:23px;background:url(Texture/Aries/Common/ThemeKid/tab_unselected_32bits.png#0 0 32 18: 6 6 6 6);" />
+            <input  type="button" onclick="DoExpanded" tooltip="显示任务追踪" style="float:left;margin-left:0px;margin-top:0px;width:16px;height:17px;background:url(Texture/Aries/ChatSystem/kids/max_32bits.png#0 0 16 17);" />
+        </pe:if>
+    </pe:container>
+    <pe:if condition="<%=IsExpanded()%>">
+    <pe:container name="size_change_detector" onsize="OnSize" alignment="_fi" enabled="false" style='position:relative;background:;' />
+    <pe:container name="canvas_content" ClickThrough="<%=not System.options.IsMobilePlatform%>" style='background-color:#ffffffff;background:url(Texture/Aries/ChatSystem/bg3_32bits.png:6 6 6 6);colormask:#ffffff00' >
+    <pe:treeview DefaultNodeHeight="20" ClickThrough="true" VerticalScrollBarStep="20" name="view_questtrack" DataSource='<%=GetSource()%>' RememberScrollPos="true" style="margin-left:-10px;width:260px;background:;" >
+        <NodeTemplates>
+            <NodeTemplate DataType="folder">
+                <div>
+                    <div style="height:20px;">
+                        <!-- 标题 可完成-->
+                        <pe:if condition='<%=XPath("this|state")== 0%>'>
+                            <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-280" tooltip_offset_y="-100"  style="float:left;margin-top:4px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark2_32bits.png);" />
+                            <div style="position:relative;float:left;">
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;color:#40dd2a;font-size:13px;background:;" value='<%=XPath("this|label").."(完成)" %>'/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;color:#40dd2a;font-size:13px;background:;" value='<%=XPath("this|label").."(完成)" %>'/>
+                                </pe:if>
+                            </div>
+                        </pe:if>
+                        <!-- 标题 进行中-->
+                        <pe:if condition='<%=XPath("this|state")== 1%>'>
+                            <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-280" tooltip_offset_y="-100"  style="float:left;margin-top:4px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark7_32bits.png);" />
+                            <div style="position:relative;float:left;">
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;color:#ffffff;font-size:13px;background:;" value='<%=XPath("this|label").."(进行中)"  %>'/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;color:#ffffff;font-size:13px;background:;" value='<%=XPath("this|label").."(进行中)"  %>'/>
+                                </pe:if>
+                            </div>
+                        </pe:if>
+                        <!-- 标题 可接-->
+                        <pe:if condition='<%=XPath("this|state")== 2%>'>
+                            <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-280" tooltip_offset_y="-100"  style="float:left;margin-top:4px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark1_32bits.png);" />
+                            <div style="position:relative;float:left;">
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;color:#fce80f;font-size:13px;background:;" value='<%=XPath("this|label").."(可接)"  %>'/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;color:#fce80f;font-size:13px;background:;" value='<%=XPath("this|label").."(可接)"  %>'/>
+                                </pe:if>
+                            </div>
+                        </pe:if>
+                         <!-- 标题 锁定-->
+                        <pe:if condition='<%=XPath("this|state")== 9%>'>
+                            <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-280" tooltip_offset_y="-100"  style="float:left;margin-top:4px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark1_32bits.png);" />
+                            <div style="position:relative;float:left;">
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;color:#ff0000;font-size:13px;background:;" value='<%=XPath("this|label").."(锁定)"  %>'/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                    <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;color:#ff0000;font-size:13px;background:;" value='<%=XPath("this|label").."(锁定)"  %>'/>
+                                </pe:if>
+                            </div>
+                        </pe:if>
+                    </div>
+                </div>
+            </NodeTemplate>
+            <NodeTemplate DataType="item">
+                <div style="height:20px;margin-left:20px;">
+                    <div style="float:left;width:180px;">
+                        <!-- 任务目标 标题 可完成-->
+                        <pe:if condition='<%=XPath("this|internal_state")== 0%>'>
+                            <input type="button" class="bordertext" enabled="false" name="text" style="font-size:12px;float:left;margin-top:0px;margin-left:2px;color:#40dd2a;text-align:left;background:;" value='<%=XPath("this|internal_label") %>'/>
+                        </pe:if>
+                        <!-- 任务目标 标题 进行中-->
+                        <pe:if condition='<%=XPath("this|internal_state")== 1%>'>
+                            <input type="button" class="bordertext" enabled="false" name="text" style="font-size:12px;float:left;margin-top:0px;margin-left:2px;color:#ffffff;text-align:left;background:;" value='<%=XPath("this|internal_label") %>'/>
+                        </pe:if>
+                        <!-- 任务目标 标题 可接-->
+                        <pe:if condition='<%=XPath("this|internal_state")== 2%>'>
+                            <input type="button" class="bordertext" enabled="false" name="text" style="font-size:12px;float:left;margin-top:0px;margin-left:2px;color:#fce80f;text-align:left;background:;" value='<%=XPath("this|internal_label") %>'/>
+                        </pe:if>
+                        <!-- 任务目标 标题 锁定-->
+                        <pe:if condition='<%=XPath("this|internal_state")== 9%>'>
+                            <input type="button" class="bordertext" enabled="false" name="text" style="font-size:12px;float:left;margin-top:0px;margin-left:2px;color:#ff0000;text-align:left;background:;" value='<%=XPath("this|internal_label") %>'/>
+                        </pe:if>
+                    </div>
+                    <!-- 跳转按钮-->
+                    <pe:if condition='<%=XPath("this|ShowArrowPointer")%>'>
+                        <div style="position:relative;float:left;width:25px;height:20px;">
+                        <pe:arrowpointer name="quest_tip" direction="2" style="float:left;position:relative;margin-left:-44px;margin-top:-76px;width:82px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_bg_32bits.png:7 7 7 7)" >
+                            <div style="position:relative;margin-left:45px;margin-top:29px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_arrow_down_32bits.png)" />
+	                        <div style="margin-top:4px;margin-left:3px;line-height:20px;text-align:center;font-size:13px;font-weight:bold;text-shadow:true;shadow-quality:8;shadow-color:#60ffffff">点击传送</div>
+                        </pe:arrowpointer>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=not HasHelpFunc(XPath("this|internal_help_func"))%>'>
+                        <div style="float:left;width:25px;height:20px;">
+                        <input type="button" tooltip="现在就去" onclick='DoJump' name='btnJump'  style="margin-top:2px;width:25px;height:21px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                        </div>
+                    </pe:if>
+                    <!-- 帮助按钮-->
+                    <pe:if condition='<%=HasHelpFunc(XPath("this|internal_help_func"))%>'>
+                        <input type="button" onclick='DoHelpFunc'  name='<%=XPath("this|internal_help_func")%>'  style="margin-top:2px;width:25px;height:21px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                    </pe:if>
+                </div>
+            </NodeTemplate>
+        </NodeTemplates>
+    </pe:treeview>
+    </pe:container>
+    <%=OnCanvasCreated()%>
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

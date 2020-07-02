@@ -1,0 +1,134 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30210_CuteSquirrel_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30210_CuteSquirrel_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+today = MyCompany.Aries.Scene.GetServerDate();
+
+-- 10115_FollowPet_Squirrel
+-- 17042_Panda_Fur
+
+local r = math.random(0, 100);
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30210);
+memory.last_random = memory.last_random or r;
+
+reward_name = MyCompany.Aries.Quest.NPCs.CuteSquirrel.GetRewardName();
+
+Condition2 = function()
+    if(not hasGSItem(17042)) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(not hasGSItem(10115)) then
+        return true;
+    end
+    return false;
+end;
+Condition4 = function()
+    return true;
+end;
+
+GetReward = function()
+    MyCompany.Aries.Quest.NPCs.CuteSquirrel.GetReward();
+end
+
+GetSquirrel = function()
+    MyCompany.Aries.Quest.NPCs.CuteSquirrel.GetSquirrel(instance);
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30210" />
+            <pe:placeholder id="name" source="{this}" value='机灵的小松鼠'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			        <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    哆罗罗，哆罗罗，寒风冻死我，今天就垒窝！我们不是寒号鸟，是机灵的小松鼠，我们想好好垒窝，但材料还不够，你有温暖的绒毛吗？赶紧拿个给我！
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+            你也没有绒毛呀，熊猫那里有绒毛，实在不行向别人借点吧！我们都冻得直哆嗦呢！<br/>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    太感谢啦！但绒毛还是不够多，我想留给其他的伙伴！<!--大冰块挡住了路，去不了古奇的帐篷，大家要垒很多的窝才行！--><br/>
+            如果你愿意，带我去你家吧！我会好好干活，帮你给所有旱渴的植物浇水的！
+		    <pe:answer text="带你回家" template_id="takeyouhome">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    <%=string.format("太感谢你找来绒毛啦！已经有伙伴在你家帮忙浇水了，我就不去了，送你%s吧！", Eval("reward_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetReward")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    我先回家等你；如果你还有绒毛，记得去交给我的伙伴，它们会报答你的！<br/>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetSquirrel")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    TODO: BUG
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

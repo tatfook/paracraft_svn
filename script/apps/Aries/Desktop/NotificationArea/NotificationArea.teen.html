@@ -1,0 +1,74 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationArea/NotificationArea.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="NotificationArea.teen.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local NotificationArea = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea");
+NotificationArea.CreateDockView();
+local dock_nodes = NotificationArea.dock_nodes;
+function ds_DockNodes(index)
+    if(not index) then
+        return #dock_nodes;
+    else
+        return dock_nodes[index];
+    end
+end
+function GetTooltip(index)
+    if(dock_nodes)then
+        local node = dock_nodes[index];
+        if(node)then
+            local s;
+            if(node.tooltip)then
+                s = node.tooltip;
+            elseif(node.tooltip_func and type(node.tooltip_func) == "function")then
+                s = node.tooltip_func();
+            else
+                s = string.format("%s",node.label or "");
+            end
+            return s;
+        end
+    end
+end
+function DoClick(index)
+    if(dock_nodes and index)then
+        local node = dock_nodes[index];
+        if(mouse_button == "left")then
+            if(node.left_click_func and type(node.left_click_func) == "function")then
+                
+                node.left_click_func();
+            end
+        end
+    end
+end
+]]></script>
+<div style="width:512px;height:100px;margin-left:0px;">
+    <div>
+        <pe:gridview style="width:512px;height:100px;" name="areaBar" ItemsPerLine="8" AllowPaging="true" DefaultNodeHeight = "40" pagesize="16"
+            DataSource='<%=ds_DockNodes%>'>
+	        <Columns>
+                    <div style="margin:1px;width:38px;height:38px;margin-left:2px;margin-top:0px;background:">
+                        <input type="button" name='<%=Eval("index")%>' tooltip='<%=GetTooltip(Eval("index"))%>' onclick="DoClick" background='<%=Eval("icon") or ""%>' style="width:30px;height:30px;" />
+                    </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+	        <PagerTemplate>
+                <div style="position:relative;margin-left:335px;">
+                   <!-- <form>
+                        <input zorder="1" style="margin-top:-4px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_up.png)" type="button" name="pre"/><br />
+                        <input type="button" name="text" value="1" style="color:#01d9ff;position:relative;margin-top:-7px;margin-left:-4px;background-color:#ffffff;background:url(Texture/Aries/Dock/teen/number_bg_32bits.png#0 0 23 23);height:23px;width:23px;" />
+                        <input zorder="1" style="margin-top:13px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_down.png)" type="button" name="next"/>
+                    </form>-->
+                </div>
+            </PagerTemplate>
+        </pe:gridview>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

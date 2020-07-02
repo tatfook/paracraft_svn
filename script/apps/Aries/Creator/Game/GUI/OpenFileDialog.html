@@ -1,0 +1,67 @@
+﻿<!-- "script/apps/Aries/Creator/Game/GUI/OpenFileDialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="OpenFileDialog.lua"><![CDATA[
+OpenFileDialog = commonlib.gettable("MyCompany.Aries.Game.GUI.OpenFileDialog");
+OpenFileDialog.OnInit()
+function OnClose()
+    Page:CloseWindow();
+end
+
+function OnSelectFile(treenode)
+    local filename = treenode.mcmlNode:GetPreValue("this").filename;
+    if(filename) then
+        Page:SetValue("text", commonlib.Encoding.DefaultToUtf8(filename));
+    end
+end
+
+]]></script>
+<aries:window mode="thin" title='<%=OpenFileDialog.title or L"输入窗"%>' style="width:460px;" onclose="OnClose">
+<div style="margin:10px;">
+    <div class="mc_paper_panel" style="padding-top:3px;padding-bottom:3px">
+        <pe:treeview ShowIcon="false" name="tvwExistingFiles" VerticalScrollBarStep="20" DataSource='<%=OpenFileDialog.GetExistingFiles()%>' DefaultNodeHeight="20" style="height:200px;background:;">
+            <NodeTemplates>
+                <NodeTemplate DataType="file">
+                    <pe:treenode style="height:20px;" OnClick="OnSelectFile" can_select="true" text='<%=string.format("%s (%dKB) %s", commonlib.Encoding.DefaultToUtf8(XPath("this|filename")), math.ceil(XPath("this|filesize")/1000), XPath("this|writedate"))%>'></pe:treenode>
+                </NodeTemplate>
+            </NodeTemplates>
+            <DataNodePlaceholder xpath="*" />
+        </pe:treeview>
+    </div>
+    <div style="color:#ffffff;margin:5px;">
+        <%=OpenFileDialog.GetText()%>
+    </div>
+    <div>
+        <input type="text" SkipAutoBadWordFilter="true" name="text" enable_ime="false" style="height:24px;width:320px"/>
+        <input type="button" class="mc_light_grey_button_with_fillet" name="openfile" value='...' style="min-width:30px;height:24px;margin-left:3px;" onclick="OpenFileDialog.OnOpenFileDialog"/>
+        <pe:if condition='<%=OpenFileDialog.editButton~=nil%>'>
+            <input type="button" class="mc_light_grey_button_with_fillet" name="btnEdit" value='<%=type(OpenFileDialog.editButton)=="table" and OpenFileDialog.editButton.text or L"编辑" %>' onclick="OpenFileDialog.OnClickEdit()" style="height:24px;margin-left:3px;min-width:30px;" />
+        </pe:if>
+    </div>
+    <div style="margin-top:5px;">
+        <input type="button" name="OK" DefaultButton="true" align="left" style="margin-left:323px;min-width:70px;" class="mc_light_grey_button_with_fillet" onclick="OpenFileDialog.OnOK" value='<%=L"确定"%>' />
+    </div>
+</div>
+<%
+    function SetFocus()
+        local t = Page:FindControl("text")
+        if(t) then
+            t:Focus();
+        end	
+    end
+    SetFocus()
+    local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+	    SetFocus()
+    end})
+    mytimer:Change(200);
+%>
+</aries:window>
+</pe:mcml>
+</body>
+</html>

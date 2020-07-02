@@ -1,0 +1,534 @@
+﻿<!-- "script/apps/Aries/CombatRoom/Teen/RoomDetailPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemItem/ItemManager.lua");
+local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/CombatRoom/ResetRoomPage.lua");
+local ResetRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.ResetRoomPage");
+
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Team/TeamClientLogics.lua");
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/RoomDetailPage.lua");
+local RoomDetailPage = commonlib.gettable("MyCompany.Aries.CombatRoom.RoomDetailPage");
+RoomDetailPage.OnInit();
+function OnClickViewItem(gsid)
+    NPL.load("(gl)script/apps/Aries/HaqiShop/AuctionHouse.lua");
+    local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+    AuctionHouse.OnClickViewItem(gsid);
+end
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+game_info = RoomDetailPage.game_info or {};
+function ClosePage()
+    RoomDetailPage.ClosePage();
+end
+function doResetRoom()
+    ResetRoomPage.ShowPage(game_info);
+end
+function doRefresh()
+    RoomDetailPage.RefreshPage();
+end
+function isPvE()
+    if(game_info.game_type == "PvE")then
+        return true;
+    end
+end
+function isPvP()
+    if(game_info.game_type == "PvP")then
+        return true;
+    end
+end
+function doStartGame()
+    RoomDetailPage.doStartGame();
+end
+function doLeave()
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local s = "确认要离开队伍吗？";
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+		    LobbyClientServicePage.LeaveGameAndTeam(game_info.id)
+            ClosePage();
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+   
+end
+function doKick(nid)
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("你确定要移除这名玩家吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            LobbyClientServicePage.DoKickGame(game_info.id,nid)
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+function doLogin()
+    LobbyClientServicePage.DoLoginGame(game_info.id)
+    ClosePage();
+end
+
+function isOwner()
+    local nid = tostring(System.User.nid);
+	local owner_nid = game_info.owner_nid or "";
+    if(nid == owner_nid)then
+        return true;
+    end
+end
+
+function isWaiting()
+	local status = game_info.status;
+	if(status == "started" or status == "match_making")then
+        return true;
+    end
+    --if(game_info.wait_ack_start_time and game_info.wait_ack_start_time <= 120000)then
+        --return true;
+    --end
+end
+function showMoreInfo(nid)
+    if(nid == "-1" or nid == -1)then return end
+	NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+	MyCompany.Aries.NewProfileMain.OnShowContextMenu(nid);
+end
+function GetSceneName(index)
+    if(not index)then return end
+    local s = string.format("RoomInfo_Character_%d",index);
+    return s;
+end
+function GetTemplateInfo(key)
+    local game_templates = LobbyClientServicePage.GetGameTemplates()
+    if(key and game_templates and game_info)then
+        local template = game_templates[game_info.keyname];
+        if(template)then
+            return template[key];
+        end
+    end
+end
+function PvEDoorIsClosed()
+    local is_closed = GetTemplateInfo("door_closed");
+    if(is_closed and is_closed == "true")then
+        return true;
+    end
+end
+function GetSchoolStr()
+    local requirement_tag = MyCompany.Aries.CombatRoom.RoomDetailPage.game_info.requirement_tag;
+    if(not requirement_tag or requirement_tag == "")then
+        return "无"
+    end
+    if(requirement_tag)then
+        requirement_tag = string.gsub(requirement_tag,"storm","风暴系")
+        requirement_tag = string.gsub(requirement_tag,"fire","烈火系")
+        requirement_tag = string.gsub(requirement_tag,"life","生命系")
+        requirement_tag = string.gsub(requirement_tag,"death","死亡系")
+        requirement_tag = string.gsub(requirement_tag,"ice","寒冰系")
+        return requirement_tag;
+    end
+end
+function GetLeaderTxt()
+    local txt = MyCompany.Aries.CombatRoom.RoomDetailPage.game_info.leader_text;
+    if(not txt or txt == "")then
+        return "无";
+    end
+    return commonlib.Encoding.EncodeStr(txt);
+end
+function GetPasswordStr()
+    local password = MyCompany.Aries.CombatRoom.RoomDetailPage.game_info.password;
+    if(not password or password == "")then
+        return "无"
+    end
+    return password;
+end
+function doCall()
+    LobbyClientServicePage.DoCallAllUser()
+end
+function doInvite()
+    LobbyClientServicePage.DoInviteAllUser();
+end
+function SetAutoStart()
+    if(LobbyClientServicePage.auto_start)then
+        LobbyClientServicePage.auto_start = false;
+    else
+        LobbyClientServicePage.auto_start = true;
+    end
+end
+function GetReqLevelTitle()
+    if(game_info.game_type == "PvE")then
+        return "推荐等级:";
+    else
+        return "要求等级:";
+    end
+end
+function GetGameInfo()
+    return MyCompany.Aries.CombatRoom.RoomDetailPage.game_info;
+end
+function HasLoots()
+    if(RoomDetailPage.loots_list)then
+        return true;
+    end
+end
+function DS_Func_Loots(index)
+	if(not RoomDetailPage.loots_list)then return nil end
+	if(index == nil) then
+		return #(RoomDetailPage.loots_list);
+	else
+		return RoomDetailPage.loots_list[index];
+	end
+end
+function IsPersistent()
+    return MyCompany.Aries.CombatRoom.RoomDetailPage.game_info.is_persistent;
+end
+page:SetValue("auto_start",LobbyClientServicePage.auto_start);
+function onGotoStartPage()
+    
+	if(not CommonClientService.IsEnabled_HelpTooltip(0,12))then
+        if(RoomDetailPage.IsFull() and isOwner() and not isWaiting()) then
+            page:SetValue("TooltipsPPT", "howtouse_do_startgame")
+            return;
+        end
+		return
+	end
+    local player_count = RoomDetailPage.game_info.player_count or 0;
+    if( (RoomDetailPage.IsFull() or player_count >= 2) and isOwner() and not isWaiting())then
+        page:SetValue("TooltipsPPT", "howtouse_do_startgame")
+    end
+    if(isOwner() and isPvE())then
+        if(player_count == 1)then
+            page:SetValue("Tooltips_Mode","Tooltips_Mode_1")
+        elseif(player_count >= 2 and player_count < 4 )then
+            page:SetValue("Tooltips_Mode","Tooltips_Mode_2")
+        elseif(player_count >= 4)then
+            page:SetValue("Tooltips_Mode","Tooltips_Mode_3")
+        else
+            page:SetValue("Tooltips_Mode", nil);
+        end
+    end
+end
+
+function DS_Func_Items_Mode(index)
+    if(not RoomDetailPage.mode_list)then return nil end
+	if(index == nil) then
+		return #(RoomDetailPage.mode_list);
+	else
+		return RoomDetailPage.mode_list[index];
+	end
+end
+
+function DoResetGameMode(index)
+    local node = RoomDetailPage.mode_list[index];
+    local game_info = RoomDetailPage.game_info;
+    if(node and game_info)then
+        local cur_mode = game_info.mode;
+        if(node.mode < cur_mode)then
+            _guihelper.MessageBox("副本的难度只能上调！");
+            return
+        end
+        local game = {
+            id = game_info.id,
+            mode = node.mode,
+            keyname = game_info.keyname,
+        }
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        local s = string.format("确认要把副本难度更改为【%s】难度吗？",node.lable_1 or "");
+        _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                LobbyClientServicePage.DoResetGameMode(game)
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo);
+    end
+end
+function GetKeyName()
+     local game_info = RoomDetailPage.game_info;
+    if(game_info)then
+        return game_info.keyname;
+    end
+end
+function IsFull()
+    return RoomDetailPage.IsFull()
+end
+function OnClick_LootsMenu(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        RoomDetailPage.selected_mode_loots_menu = node.mode;
+        RoomDetailPage.UpdateLootsList();
+        page:Refresh(0);
+    end
+end
+function GetSelectedMode_LootsMenu()
+    return RoomDetailPage.selected_mode_loots_menu;
+end
+function IsValid(index)
+    if(index and game_info and game_info.max_players and index <= game_info.max_players)then
+        return true;
+    end
+end
+function GetBroadcastTooltip()
+    local __,__,__,copies = hasGSItem(12049);
+    copies = copies or 0
+    local s = string.format("向全区发送一条广播寻找队友（消耗一个组队小喇叭）\r\n剩余小喇叭数量:%d",copies);
+    return s;
+end
+function doBroadcast()
+    local hasItem = hasGSItem(12049);
+    if(not hasItem)then
+        _guihelper.MessageBox("你没有组队小喇叭了，不能发送广播，是否立即购买？",function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	            if(command) then
+		            command:Call({gsid = 12049});
+	            end
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo);
+        return
+    end
+    if(RoomDetailPage.IsFull())then
+        _guihelper.MessageBox("队员已满，不需要再广播了！")
+        return
+    end
+    local game_info = RoomDetailPage.game_info;
+    LobbyClientServicePage.BroadcastRoomMsg(game_info);
+end
+function IsFull_RecommendPlayers()
+    return RoomDetailPage.IsFull_RecommendPlayers();
+end
+onGotoStartPage();
+]]></script>
+<aries:window width="950" height="550" title="队员列表" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/team_icon_32bits.png" >
+  <pe:block style="position:relative;margin-left:70px;margin-top:30px;width:65px;height:20px;color:#ffffff;text-align:center;background:;" class="default_btn_css">
+      队伍ID:
+  </pe:block>
+  <pe:block style="position:relative;margin-left:130px;margin-top:30px;width:60px;height:19px;text-align:center;" class="edit_txt_css">
+       <aries:lobbyservice gameinfo='<%=GetGameInfo() %>'>
+        <aries:lobbyservice_item label="" style="color:#ffffff" property="id"/>
+        </aries:lobbyservice>
+  </pe:block>
+     <pe:block style="position:relative;margin-left:190px;margin-top:30px;width:65px;height:20px;color:#ffffff;text-align:center;background:;" class="default_btn_css">
+      人数:
+  </pe:block>
+  <pe:block style="position:relative;margin-left:240px;margin-top:30px;width:60px;height:19px;text-align:center;" class="edit_txt_css">
+       <aries:lobbyservice gameinfo='<%=GetGameInfo() %>'>
+        <aries:lobbyservice_item label="" style="color:#ffffff" property="max_players"/>
+        </aries:lobbyservice>
+  </pe:block>
+    <pe:block style="position:relative;margin-left:300px;margin-top:30px;width:80px;height:20px;color:#ffffff;text-align:center;background:;" class="default_btn_css">队伍名称:
+  </pe:block>
+  <pe:block style="position:relative;margin-left:370px;margin-top:30px;width:255px;height:19px;" class="edit_txt_css">
+       <aries:lobbyservice gameinfo='<%=GetGameInfo() %>'>
+        <aries:lobbyservice_item label="" style="color:#ffffff" property="name"/>
+        </aries:lobbyservice>
+  </pe:block>
+  <pe:div style="position:relative;margin-left:6px;margin-top:50px;width:622px;height:493px;" class="border_bg1_css">
+    <pe:div style="position:relative;margin-left:2px;margin-top:2px;width:618px;height:489px;" class="border_bg2_css">
+        <div style="margin-left:-4px;width:800px;height:600px;">
+        <pe:gridview name="gvRooms" DataSource="<%=MyCompany.Aries.CombatRoom.RoomDetailPage.DS_Func%>"  ItemsPerLine="4" AllowPaging="false" pagesize="4">
+            <Columns>
+            <div style="width:150px;height:220px;margin-left:5px;margin-top:5px;" class="border_bg5_css">
+                <pe:if condition='<%=not IsValid(Eval("index"))%>'>
+                    <div style="position:relative;width:145px;height:180px;margin-left:2px;margin-top:35px;" class="border_bg4_css"/>     
+                </pe:if>
+                <div style="width:145px;height:180px;margin-left:2px;margin-top:35px;" class="dock_bg_css">
+                    <pe:if condition='<%=Eval("nid") ~= -1%>' >
+                        <pe:if condition='<%=Eval("nid") == game_info.owner_nid%>' >
+                            <input type="button" zorder="2" name='<%=Eval("nid")%>' tooltip="队长" style="font-size:12px;position:relative;margin-left:5px;margin-top:10px;width:16px;height:16px;background:url(Texture/Aries/LobbyService/captain_32bits.png)" />
+                        </pe:if> 
+                                                                  
+                         <div style="width:120px;height:120px;margin-left:-10px;margin-top:0px;">
+                                <pe:player nid='<%=Eval("nid")%>' name='<%=Eval("nid")%>' miniscenegraphname='<%=GetSceneName(Eval("index")) %>' style="width:160px;height:160px;" IsInteractive="false" />
+                        </div>
+                                                                 
+                    </pe:if>                                            
+                </div>
+                <div style="margin-left:0px;margin-top:-20px;">
+                     <pe:if condition='<%=Eval("nid") ~= game_info.owner_nid and isOwner() and Eval("nid") ~= -1%>'>
+                        <input type="button" zorder="10" class="default_btn_css"style="float:left;position:relative;font-size:12px;margin-left:90px;margin-top:-20px;width:55px;height:20px;font-size:12px;" value="移除玩家" tooltip="移除玩家" name='<%=Eval("nid")%>' onclick="doKick()"/>
+                    </pe:if>   
+                    <pe:if condition='<%=Eval("nid") ~= tostring(System.User.nid) and Eval("nid") ~= -1 %>'>
+                        <input type="button" zorder="10" class="default_btn_css"style="float:left;position:relative;margin-left:90px;font-size:12px;width:55px;height:20px;font-size:12px;" value="更多信息" tooltip="查看更多信息" name='<%=Eval("nid")%>' onclick="showMoreInfo()"/>
+                    </pe:if>
+                </div>
+                <div style="position:relative;">
+                    <div style="text-align:center;width:145px;font-size:12px;margin-left:2px;margin-top:-210px;color:#ffffff;padding-top:4px;" class="border_bg3_css"/>
+                     <pe:if condition='<%=Eval("nid") ~= -1%>'>
+                        <pe:name nid='<%=Eval("nid")%>' useyou="false" linked="false" style="text-align:center;width:145px;font-size:12px;margin-left:5px;margin-top:-210px;color:#ffffff;padding-top:4px;" />
+                        <aries:vip-sign nid='<%=Eval("nid")%>' style="width:21px;height:21px;margin-left:-40px;margin-top:-175px;" vip_icon="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png;0 0 21 21"/>
+                         <div style="margin-left:2px;margin-top:-35px;">
+                             <div style="margin-top:-6px;width:64px;height:32px;color:#ffffff;background:;" class="defaultcolor">
+                                <aries:mountpet-combatschool is_img="true" name="combat_school" nid='<%=Eval("nid")%>' style="width:16px;height:16px;margin-left:8px;font-size:12px;"/>
+                            </div>
+                            <div style="font-size:12px;margin-top:-18px;width:64px;height:32px;color:#ffffff;background:" class="defaultcolor">
+                                <aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" style="margin-left:10px;margin-top:1px;width:22px;font-size:12px;"/>级
+                            </div>
+                        </div>
+                    </pe:if>
+                </div>   
+            </div>
+            </Columns>
+            <EmptyDataTemplate>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>请稍等 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="36"/>
+            <PagerTemplate>
+                <form>
+                    <input type="button" name="pre" style="margin-left:250px;font-size:12px;" zorder=2 value="上一页"/>
+                    <label name="page" style="float:left;margin-top:4px;text-align:center;width:40px;height:20px;"/>
+                    <input type="button" name="next" zorder=2  style="font-size:12px;" value="下一页"/>
+                </form>
+            </PagerTemplate>
+        </pe:gridview>
+            </div>
+    </pe:div>
+        <pe:if condition="<%=isPvE()%>">
+             <pe:div style="position:relative;margin-left:5px;margin-top:230px;width:380px;height:225px;background:;" >
+                    <iframe src="script/apps/Aries/CombatRoom/Teen/LobbyChatPage.teen.html?state=PvE" style="width:380px;height:220px;"/>
+            </pe:div>
+            <pe:div style="position:relative;margin-left:387px;margin-top:230px;width:230px;height:225px;padding:5px;color:#52dff4;" class="border_bg7_css">
+                <div class="border_bg3_css" style="margin-left:-3px;width:226px;height:25px;text-align:center;">
+                    <div style="float:left;width:80px;text-align:center;" >难度</div>
+                    <div style="float:left;width:70px;text-align:center;" >适合人数</div>
+                    <div style="float:left;width:70px;text-align:center;" >战利品</div>
+                </div>
+                <div style="margin-left:-5px;height:90px;">
+                    <pe:gridview name="mode_list_view" DataSource="<%=DS_Func_Items_Mode%>" ItemsPerLine="1" AllowPaging="false" pagesize="10">
+			            <Columns>
+                            <div style="width:230px;">
+                                <div>
+                                    <pe:if condition='<%=Eval("is_checked") and not isOwner() %>' >
+							            <input type="button" value='<%=Eval("label")%>' enabled="false"  
+								            style="margin-left:1px;margin-top:0px;width:227px;height:25px;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png)" />
+                                        <img src="Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png" style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;" />
+						            </pe:if>
+						            <pe:if condition='<%=not Eval("is_checked") and not isOwner() %>' >
+							            <input type="button" value='<%=Eval("label")%>' enabled="false"   
+								            style="margin-left:1px;margin-top:0px;width:227px;height:25px;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_default_bg_32bits.png)" />
+                                        <img src="Texture/Aries/Common/ThemeTeen/others/radio_32bits.png" style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;" />
+						            </pe:if>
+						            <pe:if condition='<%=Eval("is_checked") and isOwner() %>' >
+							            <input type="button" class="listbutton_selected" enabled="false" name='<%=Eval("index")%>' value='<%=Eval("label")%>'
+								            style="margin-left:1px;margin-top:0px;width:227px;height:25px;" />
+                                        <img src="Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png" style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;" />
+						            </pe:if>
+						            <pe:if condition='<%=not Eval("is_checked") and isOwner() %>' >
+							            <input type="button" class="listbutton_unselected" onclick="DoResetGameMode"  name='<%=Eval("index")%>' value='<%=Eval("label")%>'
+								            style="margin-left:1px;margin-top:0px;width:227px;height:25px;" />
+                                        <input type="button" onclick="DoResetGameMode"  name='<%=Eval("index")%>'  style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" />
+						            </pe:if>
+				                </div>
+                                <div style="position:relative;margin-top:-22px;">
+                                    <div style="float:left;width:80px;text-align:center;" class="list_color"><%=Eval("lable_1")%></div>
+                                    <div style="float:left;width:70px;text-align:center;" class="list_color"><%=Eval("lable_2")%></div>
+                                    <div style="float:left;width:70px;text-align:center;" class="list_color"><%=Eval("lable_3")%></div>
+                                </div>
+				            </div>
+			            </Columns>
+		            </pe:gridview> 
+                </div>
+                <div class="border_bg3_css" style="margin-left:-3px;width:226px;height:25px;text-align:center;">进入条件</div>
+                 <aries:lobbyservice gameinfo='<%=GetGameInfo() %>'>
+                    <div><div style="float:left">战斗等级:</div><div style="float:left"><aries:lobbyservice_item property="min_level"/></div></div>
+                    <aries:lobbyservice_item label="魔法星" property="magic_star_level" />
+                    <aries:lobbyservice_item label="本系攻击" property="attack" />
+                    <aries:lobbyservice_item label="密码" property="password" />
+                </aries:lobbyservice>
+            </pe:div>
+            
+        </pe:if>
+      <pe:if condition="<%=isPvP()%>">
+             <pe:div style="position:relative;margin-left:5px;margin-top:230px;width:610px;height:225px;background:;" >
+                <iframe src="script/apps/Aries/CombatRoom/Teen/LobbyChatPage.teen.html?state=PvP" style="width:610px;height:220px;"/>
+            </pe:div>
+        </pe:if>
+  </pe:div>
+    
+  <pe:div style="position:relative;margin-left:631px;margin-top:30px;width:312px;height:513px;" class="border_bg1_css">
+    
+    <pe:block style="position:relative;margin-left:4px;margin-top:4px;padding-top:2px;width:304px;height:30px;color:#ffffff;font-size:14;text-align:center;" class="border_bg3_css">
+        <aries:lobbyservice gameinfo='<%=GetGameInfo() %>'>
+            <aries:lobbyservice_item label="" property="world_label_and_level_range"/>
+        </aries:lobbyservice>
+    </pe:block>
+   <pe:div style="position:relative;margin-left:4px;margin-top:34px;background:;" >
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+            <aries:lobbyservice_template_item property="pic" style="margin-left:0px;margin-top:0px;width:304px;height:304px;"/>
+        </aries:lobbyservice_template>
+    </pe:div>
+    <pe:div style="position:relative;margin-left:4px;margin-top:250px;width:305px;height:90px;" class="dock_bg2_css">
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+             <pe:treeview style="width:305px;height:90px;background:">
+                <aries:lobbyservice_template_item property="world_description" style="color:#ffffff;margin-left:-10px;padding:5px;"/>
+            </pe:treeview>
+        </aries:lobbyservice_template>
+    </pe:div>
+       <pe:div style="position:relative;margin-left:4px;margin-top:338px;background:;" >
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>' selected_mode="<%=GetSelectedMode_LootsMenu() %>">
+                <aries:lobbyservice_template_item property="loots_menu" class="defaultcolor" onclick="OnClick_LootsMenu"/>
+        </aries:lobbyservice_template>
+    </pe:div>
+    <pe:div style="position:relative;margin-left:4px;margin-top:360px;width:304px;height:150px;" class="border_bg2_css">
+        <pe:gridview name="loots_view" DataSource="<%=DS_Func_Loots%>"  ItemsPerLine="6" AllowPaging="false" pagesize="500">
+            <Columns>
+            <div style="margin-left:4px;margin-top:5px;width:44px;height:44px;" class="dock_bg_css">
+                    <pe:item gsid='<%=Eval("gsid") %>' onclick="OnClickViewItem" ShowCount='<%=Eval("cnt") %>' showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" style="margin-left:130px;margin-top:-405px;"/>
+				<PagerTemplate>
+					<form>
+						<input type="button" name="pre" invisibleondisabled="false" class="pagerleft" style="width:20px;height:20px;"/>
+						<input type="button" name="page" class="pagertext" style="margin-top:-2px;"/>
+						<input type="button" name="next" invisibleondisabled="false" class="pagerright" style="width:20px;height:20px;"/>
+	                </form>
+				</PagerTemplate>
+        </pe:gridview>
+    </pe:div>
+  </pe:div>
+   <div style="position:relative;margin-left:12px;margin-top:510px;color:#ffffff;">
+    <input style="float:left;margin-left:0px;" type="checkbox" name="auto_start" checked="true" onclick="SetAutoStart"/>
+       <div style="float:left;" for="auto_start" tooltip="选中后人满会自动开启副本">自动开启</div>
+</div>
+    <pe:if condition="<%=isOwner() and isPvE() %>">
+        <pe:button style="position:relative;font-size:14px;font-weight:bold;margin-left:90px;margin-top:508px;width:92px;height:28px;color:#ffffff;" tooltip="<%=GetBroadcastTooltip()%>" value="广播找人" class="highlight_btn_css" onclick="doBroadcast" />
+    </pe:if>
+    <pe:if condition="<%=isOwner() and not isWaiting() %>">
+        <pe:if condition="<%=isPvE() and not PvEDoorIsClosed() %>">
+            <pe:if condition="<%=IsFull_RecommendPlayers() %>">
+                <div style="position:relative;margin-left:522px;margin-top:503px;width:140px;height:32px;background:" >
+                    <img name="gift_animator" zorder="1" enabled="false" class="animated_btn3_overlay" width="140" height="32"/>
+                </div>
+            </pe:if>
+            <pe:button style="position:relative;font-size:14px;font-weight:bold;margin-left:525px;margin-top:508px;width:92px;height:28px;color:#ffffff;" value="立即出发" class="highlight_btn_css" onclick="doStartGame" />
+        </pe:if>
+        <pe:if condition="<%=isPvP() %>">
+            <pe:button style="position:relative;font-size:14px;font-weight:bold;margin-left:525px;margin-top:508px;width:92px;height:28px;color:#ffffff;" value="报名排队" class="highlight_btn_css" onclick="doStartGame" />
+        </pe:if>
+    </pe:if>
+    <pe:if condition="<%=isWaiting() and  isPvE()%>">
+            <pe:button style="position:relative;margin-left:525px;margin-top:510px;width:92px;height:26px;color:#ffffff;" value="进入副本" class="highlight_btn_css" onclick="doLogin" />
+    </pe:if>
+    <pe:if condition="<%=isWaiting() and  isPvP()%>">
+            <pe:button style="position:relative;margin-left:525px;margin-top:510px;width:92px;height:26px;color:#ffffff;" value="正在排队" class="highlight_btn_css" />
+    </pe:if>
+     <pe:if condition="<%=isOwner() and not IsPersistent() and  isPvE()%>">
+        <input type="button" value="修改条件" onclick="doResetRoom()" class="default_btn_css" style="position:relative;margin-left:400px;margin-top:510px;width:92px;height:26px;color:#ffffff;" />
+    </pe:if>
+     <pe:if condition="<%=not isWaiting() or isPvP()%>">
+        <pe:button style="position:relative;margin-left:190px;margin-top:510px;width:92px;height:26px;color:#ffffff;" value="离开队伍" class="default_btn_css" onclick="doLeave" />
+    </pe:if>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,1063 @@
+----练习页面，构思中的原始代码...
+----[[ 
+--Author: Yangqing
+--Date: 2009/12/15
+--Desc: FruitRecycle
+--
+--script/apps/Aries/NPCs/FollowPets/newtestlua
+	--
+--]]
+--
+---- create class
+--
+---- 类似好友面板的界面框架，水果回收界面框架...
+--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+--<html xmlns="http://www.w3.org/1999/xhtml">
+--<head>
+    --<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    --<title>FruitRecycleWnd, by Andy, 2009/12/15</title>
+--</head>
+--<body>
+    --<pe:mcml>
+--<script type="text/npl" src="FruitRecycleWnd.lua"><![CDATA[
+----local page = document:GetPageCtrl();
+----
+----function ShowFruitRecycledView(value, mcmlNode)
+    ------local ctl = CommonCtrl.GetControl("AriesFriendsView");
+	----local frame = page:GetNode("AriesFriendsView");
+	----local urls = {                                        --路径
+	    ----["1"] = "script/apps/Aries/Friends/AllFruitList.html",
+	    ----["2"] = "script/apps/Aries/Friends/SaledFruit.html",
+	    ----
+	----};
+	----
+    ----if(frame ~= nil) then
+        ----local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		----local cachePolicy = "access plus 1 minute";
+        ----if(value) then
+		    ----mcmlNode:SetValue(value);
+	        ----page:GetNode("AriesFruitRecycledView");
+		    ----frame:SetAttribute("src", urls[value]);
+		    ----page:Refresh(0.1);
+        ----end
+    ----end
+----end
+--]]></script>
+--
+----<form name="FruitRecycledTabs" style="margin:0px;padding:0px;background:;">
+    ----<div style="float:right;width:500px;height:440px;">
+        ----<div style="float:right;width:304px;height:440px;background:url(Texture/Aries/Friends/friendlist_bg_32bits.png#0 0 304 440:30 30 60 30)">--样式风格，背景，资源图片路径
+            ----<iframe name="FruitRecycledView" style="margin:0px;padding:0px;" src="script/apps/Aries/Friends/BuddyList.html"/>--框架窗口样式风格
+        ----</div>
+        ----<div style="float:right;margin-left:-5px;margin-top:-4px;width:150px;height:228px;">
+            ----<div style="margin-left:-40px;margin-bottom:0px;width:56px;height:53px">
+                ----<input type="button" style="margin-left:4px;margin-top:-4px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_48_32bits.png#0 0 48 48)" 
+                        ----zorder="2" onclick="MyCompany.Aries.Friends.HideMainWnd()" value=""/>
+            ----</div>
+            ----<div style="float:left;margin-left:-15px;margin-top:-16px;width:70px;height:410px;">
+                ----<input type="radio" name="FruitRecycledTabs" checked="checked" value="1" style="width:70px;height:71px;background-color:#FFFFFF;"
+                    ----CheckedBG="Texture/Aries/Friends/tab_myfriends_on_32bits.png;0 0 70 71" 
+                    ----UncheckedBG="Texture/Aries/Friends/tab_myfriends_off_32bits.png;0 0 70 71"
+                    ----tooltip="全部水果"
+                    ----onclick="ShowFruitRectcledView()"/>
+                ----<input type="radio" name="FruitRecycledTabs" value="2" style="width:70px;height:71px;background-color:#FFFFFF;"
+                    ----CheckedBG="Texture/Aries/Friends/tab_recentcontact_on_32bits.png;0 0 70 71" 
+                    ----UncheckedBG="Texture/Aries/Friends/tab_recentcontact_off_32bits.png;0 0 70 71"
+                    ----tooltip="已售出水果"
+                    ----onclick="ShowFruitRecycledView()"/>
+               ----
+            ----</div>
+            ----<div style="float:left;margin-left:-70px;margin-top:-16px;width:70px;height:410px;">
+                ----<input type="radio" name="FruitRecycledTabs" checked="checked" value="1" style="width:70px;height:71px;background-color:#FFFFFF;"
+                    ----CheckedBG="Texture/Aries/Friends/tab_myfriends_on23_32bits.png;0 0 70 71" 
+                    ----UncheckedBG="Texture/Aries/Friends/tab_myfriends_on23_32bits.png;0 0 70 71"
+                    ----animstyle = "22" tooltip="全部水果"
+                    ----onclick="ShowFriendsView()"/>
+                ----<input type="radio" name="FriendsTabs" value="2" style="width:70px;height:71px;background-color:#FFFFFF;"
+                    ----CheckedBG="Texture/Aries/Friends/tab_recentcontact_on2_32bits.png;0 0 70 71" 
+                    ----UncheckedBG="Texture/Aries/Friends/tab_recentcontact_on2_32bits.png;0 0 70 71"
+                    ----animstyle = "22" tooltip="已售出水果"
+                    ----onclick="ShowFriendsView()"/>
+                ----
+                ----
+            ----</div>
+        ----</div>
+    ----</div>
+----</form>
+--
+--</pe:mcml>
+--</body>
+--</html>
+--
+--
+--
+------------------------------------
+----创建水果回收主界面框架逻辑层（*.LUA）
+------------------------------------
+----create class
+--local libName = "AriesFruitRecycled";
+--local  = {};
+--commonlib.setfield("MyCompany.Aries.FruitRecycled", FruitRecycled);
+--
+---- show the FruitRecycled main window
+---- @param bShow: show or hide the main window, nil to toggle visibility
+--function FruitRecycled.ShowMainWnd(bShow)
+	--local _mainWnd = ParaUI.GetUIObject("AriesFruitRecycledMainWnd");
+	--
+	--if(_mainWnd:IsValid() == false) then
+		--if(bShow == false) then
+			--return;
+		--end
+		--
+		--_mainWnd = ParaUI.CreateUIObject("container", "AriesFruitRecycledMainWnd", "_ctb", 280, -60, 400, 440);
+		--_mainWnd.background = "";
+		--_mainWnd.zorder = 1;
+		--_mainWnd:AttachToRoot();
+		--
+		--Friends.contentPage = System.mcml.PageCtrl:new({url = "script/apps/Aries/Friends/FruitRecycledWnd.html"});
+		--Friends.contentPage:Create("FruitRecycled_Content", _mainWnd, "_fi", 0, 0, 0, 0);
+	--else
+		---- toggle visibility if bShow is nil
+		--if(bShow == nil) then
+			--bShow = not _mainWnd.visible;
+		--end
+		--if(bShow == true and FruitRecyled.contentPage) then
+			--FruitRecycled.contentPage:Refresh(0.01);
+		--end
+		--_mainWnd.visible = bShow;
+	--end
+--end
+--
+---- hide the FruitRecycled main window
+--function FruitRecycled.HideMainWnd()
+	--FruitRecycled.ShowMainWnd(false);
+--end
+--
+---- refresh the friends main window
+--function FruitRecycled.Refresh()
+	--if(FruitRecycled.contentPage) then
+		--FruitRecycled.contentPage:Refresh(0.01);
+	--end
+--end
+--
+--function FruitRecycled.IsUIAvailable()
+	--local _mainWnd = ParaUI.GetUIObject("AriesFruitRecycledMainWnd");
+	--if(_mainWnd:IsValid() == true) then
+		--return true;
+	--elseif(_mainWnd:IsValid() == true) then
+		--return false;
+	--end
+--end
+--
+--
+--
+--function FruitRecycled.GetMyFriends(callbackFunc, cache_policy, timeout, timeout_callback)
+	--local msg = {
+		--cache_policy = cache_policy or "access plus 10 minutes", 
+		--nid = nil, -- myself
+		--pageindex = -1,
+		--onlyonline = 0,
+		--order = 3,
+		--isinverse = 0,
+	--};
+	--paraworld.FruitRecycled.get(msg, "Aries_GetFruitRecycled", function(msg)
+		--if(msg and msg.nids) then
+			---- reset my friends list
+			--Friends.MyFriendNIDs = {};
+	        --local nid;
+	        --for nid in string.gfind(msg.nids, "([^,]+)") do 
+				--nid = tonumber(nid);
+				--table.insert(Friends.MyFriendNIDs, nid);
+	        --end
+	        --
+			---- auto subscribe and unsubscribe on every friends list refresh
+			--if(MyCompany.Aries.Chat) then
+				---- getfriends call is initiated before MyCompany.Aries.Chat is init
+				--local jc = MyCompany.Aries.Chat.GetConnectedClient();
+				--if(jc) then
+					--local count = Friends.GetFriendCountInMemory();
+					--local i;
+					--for i = 1, count do
+						--local nid = Friends.GetFriendNIDByIndexInMemory(i);
+						--if(nid) then
+							---- allow subscription to the user
+							--jc:AllowSubscription(nid.."@"..System.User.ChatDomain, true);
+							---- auto subscribe to it
+							--jc:Subscribe(nid.."@"..System.User.ChatDomain, "name", "General", "I am "..System.App.profiles.ProfileManager.GetNID());
+						--end
+					--end
+					---- unsubscribe to the user that are not in the friend list
+					---- TODO:
+					----jc:Unsubscribe(nid.."@"..System.User.ChatDomain, "");
+				--end
+			--end
+			--callbackFunc({issuccess = true});
+		--else
+			--callbackFunc({issuccess = false});
+		--end
+	--end, nil, timeout, timeout_callback);
+--end
+--
+---- get the friend count in memory
+---- @return friend count
+--function Friends.GetFriendCountInMemory()
+	--return #(Friends.MyFriendNIDs);
+--end
+--
+---- get the friend nid in memory by index
+---- @param index: index in the friend nid list
+---- @return friend nid, nil if not found
+--function Friends.GetFriendNIDByIndexInMemory(index)
+	--if(index) then
+		--return Friends.MyFriendNIDs[index];
+	--end
+--end
+--
+---- is in memory friend list
+---- @return true or false
+--function Friends.IsFriendInMemory(nid)
+	--local i, n;
+	--for i, n in ipairs(Friends.MyFriendNIDs) do
+		--if(n == nid) then
+			--return true;
+		--end
+	--end
+	--return false;
+--end
+--
+---- is user online in memory
+---- NOTE: check for scene object first and then jabber
+---- @return true or false
+--function Friends.IsUserOnlineInMemory(nid)
+	---- myself
+	--if(nid == System.App.profiles.ProfileManager.GetNID()) then
+		--return true;
+	--end
+	----for all bipeds, get OPC status
+	--local player = ParaScene.GetObject("<player>");
+	--local playerCur = player;
+	--local count = 0;
+	--while(playerCur:IsValid() == true) do
+		---- get next object
+		--playerCur = ParaScene.GetNextObject(playerCur);
+		---- currently get all scene objects
+		--if(playerCur:IsValid() and playerCur:IsCharacter()) then
+			--local att = playerCur:GetAttributeObject();
+			--local isOPC = att:GetDynamicField("IsOPC", false);
+			--if(isOPC) then
+				--local nid_user = string.gsub(playerCur.name, "@.*$", "");
+				--if(nid == tonumber(nid_user)) then
+					--return true;
+				--end
+			--end
+		--end
+		---- if cycled to the player character
+		--if(playerCur:equals(player) == true) then
+			--break;
+		--end
+	--end
+	---- check for jc roster
+	--if(MyCompany.Aries.Chat) then
+		---- aries_onlinestatus may be initiated before MyCompany.Aries.Chat is init
+		--local jc = MyCompany.Aries.Chat.GetConnectedClient();
+		--if(jc) then
+			--local roster = commonlib.LoadTableFromString(jc:GetRoster());
+			--if(roster) then
+				--local _, item
+				--for _, item in ipairs(roster) do
+					----if(item.subscription == 8 or item.subscription == 4) then
+						---- we show online contact ONLY at least user subscribed to contact
+						----subscription 4: S10nTo, User is subscribed to contact (one-way).
+						----subscription 8: S10nBoth, User and contact are subscribed to each other (two-way).
+						--local nid_in_jid = string.match(item.jid, "^(%d+)@.+");
+						--if(nid_in_jid and nid == tonumber(nid_in_jid)) then
+							--if(item.online) then
+								--return true;
+							--end
+						--end
+					----end
+				--end
+			--end
+		--end
+	--end
+	--return false;
+--end
+--
+---- NOTE: we user jabber resource message representing the user's LAST visited game server id plus world id
+---- @return: world_id, gameserver_id or nil if invalid or never enter a world before
+--function Friends.GetUserGSAndWorldIDInMemory(nid)
+	---- check for jc roster
+	--if(MyCompany.Aries.Chat) then
+		---- aries_onlinestatus may be initiated before MyCompany.Aries.Chat is init
+		--local jc = MyCompany.Aries.Chat.GetConnectedClient();
+		--if(jc) then
+			--local roster = commonlib.LoadTableFromString(jc:GetRoster());
+			--if(roster) then
+				--local _, item
+				--for _, item in ipairs(roster) do
+					  ----{
+						----groups={ "General" },
+						----jid="23338@test.pala5.cn",
+						----name="name",
+						----online=1,
+						----resources={ pe={ message="", presence=1, priority=0 } },
+						----subscription=8 
+					  ----},
+					--local nid_in_jid = string.match(item.jid, "^(%d+)@.+");
+					--if(nid_in_jid and nid == tonumber(nid_in_jid)) then
+						--if(item.resources) then
+							--local resource, body;
+							--for resource, body in pairs(item.resources) do
+								--if(resource == "pe") then
+									--local message = body.message or ""; --<-- we use this mesage to mark the world server and game server id
+									--local world_id, gameserver_id = string.match(message, "^(%d+)@(%d+)$");
+									--if(world_id and gameserver_id) then
+										--return world_id, gameserver_id;
+									--end
+								--end
+							--end
+						--end
+						--return;
+					--end
+				--end
+			--end
+		--end
+	--end
+--end
+--
+---- add as friend by NID, if success
+---- @param nid: nid of the player
+---- @param callbackFunc: the callback function(msg) end
+---- @param type: "send" or "reply", default to send
+--function Friends.AddFriendByNID(nid, callbackFunc, type)
+	--if(not nid or nid == System.App.profiles.ProfileManager.GetNID()) then
+		--log("error: you can't add yourself as friend\n");
+		--commonlib.echo(nid);
+		--return;
+	--end
+	--Friends.GetMyFriends(function(msg) 
+		---- no matter if msg.issuccess
+		--if(Friends.IsFriendInMemory(nid) == true) then
+			--log("error: nid:"..tostring(nid).." is already your friend\n");
+			--commonlib.echo(nid);
+			--return;
+		--end
+		--local msg = {
+			--friendnid = nid,
+		--};
+		--paraworld.friends.add(msg, "AriesAddFriend", function(msg)
+			--if(msg.issuccess == true) then
+				----if(type == nil or type == "send") then
+				--if(msg.state == 2) then
+					---- send a message to tell the user
+					--local Chat = MyCompany.Aries.Chat;
+					--local jc = Chat.GetConnectedClient();
+					--if(jc) then
+						------------FriendSystemDebugStep1----------
+						---- TODO: this instant message may fail to send, resend this message or inform the user
+						--jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][AddFriendRequest]:"..System.App.profiles.ProfileManager.GetNID());
+						---- allow subscription to the user
+						--jc:AllowSubscription(nid.."@"..System.User.ChatDomain, true);
+						---- auto subscribe to it
+						--jc:Subscribe(nid.."@"..System.User.ChatDomain, "name", "General", "I am "..System.App.profiles.ProfileManager.GetNID());
+					--end
+					----_guihelper.MessageBox("已向对方发送了好友请求");
+				--end
+				--
+				----if(type == "reply") then
+				--if(msg.state == 1) then
+					---- send a message to tell the user
+					--local Chat = MyCompany.Aries.Chat;
+					--local jc = Chat.GetConnectedClient();
+					--if(jc) then
+						------------FriendSystemDebugStep1----------
+						---- TODO: this instant message may fail to send, resend this message or inform the user
+						--jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][AddFriendReply]:"..System.App.profiles.ProfileManager.GetNID());
+						---- allow subscription to the user
+						--jc:AllowSubscription(nid.."@"..System.User.ChatDomain, true);
+						---- auto subscribe to it
+						--jc:Subscribe(nid.."@"..System.User.ChatDomain, "name", "General", "I am "..System.App.profiles.ProfileManager.GetNID());
+					--end
+					----_guihelper.MessageBox("双方已成为好友");
+				--end
+			--end
+			--
+			---- automatically get my friends again with the newly updated local server version
+			---- mainly for friends in memory update
+			--Friends.GetMyFriends(function(msg) end, "access plus 1 minute");
+			--
+			---- callback function
+			--callbackFunc(msg);
+			--
+			----if(msg.issuccess == true and msg.state == 1) then
+				------ successfully add the friend
+				----Friends.GetMyFriends(function(msg2)
+					----if(msg2.issuccess == false) then
+						------ but fail to fetch friend list afterward
+						------ add the friend in the back of the friend list
+						----table.insert(Friends.MyFriendNIDs, nid);
+					----end
+				----end, "access plus 0 day");
+			----end
+		--end);
+	--end, "access plus 0 day");
+--end
+--
+---- remove friend by NID, if success
+---- @param nid: nid of the player
+---- @param callbackFunc: the callback function(msg) end
+--function Friends.RemoveFriendByNID(nid, callbackFunc)
+	--if(not nid or nid == System.App.profiles.ProfileManager.GetNID()) then
+		--log("error: you can't remove yourself from friend list\n");
+		--commonlib.echo(nid);
+		--return;
+	--end
+	--Friends.GetMyFriends(function(msg) 
+		---- no matter if msg.issuccess
+		--if(Friends.IsFriendInMemory(nid) == false) then
+			--log("error: nid:"..tostring(nid).." is not your friend\n");
+			--commonlib.echo(nid);
+			--return;
+		--end
+		--local msg = {
+			--friendnid = nid,
+		--};
+		--paraworld.friends.remove(msg, "AriesRemoveFriend", function(msg)
+			--if(msg.issuccess == true) then
+				------ successfully add the friend
+				----Friends.GetMyFriends(function(msg2)
+					----if(msg2.issuccess == false) then
+						---- but fail to fetch friend list afterward
+						---- remove the friend from the friend list
+						--local count = #(Friends.MyFriendNIDs);
+						--log("before remove\n")
+						--commonlib.echo(Friends.MyFriendNIDs)
+						--local i;
+						--for i, n in ipairs(Friends.MyFriendNIDs) do
+							--if(nid == n) then
+								--table.remove(Friends.MyFriendNIDs, i);
+								--commonlib.resize(Friends.MyFriendNIDs, count - 1);
+								--break;
+							--end
+						--end
+						--log("after remove\n")
+						--commonlib.echo(Friends.MyFriendNIDs)
+						--
+						------------FriendSystemDebugStep1----------
+						--local Chat = MyCompany.Aries.Chat;
+						--local jc = Chat.GetConnectedClient();
+						--if(jc) then
+							---- unsubscribe to the user
+							--jc:Unsubscribe(nid.."@"..System.User.ChatDomain, "");
+							------ TODO: tell the user to refresh his/her friend list
+							----jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][RemoveFriend]:"..System.App.profiles.ProfileManager.GetNID());
+						--end
+					----end
+				----end, "access plus 0 day");
+				--if(msg.issuccess == true) then
+					--_guihelper.MessageBox("成功删除好友");
+				--end
+			--else
+				--_guihelper.MessageBox("删除好友失败，请稍后重试");
+			--end
+			--
+			---- automatically get my friends again with the newly updated local server version
+			---- mainly for friends in memory update
+			--Friends.GetMyFriends(function(msg) end, "access plus 1 minute");
+			--
+			---- callback function
+			--callbackFunc(msg);
+		--end);
+	--end, "access plus 0 day");
+--end
+--
+--function Friends.ReceiveFriendRequest(nid)
+	--
+	--local isAllowAddFriend = commonlib.getfield("MyCompany.Aries.Friends.BuddyListPage.isAllowAddFriend");
+	--if(isAllowAddFriend == false) then
+		---- refuse to be added as friend
+		--local msg = {
+			--friendnid = nid,
+		--};
+		--paraworld.friends.remove(msg, "AriesRemoveFriend", function(msg)
+			--if(msg) then
+				--if(msg.issuccess) then
+					---- successfully decline friends request
+					---- sync the jabber buddy list with the firend list
+					--local jc = System.App.Chat.GetConnectedClient();
+					--if(jc ~= nil) then
+						--local jid = nid.."@"..System.User.ChatDomain;
+						---- allow subscription
+						--jc:AllowSubscription(jid, false);
+						--log("Deny Subscription to "..jid.."\n")
+					--else
+						--log("error: nil jabber client when trying to deny friend request through jabber\n");
+					--end
+				--end	
+			--end
+		--end);
+		--return;
+	--end
+	--
+	--if(nid and nid ~= System.App.profiles.ProfileManager.GetNID()) then
+		--System.App.profiles.ProfileManager.GetUserInfo(nid, "IsFriendInMemory", function(msg)
+			--if(msg == nil or not msg.users or not msg.users[1]) then
+				--commonlib.echo(msg)
+				--log("error in get user info when adding friend\n")
+				--return;
+			--end
+			--local nickname = tostring(msg.users[1].nickname);
+			--
+			--local NotificationArea = MyCompany.Aries.Desktop.NotificationArea;
+			--if(NotificationArea.GetFeedByName("Friends.ReceiveFriendRequest"..nid)) then
+				---- the request node is shown in the notification area
+				---- cancel the feed in case of multiple request
+				--return;
+			--end
+			--NotificationArea.AppendFeed("request", {
+				--type = "Friends.ReceiveFriendRequest", 
+				--Name = "Friends.ReceiveFriendRequest"..nid, 
+				--nid = nid, 
+				--nickname = nickname, 
+				--ShowCallbackFunc = function(node)
+					--local nickname = node.nickname;
+					--local nid = node.nid;
+					--_guihelper.MessageBox("你同意 <pe:name value='"..nickname.."' nid='"..nid.."' useyou=false/> ("..tostring(nid)..") 将你加为好友么", function(result)
+						--if(_guihelper.DialogResult.Yes == result) then
+							---- accept the friend request
+							--Friends.AddFriendByNID(nid, function(msg)
+								--if(msg) then
+									--if(msg.issuccess) then
+										------ sync the jabber buddy list with the firend list
+										----local jc = System.App.Chat.GetConnectedClient();
+										----if(jc ~= nil) then
+											----local jid = nid.."@"..System.User.ChatDomain;
+											------ allow subscription
+											----jc:AllowSubscription(jid, true);
+											------ auto subscribe to it
+											----jc:Subscribe(jid, "name", "General", "I am "..tostring(System.App.Chat.jid));
+											----log("Allow Subscription to "..jid.."\n")
+										----else
+											----log("error: nil jabber client when trying to add back friend through jabber\n");
+										----end
+										--if(msg.issuccess == true and msg.state == 1) then
+											--_guihelper.MessageBox("用户 <pe:name value='"..nickname.."' nid='"..nid.."' useyou=false/> ("..tostring(nid)..") 已经成为你的好友了，你可以在好友列表中看到他哦。");
+										--end
+									--else
+										--log(string.format("确认好友邀请失败了, 查看log了解原因"));
+										--commonlib.echo(nid);
+										--commonlib.echo(msg);
+									--end	
+								--end
+							--end, "reply");
+						--elseif(_guihelper.DialogResult.No == result) then
+							--local msg = {
+								--friendnid = nid,
+							--};
+							--paraworld.friends.remove(msg, "AriesRemoveFriend", function(msg)
+								--if(msg) then
+									--if(msg.issuccess) then
+										---- successfully decline friends request
+										---- sync the jabber buddy list with the firend list
+										--local jc = System.App.Chat.GetConnectedClient();
+										--if(jc ~= nil) then
+											--local jid = nid.."@"..System.User.ChatDomain;
+											---- allow subscription
+											--jc:AllowSubscription(jid, false);
+											--log("Deny Subscription to "..jid.."\n")
+										--else
+											--log("error: nil jabber client when trying to deny friend request through jabber\n");
+										--end
+									--end	
+								--end
+							--end);
+						--end
+					--end, _guihelper.MessageBoxButtons.YesNo);
+				--end,
+			--});
+		--end);
+	--else
+		--_guihelper.MessageBox("不能添加或删除自己为好友哦");
+	--end
+--end
+--
+--function Friends.ConfirmFriendReply(nid)
+	--if(nid and nid ~= System.App.profiles.ProfileManager.GetNID()) then
+		--
+		--System.App.profiles.ProfileManager.GetUserInfo(nid, "IsFriendInMemory", function(msg)
+			--if(msg == nil or not msg.users or not msg.users[1]) then
+				--commonlib.echo(msg)
+				--log("error in get user info when adding friend\n")
+				--return;
+			--end
+			--local nickname = tostring(msg.users[1].nickname);
+			--local NotificationArea = MyCompany.Aries.Desktop.NotificationArea;
+			--if(NotificationArea.GetFeedByName("Friends.ConfirmFriendReply"..nid)) then
+				---- the request node is shown in the notification area
+				---- cancel the feed in case of multiple request
+				--return;
+			--end
+			--NotificationArea.AppendFeed("story", {
+				--type = "Friends.ConfirmFriendReply", 
+				--Name = "Friends.ConfirmFriendReply"..nid, 
+				--nid = nid, 
+				--nickname = nickname,
+				--ShowCallbackFunc = function(node)
+					--local nickname = node.nickname;
+					--local nid = node.nid;
+					--_guihelper.MessageBox("用户 <pe:name value='"..nickname.."' nid='"..nid.."'/> ("..tostring(nid)..") 已经成为你的好友了，你可以在好友列表中看到他哦。");
+				--end;
+			--});
+		--end);
+		---- auto refresh friends in memory
+		--Friends.GetMyFriends(function() end, "access plus 0 day");
+	--end
+--end
+--
+--function Friends.GenerateMyPositionString()
+	--NPL.load("(gl)script/apps/Aries/Login/ServerSelectPage1.lua");
+	---- the table is grabed during start up
+	--local dsWorlds = MyCompany.Aries.ServerSelectPage.dsWorlds;
+	--local worldname = "";
+	--local i;
+	--for i = 1, #(dsWorlds) do
+		--if(dsWorlds[i].ws_id == System.GSL_client.worldserver_id and dsWorlds[i].gs_nid == System.GSL_client.gameserver_nid) then
+			--worldname = dsWorlds[i].text;
+			--break;
+		--end
+	--end
+	--
+	--local regionname = "";
+	--local home_owner_nid;
+	---- open the region radar
+	--NPL.load("(gl)script/kids/3DMapSystemApp/worlds/RegionRadar.lua");
+	--local args = Map3DSystem.App.worlds.Global_RegionRadar.WhereIam();
+	--if(args) then
+		--regionname = args.label;
+		--
+		--if(System.App.HomeLand.HomeLandGateway.IsInMyHomeland())then
+			--home_owner_nid = System.App.profiles.ProfileManager.GetNID();
+		--elseif(System.App.HomeLand.HomeLandGateway.IsInOtherHomeland())then
+			---- NOTE: leio, i manually get the nid from the table
+			--home_owner_nid = System.App.HomeLand.HomeLandGateway.nid;
+		--end
+		--if(home_owner_nid) then
+			--local nickname = "";
+			--local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(home_owner_nid);
+			--if(userinfo) then
+				--nickname = userinfo.nickname;
+				--regionname = nickname.."的家园";
+			--end
+		--end
+	--end
+	--
+	--local x, y, z = ParaScene.GetPlayer():GetPosition();
+	--local serverInfo = Map3DSystem.GSL_client:GetServerInfo();
+	--local reply = string.format("%s,%s,%s,%s,%s@%s,%s,%s,%s", 
+						--System.App.profiles.ProfileManager.GetNID(), 
+						--x, y, z, 
+						--System.GSL_client.worldserver_id, Map3DSystem.GSL_client.gameserver_nid, 
+						--worldname, regionname,
+						--home_owner_nid or "");
+	--return reply;
+--end
+--
+--function Friends.ParsePositionString(reply)
+	--local nid, x, y, z, ws_id, gs_nid, worldname, regionname, home_owner_nid = string.match(reply, "^(.+),(.+),(.+),(.+),(.+)@(.+),(.+),(.+),(.*)$");
+	--
+	----log("aaaaaaaaaaaaaa Friends.RecvPositionQueryReply\n")
+	----commonlib.echo({nid, x, y, z, ws_id, gs_nid, worldname, regionname, home_owner_nid});
+	--
+	--if(nid) then
+		--nid = tonumber(nid);
+	--end
+	--if(x and y and z) then
+		--x = tonumber(x);
+		--y = tonumber(y);
+		--z = tonumber(z);
+	--end
+	--if(home_owner_nid) then
+		--home_owner_nid = tonumber(home_owner_nid);
+	--end
+	--
+	--return nid, x, y, z, ws_id, gs_nid, worldname, regionname, home_owner_nid;
+--end
+--
+--local PositionQueryTimer;
+--local PositionQueryWaitlist = {};
+---- this timer is started in OnActivateDesktop
+--function Friends.InitPositionQueryWaitTimer()
+	--PositionQueryTimer = commonlib.Timer:new({callbackFunc = Friends.OnPositionQueryWaitTimer});
+	--PositionQueryTimer:Change(0, 1000);
+--end
+--
+--function Friends.DumpCameraSettings()
+	--log("========DumpCameraSettings========\n")
+	--local scene = ParaScene.GetMiniSceneGraph("NPCDialog_miniscene");
+	--if(scene and scene:IsValid() == true) then
+		--log("NPCDialog_miniscene");
+		--commonlib.echo({scene:CameraGetLookAtPos()})
+		--commonlib.echo({scene:CameraGetEyePosByAngle()});
+	--end
+--end
+--
+--function Friends.OnPositionQueryWaitTimer()
+----local nids = {
+----5232685,
+----40945787,
+----84031276,
+----38161542,
+----38670804,
+----84027163,
+----70756252,
+----60602499,
+----94433864,
+----54201,
+----93289589,
+----452536,
+----72566738,
+----53165202,
+----51719800,
+----205784,
+----2350901,
+----14142250,
+----3589892,
+----5402605,
+----107115,
+----49110133,
+----44210408,
+----368566,
+----61400840,
+----83253422,
+----43797921,
+----43807163,
+----94192512,
+----48204713,
+----88700982,
+----33960426,
+----98267073,
+----33224312,
+----33362797,
+----56439250,
+----42340345,
+----93914067,
+----4967992,
+----5212754,
+----10691005,
+----14016379,
+----59659509,
+----71053622,
+----2745659,
+----98339587,
+----44226473,
+----74553367,
+----98898258,
+----80121080,
+----30878954,
+----5411405,
+----73072521,
+----31202566,
+----7120727,
+----97960908,
+----1608259,
+----95427527,
+----53380138,
+----33489096,
+----38848161,
+----16891196,
+----14851165,
+----91005661,
+----51518,};
+	----
+	----local nid = nids[math.floor(math.random(1, #nids))];
+	----System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+	----
+	----local npc_char = ParaScene.GetCharacter(nid.."");
+	----if(npc_char:IsValid()) then
+		----System.SendMessage_obj({type = System.msg.OBJ_SelectObject, obj = npc_char});
+	----end
+	--
+	--
+	--local timedoutlist = {};
+	--local nid, countdowntime;
+	--for nid, countdowntime in pairs(PositionQueryWaitlist) do
+		--PositionQueryWaitlist[nid] = (countdowntime - 1000);
+		--if((countdowntime - 1000) < 0) then
+			--table.insert(timedoutlist, nid);
+		--end
+	--end
+	--
+	--local _, nid;
+	--for _, nid in ipairs(timedoutlist) do
+		--PositionQueryWaitlist[nid] = nil;
+		--local nickname = "";
+		--local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(nid);
+		--if(userinfo) then
+			--nickname = userinfo.nickname;
+		--end
+		--_guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:30px;">不知道你的好友[%s]在哪里哦。</div>]], nickname));
+	--end
+--end
+--
+---- query friend position
+--function Friends.QueryFriendPosition(nid)
+	--local nickname = "";
+	--local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(nid);
+	--if(userinfo) then
+		--nickname = userinfo.nickname;
+	--end
+	--local isFriend = Friends.IsFriendInMemory(nid);
+	--if(isFriend) then
+		--local isOnline = Friends.IsUserOnlineInMemory(nid);
+		---- Step1: check if online in memory
+		--if(isOnline) then
+			---- Step2: check if in nearby list
+			----for all bipeds, get OPC nid and position
+			--local player = ParaScene.GetObject("<player>");
+			--local playerCur = player;
+			--while(playerCur:IsValid() == true) do
+				---- get next object
+				--playerCur = ParaScene.GetNextObject(playerCur);
+				---- currently get all scene objects
+				--if(playerCur:IsValid() and playerCur:IsCharacter()) then
+					--local att = playerCur:GetAttributeObject();
+					--local isOPC = att:GetDynamicField("IsOPC", false);
+					--if(isOPC == true) then
+						--local nid_in_name = string.gsub(playerCur.name, "@.*$", "");
+						--if(nid_in_name == tostring(nid)) then
+							--local dist = playerCur:DistanceTo(player);
+							--if(dist < 20) then
+								--_guihelper.MessageBox(string.format([[<div style="margin-top:32px;">你的好友[%s](%s)就在你附近。</div>]], nickname, tostring(nid)), nil, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+								--return;
+							--end
+							--break;
+						--end
+					--end
+				--end
+				---- if cycled to the player character
+				--if(playerCur:equals(player) == true) then
+					--break;
+				--end
+			--end
+			--
+			---- Step3: query for position
+			---- NOTE: although target user may still in the same world as the player, exceeding 20 meter range, 
+			----		we still query position using jabber message
+			--local Chat = MyCompany.Aries.Chat;
+			--local jc = Chat.GetConnectedClient();
+			--if(jc) then
+				--jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][PositionQueryRequest]:"..System.App.profiles.ProfileManager.GetNID());
+				--PositionQueryWaitlist[nid] = 3500;
+			--end
+		--else
+			--_guihelper.MessageBox(string.format([[<div style="margin-left:-10px;margin-top:32px;">你的好友[%s](%s)现在不在线。</div>]], nickname, tostring(nid)), nil, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+			--
+		--end
+	--end
+--end
+--
+---- receive position query request
+---- answer immediately
+--function Friends.RecvPositionQueryRequest(nid)
+	--local Chat = MyCompany.Aries.Chat;
+	--local jc = Chat.GetConnectedClient();
+	--if(jc) then
+		--jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][PositionQueryReply]:"..Friends.GenerateMyPositionString());
+	--end
+--end
+--
+---- receive position query reply
+---- show the user
+--function Friends.RecvPositionQueryReply(reply)
+				--
+	--local nid, x, y, z, ws_id, gs_nid, worldname, regionname, home_owner_nid = Friends.ParsePositionString(reply);
+	--
+	--if(nid) then
+		--if(not PositionQueryWaitlist[nid]) then
+			--log("error: the position query is timedout\n");
+			--return;
+		--else
+			--PositionQueryWaitlist[nid] = nil;
+		--end
+	--end
+	--
+	--local nickname = "";
+	--local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(nid);
+	--if(userinfo) then
+		--nickname = userinfo.nickname;
+	--end
+	--
+	--if(ws_id == System.GSL_client.worldserver_id and gs_nid == System.GSL_client.gameserver_nid) then
+		--regionname = regionname or "";
+		--_guihelper.MessageBox(string.format([[<div style="margin-top:32px;">你的好友[%s](%s)正在[%s]。</div>]], nickname, tostring(nid), regionname), function(result)
+			--if(_guihelper.DialogResult.Yes == result) then
+				--if(home_owner_nid) then
+					--local myvisitedhome;
+					--if(System.App.HomeLand.HomeLandGateway.IsInMyHomeland())then
+						--myvisitedhome = System.App.profiles.ProfileManager.GetNID();
+					--elseif(System.App.HomeLand.HomeLandGateway.IsInOtherHomeland())then
+						---- NOTE: leio, i manually get the nid from the table
+						--myvisitedhome = System.App.HomeLand.HomeLandGateway.nid;
+					--end
+					--if(myvisitedhome and myvisitedhome == home_owner_nid) then
+						--_guihelper.MessageBox("你已经在"..nickname.."的家了");
+					--else
+						---- goto user homeland
+						--UIAnimManager.PlayCustomAnimation(200, function(elapsedTime)
+							--if(elapsedTime == 200) then
+								--System.App.Commands.Call("Profile.Aries.GotoHomeLand", {nid = home_owner_nid});
+							--end
+						--end);
+					--end
+				--else
+					---- teleport to the target
+					--local params = {
+						--asset_file = "character/particles/summonNew.x",
+						--binding_obj_name = ParaScene.GetPlayer().name,
+						--start_position = nil,
+						--duration_time = 800,
+						--begin_callback = function() 
+						--end,
+						--end_callback = function()
+							--local HomeLandGateway = Map3DSystem.App.HomeLand.HomeLandGateway;
+							--if(HomeLandGateway.IsInHomeland()) then
+								--UIAnimManager.PlayCustomAnimation(200, function(elapsedTime)
+									--if(elapsedTime == 200) then
+										---- leave the homeland and teleport to user
+										--HomeLandGateway.SetTeleportBackPosition(x, y + 0.1, z);
+										--HomeLandGateway.Away();
+									--end
+								--end);
+							--else
+								---- set the position
+								--ParaScene.GetPlayer():SetPosition(x, y + 0.1, z); -- a little higher
+								--ParaScene.GetPlayer():ToCharacter():FallDown();
+								--local params = {
+									--asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+									--binding_obj_name = ParaScene.GetPlayer().name,
+									--start_position = nil,
+									--duration_time = 800,
+									--begin_callback = function() 
+									--end,
+									--end_callback = function()
+									--end,
+								--};
+								--local EffectManager = MyCompany.Aries.EffectManager;
+								--EffectManager.CreateEffect(params);
+								---- auto refresh myself
+								--System.Item.ItemManager.RefreshMyself();
+							--end
+						--end,
+					--};
+					--local EffectManager = MyCompany.Aries.EffectManager;
+					--EffectManager.CreateEffect(params);
+				--end
+			--elseif(_guihelper.DialogResult.No == result) then
+				---- invite to come to the current player position
+				--local Chat = MyCompany.Aries.Chat;
+				--local jc = Chat.GetConnectedClient();
+				--if(jc) then
+					--jc:Message(nid.."@"..System.User.ChatDomain, "[Aries][InviteTeleport]:"..Friends.GenerateMyPositionString());
+				--end
+			--end
+		--end, _guihelper.MessageBoxButtons.YesNoCancel, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+	--elseif(home_owner_nid) then
+		--_guihelper.MessageBox(string.format([[<div style="margin-top:32px;">你的好友[%s](%s)正在[%s]。</div>]], nickname, tostring(nid), regionname), function(result)
+			--if(_guihelper.DialogResult.OK == result) then
+				--if(home_owner_nid) then
+					---- goto user homeland
+					--UIAnimManager.PlayCustomAnimation(200, function(elapsedTime)
+						--if(elapsedTime == 200) then
+							--System.App.Commands.Call("Profile.Aries.GotoHomeLand", {nid = home_owner_nid});
+						--end
+					--end);
+				--end
+			--end
+		--end, _guihelper.MessageBoxButtons.OKCancel, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+	--else
+		--worldname = worldname or "";
+		--_guihelper.MessageBox(string.format([[<div style="margin-top:24px;margin-left:-12px;">你的好友[%s](%s)正在服务器[%s]。</div>]], nickname, tostring(nid), worldname), nil, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+	--end
+--end
+--
+---- receive invite teleport invitation
+--function Friends.RecvInviteTeleport(invite)
+	--local nid, x, y, z, ws_id, gs_nid, worldname, regionname, home_owner_nid = Friends.ParsePositionString(invite);
+	--
+	--if(Friends.IsFriendInMemory(nid)) then
+		--local nickname = "";
+		--local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(nid);
+		--if(userinfo) then
+			--nickname = userinfo.nickname;
+		--end
+		----你的好友[用户名](米米号)邀请你去[地点名]，你要过去吗？
+		--if(ws_id == System.GSL_client.worldserver_id and gs_nid == System.GSL_client.gameserver_nid) then
+			--regionname = regionname or "";
+			--_guihelper.MessageBox(string.format([[<div style="margin-top:24px;">你的好友[%s](%s)邀请你去[%s]，你要过去吗？</div>]], nickname, tostring(nid), regionname), function(result)
+				--if(_guihelper.DialogResult.OK == result) then
+						--if(home_owner_nid) then
+						--local myvisitedhome;
+						--if(System.App.HomeLand.HomeLandGateway.IsInMyHomeland())then
+							--myvisitedhome = System.App.profiles.ProfileManager.GetNID();
+						--elseif(System.App.HomeLand.HomeLandGateway.IsInOtherHomeland())then
+							---- NOTE: leio, i manually get the nid from the table
+							--myvisitedhome = System.App.HomeLand.HomeLandGateway.nid;
+						--end
+						--if(myvisitedhome and myvisitedhome == home_owner_nid) then
+							--_guihelper.MessageBox("你已经在"..nickname.."的家了");
+						--else
+							---- goto user homeland
+							--UIAnimManager.PlayCustomAnimation(200, function(elapsedTime)
+								--if(elapsedTime == 200) then
+									--System.App.Commands.Call("Profile.Aries.GotoHomeLand", {nid = home_owner_nid});
+								--end
+							--end);
+						--end
+					--else
+						--local HomeLandGateway = Map3DSystem.App.HomeLand.HomeLandGateway;
+						--if(HomeLandGateway.IsInHomeland()) then
+							--UIAnimManager.PlayCustomAnimation(200, function(elapsedTime)
+								--if(elapsedTime == 200) then
+									---- leave the homeland and teleport to user
+									--HomeLandGateway.SetTeleportBackPosition(x, y + 0.1, z);
+									--HomeLandGateway.Away();
+								--end
+							--end);
+						--else
+							---- teleport to the target
+							--local params = {
+								--asset_file = "character/particles/summonNew.x",
+								--binding_obj_name = ParaScene.GetPlayer().name,
+								--start_position = nil,
+								--duration_time = 800,
+								--begin_callback = function() 
+								--end,
+								--end_callback = function()
+									---- set the position and camera setting
+									--ParaScene.GetPlayer():SetPosition(x, y + 0.1, z); -- a little higher
+									--ParaScene.GetPlayer():ToCharacter():FallDown();
+									--local params = {
+										--asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+										--binding_obj_name = ParaScene.GetPlayer().name,
+										--start_position = nil,
+										--duration_time = 800,
+										--begin_callback = function() 
+										--end,
+										--end_callback = function()
+										--end,
+									--};
+									--local EffectManager = MyCompany.Aries.EffectManager;
+									--EffectManager.CreateEffect(params);
+									---- auto refresh myself
+									--System.Item.ItemManager.RefreshMyself();
+								--end,
+							--};
+							--local EffectManager = MyCompany.Aries.EffectManager;
+							--EffectManager.CreateEffect(params);
+						--end
+					--end
+				--end
+			--end, _guihelper.MessageBoxButtons.OKCancel, nil, "script/apps/Aries/Desktop/GUIHelper/PositionQueryMessageBox.html");
+		--end
+	--end
+--end

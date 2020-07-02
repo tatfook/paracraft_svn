@@ -1,0 +1,95 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/TerrainPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Terrain Editing Page by LiXizhi 2008.6.8</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="TerrainPage.lua"><![CDATA[
+Map3DSystem.App.Env.TerrainPage.OnInit();
+]]></script>
+<pe:tabs name="TerraPageTab" > 
+<pe:tab-item text="简单模式" name="simple" style="padding-left:10px;">
+<div>高度: <span style="color:#808080;">改变地形地貌</span>
+    <div>
+        <a onclick="Map3DSystem.App.Env.TerrainPage.GaussianHill" param1="1" tooltip="增加地面高度">
+            <img style="background:url(Texture/3DMapSystem/Env/raise.png);width:32px;height:32px"/>
+        </a>
+        <a onclick="Map3DSystem.App.Env.TerrainPage.GaussianHill" param1="-1" tooltip="降低地面高度">
+            <img style="background:url(Texture/3DMapSystem/Env/dig.png);width:32px;height:32px"/>
+        </a>
+        <a onclick="Map3DSystem.App.Env.TerrainPage.Flatten" tooltip="铲平地面">
+            <img style="background:url(Texture/3DMapSystem/Env/flatten.png);width:32px;height:32px"/>
+        </a>
+        <a onclick="Map3DSystem.App.Env.TerrainPage.Roughen_Smooth" param1="false" tooltip="平滑">
+            <img style="background:url(Texture/3DMapSystem/Env/smooth.png);width:32px;height:32px"/>
+        </a>
+        <a onclick="Map3DSystem.App.Env.TerrainPage.Roughen_Smooth" param1="true" tooltip="锐化">
+            <img style="background:url(Texture/3DMapSystem/Env/rough.png);width:32px;height:32px"/>
+        </a>
+    </div>
+    <div>
+        <div style="float:left;margin-top:10px">范围:</div>
+        <div style="float:left">
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range1.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTerrainBrushSize" brushsize="15" />
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range2.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTerrainBrushSize" brushsize="20" />
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range3.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTerrainBrushSize" brushsize="30" /><br />
+            <pe:sliderbar style="width:100px" name="HeightFieldBrushSize" value="10" min="5" max="120" min_step="1" onchange="Map3DSystem.App.Env.TerrainPage.OnSetTerrainBrushSize" />
+        </div>    
+    </div>
+</div>
+<hr />
+<div>贴图: <span style="color:#808080;">鼠标左键绘制,右键擦除</span>
+    <pe:gridview AllowPaging="True" pagesize="8" ItemsPerLine="4" style="height:110px;" name="gvwSkyboxes" DataSource='<%=Map3DSystem.App.Env.TerrainPage.DS_TerrainTex_Func%>' DefaultNodeHeight="40">
+        <Columns>
+	        <a onclick="Map3DSystem.App.Env.TerrainPage.OnTerrainTexturePaint" param1='<%=Eval("filename")%>'>
+	            <img src='<%=Eval("filename")%>'width="38" height="38"/>
+	        </a>
+        </Columns>
+        <PagerSettings Position="Bottom" PreviousPageText="" NextPageText=""/>
+    </pe:gridview>
+    <div>
+        <div style="float:left;margin-top:10px">范围:</div>
+        <div style="float:left">
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range1.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTextureBrushSize" brushsize="1" />
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range2.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTextureBrushSize" brushsize="2" />
+            <input type="button" style="background:url(Texture/3DMapSystem/Env/range3.png);width:32px;height:32px" onclick="Map3DSystem.App.Env.TerrainPage.SetTextureBrushSize" brushsize="3" /><br />
+            <pe:sliderbar style="width:100px" name="TextureBrushSize" value="2" min="0.2" max="50" min_step="0.1" onchange="Map3DSystem.App.Env.TerrainPage.OnSetTextureBrushSize" />
+        </div>
+    </div>
+</div>
+<hr />
+<div>    
+    <input type="button" onclick="Map3DSystem.App.Env.TerrainPage.Reset_TerrainMod" name="reset" value="重置"/>
+</div>
+</pe:tab-item>
+<pe:tab-item text="高级工具" name="adv" selected="true" style="padding-left:10px;padding-top:10px">
+    <a href="TerraFormPage.html" target="TerraFrame" tooltip="更改地形">
+        <img style="background:url(Texture/3DMapSystem/Env/terraform_32bits.png);width:32px;height:32px"/>
+    </a>
+    <a href="TerraPaintPage.html" target="TerraFrame" tooltip="绘制地表">
+        <img style="background:url(Texture/3DMapSystem/Env/paint_32bits.png);width:32px;height:32px"/>
+    </a>
+    <a href="TerraGenPage.html" target="TerraFrame" tooltip="生成地形">
+        <img style="background:url(Texture/3DMapSystem/Env/push_32bits.png);width:32px;height:32px"/>
+    </a>
+    <a href="TerraPropertyPage.html" target="TerraFrame" tooltip="地块属性">
+        <img style="background:url(Texture/3DMapSystem/Env/lighting_32bits.png);width:32px;height:32px"/>
+    </a>
+    <a href="TerraClonePage.html" target="TerraFrame" tooltip="复制地形">
+        <img style="background:url(Texture/3DMapSystem/Env/push_32bits.png);width:32px;height:32px"/>
+    </a>
+    <br /><hr />
+    <iframe name="TerraFrame" src="TerraPaintPage.html"></iframe>
+</pe:tab-item>
+
+<pe:tab-item text="地形数据" name="mapInfo" selected="false" style="padding-left:10px;padding-top:10px">
+    <iframe name="mapInfoFrame" src="TerrainInfoPage.html"></iframe>
+</pe:tab-item>
+
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,247 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30111_CyanDragon_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30111_CyanDragon_dialog, by Andy, 2009/8/1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/Dragon/30011_WishLevel3_combat.lua");
+--NPL.load("(gl)script/apps/Aries/Inventory/Cards/MyCardsManager.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+local state = page:GetRequestParam("state")
+state = tonumber(state);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local bean = MyCompany.Aries.Pet.GetBean();
+function isOpened()
+    return hasGSItem(50308);
+end
+local bean = MyCompany.Aries.Pet.GetBean();
+
+
+function isDead()
+--     if(bean)then
+--        if(bean.health == 2)then
+--            return true;
+--        end
+--    end
+    return false;
+end
+function doTeleportWoody()
+    return MyCompany.Aries.Pet.DoTeleportWoody();
+end
+--是否已经放入战斗背包
+function isEquiped()
+    return not MyCardsManager.CombatBagIsNull();
+end
+--是否已经学会一个技能
+function isLearned()
+    return MyCardsManager.HasCardTemplagte();
+end
+function isFinished()
+    return hasGSItem(50309);
+end
+--是否已经兑换过经验石
+function isExchangedStone()
+    return hasGSItem(50311);
+end
+JumpState = function()
+    if(state and state == 6)then
+        return true;
+    end
+end
+Condition1 = function()
+    return isFinished();
+end;
+Condition2 = function()
+--    if(not isExchangedStone() and bean and bean.level < 3)then
+--        return true;
+--    end
+end;
+Condition3 = function()
+    if(not isExchangedStone() and bean and bean.level >= 3)then
+        return true;
+    end
+end;
+Condition4 = function()
+    if(isOpened() and not isLearned() and isExchangedStone())then
+        return true;
+    end
+end;
+Condition5 = function()
+    if(isOpened() and isLearned() and  isExchangedStone())then
+        return true;
+    end
+end;
+
+function doShowPanel()
+        function showStatus()
+            MyCompany.Aries.Desktop.QuestArea.ShowQuestDragonStatusByUrl("script/apps/Aries/NPCs/Dragon/30011_WishLevel3_combat_status.html?jumpstate=4");
+        end
+       
+        if(not hasGSItem(50312))then
+            ItemManager.PurchaseItem(50312, 1, function(msg) end, function(msg)
+	            if(msg)then
+                    showStatus();
+	            end
+            end);
+        else
+            --显示状态面板
+            showStatus();
+        end
+end
+function doGetStone()
+    ItemManager.ExtendedCost(467, nil, nil, function(msg)end, function(msg) 
+		end);
+end
+function doFinished()
+    ItemManager.ExtendedCost(466, nil, nil, function(msg)end, function(msg) 
+	    if(msg and msg.issuccess)then
+            NPL.load("(gl)script/apps/Aries/Desktop/AriesDesktop.lua");
+            -- MyCompany.Aries.Desktop.RefreshCombatUI();
+            --显示勇者之龙任务图标
+            NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/30408_HeroDragonQuest.lua");
+            local HeroDragonQuest = commonlib.gettable("MyCompany.Aries.Quest.NPCs.HeroDragonQuest");
+            HeroDragonQuest.RefreshStatus();
+
+            -- 50310_WishLevel3Combat_RewardFriendliness
+            local bHas, guid = hasGSItem(50310);
+            if(bHas and guid) then
+                local item = ItemManager.GetItemByGUID(guid);
+                if(item and item.guid > 0) then
+                    item:OnClick("left");
+                end
+            end
+        end	
+    end);
+end
+function EntryAction(from, to)
+    
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+<pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid="30111" />
+        <pe:placeholder id="name" source="{this}" value="青龙" />
+
+        <pe:placeholder id="content" source="{pe:state}" />
+    </pe:template>
+        
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = '<%=isDead() %>' target_state = "20"/>
+			<pe:answer-if condition = '<%=Eval("JumpState") %>' target_state = "6"/>
+			<pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "10"/>
+			<pe:answer-if condition = 'true' target_state = "2"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "1">
+		我是青龙，一直镇守魔法学院，没想到黑暗之魔居然卷土重来了，小镇危险重重，这个时候你来找我，是有什么事吗？
+		<pe:answer text="我要战斗" template_id="fighting">
+			<pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			<pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			<pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			<pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "2">
+		这颗经验石我珍藏了很多年，一直就想交给一只天赋超群的抱抱龙；<br />你的抱抱龙现在还太小了，等他到3级的时候再来找我吧！
+		<pe:answer text="我知道了" template_id="iknow">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "3">
+		这颗经验石给你已经为了你准备很久了；<br />快带上经验石和抱抱龙去魔法学院了解一下金，木，水，火，土，这5种魔法的技能特色，然后选择一个技能炼制吧！<br />炼制成功后记得立刻回来找我！
+		<pe:answer text="我知道了" template_id="iknow">
+			<pe:answer-if condition = "true" transition='<%=doGetStone() %>'  target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "4">
+		经验石已经给过你了，快带上抱抱龙去魔法学院了解一下金，木，水，火，土，这5种魔法的技能特色，然后选择一个技能炼制吧！<br />炼制成功后记得立刻回来找我！
+		<pe:answer text="我知道了" template_id="iknow">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "5">
+		真不错，你的抱抱龙已经炼制出了魔法技能卡片了！<br />下面根据我的指引，点击 抱抱龙资料；在卡片页面，试着把卡片放入战斗背包吧！
+		<pe:answer text="查看指引" template_id="learnbagguide">
+			<pe:answer-if condition = "true" transition='<%=doShowPanel() %>' target_state = "11"/>
+		</pe:answer>
+        
+		<pe:answer text="放好了" template_id="putdown">
+			<pe:answer-if condition = "<%=isEquiped() %>" target_state = "6"/>
+			<pe:answer-if condition = "true" target_state = "7"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "6">
+		太棒了，完成的真不错！<br />现在，我正重的告诉你，你的抱抱龙战斗技能已经开启了，快快担负起保卫哈奇小镇的使命吧！
+		<pe:answer text="我知道了" template_id="iknow">
+			<pe:answer-if condition = "true" transition='<%=doFinished() %>' target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "7">
+		你还没把卡片放入战斗背包里呢，真正放好了再来找我吧！
+		<pe:answer text="查看指引" template_id="learnbagguide">
+			<pe:answer-if condition = "true" transition='<%=doShowPanel() %>' target_state = "12"/>
+		</pe:answer>
+        
+		<pe:answer text="我知道了" template_id="iknow">
+			<pe:answer-if condition = "true" transition='true' target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "10">
+		我是青龙，一直镇守魔法学院，没想到黑暗之魔居然卷土重来了，小镇危险重重，这个时候你来找我，是有什么事吗？
+		<pe:answer text="取消" template_id="cancel">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "20">
+		你的抱抱龙已经死亡，现在小镇正面临危险，快快去找伍迪复活你的抱抱龙吧，保卫小镇需要你们！
+		<pe:answer text="马上过去" template_id="goimmediately">
+			<pe:answer-if condition = "true" transition='<%=doTeleportWoody() %>' target_state = "-1"/>
+		</pe:answer>
+        
+		<pe:answer text="以后再说" template_id="later">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "11">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = 'true' target_state = "5"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "12">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = 'true' target_state = "7"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

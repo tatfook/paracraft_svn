@@ -1,0 +1,95 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30383_RecycleBin_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30383_RecycleBin.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local item,item_info = MyCompany.Aries.Quest.NPCs.RecycleBin.GetSelectedItem();
+commonlib.echo(item);
+commonlib.echo(item_info);
+local item_id;
+local prop
+local label;
+local imagePath = "";
+if(item_info)then
+    item_id = item_info.item_id;
+    prop = item_info.prop;
+    label = item_info.label;
+    imagePath = string.format("%s.png",item_info.assetFile or "");
+end
+page:SetValue("icon",imagePath);
+function GetItem()
+    return string.format("答案是：%s",prop or "");
+end
+function GetLabel()
+    return string.format("【%s】",label or "");
+end
+function doClick(sName)
+    if(not sName)then
+      return;
+    end
+	local answer_prop = string.match(sName,"answer_(.+)");
+    answer_prop = tonumber(answer_prop);
+    local a = "";
+    if(answer_prop == 1)then
+        a="可回收";
+    elseif(answer_prop == 2)then
+        a="厨房";
+    elseif(answer_prop == 3)then
+        a="有害";
+    elseif(answer_prop == 4)then
+        a="其它";
+    end
+    local s = string.format([[<div style="margin-left:20px;margin-top:30px;">你确定将【%s】扔进%s垃圾箱吗？</div>]],label,a);
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox(s,function(result)
+        if(result == _guihelper.DialogResult.Yes)then
+	         MyCompany.Aries.Quest.NPCs.RecycleBin.DoAnswer(answer_prop)
+            doClose();
+        else
+	        commonlib.echo("no");
+        end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+
+end
+function doClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:655px;height:550px;background:url(texture/Aries/Quest/MedalStatus_panel_bg2_32bits.png: 60 60 60 60)">
+  <input type="button" style="width:54px;height:54px;margin-left:615px;margin-top:-10px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+          onclick="doClose()" />
+    <div style="width:530px;height:73px;margin-left:63px;margin-top:-35px;background:Texture/Aries/Quest/RecycleBin/title_32bits.png#0 0 530 73"/>
+        <div style="width:200px;margin-left:140px;margin-top:-70px;color:#339900;font-weight:bold;font-size:14;text-align:center;"><%=GetLabel() %>
+    </div>
+    <div>
+        <div style="float:left;">
+            <div style="width:200px;height:200px;margin-left:63px;margin-top:40px;background:Texture/Aries/Quest/RecycleBin/item_bg_32bits.png#0 0 200 200"/>
+                <img  name = "icon" style="margin-left:120px;margin-top:-152px;width:96px;height:96px;"/>
+        </div>
+        <div style="float:left;">
+            <div style="margin-left:50px;margin-top:20px;">
+                <input type="button" style="width:91px;height:173px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/RecycleBin/1_32bits.png#0 0 91 173" 
+                     name="answer_1" onclick="doClick()" />
+                 <input type="button" style="width:91px;height:173px;margin-left:70px;margin-top:0px;background:Texture/Aries/Quest/RecycleBin/2_32bits.png#0 0 91 173"
+                     name="answer_2"  onclick="doClick()" />
+            </div>
+            <div style="margin-left:50px;margin-top:-30px;">
+                 <input type="button" style="width:91px;height:173px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/RecycleBin/3_32bits.png#0 0 91 173"
+                     name="answer_3" onclick="doClick()" />
+                 <input type="button" style="width:91px;height:173px;margin-left:70px;margin-top:0px;background:Texture/Aries/Quest/RecycleBin/4_32bits.png#0 0 91 173"
+                     name="answer_4" onclick="doClick()" />
+            </div>
+        </div>
+    </div>
+    <input type="button" style="margin-left:250px;margin-top:20px;width:153px;height:49px;background:url(texture/Aries/Common/Later_32bits.png# 0 0 153 49);" onclick="doClose()" value=""/>
+    
+</div>
+</pe:mcml> 
+</body>
+</html>

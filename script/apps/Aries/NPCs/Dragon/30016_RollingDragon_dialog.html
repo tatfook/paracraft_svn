@@ -1,0 +1,135 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30016_RollingDragon_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30016_RollingDragon_dialog, by Andy, 2009/9/11</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+-- 15002_RollingDragon
+local gsid_dragon_action = 15002;
+
+-- 50218_WishLevel12_Acquire
+-- 50219_WishLevel12_Complete
+-- 50220_WishLevel12_RewardFriendliness
+
+function IsWishQuestFinished()
+    if(hasGSItem(50218) and hasGSItem(50219)) then
+        return true;
+    end
+    return false;
+end
+
+function IsWishQuestAccepted()
+    if(hasGSItem(50218) and not hasGSItem(50219)) then
+        return true;
+    end
+    return false;
+end
+
+function IsDragonAtHome()
+	local item = ItemManager.GetMyMountPetItem();
+	if(item and item.guid > 0) then
+		if(item:WhereAmI() == "home") then
+		    return true;
+		end
+	end
+    return false;
+end
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+    if(to == 6) then
+	    -- Let the dragon play the action
+	    local myMount = MyCompany.Aries.Pet.GetUserMountObj();
+	    if(myMount and myMount:IsValid() == true) then
+            local animfile = "character/Animation/v5/dalong/PurpleDragonMajorFemale_roll2.x";
+            System.Animation.PlayAnimationFile(animfile, myMount);
+	    end
+	   
+	elseif(from == 6) then
+		-- call hook for OnLearnRollingAnim
+		local hook_msg = { aries_type = "OnLearnRollingAnim", wndName = "main"};
+		CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+		local hook_msg = { aries_type = "onLearnRollingAnim_MPD", wndName = "main"};
+		CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+    end
+end
+
+name = "NPCDialog_"..tostring(npc_id);
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30016" />
+            <pe:placeholder id="name" source="{this}" value="小滕" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=IsWishQuestFinished()%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=not IsWishQuestAccepted()%>' target_state = "2"/>
+			    <pe:answer-if condition = 'true' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你聪明的抱抱龙已经学会了急速翻腾，这个动作在你的动作列表里，经常让他做一做这个动作呀。
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你看我的急速翻腾酷吗？如果你的抱抱龙也想学，等他到12级的时候来找我吧，我能教会他。
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=IsDragonAtHome()%>' target_state = "4"/>
+			    <pe:answer-if condition = 'true' target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    想让抱抱龙学会急速翻腾？可我都没见到他怎么教他呀，快把你的抱抱龙召唤过来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    你的龙已经长到这么大了，真是不可思议！学会飞行喷火的抱抱龙，总还想学点其他的绝活，现在我就可以教会他急速翻腾，你想让他现在就学吗？
+		    <pe:answer text="我知道" template_id="iknow">
+                <pe:answer-if condition = 'true' target_state = "6"/>
+            </pe:answer>
+		    <pe:answer text="以后再说" template_id="later">
+	            <pe:answer-if condition = "true" target_state = "-1"/>
+            </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    哇～，你的抱抱龙学的真快呀，急速翻腾可以让你的抱抱龙身体更强壮，现在这个动作已经在你的动作列表里了，别忘记要让他经常做呀！
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

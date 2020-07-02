@@ -1,0 +1,645 @@
+﻿<!-- "script/apps/Aries/Combat/UI/HP_Slots_Lower.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by Andy, 2009/6/12</title>
+</head> 
+<body>
+<pe:mcml>
+<script type="text/npl" src="HP_Slots_Lower.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local LOG = LOG;
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+
+local ObjectManager = commonlib.gettable("MyCompany.Aries.Combat.ObjectManager");
+local ProfileManager = commonlib.gettable("Map3DSystem.App.profiles.ProfileManager");
+
+local class = pageCtrl:GetRequestParam("class");
+local subclass = pageCtrl:GetRequestParam("subclass");
+pageCtrl:SetNodeValue("class", class);
+pageCtrl:SetNodeValue("subclass", subclass);
+
+isInTutorial = false;
+local CombatTutorial = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatTutorial");
+if(CombatTutorial and CombatTutorial.IsInTutorial and CombatTutorial.IsInTutorial()) then
+	isInTutorial = true;
+end
+
+local petlevel={};
+data = {};
+local GetMyArenaData = commonlib.getfield("MyCompany.Aries.Combat.MsgHandler.GetMyArenaData");
+if(GetMyArenaData) then
+    data = GetMyArenaData();
+end
+
+data_pickedcards = {};
+local GetMyArenaPickedCards = commonlib.getfield("MyCompany.Aries.Combat.MsgHandler.GetMyArenaPickedCards");
+if(GetMyArenaPickedCards) then
+    data_pickedcards = GetMyArenaPickedCards();
+end
+
+--data = {players={{nid=46650264,max_hp=1060,phase="fire",power_pips=0,charms="",slot_id=1,pips=1,wards="",level=21,current_hp=1060,overtimes="",},{nid=172545123,max_hp=497,phase="fire",power_pips=0,charms="",slot_id=2,pips=1,wards="",level=6,current_hp=480,overtimes="",},{},{},},mobs={{max_hp=978,phase="metal",id=50001,power_pips=0,asset="character/v5/10mobs/HaqiTown/IronShell/IronShell.x",charms="",scale=1.3,slot_id=5,overtimes="",pips=1,wards="",level=22,current_hp=978,displayname="aaa",},},p_y=-1.35,arrow_position=5,bPlayersFull=false,slotbuffs={{wards="",charms="",overtimes="",},{wards="",charms="",overtimes="",},[5]={wards="",charms="",overtimes="",},},bIncludedAnyAliveMob=true,bIncludedAnyPlayer=true,fledslots={},bIncludedMyselfInArena=true,pips={1,1,0,0,1,0,0,0,},arena_id=1001,slotunits={46650264,172545123,[5]=50001,},p_z=19630.93,p_x=20083.07,}
+--data_pickedcards = {{key="Pass",target_slotid=1,},}
+
+--data = {players={{nid=191822478,max_hp=540,level=2, phase="fire",pips=1,power_pips=0,current_hp=420,},{level=60,max_hp=540,pips=1,phase="fire",power_pips=0,current_hp=420,},{nid=165626926,level=10,max_hp=540,pips=1,phase="fire",power_pips=0,current_hp=420,},{nid=170726708,level=20,max_hp=540,pips=1,phase="fire",power_pips=0,current_hp=420,},},mobs={{max_hp=300,scale=1,power_pips=0,asset="character/v5/10mobs/HaqiTown/BlazeHairMonster/BlazeHairMonster.x",pips=1,id=50001,phase="fire",current_hp=300,displayname="火怪",},{max_hp=300,scale=1,power_pips=0,asset="character/v5/10mobs/HaqiTown/BlazeHairMonster/BlazeHairMonster.x",pips=1,id=50001,phase="fire",current_hp=300,displayname="火怪",},{max_hp=300,scale=1,power_pips=0,asset="character/v5/10mobs/HaqiTown/BlazeHairMonster/BlazeHairMonster.x",pips=1,id=50001,phase="fire",current_hp=300,displayname="火怪",},{max_hp=300,scale=1,power_pips=0,asset="character/v5/10mobs/HaqiTown/BlazeHairMonster/BlazeHairMonster.x",pips=1,id=50001,phase="fire",current_hp=300,displayname="火怪",},},p_x=20052.876953,p_z=19723.253906,arena_id=1001,bIncludedMyselfInArena=true,arrow_position=5,pips={1,0,0,0,1,0,0,0,},p_y=1.042222,bIncludedAnyPlayer=true,bPlayersFull=false,bIncludedAnyAliveMob=true,}
+--data_pickedcards = {[1] = {key = "SingleAttack_Level1_Metal", target_slotid = 0},[2] = {key = "SingleAttack_Level2_Metal", target_slotid = 6},[3] = {key = "SingleAttack_Level1_Metal", target_slotid = 7},[4] = {key = "SingleAttack_Level3_Metal", target_slotid = 8},}
+
+--data = commonlib.LoadTableFromString("{slotbuffs={{miniaura=0,overtimes=\"\",charms=\"\",wards=\"\",},[5]={wards=\"\",charms=\"\",overtimes=\"0\",},},p_z=19599.59,bIncludedMyselfInArena=true,aura=\"\",arena_id=1040,mode=\"pve\",pips_power={2,0,0,0,0,0,0,0,},players={{nid=46650264,max_hp=3255,phase=\"fire\",power_pips=2,ismob=false,miniaura=0,charms=\"\",slot_id=1,pips=0,wards=\"\",level=50,current_hp=3101,overtimes=\"\",},{},{},{},{},{},{},{},},bIncludedAnyPlayer=true,bPlayersFull=false,bIncludedAnyAliveMob=true,slotunits={46650264,[5]=50056,},fledslots={},arrow_position=1,pips={0,0,0,0,1,0,0,0,},p_y=0.38,bMyselfFarSideInArena=false,mobs={{threats=\",0,0,0,0\",max_hp=110,charms=\"\",scale=0.85,phase=\"ice\",power_pips=0,asset=\"character/v5/10mobs/HaqiTown/WaterBubble/WaterBubble.x\",id=50056,ismob=true,slot_id=5,overtimes=\"0\",pips=1,wards=\"\",level=1,current_hp=110,displayname=\"水咕噜\",},},p_x=19768.93999,}");
+
+-- 血量图片不见的bug 数据
+-- data = commonlib.LoadTableFromString([[{slotbuffs={{miniaura="0",overtimes="",charms="15,",wards="",},{miniaura="0",overtimes="",charms="11,",wards="",},{miniaura="0",overtimes="",charms="21,",wards="",},[5]={miniaura="0",overtimes="",charms="17,",wards="",},[6]={miniaura="0",overtimes="",charms="",wards="",},[7]={miniaura="0",overtimes="",charms="21,",wards="",},[8]={miniaura="0",overtimes="",charms="15,",wards="",},},p_z=20003.83,bIncludedMyselfInArena=true,aura="",arena_id=5104,mode="pve",pips_power={3,3,1,0,2,2,2,2,},players={{nid=185329088,max_hp=4174,phase="storm",power_pips=3,ismob=false,followpet_gsid=10182,miniaura="0",charms="15,",overtimes="",pips=0,wards="",level=55,current_hp=4174,slot_id=1,},{nid=208343564,max_hp=3794,phase="fire",power_pips=3,ismob=false,followpet_gsid=10183,miniaura="0",charms="11,",overtimes="",pips=0,wards="",level=52,current_hp=3794,slot_id=2,},{nid=156771957,max_hp=3915,phase="life",power_pips=1,ismob=false,followpet_gsid=10159,miniaura="0",charms="21,",overtimes="",pips=1,wards="",level=50,current_hp=3915,slot_id=3,},{},{},{},{},{},},bIncludedAnyPlayer=true,bPlayersFull=false,slotunits={185329088,208343564,156771957,[5]=60287,[6]=60288,[7]=60289,[8]=60290,},bIncludedAnyAliveMob=true,bIncludedAnyBossMob=false,fledslots={},arrow_position=1,pips={0,0,1,0,0,0,0,0,},p_y=20002.34,bMyselfFarSideInArena=false,mobs={{scale=1.75,asset="character/v5/10mobs/HaqiTown/FrostFang/FrostFang.x",catchpet_gsid=0,level=45,displayname="怪",max_hp=1520,id=60287,phase="ice",power_pips=2,threats=",16,16,16,0",ismob=true,miniaura="0",charms="17,",overtimes="",pips=0,wards="",can_catchpet=false,current_hp=1520,slot_id=5,},{scale=1.35,asset="character/v5/10mobs/HaqiTown/FireBeatle/FireBeatle.x",catchpet_gsid=0,level=46,displayname="怪",max_hp=1155,id=60288,phase="fire",power_pips=2,threats=",16,16,16,0",ismob=true,miniaura="0",charms="",overtimes="",pips=0,wards="",can_catchpet=false,current_hp=1155,slot_id=6,},{scale=2.35,asset="character/v5/10mobs/HaqiTown/GreenDevouringRat_Fuben/GreenDevouringRat_Fuben.x",catchpet_gsid=10181,level=46,displayname="怪",max_hp=1155,id=60289,phase="life",power_pips=2,threats=",16,16,16,0",ismob=true,miniaura="0",charms="21,",overtimes="",pips=0,wards="",can_catchpet=true,current_hp=1155,slot_id=7,},{scale=4.84,asset="character/v5/10mobs/HaqiTown/DeathBubble/DeathBubble.x",catchpet_gsid=0,level=57,displayname="怪",max_hp=1685,id=60290,phase="storm",power_pips=2,threats=",16,16,16,0",ismob=true,miniaura="0",charms="15,",overtimes="",pips=0,wards="",can_catchpet=false,current_hp=1685,slot_id=8,},},p_x=20601.21,}]]);
+
+bMyselfFarSideInArena = data.bMyselfFarSideInArena;
+
+local buffline = function(icon, desc, count)
+return string.format([[
+    <div style="float:left;width:20px;height:20px;margin:1px;">
+        <img src='%s' style="width:20px;height:20px;" tooltip="%s"/>
+        <div style="position:relative;margin-left:4px;margin-top:-16px;width:20px;text-shadow:true;color:#ffffff;font-size:12px;text-align:center;">%s</div>
+    </div>
+]], icon, desc, if_else(count and count > 1, tostring(count), ""));
+end
+
+local buff_data = ObjectManager.CreateGetCharmAndWardData();
+
+function DS_Func_Homeland_Items(index)
+    if(index == nil) then
+        return 4;
+    else
+        index=5-index;
+        if(bMyselfFarSideInArena == true) then
+            index = index + 4;
+        end
+        if(data.players[index]) then
+            local player = commonlib.deepcopy(data.players[index]);
+            if(not player.nid) then
+                player.isEmpty = true;
+                player.school_symbol = "";
+            else
+                player.isEmpty = false;
+                if(isInTutorial) then
+                    player.school_symbol = "";
+                else
+                    player.school_symbol = "Texture/Aries/Combat/HPSlots/"..player.phase.."_32bits.png";
+                end
+            end
+            if(bMyselfFarSideInArena) then
+                player.slot_symbol = "Texture/Aries/Combat/CombatState/PosIcon"..(13-index).."_32bits.png";
+            else
+                player.slot_symbol = "Texture/Aries/Combat/CombatState/PosIcon"..(5-index).."_32bits.png";
+            end
+
+            if(data_pickedcards[index]) then
+                player.haspicked = true;
+                player.key = data_pickedcards[index].key;
+                player.card_bg = "";
+                player.petlevel = 0;
+                player.target_icon = "";
+
+                -- traverse through all cardsww
+                local gsid;
+                local tmp;
+                
+                local gsid = Combat.Get_gsid_from_cardkey(player.key);
+                if(not gsid) then
+                    gsid = Combat.Get_gsid_from_rune_cardkey(player.key);
+                end
+                if(gsid) then
+		            local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+		            if(gsItem) then
+                        player.card_bg = gsItem.icon;
+
+                        local s = string.format("%s", gsItem.descfile or "");
+                        player.target_icon = s;
+
+                        player.target_gsid = gsid;
+                    end
+                end
+
+                if(data_pickedcards[index].target_slotid and data_pickedcards[index].target_slotid > 0) then
+                    if(data_pickedcards[index].target_slotid<5) then
+                        player.target_symbol = "Texture/Aries/Combat/CombatState/PosIcon" .. (5-data_pickedcards[index].target_slotid) .. "_32bits.png";
+                    else
+                        player.target_symbol = "Texture/Aries/Combat/CombatState/PosIcon" .. (13-data_pickedcards[index].target_slotid) .. "_32bits.png";                        
+                    end
+                else
+                    player.target_symbol = "";
+                end
+            else
+                player.haspicked = false;
+            end
+
+            player.tooltip = "page://script/apps/Aries/Combat/UI/UnitStatusTip.html?unitid="..index;
+
+            player.char_name = "";
+            if(player.nid) then
+                if(player.ismob == true) then
+                    player.char_name = "NPC:39001("..player.id..")";
+                elseif(player.ismob == false) then
+                    player.char_name = tostring(player.nid);
+                end
+            end
+
+            if(player.nid) then
+                if(player.max_hp <= 0) then
+                    player.max_hp = 1;
+                end
+                player.hp_text = tostring(player.current_hp).."/"..tostring(player.max_hp).."("..math.ceil(player.current_hp * 100 / player.max_hp).."%)";
+            end
+            
+            -- buff and debuff lines
+            local bufftip = "";
+            local debufftip = "";
+            local buff_set = {};
+            local debuff_set = {};
+            local MarkSingleBuff = function(descfile, id, desc, positive)
+                if(positive == false) then
+                    if(debuff_set[descfile]) then
+                        if(debuff_set[descfile][id]) then
+                            debuff_set[descfile][id].count = debuff_set[descfile][id].count + 1;
+                        else
+                            debuff_set[descfile][id] = {desc = desc, count = 1};
+                        end
+                    else
+                        debuff_set[descfile] = {
+                            [id] = {desc = desc, count = 1}, 
+                        };
+                    end
+                else
+                    if(buff_set[descfile]) then
+                        if(buff_set[descfile][id]) then
+                            buff_set[descfile][id].count = buff_set[descfile][id].count + 1;
+                        else
+                            buff_set[descfile][id] = {desc = desc, count = 1};
+                        end
+                    else
+                        buff_set[descfile] = {
+                            [id] = {desc = desc, count = 1}, 
+                        };
+                    end
+                end
+            end
+            local buffs = data.slotbuffs[player.slot_id];
+            if(buffs) then
+		        local charms = ObjectManager.BuffStringToTable(buffs.charms);
+		        local wards = ObjectManager.BuffStringToTable(buffs.wards);
+		        local overtimes = ObjectManager.BuffStringToTable(buffs.overtimes);
+		        local miniaura = buffs.miniaura;
+                local miniauras = ObjectManager.BuffStringToTable(miniaura);
+                
+                local pvp_arena_damage_boost = data.pvp_arena_damage_boost;
+                if(type(pvp_arena_damage_boost) == "number") then
+                    if(pvp_arena_damage_boost > 0) then
+                        if(data.mode == "free_pvp") then
+                            MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/PvP_Arena_Damage_Boost_32bits.png;0 0 36 36", "pvp_arena_damage_boost", "攻击力增加"..pvp_arena_damage_boost..[[%]], true);
+                        elseif(data.mode == "pve") then
+                            if(pvp_arena_damage_boost == 10) then
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/PvE_Arena_Damage_Boost_10_32bits.png", "pvp_arena_damage_boost", "两人作战攻击力增强"..pvp_arena_damage_boost..[[%]], true);
+                            elseif(pvp_arena_damage_boost == 20) then
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/PvE_Arena_Damage_Boost_20_32bits.png", "pvp_arena_damage_boost", "三人作战攻击力增强"..pvp_arena_damage_boost..[[%]], true);
+                            elseif(pvp_arena_damage_boost == 30) then
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/PvE_Arena_Damage_Boost_30_32bits.png", "pvp_arena_damage_boost", "四人作战攻击力增强"..pvp_arena_damage_boost..[[%]], true);
+                            end
+                        end
+                    end
+                end
+                
+                local pvp_arena_heal_penalty = data.pvp_arena_heal_penalty;
+                if(type(pvp_arena_heal_penalty) == "number") then
+                    if(pvp_arena_heal_penalty == 50) then
+                        MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/PvP_Arena_Heal_Penalty_32bits.png;0 0 36 36", "pvp_arena_heal_penalty", "治疗效果减少"..pvp_arena_heal_penalty..[[%]], false);
+                    end
+                end
+
+                local aura = data.aura;
+                local aura_gsid_mapping = {
+	                ["fire"] = 22106,
+	                ["ice"] = 22145,
+	                ["storm"] = 22127,
+	                ["life"] = 22166,
+	                ["death"] = 22187,
+	                ["death_damage"] = 22353,
+                };
+                if(aura) then
+                    local aura_gsid = aura_gsid_mapping[aura];
+                    if(not aura_gsid) then
+                        if(type(aura) == "string") then
+				            local _, gsid = string.match(aura, "^([%w_]+)_([%d]+)");
+				            if(_ and gsid) then
+					            aura_gsid = tonumber(gsid);
+				            end
+                        end
+                    end
+                    if(aura_gsid) then
+                        local gsItem = ItemManager.GetGlobalStoreItemInMemory(aura_gsid);
+                        if(gsItem) then
+                            MarkSingleBuff(gsItem.descfile, aura, gsItem.template.description, if_else(aura == "death", false, true));
+                        end
+                    end
+                end
+                local _, id;
+                for _, id in pairs(charms) do
+                    if(id > 0) then
+                        local params = buff_data.charms[id];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, id, params.desc, params.positive);
+                            end
+                        end
+                    end
+                end
+                local _, id;
+                for _, id in pairs(wards) do
+                    local ward_param = nil;
+				    -- remove the param in ward
+                    if(type(id) == "string") then
+				        local this_id, param = string.match(id, "^([%d]+)_([%d]+)");
+				        if(this_id and param) then
+					        id = tonumber(this_id);
+                            ward_param = tonumber(param);
+				        end
+                    end
+                    if(type(id) ~= "number") then
+                        id = 0;
+                    end
+                    if(id > 0) then
+                        local params = buff_data.wards[id];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                local this_desc = params.desc;
+                                if(ward_param) then
+                                    this_desc = string.gsub(params.desc, "{param}", tostring(ward_param));
+                                end
+                                MarkSingleBuff(gsItem.descfile, id, this_desc, params.positive);
+                            end
+                        end
+                    end
+                end
+                local _, id;
+                for _, id in pairs(overtimes) do
+				    -- remove the rounds and icon_gsid
+				    local this_id = string.match(id, "^([^_]+)");
+			        local _, rounds, icon_gsid = string.match(id, "^([^_]+)_(%d+)_(%d+)$");
+				    if(this_id) then
+					    id = this_id;
+				    end
+                    if(rounds and icon_gsid) then
+                        rounds = tonumber(rounds);
+                        icon_gsid = tonumber(icon_gsid);
+                    end
+                    if(icon_gsid and icon_gsid > 0) then
+                        local gsItem = ItemManager.GetGlobalStoreItemInMemory(icon_gsid);
+                        if(gsItem and gsItem.descfile) then
+                            local status_name = gsItem.template.name
+                            if(System.options.version == "kids" and icon_gsid == 22163) then
+                                status_name = string.format("%s:剩余%d回合", status_name, rounds);
+                            elseif(id == "fire" or id == "ice" or id == "storm" or id == "myth" or id == "life" or id == "death" or id == "balance") then
+                                -- dot attacks
+                                status_name = string.format("%s:持续伤害剩余%d回合", status_name, rounds);
+                            elseif(id == "hot") then
+                                -- hot heals
+                                status_name = string.format("%s:持续治疗剩余%d回合", status_name, rounds);
+                            else
+                                -- other effects
+                                status_name = string.format("%s:剩余%d回合", status_name, rounds);
+                            end
+                            MarkSingleBuff(gsItem.descfile, ParaGlobal.GenerateUniqueID(), status_name, if_else(id == "hot", true, false));
+                        end
+                    elseif(id == "disabledheal") then
+                        -- ward 53: disabled heal
+                        local params = buff_data.wards[53];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, 53, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "cursedheal") then
+                        -- ward 55: cursedheal
+                        local params = buff_data.wards[55];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, 55, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "cursedpowerpip") then
+                        -- ward 56: cursedpowerpip
+                        local params = buff_data.wards[56];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, 56, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "boostpowerpip") then
+                        -- ward 57: boostpowerpip
+                        local params = buff_data.wards[57];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, 57, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "antifreeze") then
+                        -- ward 60: antifreeze
+                        local params = buff_data.wards[60];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/AntiFreeze_32bits.png;0 0 36 36", 60, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "immunedispel") then
+                        -- ward 62: immune to dispel
+                        local params = buff_data.wards[62];
+                        if(params and params.desc) then
+                            MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/ImmuneToDispel_32bits.png;0 0 36 36", 62, params.desc, params.positive);
+                        end
+                    elseif(id == "immunestun") then
+                        -- ward 63: immune to stun
+                        local params = buff_data.wards[63];
+                        if(params and params.desc) then
+                            MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/ImmuneToStun_32bits.png;0 0 36 36", 63, params.desc, params.positive);
+                        end
+                    elseif(id == "immunefreeze") then
+                        -- ward 66: immune to freeze
+                        local params = buff_data.wards[66];
+                        if(params and params.desc) then
+                            MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/ImmuneToFreeze_32bits.png;0 0 36 36", 66, params.desc, params.positive);
+                        end
+                    elseif(id == "antifreezesibling") then
+                        -- ward 66: antifreeze
+                        local params = buff_data.wards[66];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/AntiFreeze_32bits.png;0 0 36 36", 66, params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "deadlyattackprotectrounds") then
+                        -- ward 86: protect for deadlyattack 
+                        local params = buff_data.wards[86];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                local desc;
+                                if(rounds>1) then
+                                    desc = string.format("%d回合内不会受到致命一击",rounds);
+                                elseif(rounds==1) then
+                                    desc = "本回合不会受到致命一击";
+                                end
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/DeadlyAttackProtect_32bits.png;0 0 36 36", 66, desc or params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "absolutedefenseprotectrounds") then
+                        -- ward 87: protect for absolutedefense 
+                        local params = buff_data.wards[87];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                local desc;
+                                if(rounds>1) then
+                                    desc = string.format("%d回合内不会触发绝对防御",rounds);
+                                elseif(rounds==1) then
+                                    desc = "本回合不会触发绝对防御";
+                                end
+                                MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/AbsoluteDefenseProtect_32bits.png;0 0 36 36", 66, desc or params.desc, params.positive);
+                            end
+                        end
+                    elseif(id == "remainingroundweakbuff") then
+                        local desc;
+                        desc = "战死不屈:攻击力增加"..tostring(rounds).."%";
+                        MarkSingleBuff("Texture/Aries/Combat/UnitBuffs/ImmuneToKickPet_32bits.png;0 0 36 36", 26542, desc, true);
+                    elseif(id == "firesplash") then
+                        -- gsid 22331: Fire_DOTAttackWithSplash_Level6
+                        local gsItem = ItemManager.GetGlobalStoreItemInMemory(22331);
+                        if(gsItem and gsItem.descfile) then
+                            MarkSingleBuff(gsItem.descfile, 0, gsItem.template.name, false);
+                        end
+                    end
+                end
+                local i, each_miniaura;
+                for i, each_miniaura in pairs(miniauras) do
+                    each_miniaura = tonumber(each_miniaura);
+                    if(each_miniaura and each_miniaura > 0) then
+                        local params = buff_data.miniauras[each_miniaura];
+                        if(params and params.icon_gsid and params.desc) then
+                            local gsItem = ItemManager.GetGlobalStoreItemInMemory(params.icon_gsid);
+                            if(gsItem and gsItem.descfile) then
+                                MarkSingleBuff(gsItem.descfile, each_miniaura, params.desc, params.positive);
+                            end
+                        end
+                    end
+                end
+            end
+
+            local buff_count = 0;
+            local debuff_count = 0;
+
+            local descfile, single_buff_series;
+            for descfile, single_buff_series in pairs(buff_set) do
+                local id, single_buff;
+                for id, single_buff in pairs(single_buff_series) do
+                    buff_count = buff_count + 1;
+                    bufftip = bufftip .. buffline(descfile, single_buff.desc, single_buff.count);
+                end
+            end
+            local descfile, single_buff_series;
+            for descfile, single_buff_series in pairs(debuff_set) do
+                local id, single_buff;
+                for id, single_buff in pairs(single_buff_series) do
+                    debuff_count = debuff_count + 1;
+                    debufftip = debufftip .. buffline(descfile, single_buff.desc, single_buff.count);
+                end
+            end
+
+            player.bufftip = bufftip;
+            player.debufftip = debufftip;
+
+            local rows = 0;
+            rows = math.ceil(buff_count / 6) + math.ceil(debuff_count / 6);
+
+player.buff_fulltip_block = string.format(
+[[<div style="margin-left:75px;margin-top:-%dpx;width:140px;">
+    %s
+    <br/>
+    %s
+</div>]], 80 + 21 * (rows - 1), bufftip, debufftip);
+            if(player.followpet_gsid == nil) then
+                player.followpet_gsid = 0;
+            end
+            return player;
+        else
+            return nil;
+        end
+    end
+end
+
+function DrawMagicPoint(pips_normal, pips_power)
+    if(pips_normal >= 0 or pips_power >= 0) then
+        local s = "";
+        if(pips_normal > 0) then
+            s = s .. [[<img src="Texture/Aries/Combat/CombatState/MagicPoint_32bits.png" zorder="10" style="width:32px;height:32px;" />]];
+            pips_normal = pips_normal - 1;
+        elseif(pips_power > 0) then
+            s = s .. [[<img src="Texture/Aries/Combat/CombatState/superMagicPoint_32bits.png" zorder="10" style="width:32px;height:32px;" />]];
+            pips_power = pips_power - 1;
+        end
+        for i = 1, pips_normal do
+            s = s .. [[<img src="Texture/Aries/Combat/CombatState/MagicPoint_32bits.png" zorder="10" style="margin-left:-15px;width:32px;height:32px;" />]];
+        end
+        for i = 1, pips_power do
+            s = s .. [[<img src="Texture/Aries/Combat/CombatState/superMagicPoint_32bits.png" zorder="10" style="margin-left:-15px;width:32px;height:32px;" />]];
+        end
+        return s;
+    end
+end
+
+function getCardTip(templategsid)
+    templategsid = tonumber(templategsid);
+    if(not templategsid)then 
+        LOG.warn("templategsid is nil in HP_Slot_Lower.html");
+        return;
+    end 
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=4",templategsid);
+    return s;
+end
+
+function ShowHP(curhp, maxhp)
+    local width = math.ceil(curhp / maxhp * 121);
+
+    if(curhp<=0)then
+        return "";
+    elseif(width < 10)then
+        width = 10;
+    end
+
+    local s = string.format( [[<img src="Texture/Aries/Combat/CombatState/hp1_32bits.png; 0 0 %d 16" zorder="11" style="margin-top:-16px;width:%dpx;height:16px;"/>]], width, width );
+    return s;
+end
+
+local _, __, screen_width, ___ = ParaUI.GetUIObject("root"):GetAbsPosition();
+
+separator_width = math.floor((screen_width - 228 * 4) / 5);
+
+OnClickTargetPicker = function ()
+    MyCompany.Aries.Combat.MsgHandler.OnClickTargetPicker();
+end
+
+function OnClickTogglePet()
+    
+end
+    
+function GetPetGsid()
+    local item = ItemManager.GetItemByBagAndPosition(0,32);
+    if(item and item.gsid) then
+        return item.gsid;
+    end
+end 
+
+]]></script>
+<div style="margin-left:0px;margin-top:200px;width:2960px;height:550px;">
+ 
+    <pe:gridview ClickThrough="true" DataSource="<%=DS_Func_Homeland_Items%>" name="HomelandStoreItemView" style="margin-left:3px;margin-top:-55px;" 
+            CellPadding="0"  DefaultNodeHeight = "70" ItemsPerLine="4" AllowPaging="false" pagesize="4">
+        <Columns>
+            <div style='<%=format("float:left;width:%dpx;height:64px;", Eval("separator_width"))%>' />
+            <div style="float:left;margin-left:-2px;width:228px;">
+                <pe:if condition='<%=Eval("isEmpty") == true%>'>
+                </pe:if>
+                <pe:if condition='<%=Eval("isEmpty") == false%>'>
+                    <div style="margin-top:100px;width:208px;height:64px;">
+                        <input type="button" alwaysmouseover="true" force_ui_name='<%="hp_slot_frame_"..Eval("nid")%>' zorder="-3" style="float:left;position:relative;margin-left:0px;margin-top:0px;width:210px;height:69px;background:url(Texture/Aries/Combat/CombatState/combatState_bg_32bits.png#0 0 210 69)"/>
+
+                        <div style="position:relative;">
+                            <div style="float:left;margin-left:-2px;margin-top:0px;width:64px;height:64px;">
+                                <pe:if condition='<%=Eval("followpet_gsid") == 0%>' >
+                                    <img src='<%=Eval("slot_symbol")%>' zorder="10" style="position:relative;width:64px;height:64px;"/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("followpet_gsid") ~= 0%>' >
+                                    <div zorder="1" style="position:relative;margin-top:16px;margin-left:-15px;background:url(Texture/Aries/Combat/CombatState/pos_marker.png#0 0 29 29)"><img zorder="1" src='<%=Eval("slot_symbol")%>' style="width:29px;height:29px;"/></div>
+                                    <pe:item gsid='<%=Eval("followpet_gsid")%>' tooltip_is_lock_position="true" tooltip_offset_x="64" zorder="103" style="width:64px;height:64px;" isclickable="false"/>
+                                </pe:if>
+                            </div>
+
+                            <div zorder="-3" style="float:left;margin-left:5px;margin-top:14px;width:130px;height:22px;color:#855c1a;font-size:12;text-align:center;">
+                                <pe:if condition='<%=Eval("nid") == tonumber(System.User.nid)%>' >
+                                    <pe:name nid='<%=Eval("nid")%>' style="color:#00740b" linked="false"/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("nid") ~= tonumber(System.User.nid)%>' >
+                                    <pe:name nid='<%=Eval("nid")%>' linked="false"/>
+                                </pe:if>
+                            </div>
+                        </div>
+                        <div style="position:relative;margin-left:70px;margin-top:37px;color:#ff0000;font-size:12px;">
+                            <img src="Texture/Aries/Combat/CombatState/hp2_32bits.png" zorder="10" style="width:128px;height:16px;"/>
+                            <%=ShowHP(Eval("current_hp"),Eval("max_hp")) %>
+                        </div>
+
+                        <input type="button" value='<%=Eval("hp_text")%>' zorder="12" style="position:relative;margin-left:54px;margin-top:32px;width:160px;height:22px;color:#ffffff;font-size:12px;text-align:center;background:;" />
+
+                        <div style="position:relative;margin-left:57px;margin-top:49px;">
+                            <%=DrawMagicPoint(Eval("pips"), Eval("power_pips")) %>
+                        </div>
+                    </div>
+
+                    <%=Eval("buff_fulltip_block") %>
+
+                    <div style="position:relative;">
+                        <div style="float:left;margin-left:63px;margin-top:-120px;height:96px;">
+                            <pe:if condition='<%=Eval("haspicked") == true%>'>
+                                <div style="position:relative;margin-left:-50px;margin-top:-5px;">
+                                    <pe:if condition='<%=Eval("target_icon") ~= ""%>'>
+                                        <img src='<%=Eval("target_icon")%>' style="width:36px;height:36px;"/>
+				                        <input type="button" zorder="1" style="margin-left:-36px;width:36px;height:36px;background:;" name= '<%=Eval("target_gsid") %>' tooltip="<%=getCardTip(Eval('target_gsid')) %>" tooltip_offset_x="-80" tooltip_offset_y="-140"/>
+                                    </pe:if>
+                                </div>
+
+                                <pe:if condition='<%=Eval("key") ~= "Pass" %>'>
+                                    <img src='<%=Eval("target_symbol")%>' style="margin-left:-16px;margin-top:-18px;width:64px;height:64px;"/>
+                                </pe:if>
+                            </pe:if>
+                        </div>
+
+                        <div style="margin-left:14px;margin-top:-112px;width:64px;height:16px;" >
+                            <pe:if condition='<%=Eval("haspicked") == true and Eval("key") == "Pass" %>'>
+                                <img src="Texture/Aries/Combat/CombatState/pass_32bits.png" style="width:64px;height:16px;"/>
+                            </pe:if>
+                        </div>
+
+                        <div style="margin-left:5px;margin-top:-88px;color:#ffffff;width:64px;height:32px;background:url(Texture/Aries/Combat/CombatState/lvbg_32bits.png#0 0 64 32)" >
+                            <div style="margin-left:10px;margin-top:1px;">
+                                <%="LV." .. Eval("level") %>
+                            </div>
+                        </div>
+                        <div style="margin-left:50px;margin-top:-70px;float:left;width:64px;height:64px;">
+                            <img src='<%=Eval("school_symbol")%>' zorder="10" style="width:32px;height:32px;"/>
+                        </div>
+                    </div>
+                    <input type="button" name='<%=Eval("char_name")%>' force_ui_name='<%=Eval("char_name")%>' zorder="100" onclick="OnClickTargetPicker" tooltip='<%=Eval("tooltip")%>' is_lock_position="true" use_mouse_offset="false" tooltip_offset_x="-30" tooltip_offset_y="96" screen_padding_bottom="120" style="position:relative;margin-top:-55px;width:220px;height:60px;background:;"/>
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:50px;margin-top:26px;color:#FFFFFF">数据加载中，请稍等.....</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+<div style="margin-left:0px;margin-top:0px;">
+
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30382_NatureDefenderMedal_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30382_NatureDefenderMedal_panel.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.OnInit();
+function getSendInfo()
+    local s = string.format([[<div style="float:left;color:#339900;font-weight:bold;font-size:14;margin-left:40px;margin-top:10px;">你已经将垃圾正确分类<div style="float:left;text-align:center;color:#ff0000;width:50px">%d</div>次了！</div>]], MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.sendNum or 0);
+    return s;
+end
+function HasMedal_A()
+    local r = MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.HasMedal_A();
+    commonlib.echo("HasMedal_A");
+    commonlib.echo(r);
+    return r;
+    --return true;
+end
+function HasMedal_B()
+    local r = MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.HasMedal_B();
+    commonlib.echo("HasMedal_B");
+    commonlib.echo(r);
+    return r;
+    --return true;
+end
+function HasMedal_C()
+    local r = MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.HasMedal_C();
+    commonlib.echo("HasMedal_C");
+    commonlib.echo(r);
+    return r;
+    --return true;
+end
+function HasMedal_D()
+    local r = MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.HasMedal_D();
+    commonlib.echo("HasMedal_D");
+    commonlib.echo(r);
+    return r;
+    --return true;
+end
+function ShowMedal()
+    local r = MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.ShowMedal();
+    commonlib.echo("ShowMedal");
+    commonlib.echo(r);
+    return r;
+    --return "D";
+end
+function GetTooltip_A()
+    if(ShowMedal() == "A" or HasMedal_A())then
+    local s = [[环保卫士木徽章获得条件：正确分类垃圾20次；]]
+    return s;
+    end
+    return "";
+end
+function GetTooltip_B()
+    if(ShowMedal() == "B"  or HasMedal_B())then
+    local s = [[环保卫士铜徽章获得条件：正确分类垃圾100次；]]
+    return s;
+    end
+    
+    return "";
+end
+function GetTooltip_C()
+    if(ShowMedal() == "C"  or HasMedal_C())then
+    local s = [[环保卫士银徽章获得条件：正确分类垃圾300次；]]
+    return s;
+    end
+    
+    return "";
+end
+function GetTooltip_D()
+    if(ShowMedal() == "D"  or HasMedal_D())then
+    local s = [[环保卫士金徽章获得条件：正确分类垃圾500次；]]
+    return s;
+    end
+    
+    return "";
+end
+]]></script>
+<div style="width:655px;height:512px;background:url(texture/Aries/Quest/MedalStatus_panel_bg_32bits.png: 60 60 60 60)">
+    <input type="button" style="width:54px;height:54px;margin-left:615px;margin-top:-10px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                     onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.ClosePage()" />
+    <div style="width:373px;height:73px;margin-left:140px;margin-top:-35px;background:Texture/Aries/Quest/NatureDefenderMedal/title_32bits.png#0 0 373 73"/>
+    <!--木徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:35px;margin-top:40px;float:left;">
+        <div style="width:92px;height:26px;margin-left:24px;margin-top:0px;background:Texture/Aries/Quest/NatureDefenderMedal/font1_32bits.png#0 0 92 26"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%= HasMedal_A()%>'>
+                <!--木徽章已经获得 -->
+                <div>
+                     <img tooltip = '<%=GetTooltip_A() %>' animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h1_32bits.png#0 0 74 97"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:33px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not HasMedal_A()%>'>
+                <!--木徽章没有获得 -->
+                 <div>
+                     <img tooltip = '<%=GetTooltip_A() %>' animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h1a_32bits.png#0 0 74 97"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=ShowMedal() == "A" %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/FirstObtain_32bits.png#0 0 81 35"
+                            value=""  onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.GetMedal_A()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--铜徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:92px;height:26px;margin-left:24px;margin-top:0px;background:Texture/Aries/Quest/NatureDefenderMedal/font2_32bits.png#0 0 92 26"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=HasMedal_B()%>'>
+                <!--铜徽章已经获得 -->
+                <div>
+                     <img tooltip =  '<%=GetTooltip_B() %>' animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h2_32bits.png#0 0 74 97"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:33px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not HasMedal_B()%>'>
+                <!--铜徽章没有获得 -->
+                 <div>
+                     <img tooltip = '<%=GetTooltip_B() %>' animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h2a_32bits.png#0 0 74 97"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=ShowMedal() == "B" %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.GetMedal_B()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--银徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:92px;height:26px;margin-left:24px;margin-top:0px;background:Texture/Aries/Quest/NatureDefenderMedal/font3_32bits.png#0 0 92 26"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=HasMedal_C()%>'>
+                <!--银徽章已经获得 -->
+                <div>
+                     <img tooltip = '<%=GetTooltip_C() %>' animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h3_32bits.png#0 0 74 104"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:25px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not HasMedal_C() %>'>
+                <!--银徽章没有获得 -->
+                 <div>
+                     <img tooltip = '<%=GetTooltip_C() %>' animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h3a_32bits.png#0 0 74 104"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=ShowMedal() == "C" %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.GetMedal_C()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--金徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:92px;height:26px;margin-left:24px;margin-top:0px;background:Texture/Aries/Quest/NatureDefenderMedal/font4_32bits.png#0 0 92 26"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=HasMedal_D()%>'>
+                <!--金徽章已经获得 -->
+                <div>
+                     <img tooltip = '<%=GetTooltip_D() %>' animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h4_32bits.png#0 0 74 104"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:25px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not HasMedal_D()%>'>
+                <!--金徽章没有获得 -->
+                 <div>
+                     <img tooltip = '<%=GetTooltip_D() %>' animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/Quest/NatureDefenderMedal/h4a_32bits.png#0 0 74 104"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=ShowMedal() == "D" %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.GetMedal_D()" />
+        </pe:if>
+        </div>
+    </div>
+    <div style="margin-left:160px;margin-top:-30px;width:330px;height:64px;background:url(texture/Aries/Quest/Doctor/YellowShowBox_32bits.png: 40 30 40 30)">
+                    <%=getSendInfo() %>
+    </div>
+    <div style="float:left;margin-left:40px;margin-top:-20px;width:424px;height:98px;background:url(texture/Aries/Quest/NatureDefenderMedal/font_32bits.png#0 0 424 98)" >
+    <div style="margin-left:5px;margin-top:5px;width:400px;font-size:14;color:#ffffff">将垃圾正确分类，不仅可以减少占用土地，减少环境的污染，还能变废为宝呢。快来争当环保小卫士，共同净化我们的环境吧。</div>
+    </div>
+    <img animstyle = "21" style="float:left;margin-left:40px;margin-top:-40px;width:110px;height:110px;background:url(texture/Aries/Quest/NatureDefenderMedal/papa_32bits.png#0 0 110 110)" />
+    <br />
+    <input type="button" style="margin-left:200px;margin-top:-15px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" onclick="MyCompany.Aries.Quest.NPCs.NatureDefenderMedal_panel.ClosePage();" value=""/>
+</div>
+</pe:mcml> 
+</body>
+</html>

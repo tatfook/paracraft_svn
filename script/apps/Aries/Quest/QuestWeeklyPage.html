@@ -1,0 +1,362 @@
+﻿<!-- "script/apps/Aries/Quest/QuestWeeklyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestWeeklyPage.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+local pageCtrl = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+local QuestWeeklyPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyPage");
+QuestWeeklyPage.OnInit();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function GetSource()
+    return QuestWeeklyPage.menu_datasource_map;
+end
+function HasGsid(gsid)
+    if(gsid and gsid > 0)then
+        return true;
+    end
+end
+function IsRightSchool(gsid)
+    if(HasGsid(gsid))then
+        return CommonClientService.IsRightSchool(gsid);
+    end    
+end
+function GetTooltip(gsid)
+    if(HasGsid(gsid))then
+        local s = string.format("script/apps/Aries/Desktop/ApparelTooltip.html?gsid=%d",gsid);
+        return s;
+    end
+end
+function GetQuestTitle(questid)
+    if(not questid)then return end
+    local provider = QuestClientLogics.GetProvider();
+	local templates = provider:GetTemplateQuests();
+    local template = templates[questid];
+    if(template)then
+        local QuestGroup1 = template.QuestGroup1;
+        local Title = template.Title;
+        local s;
+        if(QuestGroup1 and QuestGroup1 == 1)then
+            s = string.format("%s(支线)",Title);
+        else
+            s = Title;
+        end
+        return s;
+    end
+end
+function OnClickTreeNode(name,mcmlNode)
+	if(mcmlNode and QuestWeeklyPage.menu_datasource_map)then
+		local attr = mcmlNode:GetAttribute("param1","none");
+		local node;
+		for node in commonlib.XPath.eachNode(QuestWeeklyPage.menu_datasource_map, "//item") do
+			node.attr.checked = false;
+			if(attr == node.attr)then
+				node.attr.checked = true;
+                QuestWeeklyPage.selected_id = node.attr.questid;
+			end
+		end
+		pageCtrl:Refresh(0);
+        QuestWeeklyPage.SetExtraRewardList()
+
+	end
+end
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+
+end
+function GetTileBg(state)
+    state = tonumber(state);
+    local s = "";
+    if(state == 0)then
+        --"可以完成";
+        s = "Texture/aries/quest/questlist/canfinished_32bits.png;0 0 36 37";
+    elseif(state == 1)then
+        state_str = "进行中";
+        s = "Texture/aries/quest/questlist/progressing_32bits.png;0 0 36 37";
+    elseif(state == 2)then
+        --state_str = "可以接";
+        s = "Texture/aries/quest/questlist/canaccept_32bits.png;0 0 36 37";
+    elseif(state == 9)then
+        --state_str = "锁定中";
+        s = "Texture/aries/quest/questlist/lock_32bits.png;0 0 36 37";
+     elseif(state == 10)then
+        --state_str = "已经完成";
+        s = "Texture/aries/quest/questlist/complete_32bits.png;0 0 36 37";
+    end
+    return s;
+end
+function GetExtraReword()
+    local id = GetQuestID();
+    return QuestWeeklyPage.GetExtraReword(id)
+end
+function extra_reward_func(index)
+	if(not QuestWeeklyPage.extra_reward_list)then return 0 end
+	if(index == nil) then
+		return #(QuestWeeklyPage.extra_reward_list);
+	else
+		return QuestWeeklyPage.extra_reward_list[index];
+	end
+end
+function Has_Extra_Reward()
+    local extra_reward_list,req_num = GetExtraReword();
+    if(extra_reward_list)then
+        local len = #extra_reward_list;
+        if(len > 0)then
+            return true;
+        end
+    end
+end
+function Get_Extra_Reward_Title()
+     local extra_reward_list,req_num = GetExtraReword();
+    if(extra_reward_list)then
+        local len = #extra_reward_list;
+        if(len > 0)then
+            local s;
+            if(req_num >= len)then
+                s = string.format("你还可以得到:");
+            else
+                s = string.format("你还可以选择其中%d项:",req_num);
+            end
+            return s;
+        end
+    end
+end
+function Get_Extra_Reward_Num(num)
+    num = tonumber(num)
+    if(num and num >= 1)then
+        return string.format("x%d",num);
+    end
+end
+function DoClick_Extra_Reward(gsid)
+    --do nothing
+end
+
+function GetQuestID()
+    return QuestWeeklyPage.GetQuestID();
+end
+function HasRequestAttr_and_RequestQuest(questid)
+    return QuestHelp.HasRequestAttr_and_RequestQuest(questid)
+end
+function HasTimeStamp(questid)
+    return QuestHelp.HasTimeStamp(questid);
+end
+function HasGoal(questid)
+    return QuestHelp.HasGoal(questid);
+end
+function hasAccept()
+    local provider = QuestClientLogics.GetProvider();
+    return provider:HasAccept(GetQuestID());
+end
+function ongoto()
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/Quest/QuestListPage.lua");
+    local QuestListPage = commonlib.gettable("MyCompany.Aries.Quest.QuestListPage");
+    QuestListPage.ClosePage()
+end
+function DoGiveup()
+    local id = GetQuestID();
+    if(not id)then
+        return;
+    end
+    _guihelper.Custom_MessageBox("你确认要放弃这个任务吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+	        local msg = {
+	            nid = nid,
+	            id = id,
+            }
+            local b = QuestClientLogics.CanDelete(msg);
+            if(not b)then
+                _guihelper.MessageBox("不能删除"..id);
+                return;
+            end
+            QuestClientLogics.TryDrop(msg);
+           ClosePage();
+        else
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+end
+function isActivedState()
+    local id = GetQuestID();
+    local provider = QuestClientLogics.GetProvider();
+	if(provider:CanAccept(id) or provider:HasAccept(id))then
+		return true;
+	end
+end
+function isTracked()
+    local id = GetQuestID();
+	return QuestTrackerPane.Has_Tracked(id)
+end
+function doTracker()
+    local id = GetQuestID();
+    if(not QuestTrackerPane.Has_Tracked(id))then
+        QuestTrackerPane.Enable_Track(id);
+        pageCtrl:Refresh(0);
+    end
+end
+function unTracker()
+    local id = GetQuestID();
+    if(QuestTrackerPane.Has_Tracked(id))then
+        QuestTrackerPane.Disable_Track(id);
+        pageCtrl:Refresh(0);
+    end
+end
+]]></script>
+<pe:editor style="width:931px;height:508px;background:url(Texture/aries/quest/questlist/bg_32bits.png#0 0 931 508);">
+<div style="margin-left:360px;margin-top:-30px;width:212px;height:120px;background:url(Texture/aries/quest/questlist/quest_weekly_32bits.png#0 0 212 120);" />
+<input style="margin-left:810px;margin-top:-60px;width:29px;height:32px;background:url(Texture/Aries/common/close_brown_32bits.png#0 0 29 32);" type="button" name="close" onclick="ClosePage()" value=""/>
+<div>
+    <div style="float:left;margin-left:140px;margin-top:-25px;width:240px;height:315px;">
+    <pe:treeview name="questTreeView" DataSource='<%=GetSource()%>'
+            ItemOpenBG="Texture/aries/quest/questlist/close_32bits.png;0 0 20 20"
+            ItemCloseBG="Texture/aries/quest/questlist/open_32bits.png;0 0 20 20"
+            style="background:"
+            RememberScrollPos="true"
+            ItemToggleSize="20"
+            VerticalScrollBarStep="40" 
+		    DefaultNodeHeight="40">
+
+	    <NodeTemplates>
+             <NodeTemplate DataType="folder">
+                <pe:treenode  
+                    can_select = "true"  
+                    OnClick="OnClickFolder()"   
+                    text='<%=XPath("this|label")%>' 
+                    expanded='<%=XPath("this|expanded")%>'
+                    MouseOverBG=""
+                    style="font-weight:bold;color:#b74312;font-size:14;"
+                />
+            </NodeTemplate>
+            <NodeTemplate DataType="item">
+                <div style="width:250px;">
+                    <div>
+	                    <pe:if condition='<%=XPath("this|checked") %>' >
+                            <input type="button" style="float:left;width:203px;height:40;margin-top:5px;text-align:left;font-size:12;color:#96450e;background:"
+                                value='<%=GetQuestTitle(XPath("this|questid")) %>'
+                                Normal_BG="Texture/aries/quest/questlist/fontbg1_32bits.png"
+                                MouseOver_BG="Texture/aries/quest/questlist/fontbg1_32bits.png"
+                                Pressed_BG="Texture/aries/quest/questlist/fontbg_32bits.png"
+                                onclick="OnClickTreeNode"
+                                param1='<%=XPath("this") %>'
+                                tooltip_offset_x="150" tooltip_offset_y="-50"
+                            />
+	                    </pe:if>
+	                    <pe:if condition='<%=not XPath("this|checked") %>' >
+                            <input type="button" style="float:left;width:203px;height:40;margin-top:5px;text-align:left;font-size:12;color:#96450e;background:"
+                                value='<%=GetQuestTitle(XPath("this|questid")) %>'
+                                Normal_BG="Texture/aries/quest/questlist/fontbg_32bits.png"
+                                MouseOver_BG="Texture/aries/quest/questlist/fontbg1_32bits.png"
+                                Pressed_BG="Texture/aries/quest/questlist/fontbg_32bits.png"
+                                onclick="OnClickTreeNode"
+                                param1='<%=XPath("this") %>'
+                                tooltip_offset_x="150" tooltip_offset_y="-50"
+                            />
+	                    </pe:if>
+                        <img src='<%=GetTileBg(XPath("this|state")) %>' style="float:left;margin-left:-40px;margin-top:5px;width:36px;height:37px;" />
+                    </div>
+                </div>
+            </NodeTemplate>
+	    </NodeTemplates>
+           <DataNodePlaceholder xpath="//folder"/>
+    </pe:treeview>
+    </div>
+    <div style="float:left;margin-left:0px;">
+    <pe:if condition='<%=GetQuestID()~= nil %>'>
+            <div style="width:400px;margin-top:-25px;padding:10px;color:#6d3014">
+                <aries:quest questid="<%=GetQuestID()%>" >
+                    <div><b>任务名称:</b><aries:quest_item property="Title" style="float:left;font-size:12;"/></div>    
+	               <!--<pe:if condition='<%=not isTracked() and isActivedState() %>'>
+                        <input type="button" onclick="doTracker" style="margin-left:0px;margin-top:0px;width:81px;height:22px;background:url(Texture/aries/quest/questlist/tracker_btn_32bits.png#0 0 81 22)"/>
+                    </pe:if>
+                    <pe:if condition='<%=isTracked()  and isActivedState()%>'>
+                        <input type="button" onclick="unTracker" style="margin-left:0px;margin-top:0px;width:81px;height:22px;background:url(Texture/aries/quest/questlist/cancel_tracker_btn_32bits.png#0 0 81 22)"/>
+                    </pe:if>    -->        
+                    <div><b>任务描述:</b><aries:quest_item property="Detail" style="float:left;font-size:12;"/></div> 
+                    <pe:if condition='<%=HasRequestAttr_and_RequestQuest(GetQuestID()) %>'>
+                    <!--    <div><b>领取条件:</b><aries:quest_item property="RequestAttr" style="float:left;font-size:12;"/></div>    -->
+                         <aries:quest questid="<%=GetQuestID()%>" >
+                            <div class="defaultcolor" ><b>领取条件:</b><aries:quest_item property="RequestAttr" style="float:left;font-size:12;"/></div>  
+                        </aries:quest>                 
+                    </pe:if>                    
+                    
+                    <pe:if condition='<%=HasGoal(GetQuestID()) %>'>
+                    <div><b>任务目标:</b>                     
+                                    <aries:quest_item property="Goal" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="GoalItem" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientGoalItem" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientExchangeItem" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="FlashGame" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientDialogNPC" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                                    <br />
+                                    <aries:quest_item property="CustomGoal" ongoto="ongoto()" style="float:left;font-size:12;"/>
+                    </div>
+                    </pe:if>                    
+                     <div><b>任务接取:</b><aries:quest_item property="StartNPC" ongoto="ongoto()"  style="float:left;font-size:12;"/></div>
+                     <div><b>任务完成:</b><aries:quest_item property="EndNPC" ongoto="ongoto()" style="float:left;font-size:12;"/></div>   
+                     <div style="margin-left:0px;margin-top:5px;">
+                        <aries:quest_item property="Reward_0" style="float:left;font-size:12;"/>
+                     </div>  
+                    <div style="margin-left:0px;"><b><%=Get_Extra_Reward_Title() %></b></div>
+                    <div style="margin-left:0px;">
+                        <pe:gridview name="extra_reward_view" DataSource="<%=extra_reward_func%>" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+				            <Columns>
+					                <div style="margin-left:0px;">
+                                        
+                                        <div style="width:32px;height:32px;margin-left:2px;" >
+                                            <pe:item gsid="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="width:32px;height:32px;"/>
+                                        </div>
+                                        <div style="margin-left:35px;margin-top:-18px;font-size:12px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+                                        <pe:if condition='<%=not IsRightSchool(Eval("gsid")) %>' >
+                                            <img class="invalid_mask" style="position:relative;margin-left:2px;margin-top:-32px;width:32px;height:32px;" bindtooltip='<%=GetTooltip(Eval("gsid")) %>'/>
+                                        </pe:if>
+					                </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+				            </FetchingDataTemplate>
+			            </pe:gridview>                
+                    </div>                     
+                </aries:quest>
+            </div>
+           
+            <div style="position:relative;margin-top:-120px;margin-left:5px;">
+                    <pe:if condition="<%= hasAccept()%>">
+                        <input zorder="2" type="button" onclick="DoGiveup" style="width:165px;height:78px;margin-left:260px;margin-top:-10px;background:url(Texture/Aries/Quest/QuestList/giveup_btn_32bits.png#0 0 165 78)"/>
+                    </pe:if>
+            </div>
+        </div>
+   </pe:if>
+</div>
+</pe:editor>
+
+
+</pe:mcml> 
+
+</body>
+</html>

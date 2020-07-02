@@ -1,0 +1,139 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/CardsUnpackPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+local hasGSItem = ItemManager.IfOwnGSItem;
+local page = document:GetPageCtrl();
+local CardsUnpackPage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.CardsUnpackPage");
+CardsUnpackPage.OnInit();
+function ClosePage()
+    page:CloseWindow();
+end
+function HasItem()
+    local bHas,guid = hasGSItem(CardsUnpackPage.gsid);
+    return bHas;
+end
+function DoRoll()
+    if(not HasItem())then
+        _guihelper.MessageBox("你已经没有魔法卡包了！");
+        return
+    end
+    if(CardsUnpackPage.is_rolling)then
+		return
+	end
+    CardsUnpackPage.DoRoll(100);
+	ItemManager.DirectlyOpenCardPack(CardsUnpackPage.gsid);
+    page:Refresh(0);
+end
+function DoStop()
+    CardsUnpackPage.StopTimer();
+end
+function DS_Func(index)
+    return CardsUnpackPage.DS_Func(index)
+end
+function GetGuid()
+    local bHas,guid = hasGSItem(CardsUnpackPage.gsid);
+    return guid;
+end
+function GetGsid()
+    return CardsUnpackPage.gsid;
+end
+function CanRoll()
+    if(not HasItem() or CardsUnpackPage.is_rolling)then
+        return false;
+    end
+    return true;
+end
+function GetTitle()
+    if(CardsUnpackPage.rool_cnt > 0)then
+        return "继续"
+    else
+        return "打开"
+    end
+end
+function GoToNpc()
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(31838,function()
+        page:CloseWindow();
+    end)
+end
+]]></script>
+   
+<aries:window width="770" height="445" title="魔法卡包" icon="Texture/Aries/Common/ThemeTeen/wintitle/card_unpack_32bits.png" onclose="ClosePage">
+    <!--<div style="position:relative;margin-left:20px;margin-top:28px;width:530px;height:26px;font-size:12;" class="rename_div">
+        <div style="margin-left:60px;margin-top:5px;">我的神奇口袋，可以开出各种卡片，只要<span style="color:#ffff00">20</span>个魔尘哦！</div>
+    </div>-->
+    <div style="position:relative;color:#0a3b41;margin-left:60px;margin-top:32px;width:504px;height:157px;background:url(Texture/Aries/Common/Teen/cards_unpack/bg_32bits.png#0 0 504 157)">
+        <div style="position:relative;margin-left:230px;margin-top:50px;">
+            <div>我们是威力十足的魔法紫色卡牌~勇士荣耀的</div>
+            <div>象征！拥有我们就拥有世界</div>
+        </div>
+        <div style="margin-left:600px;margin-top:35px;">
+            <pe:if condition='<%=not HasItem()%>'>
+                <pe:item gsid='<%=GetGsid()%>' isclickable="false" style="width:64;height:64px;" />
+            </pe:if>
+            <pe:if condition='<%=HasItem()%>'>
+                <pe:slot guid='<%=GetGuid()%>' isclickable="false" style="width:64;height:64px;" />
+            </pe:if>
+        </div>
+    </div>
+    <div style="color:#ffffff;margin-top:25px;margin:5px;padding-top:5px;" width="100%" height="100%" class="subpane">
+        <div style="margin-left:3px;margin-top:155px;">
+            <div style="position:relative;">
+            <pe:gridview name="cards_view" DataSource="<%=DS_Func%>"  ItemsPerLine="6" AllowPaging="false" pagesize="6">
+                <Columns>
+                    <div>
+                        <div style="margin-left:4px;width:121px;height:180px;padding:4px;" class="block">
+                            <pe:if condition='<%=Eval("is_empty")%>'>
+                                <div style="margin-left:42px;margin-top:65px;width:32px;height:50px;background:url(Texture/Aries/HeadOn/question.png#0 0 32 50)" />
+                            </pe:if>
+                            <pe:if condition='<%=not Eval("is_empty")%>'>
+                                <pe:if condition='<%=MyCompany.Aries.Inventory.Cards.CardsUnpackPage.rool_cnt > 0 and  not MyCompany.Aries.Inventory.Cards.CardsUnpackPage.is_rolling%>'>
+                                    <div style="position:relative;margin-left:-10px;margin-top:-10px;" >
+                                        <img name="gift_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="130" height="180"/>
+                                    </div>
+                                </pe:if>
+                                <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" style="width:113px;height:172px;" />
+                            </pe:if>
+                        </div>
+                    </div>
+                </Columns>
+	            <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							        <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                        </form>
+				        </PagerTemplate>
+            </pe:gridview>
+        </div> 
+        </div> 
+        <div style="margin-left:20px;margin-top:350px;">
+            <div style="float:left;margin-left:0px;margin-top:5px;">魔法卡包在幽暗岛卡片商人处有售！ <a onclick="GoToNpc">立即过去</a></div>
+            <!-- <pe:item is_container="true" isclickable="false" gsid="17264" style="float:left;width:250px;margin-top:10px;height:20px" class="highbluecolor" >
+                <pe:item gsid="17264" isenabled="false" style="width:20px;height:20px;"/>
+                <div style="float:left;margin-left:2px;">剩余魔尘:</div><pe:slot type="count" gsid="17264" style="float:left;color:#ffff00;font-weight:bold;" />
+            </pe:item>-->
+            <div style="float:left;margin-left:320px;">
+                <pe:if condition='<%=not CanRoll()%>'>
+                    <input type="button" value='<%=GetTitle()%>' class="highlight_btn_css" enabled="false" style="width:160px;height:28px;margin-top:5px;font-weight:bold;font-size:14px;" onclick="DoRoll"/>
+                </pe:if>
+                <pe:if condition='<%=CanRoll()%>'>
+                    <input type="button" value='<%=GetTitle()%>' class="highlight_btn_css" style="width:160px;height:28px;margin-top:5px;font-weight:bold;font-size:14px;" onclick="DoRoll"/>
+                </pe:if>
+            </div>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

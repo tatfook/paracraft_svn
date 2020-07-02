@@ -1,0 +1,89 @@
+﻿<!-- "script/apps/Aries/Inventory/DragonBags/DragonBagsSelectionPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local DragonBagsSelectionPage = commonlib.gettable("MyCompany.Aries.Inventory.DragonBagsSelectionPage");
+local page = document:GetPageCtrl();
+DragonBagsSelectionPage.TabValue = DragonBagsSelectionPage.TabValue or "1";
+function ShowItemView(value, mcmlNode)
+	local frame = page:GetNode("AriesInventoryMountItemView");
+	local urls = {
+	    ["1"] = "script/apps/Aries/Inventory/ItemViewExPage.html?class=mount&subclass=pill",
+	    ["2"] = "script/apps/Aries/Inventory/ItemViewExPage.html?class=mount&subclass=pill_color",
+	    ["3"] = "script/apps/Aries/Inventory/ItemViewExPage.html?class=mount&subclass=feed",
+	    ["4"] = "script/apps/Aries/Inventory/ItemViewExPage.html?class=mount&subclass=medal",
+	};
+	
+    if(frame ~= nil) then
+        if(value) then
+            DragonBagsSelectionPage.TabValue = value;
+            page:SetValue("Level2Tabs", value);
+            page:GetNode("AriesInventoryMountItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+if(page:GetValue("Level2Tabs") ~= DragonBagsSelectionPage.TabValue) then
+    page:SetValue("Level2Tabs", DragonBagsSelectionPage.TabValue);
+    ShowItemView(DragonBagsSelectionPage.TabValue);
+    page:Refresh(0.1);
+end
+]]></script>
+<pe:editor style="width:390px;height:386px;background:url(Texture/Aries/Combat/BagPack/DragonBag/bag_bg_32bits.png# 0 0 390 386);">
+<div style="margin-left:20px;margin-top:0px;width:370px;height:60px;">
+     <input type="radio" name="Level2Tabs" id="Radio6" value="1" style="width:53px;height:55px;margin-left:10px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+        <input type="radio" name="Level2Tabs" id="Radio7" value="2" style="width:53px;height:55px;margin-left:10px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio8" value="3" style="width:53px;height:55px;margin-left:10px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+          <input type="radio" name="Level2Tabs" id="Radio9" value="4" style="width:53px;height:55px;margin-left:10px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+</div>
+<div style="margin-left:20px;margin-top:-45px;width:370px;height:60px;">
+    <input type="radio" name="Level2Tabs_Over" id="Radio1" value="1" style="width:34px;height:19px;margin-left:22px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/DragonBag/body_32bits.png;0 0 34 19" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/DragonBag/body_32bits.png;0 0 34 19" 
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+     <input type="radio" name="Level2Tabs_Over" id="Radio2" value="2" style="width:34px;height:19px;margin-left:28px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/DragonBag/color_32bits.png;0 0 34 19" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/DragonBag/color_32bits.png;0 0 34 19" 
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+     <input type="radio" name="Level2Tabs_Over" id="Radio3" value="3" style="width:34px;height:19px;margin-left:30px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/DragonBag/feed_32bits.png;0 0 34 19" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/DragonBag/feed_32bits.png;0 0 34 19" 
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio4" value="4" style="width:34px;height:19px;margin-left:28px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/DragonBag/medal_32bits.png;0 0 34 19" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/DragonBag/medal_32bits.png;0 0 34 19" 
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+</div>
+<div style="width:390px;height:386px;margin-top:15px;">
+    <iframe name="AriesInventoryMountItemView" src="script/apps/Aries/Inventory/ItemViewExPage.html?class=mount&amp;subclass=feed"/>
+</div>
+            
+
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

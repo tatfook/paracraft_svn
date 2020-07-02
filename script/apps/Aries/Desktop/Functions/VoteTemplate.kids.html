@@ -1,0 +1,43 @@
+<!-- "script/apps/Aries/Desktop/function/VoteTemplate.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+local version = pageCtrl:GetRequestParam("ver");
+
+NPL.load("(gl)script/apps/Aries/Books/TimesMagazineWeb/TimesMagazineWeb.lua");
+local TimesMagazineWeb = commonlib.gettable("MyCompany.Aries.Books.TimesMagazineWeb");
+TimesMagazineWeb.GetVotePage(pageCtrl);
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+
+function getUrl()
+    local s="";
+    s=string.format("script/apps/Aries/Books/TimesMagazineWeb/Votes.kids.html?version=%s",version);
+    return s;
+end
+]]>
+</script>
+<div style="width:760px;height:560px;" class="window">
+<div class="titlebar" width="100%">
+    <div class="windowlabel">投票/调查</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="subpane">      
+    <iframe name="voteFrame" style="margin-left:0px;"src="<%=getUrl()%>"/>            
+</div>
+</div>   
+</pe:mcml>
+</body>
+</html>
+

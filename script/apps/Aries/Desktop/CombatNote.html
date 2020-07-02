@@ -1,0 +1,494 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatNote.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatNote, by leio, 2011/01/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+NPL.load("(gl)script/apps/Aries/Desktop/CombatNote.lua");
+local CombatNote = commonlib.gettable("MyCompany.Aries.Desktop.CombatNote");
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+
+local page = document:GetPageCtrl();
+local leavehaqi = page:GetRequestParam("leavehaqi") or "0";
+if (tonumber(leavehaqi)==1) then
+    leaveworld = true;
+else
+    leaveworld = false;
+end
+
+function IsKids()
+    if(System.options.version=="kids") then
+        return true;
+    else
+        return false;
+    end
+end
+
+local paraoldv = page:GetRequestParam("paraoldv") or "0";
+if (tonumber(paraoldv)==1) then
+    oldvalue_ = true;
+else
+    oldvalue_ = false;
+end
+
+function LeaveLaterClick()
+	if(not oldvalue_) then
+		ParaEngine.GetAttributeObject():SetField("IsWindowClosingAllowed", oldvalue_);
+	end
+	--如果正在玩flash游戏，恢复显示
+	Map3DSystem.App.MiniGames.InvokeFlashGameWindow(true);
+    page:CloseWindow();
+end
+
+function SwitchUserClick()
+    local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+    Dock.OnSwitchUser();
+end
+
+function LeaveOKClick()
+    local dock=MyCompany.Aries.Desktop.Dock;
+    page:CloseWindow();
+    paraworld.ShowMessage("正在退出魔法哈奇...", nil, _guihelper.MessageBoxButtons.Nothing);
+    dock.LeaveTown();
+end
+
+function Confirm()
+    page:CloseWindow();
+end
+
+combatlel = 0;
+-- get pet level
+local bean = MyCompany.Aries.Pet.GetBean();
+if(bean) then
+	combatlel = bean.combatlel or 0;
+end
+
+local worlds_kids = {
+    "哈奇岛",
+    "火鸟岛",
+    "寒冰岛",
+    "沙漠古堡",
+}
+
+local worlds_teen = {
+    "彩虹岛",
+    "火鸟岛",
+    "寒冰岛",
+    "沙漠古堡",
+}
+
+local towers = {
+    [["试练之塔木徽章"]],
+    [["试练之塔铜徽章"]],
+    [["试练之塔银徽章"]],
+    [["试练之塔金徽章"]],
+}
+local next_targets = {
+    "火焰山洞里面，火鬃怪的宝库在等着你，5级以后记得去呀！",
+    "火鸟岛上的风格奇特，10级以后真应该去看看！带着地图去找法斯特船长吧！",
+    "16级就可以去尝试下神木空间的挑战啦！",
+    "快快升到20级，寒冰岛上七彩冰莲等着我们去寻找！有了地图就找法斯特船长！",
+    "大地冰熊如此强悍，26级以后可以去找他切磋一下！",
+    "神秘的沙漠古堡在召唤，快快到30级，带上沙漠岛地图找法斯特船长吧！",
+    "千年木乃伊被惊醒，36级以后勇敢的哈奇就可以挑战他了！",
+    "金牌荣誉榜上是否有你的名号？是勇者就去挑战，刻录下你英勇的辉煌！",
+}
+function getWorld()
+    local index=1;
+    if(combatlel <= 9)then
+        index = 1;
+    elseif(combatlel > 9 and combatlel <= 19 )then
+        index = 2
+    elseif(combatlel > 19 and combatlel <= 29 )then
+        index = 3
+    elseif(combatlel > 29)then
+        index = 4
+    end
+    local name;
+    if (IsKids()) then
+        name = worlds_kids[index];
+    else
+        name = worlds_teen[index];
+    end
+    local s
+    if (IsKids()) then
+        s = string.format([[你的战斗等级为:<div style="float:left;color:#00ff00;">%d级</div> 适合活动范围：<div style="float:left;color:#00ff00;">%s</div>]],combatlel,name);
+    else
+        s = string.format([[你的战斗等级为:<div style="font-weight:bolder;float:left;color:#ffff00;">%d</div>级 适合活动范围：<div style="font-weight:bolder;float:left;color:#ffff00;">%s</div>]],combatlel,name);
+    end
+    return s;
+end
+
+function getTower()
+    local index=1;
+    if(combatlel <= 5)then
+        index = 1;
+    elseif(combatlel > 5 and combatlel <= 19 )then
+        index = 2
+    elseif(combatlel > 19 and combatlel <= 35 )then
+        index = 3
+    elseif(combatlel > 35)then
+        index = 4
+    end
+    local name = towers[index];
+    local s = string.format([[可以挑战<div style="float:left;color:#c08080;">%s</div>啦]],name);
+    return s;
+end
+
+function getPK()
+    local s,pkfield;
+    if(combatlel >= 20 and combatlel <= 29)then
+        pkfield="初级试炼场、红蘑菇赛场";
+    elseif(combatlel >= 30 and combatlel <= 39 )then
+        pkfield="中级试炼场、红蘑菇赛场";
+    elseif(combatlel >= 40)then
+        pkfield="高级试炼场、红蘑菇赛场";
+    end
+
+    if(combatlel < 20)then
+        s = "";
+    else
+        if (IsKids()) then
+            s = string.format([[到哈奇岛<div style="float:left;color:#c08080;">%s</div>PK夺标拿金豆，金豆可以兑换超级装备！]],pkfield);
+        else
+            s = string.format([[到哈奇岛<div style="font-weight:bolder;float:left;color:#ffff00;">%s</div>PK夺标拿金豆，金豆可以兑换超级装备！]],pkfield);
+        end
+    end
+
+    return s;
+end
+
+function getMushroomFieldTips()
+    local ItemManager = System.Item.ItemManager;
+    local hasGSItem = ItemManager.IfOwnGSItem;
+-- 红蘑菇竞技场剩余参赛次数
+    local _,__,___,copies=hasGSItem(40004);
+    local finished_times = 10 - copies;
+    local s = finished_times .. "/" .. 10;
+    return s;
+end
+
+NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+CombatSkillLearn.DoInit();
+local AllSkills = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn.AllSkills");
+local NPC_MentorID = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn.NPC_MentorID");
+local mySchool = MyCompany.Aries.Combat.GetSchoolGSID();
+local myMentor = NPC_MentorID[mySchool];
+local skills = commonlib.deepcopy(AllSkills[myMentor]);
+local NPC_Mentor={};
+if(System.options.version=="kids") then
+    NPC_Mentor=commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn.NPC_Mentor_kids");
+else
+    NPC_Mentor=commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn.NPC_Mentor_teen");
+end
+function getCardTip(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then return end
+    local s;
+    if(System.options.version=="kids") then
+        s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=3",gsid);
+    else
+        s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=6",gsid);
+    end
+    return s;
+end
+
+function getCanLearnSkill()
+    local ItemManager = System.Item.ItemManager;
+    local hasGSItem = ItemManager.IfOwnGSItem;
+    local s=""
+    for s_index in ipairs(skills) do
+        if (skills[s_index].skilltype==0 and skills[s_index].needlevel<=combatlel) then
+            local hasSkill=hasGSItem(skills[s_index].gsid);
+            if (not hasSkill) then
+                if (IsKids()) then
+                    s0="<a style='font-size:12px;color:#00ff00' tooltip='<%=getCardTip("..skills[s_index].gsid..") %>'  tooltip_offset_x=10 tooltip_offset_y=-20>";
+                    s="你已到".. combatlel .. "级，可以去<font color='#c08080'>"..NPC_Mentor[myMentor].."</font>那里学习："..s0..skills[s_index].name.."</a>技能";
+                else
+                    s0="<a style='font-weight:bolder;font-size:12px;color:#ffff00' tooltip='<%=getCardTip("..skills[s_index].gsid..") %>'  tooltip_offset_x=10 tooltip_offset_y=-20>";
+                    s="你已到<div style='font-weight:bolder;float:left;color:#ffff00;'>"..combatlel.."</div>级，可以去<div style='font-weight:bolder;float:left;color:#ffff00;'>"..NPC_Mentor[myMentor].."</div>那里学习："..s0..skills[s_index].name.."</a>技能";
+                end
+                return s;
+            end
+        end
+    end
+    return s;
+end
+
+function getWillLearnSkill()    
+    local ItemManager = System.Item.ItemManager;
+    local hasGSItem = ItemManager.IfOwnGSItem;
+    local s=""
+    for s_index in ipairs(skills) do
+        if (skills[s_index].skilltype==0 and skills[s_index].needlevel>combatlel) then
+            local hasSkill=hasGSItem(skills[s_index].gsid);
+            if (not hasSkill) then
+                if (IsKids()) then
+                    s0="<a style='font-size:12px;color:#00ff00' tooltip='<%=getCardTip("..skills[s_index].gsid..") %>'  tooltip_offset_x=10 tooltip_offset_y=-20>";
+                    s= "你升到".. skills[s_index].needlevel .. "级就可以去<font color='#c08080'>"..NPC_Mentor[myMentor].."</font>那里学习："..s0..skills[s_index].name.."</a>技能";
+                else
+                    s0="<a style='font-weight:bolder;font-size:12px;color:#ffff00' tooltip='<%=getCardTip("..skills[s_index].gsid..") %>'  tooltip_offset_x=10 tooltip_offset_y=-20>";
+                    s= "你升到<div style='font-weight:bolder;float:left;color:#ffff00;'>".. skills[s_index].needlevel .. "</div>级就可以去<div style='font-weight:bolder;float:left;color:#ffff00;'>"..NPC_Mentor[myMentor].."</div>那里学习："..s0..skills[s_index].name.."</a>技能";
+                end
+                return s;
+            end
+        end
+    end
+    return s;
+end
+
+-- @param nCount: the number of target string to return, separated by sSeparator. if nil it is 1
+function getNextTarget(nCount, sSeparator)
+    local index=1;
+    if(combatlel <= 3)then
+        index = 1;
+    elseif(combatlel > 3 and combatlel <= 9 )then
+        index = 2
+    elseif(combatlel > 9 and combatlel <= 15 )then
+        index = 3
+    elseif(combatlel > 15 and combatlel <= 19 )then
+        index = 4
+    elseif(combatlel > 19 and combatlel <= 25 )then
+        index = 5
+    elseif(combatlel > 25 and combatlel <= 29 )then
+        index = 6
+    elseif(combatlel > 29 and combatlel <= 35 )then
+        index = 7
+    elseif(combatlel > 35)then
+        index = 8
+    end
+    local s = next_targets[index] or "";
+    if(nCount and nCount>1) then
+        sSeparator = sSeparator or "<br/>"
+        local i;
+        for i = index+1,index+nCount-1 do
+            if(next_targets[i]) then
+                s = s..sSeparator..next_targets[i];
+            end
+        end
+    end
+    return s;
+end
+
+function getMobLabel(type)
+    if(type and CombatNote.mobs)then
+        local k,mob
+        local type = string.lower(type);
+        for k,mob in ipairs(CombatNote.mobs)do
+            local _type = string.lower(mob.type);
+            if(type == _type)then
+                return mob.label
+            end
+        end
+    end
+end
+
+function getMobPlace(type)
+    if(type and CombatNote.mobs)then
+        local k,mob
+        for k,mob in ipairs(CombatNote.mobs)do
+            local _type = string.lower(mob.type);
+            local type = string.lower(type);
+            if(type == _type)then
+                return mob.place
+            end
+        end
+    end
+end
+function getMobWorld(type)
+    if(type and CombatNote.mobs)then
+        local k,mob
+        for k,mob in ipairs(CombatNote.mobs)do
+            local _type = string.lower(mob.type);
+            local type = string.lower(type);
+            if(type == _type)then
+                local worldname = mob.worldname;
+                if(not worldname)then
+                    local world_num = mob.world;
+                    worldname = QuestHelp.WorldNumToWorldName(world_num);
+                end
+                local world_info = WorldManager:GetWorldInfo(worldname);
+                if(world_info)then
+                    return world_info.world_title;
+                end
+            end
+        end
+    end
+end
+
+function getMobs()
+    local index=1;
+    local cur_mobs = CombatNote.cur_level_mobs[combatlel];
+    if(not cur_mobs)then
+        if(combatlel <= 3)then
+            cur_mobs = CombatNote.FindMobHelpFunc(0,3,3,1,1,1,true);
+        elseif(combatlel > 3 and combatlel <= 6 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(3,7,3,1,1,1,true);
+        elseif(combatlel > 6 and combatlel <= 10 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(6,10,3,1,1,1,true);
+        elseif(combatlel > 10 and combatlel <= 15 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(11,15,3,1,1,1,true);
+        elseif(combatlel > 15 and combatlel <= 19 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(15,19,3,1,1,1,true);
+        elseif(combatlel > 19 and combatlel <= 25 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(21,26,3,1,1,1,true);
+        elseif(combatlel > 25 and combatlel <= 29 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(25,29,3,1,1,1,true);
+        elseif(combatlel > 29 and combatlel <= 35 )then
+            cur_mobs = CombatNote.FindMobHelpFunc(31,36,3,1,1,1,true);
+        elseif(combatlel > 35)then
+            cur_mobs = CombatNote.FindMobHelpFunc(31,50,3,1,1,1,true);
+        end
+        CombatNote.cur_level_mobs[combatlel] = cur_mobs;
+    end
+    return cur_mobs;
+end
+
+function getMobsByIndex(index)
+   local cur_mobs = getMobs();
+   if(cur_mobs)then
+        local mob = cur_mobs[index];
+        if(mob)then
+            local label = getMobLabel(mob.type);
+            local world = getMobWorld(mob.type);
+            local place = getMobPlace(mob.type);
+            local s = string.format("%s(%s-%s)",label,world,place);
+            return s;
+        end
+   end 
+end
+
+]]></script>
+<pe:if condition='<%=IsKids()%>'>
+    <pe:if condition='<%=not Eval("leaveworld")%>'>
+    <div style="position:relative;margin-left:560px;margin-top:-10px;width:48px;height:48px;">
+        <input type="button" onclick="Confirm()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+    </div> 
+    </pe:if>
+    <div style="width:600px;height:420px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg_32bits.png:20 20 20 20)">
+        <div style="position:relative;width:143px;height:24px;margin-left:228px;margin-top:15px;background:url(Texture/Aries/Desktop/ActivityNote/combatnote_32bits.png#0 0 143 24);" />
+        <div style="position:relative;margin-left:30px;margin-top:50px;width:530px;height:35px;background:url(Texture/Aries/Desktop/ActivityNote/bg2_32bits.png#0 0 64 35: 20 10 20 10 );">
+            <div style="position:relative;margin-left:25px;margin-top:7px;font-weight:bolder;color:#FBFF88;">
+            <%=getWorld() %>
+            </div>
+        </div>
+        <div style="position:relative;margin-left:30px;margin-top:95px;width:530px;height:180px;background:url(Texture/Aries/Desktop/ActivityNote/bg3_32bits.png#0 0 64 126: 20 10 20 10 );">
+            <div style="position:relative;margin-left:25px;margin-top:7px;font-weight:bolder;color:#FBFF88;">
+            如果你想要快速升级，请使用经验强化药丸<pe:item gsid=12001 showdefaulttooltip="true" style="width:25px;height:25px;" />去战斗。<br />
+            <div style="margin-top:2px;color:#52dff4;"><%=getCanLearnSkill() %></div>
+            <div style="margin-top:2px;color:#52dff4;"><%=getWillLearnSkill() %></div>
+
+            <div style="margin-top:2px;">
+            <pe:if condition='<%=Eval("combatlel")>=20 %>'>
+            今天你还可以挑战赛场：
+            <div style="height:30px;margin-left:50px;margin-top:5px;">
+                <div style="color:#00ff00;">红蘑菇赛场：  <%=getMushroomFieldTips() %> </div>
+                <br />
+            </div>
+            </pe:if>
+            </div>
+
+            <div style="margin-top:2px;"><%=getPK() %></div>
+            <div style="margin-top:0px;"> 领取<a style="font-size:12px;color:#00ff00" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.ShowPage">米酒葫芦</a>，获得神奇药丸！打开背包使用可以增加升级速度！</div>
+              <!-- <div style="margin-top:2px;">晚上7：30-8：30，梦幻空间里面打怪经验多多呢！</div> -->
+            </div>
+        </div>
+        <div style="position:relative;margin-left:30px;margin-top:285px;width:530px;height:80px;background:url(Texture/Aries/Desktop/ActivityNote/bg3_32bits.png#0 0 64 126: 20 10 20 10 );">
+            <div style="position:relative;margin-left:25px;margin-top:7px;font-weight:bolder;color:#FBFF88;">
+            <div style="color:#c08080;">下一阶段的精彩目标：</div>
+            <br />
+             <%=getNextTarget(2) %>
+            </div>
+        </div>
+    </div>
+
+    <pe:if condition='<%=Eval("leaveworld")%>'>
+        <div style="position:relative;margin-left:180px;margin-top:-40px;width:300px;height:50px;">
+              <div style="height:49px;margin-left:50px;">你要离开魔法哈奇吗？</div>
+              <div style="height:49px;width:300px;margin-top:-50px;">
+               <input type="button" name="No" text="" style="position:relative;margin-left:-110px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/continuegame_32bits.png# 0 0 153 49)" onclick="LeaveLaterClick()"/>
+               <input type="button" name="Yes" text="" style="position:relative;margin-left:200px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/LeaveImmediately_32bits.png# 0 0 153 49)" onclick="LeaveOKClick()"/>
+              </div>
+        </div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=not IsKids()%>'>
+    <div style="width:600px;height:420px;" class="pane_grey">
+        <div style="margin-left:5px;margin-top:5px;width:590px;height:410px;" class="border">
+            <div style="margin-left:105px;margin-top:-95px;width:387px;height:128px;background:url(Texture/Aries/Login/Login/teen/haqi2_logo_32bits.png# 0 0 387 128)">                
+            </div>
+            <div style="margin-left:5px;margin-top:-20px;height:20px;">
+                <div style="margin-left:250px;font-size:14;font-weight:bold;">每日升级指南</div>
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:10px;width:570px;height:35px;" class="panel_buttonbg">
+                <div style="position:relative;margin-left:25px;margin-top:7px;">
+                <%=getWorld() %>
+                </div>
+                <div style="float:left;margin-left:10px;margin-top:13px;">
+                    <img style="width:8px;height:8px" src="Texture/Aries/Common/ThemeTeen/lightbutton_checked_32bits.png;0 0 8 8" />
+                </div>  
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:55px;width:570px;height:180px;" class="panel_buttonbg">
+                <div style="position:relative;margin-left:25px;margin-top:7px;">
+                如果你想要快速升级，请使用经验强化药丸<pe:item gsid=12001 showdefaulttooltip="true" style="width:25px;height:25px;" /> 去战斗。<br />
+                <div style="float:left;margin-left:-15px;margin-top:-20px;">
+                    <img style="width:8px;height:8px" src="Texture/Aries/Common/ThemeTeen/lightbutton_checked_32bits.png;0 0 8 8" />
+                </div>  
+                
+                <pe:if condition='<%=Eval("combatlel")>=20 %>'>
+                <div style="margin-top:2px;">
+                今天你还可以挑战赛场：
+                <div style="height:30px;margin-left:50px;margin-top:5px;">
+                    <div style="color:#00ff00;">红蘑菇赛场：  <%=getMushroomFieldTips() %></div>
+                    <br />
+                </div>
+                </div>
+                <div style="float:left;margin-left:-15px;margin-top:-48px;">
+                    <img style="width:8px;height:8px" src="Texture/Aries/Common/ThemeTeen/lightbutton_checked_32bits.png;0 0 8 8" />
+                </div>  
+                </pe:if>
+                
+
+                <div style="margin-top:2px;"><%=getPK() %></div>
+    <!--            <div style="margin-top:0px;">
+                        领取<a style="font-size:12px;font-weight:bolder;color:#ffff00" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.ShowPage">米酒葫芦</a>，获得经验面包！打开背包使用面包可以快速升级！
+                     </div>-->
+                </div>
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:245px;width:570px;height:80px;" class="panel_buttonbg">
+                <div style="position:relative;margin-left:25px;margin-top:7px;">
+                <div style="font-weight:bolder;color:#ffff00">下一阶段的精彩目标：</div>
+                <div style="float:left;margin-left:-15px;margin-top:-14px;">
+                    <img style="width:8px;height:8px" src="Texture/Aries/Common/ThemeTeen/lightbutton_checked_32bits.png;0 0 8 8" />
+                </div> 
+                <br />
+                 <%=getNextTarget(2) %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <pe:if condition='<%=Eval("leaveworld")%>'>
+        <div style="position:relative;margin-left:180px;margin-top:-60px;width:300px;height:50px;">
+              <div style="height:49px;width:300px;">
+               <input type="button" name="No"  value="继续游戏" style="position:relative;margin-left:-90px;margin-top:16px;width:80px;height:30px;" onclick="LeaveLaterClick()"/>
+               <input type="button" name="switchuser"  value="切换帐号" style="position:relative;margin-left:70px;margin-top:16px;width:80px;height:30px;" onclick="SwitchUserClick()"/>
+               <input type="button" name="Yes" value="马上离开" style="position:relative;margin-left:230px;margin-top:16px;width:80px;height:30px;" onclick="LeaveOKClick()"/>
+              </div>
+        </div>
+    </pe:if>
+    </div>
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!-- "script/apps/Aries/Combat/Battlefield/BattleMiniMap.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="BattleMiniMap.lua" refresh="false"><![CDATA[
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+MapArea = commonlib.gettable("MyCompany.Aries.Desktop.MapArea");
+MyCompany.Aries.Battle.BattleMiniMap.OnInit()
+
+function GetMapClipCircle()
+    local cur_world = WorldManager:GetCurrentWorld();
+	if(cur_world and cur_world.local_map_settings) then
+        local full_map = cur_world.local_map_settings
+		return {center_x = full_map.center_x,  center_y = full_map.center_y, radius = full_map.view_radius or full_map.radius,};
+	else
+		return "20000,20000,850";
+	end
+end
+
+function DS_Func_tex(index)
+    return MapArea.DS_Func_MapTexture(index);
+end
+
+function zoom_map(fScaleFactor)
+    local radius = Page:CallMethod("battlefield_mini_map", "GetClipRadius") or 500;
+    radius = radius*fScaleFactor;
+    if(radius > 1000) then
+        radius = 1000;
+    elseif(radius < 160) then
+        radius = 160;
+    end
+    Page:CallMethod("battlefield_mini_map", "SetClipRadius", radius, true);
+end
+
+function OnMapScaleDown()
+    zoom_map(1.1)
+end
+
+function OnMapScaleUp()
+    zoom_map(0.9)
+end
+
+function OnClose()
+    Page:CloseWindow();
+end
+]]></script>
+<div style="margin-left:0px;width:256px;height:256px;">
+ <div zorder="-2" style="margin-left:9px;background:url(Texture/Aries/WorldMaps/common/kids/minimap_bg.png#0 0 153 153);width:153px;height:153px;">
+    <div style="position:relative;">
+        <input name="btnClose" type="button" value="" tooltip="关闭" style="position:relative;margin-left:126px;margin-top:16px;width:24px;height:24px;background:url(Texture/Aries/Creator/close_small_32bits.png)" onclick="OnClose"/>
+        <input name="btnScaleDown" type="button" value="" tooltip="缩小地图" style="position:relative;margin-left:118px;margin-top:130px;width:16px;height:16px;background:url(Texture/Aries/WorldMaps/common/kids/map_minimize.png)" onclick="OnMapScaleDown"/>
+        <input name="btnScaleUp" type="button" value="" tooltip="放大地图" style="position:relative;margin-left:132px;margin-top:115px;width:16px;height:16px;background:url(Texture/Aries/WorldMaps/common/kids/map_enlarge.png)" onclick="OnMapScaleUp"/>
+    </div>
+    <pe:container zorder="-1" style="margin-left:4px;margin-top:4px;padding-left:0px;padding-top:0px;width:145px;height:145px;background:;">
+        <pe:aries_map name="battlefield_mini_map" style="width:145px;height:145px;background:"
+            update_interval="200"
+            flip_vertical = "true"
+            ClipCircle='<%=GetMapClipCircle()%>'
+            center_on_player = "true"
+            show_camera  = "true"
+            show_player="true"
+            show_team="true"
+            show_opc="true" hide_names="true"
+            map_boundary = '<%=DS_Func_tex(1)%>'
+            mask_texture="Texture/Aries/Common/circular_mask.png" 
+            >
+            <pe:texture_grid>
+                <pe:textureassemble name="tex" DataSource='<%=DS_Func_tex %>' />
+            </pe:texture_grid>
+        </pe:aries_map>
+    </pe:container>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

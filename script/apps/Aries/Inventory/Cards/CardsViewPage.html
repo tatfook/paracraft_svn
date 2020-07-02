@@ -1,0 +1,152 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/CardsViewPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"  refresh="true"><![CDATA[
+--NPL.load("(gl)script/apps/Aries/Inventory/Cards/MyCardsManager.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+NPL.load("(gl)script/apps/Aries/Inventory/ItemViewExPage.lua");
+local pageCtrl = document:GetPageCtrl();
+MyCardsManager.OnOpen()
+MyCardsManager.Set_CardsViewPageCtrl(pageCtrl)
+
+local class = pageCtrl:GetRequestParam("class");
+local subclass = pageCtrl:GetRequestParam("subclass");
+local bag = pageCtrl:GetRequestParam("bag");
+pageCtrl:SetNodeValue("class", class);
+pageCtrl:SetNodeValue("subclass", subclass);
+pageCtrl:SetNodeValue("bag", bag);
+
+dsItems = Eval("dsItems") or {status = nil, };
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.ItemViewExPage.DS_Func_Items(dsItems, index, pageCtrl,6)  
+end
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function isEquip(gsid)
+    return MyCardsManager.InCombatBag(gsid);
+end
+
+--模板和持久度gsid相差1000
+function getCardGsidByTemplateGsid(templategsid)
+    if(not templategsid)then
+        return
+    end
+    return templategsid + 1000;
+end
+function getCardGuidByTemplateGsid(templategsid)
+    local gsid = getCardGsidByTemplateGsid(templategsid);
+    local bHas,guid = hasGSItem(gsid);
+    guid = guid or 0;
+    return guid;
+end
+function getCardTip(templategsid)
+    templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=2",templategsid);
+    return s;
+end
+function doBuy(templategsid)
+    templategsid = tonumber(templategsid);
+    local gsid = getCardGsidByTemplateGsid(templategsid);
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command and gsid) then
+		command:Call({gsid = gsid, card = true});
+	end
+end
+function doEquip(gsid)
+    gsid = tonumber(gsid);
+    if(not MyCardsManager.CanEquip())then
+        _guihelper.MessageBox("你不能带太多的卡片了！");
+        return 
+    end
+    MyCardsManager.DoAppend(gsid);
+end
+function doUnEquip(gsid)
+    gsid = tonumber(gsid);
+    MyCardsManager.DoRemove(gsid);
+end
+function doClick_Item(gsid)
+    gsid = tonumber(gsid);
+    if(gsid)then
+        gsid = gsid - 1000;
+        if(isEquip(gsid))then
+           doUnEquip(gsid);
+        else
+           doEquip(gsid);
+        end
+    end
+end
+function doClick(sName)
+    local guid = tonumber(sName);
+    if(guid)then
+        local item = ItemManager.GetItemByGUID(guid);
+        if(item)then
+            local gsid = item.gsid;
+            doClick_Item(gsid);
+        end
+    end
+end
+]]></script>
+    <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="margin-left:20px;margin-top:-10px;" CellPadding="8"  DefaultNodeHeight = "180" ItemsPerLine="3" AllowPaging="True" pagesize="6">
+        <Columns>
+            <div style="padding-top:0px;padding-left:0px;width:105px;height:155px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#3 3 72 68:24 24 24 24)">
+                <div style="width:105px;height:155px;">
+                        <!-- 如果拥有卡片模板 -->
+                        <pe:if condition='<%=(Eval("guid") ~= 0)%>'>
+                            <!-- 如果没有卡片 显示背景 -->
+                            <pe:if condition='<%=getCardGuidByTemplateGsid(Eval("gsid")) == 0%>'>
+                                <pe:item gsid='<%=getCardGsidByTemplateGsid(Eval("gsid")) %>' ShowNumBg = "true" onclick="doClick_Item" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="60" tooltip_offset_y="-35" style="width:105px;height:155px;margin-left:-5px;" isclickable="true"/>
+                            </pe:if>
+                            <!-- 如果有卡片 显示卡片 -->
+                            <pe:if condition='<%=getCardGuidByTemplateGsid(Eval("gsid")) ~= 0%>'>
+                                <pe:slot guid='<%=getCardGuidByTemplateGsid(Eval("gsid"))%>' ShowNumBg = "true" name='<%=Eval("gsid") %>' onclick="doClick" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="60" tooltip_offset_y="-35" style="width:105px;height:155px;margin-left:-5px;" animstyle="0" />
+                            </pe:if>
+                        </pe:if>
+                        <pe:if condition='<%=(Eval("guid") == 0 or Eval("guid") == nil)%>'>
+                            <pe:slot guid='0' style="width:105px;height:155px;margin-left:-5px;" animstyle="0" />
+                        </pe:if>
+                </div>
+            </div>
+            <div>
+            <pe:if condition='<%=(Eval("guid") ~= 0)%>'>
+                <input type="button" name='<%=Eval("gsid") %>' onclick="doBuy()" value="补充" tooltip= "补充耐久度" style="width:40px;height:16px;margin-left:0px;margin-top:0px;background:;color:#ffffff;"/>
+                <pe:if condition='<%=(not isEquip(Eval("gsid")))%>'>
+                    <input type="button" name='<%=Eval("gsid") %>' onclick="doEquip()" value="携带" tooltip= "携带卡片"  style="width:40px;height:16px;margin-left:15px;margin-top:0px;background:;color:#ffffff;"/>
+                </pe:if>
+                <pe:if condition='<%=(isEquip(Eval("gsid")))%>'>
+                    <input type="button" name='<%=Eval("gsid") %>' onclick="doUnEquip()" value="收回" tooltip= "收回卡片"  style="width:40px;height:16px;margin-left:15px;margin-top:0px;background:;color:#ffffff;"/>
+                </pe:if>
+            </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:0px;margin-top:0px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:350px;margin-top:-290px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/homeland/v1/homeseed_up_32bits.png#0 0 34 34)"/>
+	            <div style="float:right;margin-top:4px;width:64px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder=2 style="width:42px;height:41px;margin-left:-105px;margin-top:60px;background:url(Texture/Aries/homeland/v1/homeseed_down_32bits.png#0 0 34 34)"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+
+</pe:mcml> 
+</body>
+</html>

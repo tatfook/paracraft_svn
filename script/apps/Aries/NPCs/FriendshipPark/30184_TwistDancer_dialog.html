@@ -1,0 +1,96 @@
+﻿<!-- "script/apps/Aries/NPCs/FriendshipPark/30184_TwistDancer_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30184_TwistDancer_dialog, by LiXizhi, 2009/12/27</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30184_TwistDancer.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+name = "NPCDialog_"..tostring(npc_id);
+
+dance_name = "旋转舞";
+gift_name = "舞者手套";
+
+-- 1118_Dancer_Gloves
+gift_gsid = 1118;
+
+function HasGift()
+    return hasGSItem(gift_gsid);
+end
+
+function HasDanced()
+    return MyCompany.Aries.Quest.NPCs.TwistDancer.HasPerformedDancing();
+end
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+    if(to == 3) then
+        -- exid 184: Get_1118_Dancer_Gloves 
+        ItemManager.ExtendedCost(184, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 184: Get_1118_Dancer_Gloves return: +++++++\n")
+	        commonlib.echo(msg);
+        end);
+    end
+end
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30184" />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("dance_name")%>达人'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	        <%=string.format("我是%s达人，学会%s的哈奇就快去旁边表演台上和我一起跳吧！跳完记得来找我哦，我这里有1件礼物，只给和我一样喜欢跳%s的哈奇！", Eval("dance_name"), Eval("dance_name"), Eval("dance_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="获取礼物" template_id="getgift">
+	            <pe:answer-if condition = '<%=HasGift()%>' target_state = "2"/>
+	            <pe:answer-if condition = '<%=HasDanced()%>' target_state = "3"/>
+	            <pe:answer-if condition = 'true' target_state = "4"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "2">
+            <!--already has gift-->
+	           礼物你已经拿过了，别太贪心哦！多去表演台上跳一跳吧，可以获得人气和演出费哦！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "3">
+            <!-- give user the gift-->
+	            <%=string.format("你跳得太棒了，这个%s送给你！记得穿戴好它多出来给其他哈奇表演哦！", Eval("gift_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "4">
+               <%=string.format("你还没有在表演台上成功表演过1次%s呢，别想蒙混过关拿礼物哦！", Eval("dance_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

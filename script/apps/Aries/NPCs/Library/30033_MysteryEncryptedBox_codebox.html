@@ -1,0 +1,81 @@
+<!-- "script/apps/Aries/NPCs/Library/30033_MysteryEncryptedBox_codebox.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30033_MysteryEncryptedBox_codebox.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+
+function ClosePage()
+    page:CloseWindow()
+end
+
+function OnSubmit(name, values)
+    if(type(values.code) ~= "string" or string.len(values.code) > 20) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        return;
+    end
+    if(values.code == "") then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        return;
+    end
+    local msg = {
+        card = values.code,
+    };
+    paraworld.MagicCard.Get(msg, "30033_MysteryEncryptedBox_codebox", function(msg)
+        log("=========== 30033_MysteryEncryptedBox_codebox ===========\n")
+        commonlib.echo(msg);
+        if(not msg.errorcode) then
+            -- proceed with the encrypted box panel
+            local url = "script/apps/Aries/NPCs/Library/30033_MysteryEncryptedBox_panel.html?code="..values.code;
+            MyCompany.Aries.Desktop.TargetArea.ShowURLAsGameObjectMCMLPage(url);
+        elseif(msg.errorcode == 497) then
+            -- 497：卡号不存在
+            _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        elseif(msg.errorcode == 421) then
+            -- 421：已被使用
+            _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        elseif(msg.errorcode == 500) then
+            -- 500：其它错误
+            _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        elseif(msg.errorcode == 501) then
+            -- 501：......
+            _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px;">喔噢，宝物箱开启失败！请输入正确的奇幻密码。</div>]]);
+        end
+    end);		    
+    
+    --UIAnimManager.PlayCustomAnimation(100, function(elapsedTime)
+    --    if(elapsedTime == 100) then
+    --        local url = "script/apps/Aries/NPCs/Library/30033_MysteryEncryptedBox_panel.html?code="..values.code;
+    --        MyCompany.Aries.Desktop.TargetArea.ShowURLAsGameObjectMCMLPage(url);
+    --    end
+    --end);
+end
+
+]]></script>
+<div style="margin-left:170px;margin-top:100px;width:512px;height:353px;background:url(Texture/Aries/NPCs/MysteryEncryptedBox/bg2.png#0 0 512 353)">
+    <form style="float:left;width:512px;height:353px;">
+        <input style="margin-left:220px;margin-top:244px;width:200px;height:26px;background:url();" type="text" name="code" onclick="ClosePage()" value=""/>
+        <br/>
+        <div style="position:relative;">
+            <div style="color:#1e4775;margin-left:56px;margin-top:-136px;width:370px;">
+                亲爱的<pe:name linked="false"/>，这是被紧锁的宝物箱，
+                <br/>
+                你想领取里面的宝物吗？哼哼，想打开它可没那么容易，一定要有神奇密码才行。
+                <br/>
+                想要获得神奇密码，一定要关注每期的哈奇时报哦！
+            </div>
+        </div>
+        <input style="margin-left:170px;margin-top:45px;width:153px;height:49px;background:url(Texture/Aries/NPCs/MysteryEncryptedBox/Submit_32bits.png#0 0 153 49);" type="submit" onclick="OnSubmit()" value=""/>
+    </form>
+    <input style="margin-left:140px;margin-top:-276px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+</div>
+
+</pe:mcml>
+</body>
+</html>

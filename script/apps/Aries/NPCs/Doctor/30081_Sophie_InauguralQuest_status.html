@@ -1,0 +1,76 @@
+<!-- "script/apps/Aries/NPCs/Doctor/30081_Sophie_InauguralQuest_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30081_Sophie_InauguralQuest_status, by Andy, 2009/11/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50181_DoctorInauguralQuest_Accept
+-- 50182_DoctorInauguralQuest_Complete
+-- 17012_ReviveElixar
+-- 17005_RainbowFlower
+-- 17015_ColorCloudCrystal
+
+showdialog = (hasGSItem(17012) and hasGSItem(17005) and hasGSItem(17015) and hasGSItem(50181) and not hasGSItem(50182));
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="float:left;width:82px;height:512px;background:url()">
+</div>
+<div style="float:left;width:655px;height:512px;background:url(texture/Aries/Quest/QuestMedalStatus_panel_bg_32bits.png#0 0 102 512: 50 60 50 60)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+        <div style="width:256px;height:32px;background:url()">
+            <div style="margin-left:-280px;margin-top:-60px;width:180px;height:64px;">
+                <pe:if condition='<%=showdialog == true%>'>
+                    <div style="margin-left:0px;margin-top:60px;padding:12px;padding-left:16px;width:180px;height:64px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41);">
+                        快来龙龙乐园找我吧！
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:1024px;height:512px;background:url()">
+            <aries:questobjectivestatus gsids="17005"
+                on_bg = "texture/Aries/Quest/Doctor/17005_RainbowFlower.png;0 0 128 150"
+                off_bg = "texture/Aries/Quest/Doctor/17005_RainbowFlower_grey.png;0 0 128 150"
+                tooltip = "龙源密境旁的七色丛林"
+                style="left:100px;top:280px;position:relative;width:128px;height:150px;"/>
+            <aries:questobjectivestatus gsids="17012"
+                on_bg = "texture/Aries/Quest/Doctor/17012_ReviveElixar.png;0 0 128 155"
+                off_bg = "texture/Aries/Quest/Doctor/17012_ReviveElixar_grey.png;0 0 128 155"
+                tooltip = "生长在生命之泉附近"
+                style="left:260px;top:280px;position:relative;width:128px;height:155px;"/>
+            <aries:questobjectivestatus gsids="17015"
+                on_bg = "texture/Aries/Quest/Doctor/17015_ColorCloudCrystal.png;0 0 180 128"
+                off_bg = "texture/Aries/Quest/Doctor/17015_ColorCloudCrystal_grey.png;0 0 180 128"
+                tooltip = "龙龙商店附近"
+                style="left:400px;top:290px;position:relative;width:180px;height:128px;"/>
+            <div style="width:1024px;height:256px;background:url(texture/Aries/Quest/Doctor/Sophie_InauguralQuest_bg_32bits.png)">
+            </div>
+        </div>
+        <input style="margin-left:600px;margin-top:-522px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin-left:224px;margin-top:-38px;width:208px;height:49px">
+        <a style="width:208px;height:49px;padding:0px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusMedal.html">
+            <div style="margin-top:-2px;width:208px;height:49px;">
+                <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" />
+            </div>
+        </a>
+    </div>
+    
+  </div>
+</pe:mcml>
+</body>
+</html>

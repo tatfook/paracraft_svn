@@ -1,0 +1,153 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30321_OneHundredHitBoard_trophy_dialogs.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30321_OneHundredHitBoard_trophy_dialogs, by LiXizhi, 2009/12/23</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30321_OneHundredHitBoard_trophy_dialogs.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+name = "NPCDialog_"..tostring(npc_id);
+local ItemMap = MyCompany.Aries.Quest.NPCs.OneHundredHitBoard.ItemMap
+function GetItemText()
+    return ItemMap[npc_id].text;
+end
+function IsCup()
+    return ItemMap[npc_id].isCup;
+end
+function IsUnique()
+    return ItemMap[npc_id].is_unique;
+end
+function HasItem()
+    return hasGSItem(ItemMap[npc_id].gsid);
+end
+
+function HasEnoughFlower()
+    return MyCompany.Aries.Quest.NPCs.OneHundredHitBoard.HasEnoughFlower(npc_id)
+end
+
+function HasEnoughScore()
+    return MyCompany.Aries.Quest.NPCs.OneHundredHitBoard.HasEnoughScore(npc_id)
+end
+
+function GetItemName()
+    return ItemMap[npc_id].item_name;
+end
+function GetItemBagName()
+    return ItemMap[npc_id].bag_name;
+end
+
+function EntryAction(from, to)
+end
+function ExitAction(from, to)
+    if(to == 8) then
+        MyCompany.Aries.Quest.NPCs.OneHundredHitBoard.DoGetCup(npc_id)
+    elseif(to==5) then
+        MyCompany.Aries.Quest.NPCs.OneHundredHitBoard.DoGetItem(npc_id)
+    end
+end
+]]></script>
+<pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+        <pe:placeholder id="content" source="{pe:state}" />
+    </pe:template>
+
+     <pe:state id = "0">
+	    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+		    <pe:answer-if condition = '<%=IsCup()%>' target_state = "1"/>
+		    <pe:answer-if condition = '<%=IsUnique()%>' target_state = "2"/>
+		    <pe:answer-if condition = 'true' target_state = "3"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "1">
+        <!--cup item-->
+	    <%=GetItemText()%>
+
+	    <pe:answer template_id = "takeyouhome">
+	        <pe:answer-if condition = '<%=HasItem()%>' target_state = "7"/>
+		    <pe:answer-if condition = '<%=HasEnoughScore()%>' target_state = "8"/>
+		    <pe:answer-if condition = 'true' target_state = "9"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "2">
+        <!--unique item-->
+	    <%=GetItemText()%>
+
+	    <pe:answer template_id = "takeyouhome">
+		    <pe:answer-if condition = '<%=HasItem()%>' target_state = "4"/>
+		    <pe:answer-if condition = '<%=HasEnoughFlower()%>' target_state = "5"/>
+		    <pe:answer-if condition = 'true' target_state = "6"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "3">
+    <!--multiple instanced item-->
+	    <%=GetItemText()%>
+
+	    <pe:answer template_id = "takeyouhome">
+		    <pe:answer-if condition = '<%=HasEnoughFlower()%>' target_state = "5"/>
+		    <pe:answer-if condition = 'true' target_state = "6"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "4">
+	    <%=string.format("你已经有%s了，去换点其他的东西吧！", GetItemName())%>
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "5">
+	    <%=string.format("您已经成功获得了1个%s，放入%s里了，注意查收哦！", GetItemName(), GetItemBagName())%>
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "6">
+	    你的雪绒花数量不足，不能带我回家去，赶紧再去多投点雪球吧！
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "7">
+	    <%=string.format("你的雪球投得很厉害，都已经获得过%s了，去看看其他的奖杯吧！", GetItemName())%>
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "8">
+	    你已经成功把我放回家园仓库啦，记得把我放出来哦，很酷的~ 
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+    <pe:state id = "9">
+	    你的分数还没有达到标准,赶紧再去多投点雪球吧！
+	    <pe:answer template_id = "well">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+</pe:dialog>
+</pe:mcml>
+</body>
+</html>

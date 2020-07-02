@@ -1,0 +1,119 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/PetOtherPlayerPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/Inventory/PetOtherPlayerPage.lua");
+local PetOtherPlayerPage = commonlib.gettable("MyCompany.Aries.Inventory.PetOtherPlayerPage");
+PetOtherPlayerPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function GetNid()
+    return PetOtherPlayerPage.nid;
+end
+function GetGsid()
+    return PetOtherPlayerPage.gsid;
+end
+function getStatExpireDays()
+    local gsid = GetGsid();
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        if(gsItem.template.expiretype == 1 and gsItem.template.expiretime) then
+            return tostring(gsItem.template.expiretime);
+        end
+    end
+    return "";
+end
+function getPetName()
+    local gsid = GetGsid();
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        return gsItem.template.name;
+    end
+end
+name2 = "mountpetview"..tostring(GetNid());
+function GetNidStr()
+    local nid_str = MyCompany.Aries.ExternalUserModule:GetNidDisplayForm(GetNid())
+    return nid_str;
+end
+]]></script>
+  <div style="width:330px;height:470px;" class="pane">
+    <div style="height:19px;">
+      <div class="windowlabel">坐骑</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:283px;" />
+    </div>
+    <div style="margin-left:5px;margin-top:5px;width:320px;height:440px;" class="border">
+        <div style="float:left;">
+             <div class="inborder" style="width:310px;height:430px;margin-top:5px;">
+                 <div style="position:relative;margin-left:0px;margin-top:0px;text-align:center;" class="usernamecolor">
+                 <%=getPetName() %>
+                </div>
+                <div style="position:relative;margin-left:210px;margin-top:5px;"></div>
+                 <div style="position:relative;margin-left:55px;margin-top:20px;">
+                    <div style="margin-top:0px;margin-left:0px;width:200px;height:200px;">
+                        <aries:mountpet nid='<%=GetNid()%>' object="mount" name='<%=Eval("name2")%>' miniscenegraphname='<%=Eval("name2")%>' RenderTargetSize="200" style="width:200px;height:200px;" background="" IsPortrait=true IsInteractive=false/>
+                    </div>
+                    <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateleft" zorder="2" style="float:left;margin-left:-50px;margin-top:-20px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                    <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateright" zorder="2" style="float:left;margin-left:200px;margin-top:-20px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                </div>
+                
+               <!-- <div style="position:relative;margin-left:5px;margin-top:225px;width:300px;height:40px;" class="static_block">
+                    <div style="margin-left:82px;margin-top:2px;">
+                        <div style="float:left;width:32px;height:32px;" class="block">
+                        </div>
+                        <div style="float:left;margin-left:2px;margin-top:2px;width:1px;height:32px;" class="vertical_line">
+                        </div>
+                        <div style="float:left;margin-left:2px;width:32px;height:32px;" class="block">
+                        </div>
+                        <div style="float:left;margin-left:2px;width:32px;height:32px;" class="block">
+                        </div>
+                        <div style="float:left;margin-left:2px;width:32px;height:32px;" class="block">
+                        </div>
+                    </div>
+                </div>      -->         
+                <div style="margin-left:5px;margin-top:235px;width:300px;height:190px;" class="static_block">
+                    <div style="margin-left:5px;" class="highbluecolor">
+                        <div >
+                            <div style="float:left;width:140px;">HP:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="4" stat="101" /></div></div>
+                            <div style="float:left;width:140px;">敏捷:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="220"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用命中:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="103"/></div></div>
+                            <div style="float:left;width:140px;">闪避:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="118"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用攻击:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="111"/></div></div>
+                            <div style="float:left;width:140px;">暴击:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="196"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用防御:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="119"/></div></div>
+                            <div style="float:left;width:140px;">韧性:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="204"/></div></div>
+                        </div>
+                       <div>
+                            <div style="float:left;width:140px;">双倍魔力生成率:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="102"/></div></div>
+                            <div style="float:left;width:140px;">移动速度:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="59"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">有效期:<div style="float:left;"><%=getStatExpireDays() %>天</div></div>
+                        </div>
+                    </div>
+                </div>
+                 
+            </div>
+        </div>
+        
+    </div>   
+</pe:mcml>
+</body>
+</html>
+

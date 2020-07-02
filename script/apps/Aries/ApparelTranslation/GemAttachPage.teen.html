@@ -1,0 +1,391 @@
+<!-- "script/apps/Aries/ApparelTranslation/GemAttachPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemAttachPage.lua");
+local GemAttachPage = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemAttachPage");
+GemAttachPage.OnInit();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function DS_Func_item_info(index)
+    return GemAttachPage.DS_Func_item_info(index)
+end
+function DS_Func_apparel_list(index)
+    return GemAttachPage.DS_Func_apparel_list(index)
+end
+function DS_Func_gems_list(index)
+    return GemAttachPage.DS_Func_gems_list(index)
+end
+function GetMenu_apparel()
+    return GemAttachPage.apparel_menu;
+end
+function GetMenu_gem()
+    return GemAttachPage.gems_menu;
+end
+function OnClickBtn_apparel(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        GemAttachPage.DoClick_Menu_Apparel(node.keyname,node);
+    end
+end
+function OnClickBtn_gem(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        GemAttachPage.DoClick_Menu_Gems(node.keyname);
+    end
+end
+function GetSelectedGuid()
+    return GemAttachPage.selected_guid;
+end
+function DoSelectedItem(guid)
+    GemAttachPage.DoClick(guid)
+end
+function CanAttach(index)
+    if(not index)then return end
+    local list = GemAttachPage.selected_item_info_list;
+    if(list)then
+        local cur_node = list[index];
+        if(cur_node and not cur_node.attached)then
+            if(index == 1)then
+                return true;
+            end
+            local node = list[index - 1];
+            if(node and node.attached and node.gem_gsid)then
+                return true;
+            end
+        end
+    end
+end
+function DoCancel()
+    GemAttachPage.DoClick(nil)
+end
+function HasSelectedGem()
+    if(GemAttachPage.selected_gem_guid)then
+        return true;
+    end
+end
+function DoClick_gem(guid)
+    if(not guid or not GemAttachPage.selected_guid)then
+        _guihelper.MessageBox("请选择一件装备！");
+        return 
+    end
+	local gem_item = ItemManager.GetItemByGUID(guid);
+    local item = ItemManager.GetItemByGUID(GemAttachPage.selected_guid);
+    if(gem_item and item and item.GetSocketedGems)then
+    	local gems = item:GetSocketedGems() or {};
+        local len = #gems;
+        local max_cnt = CommonClientService.GetMaxHoleCnt(item.gsid);
+        if(len >= max_cnt)then
+            _guihelper.MessageBox("你的这件装备已经镶满宝石了！");
+            return
+        end
+        local k,v;
+        for k,v in ipairs(gems) do
+            if(CommonClientService.GemIsSameResistType(gem_item.gsid,v))then
+                _guihelper.MessageBox("抗性宝石和多彩石不能同时镶嵌！");
+                return
+            end
+            if(CommonClientService.GemIsSameType(gem_item.gsid,v))then
+                _guihelper.MessageBox("不能重复镶嵌同一类型的宝石！");
+                return
+            end
+        end   
+    end
+
+    GemAttachPage.DoClick_gem(guid)
+end
+function DoClearGem()
+    GemAttachPage.DoClick_gem(nil);
+end
+function DoAttach(index)
+    if(not index)then return end
+    goal_manager.finish("mount_gem");
+
+    local list = GemAttachPage.selected_item_info_list;
+    if(list)then
+        local node = list[index];
+        if(node and not node.attached and node.gem_gsid)then
+            local gsid = node.gem_gsid;
+		    local item = ItemManager.GetItemByGUID(GemAttachPage.selected_guid);
+            if(item and item.GetSocketedGems)then
+    			local gems = item:GetSocketedGems() or {};
+                local k,v;
+                for k,v in ipairs(gems) do
+                    if(gsid == v)then
+                        _guihelper.MessageBox("不能重复镶嵌同一类型的宝石！");
+                        return
+                    end
+                end        
+                ItemManager.MountGemInSocket2(GemAttachPage.selected_gem_guid,
+		            GemAttachPage.selected_guid,{}, nil, function(msg)
+		            if(msg) then
+			            if(msg.issuccess) then
+				            GemAttachPage.selected_gem_guid = nil;
+	                        GemAttachPage.Load_item_info();
+                        	GemAttachPage.Load_gems_list();
+                            GemAttachPage.RefreshPage();
+				            MyCompany.Aries.event:DispatchEvent({type = "custom_goal_client"},79017);
+			            elseif(msg.errorcode == 493) then
+				            _guihelper.MessageBox("提供的某个参数不符合要求！");
+			            elseif(msg.errorcode == 433) then
+				            _guihelper.MessageBox("该装备已镶嵌过了，不能镶嵌更多的宝石了。");
+			            elseif(msg.errorcode == 417) then
+				            _guihelper.MessageBox("已经镶嵌了该类型的宝石。");
+			            elseif(msg.errorcode == 427) then
+				            _guihelper.MessageBox("你的货币不足以进行本次镶嵌。");
+			            elseif(msg.errorcode == 492) then
+				            _guihelper.MessageBox("很遗憾，没有成功镶嵌宝石。");
+			            else
+				            _guihelper.MessageBox("很遗憾，没有成功镶嵌宝石！" );				
+			            end
+		            end
+	            end);
+            end
+        end
+    end
+end
+function DoUnAttach(index)
+    if(not index)then return end
+    local list = GemAttachPage.selected_item_info_list;
+    if(list)then
+        local node = list[index];
+        if(node and node.attached and node.gem_gsid and GemAttachPage.selected_guid)then
+            local gsid = node.gem_gsid;
+    		local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+            if(not gsItem)then
+                return
+            end
+			local stat = gsItem.template.stats[41] or 0;
+            local cost = stat * 500;
+            local __,__,__,copies = hasGSItem(0);
+            copies = copies or 0;
+            if(copies < cost)then
+                local s = string.format("摘除%d级宝石需要%d银币，你没有足够的银币，不能摘除！",stat,cost);
+				_guihelper.MessageBox(s);
+                return
+            end
+            NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+            local s = string.format("摘除这颗宝石需要%d银币，确定要摘除吗？",cost);
+            _guihelper.Custom_MessageBox(s,function(result)
+	            if(result == _guihelper.DialogResult.Yes)then
+                    ItemManager.UnEquipGemFromSocket2({gsid},GemAttachPage.selected_guid, nil,function(msg)
+			            if(msg)then
+				            if(msg.issuccess) then
+                                GemAttachPage.Load_item_info();
+                                GemAttachPage.Load_gems_list();
+                                GemAttachPage.RefreshPage();
+				            elseif(msg.errorcode == 427)then
+					            _guihelper.MessageBox("摘除宝石需要宝石凿！");	
+				            elseif(msg.errorcode == 433)then
+					            _guihelper.MessageBox("你的背包满了！");	
+				            elseif(msg.errorcode == 493)then
+					            _guihelper.MessageBox("参数不符合要求！");	
+                                GemAttachPage.Reload();
+				            else
+					            _guihelper.MessageBox("很遗憾，没有成功摘除宝石！");	
+				            end
+			            end
+		            end);
+	            end
+            end,_guihelper.MessageBoxButtons.YesNo);
+            
+        end
+    end
+end
+function GoShop()
+    goal_manager.finish("mount_gem");
+
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.lua");
+    local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+    CharacterBagPage.ClosePage()
+    ClosePage();
+
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+    NPCShopPage.ShowPage(31012,"menu1");
+    
+end
+function GoUpgradePage()
+    NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_upgrade.lua");
+    local Avatar_equip_upgrade = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_upgrade");
+    Avatar_equip_upgrade.ShowPage();
+    ClosePage();
+end
+function GoGemBuildPage()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+    local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+    ItemBuildPage.ShowPage("gem");
+    ClosePage();
+end
+    
+function HasGem()
+    local gem = DS_Func_gems_list(1);
+    return if_else(gem and gem.guid and gem.guid>0, true, false);
+end
+function HasEquip()
+    local equip = DS_Func_apparel_list(1);
+    return if_else((equip and equip.guid and equip.guid>0), true, false);
+end
+]]>
+</script>
+<aries:window width="760" height="470" title="宝石镶嵌" mode="lite" isdeepbg="true" onclose="ClosePage()">
+    <pe:goalpointer listen="close" class="closewindow_lite_tip"></pe:goalpointer>
+    <div>
+        <div style="float:left;width:320px;height:425px;">
+            <pe:div style="position:relative;margin-left:30px;margin-top:10px;width:300px;height:300px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)"/>
+            <div style="margin-left:110px;margin-top:20px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_equip_32bits.png#0 0 118 118)">    
+                <pe:slot guid="<%=GetSelectedGuid()%>" onclick="DoCancel" style="width:58px;height:58px;margin-top:-2px;"/>
+            </div>
+            <div style="margin-left:10px;height:180px;">
+                <pe:gridview name="grid_view_item_info" DataSource="<%=DS_Func_item_info%>" ItemsPerLine="5" AllowPaging="false" pagesize="10">
+	                <Columns>
+                        <div style="margin-left:10px;margin-top:10px;">
+                            <pe:if condition='<%=not Eval("locked")%>'>
+                                <div style="width:48px;height:48px;" class="block">
+                                        <pe:if condition='<%=Eval("attached")%>'>
+                                            <pe:item gsid='<%=Eval("gem_gsid")%>' style="width:48px;height:48px;" isclickable="false"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=not Eval("attached")%>'>
+                                            <pe:item gsid='<%=Eval("gem_gsid")%>' style="width:48px;height:48px;" onclick="DoClearGem()"/>
+                                        </pe:if>
+                                </div>
+                                <pe:if condition='<%=Eval("attached")%>'>
+                                    <input type="button" name='<%=Eval("index")%>' style="margin-left:8px;margin-top:2px;width:35px;height:22px;" onclick="DoUnAttach" value="摘除"/>
+                                </pe:if>
+                                <pe:if condition='<%=not Eval("attached") and CanAttach(Eval("index"))%>'>
+                                    <pe:if condition='<%=HasSelectedGem()%>'>
+                                        <pe:goalpointer listen="mount_gem" style="position:relative;margin-left:8px;margin-top:2px;width:35px;height:22px;"></pe:goalpointer>
+                                        <input type="button" name='<%=Eval("index")%>' style="margin-left:8px;margin-top:2px;width:35px;height:22px;" onclick="DoAttach"  value="镶嵌" class="highlight_btn_css"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not HasSelectedGem()%>'>
+                                        <input type="button" tooltip="请选择你要镶嵌的宝石" style="margin-left:8px;margin-top:2px;width:35px;height:22px;background-color:#ffffff90" value="镶嵌" class="highlight_btn_css"/>
+                                    </pe:if>
+                                </pe:if>
+                            </pe:if>
+                        </div>
+	                </Columns>
+	                <EmptyDataTemplate>
+                        <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                </EmptyDataTemplate>
+	                <FetchingDataTemplate>
+	                </FetchingDataTemplate>
+                        <PagerSettings Position="Bottom" />
+				    <PagerTemplate AutoHidePager="true">
+                            <form >
+						        <input type="button" style="margin-left:-22px;margin-top:-60px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						        <input type="button" style="margin-left:348px;margin-top:-60px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                        </form>
+				    </PagerTemplate>
+                </pe:gridview>      
+            </div>
+            <div style="margin-left:5px;margin-top:-2px;width:320px;height:110px;" class="border_bg2_css">
+                    <div style="float:left;width:250px;margin-left:5px;margin-top:5px;" class="highbluecolor" >
+                        <img class="stable_bean" style="width:20px;height:20px;"/>
+                        <div style="float:left;margin-left:2px;">银币:</div><pe:slot type="count" gsid="0" style="float:left;" />
+                    </div>
+            </div>
+        </div>
+        <div style="float:left;width:420px;height:425px;">
+            <div style="margin-left:10px;height:130px;padding:5px;" class="defaultstyle">
+                 <div>说明：</div>
+                <div>1、在装备栏里选中一个装备后会出现在左侧的格子里。</div>
+                <div>2、在宝石栏里选中一个要镶嵌上去的宝石，然后点击【镶嵌】按钮。</div>
+            </div>
+            <div style="position:relative;margin-left:270px;margin-top:-40px;"><a onclick="GoUpgradePage">【装备强化】</a></div>
+            <div style="position:relative;margin-left:270px;margin-top:-20px;"><a onclick="GoGemBuildPage">【宝石合成】</a></div>
+            <div style="position:relative;margin-left:270px;">
+                <pe:if condition='<%=(GetSelectedGuid()~=nil and not HasGem()) or (GetSelectedGuid()==nil and not HasEquip()) %>'>
+                    <pe:goalpointer listen="select_addgem_gems" style="position:relative;width:60px;height:23px;"></pe:goalpointer>    
+                </pe:if>
+                <a onclick="GoShop">【购买宝石】</a>
+            </div>
+            <div style="margin-left:10px;">
+                <div style="height:23px;margin-left:10px;">
+                    <pe:togglebuttons ButtonWidth="60" DataSource='<%=GetMenu_apparel() %>' onclick='OnClickBtn_apparel'/>
+                </div>
+                <div style="width:410px;height:120px;" class="border_bg2_css">
+                    <div style="position:relative;margin-left:20px;margin-top:10px;height:150px;">
+                        <pe:if condition='<%=GetSelectedGuid()==nil and HasEquip()%>'>
+                            <pe:goalpointer listen="select_addgem_equipment" style="position:relative;width:151px;height:48px;"></pe:goalpointer>
+                        </pe:if>
+                        <pe:gridview name="grid_view_apparel_list" DataSource="<%=DS_Func_apparel_list%>" ItemsPerLine="7" AllowPaging="true" pagesize="14">
+	                        <Columns>
+                                <div style="margin-left:2px;">
+                                    <div style="width:48px;height:48px;" class="block">
+                                        <pe:slot guid='<%=Eval("guid")%>' style="width:48px;height:48px;" onclick="DoSelectedItem"/>
+                                    </div>
+                                </div>
+	                        </Columns>
+	                        <EmptyDataTemplate>
+                                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                                <PagerSettings Position="Bottom" />
+				            <PagerTemplate AutoHidePager="true">
+                                    <form >
+						                <input type="button" style="margin-left:-20px;margin-top:-85px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						                <input type="button" style="margin-left:360px;margin-top:-85px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                                </form>
+				            </PagerTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left:10px;margin-top:10px;">
+                <div style="height:23px;margin-left:10px;">
+                    <pe:togglebuttons ButtonWidth="55" DataSource='<%=GetMenu_gem() %>' onclick='OnClickBtn_gem'/>
+                </div>
+                <div style="width:410px;height:120px;" class="border_bg2_css">
+                    <div style="position:relative;margin-left:20px;margin-top:10px;height:150px;">
+                        <pe:if condition='<%=GetSelectedGuid()~=nil and HasGem()%>'>
+                            <pe:goalpointer listen="select_addgem_gems" style="position:relative;width:151px;height:48px;"></pe:goalpointer>    
+                        </pe:if>
+                        <pe:gridview name="grid_view_gems_list" DataSource="<%=DS_Func_gems_list%>" ItemsPerLine="7" AllowPaging="true" pagesize="14">
+	                        <Columns>
+                                <div style="margin-left:2px;">
+                                    <div style="width:48px;height:48px;" class="block">
+                                        <pe:slot guid='<%=Eval("guid")%>' style="width:48px;height:48px;" onclick="DoClick_gem"/>
+                                    </div>
+                                </div>
+	                        </Columns>
+	                        <EmptyDataTemplate>
+                                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                                <PagerSettings Position="Bottom" />
+				            <PagerTemplate AutoHidePager="true">
+                                    <form >
+						                <input type="button" style="margin-left:-20px;margin-top:-85px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						                <input type="button" style="margin-left:360px;margin-top:-85px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                                </form>
+				            </PagerTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,31 @@
+﻿<!-- "script/apps/Aries/Animation/GoalActived.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2012/10/9</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/ide/Director/Movie.lua");
+local Movie = commonlib.gettable("Director.Movie");
+local pageCtrl = document:GetPageCtrl();
+local playername = pageCtrl:GetRequestParam("playername") or "";
+local tag = pageCtrl:GetRequestParam("tag");
+local body_list = Movie.ParseTag(tag);
+local gsid_key = body_list[2] or "";
+local player = Movie.CreateOrGetPlayer(playername);
+local runtime_datasource = player.runtime_datasource or {};
+local gsid = runtime_datasource[gsid_key];
+function GetGsid()
+    return gsid;
+end
+]]></script>
+    <pe:div style="width:64px;height:64px;background:;">
+        <img style="margin-left:25px;width:13px;height:51px;background:url(Texture/Aries/HeadOn/exclamation.png#0 0 13 51)">
+    </pe:div>
+</pe:mcml> 
+</body>
+</html>

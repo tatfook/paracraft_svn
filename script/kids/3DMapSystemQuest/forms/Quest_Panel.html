@@ -1,0 +1,283 @@
+<!-- "script/kids/3DMapSystemQuest/forms/Quest_Panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>by Leio, 2008.12.22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="Quest_Panel.lua">
+    Map3DSystem.Quest.Quest_Panel.OnInit();
+</script>
+<div style="padding:5px">
+<pe:tabs>
+    <pe:tab-item text="任务库" selected="true">
+         <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshQuest" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewQuest" value="新建任务"/>   
+        <hr />
+       <div style="float:left;font-weight:bold;color:#808080">
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">entry</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">PrevQuestId</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">NextQuestId</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">NextQuestInChain</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">Title</div>
+                <div style="float:left;font-weight:bold;width:240px;margin:2px">Details</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.Quest_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("entry")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("PrevQuestId")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("NextQuestId")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("NextQuestInChain")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("Title")%></div>
+                <div style="float:left;font-weight:bold;width:240px;margin:2px"><%=Eval("Details")%></div>
+                 <a tooltip = "删除任务" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑任务" onclick="Map3DSystem.Quest.Quest_Panel.OnEditQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+     <pe:tab-item text="任务链" >
+          <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshValidQuestChains" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewValidQuestChains" value="新建任务链"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+        <div style="float:left;font-weight:bold;width:60px;margin:2px">ID</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.ValidQuestChains_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("ID")%></div>
+
+                 <a tooltip = "删除" onclick="" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑" onclick="Map3DSystem.Quest.Quest_Panel.OnEditValidQuestChains" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+         <pe:tab-item text="单个任务" >
+                  <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshQuest" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewQuest" value="新建任务"/>   
+        <hr />
+       <div style="float:left;font-weight:bold;color:#808080">
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">entry</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">PrevQuestId</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">NextQuestId</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">NextQuestInChain</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">Title</div>
+                <div style="float:left;font-weight:bold;width:240px;margin:2px">Details</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.UnValidQuestChains_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("entry")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("PrevQuestId")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("NextQuestId")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("NextQuestInChain")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("Title")%></div>
+                <div style="float:left;font-weight:bold;width:240px;margin:2px"><%=Eval("Details")%></div>
+                 <a tooltip = "删除任务" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑任务" onclick="Map3DSystem.Quest.Quest_Panel.OnEditQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item text="NPC" >
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshNPC" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewNPC" value="新建NPC"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+               <div style="float:left;font-weight:bold;width:60px;margin:2px">ID</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">Name</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posX</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posY</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">posZ</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.NPC_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("ID")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("Name")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posX")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posY")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("posZ")%></div>
+                 <a tooltip = "删除这个NPC" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteNPC" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                 <a tooltip = "移动摄像机到这个NPC的位置" onclick="Map3DSystem.Quest.Quest_Panel.OnMoveToNPC" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/bug.png);width:16px;height:16px;margin-right:2px" />瞬移
+                </a>
+                <a tooltip = "编辑NPC属性" onclick="Map3DSystem.Quest.Quest_Panel.OnEditNPC" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+   
+    <pe:tab-item text="问答">
+         <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshGoals" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewGoals" value="新建问答"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">id</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">app_key</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">commandname</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">questiondata</div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px">answerdata</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.Goals_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("id")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("app_key")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("commandname")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("questiondata")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("answerdata")%></div>
+                 <a tooltip = "删除问答" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteGoals" param1='<%=Eval("id")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑问答" onclick="Map3DSystem.Quest.Quest_Panel.OnEditGoals" param1='<%=Eval("id")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+     <pe:tab-item text="Gossip">
+         <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshGossip" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewGossip" value="新建"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+        <div style="float:left;font-weight:bold;width:60px;margin:2px">ID</div>
+        <div style="float:left;font-weight:bold;width:600px;margin:2px">gossiptext</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.Gossip_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("ID")%></div>
+                <div style="float:left;font-weight:bold;width:600px;margin:2px"><%=Eval("gossiptext")%></div>
+                 <a tooltip = "删除" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteGossip" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑" onclick="Map3DSystem.Quest.Quest_Panel.OnEditGossip" param1='<%=Eval("ID")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+     <pe:tab-item text="StartRelation">
+         <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshStartRelation" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewStartRelation" value="新建"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+        <div style="float:left;font-weight:bold;width:60px;margin:2px">NPC ID</div>
+        <div style="float:left;font-weight:bold;width:120px;margin:2px">Quest ID</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.StartRelation_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("id")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("quest")%></div>
+                 <a tooltip = "删除" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteStartRelation" param1='<%=Eval("quest")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑" onclick="Map3DSystem.Quest.Quest_Panel.OnEditStartRelation" param1='<%=Eval("quest")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+     <pe:tab-item text="FinishRelation">
+         <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnRefreshFinishRelation" value="刷新"/>
+        <input type="submit" name="New" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Quest.Quest_Panel.OnNewFinishRelation" value="新建"/>   
+        <hr />
+        <div style="float:left;font-weight:bold;color:#808080">
+        <div style="float:left;font-weight:bold;width:60px;margin:2px">NPC ID</div>
+        <div style="float:left;font-weight:bold;width:120px;margin:2px">Quest ID</div>
+        </div>
+        <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.FinishRelation_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("id")%></div>
+                <div style="float:left;font-weight:bold;width:120px;margin:2px"><%=Eval("quest")%></div>
+                 <a tooltip = "删除" onclick="Map3DSystem.Quest.Quest_Panel.OnDeleteFinishRelation" param1='<%=Eval("quest")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+                </a>
+                <a tooltip = "编辑" onclick="Map3DSystem.Quest.Quest_Panel.OnEditFinishRelation" param1='<%=Eval("quest")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+                </a>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+    
+   
+</pe:tabs>
+</div>
+</pe:mcml>
+</body>
+</html>

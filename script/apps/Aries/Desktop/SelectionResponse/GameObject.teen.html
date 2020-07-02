@@ -1,0 +1,54 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/GameObject.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Common Game Object Selection Response, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GameObject.lua"><![CDATA[
+local page = document:GetPageCtrl();
+gameobj_id = page:GetRequestParam("gameobj_id") or 0;
+gameobj_id = tonumber(gameobj_id);
+gameobj_type = page:GetRequestParam("gameobj_type") or "";
+gsid = page:GetRequestParam("gsid") or 0;
+gsid = tonumber(gsid);
+page_url = page:GetRequestParam("page_url") or "";
+
+name = "GameObjSelection"..gameobj_id;
+
+tooltip = "";
+icon = "texture/alphadot.png";
+
+local GameObjectList = commonlib.gettable("MyCompany.Aries.Quest.GameObjectList");
+gameobj=GameObjectList.GetGameObjectByID(gameobj_id)
+if(gameobj) then
+    obj_name = gameobj.name;
+end
+]]>
+</script>
+<div style="background:url(Texture/Aries/Team/teen/player_border_bg_32bits.png#0 0 229 69);width:229px;height:69px;">
+    <input type="button" name="levelBtn" value='<%="0"%>' style="position:relative;margin-left:0px;margin-top:25px;width:30px;height:16px;font-size:12px;color:#a8d608;background:;"/>
+    <input type="button" name="onClickMenuBtn" value="" style="position:relative;margin-left:207px;margin-top:12px;width:16px;height:16px;background:url(Texture/Aries/Team/teen/down_btn_32bits.png);"/>
+    <div style="float:left;margin-left:24px;margin-top:2px;">
+        <pe:player nid='<%=Eval("gameobj_id")%>' object="gameobject" name='<%=Eval("name")%>' RenderTargetSize="64" miniscenegraphname="Aries_SelectedArea_miniscene" style="width:64px;height:64px;"
+            MaskTexture = "Texture/Aries/Common/circular_mask_head.png"   IsPortrait="true" />
+    </div>
+    <div style="float:left;margin-left:1px;margin-top:15px">
+        <div style="width:130px;text-align:center;color:#02f9ff;">
+            <%=Eval("obj_name") or "NPC" %>
+        </div>
+        <div style="margin-left:6px;margin-top:3px;">
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:123px;height:11px;"
+                    blockimage="Texture/Aries/Team/teen/red_progressbar.png;0 0 16 10: 7 5 8 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" type="button" style="position:relative;margin-top:-14px;margin-left:5px;width:120px;height:16px;color:#ffffff;font-size:11px;background:;" value="0/0" />
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

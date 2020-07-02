@@ -1,0 +1,280 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30011_WishLevel8_status2.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30011_WishLevel8_status2, by Andy, 2009/7/29</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local arrow_norm = "Texture/Aries/Quest/arrow_right_32bits.png";
+local arrow_grey = "Texture/Aries/Quest/arrow_right_grey_32bits.png";
+local slot_norm = "Texture/Aries/Quest/object_slot_32bits.png";
+local slot_grey = "Texture/Aries/Quest/object_slot_grey_32bits.png";
+
+--50034_WishLevel8_Acquire
+--50035_WishLevel8_Complete
+--50036_WishLevel8_RewardFriendliness
+--50054_WishLevel8_TalkedWithBlueDragonTotem
+--50053_WishLevel8_HeartOfFlyingDragon
+
+local count = 0;
+local bHas, guid = hasGSItem(50053);
+if(bHas == true) then
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item and item.guid > 0) then
+        count = item.copies;
+    end
+end
+
+function DS_Func_30011_WishLevel9_status2(index)
+    if(index == nil) then
+        return 1;
+    elseif(index == 1) then
+        if(count == 20) then
+            return {gsid = 50053, slot_bg = slot_norm, countdown = count.."/20"};
+        else
+            return {gsid = 50053, slot_bg = slot_grey, countdown = count.."/20"};
+        end
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+heart_bg_1 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_2 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_3 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_4 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_5 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_6 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_7 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_8 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_9 = "Texture/Aries/Temp/Heart_32bits.png";
+heart_bg_10 = "";
+
+
+--heart_bg_10 = "Texture/Aries/Temp/Heart_Grey_32bits.png";
+
+-- 30112_HeartOfFlyingDragon
+local i = 1; 
+for i = 1, 10 do
+    local Quest = MyCompany.Aries.Quest;
+    local npcChar = Quest.NPC.GetNpcCharacterFromIDAndInstance(30112, i);
+    local triggered = false;
+    if(npcChar and npcChar:IsValid() == true) then
+        triggered = false;
+    else
+        triggered = true;
+    end
+
+    if(i == 1) then
+        heart_1 = triggered;
+    elseif(i == 2) then
+        heart_2 = triggered;
+    elseif(i == 3) then
+        heart_3 = triggered;
+    elseif(i == 4) then
+        heart_4 = triggered;
+    elseif(i == 5) then
+        heart_5 = triggered;
+    elseif(i == 6) then
+        heart_6 = triggered;
+    elseif(i == 7) then
+        heart_7 = triggered;
+    elseif(i == 8) then
+        heart_8 = triggered;
+    elseif(i == 9) then
+        heart_9 = triggered;
+    elseif(i == 10) then
+        heart_10 = triggered;
+    end
+end
+
+]]></script>
+
+<div style="width:820px;height:512px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:350px;margin-top:70px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:128px;height:32px;background:url(texture/Aries/Quest/Dragon/Wish8Head_2_32bits.png)">
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Wish8Body_2_32bits.png)">
+            <pe:if condition='<%=Eval("heart_1") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="购物街" style="left:583px;top:320px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_1") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="购物街" style="left:583px;top:320px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_2") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="小镇广场" style="left:512px;top:298px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_2") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="小镇广场" style="left:512px;top:298px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_3") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="哈奇警署" style="left:478px;top:261px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_3") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="哈奇警署" style="left:478px;top:261px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_4") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="跳跳农场" style="left:265px;top:298px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_4") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="跳跳农场" style="left:265px;top:298px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_5") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="龙龙乐园" style="left:410px;top:242px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_5") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="龙龙乐园" style="left:410px;top:242px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_6") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="镇长大厅" style="left:532px;top:219px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_6") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="镇长大厅" style="left:532px;top:219px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_7") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="魔法学院" style="left:584px;top:154px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_7") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="魔法学院" style="left:584px;top:154px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_8") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="生命之泉" style="left:440px;top:170px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_8") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="生命之泉" style="left:440px;top:170px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_9") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="龙源密境" style="left:384px;top:140px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_9") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="龙源密境" style="left:384px;top:140px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_10") == false%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="魔法密林" style="left:340px;top:100px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("heart_10") == true%>'>
+                <pe:item gsid='1' isclickable="false" tooltip="魔法密林" style="left:340px;top:100px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+            </pe:if>
+        </div>
+        <input style="margin-left:725px;margin-top:-457px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin-left:350px;margin-top:-100px;width:100px;height:65px">
+            <div style="margin-top:0px;width:132px;height:65px;">
+                <input type="button" onclick="OnClose();" style="margin:0px;width:132px;height:65px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" />
+            </div>
+    </div>
+    
+    <!--<div style="margin-left:180px;margin-top:40px;font-size:14;font-weight:bold;color:#FFFFFF">真正的飞龙</div>
+    <div style="float:right;margin-left:407px;margin-top:-39px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin:40px;margin-top:0px">
+
+        让<div style="float:right;margin-left:-9px;"><aries:mountpetname/></div>带你飞上天空吧，收起齐10个飞翔的心，点亮<br/>
+        整个图像，你的抱抱龙才算完成飞行测试，获得飞龙奖章，<br/>
+        成为真正的飞龙哦！
+
+    </div>
+    <div style="margin-left:100px;margin-top:-50px;width:256px;height:256px;">
+    <pe:map background = "worlds/MyWorlds/0904_test/MapMarks/HackyTownMap_32bits.png;0 0 594 595" title = "哈奇岛" name = "0904_testLocalMap"
+        width = "256" height = "256" 
+        RefPos1 = "(113, 138), (19998, 19881)" 
+        RefPos2 = "(150, 162), (20126, 19749)" 
+        AvatarArrow_bg = "Texture/Aries/Desktop/Minimap_AvatarArrow_32bits.png"
+        AvatarArrow_size = "32"
+        isShownAvatar = true 
+        isFixedFacing = false 
+        fastrender = false >
+        
+        <pe:mark background = '<%=Eval("heart_bg_1")%>'
+            MapPosition = "80, 120, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_2")%>'
+            MapPosition = "110, 123, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_3")%>'
+            MapPosition = "101, 160, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_4")%>'
+            MapPosition = "91, 140, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_5")%>'
+            MapPosition = "115, 90, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_6")%>'
+            MapPosition = "148, 120, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_7")%>'
+            MapPosition = "170, 200, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_8")%>'
+            MapPosition = "165, 164, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_9")%>'
+            MapPosition = "126, 140, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+        <pe:mark background = '<%=Eval("heart_bg_10")%>'
+            MapPosition = "144, 185, 16, 16"
+            animstyle = "44">
+        </pe:mark>
+    </pe:map>
+    </div>
+    <div style="margin-left:40px;margin-top:-40px;margin-right:40px">
+    
+    小秘诀：骑着抱抱龙，连续按空格键盘就可以越飞越高<br/>         在键盘上按 F键 会有神奇的效果哦！<br/>
+    </div>
+    <div style="margin-left:200px;margin-top:00px;width:100px;height:30px">
+        <a target="_self" href="script/apps/Aries/Quest/QuestStatusDragon.html" style="color:#FFFFFF">
+        返回列表
+        </a>
+    </div>-->
+  </div>
+</pe:mcml>
+</body>
+</html>
+
+    <!--<div style="margin-left:10px;margin-top:-50px;height:170px;">
+        <pe:gridview DataSource="<%=DS_Func_30011_WishLevel9_status2%>" name="WishLevel9_status2" CellPadding="16"  DefaultNodeHeight = "100" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+            <Columns>
+                <div style="float:right;width:160px;height:64px;">
+                    
+                </div>
+                <div style="float:right;width:64px;height:64px;">
+                    <img style="width:64px;height:64px" src='<%=Eval("slot_bg")%>'/>
+                    <pe:item gsid='<%=Eval("gsid")%>' isclickable=false style="margin-left:-56px;margin-top:8px;width:48px;height:48px;"/>
+                </div>
+                <br/>
+                <div style="margin-left:180px;margin-top:10px;"><%=Eval("countdown")%>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>Data Fetching, Please wait ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div>-->

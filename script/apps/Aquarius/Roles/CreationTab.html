@@ -1,0 +1,63 @@
+﻿<!-- "script/apps/Aquarius/Roles/CreationTab.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by WangTian, 2008/11/25</title>
+</head>
+<body>
+<pe:mcml>
+<script src="CreationTab.lua" type="text/npl" ><![CDATA[
+MyCompany.Aquarius.CreationTab.OnInit();
+]]></script>
+<div style="width:160px">
+    <!--style="height:46px;"-->
+    <pe:ribbonbar label="选择" tooltip="先选择物品类别,然后左键点击场景中的物体" style="height:64px;width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <select AllowUserEdit="false" name="selection_filter" onselect="MyCompany.Aquarius.CreationTab.OnSelectPickingFilter">
+            <option value="mesh">静态物体</option>
+            <option value="biped">人物</option>
+            <option value="light">光源</option>
+            <option value="524288">Portal</option>
+            <option value="262144">Zone</option>
+            <option value="0" selected="true">禁止选择</option>
+            <option value="notplayer">常用物体</option>
+        </select>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="星球" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" tooltip="申请|新建星球" cmd="File.New.World"/>
+        <pe:command width="32" tooltip="我的星球" cmd="File.Open.PersonalWorld"/>
+        <pe:command width="32" tooltip="保存对星球的修改" cmd="File.SaveAndPublish"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="大自然" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" cmd="Env.sky" animstyle="14"/>
+        <pe:command width="32" cmd="Env.terrain" animstyle="14"/>
+        <pe:command width="32" cmd="Env.ocean" animstyle="14"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="植物" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" tooltip="花草" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagGrass.html",text="花草", icon="Texture/3DMapSystem/Creator/NM_Plants.png"}%>'  width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Plants.png)"animstyle="14"/>
+        <pe:command width="32" tooltip="树木" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagTree.html",text="树木", icon="Texture/3DMapSystem/Creator/NM_Trees.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Trees.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="野外装饰" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagOutdoor.html",text="野外装饰", icon="Texture/3DMapSystem/Creator/NM_Prop.png"}%>'width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Prop.png)" animstyle="14"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="建筑" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" tooltip="普通建筑" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagBuilding.html",text="普通建筑", icon="Texture/3DMapSystem/Creator/NM_SmallBuilding.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_SmallBuilding.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="BCS自定义建筑系统" cmd="Profile.Aquarius.ShowBCSBag" width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_LargeBuilding.png)" animstyle="14"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="装饰" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" tooltip="家具" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagFurniture.html",text="家具", icon="Texture/3DMapSystem/Creator/NM_Furniture.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Furniture.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="装饰" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagDeco.html",text="装饰", icon="Texture/3DMapSystem/Creator/NM_Deco.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Deco.png)" animstyle="14"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="人物" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" tooltip="NPC" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagNPC.html",text="NPC", icon="Texture/3DMapSystem/Creator/NC_NPC.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NC_NPC.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="宠物" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagPet.html",text="宠物", icon="Texture/3DMapSystem/Creator/NC_Pets.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NC_Pets.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="汽车" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagVehicle.html",text="汽车", icon="Texture/3DMapSystem/Creator/NC_Vehicle.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NC_Vehicle.png)" animstyle="14"/>
+        <pe:command width="32" tooltip="粒子与特效" cmd="Profile.Aquarius.ShowAssetBag" params='<%={url="script/apps/Aquarius/Assets/BagEffect.html",text="粒子与特效", icon="Texture/3DMapSystem/Creator/NM_Particle.png"}%>' width="24" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/Creator/NM_Particle.png)" animstyle="14"/>
+    </pe:ribbonbar>
+    <pe:ribbonbar label="高级" style="width:170px;padding:10px;padding-bottom:30px;color:#FFFFFF;background:url(Texture/Aquarius/RoleFunctionSet_BG.png:30 30 30 30);background2:url(Texture/Aquarius/RoleFunctionSet_BG_HL.png:30 30 30 30)">
+        <pe:command width="32" style="margin-top:1px;margin-bottom:3px;background:url(Texture/3DMapSystem/AppIcons/assets_64.dds)" cmd="File.Open.Asset" animstyle="14"/>
+        <pe:command width="32" style="margin-top:1px;margin-bottom:3px;" cmd="Creation.PortalSystem" animstyle="14"/>
+        <!--TODO:工程图-->
+    </pe:ribbonbar>
+</div>
+</pe:mcml> 
+</body>
+</html>

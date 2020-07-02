@@ -1,0 +1,326 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_item_upgrade.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="false" src="Avatar_item_upgrade.lua" type="text/npl" ><![CDATA[
+Avatar_item_upgrade = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_item_upgrade");
+Avatar_item_upgrade:Init();
+ItemManager = Map3DSystem.Item.ItemManager;
+Avatar_item_upgrade.gem_gsids = {};
+gsid = tonumber(Page:GetRequestParam("gsid"));
+Avatar_item_upgrade.source_gsid = gsid;
+guid = nil;
+if(gsid) then
+    local bHas,guid_ = ItemManager.IfOwnGSItem(gsid);
+    guid = guid_;
+    if(bHas) then
+        Avatar_item_upgrade.OnChangeItem(guid, true);
+    end
+end
+
+function DS_GEMS_FUNC(index)
+    if(index == nil) then
+		return #(Avatar_item_upgrade.gem_gsids);
+	else
+		return Avatar_item_upgrade.gem_gsids[index];
+	end
+end
+
+function DS_TARGET_FUNC(index)
+    if(index == nil) then
+		return #(Avatar_item_upgrade.available_target_gsids);
+	else
+		return Avatar_item_upgrade.available_target_gsids[index];
+	end
+end
+
+function DS_TARGET_FUNC2(index)
+    if(index == nil) then
+		return #(Avatar_item_upgrade.unavailable_target_gsids);
+	else
+		return Avatar_item_upgrade.unavailable_target_gsids[index];
+	end
+end
+
+function OnClose()
+    Page:CloseWindow();
+end
+
+function OnSelectTarget(gsid,mcmlNode)
+    local params = mcmlNode:GetPreValue("this", true);
+    if (params and params.gsid and Avatar_item_upgrade.source_gsid~=params.gsid) then
+        Avatar_item_upgrade.target_gsid = params.gsid;
+        Page:Refresh(0.01);
+    end
+end
+
+function GetLine(exid,index, is_selling)
+    if(not exid or not index)then return end
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate and exTemplate.froms and exTemplate.tos)then
+        local node = if_else(is_selling, exTemplate.tos[index], exTemplate.froms[index]);
+        if(node)then
+            local name = "";
+            local value = node.value or 0;
+            if(node.key == 0)then
+                name = "奇豆";
+            elseif(node.key == -1)then
+                name = "奇豆";
+            else
+                local gsid = node.key;
+                local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+                if(gsItem) then
+		            name = gsItem.template.name;
+                end
+            end
+    	    if(NPCShopPage.is_debug)then
+                local s = string.format("(%d)(%d)%s:%d",exid,node.key,name,value);
+                return s;
+            end
+            local s = string.format("%s:%d",name,value);
+            return s;
+        end
+    end
+end
+
+function HasItem(gsid)
+    local bHas = ItemManager.IfOwnGSItem(gsid)
+    return bHas;
+end
+
+function OnClickBuy(gsid, mcmlNode)
+    local params = mcmlNode:GetPreValue("this", true);
+    if (params) then
+        local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+		if(command) then
+			command:Call({gsid = params.gsid, exid = params.exid, npc_shop = if_else(params.exid, true, nil)});
+		end
+    end
+end
+
+function OnClickUpgrade()
+    NPL.load("(gl)script/apps/Aries/UserBag/EquipHelper.lua");
+    local EquipHelper = commonlib.gettable("MyCompany.Aries.Inventory.EquipHelper");
+
+    if(Avatar_item_upgrade.source_gsid and Avatar_item_upgrade.target_gsid) then
+        local src_item = ItemManager.GetGlobalStoreItemInMemory(Avatar_item_upgrade.source_gsid);
+        local target_item = ItemManager.GetGlobalStoreItemInMemory(Avatar_item_upgrade.target_gsid);
+        local src_name = format("[%s]", src_item.template.name);
+        local target_name = format("[%s]", target_item.template.name);
+        
+        if(EquipHelper.GetAddonLevel(Avatar_item_upgrade.target_gsid) > EquipHelper.GetAddonLevel(Avatar_item_upgrade.source_gsid) ) then
+            _guihelper.MessageBox(format("%s的强化等级已经高于%s, 无需继承.", target_name, src_name));
+            return;
+        end
+        if(EquipHelper.GetAddonLevel(Avatar_item_upgrade.target_gsid) == EquipHelper.GetAddonLevel(Avatar_item_upgrade.source_gsid) and 
+            EquipHelper.GetMountedGemCount(Avatar_item_upgrade.source_gsid)==0 ) then
+            _guihelper.MessageBox(format("%s的已有属性好于%s, 无需继承.", target_name, src_name));
+            return;
+        end
+        local source_need_level = EquipHelper.GetUseLevel(Avatar_item_upgrade.source_gsid);
+        if(source_need_level>0 and EquipHelper.GetUseLevel(Avatar_item_upgrade.target_gsid) < source_need_level ) then
+            _guihelper.MessageBox(format("%s的使用等级小于%s, 无需继承.", target_name, src_name));
+            return;
+        end
+        if(EquipHelper.GetAddonLevel(Avatar_item_upgrade.source_gsid) == 0 and EquipHelper.GetMountedGemCount(Avatar_item_upgrade.source_gsid) == 0) then
+            _guihelper.MessageBox(format("%s上没有属性可以继承, 你只需换上新装备就可以啦.", src_name));
+            return;
+        end
+        if(EquipHelper.GetMaxGemCount(Avatar_item_upgrade.target_gsid) < EquipHelper.GetMountedGemCount(Avatar_item_upgrade.source_gsid) ) then
+            _guihelper.MessageBox(format("%s的宝石孔数小于%s的宝石数, 不能平移. 你需要摘除一些宝石或继承到更多孔的装备上", target_name, src_name));
+            return;
+        end
+        if(EquipHelper.GetMaxGemCount(Avatar_item_upgrade.source_gsid) < EquipHelper.GetMountedGemCount(Avatar_item_upgrade.target_gsid) ) then
+            _guihelper.MessageBox(format("%s的宝石孔数小于%s的宝石数, 不能平移. 你需要摘除一些%s上的宝石", src_name, target_name, target_name));
+            return;
+        end
+        if(EquipHelper.GetMountedGemCount(Avatar_item_upgrade.target_gsid)>0) then
+            _guihelper.MessageBox(format("因为%s上含有宝石，%s的强化等级和宝石无法完成继承，请先到宝石商人处摘除%s的宝石再重试一次。 ", target_name, src_name, target_name));
+            return;
+        end
+        
+        _guihelper.MessageBox(format("是否要继承%s的属性到%s上？ 继承后%s的宝石和强化等级将和%s互换.", src_name, target_name, src_name, target_name), function(res)
+            if(res and res == _guihelper.DialogResult.Yes) then
+                System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="DoGemTranslationKids", params={from_gsid = Avatar_item_upgrade.source_gsid, to_gsid = Avatar_item_upgrade.target_gsid,}});
+            end
+        end, _guihelper.MessageBoxButtons.YesNo);
+    else
+        _guihelper.MessageBox("请先点击图标选择一件更高级的目标装备。");
+    end
+end
+
+function OnSelectNotOwnedItem()
+    _guihelper.MessageBox("你还没有拥有这个装备, 请先购买或收集. 有些稀有物品可以在副本中挑战BOSS得到或者去寄售行碰碰运气找人买一件");
+end
+]]></script>
+<div class="window" style="width:540px;height:390px;">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" >装备继承</div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClose" class="closewindow"/>
+    </div>
+    <div class="clientarea" style="margin:3px;">
+        <div style="float:left;padding:5px;width:197px;height:348px" class="panel">
+            <div style="font-weight:bold;text-align:center;height:25px;margin-top:3px;">
+                你要继承的装备
+            </div>
+            <div style="margin-left:60px;margin-top:3px;width:64px;height:64px;" class="block">
+                <pe:slot isclickable="false" style="width:64px;height:64px;" gsid="<%=Avatar_item_upgrade.source_gsid %>"/>
+            </div>
+            <div style="text-align:center;margin-top:5px;font-size:12px;height:60px">
+                <div style="margin-bottom:5px;"><%=format("装备强化等级：%d级", Avatar_item_upgrade.from_level)%></div>
+                <pe:if condition='<%=Avatar_item_upgrade.properties.attack_percentage>0%>'>
+                    <div style="color:#c33e00"><%=format("强化攻击 +%d%%", Avatar_item_upgrade.properties.attack_percentage)%></div>
+                </pe:if>
+                <pe:if condition='<%=Avatar_item_upgrade.properties.hp_absolute>0%>'>
+                    <div style="color:#c33e00"><%=format("强化HP +%d", Avatar_item_upgrade.properties.hp_absolute)%></div>
+                </pe:if>
+            </div>
+            <div style="margin-top:5px;margin-left:5px;height:115px;" >
+                <pe:gridview DataSource="<%=DS_GEMS_FUNC%>" name="upgrade_gridview"
+                   CellPadding="0"  DefaultNodeHeight = "50" ItemsPerLine="4" AllowPaging="false" pagesize="8">
+                    <Columns>
+                        <div style="margin-left:2px;width:40px;height:40px;" class="block">
+                            <pe:item  isclickable="false" style="width:40px;height:40px;" gsid="<%=Eval('gsid') %>" />
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="font-size:12px;text-align:center">装备上没有宝石</div>
+				    </EmptyDataTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-top:5px;padding:5px;color:#cccccc;font-size:12px;">
+                继承后当前装备的所有宝石和强化属性都会免费平移到新装备
+            </div>
+        </div>
+        <div style="float:left;width:80px;margin-top:140px" >
+            <div style="margin-left:18px;width:46px;height:32px;background:url(Texture/Aries/Common/yellowarrow_32bits.png:7 14 20 15);" />
+            <input type="button" onclick="OnClickUpgrade" style="margin-left:8px;margin-top:5px;width:64px;height:25px;" name="upgrade" class="button_thick" value="继承" />
+        </div>
+        <div style="float:left;padding:5px;width:242px;height:348px" class="panel">
+            <div style="font-weight:bold;color:#8a0101;text-align:center;margin-top:3px;height:25px;">
+                <pe:if condition="<%=Avatar_item_upgrade.target_gsid == nil%>" >
+                    请放入任意一件高级装备
+                </pe:if>
+                <pe:if condition="<%=Avatar_item_upgrade.target_gsid ~= nil%>" >
+                    目标装备
+                </pe:if>
+            </div>
+            <div style="margin-left:80px;margin-top:3px;width:64px;height:64px;" class="block">
+                <pe:if condition='<%=Avatar_item_upgrade.target_gsid ~= nil%>' >
+                    <div style="position:relative;background:url(Texture/Aries/Common/ThemeKid/tip/tip_bg_32bits.png:6 6 6 6);margin-left:-2px;margin-top:-2px;width:68px;height:68px;" />
+                </pe:if>
+                <pe:slot  isclickable="false" style="width:64px;height:64px;" gsid="<%=Avatar_item_upgrade.target_gsid %>" />
+            </div>
+            <div style="margin-left:30px;padding-top:-2px;margin-top:5px;font-size:12px;text-align:center;width:180px;height:18px;background:url(Texture/Aries/Common/ThemeKid/menu_title_highlight_32bits.png:1 1 1 1);">
+                可用装备(点击选择)
+            </div>
+            <div style="margin-top:3px;margin-left:5px;margin-right:5px;height:95px;background:url(Texture/Aries/HaqiShop/bg.png:5 5 5 5);" >
+                <pe:gridview DataSource="<%=DS_TARGET_FUNC%>" name="target_inventory_gridview"
+                   CellPadding="0"  DefaultNodeHeight = "50" ItemsPerLine="4" AllowPaging="false" pagesize="4">
+                    <Columns>
+                        <div style="width:53px">
+                            <pe:if condition="<%=Avatar_item_upgrade.target_gsid == Eval('gsid')%>" >
+                                <div style="position:relative;margin:7px;width:40px;height:40px;" class="block">
+                                    <div style="position:relative;background:url(Texture/Aries/Common/ThemeKid/tip/tip_bg_32bits.png:6 6 6 6);margin-left:-2px;margin-top:-2px;width:44px;height:44px;" />
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=HasItem(Eval("gsid")) %>'>
+                                <div style="margin:7px;margin-bottom:3px;width:40px;height:40px;" class="item">
+                                    <pe:slot tooltip_headerline="点击放入继承槽" onclick="OnSelectTarget" style="width:38px;height:38px;" gsid="<%=Eval('gsid') %>" />
+                                </div>
+                                <div style="font-size:12px;margin-top:-4px;line-height:13px;height:17px;width:54px;text-align:center">已有</div>
+                                <div style="width:54px;text-align:center;font-size:12px">
+                                    <%=format("%d级", Eval('minlevel') or 0) %>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=not HasItem(Eval("gsid")) %>'>
+                                <div style="margin:7px;margin-bottom:3px;width:40px;height:40px;" class="item">
+                                    <pe:item  onclick="OnSelectNotOwnedItem" style="width:38px;height:38px;" gsid="<%=Eval('gsid') %>" />
+                                </div>
+                                <pe:if condition='<%=Eval("money_count")~=0%>'>
+                                    <div>
+                                        <pe:item is_container="true" gsid='<%=Eval("money_gsid")%>' style="margin-left:7px;width:52px;height:13px;">
+                                            <pe:if condition='<%=Eval("xiandou")~=0%>'>
+                                                <img src="Texture/Aries/Common/ThemeKid/character/xiandou_32bits.png;0 0 16 13" style="width:16px;height:13px;"/>
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("xiandou")==0%>'>
+                                                <pe:item isclickable="false" gsid='<%=Eval("money_gsid")%>' style="float:left;width:16px;height:13px;"></pe:item>
+                                            </pe:if>
+                                            <input type="button" style="float:left;text-align:left;font-size:11px;width:36px;height:12px;margin-top:-1px;background:;" value="<%=tostring(Eval('money_count') or 0) %>"/>
+                                        </pe:item>
+                                    </div>
+                                    <div style="margin-left:7px;">
+                                        <input type="button" name="<%=Eval('gsid') %>" class="button" value="购买" style="width:40px;font-size:12px;height:22px" onclick="OnClickBuy"/>
+                                    </div>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("money_count")==0%>'>
+                                    <div style="font-size:12px;width:54px;text-align:center">稀有</div>
+                                </pe:if>
+                            </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="font-size:12px;text-align:center;margin-top:25px;">没有更高级的可用装备</div>
+				    </EmptyDataTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-left:30px;color:#8a0101;padding-top:-2px;margin-top:3px;font-size:12px;text-align:center;width:180px;height:18px;background:url(Texture/Aries/Common/ThemeKid/menu_title_highlight_32bits.png:1 1 1 1);">
+                未来可用装备
+            </div>
+            <div style="margin-top:3px;margin-left:5px;margin-right:5px;height:95px;background:url(Texture/Aries/HaqiShop/bg.png:5 5 5 5);" >
+                <pe:gridview DataSource="<%=DS_TARGET_FUNC2%>" name="target_inventory_gridview2"
+                   CellPadding="0"  DefaultNodeHeight = "50" ItemsPerLine="4" AllowPaging="false" pagesize="4">
+                    <Columns>
+                        <div style="width:53px">
+                            <pe:if condition='<%=HasItem(Eval("gsid")) %>'>
+                                <div style="margin:7px;margin-bottom:3px;width:40px;height:40px;" class="item">
+                                    <pe:slot isclickable="false" style="width:38px;height:38px;" gsid="<%=Eval('gsid') %>" />
+                                </div>
+                                <div style="font-size:12px;margin-top:-4px;line-height:13px;height:17px;width:54px;text-align:center">已有</div>
+                                <div style="width:54px;text-align:center;color:#8a0101;font-size:12px">
+                                    <%=format("%d级", Eval('minlevel') or 0) %>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=not HasItem(Eval("gsid")) %>'>
+                                
+                                <div style="margin:7px;margin-bottom:3px;width:40px;height:40px;" class="item">
+                                    <pe:item  isclickable="false" style="width:38px;height:38px;" gsid="<%=Eval('gsid') %>" />
+                                </div>
+                                <pe:if condition='<%=Eval("money_count")~=0%>'>
+                                    <div>
+                                        <pe:item is_container="true" gsid='<%=Eval("money_gsid")%>' style="margin-left:7px;width:52px;height:13px;">
+                                            <pe:if condition='<%=Eval("xiandou")~=0%>'>
+                                                <img src="Texture/Aries/Common/ThemeKid/character/xiandou_32bits.png;0 0 16 13" style="width:16px;height:13px;"/>
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("xiandou")==0%>'>
+                                                <pe:item isclickable="false" gsid='<%=Eval("money_gsid")%>' style="float:left;width:16px;height:13px;"></pe:item>
+                                            </pe:if>
+                                            <input type="button" style="float:left;text-align:left;font-size:11px;width:36px;height:12px;margin-top:-1px;background:;" value="<%=tostring(Eval('money_count') or 0) %>"/>
+                                        </pe:item>
+                                    </div>
+                                    <div style="margin-left:7px;">
+                                        <input type="button" name="<%=Eval('gsid') %>" class="button" value="购买" style="width:40px;font-size:12px;height:22px" onclick="OnClickBuy"/>
+                                    </div>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("money_count")==0%>'>
+                                    <div style="font-size:12px;width:54px;text-align:center">稀有</div>
+                                </pe:if>
+                            </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="font-size:12px;text-align:center;margin-top:25px;">没有更高级的装备了, 快去提升你的装备等级和宝石吧！</div>
+				    </EmptyDataTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

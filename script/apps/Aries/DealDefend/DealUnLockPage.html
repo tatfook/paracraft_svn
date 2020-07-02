@@ -1,0 +1,189 @@
+<!-- "script/apps/Aries/DealDefend/DealUnLockPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" >
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestTimeStamp.lua");
+local QuestTimeStamp = commonlib.gettable("MyCompany.Aries.Quest.QuestTimeStamp");
+NPL.load("(gl)script/kids/3DMapSystemApp/API/paraworld.dealdefend.lua");
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+NPL.load("(gl)script/apps/Aries/DealDefend/DealUnLockPage.lua");
+local DealUnLockPage = commonlib.gettable("MyCompany.Aries.DealDefend.DealUnLockPage");
+DealUnLockPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function GetStr(num)
+    return tostring(num);
+end
+--已经发送过重置申请
+function HasResetTime()
+    return DealDefend.HasResetPassword();
+end
+function GetResetTime()
+    local date1,date2 = DealDefend.GetTime();
+    local a_1 = commonlib.GetMillisecond_Date(date1);
+	local a_2 = commonlib.GetMillisecond_Date(date2);
+    local s;
+    if(DealDefend.ResetPassword_Successful_InMemory())then
+        s = "你的交易密码已经清空,请重新登录设置新的密码";
+    else
+        local day,hours,minutes,seconds,time_str,total_mill = commonlib.GetTimeStr_BetweenToDate(date1,date2)
+        commonlib.echo({day,hours,minutes,seconds,time_str,total_mill});
+        s = string.format("重置交易密码时间:%s<br/>距离清空交易密码还有:%d天%d小时%d分%d秒<br/>解锁成功可以自动取消此申请",date1,day or 0,hours or 0,minutes or 0,seconds or 0);
+    end
+    return s;
+end
+function DoClick(num)
+    _guihelper.MessageBox(num);
+end
+function UpdateButtonStatus(params)
+    local _this = ParaUI.CreateUIObject("container", "UpdateButtonStatus_Deal", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "";
+	params.parent:AddChild(_this);
+	
+	_this.onframemove = ";MyCompany.Aries.DealDefend.DealUnLockPage.IsOK();";
+end
+function LoadTryNum()
+    local nid = Map3DSystem.User.nid;
+    local key = string.format("DealUnlock_%d",nid);
+	local date = ParaGlobal.GetDateFormat("yyyy-MM-dd")
+    local result = MyCompany.Aries.Player.LoadLocalData(key, {date = date,num = 0});
+    if(result.date ~= date)then
+        result.date = date;
+        result.num = 0;
+    end
+    return result.num,result;
+end
+function SaveTryNum()
+    local nid = Map3DSystem.User.nid;
+    local key = string.format("DealUnlock_%d",nid);
+	local date = ParaGlobal.GetDateFormat("yyyy-MM-dd")
+    local __,result = LoadTryNum();
+    result.num = result.num + 1;
+    MyCompany.Aries.Player.SaveLocalData(key, result);
+    return result.num;
+end
+function DoSubmit()
+    local password_user = pageCtrl:GetValue("password_user");
+    local msg = {
+        secpass = password_user,
+    }
+    local try_num = LoadTryNum();
+    paraworld.dealdefend.VerifySecPass(msg,"",function(msg)
+        if(msg.issuccess)then
+            DealDefend.is_locked = false;
+            Dock.UpdateDealButtonState();
+            -- _guihelper.MessageBox("交易密码解锁成功！");
+            ClosePage();
+        else
+            try_num = SaveTryNum();
+            if(msg.errorcode == 420)then
+                try_num = 4 - try_num;
+                try_num = math.max(try_num,0);
+                _guihelper.MessageBox(string.format("密码输入错误，你今天最多还能尝试%d次！",try_num));
+            elseif(msg.errorcode == 433)then
+                _guihelper.MessageBox("密码输入错误次数过多，交易密码锁定一天！");
+            elseif(msg.errorcode == 419)then
+                _guihelper.MessageBox("用户不存在！");
+            end
+        end
+    end)
+end
+function OnKeyUp()
+    if(virtual_key == Event_Mapping.EM_KEY_RETURN or virtual_key == Event_Mapping.EM_KEY_NUMPADENTER) then
+        if(DealUnLockPage.IsOK())then
+            DoSubmit();
+        end
+	end
+end
+function DoChangePassword()
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealLockPage.lua");
+    local DealLockPage = commonlib.gettable("MyCompany.Aries.DealDefend.DealLockPage");
+    DealLockPage.ShowPage("change_lock_psd");
+    ClosePage();
+end
+function DoResetPassword()
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("申请重置交易密码，将会在【7】天后清空你的交易密码。正确输入交易密码可以自动终止重置申请。确定要重置交易密码?",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            paraworld.dealdefend.ApplyResetSecPass({},"",function(msg)
+                if(msg.issuccess)then
+                    _guihelper.MessageBox("申请提交成功！");
+                    ClosePage();
+                    MyCompany.Aries.Pet.GetRemoteValue(nil, function() end, "access plus 0 day");
+                end
+            end)
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+    ClosePage();
+end
+]]>
+
+</script>
+<div style="width:500px;height:300px;" class="pane">
+  <pe:if condition='<%=MyCompany.Aries.DealDefend.DealUnLockPage.edit_state == "do_unlock" %>'>
+        <div style="position:relative;margin-left:250px;margin-top:15px;"><a onclick="MyCompany.Aries.DealDefend.DealLockPage.DoViewHelp()">忘记交易密码？</a></div>
+        <div class="header" style="width:100px;margin-left:10px;margin-top:20px;">
+            交易权限解锁
+        </div>
+        <div style="margin-left:10px;margin-top:-2px;width:480px;height:220px;" class="inborder2" >
+                <div style="margin-top:20px;">
+                    <div style="float:left;width:100px;text-align:right;">
+                        交易密码:
+                    </div>
+                    <input type="text" name="password_user" PasswordChar="*" onkeyup="OnKeyUp" style="float:left;width:330px;height:23px;" />
+                    <div style="float:left;width:32px;height:32px;margin-left:10px;background:url(Texture/Aries/Common/ThemeTeen/minikeyboard_32bits.png:0 0 32 32)"class="minikeyboard" for="minikeyboard_user"></div>
+                    <pe:minikeyboard name="minikeyboard_user" for="password_user" style="margin-left:150px;"/>
+                    <pe:label name="password_label" style="margin-top:-5px;height:20px;margin-left:100px;" />
+                </div>
+               <div style="margin-left:20px;margin-top:10px;">
+                    <input type="button" value="修改交易密码" style="width:150px;" onclick="DoChangePassword()"/>
+                </div>
+                <div style="margin-left:20px;margin-top:20px;">
+                    <input type="button" value="重置交易密码" style="width:150px;" onclick="DoResetPassword()"/>
+                </div>
+                <div style="margin-left:20px;margin-top:0px;">
+                    <pe:if condition='<%= HasResetTime() %>'>
+                        <%= GetResetTime() %>
+                    </pe:if>
+                </div>
+                <pe:custom oncreate="UpdateButtonStatus" style="width:16px;height:16px"/>
+               
+        </div>
+       <div style="margin-left:280px;">
+        <input type="button" value="确定" name="confirm_btn" onclick="DoSubmit()" style="width:100px;margin-left:10px;"/>
+        <input type="button" value="取消" style="width:100px;" onclick="ClosePage()"/>
+       </div>
+   </pe:if>
+     <pe:if condition='<%=MyCompany.Aries.DealDefend.DealUnLockPage.edit_state ~= "do_unlock" %>'>
+        <div class="header" style="width:100px;margin-left:10px;margin-top:20px;">
+            交易密码管理
+        </div>
+        <div style="margin-left:10px;margin-top:-2px;width:480px;height:220px;" class="inborder2" >
+                
+               <div style="float:left;margin-left:160px;margin-top:80px;">
+                    <input type="button" value="修改交易密码" style="width:150px;" onclick="DoChangePassword()"/>
+                </div>
+               <!-- <div style="float:left;margin-left:20px;margin-top:80px;">
+                    <input type="button" value="重置交易密码" style="width:150px;" onclick="DoResetPassword()"/>
+                </div>-->
+        </div>
+        <div style="margin-left:380px;">
+            <input type="button" value="关闭" style="width:100px;" onclick="ClosePage()"/>
+       </div>
+   </pe:if>
+</div>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,218 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30006_StandGuardPost_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30006_StandGuardPost_dialog, by Andy, 2009/7/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30006);
+
+zoneName = memory.zoneNameToday or "";
+
+dialog3_text = zoneName.."需要加大巡逻力度，你在这个片区仔细巡逻，找到所有的脚印再回来签到哦！罗德镇长非常熟悉地形，不清楚的可以问问他哦！";
+
+Condition1 = function()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+Condition4 = function()
+    if(memory.dialog_state == 4) then
+        return true;
+    end
+    return false;
+end;
+Condition5 = function()
+    if(memory.dialog_state == 5) then
+        return true;
+    end
+    return false;
+end;
+Condition6 = function()
+    if(memory.dialog_state == 6) then
+        return true;
+    end
+    return false;
+end;
+Condition7 = function()
+    if(memory.dialog_state == 7) then
+        return true;
+    end
+    return false;
+end;
+
+
+has_50002 = hasGSItem(50002);
+has_20004 = hasGSItem(20004);
+has_20006 = hasGSItem(20006);
+has_20007 = hasGSItem(20007);
+has_20008 = hasGSItem(20008);
+
+level = 0;
+if(has_20008) then
+    level = 4;
+elseif(has_20007) then
+    level = 3;
+elseif(has_20006) then
+    level = 2;
+elseif(has_20004) then
+    level = 1;
+elseif(has_50002) then
+    level = 0;
+end
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 3 and to == -1) then
+        -- accept daily quest
+        MyCompany.Aries.Quest.NPCs.StandGuardPost.AcceptDailyQuest();
+    elseif(from == 5 and to == -1) then
+        -- get my reward
+        MyCompany.Aries.Quest.NPCs.StandGuardPost.GetDailyReward();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">      
+ 
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30006' />
+            <pe:placeholder id="name" source="{this}" value="巡逻台" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                        
+	    <pe:state id = "0">
+	        这里是巡逻台
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+			    <pe:answer-if condition = 'true' target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		    你需要穿上警察套装，并带上你的好帮手——警犬汪汪狗，才能开始巡逻。<br/>
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "2">
+		    你还没有被分配到在这里巡逻。<br/>
+            请先到警察局查看值勤表，了解你的巡逻任务吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "3">
+            <%=Eval("dialog3_text")%>
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "4">
+		    你还没有完成执勤任务呢！赶紧在这个片区仔细巡逻，找到所有的脚印再回来签到哦！罗德镇长非常熟悉地形，不清楚的可以问问他哦！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "5">
+            <pe:if condition='<%=Eval("level") == 4%>'>
+                巡逻任务顺利完成，作为神勇金徽章级别警官，小镇所有的哈奇都以你为榜样！1800奇豆是你的工资，记得明天继续来为小镇维护治安哦！
+            </pe:if>
+            <pe:if condition='<%=Eval("level") == 3%>'>
+                巡逻任务顺利完成，你都是神勇银徽章级别的警官啦，真了不起！1200奇豆是你的工资，记得每天都来巡逻执勤，维护小镇治安哦！
+            </pe:if>
+            <pe:if condition='<%=Eval("level") == 2%>'>
+                巡逻任务顺利完成，非常感谢你维护小镇治安！神勇铜徽章级别的警官工资是800奇豆，记得明天再来巡逻执勤哦！
+            </pe:if>
+            <pe:if condition='<%=Eval("level") == 1%>'>
+                巡逻任务顺利完成，非常感谢你维护小镇治安！根据你神勇木徽章的级别，你可以获得500奇豆的工资哦！
+            </pe:if>
+            <pe:if condition='<%=Eval("level") == 0%>'>
+                巡逻任务顺利完成，非常感谢你维护小镇治安！由于你还没领取任何徽章，只能先发你400奇豆的工资哦！
+            </pe:if>
+		    
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "6">
+		    你已经完成了今天的巡逻任务，请好好休息。如果想保卫哈奇小镇的安定与和平，请明天再去警察局领取执勤任务吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "7">
+		    真遗憾，你还不是警官，不能参与巡逻值勤。去警察局找希尔警长吧，警长会告诉你如何才能成为一名优秀的警官。
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

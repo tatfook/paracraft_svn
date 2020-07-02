@@ -1,0 +1,540 @@
+<!-- "script/apps/Aries/CombatPet/CombatPetInfoPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" Refresh="true"><![CDATA[
+
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPage.lua");
+local CombatPetPage = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPage");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+
+local gsid = page:GetRequestParam("gsid");
+gsid = tonumber(gsid) or 0;
+
+local item_root;
+if(nid == System.App.profiles.ProfileManager.GetNID()) then
+    local bHas,guid = ItemManager.IfOwnGSItem(gsid)
+    if(bHas)then
+	    item_root = ItemManager.GetItemByGUID(guid);
+    end
+else
+    local bHas,guid = ItemManager.IfOPCOwnGSItem(nid, gsid)
+    if(bHas)then
+    	item_root = ItemManager.GetOPCItemByGUID(nid, guid);
+    end
+end
+function GetPetItem()
+    return item_root;
+end
+function GetPet_OnInit()
+    local pet;
+    local name = "";
+    local item = GetPetItem();
+	if(item and item.GetName_client)then
+		name = item:GetName_client();
+	end
+	local exp = 0;
+	if(item and item.GetExp)then
+		exp = item:GetExp();
+	end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    local description;
+	local assetfile;
+    if(gsItem) then
+		assetfile = gsItem.assetfile;
+		description = gsItem.template.description;
+	end
+	local provider = CombatPetHelper.GetClientProvider();
+	local is_combat_pet = 0;
+    local is_combat,isvip;
+	if(provider)then
+        is_combat,isvip = provider:IsCombatPet(gsid);
+		if(is_combat)then
+			is_combat_pet = 1;
+		end
+	end
+	pet = {
+		gsid = gsid,
+		assetfile = assetfile,
+		name = name,
+		exp = exp,
+		is_combat_pet = is_combat_pet,
+        isvip = isvip,
+		description = description,
+	};
+    return pet;
+end
+function GetModelValue()
+    local pet = GetPet();
+    --model
+	local asset = Map3DSystem.App.Assets.asset:new({filename = pet.assetfile})
+	local objParams = asset:getModelParams()
+    if(objParams ~= nil) then
+        objParams.facing = 0;
+        if(pet and pet.gsid == 10135)then
+			objParams.scaling = 0.5;
+        end
+        return commonlib.serialize_compact(objParams);
+	end
+end
+function ShowBtn()
+   
+	--exp
+	local level,cur_exp,total_exp,isfull = GetLevel();
+	if(cur_exp and total_exp)then
+		if(page)then
+			local mcmlNode = page:GetNode("progress");
+			if(mcmlNode)then
+				mcmlNode:SetAttribute("Value", cur_exp);
+				mcmlNode:SetAttribute("Maximum", total_exp);
+			end
+		end
+	end
+    -- normal button, toggle home and follow
+    if(nid == System.App.profiles.ProfileManager.GetNID() and page and gsid)then
+	    local item = ItemManager.GetMyCurrentFollowPetItemOnEquip();
+	    local toggle_btn_bg = "Texture/Aries/Profile/SendMeHome_32bits.png;0 0 153 49";
+	    if(item and item.guid > 0 and item.gsid == gsid) then
+		    toggle_btn_bg = "Texture/Aries/Profile/SendMeHome_32bits.png;0 0 153 49";
+	    else
+		    toggle_btn_bg = "Texture/Aries/Profile/FollowMe_32bits.png;0 0 153 49";
+	    end
+	    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	    if(gsItem)then
+		    -- check if the gsitem has special ability
+		    if(gsItem.template.stats[14] == 1) then
+			    local special_bg = System.Item.Item_FollowPet.GetSpecialAbilityBtnBackground(gsid) or "";
+			    page:SetUIBackground("btn_special", special_bg);
+			    page:SetUIEnabled("btn_special", true);
+			    page:SetUIBackground("btn_togglehome_single", "");
+			    page:SetUIEnabled("btn_togglehome_single", false);
+			    page:SetUIBackground("btn_togglehome", toggle_btn_bg);
+			    page:SetUIEnabled("btn_togglehome", true);
+		    else
+			    page:SetUIBackground("btn_special", "");
+			    page:SetUIEnabled("btn_special", false);
+			    page:SetUIBackground("btn_togglehome_single", toggle_btn_bg);
+			    page:SetUIEnabled("btn_togglehome_single", true);
+			    page:SetUIBackground("btn_togglehome", "");
+			    page:SetUIEnabled("btn_togglehome", false);
+		    end
+	    end
+    end
+end
+local pet_root = GetPet_OnInit()
+
+
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+function GetPetName()
+    local pet = GetPet();
+    if(pet)then
+        return pet.name;
+    end
+end
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/Common_help.lua");
+    MyCompany.Aries.Help.Common_help.CombatPetHelp_ShowPage()
+end
+
+
+function GetPet()
+    return pet_root;
+end
+
+function IsCombatPet()
+    local pet = GetPet();
+    if(pet and pet.is_combat_pet == 1)then
+        return true;
+    end
+end
+function GetLevel()
+    local provider = CombatPetHelper.GetClientProvider();
+    local pet = GetPet();
+    if(provider and pet)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(pet.gsid,pet.exp or 0);
+        return level,cur_exp,total_exp,isfull;
+    end
+   return -1;
+end
+function ShowLevel_Info_1()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     
+     if(level and level >=0)then
+        local s = string.format([[当前等级:<div style="float:left;color:#a604d2">%d</div>级]],level);
+        return s;
+     end
+end
+function ShowLevel_Info_2()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     if(level and level >=0)then
+        local s = string.format("%d/%d",cur_exp or 0,total_exp or 0);
+        return s;
+     end
+end
+function ShowLevel_Info_3()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     if(level and level >=0)then
+        local s = string.format([[当前经验:<div style="float:left;color:#ffffff;width:100px;">%d</div>]],cur_exp);
+        return s;
+     end
+end
+function IsFullLevel()
+    local level,cur_exp,total_exp,isfull = GetLevel();
+    return isfull;
+end
+function GetProperty(key)
+    if(not key)then return end
+    local pet = GetPet();
+    if(pet)then
+        local gsid = pet.gsid;
+        local provider = CombatPetHelper.GetClientProvider();
+		if(provider)then
+            local p = provider:GetPropertiesByID(gsid);
+            if(p)then
+                return p[key];
+            end
+        end
+    end
+end
+function TableHasValue(t)
+    if(not t)then return end
+    for k = 1,500 do
+        if(t[k])then
+            return true;
+        end
+    end
+end
+function ShowMaxLevel()
+   local level = GetProperty("max_level");
+   local s = string.format([[最高等级:<div style="float:left;color:#a604d2">%d</div>级]],level or 0);
+   return s;
+end
+function ShowCurLevel_Props()
+   local level = GetLevel();
+   local s = Get_Props_ByLevel(level);
+   if(s)then
+        local s = string.format("当前级别附加属性:%s",s);
+        return s;
+   end
+end
+function ShowNextLevel_Props()
+   local level = GetLevel();
+   local s = Get_Props_ByLevel(level + 1);
+   if(s)then
+        local s = string.format("下一级别附加属性:%s",s);
+        return s;
+   end
+end
+function ShowMaxLevel_Props()
+   local level = GetProperty("max_level");
+   local s = Get_Props_ByLevel(level);
+   if(s)then
+        local s = string.format("满级附加属性:%s",s);
+        return s;
+   end
+end
+function ShowCurLevel_Cards()
+   local level = GetLevel();
+   local s = Get_Cards_ByLevel(level);
+   if(s)then
+        local s = string.format("当前级别附加卡片:%s",s);
+        return s;
+   end
+end
+function ShowNextLevel_Cards()
+   local level = GetLevel();
+   local max_level = GetProperty("max_level");
+   if((level+1) < max_level)then
+       local s = Get_Cards_ByLevel(level + 1);
+       if(s)then
+            local s = string.format("下一级别附加卡片:%s",s);
+            return s;
+       end
+   end
+end
+function ShowMaxLevel_Cards()
+   local level = GetProperty("max_level");
+   local s = Get_Cards_ByLevel(level);
+   if(s)then
+        local s = string.format("满级附加卡片:%s",s);
+        return s;
+   end
+end
+function Get_Cards_ByLevel(level)
+    if(level)then
+        local append_card_level = GetProperty("append_card_level");
+        level = level + 1;
+         if(append_card_level and append_card_level[level])then
+            local t = append_card_level[level];
+            if(TableHasValue(t))then
+                local s = Get_Cards_Info(t);
+                return s;
+            end
+        end
+   end
+end
+function Get_Props_ByLevel(level)
+    if(level)then
+        local append_prop_level = GetProperty("append_prop_level");
+        level = level + 1;
+         if(append_prop_level and append_prop_level[level])then
+            local t = append_prop_level[level];
+            if(TableHasValue(t))then
+                local s = Get_Props_Info(t);
+                return s;
+            end
+        end
+   end
+end
+function Get_Cards_Info(t)
+   local s="";
+    if(t)then
+        local k,v;
+        for k,v in ipairs(t) do
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(v);
+            if(gsItem)then
+                local  path = string.format("%s;0 0 45 44",gsItem.descfile);
+                local tooltip_str = string.format([[page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d]],v);
+                --local str = string.format([[<pe:item gsid="%d"  icon="%s" showdefaulttooltip="true" isclickable="false" style="float:left;width:36px;height:36px;" />]],v,path);
+                local str = string.format([[<pe:item gsid="%d"  icon="%s" isclickable="false" style="float:left;margin-left:2px;width:36px;height:36px;" tooltip='%s' tooltip_offset_x="5" tooltip_offset_y="-55"/>]],v,path,tooltip_str);
+                s = s .. str;
+            end
+        end
+    end
+    return s;
+end
+function Get_Props_Info(t)
+    local s="";
+    if(t)then
+        local k,v;
+        for k,v in pairs(t) do
+            local str = Combat.GetStatWord_OfTypeValue(k,v);
+            if(str)then
+                if(s=="")then
+                    s = s .. str;
+                else
+                    s = s ..",".. str;
+                end
+            end
+        end
+    end
+    s = string.gsub(s,"+"," ");
+    s = string.format([[<div style="float:left;color:#a604d2">%s</div>]],s);
+    return s;
+end
+function ShowAddExpNumber()
+    local pet = GetPet();
+    local level = GetLevel();
+    if(pet and level)then
+        local gsid = pet.gsid;
+        local provider = CombatPetHelper.GetClientProvider();
+		if(provider)then
+            local p = provider:GetPropertiesByID(gsid);
+            if(p)then
+                local max_exp = p.add_exp_max_default;
+                if(not max_exp)then
+                    local key = string.format("add_exp_max_level_%d",level + 1);
+                    max_exp = p.add_exp_max_level[key];
+                end
+                local s = string.format([[单场战斗最大经验值:<div style="float:left;color:#a604d2">%d</div>]],max_exp or 0);
+                return s;
+            end
+        end
+    end
+end
+function ShowPlace()
+    local pet = GetPet();
+    if(pet)then
+        local gsid = pet.gsid;
+        local provider = CombatPetHelper.GetClientProvider();
+		if(provider)then
+            local xmlnode = provider:GetReadOnlyPetXmlNode(gsid);
+            if(xmlnode)then
+                local s="";
+                local place;
+
+                for place in commonlib.XPath.eachNode(xmlnode, "//places/place") do
+                    local str = place[1] or "";
+                    str = string.format([[<div style="color:#a604d2;float:left;">%s</div>]],str);
+                    s = s .. str;
+                end
+                s = string.format([[<div style="float:left;">出现地点:</div>%s]],s);
+                 return s;
+            end
+        end
+    end
+end
+function ShowDesc()
+    local pet = GetPet();
+    if(pet)then
+        return pet.description;
+    end
+end
+function CanShowBtn()
+    if(nid == Map3DSystem.User.nid)then
+        return true;
+    end
+end
+function DoToggleHome()
+   local item = GetPetItem();
+   if(item)then
+        item:OnClick("left");
+   end
+   page:CloseWindow();
+end
+
+function DoSpecial()
+    local pet = GetPet();
+    if(pet)then
+        local gsid = pet.gsid;
+        local k,v;
+        for k,v in ipairs(CombatPetPage.must_in_homeland) do
+            if(gsid == v)then
+                NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+                if(not Map3DSystem.App.HomeLand.HomeLandGateway.IsInMyHomeland())then
+                    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+                    _guihelper.Custom_MessageBox("这个操作只能在你自己的家园中操作哦！",function(result)
+	                    if(result == _guihelper.DialogResult.OK)then
+		                    commonlib.echo("OK");
+	                    end
+                    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                    return;
+                end
+            end
+        end
+        local item = GetPetItem();
+       if(item and item.DoSpecialAbility)then
+            item:DoSpecialAbility();
+       end
+   end
+    page:CloseWindow();
+end
+function IsVipPet()
+    local pet = GetPet();
+    if(pet)then
+        return pet.isvip;
+    end
+end
+ShowBtn();
+]]></script>
+<div style="width:400px;height:475px;background:url(Texture/Aries/NPCs/CombatPet/bg_32bits.png# 0 0 64 445 : 30 80 30 80)">
+<div style="position:relative;margin-left:355px;margin-top:-5px;">
+    <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+</div>
+<div style="width:370px;margin-top:14px;margin-left:20px;">
+     <div style="text-align:center;height:30px;color:#FFFFFF;font-size:14;font-weight:bold;">
+     <%=GetPetName() %>
+    </div>
+    <div style="width:350px;height:210px;background:url(Texture/Aries/Common/tile_2_bg_32bits.png#0 0 64 420: 30 100 30 50)">
+     <input style="margin-left:10px;margin-top:10px;width:32px;height:32px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+                            type="button" name="help" onclick="ViewHelp()" zorder="1" value="" tooltip="战宠帮助"/>
+     <pe:if condition="<%=IsCombatPet()%>">
+        <div style="margin-left:-10px;margin-top:-50px;width:256px;height:256px;">
+                <pe:canvas3d name="FollowPetCanvas_1"  DefaultRotY="-0.7" FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="<%=GetModelValue() %>" style="width:220px;height:220px;"/>
+                <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2" style="float:left;margin-left:15px;margin-top:-50px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_left_32bits.png#0 0 36 36)"/>
+                <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2" style="float:left;margin-left:120px;margin-top:-50px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_right_32bits.png#0 0 36 36)"/>
+        </div>
+    </pe:if>
+     <pe:if condition="<%=not IsCombatPet()%>">
+        <div style="margin-left:60px;margin-top:-50px;width:256px;height:256px;">
+                <pe:canvas3d name="FollowPetCanvas_2"  DefaultRotY="-0.7" FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="<%=GetModelValue() %>" style="width:220px;height:220px;"/>
+                <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2" style="float:left;margin-left:-55px;margin-top:-50px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_left_32bits.png#0 0 36 36)"/>
+                <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2" style="float:left;margin-left:247px;margin-top:-50px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_right_32bits.png#0 0 36 36)"/>
+        </div>
+    </pe:if>
+          <div style="font-size:12;margin-left:200px;margin-top:-220px;padding-right:5px;">
+        <pe:if condition="<%=MyCompany.Aries.CombatPet.CombatPetPage.state == 1 and IsCombatPet()%>">
+                    <div><%=ShowLevel_Info_1() %></div>
+                    <div><%=ShowMaxLevel() %></div>
+                    <div><%=ShowPlace() %></div>
+                    <div><%=ShowAddExpNumber() %></div>
+                     <pe:if condition="<%=IsVipPet() %>">
+                    <div style="margin-left:0px;margin-top:0px;width:32px;height:32px;background:url(Texture/Aries/Common/VIP_itemtag_32bits.png)" />
+                    </pe:if>
+        </pe:if>
+         <pe:if condition="<%=MyCompany.Aries.CombatPet.CombatPetPage.state == 2  and IsCombatPet()%>">
+                   <div><%=ShowMaxLevel() %></div>
+                    <div><%=ShowPlace() %></div>
+                    <div><%=ShowAddExpNumber() %></div>
+                     <pe:if condition="<%=IsVipPet() %>">
+                    <div style="margin-left:0px;margin-top:0px;width:32px;height:32px;background:url(Texture/Aries/Common/VIP_itemtag_32bits.png)" />
+                    </pe:if>
+        </pe:if>
+    </div>
+    </div>
+    <div style="height:30px;margin-top:10px;">
+        <pe:if condition="<%=IsCombatPet()%>">
+        <pe:if condition="<%=not IsFullLevel() %>">
+            <div style="float:left;font-size:12px;">当前经验:</div>
+            <div style="float:left;">
+                <pe:progressbar name="progress" Minimum = "0" Maximum = "10" Value = "0" Step = "1"
+                    style="width:160px;height:25px;"
+                    blockimage="Texture/Aries/Inventory/green_fill_32bits.png;0 0 32 26: 14 13 14 12" 
+                    background="Texture/Aries/Inventory/Empty_slot_32bits.png;0 0 32 26: 14 13 14 12"
+                />
+            </div>
+            <div style="margin-left:-60px;margin-top:-22px;color:#ffffff;text-align:center"><%=ShowLevel_Info_2() %></div>
+        </pe:if>
+        </pe:if>
+    </div>
+    <div style="width:350px;height:160px;font-size:12;padding-left:0px;padding-top:10px;background:url(Texture/Aries/Common/tile_3_bg_32bits.png: 25 25 25 25)">
+    <pe:if condition="<%= not IsCombatPet() %>">
+        <%=ShowDesc() %>
+    </pe:if>
+    <pe:if condition="<%=IsCombatPet()%>">
+         <pe:treeview name="tvwXMLTest4" DefaultNodeHeight="20" style="margin-left:0px;margin-top:-10px;width:360px;height:160px;font-size:12px;background:;">
+       <div style="font-size:12;">
+            <pe:if condition="<%=not IsFullLevel() %>">
+                <div><%=ShowCurLevel_Props() %></div>
+                <div><%=ShowNextLevel_Props() %></div>
+                <div><%=ShowMaxLevel_Props() %></div>
+                <div><%=ShowCurLevel_Cards() %></div>
+                <div><%=ShowNextLevel_Cards() %></div>
+                <div><%=ShowMaxLevel_Cards() %></div>
+            </pe:if>
+             <pe:if condition="<%=IsFullLevel() %>">
+                <div>当前宠物已为满级</div>
+                <div><%=ShowMaxLevel_Props() %></div>
+                <div><%=ShowMaxLevel_Cards() %></div>
+            </pe:if>
+    </div>
+        </pe:treeview>
+    </pe:if>
+    </div>
+    <div style="width:500px;margin-left:20px;margin-top:-5px;">
+        <pe:if condition="<%=CanShowBtn() %>">
+               <input type="button" enabled="false" style="margin-left:4px;width:153;height:49px;background:;" 
+                            onclick="DoToggleHome" name="btn_togglehome" />
+                <input type="button" enabled="false" style="margin-left:10px;width:153;height:49px;background:;" 
+                            onclick="DoSpecial" name="btn_special" />
+                <input type="button" enabled="false" style="margin-left:-236px;width:153;height:49px;background:;" 
+                            onclick="DoToggleHome" name="btn_togglehome_single" />
+        </pe:if>
+    </div>
+</div>
+
+</div>
+</pe:mcml>
+</body>
+</html>
+

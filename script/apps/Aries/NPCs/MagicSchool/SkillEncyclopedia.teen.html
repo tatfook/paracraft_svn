@@ -1,0 +1,377 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicSchool/SkillEncyclopedia.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+----------------------- init
+NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+local sclass = {
+--    ["1"] = "all",
+    ["1"] = "987", --寒冰系
+    ["2"] = "986", --烈火系
+    ["3"] = "988", --风暴系
+--    ["4"] = "none", --大地系
+    ["4"] = "991", --死亡系
+    ["5"] = "990", --生命系
+    ["6"] = "992", --平衡系
+};
+local rune_sclass = {
+--    ["1"] = "all",
+    ["1"] = "ice", --寒冰系
+    ["2"] = "fire", --烈火系
+    ["3"] = "storm", --风暴系
+--    ["4"] = "myth", --大地系
+    ["4"] = "death", --死亡系
+    ["5"] = "life", --生命系
+    ["6"] = "balance", --平衡系
+};
+local pet_sclass = {
+--    ["1"] = "mypets",
+    ["1"] = "allpets", --
+};
+
+local card_maxnum= 3;
+dsItems = dsItems or {status = nil, };
+
+local maxcards_page=24;
+
+Encyclopedia_init = Encyclopedia_init or false;
+
+CombatSkillLearn.card_type = CombatSkillLearn.card_type or "combat";
+CombatSkillLearn.TabValue = CombatSkillLearn.TabValue or "1";
+CombatSkillLearn.CardFilter = CombatSkillLearn.CardFilter or "purple";
+
+card_type = CombatSkillLearn.card_type;
+
+if (card_type=="pet") then
+    pageCtrl:SetValue("petcard_class", CombatSkillLearn.TabValue);
+else
+    pageCtrl:SetValue("card_class", CombatSkillLearn.TabValue);
+end
+
+pageCtrl:SetValue("cardtype", card_type);
+
+function ChangeSkillView_internal(card_type,value,status,bRefresh)
+    CombatSkillLearn.card_type=card_type;
+    CombatSkillLearn.TabValue = value;
+    if (card_type=="combat") then
+        cardclass = sclass[value];               
+        if(cardclass) then
+            if (cardclass=="all") then		
+                CombatSkillLearn.DS_Func_SkillsDeck(dsItems, nil, card_type,cardclass,maxcards_page,card_maxnum,pageCtrl)
+            elseif (cardclass=="none") then	
+                -- 大地系
+            else
+                CombatSkillLearn.GetSkillEncyclopedia_whiteCards(cardclass,CombatSkillLearn.CardFilter)
+            end
+        end 
+    elseif (card_type=="rune") then
+        cardclass = rune_sclass[value];        
+        if(cardclass) then
+            dsItems={};            
+            CombatSkillLearn.DS_Func_SkillsDeck(dsItems, nil, card_type,cardclass,maxcards_page,card_maxnum,pageCtrl)
+        end 
+    elseif (card_type=="pet") then
+        cardclass = pet_sclass[value];        
+        if(cardclass) then
+            dsItems={};            
+            CombatSkillLearn.DS_Func_SkillsDeck(dsItems, nil, card_type,cardclass,maxcards_page,card_maxnum,pageCtrl)
+        end     
+    end
+    if(bRefresh)then
+        pageCtrl:Refresh(0.1);
+    end
+end
+
+if (not Encyclopedia_init) then
+    if (card_type=="combat") then        
+        cardclass = cardclass or sclass[CombatSkillLearn.TabValue];
+        CombatSkillLearn.GetSkillEncyclopedia_whiteCards(cardclass,CombatSkillLearn.CardFilter);
+    elseif (card_type=="pet") then
+        cardclass = pet_sclass[CombatSkillLearn.TabValue];
+        ChangeSkillView_internal(card_type,CombatSkillLearn.TabValue,nil,nil);
+    else
+        cardclass = cardclass or rune_sclass[CombatSkillLearn.TabValue];  
+    end
+    Encyclopedia_init = true;
+else
+    if (card_type=="combat") then        
+        cardclass = cardclass or sclass[CombatSkillLearn.TabValue];
+    elseif (card_type=="pet") then
+        cardclass = pet_sclass[CombatSkillLearn.TabValue];
+    else
+        cardclass = cardclass or rune_sclass[CombatSkillLearn.TabValue];  
+    end
+end
+
+--if (cardclass=="all") then -- 如果类别是“已有”
+--    CombatSkillLearn.TabValue = "1";
+--else
+--    CombatSkillLearn.TabValue = CombatSkillLearn.TabValue or "1";
+--end
+----------------------
+
+function ChangeCardType(name)
+    local name=string.lower(name);
+    if (name) then
+        CombatSkillLearn.card_type = name;
+        card_type = name;
+    end
+    dsItems={};
+    CombatSkillLearn.TabValue="1";
+    CombatSkillLearn.CardFilter = "purple";
+    ChangeSkillView_internal(card_type,CombatSkillLearn.TabValue,true,true);
+end
+
+function ChangeSkillView(value)
+	ChangeSkillView_internal(card_type,value, true,true);
+end
+
+-----------------------DataSource
+function DS_Func_Skills(index)
+    if (card_type=="combat") then
+        if (cardclass=="all") then
+            return CombatSkillLearn.DS_Func_SkillsDeck(dsItems, index,card_type,cardclass,maxcards_page,card_maxnum,pageCtrl);
+        elseif (cardclass=="none") then	
+             -- 大地系
+            return 0;
+        else
+            return CombatSkillLearn.DS_Func_SkillEncyclopedia_whiteCards(index);
+        end
+    elseif (card_type=="rune") then
+        return CombatSkillLearn.DS_Func_SkillsDeck(dsItems, index,card_type,cardclass,maxcards_page,card_maxnum,pageCtrl);
+    elseif (card_type=="pet") then
+        return CombatSkillLearn.DS_Func_SkillsDeck(dsItems, index,card_type,cardclass,maxcards_page,card_maxnum,pageCtrl);
+    end
+end
+------------- tip
+function getCardTipCardBag(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",templategsid);
+end
+
+-----------
+function GotoMentor()
+    
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    local worldname,position,camera;
+   
+    if (card_type=="combat") then
+        worldname,position,camera = WorldManager:GetWorldPositionByNPC(tonumber(cardclass));
+    elseif (card_type=="rune") then
+        local rune_manager=31038;
+        worldname,position,camera = WorldManager:GetWorldPositionByNPC(rune_manager);
+    end
+    
+    WorldManager:GotoWorldPosition(worldname,position,camera,function()
+        pageCtrl:CloseWindow();
+		local _app = Map3DSystem.App.AppManager.GetApp(MyCompany.Aries.app.app_key);
+		if(_app and _app._app) then
+			_app = _app._app;
+			local _wnd = _app:FindWindow("ProfilePane.ShowPage") 
+			if (_wnd) then
+				local _wndFrame = _wnd:GetWindowFrame();
+				if (_wndFrame) then
+					-- close ProfilePane
+					_wnd:SendMessage(nil,{type=CommonCtrl.os.MSGTYPE.WM_CLOSE});
+				end
+			end
+		end
+    end,nil,true);    
+end
+
+function getStoneCopies()
+    local _,_,_,magicstone_copies=hasGSItem(22000);
+    magicstone_copies = magicstone_copies or 0;
+    return string.format("<font color='#ddee00'>剩余潜力点：</font> %d",magicstone_copies);
+end
+
+function cardfilter(ctype)
+    if (CombatSkillLearn.CardFilter==ctype) then
+        return true
+    else
+        return false
+    end   
+end
+
+function OnFilterCard(ctype)
+    CombatSkillLearn.CardFilter=ctype;   
+    CombatSkillLearn.GetSkillEncyclopedia_whiteCards(cardclass,ctype);
+    pageCtrl:Refresh(0.1);
+end
+
+function Open_encyclopedia(_gsid)
+    if (card_type=="pet") then
+        return
+    end
+    if (_gsid>22000 and _gsid<23000) then
+        return
+    end
+
+    MyCompany.Aries.AuctionHouse.OnClickViewItem(_gsid);    
+end
+----------
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+---------
+]]>
+</script>
+
+<aries:window title="卡牌百科" width="570" height="470" onhelp="" onclose="ClosePage()" mode="lite">
+    <div style="margin-left:0px;margin-top:0px;width:560px;height:433px;" class="border_bg1_css">
+        <div style="position:relative;margin-left:-12px;margin-top:3px;">
+        <pe:tabs name="cardtype" ItemSpacing="1" class="tabs_blue" >
+            <pe:tab-item name="combat" selected="true" text="常规" style="width:184px;" onclick="ChangeCardType()" >
+	        </pe:tab-item>
+            <pe:tab-item name="rune" text="符文" style="width:184px;" onclick="ChangeCardType()" >
+	        </pe:tab-item>
+            <pe:tab-item name="pet" text="战宠技能" style="width:184px;" onclick="ChangeCardType()" >
+	        </pe:tab-item>
+        </pe:tabs>
+        </div>
+	    <div style="position:relative;margin-left:0px;margin-top:28px;width:554px;height:24px;" >
+            <pe:if condition='<%=Eval("card_type")=="combat" or Eval("card_type")=="rune"%>'>
+                <pe:tabs name="card_class" onclick="ChangeSkillView" ItemSpacing="0" class="skill_subtabs" >
+               <!--     <pe:tab-item name="1" icon="Texture/Aries/Common/ThemeTeen/school_all_icn16_32bits.png" text="已有" selected="true" style="width:60px;">  </pe:tab-item>-->
+                    <pe:tab-item name="1" icon="Texture/Aries/Common/ThemeTeen/school_ice_icn16_32bits.png" text="寒冰" selected="true" style="width:60px;margin-left:0px;">  </pe:tab-item>
+                    <pe:tab-item name="2" icon="Texture/Aries/Common/ThemeTeen/school_fire_icn16_32bits.png" text="烈火" style="width:60px;margin-left:0px;">  </pe:tab-item>
+                    <pe:tab-item name="3" icon="Texture/Aries/Common/ThemeTeen/school_storm_icn16_32bits.png" text="风暴" style="width:60px;margin-left:0px;">  </pe:tab-item>
+<!--                    <pe:tab-item name="4" icon="Texture/Aries/Common/ThemeTeen/school_land_icn16_32bits.png" text="大地" style="width:60px;margin-left:0px;">  </pe:tab-item>-->
+                    <pe:tab-item name="4" icon="Texture/Aries/Common/ThemeTeen/school_death_icn16_32bits.png" text="死亡" style="width:60px;margin-left:0px;">  </pe:tab-item>
+                    <pe:tab-item name="5" icon="Texture/Aries/Common/ThemeTeen/school_life_icn16_32bits.png" text="生命" style="width:60px;margin-left:0px;">  </pe:tab-item>
+                    <pe:tab-item name="6" icon="Texture/Aries/Common/ThemeTeen/school_balance_icn16_32bits.png" text="平衡" style="width:60px;margin-left:0px;">  </pe:tab-item>
+                </pe:tabs>
+            </pe:if>
+
+            <pe:if condition='<%=Eval("card_type")=="pet"%>'>
+                <pe:tabs name="petcard_class" onclick="ChangeSkillView" ItemSpacing="0" class="skill_subtabs" >
+                   <!-- <pe:tab-item name="1" text="我的战宠" selected="true" style="width:80px;">  </pe:tab-item>-->
+                    <pe:tab-item name="1" text="战宠卡片大全" selected="true" style="width:80px;margin-left:0px;">  </pe:tab-item>
+                </pe:tabs>
+            </pe:if>
+
+	    </div>
+
+        <div style="width:520px;height:500px;margin-left:16px;margin-top:75px;">
+            <pe:gridview name="cardsdeck" DataSource="<%=DS_Func_Skills%>"  ItemsPerLine="4" AllowPaging="true" pagesize="24">
+	        <Columns>
+	            <div style="margin-left:7px;width:123px;height:50px;">  
+                    <div class="block" >
+                        <pe:item  gsid='<%=Eval("gsid")%>' style="width:36px;height:36px;margin-left:1px;margin-top:1px;"/>
+                        <input type="button" zorder="3" name='<%=Eval("gsid") %>' style="margin-top:-38px;width:38px;height:38px;background:;" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="10" tooltip_offset_y="-60" onclick='<%=Open_encyclopedia %>'/>
+                    </div>
+                    <pe:if condition='<%=Eval("skilltype")~=2 %>'>
+                    <div style="width:80px;height:36px;margin-left:45px;margin-top:-37px;color:#52dff4">
+                        <pe:if condition='<%=Eval("card_type")~="pet" %>'>
+	                    <%=Eval("name")%><br/>
+	                    等级：<%=Eval("needlevel")%>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("card_type")=="pet" %>'>
+	                    <%=Eval("name")%><br/>
+	                    <%=Eval("pet")%>
+                        </pe:if>
+                    </div>
+                    </pe:if>
+
+                    <pe:if condition='<%=Eval("skilltype")==2 %>'>
+                    <div style="width:80px;height:36px;margin-left:45px;margin-top:-41px;color:#00df00">
+                        <pe:if condition='<%=Eval("card_type")~="pet" %>'>
+	                    <%=Eval("name")%><br/>
+	                    等级：<%=Eval("needlevel")%>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("card_type")=="pet" %>'>
+	                    <%=Eval("name")%><br/>
+	                    <%=Eval("pet")%>
+                        </pe:if>
+                        <div style="width:80px;height:36px;font-size:11px;color:#ff0000;">魔典技能
+                        </div>
+                    </div>
+                    </pe:if>
+
+                </div> 
+	        </Columns>
+	        <EmptyDataTemplate>
+		        <b>空</b>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+		        <b>请稍等 ... </b>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" style="margin-left:350px;margin-top:-152px;width:260px;height:25px;"/>
+	        <PagerTemplate>
+		        <form>
+			        <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+				        <input type="button" name="page" class="pagerbuttontext" /> 
+			        <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+                    </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        </div>
+      
+		<div style="margin-left:20px;margin-top:-175px;width:300px;height:25px;color:#99ffff;shadow-quality:8px;shadow-color:#802a2e27;text-shadow:true;" >            
+            <pe:if condition='<%=Eval("card_type")=="combat" %>'>
+                卡牌品质选择：
+                <pe:if condition='<%=cardfilter("white")%>'>
+                    <input type="button" tooltip="只显示白卡" style="margin-left:-5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_selected_btn_32bits.png)"  />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("white")%>'>
+                    <input type="button" name="white" tooltip="只显示白卡" style="margin-left:-5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("green")%>'>
+                    <input type="button" tooltip="只显示绿卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_selected_btn_32bits.png)"  />                    
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("green")%>'>
+                    <input type="button" name="green" tooltip="只显示绿卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("blue")%>'>
+                    <input type="button" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_selected_btn_32bits.png)"  />                    
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("blue")%>'>
+                    <input type="button" name="blue" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("purple")%>'>
+                    <input type="button" tooltip="只显示紫卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_selected_btn_32bits.png)"  />                    
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("purple")%>'>
+                    <input type="button" name="purple" tooltip="只显示紫卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>   
+                <pe:if condition='<%=not cardfilter("white")%>'>                             
+                    <div style="float:left;margin-left:5px">点击图标可查看获得途径</div>
+                </pe:if>   
+            </pe:if>            
+
+            <pe:if condition='<%=Eval("card_type")=="rune"%>'>
+                <!--<input type="button" name="toRune" onclick="GotoMentor()" value="去找符文管理员吉莉安" class="defaultbutton" style="height:25px;"/>-->
+                <div style="float:left;margin-left:5px">点击图标可查看获得途径</div>
+            </pe:if>            
+
+		</div>   
+                    
+        <div style="position:relative;width:550px;height:24px;margin-left:6px;margin-top:-545px;"  class="border_bg3_css">
+        </div>
+        <div style="position:relative;width:555px;height:426px;margin-left:3px;margin-top:-570px;"  class="border_bg2_css">
+        </div>
+
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,472 @@
+﻿<!-- "script/apps/Aries/CombatRoom/Teen/CreateRoomPage.v2.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/AntiIndulgenceArea.lua");
+local AntiIndulgenceArea = commonlib.gettable("MyCompany.Aries.Desktop.AntiIndulgenceArea");
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatRoom/CreateRoomPage.lua");
+local CreateRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.CreateRoomPage");
+CreateRoomPage.OnInit();
+
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+NPL.load("(gl)script/apps/Aries/Chat/BadWordFilter.lua");
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClient.lua");
+local LobbyClient = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClient");
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyHelper.lua");
+local LobbyHelper = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyHelper");
+function ClosePage()
+    CreateRoomPage.ClosePage();
+end
+
+function OnClickViewItem(gsid)
+    NPL.load("(gl)script/apps/Aries/HaqiShop/AuctionHouse.lua");
+    local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+    AuctionHouse.OnClickViewItem(gsid);
+end
+function canShowGuardControl(name)
+    local maps = {
+        storm = true,
+        fire = true,
+        life = true,
+        death = true,
+        ice = true,
+    };
+    local k,v;
+    for k,v in ipairs(maps) do
+        v = page:GetValue(k);
+    end
+    return maps[name];
+end
+function doClickCheckBox()
+end
+function getRequirementTag()
+    local maps = {
+        "storm",
+        "fire",
+        "life",
+        "death",
+        "ice",
+    };
+    local s = "";
+    local k,v;
+    for k,v in ipairs(maps) do
+        local checked = page:GetValue(v);
+        if(checked)then
+            if(s == "")then
+                s = v;
+            else
+                s = string.format("%s|%s",s,v)
+            end
+        end
+    end
+    local len = ParaMisc.GetUnicodeCharNum(s);
+    if(len == 0)then
+        s = nil;
+    end
+    return s;
+end
+function doCreate()
+    local template = CreateRoomPage.selected_template;
+    if(not template)then
+        _guihelper.MessageBox("请选择一个副本！")
+        return
+    end
+    local name = page:GetValue("title");
+    local keyname = template.keyname;
+    local leader_text = page:GetValue("leader_text");
+    local game_type = "PvE";
+    local max_players = template.max_players or 4;
+    local min_level = template.min_level or 0;
+    local max_level = template.max_level or 100;
+    local mode_list = LobbyClientServicePage.LoadModeList(keyname) or {};
+	name = MyCompany.Aries.Chat.BadWordFilter.FilterString(name);
+	local len = ParaMisc.GetUnicodeCharNum(name);
+    if(len == 0)then
+        name = "-----------"
+    elseif(len > 16)then
+        _guihelper.MessageBox("房间名称最多16个字，换一个吧！")
+        return
+    end
+
+    local game = {
+        game_type = game_type,
+        keyname = keyname,
+        max_players = max_players,
+        min_level = min_level,
+        max_level = max_level,
+        name = name,
+        leader_text = leader_text,
+        is_persistent = nil,
+    }
+    if(game_type == "PvE")then
+        CreateRoomPage.temp_game_setting = game;
+        --[[
+        local len = #mode_list;
+        if(len == 1)then
+            game.mode = mode_list[1].mode;
+            LobbyClientServicePage.DoCreateGame(game);
+            ClosePage();
+        else
+            CreateRoomPage.ShowPage_Mode(keyname)
+        end
+        --]]
+		local menu_node = CreateRoomPage.GetSelecedMenuNode();
+        if(menu_node)then
+            game.mode = menu_node.mode;
+            LobbyClientServicePage.DoCreateGame(game);
+            ClosePage();
+        end
+    end
+end
+function IsLocked(index)
+    if(not index)then return end
+    local node = CreateRoomPage.templates_list_view[index];
+    if(node)then
+        return not LobbyHelper.IsOpened(nil,node.keyname);
+    end
+end
+function OnSelectGame(index)
+    index = tonumber(index);
+    local cur_time = ParaGlobal.timeGetTime();
+    CreateRoomPage.OnSelectGame(index);
+    if(CreateRoomPage.selected_template)then
+        page:SetValue("description",CreateRoomPage.selected_template.name);
+    end
+    if(IsLocked(index))then
+        return
+    end
+    if(CreateRoomPage.selection_index and CreateRoomPage.last_click_time and CreateRoomPage.selection_index == index and CreateRoomPage.last_click_time and (cur_time - CreateRoomPage.last_click_time) < 500) then
+        doCreate();
+    else
+        CreateRoomPage.selection_index = index;
+    end
+    CreateRoomPage.last_click_time = cur_time;
+end
+
+function DS_Func(index)
+    return CreateRoomPage.DS_Func(index);
+end
+function getHpList()
+    local list = {
+    }
+    local k;
+    for k = 0,5 do
+        local v = k * 1000;
+        local node = {
+            text = string.format("%d",v),
+            value = tostring(v),
+        }
+        table.insert(list,node);
+    end
+    list[1].selected = "true";
+    return list;
+end
+function getCombatPropList()
+    local list = {
+    }
+    local k;
+    for k = 0,15 do
+        local v = k * 10;
+        local node = {
+            text = string.format("%d%%",v),
+            value = tostring(v),
+        }
+        table.insert(list,node);
+    end
+    list[1].selected = "true";
+    return list;
+end
+function getMagicStarLevelList()
+    local list = {
+        {text = "无", value = -1, selected = "true"},
+    }
+    local k;
+    for k = 0,10 do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+    return list;
+end
+function getSelectList(name)
+    local selected_template = CreateRoomPage.selected_template;
+    if(not selected_template)then return end;
+    local min_level = selected_template.min_level or 1;
+    local max_level = selected_template.max_level or 50;
+    if(name == "max_players")then
+        min_level = 1;
+        max_level = selected_template.max_players or 4;
+    end
+    local list = {};
+    local k;
+    for k = min_level,max_level do
+        local node = {
+            text = tostring(k),
+            value = tostring(k),
+        }
+        table.insert(list,node);
+    end
+    if(list[1])then
+        list[1].selected = "true";
+    end
+    if(name == "max_level" or name == "max_players")then
+       local len = #list;
+       list[len].selected = "true";
+    end
+    return list;
+end
+function CanShowPvECheckBox()
+    if(AntiIndulgenceArea.IsAntiSystemIsEnabled()) then
+        --return false;
+    end
+    return true;
+end
+function DoSelectGameType(value)
+    CreateRoomPage.selected_game_type = value;
+    CreateRoomPage.LoadTemplates();
+    local title = CreateRoomPage.GetRandomTitle();
+	if(page)then
+		page:SetValue("title",title);
+	end
+    CreateRoomPage.OnSelectGame(1);
+    page:Refresh(0);
+end
+function GetKeyName()
+    local template = CreateRoomPage.selected_template;
+    if(not template)then
+        return
+    end
+    local keyname = template.keyname;
+    return keyname;
+end
+function HasLoots()
+    if(CreateRoomPage.loots_list)then
+        return true;
+    end
+end
+function DS_Func_Loots(index)
+	if(not CreateRoomPage.loots_list)then return nil end
+	if(index == nil) then
+		return #(CreateRoomPage.loots_list);
+	else
+		return CreateRoomPage.loots_list[index];
+	end
+end
+function GetLevelRange(index)
+    if(not index)then return end
+    local node = CreateRoomPage.templates_list_view[index];
+    if(node)then
+        --return string.format("%d级-%d级",node.min_level or 0,node.max_level or 100);
+        return string.format("%d级",node.min_level or 0);
+    end
+end
+function OnClick_LootsMenu(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        CreateRoomPage.selected_mode_loots_menu = node.mode;
+        CreateRoomPage.UpdateLootsList();
+        page:Refresh(0);
+    end
+end
+function GetSelectedMode_LootsMenu()
+    return CreateRoomPage.selected_mode_loots_menu;
+end
+
+function CheckBtn()
+    if(CreateRoomPage.selected_index)then
+        local locked = IsLocked(CreateRoomPage.selected_index);
+        local start_btn = page:FindControl("start_btn");
+        if(start_btn) then
+	        start_btn.enabled= not locked;
+        end
+    end
+end
+page:SetValue("game_type",CreateRoomPage.selected_game_type);
+
+
+function CheckMap(worldname)
+	if(not System.options.isAB_SDK)then
+        return
+    end
+    if(not worldname)then return end
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    local world = WorldManager:GetWorldInfo(worldname);
+    if(world and not world.local_map_settings)then
+        return worldname;
+    end
+end
+function GetMenu()
+    return CreateRoomPage.GetMenuNode();
+end
+function OnClickMenu(datasource,index)
+    if(datasource and index)then
+		CreateRoomPage.DoFilterByMode();
+        CreateRoomPage.OnSelectGame(1)
+    end
+end
+function GetBossInfo(worldname)
+    local menu_node = CreateRoomPage.GetSelecedMenuNode();
+    if(worldname and menu_node)then
+        local mode = menu_node.mode;
+        local boss_info = LobbyClientServicePage.GetBossInfoByWorldName(worldname,mode)
+        if(boss_info and boss_info.boss_template)then
+            local all_hp = boss_info.all_hp or 0;
+            local boss_template = boss_info.boss_template;
+            local displayname = boss_template.attr.displayname;
+            return string.format("怪物总血量:%d", all_hp);
+        end
+    end
+end
+function GetTooltip(index)
+    if(not index)then return end
+    local node = CreateRoomPage.templates_list_view[index];
+    if(node)then
+        return string.format("%s \r\n 解锁等级:%d级",node.name,node.min_level or 0);
+    end
+end
+]]></script>
+<aries:window width="950" height="550" title="创建队伍" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/team_icon_32bits.png" >
+    <div style="position:relative;height:23px;margin-left:70px;margin-top:28px;">
+        <pe:togglebuttons ButtonWidth="90" DataSource='<%=GetMenu() %>' onclick='OnClickMenu'/>
+    </div>
+ <!-- <pe:block style="position:relative;margin-left:70px;margin-top:30px;width:65px;height:20px;color:#ffffff;text-align:center;background:;" class="default_btn_css">队伍名称:
+  </pe:block>
+  <pe:block style="position:relative;margin-left:130px;margin-top:30px;width:497px;height:19px;" class="edit_txt_css">
+        <input type="text" name="title" CaretColor="#FFFFFFFF" textcolor="#ffffff"  width="100%" style="position:relative;margin-top:-2px;height:22px;background:;" />
+  </pe:block>-->
+  <pe:div style="position:relative;margin-left:6px;margin-top:50px;width:622px;height:493px;" class="border_bg1_css">
+    <pe:div style="position:relative;margin-left:2px;margin-top:2px;width:618px;height:489px;" class="border_bg2_css">
+        <div style="margin-left:15px;margin-top:5px;width:900px;height:800px;">
+                <pe:gridview name="roomTemplates" DataSource="<%=DS_Func%>"  ItemsPerLine="2" AllowPaging="true" pagesize="10" DefaultNodeHeight = "90">
+                <Columns>
+                    <div style="width:300px;height:85px;" tooltip='<%=GetTooltip(Eval("index")) %>'  onclick="OnSelectGame" name='<%=Eval("index")%>'>
+                        
+                        <!--<div class="list_circle_bg_css" style="float:left;width:85px;height:85px;">
+                        </div>-->
+                        <pe:div style="float:left;width:84px;height:84px;background:;">
+                            <pe:div style="background:;">
+                                <aries:lobbyservice_template keyname='<%=Eval("keyname") %>'>
+                                    <aries:lobbyservice_template_item property="pic" usesmaller="true" style="position:relative;margin-left:0px;margin-top:0px;width:84px;height:84px;"/>
+                                </aries:lobbyservice_template>    
+                            </pe:div>
+                            <pe:div style="float:left;width:84px;height:84px;background:url(Texture/Aries/Common/Teen/lobby_roomlist/title_mask_32bits.png#0 0 84 84)" />
+                        </pe:div>
+                         <pe:if condition='<%=IsLocked(Eval("index")) %>' >
+                                <img src="Texture/Aries/CrazyTower/lock_32bits.png;0 0 36 41" style="position:relative;margin-left:-62px;margin-top:20px;width:36px;height:41px;"/>
+                            </pe:if>
+                        <div class="list_dock_bg_css" style="float:left;margin-left:-56px;margin-top:8px;width:256px;height:75px;">
+                             <pe:if condition='<%=not Eval("is_selected") %>' >
+                                 <!--<div style="position:relative;margin-left:50px;margin-top:35px;width:200px;text-align:center;font-size:12;" class="title_txt_css">
+                                    <%=GetLevelRange(Eval("index"))%>
+                                 </div>-->
+                                <div style="margin-left:50px;width:200px;text-align:center;padding-top:20px;" class="title_txt_css">
+                                    <%=Eval("name") %>
+                                </div>
+                                <!-- <div style="margin-left:50px;width:200px;text-align:center;padding-top:10px;font-size:12px;font-weight:normal" class="title_txt_css">
+                                    <%=GetBossInfo(Eval("worldname"))%>
+                                </div>-->
+                            </pe:if>
+                             <pe:if condition='<%=Eval("is_selected") %>' >
+                                 <!--<div style="position:relative;margin-left:50px;margin-top:35px;width:200px;text-align:center;font-size:12;" class="title_highlight_txt_css" >
+                                    <%=GetLevelRange(Eval("index"))%>
+                                 </div>-->
+                                <div style="margin-left:50px;width:200px;text-align:center;padding-top:20px;" class="title_highlight_txt_css">
+                                    <%=Eval("name") %>
+                                </div>
+                                <!-- <div style="margin-left:50px;width:200px;text-align:center;padding-top:10px;font-size:12px;font-weight:normal" class="title_highlight_txt_css">
+                                    <%=GetBossInfo(Eval("worldname"))%>
+                                </div>-->
+                            </pe:if>
+                            <div style="color:#ff0000;">
+                                <!--<%=CheckMap(Eval("worldname"))%>-->
+                            </div>
+                        </div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b class="defaultcolor">目前没有适合你等级的副本</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b class="defaultcolor">请稍等 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" />
+                <PagerTemplate>
+                     <form>
+                        <div style="margin-left:-70px;margin-top:-320px;">
+                        <input type="button" name="pre" style="margin-left:260px;width:92px;" class="default_btn_css" zorder=2 value="上一页"/>
+                        <label name="page"  class="pagerbuttontext"/>
+                        <input type="button" name="next" zorder=2 style="width:92px;" class="default_btn_css" value="下一页"/>
+                        </div>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+            </div>
+    </pe:div>
+  </pe:div>
+  <pe:div style="position:relative;margin-left:631px;margin-top:30px;width:312px;height:513px;" class="border_bg1_css">
+    
+   <pe:block style="position:relative;margin-left:4px;margin-top:4px;padding-top:2px;width:304px;height:30px;color:#ffffff;font-size:14;text-align:center;" class="border_bg3_css">
+         <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+            <aries:lobbyservice_template_item label="" property="world_label"/>
+        </aries:lobbyservice_template>
+    </pe:block>
+    <pe:div style="position:relative;margin-left:4px;margin-top:34px;background:;" >
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+            <aries:lobbyservice_template_item property="pic" style="margin-left:0px;margin-top:0px;width:304px;height:304px;"/>
+        </aries:lobbyservice_template>
+    </pe:div>
+    <pe:div style="position:relative;margin-left:4px;margin-top:250px;width:305px;height:90px;" class="dock_bg2_css">
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>'>
+             <pe:treeview style="width:305px;height:90px;background:">
+                <aries:lobbyservice_template_item property="world_description" style="color:#ffffff;margin-left:-10px;padding:5px;"/>
+            </pe:treeview>
+        </aries:lobbyservice_template>
+    </pe:div>
+      <pe:div style="position:relative;margin-left:4px;margin-top:338px;background:;" >
+        <aries:lobbyservice_template keyname='<%=GetKeyName() %>' selected_mode="<%=GetSelectedMode_LootsMenu() %>">
+                <aries:lobbyservice_template_item property="loots_menu" class="defaultcolor" onclick="OnClick_LootsMenu" />
+        </aries:lobbyservice_template>
+    </pe:div>
+    <pe:div style="position:relative;margin-left:4px;margin-top:360px;width:304px;height:150px;" class="border_bg2_css">
+        <pe:gridview name="loots_view" DataSource="<%=DS_Func_Loots%>"  ItemsPerLine="6" AllowPaging="false" pagesize="500">
+            <Columns>
+            <div style="margin-left:4px;margin-top:5px;width:44px;height:44px;" class="dock_bg_css">
+                    <pe:item gsid='<%=Eval("gsid") %>' onclick="OnClickViewItem" ShowCount='<%=Eval("cnt") %>' showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" style="margin-left:130px;margin-top:-405px;"/>
+				<PagerTemplate>
+					<form>
+						<input type="button" name="pre" invisibleondisabled="false" class="pagerleft" style="width:20px;height:20px;"/>
+						<input type="button" name="page" class="pagertext" style="margin-top:-2px;"/>
+						<input type="button" name="next" invisibleondisabled="false" class="pagerright" style="width:20px;height:20px;"/>
+	                </form>
+				</PagerTemplate>
+        </pe:gridview>
+    </pe:div>
+  </pe:div>
+  <pe:button style="position:relative;margin-left:525px;margin-top:510px;width:92px;height:26px;color:#ffffff;" value="创建队伍" class="highlight_btn_css" name="start_btn" onclick="doCreate" />
+</aries:window>
+     <%=CheckBtn()%>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,301 @@
+﻿<!-- "script/apps/Aries/CombatRoom/PvPSessionPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PvPSessionPage, by leio, 2013/7/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/CombatRoom/PvPSessionPage.lua");
+PvPSessionPage = commonlib.gettable("MyCompany.Aries.CombatRoom.PvPSessionPage");
+PvPSessionPage.OnInit();
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function Ds_Func(index)
+    return PvPSessionPage.Ds_Func(index);
+end
+
+function Ds_Func_Members(index)
+    return PvPSessionPage.Ds_Func_Members(index);
+end
+function GetDataSource()
+    return PvPSessionPage.menus;
+end
+function OnClickBtn(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        PvPSessionPage.DoSelectedMenu(node.keyname);
+    end
+end
+function GetTitle()
+	local node = PvPSessionPage.GetSelectedMenuNode();
+    if(node)then
+        return node.title;
+    end
+end
+
+function GetStatus()
+    local status_short = PvPSessionPage.GetStatus()
+    return status_short;
+end
+
+function Be1v1()
+    local value = PvPSessionPage.Be1v1()
+    return value;
+end
+
+function GotoAwardNPC()
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+	local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    local act_npcid=30428;
+	local worldname,position,camera = WorldManager:GetWorldPositionByNPC(act_npcid);
+    WorldManager:GotoWorldPosition(worldname,position,camera,nil,nil,true);
+end
+
+]]></script>
+<div class="window" style="width:830px;height:480px;color:#022a57;">
+    <div style="position:relative;width:256px;height:32px;margin-left:307px;margin-top:8px;background:url(texture/aries/pvpsession/title_32bits.png);"/>
+    <div style="position:relative;width:750px;height:64px;margin-top:-6px;margin-left:40px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:250 21 260 32);" />
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage()" />
+    <div style="position:relative;margin-left:50px;margin-top:20px;" >
+        <pe:togglebuttons DataSource='<%=GetDataSource() %>' 
+            ItemSpacing="0"
+            ButtonWidth="64"
+            ButtonHeight="25"
+            onclick='OnClickBtn'/>
+    </div>
+    
+    <!--<div style="margin-left:15px;margin-top:45px;width:800px;height:195px;" class="panel">
+        <div style="margin-left:30px;margin-top:20px;width:860px;height:230px;" >
+            <pe:gridview name="sessions_view" DataSource="<%=Ds_Func%>"  ItemsPerLine="6" AllowPaging="false" pagesize="6">
+			<Columns>
+                <div style="width:130px;height:185px;font-size:12px;">
+                    <div>
+                        <div style="float:left;width:90px;height:132px;background:url(texture/aries/pvpsession/bg_32bits.png#0 0 90 132)">
+                            <div style="margin-left:13px;margin-top:13px;width:64px;height:64px;background:url(texture/aries/pvpsession/block_32bits.png)">
+                                <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" isclickable="false" />
+                            </div>
+                            <pe:if condition='<%=Eval("status")=="has"%>'>
+                                <div style="text-align:center;margin-top:20px;color:#ffffff"><%=Eval("label")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="current"%>'>
+                                <div style="text-align:center;margin-top:20px;font-weight:bold;color:#ffff00"><%=Eval("label")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="no" or Eval("status")=="next"%>'>
+                                <div style="text-align:center;margin-top:20px;color:#000000"><%=Eval("label")%></div>
+                            </pe:if>
+                        </div>
+                        <pe:if condition='<%=Eval("index") < 6%>'>
+                            <div style="float:left;margin-left:2px;margin-top:35px;width:34px;height:23px;background:url(texture/aries/pvpsession/yellow_arrow_32bits.png#0 0 34 23)"/>
+                        </pe:if>
+                    </div>
+                    <div style="text-align:center;margin-left:-30px;width:130px;position:relative;">
+                        <pe:if condition='<%=Eval("status")=="has"%>'>
+                            <div style="color:#00ff00;font-size:13px;font-weight:bold;margin-top:5px;margin-left:5px;">已获得</div>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("status")=="current"%>'>
+                            <div style="color:#ffff00;font-size:12px;font-weight:bold;">
+                                目前积分:<%=PvPSessionPage.GetRankScore()%><br />
+                                晋级积分:<%=Eval("min_score")+100%>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("status")=="next"%>'>
+                            <div style="color:#880000;font-size:12px;font-weight:bold;">
+                                需要积分:<%=Eval("min_score")%>
+                            </div>
+                        </pe:if>
+                    </div>
+                </div>
+			</Columns>
+		</pe:gridview>   
+        </div>
+         
+    </div>-->
+    <!--<div style="margin-left:15px;margin-top:45px;width:800px;height:195px;" class="panel">
+        <div style="margin-left:30px;margin-top:20px;width:860px;height:230px;" >
+            <pe:gridview name="sessions_view" DataSource="<%=Ds_Func%>"  ItemsPerLine="5" AllowPaging="false" pagesize="5">
+			<Columns>
+                <div style="width:130px;height:185px;font-size:12px;">
+                    <div>
+                        <div style="float:left;width:90px;height:132px;background:url(texture/aries/pvpsession/bg_32bits.png#0 0 90 132)">
+                            <div style="margin-left:13px;margin-top:13px;width:64px;height:64px;background:url(texture/aries/pvpsession/block_32bits.png)">
+                                <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" isclickable="false" />
+                            </div>
+                            <pe:if condition='<%=Eval("status")=="has"%>'>
+                                <div style="text-align:center;margin-top:20px;color:#ffffff"><%=Eval("label")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="current"%>'>
+                                <div style="text-align:center;margin-top:20px;font-weight:bold;color:#ffff00"><%=Eval("label")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="no" or Eval("status")=="next"%>'>
+                                <div style="text-align:center;margin-top:20px;color:#000000"><%=Eval("label")%></div>
+                            </pe:if>
+                        </div>
+                        <pe:if condition='<%=Eval("index") < 5%>'>
+                            <div style="float:left;margin-left:2px;margin-top:35px;width:34px;height:23px;background:url(texture/aries/pvpsession/yellow_arrow_32bits.png#0 0 34 23)"/>
+                        </pe:if>
+                    </div>
+                    <div style="text-align:center;margin-left:-35px;width:140px;position:relative;">
+                        <pe:if condition='<%=Eval("status")=="has"%>'>
+                            <div style="color:#00ff00;font-size:13px;font-weight:bold;margin-top:5px;margin-left:5px;">已获得</div>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("status")=="current"%>'>
+                            <div style="color:#ffff00;font-size:12px;font-weight:bold;">
+                                目前战斗力:<%=PvPSessionPage.gs_score%><br />
+                                晋级战斗力:<%=Eval("max_gs")%>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("status")=="next"%>'>
+                            <div style="color:#880000;font-size:12px;font-weight:bold;">
+                                需要战斗力:<%=Eval("min_gs")%>
+                            </div>
+                        </pe:if>
+                    </div>
+                </div>
+			</Columns>
+		</pe:gridview>   
+        </div>
+         
+    </div>-->
+    <pe:if condition='<%=Be1v1()%>'>
+        <div style="margin-left:15px;margin-top:45px;width:800px;height:195px;" class="panel">
+            <div style="margin-left:30px;margin-top:20px;width:860px;height:230px;" >
+                <pe:gridview name="sessions_view" DataSource="<%=Ds_Func%>"  ItemsPerLine="5" AllowPaging="false" pagesize="5">
+			    <Columns>
+                    <div style="width:160px;height:185px;font-size:12px;">
+                        <div>
+                            <div style="float:left;width:90px;height:132px;background:url(texture/aries/pvpsession/bg_32bits.png#0 0 90 132)">
+                                <div style="margin-left:13px;margin-top:13px;width:64px;height:64px;background:url(texture/aries/pvpsession/block_32bits.png)">
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" isclickable="false" />
+                                </div>
+                                <pe:if condition='<%=Eval("status")=="has"%>'>
+                                    <div style="text-align:center;margin-top:20px;color:#ffffff"><%=Eval("label")%></div>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("status")=="current"%>'>
+                                    <div style="text-align:center;margin-top:20px;font-weight:bold;color:#ffff00"><%=Eval("label")%></div>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("status")=="no" or Eval("status")=="next"%>'>
+                                    <div style="text-align:center;margin-top:20px;color:#000000"><%=Eval("label")%></div>
+                                </pe:if>
+                            </div>
+                            <pe:if condition='<%=Eval("index") < 5%>'>
+                                <div style="float:left;margin-left:15px;margin-top:35px;width:34px;height:23px;background:url(texture/aries/pvpsession/yellow_arrow_32bits.png#0 0 34 23)"/>
+                            </pe:if>
+                        </div>
+                        <div style="text-align:center;margin-left:-35px;width:140px;position:relative;">
+                            <pe:if condition='<%=Eval("status")=="has"%>'>
+                                <div style="color:#00ff00;font-size:13px;font-weight:bold;margin-top:5px;margin-left:5px;">已获得</div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="current"%>'>
+                                <div style="color:#ffff00;font-size:12px;font-weight:bold;">
+                                    目前战斗力:<%=PvPSessionPage.gs_score%><br />
+                                    <pe:if condition='<%=Eval("index") < 5%>'>
+                                        晋级战斗力:<%=Eval("max_gs")%>
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("status")=="next"%>'>
+                                <div style="color:#880000;font-size:12px;font-weight:bold;">
+                                    需要战斗力:<%=Eval("min_gs")%>
+                                </div>
+                            </pe:if>
+                        </div>
+                    </div>
+			    </Columns>
+		    </pe:gridview>   
+            </div>
+         
+        </div>
+    </pe:if>
+    <pe:if condition='<%=not Be1v1()%>'>
+    </pe:if>
+    <div style="margin-left:15px;margin-top:0px;">
+        <div style="float:left;">
+            <div style="width:395px;margin-top:0px;text-align:center;font-size:14;font-weight:bold;color:#ffffff;shadow-quality:8;shadow-color:#000000;text-shadow:true;" >个人信息</div>
+            <div style="width:395px;height:200px;margin-top:10px;" class="panel">
+                <div style="margin-left:10px;margin-top:10px;width:375px;height:60px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)">
+                    <div style="padding:5px;font-size:14px;">
+                        <div style="float:left;width:96px;height:19px;background:url(texture/aries/pvpsession/magic_score_32bits.png#0 0 96 19)" />
+                        <div style= "float:left;margin-left:5px;margin-top:0px;width:80px;font-weight:bold;font-size:14px;base-font-size:14;color:#FFFF00;shadow-quality:8;shadow-color:#a02a2e48;text-shadow:true;"><%=tostring(PvPSessionPage.GetGearScore()) %></div>
+                        <!--<div style="float:left;">TODO: 查看提高战斗力指南</div>-->
+                    </div>
+                    <div style="padding:5px;font-size:14px;margin-top:-5px;">
+                        <div style="float:left;">当前的战斗力适合段位:</div>
+                        <div style="float:left;margin-left:2px;color:#0000ff;font-weight:bold;"><%=PvPSessionPage.GetMostFitStageForKids1V1().tip_label %></div>
+                    </div>
+                </div>
+                <div style="margin-left:10px;margin-top:10px;width:375px;height:60px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)">
+                    <div style="padding:5px;font-size:14px;">
+                        <div style="float:left;width:100px;height:19px;background:url(texture/aries/pvpsession/session_score_32bits.png#0 0 100 19)" />
+                        <div style= "float:left;margin-left:5px;margin-top:0px;width:80px;font-weight:bold;font-size:14px;base-font-size:14;color:#FFFF00;shadow-quality:8;shadow-color:#a02a2e48;text-shadow:true;"><%=PvPSessionPage.GetRankScore()%></div>
+                        <!--<div style="float:left;">TODO: 查看天梯前100名</div>-->
+                    </div>
+                    <div style="padding:5px;font-size:14px;margin-top:-5px;">
+                        <!--<div style="float:left;">当前蘑菇积分匹配段位:</div>-->
+                        <div style="float:left;margin-left:2px;color:#0000ff;font-weight:bold;">天梯排位分数越高，能领取奖励越多</div>
+                        <input type="button" style="float:left;margin-left:24px;margin-top:1px;font-size:14px;width:60px;height:20px;" value="去领奖" onclick="GotoAwardNPC" class="button_highlight"/>
+                    </div>
+                </div>
+                <div style="color:#ffff00;margin-left:10px;margin-top:10px;">
+                    <%=PvPSessionPage.GetStatusTipsForKids1v1() %>
+                </div>
+            </div>
+        </div>
+        <div style="float:left;">
+            <div style="width:395px;margin-top:0px;text-align:center;font-size:14;font-weight:bold;color:#ffffff;shadow-quality:8;shadow-color:#000000;text-shadow:true;" >报名参赛</div>
+            <div style="margin-left:10px;margin-top:10px;width:395px;height:200px;" class="panel">
+                <div style="float:left;margin-left:5px;margin-top:10px;width:220px;">
+                    <div style="position:relative;width:860px;height:230px;" >
+                        <pe:gridview name="sessions_view" DataSource="<%=Ds_Func_Members%>"  ItemsPerLine="2" AllowPaging="false" pagesize="2">
+			                <Columns>
+                                <div style="width:120px;margin-left:2px;height:180px;font-size:12px;">
+                                    <div style="margin-left:28px;margin-top:0px;width:64px;height:64px;background:url(texture/aries/pvpsession/block_32bits.png)">
+                                        <img style="margin-left:16px;margin-top:5px;width:32px;height:50px;background:url(Texture/Aries/HeadOn/question.png#0 0 32 50);"/>
+                                    </div>
+                                    <div style="text-align:center;margin-top:5px;margin-left:5px;width:110px;height:25px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)">
+                                        <!--<aries:user key="nickname" nid='<%=Eval("nid")%>'/>-->
+                                        ???
+                                    </div>
+                                </div>
+			                </Columns>
+		                </pe:gridview>   
+                    </div>
+                    <div style="padding-left:4px;margin-top:100px;width:242px;height:80px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)">
+                        <div>
+                            <div style="float:left;font-weight:bold;">目前积分：</div><div style="float:left"><%=PvPSessionPage.GetRankScore()%></div>
+                        </div>
+                        <div>
+                            <div style="float:left;font-weight:bold;">参赛段位：</div><div style="float:left;"><%=PvPSessionPage.GetMostFitStageForKids1V1().tip_label %></div>
+                        </div>
+                        <div>
+                            <div style="float:left;font-weight:bold;">参赛状态：</div><div style="float:left;color:#ff0000">
+                                <%=GetStatus() %>
+                             </div>
+                        </div>
+                        <div>
+                            <div style="float:left;font-weight:bold;">家族成员回避功能：</div>
+                            <div style="float:left;color:#ff0000"><%= PvPSessionPage.HasFamilyAvoid() %></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="float:left;margin-left:25px;margin-top:10px;width:140px;height:180px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)">
+                    <div style="text-align:center;font-size:14px;margin-top:5px;font-weight:bold;"><%=GetTitle()%></div>
+                    <input type="button" value="参加比赛" onclick="PvPSessionPage.OnClickJoin" style="margin-left:9px;margin-top:30px;font-weight:bold;font-size:14px;width:122px;height:57px;background:url(texture/aries/pvpsession/button_32bits.png#0 0 122 57)"/>
+                    <div style="margin-left:2px;font-weight:bold;margin-top:10px;">预计排队时间：00:59</div>
+                    <!--<div style="margin-left:2px;font-weight:bold;color:#cc3333">已经排队时间：00:00</div>-->
+                </div>
+            </div>
+        </div>        
+        
+    </div>
+
+</div>
+
+</pe:mcml> 
+</body>
+</html>

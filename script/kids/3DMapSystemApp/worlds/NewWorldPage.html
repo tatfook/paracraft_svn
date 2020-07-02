@@ -1,0 +1,92 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/NewWorldPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>New World page by LiXizhi 2008.6.9</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="NewWorldPage.lua"><![CDATA[
+Map3DSystem.App.worlds.NewWorldPage.OnInit();
+]]></script>
+<div>
+<!--modify this to change default template category-->
+<input type="hidden" name="default_category" value="worlds/Templates/Empty/EmptyTemplatePage.html"/>
+<input type="hidden" name="default_worldtemplate" value="worlds/Templates/Empty/flatgrassland"/>
+<div height="90%">
+    <div style="width:120px;float:left;">
+      <pe:treeview name="Categories">
+          <pe:treenode text="本地模板" style="color:#696969;font-weight:bold;height:27px" selected="true">
+              <a href="worlds/Templates/Empty/EmptyTemplatePage.html" target="TempListFrame">空白世界</a>
+              <a href="worlds/Templates/PopularTemplatePage.html" target="TempListFrame">热门模板</a>
+              <a href="worlds/Templates/InstalledTemplatePage.html" target="TempListFrame">已安装的</a>
+          </pe:treenode>
+          <pe:treenode text="在线模板" style="color:#696969;font-weight:bold;height:27px">
+              <a href="%WIKI%/Main/RuralWorldTemplates?skin=text" target="TempListFrame">田园风光</a>
+              <a href="%WIKI%/Main/SeeSideWorldTemplates?skin=text" target="TempListFrame">海滨世界</a>
+              <a href="%WIKI%/Main/ModernWorldTemplates?skin=text" target="TempListFrame">现代都市</a>
+              <a href="%WIKI%/Main/GameWorldTemplates?skin=text" target="TempListFrame">游戏世界</a>
+          </pe:treenode>
+      </pe:treeview>
+    </div>
+    <div style="float:left;" >
+        <div class="box" style="float:left;" width="60%" height="100%">
+            <iframe name="TempListFrame"/>
+        </div>
+        <div style="float:left;" width="40%" height="100%">
+            <pe:tabs name="Worlds Info">
+                <pe:tab-item text="世界预览" selected="true">
+                    <iframe name="WorldInfoFrame"/>
+                </pe:tab-item>
+                <pe:tab-item text="高级创造" style="padding:3px"><form name="newworld_adv">
+                    <div style="width:80px;float:left;text-align:right;">世界名称:</div><input name="name" type="text"/><br/>
+                    <div style="width:80px;float:left;text-align:right;">路径:</div>
+                    <select name="creationfolder">
+                        <option value="worlds/MyWorlds/" selected="true">worlds/MyWorlds/</option>
+                        <option value="worlds/Official/">worlds/Official/</option>
+                        <option value="worlds/Templates/Empty/">worlds/Templates/Empty/</option>
+                        <option value="worlds/">worlds/</option>
+                    </select><br />
+                    <div style="width:80px;float:left;text-align:right;">作者:</div><input name="author" type="text"/><br/>
+                    <div style="width:80px;float:left;text-align:right;">难度级别:</div><div style="float:left">
+                        <input type="radio" name="level" value="0" checked="checked"/>老少皆宜
+			            <input type="radio" name="level" value="18"/>青年人
+			        </div><br/>
+                    <div style="width:80px;float:left;text-align:right;">创建日期:</div><%=ParaGlobal.GetDateFormat("yyyy-M-d")%><br/>
+                    <div style="width:80px;float:left;text-align:right;">描述:</div><textarea name="desc" rows="3"></textarea><br/>
+                    <hr />
+                    <div>
+                        <div style="width:80px;float:left;text-align:right;">派生世界:</div><div style="float:left"><input name="parentworld" type="text"/><br />
+                            <span style="color:#808080">例如: worlds/WorldName</span>
+                        </div><br />
+                        <div style="width:80px;float:left;text-align:right;">派生属性:</div><div style="float:left">
+                            <input type="checkbox" checked="true" name="inherit_char"/>复制人物<br />
+                            <input type="checkbox" checked="true"name="inherit_scene"/>复制场景<br />
+                        </div>
+                    </div>
+                    <hr />
+                    <div style="margin-left:80px">
+                        <input type="submit" class="defaultbutton" name="CreateAdvanced" value="创建" onclick="Map3DSystem.App.worlds.NewWorldPage.OnCreateWorldAdvanced"/>
+                        <input type="button" value="进入世界" onclick="Map3DSystem.App.worlds.NewWorldPage.OnEnterCreatedWorld"/>
+                    </div>
+                    <label name="result_adv" style="margin:5px;color:#006600"></label>
+                </form></pe:tab-item>
+            </pe:tabs> 
+        </div>
+    </div>
+</div>
+<div class="box" style="margin-top:0px;padding:5px">
+<form name="newworld">
+   <input type="hidden" name="templatename"/>
+   <div>
+       新世界名称: <input name="worldname" type="text" style="width:150px;height:30px"/>
+       <input type="submit" class="defaultbutton" name="Create" value="创建" onclick="Map3DSystem.App.worlds.NewWorldPage.OnCreateWorld"/>
+       <input type="button" name="EnterCreatedWorld" enabled="false" value="进入世界" onclick="Map3DSystem.App.worlds.NewWorldPage.OnEnterCreatedWorld"/>
+       <label name="result" style="margin-left:10px;margin-top:3px;color:#006600">请选择一个模板, 然后输入要创建的世界的名字</label>
+   </div>
+</form>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

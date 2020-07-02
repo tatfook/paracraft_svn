@@ -1,0 +1,265 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatAvatarView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatAvatarView, by zrf, 2010/9/21</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local ItemManager = Map3DSystem.Item.ItemManager;
+local GetItemByBagAndOrder = ItemManager.GetItemByBagAndOrder;
+
+local page = document:GetPageCtrl();
+
+function GetNid()
+    return page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+end
+
+function NotEquiped(bag,pos)
+    local item = GetItemByBagAndOrder(bag,pos);
+    --commonlib.echo(item);
+    --if(item and item.order and item.order == pos)then return false;
+    --else
+    --return true;
+    --end
+    return false;
+end
+
+function OnSelectFashionPreview()
+    --local node = page:GetNode("AriesPlayer");
+	--if(node) then
+	--	node.IsSelfAndForceUseOriginalCCS = false;
+	--end	
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(false);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", false);
+    System.Item.ItemManager.RefreshMyself();
+    page:Refresh(0.1);
+    --Map3DSystem.mcml_controls.GetClassByTagName("pe:slot").RefreshContainingPageCtrls();
+end
+
+function OnSelectCombatPreview()
+    --local node = page:GetNode("AriesPlayer");
+	--if(node) then
+	--	node.IsSelfAndForceUseOriginalCCS = true;
+	--end	
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(true);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", true);
+    System.Item.ItemManager.RefreshMyself();
+    page:Refresh(0.1);
+    --Map3DSystem.mcml_controls.GetClassByTagName("pe:slot").RefreshContainingPageCtrls();
+end
+
+bSkipFashionItemMode = MyCompany.Aries.Pet.GetSkipFashionItemMode();
+
+
+min_addon_level = 9999;
+local itemlist = ItemManager.GetItemsInBagInMemory(0);
+local _, guid;
+for _, guid in pairs(itemlist or {}) do
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+		if(item.GetAddonLevel and item.GetMaxAddonLevel) then
+			local level_max = item:GetMaxAddonLevel();
+			local level = item:GetAddonLevel();
+			if(level_max and level_max > 0) then
+				if(level < min_addon_level) then
+					min_addon_level = level;
+				end
+			end
+		end
+	end
+end
+if(min_addon_level == 9999) then
+    min_addon_level = 0;
+end
+
+function on_switch_equip(v,mcmlNode)
+    local ctrl = page:GetNode(v);
+    if(mcmlNode)then
+        if(not mcmlNode:GetValue("checked"))then
+            OnSelectFashionPreview()
+            mcmlNode:SetAttribute("checked",true)
+        else
+            OnSelectCombatPreview()
+            mcmlNode:SetAttribute("checked",false)
+        end
+    end
+
+    page:Refresh(0);
+end
+
+function OnClickChangeMount()
+    page:CloseWindow();
+    MyCompany.Aries.Desktop.Dock.DoChangeBody()
+end
+
+function OnClickAddGem()
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_extend_panel.lua");
+	MyCompany.Aries.Quest.NPCs.SueSue_equipment_extend_panel.ShowPage();
+end
+
+function OnClickAddonlevel()
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_upgrade.lua");
+	local Avatar_equip_upgrade = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_upgrade");
+	Avatar_equip_upgrade.ShowPage();
+end
+
+]]></script>
+
+<div style="width:308px;height:375px;color:#022a57;" >
+
+    <div style="position:relative;float:right;margin-left:67px;margin-top:12px;width:300px;height:80px;">
+        <!--<div style="float:left;margin-top:4px;padding:5px;width:84px;height:40px;background:url();">
+            <pe:if condition='<%=Eval("bSkipFashionItemMode") == false%>'>
+                <input type="radio" name="preview_state" background2="Texture/Aries/NewProfile/CombatModeOn_32bits.png" tooltip="战斗装" style="padding:2px;width:32px;height:32px;background:url(Texture/Aries/NewProfile/CombatModeOff_32bits.png)" value="ice" onclick="OnSelectCombatPreview" />
+                <input type="radio" name="preview_state" checked="true" background2="Texture/Aries/NewProfile/FashionModeOn_32bits.png" tooltip="炫彩装" style="padding:2px;width:32px;height:32px;background:url(Texture/Aries/NewProfile/FashionModeOff_32bits.png)" value="fire" onclick="OnSelectFashionPreview" />
+            </pe:if>
+            <pe:if condition='<%=Eval("bSkipFashionItemMode") == true%>'>
+                <input type="radio" name="preview_state" checked="true" background2="Texture/Aries/NewProfile/CombatModeOn_32bits.png" tooltip="战斗装" style="padding:2px;width:32px;height:32px;background:url(Texture/Aries/NewProfile/CombatModeOff_32bits.png)" value="ice" onclick="OnSelectCombatPreview" />
+                <input type="radio" name="preview_state" background2="Texture/Aries/NewProfile/FashionModeOn_32bits.png" tooltip="炫彩装" style="padding:2px;width:32px;height:32px;background:url(Texture/Aries/NewProfile/FashionModeOff_32bits.png)" value="fire" onclick="OnSelectFashionPreview" />
+            </pe:if>
+        </div>-->
+        <div style="float:left;margin-top:4px;margin-left:-60px;padding:5px;width:64px;height:40px;background:url();">
+            <pe:if condition='<%=Eval("min_addon_level") >= 3%>'>
+                <input type="button" name="addon_level_3" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=3" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_on_32bits.png#0 0 18 18)" text="+3"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("min_addon_level") < 3%>'>
+                <input type="button" name="addon_level_3" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=3" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_off_32bits.png#0 0 18 18)" text="+3"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("min_addon_level") >= 7%>'>
+                <input type="button" name="addon_level_7" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=7" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_on_32bits.png#0 0 18 18)" text="+7"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("min_addon_level") < 7%>'>
+                <input type="button" name="addon_level_7" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=7" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_off_32bits.png#0 0 18 18)" text="+7"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("min_addon_level") >= 9%>'>
+                <input type="button" name="addon_level_9" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=9" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_on_32bits.png#0 0 18 18)" text="+9"/>
+            </pe:if>
+            <pe:if condition='<%=Eval("min_addon_level") < 9%>'>
+                <input type="button" name="addon_level_9" tooltip="page://script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html?base_level=9" style="width:18px;height:18px;font-size:12px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/AddonLevelEffect_off_32bits.png#0 0 18 18)" text="+9"/>
+            </pe:if>
+            
+        </div>
+        <div style="float:left;padding:3px;width:38px;height:38px;margin-left:2px;" class="equip_bg">
+            <pe:slot nid='<%=GetNid()%>' bag="0" position="18" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" ShowSlotNameIfEmpty="炫帽"/>
+        </div>
+        <div style="float:left;padding:3px;width:38px;height:38px;margin-left:2px;" class="equip_bg">
+            <pe:slot nid='<%=GetNid()%>' bag="0" position="19" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" ShowSlotNameIfEmpty="炫衣"/>
+        </div>
+        <div style="float:left;padding:3px;width:38px;height:38px;margin-left:2px;" class="equip_bg">
+            <pe:slot nid='<%=GetNid()%>' bag="0" position="70" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" ShowSlotNameIfEmpty="炫背"/>
+        </div>
+        <div style="float:left;padding:3px;width:38px;height:38px;margin-left:2px;" class="equip_bg">
+            <pe:slot nid='<%=GetNid()%>' bag="0" position="71" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" ShowSlotNameIfEmpty="炫鞋"/>
+        </div>
+        <div style="float:left;padding:3px;width:38px;height:38px;margin-left:2px;" class="equip_bg">
+            <pe:slot nid='<%=GetNid()%>' bag="0" position="72" zorder=2 style = "width:30px;height:30px;" HideVIPTag="true" ShowSlotNameIfEmpty="玩具"/>
+        </div>
+        <input type="checkbox" name="btnSwitchEquip" checked='<%=(Eval("bSkipFashionItemMode") == true)%>' onclick ="on_switch_equip"  tooltip="切换炫彩装和战斗装" style="margin-left:5px;float:left;margin-top:18px;color:#022a57;width:16px;height:16px;background:url(texture/aries/common/themekid/checkbox2_32bits.png);" />
+    </div>
+
+<div style="position:relative;margin-left:0px;margin-top:0px;width:308px;height:375px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+
+        <div style="position:relative;margin-left:8px;margin-top:53px;">
+            <div style="position:relative;float:left;margin-left:3px;margin-top:4px;width:40px;height:228px;">
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="2" zorder=2 style = "width:32px;height:32px;" class="highbluecolor" HideVIPTag="true" ShowSlotNameIfEmpty="帽子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="8" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="背部"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="5" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="衣服"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="15" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手镯"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="6" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="裤子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="11" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="右手"/>
+                </div>
+            </div>
+            <div style="position:relative;float:left;margin-top:-12px;margin-left:20px;width:256px;height:256px;">
+                <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID() == nil%>' >
+                    <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:256px;height:256px;" IsInteractive="false"/>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID() ~= nil%>' >
+                    
+                    <div style="position:relative;margin-top:10px;">
+                        <div style="margin-left:35px;color:#00ffff;font-weight:bold">
+                            <%=commonlib.Encoding.EncodeStr(MyCompany.Aries.Player.GetPartnerNIDSignText())%>
+                        </div>
+                        <div style="margin-left:70px">
+                            <pe:name nid='<%=MyCompany.Aries.Player.GetPartnerNID()%>'></pe:name>
+                        </div>
+                    </div>
+                    <div style="position:relative;margin-left:-20px;margin-top:60px;">
+                        <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacterPartner" style="width:192px;height:192px;" IsInteractive="false"/>
+                    </div>
+                    <div style="position:relative;margin-left:90px;margin-top:60px;">
+                        <pe:player nid='<%=MyCompany.Aries.Player.GetPartnerNID()%>' name="AriesPlayerPartner" miniscenegraphname="AvatarMyselfTabCharacter" style="width:192px;height:192px;" IsInteractive="false"/>
+                    </div>
+                </pe:if>
+            </div>
+            <div style="position:relative;margin-left:63px;width:168px;height:168px;margin-top:80px;background:url(texture/aries/common/themekid/character/footer_place_32bits.png#0 0 150 165)"/>
+
+            <div style="position:relative;margin-top:20px;">
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;margin-left:54px;margin-top:208px;width:40px;height:30px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/left_rotate_32bits.png#0 0 40 32)"/>
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:108px;margin-top:208px;width:40px;height:30px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/right_rotate_32bits.png#0 0 40 32)"/>
+            </div>
+            <div style="position:relative;float:left;margin-left:252px;margin-top:4px;width:40px;height:228px;">
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="4" zorder=2 style = "width:32px;height:32px;" class="highbluecolor" HideVIPTag="true" ShowSlotNameIfEmpty="面部"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="17" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="项链"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="9" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手套"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="16" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="戒指"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="7" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="鞋子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="10" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="左手"/>
+                </div>
+            </div>
+
+            <div style="margin-left:1px;margin-top:258px;width:290px;height:53px;font-size:12px;">
+                <div style="float:left;width:220px;margin:3px;margin-top:2px;">
+                    <div style="float:left;">
+                        <div style="">
+                            <pe:goalpointer listen="select_any_addon_equipment" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+                            <input type="button" value="装备强化" onclick="OnClickAddonlevel" class="button_highlight" style="margin-top:0px;width:80px;height:22px;"/>
+                        </div>
+                        <div style="">
+                            <pe:goalpointer listen="select_any_gem_equipment" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+                            <input type="button" value="镶嵌宝石" onclick="OnClickAddGem" class="button" style="margin-top:0px;width:80px;height:22px;"/>
+                        </div>
+                    </div>
+                    <div style="float:left;margin-left:10px;position:relative;font-weight:bold" >
+                        战斗力:<%=format("%d", MyCompany.Aries.Player.GetGearScore())%>
+                    </div>
+                    <div style="float:left;margin-left:105px;margin-top:24px;">
+                        <input type="button" value="切换" onclick="OnClickChangeMount" class="button" style="margin-top:0px;width:45px;height:22px;"/>
+                    </div>
+                </div>
+                <div align="right" style="float:left;margin:1px;width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="33" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="坐骑"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</pe:mcml> 
+</body>
+</html>

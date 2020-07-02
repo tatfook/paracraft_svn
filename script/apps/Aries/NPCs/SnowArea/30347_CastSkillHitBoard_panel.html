@@ -1,0 +1,83 @@
+<!-- "script/apps/Aries/NPCs/SnowArea/30347_CastSkillHitBoard_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30347_CastSkillHitBoard.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.OnInit();
+function DS_Func_CastSkillHitBoard(index)
+    return MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.DS_Func_CastSkillHitBoard(index);
+end
+function hasStuied(index)
+    if(index == 1)then
+        return MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.HasLevel_1()
+    elseif(index == 2)then
+        return MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.HasLevel_2()
+    elseif(index == 3)then
+        return MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.HasLevel_3()
+    elseif(index == 4)then
+        return MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.HasLevel_4()
+    end
+end
+function getIcon(index)
+    return string.format("Texture/Aries/Quest/CastMachine/icon_level_%d_32bits.png;0 0 114 72",index);
+end
+]]></script>
+<div style="width:890px;height:510px;background:url(Texture/Aries/Quest/CastMachine/skillboard_bg_32bits.png#0 0 890 510)">
+<input style="margin-left:850px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.ClosePage()" value=""/>
+<div style="float:left;margin-left:35px;margin-top:20px;width:635px;height:600px;background:;">
+        <pe:gridview DataSource="<%=DS_Func_CastSkillHitBoard%>" name="cast_machine" style="margin-left:0px;margin-top:0px;margin-right:30px;margin-bottom:0px;" 
+            VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "300" ItemsPerLine="4" AllowPaging="true" pagesize="4">
+            <Columns>
+                <div>
+                    <div style="margin-left:0px;margin-top:0px;width:146px;height:270px;background:url(Texture/Aries/Quest/CastMachine/tile_bg_32bits.png#0 0 146 256: 11 14 11 14);">
+                        <div style="margin-left:0px;margin-top:0px;width:146px;height:155px;">
+                        <img style="width:114px;height:72px;margin-left:15px;margin-top:50px;" src="<%=getIcon(Eval('index')) %>" />
+                        </div>
+                        <div style="font-size:12;margin-left:5px;margin-top:5px;">
+                            <div style="font-weight:bold;margin-top:2px;"><%=Eval("index") %>级建造技能</div>
+                            <div>学习条件</div>
+                            <div>力量值：<%=Eval("strength") %></div>
+                            <div>智慧值：<%=Eval("intelligence") %></div>
+                            <div>建造熟练度：<%=Eval("archskillpts") %></div>
+                        </div>
+                          <pe:if condition='<%=not hasStuied(Eval("index"))%>'>
+                                <input style="margin-left:34px;margin-top:10px;width:79px;height:32px;background:url(Texture/Aries/Quest/CastMachine/start_study_btn_32bits.png#0 0 79 32);" type="button" name="<%=Eval('index') %>" onclick="MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.DoStudy()" value=""/>
+                            </pe:if>
+                            <pe:if condition='<%=hasStuied(Eval("index"))%>'>
+                                <input enabled = "false" style="margin-left:34px;margin-top:10px;width:79px;height:32px;background:url(Texture/Aries/Quest/CastMachine/end_study_btn_32bits.png#0 0 79 32);" type="button" name="<%=Eval('index') %>" onclick="" value=""/>
+                            </pe:if>
+                  
+                    </div>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageLeft.png;"/>
+	                <div style="float:right;margin-top:4px;width:64px;">
+	                    <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageRight.png;"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+<div style="float:left;">
+<div style="margin-left:55px;margin-top:60px;width:119px;height:174px;background:url(Texture/Aries/Quest/CastMachine/medal_32bits.png#0 0 119 174);"></div>
+<input style="margin-left:70px;margin-top:90px;width:79px;height:32px;background:url(Texture/Aries/Quest/CastMachine/get_btn_32bits.png#0 0 79 32);" type="button" name="<%=Eval('index') %>" onclick="MyCompany.Aries.Quest.NPCs.CastSkillHitBoard.GetMedal()" value=""/>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

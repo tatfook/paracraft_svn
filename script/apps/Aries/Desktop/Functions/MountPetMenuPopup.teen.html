@@ -1,0 +1,83 @@
+﻿<!-- "script/apps/Aries/Desktop/Functions/MountPetMenuPopup.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi, 2011/11/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MountPetMenuPopup.teen.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Inventory/PetPage.lua");
+local PetPage = commonlib.gettable("MyCompany.Aries.Inventory.PetPage");
+    
+function OnShowPetPage()
+    PetPage.ShowPage();
+    Page:CloseWindow();
+end
+function DoRide()
+    PetPage.DoRid()
+    Page:CloseWindow();
+end
+function DoHome()
+    PetPage.DoHome()
+    Page:CloseWindow();
+end
+function DoFollow()
+    PetPage.DoFollow()
+    Page:CloseWindow();
+end
+
+function WhereIsMountPet()
+    return PetPage.WhereAmI();
+end
+]]></script>
+<div style="width:140px;height:127px;padding:5px;padding-right:7px;padding-bottom:7px;background:url(Texture/Aries/Common/ThemeTeen/popupmenu_bg_32bits.png:5 5 7 7)">
+<pe:container name="parent" class="defaultcolor" style="background:"> 
+    <div class="defaultcolor" style="height:23px;">
+        <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='OnShowPetPage'/>
+        <img src='texture/aries/dock/teen/GuideElf_32bits.png; 0 0 24 24' style="float:left;margin:3px;width:16px;height:16px;" />
+        <div style="float:left;height:16px;margin-left:2px;color:#cfb458">坐骑资料 (Z)</div>
+    </div>
+    <div class="menuitem_bg" style="height:23px;margin-bottom:1px;width:130px;padding-left:5px;color:#808080;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_default_bg_32bits.png)">坐骑状态</div>
+    <div class="defaultcolor" style="height:23px;">
+        <pe:if condition='<%=WhereIsMountPet() == "mount"%>' >
+            <input type="button" zorder="-1" class="menuitem_bg" style="position:relative;width:130px;height:22px;" onclick='DoRide'/>
+            <img src='Texture/Aries/Dock/ride_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;color:#cfb458">驾驭</div>
+        </pe:if>
+        <pe:if condition='<%=WhereIsMountPet() ~= "mount"%>' >
+            <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='DoRide'/>
+            <img src='Texture/Aries/Dock/ride_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;">驾驭</div>
+        </pe:if>
+    </div>
+    <div class="defaultcolor" style="height:23px;">
+        <pe:if condition='<%=WhereIsMountPet() == "follow"%>' >
+            <input type="button" zorder="-1" class="menuitem_bg" style="position:relative;width:130px;height:22px;" onclick='DoFollow'/>
+            <img src='Texture/Aries/Dock/follow_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;color:#cfb458">跟随</div>
+        </pe:if>
+        <pe:if condition='<%=WhereIsMountPet() ~= "follow"%>' >
+            <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='DoFollow'/>
+            <img src='Texture/Aries/Dock/follow_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;">跟随</div>
+        </pe:if>
+    </div>
+    <div class="defaultcolor" style="height:23px;">
+        <pe:if condition='<%=WhereIsMountPet() == "home"%>' >
+            <input type="button" zorder="-1" class="menuitem_bg" style="position:relative;width:130px;height:22px;" onclick='DoHome'/>
+            <img src='Texture/Aries/Dock/gohome_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;color:#cfb458">收回</div>
+        </pe:if>
+        <pe:if condition='<%=WhereIsMountPet() ~= "home"%>' >
+            <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='DoHome'/>
+            <img src='Texture/Aries/Dock/gohome_icon_32bits.png;0 0 18 18' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;">收回</div>
+        </pe:if>
+    </div>
+</pe:container>
+</div>
+</pe:mcml> 
+</body>
+</html>

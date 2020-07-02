@@ -1,0 +1,203 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30341_HaqiGroupCreate_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+--是族长
+Condition1 = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.state == 0;
+end;
+--已经加入家族 但不是族长
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.state == 1;
+end;
+--未加入任何家族
+Condition3 = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.state == 2;
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 10 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.ShowCreateDialog()
+    elseif(from == 11 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.PreDialog()
+    end
+end
+
+GiveCarnationToday = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.GiveCarnationToday();
+end
+
+NotGiveCarnationTodayAndHaveCarnation = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.NotGiveCarnationTodayAndHaveCarnation();
+end
+
+GiveCarnation = function()
+    MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.GiveCarnation();
+end
+
+reward_name = MyCompany.Aries.Quest.NPCs.HaqiGroupCreate.GetRandomRewardName();
+
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+  <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="name" source="{this}" value="拉拉"/>
+        <pe:placeholder id="iknow" />
+        <pe:placeholder id="later" />
+        <pe:placeholder id="ok" />
+        <pe:placeholder id="giveyoucarnation" />
+        <pe:placeholder id="creategroup" />
+        <pe:placeholder id="joingroup" />
+    </pe:template> 
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    哇！你真了不起，已经拥有自己的家族了！要多多关心你的家族成员哦，相信你一定会成为一个好族长！
+		        <pe:answer template_id="iknow">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+        <pe:state id = "2">
+		   哇！你已经加入自己的家族了！要多多跟家族成员沟通哦，祝你们在哈奇小镇生活愉快！
+		        <pe:answer template_id="iknow">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "3">
+		   我是拉拉，受罗德镇长托付在这里管理哈奇家族。你可以创建自己的家族，也可以加入你喜欢的家族。
+		        <pe:answer template_id="creategroup">
+		            <!--创建家族-->
+			        <pe:answer-if condition = "true" target_state = "10"/>
+		        </pe:answer>
+		        <br />
+		        <pe:answer template_id="joingroup">
+		            <!--加入家族-->
+			        <pe:answer-if condition = "true" target_state = "11"/>
+		        </pe:answer>
+	    </pe:state>
+	   <!-- <pe:state id = "20">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:135px;color:#d58302">
+		    哇！你真了不起，已经拥有自己的家族了！要多多关心你的家族成员哦，相信你一定会成为一个好成员！
+		    </div>
+            <div style="width:200px;height:40px;">
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/GiveYouCarnation_32bits.png#0 0 139 37);">
+			        <pe:answer-if condition = '<%=Eval("GiveCarnationToday")%>' target_state = "22"/>
+			        <pe:answer-if condition = '<%=Eval("NotGiveCarnationTodayAndHaveCarnation")%>' target_state = "24"/>
+			        <pe:answer-if condition = "true" target_state = "23"/>
+		        </pe:answer>
+		        <br/>
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 1 139 37);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-110px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "21">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:135px;color:#d58302">
+		    哇！你已经加入自己的家族了！要多多跟家族成员沟通哦，祝你们在哈奇小镇生活愉快！
+		    </div>
+            <div style="width:200px;height:40px;">
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/GiveYouCarnation_32bits.png#0 0 139 37);">
+			        <pe:answer-if condition = '<%=Eval("GiveCarnationToday")%>' target_state = "22"/>
+			        <pe:answer-if condition = '<%=Eval("NotGiveCarnationTodayAndHaveCarnation")%>' target_state = "24"/>
+			        <pe:answer-if condition = "true" target_state = "23"/>
+		        </pe:answer>
+		        <br/>
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 1 139 37);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-110px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "22">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:135px;color:#d58302">
+		    我今天已经收过你送的花儿了，这朵你留下吧，谢谢啦。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "23">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:135px;color:#d58302">
+		    喔噢，虽然你很好心想送我康乃馨，但你现在还没有呢，先回家种一点吧，寻找到两个春天的气息就可以得到康乃馨种子了。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "24">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:135px;color:#d58302">
+		    <%=string.format("你真贴心，还记得为我送一朵康乃馨，那我也要回赠给你一个礼物，这是%s，摆放在家园很漂亮的，快回家把它们摆出来吧。", Eval("reward_name"))%>
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" transition = '<%=Eval("GiveCarnation")%>' target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>-->
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

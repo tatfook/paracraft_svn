@@ -1,0 +1,51 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/ObjTexPropertyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>object texture property page by LiXizhi 2008.6.15</title>
+</head>
+<body>
+<pe:mcml>
+<%
+function map3d_p_m_painter(params)
+    local _this = ParaUI.CreateUIObject("button", "map3d_p_m_painter", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "";
+	_guihelper.SetUIColor(_this, "255 255 255");
+end
+%>
+<script type="text/npl" src="ObjTexPropertyPage.lua"><![CDATA[
+Map3DSystem.App.Creator.ObjTexPropertyPage.OnInit();
+]]></script>
+<div >
+    <div>
+        <pe:custom oncreate="map3d_p_m_painter" style="width:128px;height:128px"/>
+        <div style="float:left">
+            <div style="margin-top:33px;"><a onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnLogObject"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/color_swatch.png"/>log</a></div>
+            <div style="margin-top:33px;"><a onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnUndoModelTexture"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/delete.png"/>复位</a></div>
+            <div style="margin-top:3px;"><a onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnEditModelTexture()"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/color_wheel.png"/>绘制...</a></div>
+            <div style="margin-top:3px;"><a onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnOpenFileForModelTexture"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/ViewFiles.png"/>从文件</a></div>
+        </div>
+        使用外部网页(动态连接):<br />
+        <input style="width:140px" name="weburl" value="http://www.paraengine.com"/><input type="button" name="useUrl" onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnClickNavTo()" value="确定"/><br />
+        使用指定文件(本地或url媒体):<br />
+        <input type="file" dir="Texture" name="fileurl" value="" onchange="Map3DSystem.App.Creator.ObjTexPropertyPage.OnChangeFileUrl"/><br />
+    </div>
+    <div>
+        <hr />
+        随机图片<br />
+        广告<br />
+<div style="margin-left:5px">
+    <div>名字:<input style="width:90px" name="newasset"/><input type="button" name="changeasset" value="改资源" onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnChangeModelAsset"/></div>
+</div>
+    </div>
+    <div>
+        <hr />
+        <input type="button" value="关闭" onclick="Map3DSystem.App.Creator.ObjTexPropertyPage.OnClose()"/>
+        <label style="margin-left:10px;margin-top:5px;color:#006600" name="result"></label>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

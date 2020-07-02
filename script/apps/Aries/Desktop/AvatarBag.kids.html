@@ -1,0 +1,201 @@
+﻿<!-- "script/apps/Aries/Desktop/AvatarBag.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AvatarBag,add by WD, 2011/11/24</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+NPL.load("(gl)script/apps/Aries/Dialog/Dialog_SelectionGoods.lua");
+local Dialog_SelectionGoods = commonlib.gettable("MyCompany.Aries.Dialog.Dialog_SelectionGoods");
+local AvatarBag = commonlib.gettable("MyCompany.Aries.Desktop.AvatarBag");
+AvatarBag:Init();
+
+
+
+function GetDataSource(arg)
+    return AvatarBag:GetDataSource(arg);
+end
+
+function OnClickItem(arg,mcmlNode)
+    local copies;
+
+    NPL.load("(gl)script/apps/Aries/Desktop/GenericTooltip.lua");
+    local GenericTooltip = CommonCtrl.GenericTooltip:new();
+    if(GenericTooltip:CheckBinding(arg))then 
+        if(AvatarBag.ParentTable.name == "Mail")then
+            _guihelper.MessageBox("该物品已绑定，不能邮寄给他人！");
+        elseif(AvatarBag.ParentTable.name == "ItemsConsignment")then
+            _guihelper.MessageBox("该物品已绑定，不能出售给他人！");
+        end
+        return 
+    end
+
+    if(not AvatarBag:CanSell(tonumber(arg)))then 
+        if(AvatarBag.ParentTable.name == "Mail")then
+            _guihelper.MessageBox("该物品不能邮寄给他人！");
+        else
+            _guihelper.MessageBox("该物品不能出售给他人！");
+        end
+        return 
+    end
+
+    if(AvatarBag.ParentTable.name == "Mail")then
+        local ctrl = MyCompany.Aries.Mail.ViewMail.page:FindControl("MyTextArea2");
+	
+	    if(ctrl and ctrl.GetText)then
+		    MyCompany.Aries.Mail.ViewMail.Text(ctrl:GetText())
+	    end
+    end
+
+    if(AvatarBag.ParentTable.name == "Mail")then
+        local hold,idx = AvatarBag:ContainItemByGsid(arg)
+        if(#AvatarBag.Items == AvatarBag.slots and not hold)then return
+        end
+    end
+
+    local items_count = AvatarBag:GetItemsCountById(arg);
+        
+    if(items_count > 1 and mouse_button == "right")then
+        local items_count = AvatarBag:GetItemsCountById(arg);
+        Dialog_SelectionGoods.ShowPage(items_count,function(incoming_items_count)
+            AvatarBag:OnClickItem(arg,tonumber(incoming_items_count));
+            --copies = tonumber(incoming_items_count)
+            end);
+            
+        return
+    end
+
+    AvatarBag:OnClickItem(arg,copies);
+end
+
+function HideBag()
+    if(not AvatarBag.IsDialogMode) then
+        if(AvatarBag.ParentTable.name == "Mail")then
+            MyCompany.Aries.Mail.ViewMail.SetMailContent()
+        end
+        MyCompany.Aries.Desktop.AvatarBag.Hide()
+    else
+        AvatarBag.CloseWindow();
+    end
+end
+
+]]></script>
+<pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.IsDialogMode == true %>'>
+<div style="float:left;width:422px;height:416px;" class="pane">
+    <div style="height:19px;margin-top:-5px;">
+        <input type="button" onclick="HideBag()" class="closebutton" style="position:relative;margin-left:378px;" />
+    </div>
+
+    <div style="position:relative;width:128px;height:32px;margin-top:-5px;background:url(Texture/Aries/common/themekid/mail/cn_minibag_32bits.png)" valign="top" align="center"/>   
+    <div style="padding:1px;width:402px;height:360px;margin-top:32px;margin-left:10px;" class="inborder">
+        <pe:gridview  name="pvw1" DataSource="<%=GetDataSource %>" RememberScrollPos="true" RememberLastPage="true"
+            CellPadding="2" ItemsPerLine="4" AllowPaging="true" pagesize="12" >
+            <Columns>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.ParentTable.name == "ItemsConsignment" %>'>
+                    <pe:if condition='<%=not Eval("has_socketed")%>'>
+                        <pe:if condition='<%=(not Eval("canexchange") or not Eval("cangift")) and Eval("gsid") ~= 0 %>'>
+                            <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="该物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                        </pe:if>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("has_socketed")%>'>
+                        <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="已经镶嵌宝石或强化过的物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                    </pe:if>
+                </pe:if>
+
+                <div style="margin-left:5px;padding:10px;margin-top:2px;width:90px;height:90px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                        <!--<pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' param1='<%=Eval("params") %>' showdefaulttooltip="true" style="width:70px;height:70px;"/>-->
+                        <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' HideCnt= "true" showdefaulttooltip="true" style="width:70px;height:70px;"/>
+                        <pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                        <div style="margin-top:-15px;text-align:right;color:#ffffffff;"><%= Eval("copies")%></div>
+                        </pe:if>
+                
+			        </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:162px;margin-top:-65px;width:168px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>	                    
+	            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:-30px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19)"/>
+	            <div style="float:right;margin-left:18px;margin-top:-4px;width:60px;">
+	                <label name="page" style="text-align:center;color:#02469B;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:15px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+
+        <input type="button" name="" zorder="2" class="defaultbutton" text="确定"
+                    onclick="HideBag()"
+                    style="margin-left:287px;width:85px;height:25px;margin-top:-40px;font-size:12px;color:#660033;" />
+    </div>
+    <input type="button" style="margin-top:-40px;margin-left:20px;position:relative;color:#808080;background:" tooltip="右键点击堆叠物品可以批量输入数量" value="帮助:右键堆叠物品"/>      
+</div>
+</pe:if>
+<pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.IsDialogMode == false %>'>
+<div style="width:422px;height:416px;">
+    <div style="height:19px;margin-top:-5px;">
+        <input type="button" onclick="HideBag()" class="closebutton" style="position:relative;margin-left:378px;" />
+    </div>
+
+    <div style="position:relative;width:128px;height:32px;margin-top:-5px;background:url(Texture/Aries/common/themekid/mail/cn_minibag_32bits.png)" valign="top" align="center"/>   
+    <div style="padding:1px;width:402px;height:360px;margin-top:32px;margin-left:10px;" class="inborder">
+        <pe:gridview  name="pvw12" DataSource="<%=GetDataSource %>"  RememberScrollPos="true" RememberLastPage="true"
+            CellPadding="2" ItemsPerLine="4" AllowPaging="true" pagesize="12" >
+            <Columns>
+                <pe:if condition='<%=not Eval("has_socketed")%>'>
+                    <pe:if condition='<%=(not Eval("canexchange") or not Eval("cangift")) and Eval("gsid") ~= 0  %>'>
+                        <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="该物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                    </pe:if>
+                </pe:if>
+                <pe:if condition='<%=Eval("has_socketed")%>'>
+                    <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="已经镶嵌宝石或强化过的物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                </pe:if>
+                <div style="margin-left:5px;padding:10px;margin-top:5px;width:90px;height:90px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                        <!--<pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' param1='<%=Eval("params") %>' showdefaulttooltip="true" style="width:70px;height:70px;"/>-->
+                        <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' HideCnt= "true" showdefaulttooltip="true" style="width:70px;height:70px;"/>
+                        <pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                        <div style="margin-top:-15px;text-align:right;color:#ffffffff;"><%= Eval("copies")%></div>
+                        </pe:if>
+                
+			        </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:162px;margin-top:-65px;width:168px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>	                    
+	            <input type="button" name="pre" zorder="2" animstyle="23" tooltip="上一页" style="margin-left:-30px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19)"/>
+               
+	            <div style="float:right;margin-left:7px;margin-top:-4px;width:60px;height:25px;">
+	                <label name="page" style="text-align:center;color:#02469B;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder="2" animstyle="23" tooltip="下一页" style="margin-left:15px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        <input type="button" name="" zorder="2" class="defaultbutton" text="确定"
+                    onclick="HideBag()"
+                    style="margin-left:287px;width:85px;height:25px;margin-top:-40px;font-size:12px;color:#660033;" />
+    </div>
+    <!--<input type="button" style="margin-top:-51px;margin-left:270px;position:relative;color:#808080;background:" tooltip="右键点击堆叠物品可以批量输入数量" value="右键堆叠物品"/>   -->
+    <input type="button" style="margin-top:-40px;margin-left:20px;position:relative;color:#808080;background:" tooltip="右键点击堆叠物品可以批量输入数量" value="帮助:右键堆叠物品"/>      
+</div>  
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

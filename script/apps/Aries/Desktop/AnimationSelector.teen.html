@@ -1,0 +1,66 @@
+﻿<!-- "script/apps/Aries/Desktop/AnimationSelector.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AnimationSelector, by Andy, 2009/4/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="AnimationSelector.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+AnimationSelectorPage = MyCompany.Aries.Desktop.AnimationSelectorPage;
+-- all animations.
+AnimationSelectorPage.all_anim_kids_ds = AnimationSelectorPage.all_anim_kids_ds or {
+	{gsid=9001, }, 
+	{gsid=9003, }, 
+	{gsid=9005, }, 
+	{gsid=9007, }, 
+	{gsid=9010, }, 
+	{gsid=9011, }, 
+	{gsid=9012, }, 
+    {gsid=9016, }, 
+    {gsid=9018, }, 
+    {gsid=9020, }, 
+}
+
+function OnClickAnim(gsid, mcmlNode)
+    AnimationSelectorPage.PlayAnim(gsid);
+end
+
+function GetItemName(gsid)
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(tonumber(gsid));
+	if(gsItem) then    
+        return gsItem.template.name;
+    end
+end
+]]></script>
+
+<div class="border_bg8_css" style="width:275px;height:220px;margin-left:-5px;padding-left:15px;padding-top:16px;padding-bottom:16px;">
+    <pe:gridview DataSource="<%=AnimationSelectorPage.all_anim_kids_ds%>" name="AnimationSelector"
+        VerticalScrollBarStep="44" CellPadding="2"  DefaultNodeHeight = "28" ItemsPerLine="3" AllowPaging="false" pagesize="250">
+        <Columns>
+            <div class="border_bg1_css"  style="padding:2px;width:80px;height:26px;">
+                <pe:if condition='<%=AnimationSelectorPage.CanPlay(Eval("gsid")) == true%>' >
+                    <pe:item is_container="true" gsid='<%=Eval("gsid")%>' style="width:80px;height:24px;" onclick="OnClickAnim">
+                        <div class="default" style="text-align:center"><%=GetItemName(Eval("gsid"))%></div>
+                    </pe:item>
+                </pe:if>
+                <pe:if condition='<%=not AnimationSelectorPage.CanPlay(Eval("gsid"))%>' >
+                    <pe:item is_container="true" isclickable="false" gsid='<%=Eval("gsid")%>' style="width:80px;height:24px;background-color:#ffffff80" >
+                        <div class="default" style="text-align:center"><%=GetItemName(Eval("gsid"))%></div>
+                    </pe:item>
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等......</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+</pe:mcml> 
+</body>
+</html>

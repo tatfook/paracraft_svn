@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(NPLBeforeTargets)' == '' and '$(NPLAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <NPLBeforeTargets>Midl</NPLBeforeTargets>
+    <NPLAfterTargets>CustomBuild</NPLAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NPLDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(NPLDependsOn)</NPLDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <NPL>
+      <CommandLineTemplate>$(ProjectDir)script\bin\luac5.1.exe  -p %(FullPath)</CommandLineTemplate>
+      <Outputs>$(OutDir)%(Filename).o</Outputs>
+      <ExecutionDescription>NPL/Lua Compiler from ParaEngine</ExecutionDescription>
+    </NPL>
+  </ItemDefinitionGroup>
+</Project>

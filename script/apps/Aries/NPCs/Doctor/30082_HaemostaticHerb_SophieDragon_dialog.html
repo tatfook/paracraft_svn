@@ -1,0 +1,122 @@
+﻿<!-- "script/apps/Aries/NPCs/Doctor/30082_HaemostaticHerb_SophieDragon_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30082_HaemostaticHerb_SophieDragon_dialog, by Leio, 2010/01/04</title>
+</head>
+<body> 
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+   return MyCompany.Aries.Quest.NPCs.HaemostaticHerb_SophieDragon.HasHerb();
+end;
+Condition2 = function()
+   return not MyCompany.Aries.Quest.NPCs.HaemostaticHerb_SophieDragon.HasHerb();
+end;
+Condition3 = function()
+   return MyCompany.Aries.Quest.NPCs.HaemostaticHerb_SophieDragon.CanExchange();
+end;
+Condition4 = function()
+   return not MyCompany.Aries.Quest.NPCs.HaemostaticHerb_SophieDragon.CanExchange();
+end;
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 10 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.HaemostaticHerb_SophieDragon.Exchange_Herb();
+    end
+    if(from == 0)then
+        -- 50248_TalkedWithSophieDragonAboutPanda
+        if(not hasGSItem(50248)) then
+	        ItemManager.PurchaseItem(50248, 1, function(msg)
+		        log("+++++++Purchase 50248_TalkedWithSophieDragonAboutPanda return: +++++++\n")
+		        commonlib.echo(msg);
+		    end, function(msg) end, nil, "none");
+        end
+    end
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30082" />
+            <pe:placeholder id="name" source="{this}" value="小乖" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是小乖，这个新年过去以后我又长大一点了，多亏苏菲姐姐照顾我！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    苏菲姐姐有止血草药的药方，你想要做一份止血草药吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    止血草药的材料不够了，你先帮我找点回来可以吗？只要七色花，粘粘果，生命泉水各一份就行了！
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "5"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    这么快就找齐材料啦！这份止血草药给你，记得要保管好哦，遇到伤员的时候很有用的！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    你的材料还不够呢，只要七色花，粘粘果，生命泉水各1份就行了，找齐了再来吧！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

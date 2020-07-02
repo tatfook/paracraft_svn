@@ -1,0 +1,62 @@
+﻿<!-- "script/apps/Aries/Quest/QuestPathfinderNavUI.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2011.9.2</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" refresh="false" src="QuestPathfinderNavUI.lua"><![CDATA[
+local QuestPathfinderNavUI = commonlib.gettable("MyCompany.Aries.Quest.QuestPathfinderNavUI");
+QuestPathfinderNavUI.OnInit();
+
+function TranspotPlayer()   
+	QuestPathfinderNavUI.TransportToCurrentTarget()
+end
+function OnCloseTip()
+    QuestPathfinderNavUI.OnCloseTip();
+end
+
+function OnClickAutoNav()
+    QuestPathfinderNavUI.EnterAutoNavigationMode();
+end
+
+]]></script>
+    <!--<pe:container name="marker" ClickThrough="true" visible="false" class="anchor_tooltip_bg" style="position:relative;width:260px;height:55px;">
+        <input type="button" onclick="OnCloseTip" class="anchor_tooltip_close" style="position:relative;align:right;margin-top:-5px;margin-right:-3px;"/>
+        <input type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:40px;margin-left:105px;" />
+        <div style="margin:4px;">
+            你有了新目标，请参照黄色的箭头移动. 
+        </div>
+    </pe:container>-->
+    <div align="center" style="margin-top:60px;width:64px;height:64px;">
+        <pe:canvas3d name="NavArrows"  visible="false" miniscenegraphname="QuestPathFinderArrow" 
+            LookAtX="0" LookAtY="2" LookAtZ="0"  DefaultRotY="-1.57"
+            DefaultLiftupAngle="0.9" DefaultCameraObjectDist="1.8" IsInteractive="false"
+            RenderTargetSize="64" >
+            {
+                name= "NavArrows",
+	            AssetFile= "model/common/pointer/pointer.x",
+	            x=0,y=0,z=0,
+            }
+            </pe:canvas3d>
+    </div>
+    <div style="margin-top:-6px;">
+        <input type="button" name="navInfo" shadow="true" onclick="OnClickAutoNav" class="linkbutton2"
+            style="color:#98fffc;position:relative;background:;background2-color:#98fffc;font-size:11px;text-noclip:true;shadow-color:#802a2e27;shadow-quality:8;font-weight:bold;margin-top:5px;width:264px"/>
+        <pe:container visible="false" name="transport_cont" ClickThrough="true" style="position:relative;width:150px;height:25px;background:">
+            <input type="button"  name="transpotBtn"  tooltip="立即过去" onclick="TranspotPlayer"
+                style="position:relative;float:left;width:24px;height:24px;margin-left:0px;margin-top:5px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_big_32bits.png#0 0 24 24)"/>
+            <pe:goalpointer listen="teleport_quest" style="position:relative;width:48px;height:36px;margin-left:-50px;margin-top:-4px;"></pe:goalpointer>
+            <input type="button"  visible="false" name="transpotBtnTip"  
+                style="position:relative;float:left;background-color:#ffffff;width:32px;height:32px;margin-left:-4px;margin-top:0px;" enabled="false" class="animated_btn_overlay"/>
+            <!--<input type="button"  name="transpotBtnCoolDown"  shadow="true" enabled="false" 
+                style="float:left;position:relative;color:#98fffc;background:;font-size:11px;shadow-color:#802a2e27;shadow-quality:8;font-weight:bold;margin-left:26px;margin-top:5px;width:26px;text-align:left"/>-->
+            <!--<input type="button"  name="stoneCount"  shadow="true" enabled="false" 
+                style="float:left;position:relative;color:#98fffc;background:;font-size:11px;shadow-color:#802a2e27;shadow-quality:8;font-weight:bold;margin-left:26px;margin-top:5px;width:26px;text-align:left"/>-->
+        </pe:container>
+    </div>
+</pe:mcml>
+</body>
+</html>
+

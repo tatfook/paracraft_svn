@@ -1,0 +1,592 @@
+﻿<!--script/apps/Aries/Desktop/Functions/FateCardPage.html-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by lipeng, 2013/7/16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FateCard.lua" refresh="true"><![CDATA[
+
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+--NPL.load("(gl)script/apps/Aries/Desktop/Functions/FateCard.lua");
+local FateCard = commonlib.gettable("MyCompany.Aries.Desktop.FateCard");
+FateCard.page = page;
+FateCard.init();
+
+local mcmlNode = page:GetNode(tostring(FateCard.curWorld));
+if(mcmlNode and mcmlNode.SetAttribute)then
+	mcmlNode:SetAttribute("selected", true);
+end
+
+
+
+function Cards_DS_Func_Items(index)  
+    return FateCard.DS_Func_Items(index,FateCard.curWorld,"cards");
+end
+
+function Awards_DS_Func_Items(index)  
+    return FateCard.DS_Func_Items(index,FateCard.curWorld,"awards");
+end
+
+function GetBigAwardGSID()
+    --echo(FateCard.cardList[worldname]["awards"]);
+    return FateCard.cardList[FateCard.curWorld]["bigAward"]["gsid"];
+end
+
+function GetCount(count)
+    if(count) then
+        return string.format("X%s",count);
+    end
+end
+
+function GetAward(name, mcmlNode)
+    local item = mcmlNode:GetPreValue("this", true);
+    FateCard.GetAward(item.pos);
+end
+
+function GetBigAward()
+    FateCard.GetBigAward();
+end
+
+function ChangeIsland(itemname,mcmlnode)
+    --_guihelper.MessageBox(itemname);
+    if(tonumber(itemname)) then
+        FateCard.curWorld = tonumber(itemname);
+        page:Refresh(0.1);
+    end
+    --_guihelper.MessageBox("目前只开放哈奇岛的随机事件");
+end
+
+function GetTooltip()
+    --echo(FateCard.cardList[FateCard.curWorld]["bigAward"]);
+    local gsid = FateCard.cardList[FateCard.curWorld]["bigAward"]["gsid"];
+    local hasGSItem = System.Item.ItemManager.IfOwnGSItem;
+    --echo(gsid);
+    local _,guid,_,_ = hasGSItem(tonumber(gsid));
+    --echo("2222");
+    --echo(guid);
+    guid = guid or -999;
+    return "page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid="..tonumber(gsid).."&guid="..tonumber(guid);
+end
+
+function GetRemainTime()
+    return FateCard.remaintime;
+end
+
+function GetState()
+    if(FateCard.curWorld == 1) then
+        return FateCard.state;
+    elseif(FateCard.curWorld > 1 and FateCard.curWorld < 7) then
+        local behas = hasGSItem(FateCard.cardList[FateCard.curWorld]["marker"]);
+        if(behas) then
+            return FateCard.cardList[FateCard.curWorld]["marker"]
+        else
+            return 0;
+        end
+    end
+    --return FateCard.state;
+end
+
+function GetCurPageRemainNum()
+    local behas,_,_,copies = hasGSItem(FateCard.cardList[FateCard.curWorld]["marker"]);
+    if(behas) then
+        return copies;
+    else
+        return 0;
+    end
+end
+
+function CanExchange(pos)
+    local canEx;
+	local cardList = FateCard.cardList[FateCard.curWorld]["cards"];
+	local awardList = FateCard.cardList[FateCard.curWorld]["awards"];
+	local index = tonumber(pos);
+	if(cardList[index]["ownNumber"] > 0 and cardList[index+5]["ownNumber"] > 0 and cardList[index+10]["ownNumber"] > 0) then
+		canEx = true;
+	else
+		canEx = false;
+	end
+    return canEx;
+end
+
+function GetCurWorld()
+    return FateCard.curWorld or 1;
+end
+
+function GetRemainnumbers()
+    local behas,_,copies = hasGSItem(FateCard.cardList[FateCard.curWorld]["marker"]);
+    --local s = string.format("剩余次数%d",tonumber(copies));
+    return copies;
+end
+
+function NeedFruitGSID(pos,index)
+    local t = FateCard.cardList[7]["item"];
+    local gsid = t[pos]["gsidlist"][index]["gsid"];
+    return gsid;
+end
+
+function GetFruitGSID(pos)
+    local t = FateCard.cardList[7]["item"];
+    local gsid = t[pos]["to_gsid"];
+    return gsid;
+end
+
+function MyFruitGSID(index)
+    return FateCard.fruitlist[index];
+end
+
+function GetFruitBasketGSID()
+    return FateCard.cardList[7]["bigAward"]["to_gsid"];
+end
+
+function MyFruitNum(index)
+    return FateCard.cardList[7]["bigAward"]["gsidlist"][index]["own_num"];
+end
+
+function CanExchangeFruit(pos)
+    if(pos == 0) then
+        return FateCard.cardList[7]["bigAward"]["canEx"];
+    else
+        return FateCard.cardList[7]["item"][pos]["canEx"];
+    end
+end
+
+function ExchangeFruit(name)
+    --echo(name);
+    local _,_,pos = string.find(name,"(%d+)");
+    --echo(pos);
+    pos = tonumber(pos);
+    FateCard.ExchangeFruit(pos);
+end
+
+function ExchangeFruitBasket()
+    FateCard.ExchangeFruit(0);
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:680px;">
+    <div style="margin-left:20px;width:650px;height:530px;font-size:12;" class="window" >
+        <div style="position:relative;width:600px;height:64px;margin-top:-8px;margin-left:30px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:252 20 252 20)">
+            <div style="position:relative;width:104px;height:28px;margin-left:246px;margin-top:15px;background:url(texture/aries/common/themekid/fatecard/title.png#0 0 104 28);"/>
+        
+        </div>
+        <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:8px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage" />
+        <div style = "position:relative;margin-top:70px;margin-left:-24px;width:25px;" >
+            <pe:tabs name = "fateCardPageTabs" SelectedTextColor = "#00ffff" TextColor = "#00ffff" TextShadowQuality = "8" TextShadowColor = "#a02a2e48" TextFont = "System;14;bold" style = "padding-left:25px;" TabPosition = "left" onclick = "ChangeIsland" DefaultNodeHeight = "60" ItemSpacing = "0">
+               <!--name  怪物所在世界，1 哈奇岛 2 火鸟岛 3 寒冰岛 4 沙漠岛 5 幽暗岛 6 节日  7水果 -->
+                <pe:tab-item name = "1" style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/61HaqiTown_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/61HaqiTown_unselected_32bit.png;0 0 25 60" selected = "true">
+                </pe:tab-item>
+                <pe:tab-item name = "2"  style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/FlamingPhoenixIsland_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/FlamingPhoenixIsland_unselected_32bit.png;0 0 25 60" >
+                </pe:tab-item>
+                <!--
+                <pe:tab-item name = "3"  style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/FrostRoarIsland_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/FrostRoarIsland_unselected_32bit.png;0 0 25 60" >
+                </pe:tab-item>
+                <pe:tab-item name = "4"  style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/AncientEgyptIsland_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/AncientEgyptIsland_unselected_32bit.png;0 0 25 60" >
+                </pe:tab-item>
+                <pe:tab-item name = "5"   style="width:25px;height:60px;"  SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/DarkIsland_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/DarkIsland_unselected_32bit.png;0 0 25 60">
+                </pe:tab-item>
+                <pe:tab-item name = "6"  style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/other_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/other_unselected_32bit.png;0 0 25 60" >
+                </pe:tab-item>
+                -->
+                <pe:tab-item name = "7"  style="width:25px;height:60px;" SelectedMenuItemBG = "texture/aries/common/themekid/fatecard/fruit_selected_32bit.png;0 0 25 60" UnSelectedMenuItemBG = "texture/aries/common/themekid/fatecard/fruit_unselected_32bit.png;0 0 25 60" >
+                </pe:tab-item>
+            </pe:tabs>
+        </div>
+        <pe:if condition = "<%= GetCurWorld() == 7 %>" >
+            <div style = "float:left;position:relative;margin-top:50px;margin-left:15px;width:455px;height:470px;" class = "panel">
+                <div style="width:180px;height:36px;margin-left:12px;margin-top:7px;background:url(texture/aries/common/themekid/fatecard/exchange_title.png#0 0 180 36);"/>
+                <div style ="margin-top:3px;">
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(1,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/multiplication_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <div style="width:37px;height:37px;margin-left:10px;margin-top:10px;background:url(texture/aries/common/themekid/fatecard/number_five.png#0 0 37 37);" />
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" tooltip = "随机获得除苹果外其他水果1个" gsid="<%=GetFruitGSID(1) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(1) %>">
+                            <input type="button" name = "fruitbtn1_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/random_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(1) %>">
+                            <input type="button" name = "fruitbtn1_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/random_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        
+                    </div>
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(2,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/addition_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(2,2) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=GetFruitGSID(2) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(2) %>">
+                            <input type="button" name = "fruitbtn2_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(2) %>">
+                            <input type="button" name = "fruitbtn2_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                    </div>
+                </div>
+                <div style ="margin-top:3px;">
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(3,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/addition_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(3,2) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=GetFruitGSID(3) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(3) %>">
+                            <input type="button" name = "fruitbtn3_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(3) %>">
+                            <input type="button" name = "fruitbtn3_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(4,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/addition_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(4,2) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=GetFruitGSID(4) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(4) %>">
+                            <input type="button" name = "fruitbtn4_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(4) %>">
+                            <input type="button" name = "fruitbtn4_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                    </div>
+                </div>
+                <div style ="margin-top:3px;">
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(5,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/addition_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(5,2) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=GetFruitGSID(5) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(5) %>">
+                            <input type="button" name = "fruitbtn5_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(5) %>">
+                            <input type="button" name = "fruitbtn5_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:208px;height:100px;margin-left:12px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                        <div style="float:left;width:60px;height:60px;margin-left:6px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(6,1) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/addition_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=NeedFruitGSID(6,2) %>" isclickable="false"/>
+                        </div>
+                        <div style="float:left;width:14px;height:14px;margin-left:-2px;margin-top:30px;background:url(texture/aries/common/themekid/fatecard/equal_sign.png#0 0 16 16);" />
+                        <div style="float:left;width:60px;height:60px;margin-left:-2px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                            <pe:item style = "width:60px;height:60px;" gsid="<%=GetFruitGSID(6) %>" isclickable="false"/>
+                        </div>
+                        <pe:if condition="<%=CanExchangeFruit(6) %>">
+                            <input type="button" name = "fruitbtn6_yes" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_yes.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                        <pe:if condition="<%=not CanExchangeFruit(6) %>">
+                            <input type="button" name = "fruitbtn6_no" style="margin-left:145px;margin-top:1px;width:60px;height:25px;background:url(texture/aries/common/themekid/fatecard/exchange_no.png#0 0 60 25);"  onclick = "ExchangeFruit"/>
+                        </pe:if>
+                    </div>
+                </div>
+                <div style="width:180px;height:36px;margin-left:12px;margin-top:3px;background:url(texture/aries/common/themekid/fatecard/myfruit_number.png#0 0 180 36);"/>
+                <div style="width:425px;height:68px;margin-left:12px;margin-top:3px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                    <div style="float:left;width:50px;height:50px;margin-left:10px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(1) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(1) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(1) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(1) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(1) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(2) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(2) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(2) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(2) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(2) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(3) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(3) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(3) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(3) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(3) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(4) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(4) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(4) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(4) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(4) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(5) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(5) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(5) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(5) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(5) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(6) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(6) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(6) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(6) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(6) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                    <div style="float:left;width:50px;height:50px;margin-left:9px;margin-top:9px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                        <pe:if condition="<%=MyFruitNum(7) > 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(7) %>" isclickable="false" />
+                            <div style = "margin-right:-2px;margin-top:-23px;base-font-size:14;font-weight:bold;font-size:14px;color:#FFFFFF;text-align:right">
+                                <%=MyFruitNum(7) %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition="<%=MyFruitNum(7) == 0%>">
+                            <pe:item style = "width:50px;height:50px;" gsid="<%=MyFruitGSID(7) %>" isclickable="false" greyifnothave="true"/>
+                        </pe:if>
+                    </div>
+                </div>
+            </div>
+            <div style = "position:relative;margin-top:50px;margin-left:480px;width:160px;height:470px;" class = "panel">
+                <!--<div style="width:132px;height:168px;margin-left:12px;margin-top:10px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                    <pe:item style = "margin-left:10px;margin-top:15px;width:128px;height:128px;" gsid="<%=GetFruitBasketGSID() %>" icon = "texture/aries/common/themekid/fatecard/Colorful_FruitBasket.png;0 0 128 128" isclickable="false" /> 
+                    <input type="button" style="margin-left:27px;margin-top:-19px;width:83px;height:28px;background:url(texture/aries/common/themekid/fatecard/award_exchange_yes.png#0 0 83 27);"  onclick = "MyCompany.Aries.Desktop.FateCard.OnClickFateIcon"/>
+                </div> -->
+                <div style="width:123px;height:37px;margin-left:9px;margin-top:10px;background:url(texture/aries/common/themekid/fatecard/instruction.png#0 0 123 37);"/>   
+                <div style="margin-left:10px;margin-top:15px;width:135px;">
+                    1、水果盒中有苹果、香蕉、橙子、草莓、葡萄、芒果、荔枝7种水果。<br/>
+                    2、玩家可以通过收集“火鸟岛命运卡牌”换取“水果口袋”，打开口袋可以获得苹果或香蕉。<br/>
+                    3、用苹果和香蕉可以换取其它水果，集齐每样水果各1个，即可兑换大奖“缤纷水果篮”！<br/>
+
+                </div>
+                <div style="width:132px;height:168px;margin-left:12px;margin-top:20px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+                    <pe:item style = "margin-left:10px;margin-top:15px;width:128px;height:128px;" gsid="<%=GetFruitBasketGSID() %>" icon = "texture/aries/common/themekid/fatecard/Colorful_FruitBasket.png;0 0 128 128" isclickable="false" /> 
+                    <input type="button" tooltip = "集齐每样水果各一个即可兑换" style="margin-left:27px;margin-top:-19px;width:83px;height:28px;background:url(texture/aries/common/themekid/fatecard/award_exchange_yes.png#0 0 83 27);"  onclick = "ExchangeFruitBasket"/>
+                </div> 
+            </div>  
+        </pe:if>
+        <pe:if condition = "<%= GetCurWorld() ~= 7 %>" >
+            <div style = "float:left;position:relative;margin-top:50px;margin-left:15px;width:455px;height:377px;" class = "panel">
+                <div style="position:relative;width:80px;height:24px;margin-left:180px;margin-top:5px;background:url(texture/aries/common/themekid/fatecard/goodcard_title.png#0 0 80 24);"/>
+                <div style="position:relative;width:442px;height:100px;margin-left:5px;margin-top:25px;background:url(texture/aries/common/themekid/fatecard/panel_bg.png#0 0 32 32:8 8 16 16);"/>
+                <div style="position:relative;width:80px;height:24px;margin-left:180px;margin-top:125px;background:url(texture/aries/common/themekid/fatecard/midcard_title.png#0 0 80 24);"/>
+                <div style="position:relative;width:442px;height:100px;margin-left:5px;margin-top:145px;background:url(texture/aries/common/themekid/fatecard/panel_bg.png#0 0 32 32:8 8 16 16);"/>
+                <div style="position:relative;width:80px;height:24px;margin-left:180px;margin-top:245px;background:url(texture/aries/common/themekid/fatecard/badcard_title.png#0 0 80 24);"/>
+                <div style="position:relative;width:442px;height:100px;margin-left:5px;margin-top:265px;background:url(texture/aries/common/themekid/fatecard/panel_bg.png#0 0 32 32:8 8 16 16);"/>
+                <pe:gridview name="cards_view"  DataSource='<%=Cards_DS_Func_Items%>' ItemsPerLine="5" AllowPaging="false" pagesize="15" RememberLastPage="true" style = "margin-top:15px;margin-left:4px;">
+			        <Columns>
+                        <div style="font-size:12px;margin-left:5px;margin-top:15px;width:84px;height:105px;" >
+                            <pe:if condition='<%=Eval("ownNumber") == 0%>'>
+                                <pe:item isclickable = "false" gsid='<%=Eval("gsid")%>' style = "height:90px;width:65px;" tooltip = '<%=Eval("tooltip")%>' greyifnothave = "true"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("ownNumber") ~= 0%>'>
+                                <pe:item isclickable = "false" gsid='<%=Eval("gsid")%>' style = "height:90px;width:65px;" tooltip = '<%=Eval("tooltip")%>' />
+                            </pe:if> 
+                            <div style="float:left;margin-left:1px;margin-top:72px;font-weight:bold;">
+                                <%=Eval("ownNumber") %>
+                            </div>
+				        </div>
+			        </Columns>
+			        <EmptyDataTemplate>
+                        <b>没有配置怪物</b>
+			        </EmptyDataTemplate>
+			        <FetchingDataTemplate>
+                        <b>请稍等 ... </b>
+			        </FetchingDataTemplate>
+			        <PagerSettings Position="Bottom" height="1"/>
+                    <PagerTemplate AutoHidePager="true">
+				        <form>
+					        <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:90px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageleft_32bits1.png#0 0 18 21)"/>
+	                        <div style="float:right;margin-left:10px;margin-top:0px;width:60px;">
+	                            <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                        </div>
+	                        <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:10px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageright_32bits1.png#0 0 18 21)"/>
+	                    </form>
+			        </PagerTemplate>
+		        </pe:gridview> 
+            </div>
+    
+            <div style = "position:relative;margin-top:430px;margin-left:15px;height:90px;width:455px;" class = "panel">
+                <pe:gridview name="awards_view"  DataSource='<%=Awards_DS_Func_Items%>' ItemsPerLine="5" AllowPaging="false" pagesize="5" RememberLastPage="true" >
+			        <Columns>
+                        <div style = "margin-left:28px;margin-top:1px;width:62px;" >
+                            <pe:if condition='<%=CanExchange(Eval("pos")) %>'>
+                                <div style="width:30px;height:24px;margin-left:-6px;margin-top:-15px;background:url(texture/aries/common/themekid/fatecard/arrow_light.png#0 0 38 24);" />
+                            </pe:if>
+                            <pe:if condition='<%=not CanExchange(Eval("pos")) %>'>
+                                <div style="width:30px;height:24px;margin-left:-6px;margin-top:-15px;background:url(texture/aries/common/themekid/fatecard/arrow_dark.png#0 0 38 24);" />
+                            </pe:if>
+                            <div style="font-size:12px;margin-left:-20px;margin-top:1px;width:80px;" >
+                                <input type="button" value = "兑换" style="margin-left:10px;margin-top:1px;width:40px;height:25px;" class = "button" onclick = 'GetAward' tooltip="集齐上面一列的吉利卡、转运卡、倒霉卡各一张可兑换此小奖"/>
+                                <pe:item isclickable = "false" gsid='<%=Eval("gsid")%>' style = "margin-top:3px;width:40px;height:40px;"/>
+                                <div style="float:left;font-size:16px;font-weight:bold;margin-top:10px;margin-left:3px;">
+                                    <%= GetCount(Eval("count")) %>
+                                </div>
+				            </div>
+                        </div>
+                   
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>没有配置怪物</b>
+			        </EmptyDataTemplate>
+			        <FetchingDataTemplate>
+                        <b>请稍等 ... </b>
+			        </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" height="1"/>
+                    <PagerTemplate AutoHidePager="true">
+				        <form>
+					        <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:90px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageleft_32bits1.png#0 0 18 21)"/>
+	                        <div style="float:right;margin-left:10px;margin-top:0px;width:60px;">
+	                            <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                        </div>
+	                        <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:10px;margin-top:4px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageright_32bits1.png#0 0 18 21)"/>
+	                    </form>
+			        </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style = "position:relative;margin-top:50px;margin-left:480px;width:160px;height:470px;" class = "panel">
+                <!--<input type="button" style="position:relative;margin-top:150px;margin-left:210px;height:20px;width:40px;" value = "测试"/>-->
+                <!--<input type="button" style="height:20px;width:80px;" value = "测试"/>-->
+                <pe:if condition = "<%= GetCurWorld() == 1 %>" >
+                    <div style = "height:50px;">
+                        <pe:if condition = "<%=GetState() == 1 %>">
+                            <div style = "margin-top:25px;margin-left:5px;">
+                       
+                                <div style = "margin-top:1px;margin-left:20px;font-size:16px;font-weight:bold;">
+                                    <!--<%= GetRemainTime() %>    -->
+                                    <pe:label name = "remaintime" style="margin-left:10px;text-align:center;margin-top:1px;width:80px;height:20px;" ></pe:label>
+                                </div>
+                                <div style = "margin-left:15px;">
+                                    可以再抽一次命运卡牌
+                                </div>
+                         
+                            </div>
+                        </pe:if>
+                        <pe:if condition = "<%=GetState() == 2 %>">
+                            <input type="button" value = "抽取命运卡牌" style="margin-left:30px;margin-top:30px;width:100px;height:25px;" class = "button_highlight" onclick = "MyCompany.Aries.Desktop.FateCard.OnClickFateIcon"/>    
+                        </pe:if>
+                        <pe:if condition = "<%=GetState() == 3 %>">
+                            <div style = "margin-top:32px;margin-left:25px;">
+                                今天抽取次数已耗尽
+                            </div>
+                        </pe:if>
+                        <div>
+                        </div>    
+                    </div>
+                    <div style="width:136px;height:160px;margin-left:12px;margin-top:20px;background:url(texture/aries/common/themekid/fatecard/panel_bg.png#0 0 32 32:8 8 16 16);">
+                        <pe:item isclickable = "false" gsid='<%=GetBigAwardGSID()%>' icon = "texture/aries/common/themekid/fatecard/haqi_bigaward.png;0 0 128 128" style = "margin-top:10px;margin-left:4px;width:128px;height:128px;"/>
+                        <!--<img src="texture/aries/common/themekid/fatecard/haqi_bigaward.png;0 0 128 128" bindtooltip='<%=GetTooltip()%>' style="width:128px;height:128px;margin-left:4px;margin-top:10px;"/>-->
+                        <input type="button" value = "兑换大奖" style="margin-left:30px;margin-top:-10px;width:80px;height:25px;" class = "button" onclick = "GetBigAward" tooltip="集齐本页所有卡牌可以兑换此大奖"/>    
+                    </div>
+                    <div style = "margin-top:15px;margin-left:12px;width:130px;height:190px;">
+                    <div style = "base-font-size:14;font-weight:bold;font-size:14px;">
+                        玩法介绍：
+                        </div>
+                        1、每人每天可抽取10次命运卡牌。<br/>
+                        2、集齐每列吉利卡、转运卡、倒霉卡各一张，可兑换小奖。<br/>
+                        3、集齐所有15张命运卡，可兑换大奖一份。<br/>      
+                    </div>    
+                </pe:if>
+                <pe:if condition = "<%= GetCurWorld() ~= 1 %>" >
+                    <div style = "height:120px;">
+                        <pe:if condition = "<%=GetCurPageRemainNum() == 0%>">
+                            <div style = "margin-top:50px;margin-left:5px;text-align:center;">
+                               你还没有该岛的命运卡包<br/>
+                               快去和岛上怪物战斗吧
+                            </div>
+                        </pe:if>
+                        <pe:if condition = "<%=GetCurPageRemainNum() > 0 %>">
+                            <div style = "margin-left:10px;margin-top:40px;base-font-size:14;font-weight:bold;font-size:14px;text-align:center;">
+                                剩余卡包数量：
+                            </div>
+                            <div style = "margin-left:10px;margin-top:5px;base-font-size:14;font-weight:bold;font-size:14px;text-align:center;">
+                                <%=GetCurPageRemainNum()%>
+                            </div>
+                            <input type="button" value = "打开命运卡包" style="margin-left:30px;margin-top:15px;width:100px;height:25px;" class = "button_highlight" onclick = "MyCompany.Aries.Desktop.FateCard.OpenFateCardBag"/>    
+                        </pe:if>
+                    </div>
+                    
+                    <div style = "margin-top:15px;margin-left:12px;width:130px;height:190px;">
+                        <div style = "base-font-size:14;font-weight:bold;font-size:14px;">
+                        玩法介绍：
+                        </div>
+                            1、打败岛屿怪物，有一定概率获得当前岛屿命运卡牌，或获得“命运卡包”，使用扣除5点精力值，随机获得当前岛屿命运卡牌1张。<br/>
+                            2、集齐当前岛屿每列3张命运卡牌，还能兑换1个“水果口袋”。<br/>
+                            3、在【水果盒子】界面，用苹果和香蕉换得更多的水果，集齐盒子中所有水果可以换得最终大奖“缤纷水果篮”。<br/>
+                        </div>    
+                </pe:if>
+                <!--<div style = "margin-top:15px;margin-left:12px;width:130px;height:190px;">
+                    <div style = "base-font-size:14;font-weight:bold;font-size:14px;">
+                        玩法介绍：
+                    </div>
+                    1、每人每天可抽取10次命运卡牌。<br/>
+                    2、集齐每列吉利卡、转运卡、倒霉卡各一张，可兑换小奖。<br/>
+                    3、集齐所有15张命运卡，可兑换大奖一份。<br/>      
+                </div>    -->
+            </div>  
+        </pe:if>
+        
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

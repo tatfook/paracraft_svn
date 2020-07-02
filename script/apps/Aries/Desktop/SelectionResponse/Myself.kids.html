@@ -1,0 +1,51 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/Myself.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar Selection Response, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+HPMyPlayerArea.UpdateUIByPage(Page, HPMyPlayerArea.cur_value, HPMyPlayerArea.max_value, true);
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(System.User.nid);
+end
+function OnClickShowProfile()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.ShowPage(System.User.nid);
+end
+</script>
+<div style="">
+    <div style="position:relative;margin-left:10px;width:45px;height:24px;background:url(Texture/Aries/Team/bg2_32bits.png#0 0 45 24);">
+        <input type="button" tooltip="魔法系别" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:3px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool())%>' />
+        <input type="button" tooltip="战斗等级" value='<%=tostring(MyCompany.Aries.Player.GetLevel())%>' style="margin-left:0px;margin-top:3px;width:22px;height:16px;font-size:12px;color:#ffffff;background:;"/>
+    </div>
+    <div style="position:relative;margin-left:5px;margin-top:17px;padding-left:10px;padding-top:5px;padding-bottom:5px;width:130px;font-size:12px;color:#572200;background:url(Texture/Aries/Team/bg_32bits.png#0 0 32 30 : 10 10 10 10);" >
+        <div style="height:20px;" tooltip="点击查看个人资料" onclick="OnClickShowProfile()">
+            <pe:if condition="<%=MyCompany.Aries.VIP.IsVIPAndActivated() %>">
+                <div style="float:left;margin-top:1px;width:20px;height:20px;background:url(Texture/Aries/Dock/Web/magic_star_32bits.png# 0 0 45 45);" />
+            </pe:if>
+            <div style="float:left;margin-top:1px;width:100px;">
+                <pe:name nid="<%=tostring(System.User.nid) %>" style="color:#1856e2" linked="false"/>
+            </div> 
+        </div>
+        <div>
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:110px;height:10px;"
+                    blockimage="Texture/Aries/Team/teen/red_progressbar.png;0 0 16 10: 7 5 8 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" type="button" style="position:relative;margin-top:-13px;margin-left:1px;width:110px;height:16px;color:#ffffff;font-size:11px;background:;" value="100/100" />
+    </div>
+    <input type="button" tooltip="菜单" name="<%=tostring(System.User.nid) %>" onclick="OnClickShowMenu()"  style="position:relative;margin-left:118px;margin-top:10px;width:19px;height:19px;background:url(Texture/Aries/Team/dropmenu_32bits.png#0 0 19 19);" />
+</div>
+
+
+</pe:mcml> 
+</body>
+</html>

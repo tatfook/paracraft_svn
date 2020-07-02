@@ -1,0 +1,333 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazineWeb/Votes.teen.html" 
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazineVote, by leio, 2012/05/09</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Books/TimesMagazineWeb/TimesMagazineWeb.lua");
+local TimesMagazineWeb = commonlib.gettable("MyCompany.Aries.Books.TimesMagazineWeb");
+local version = pageCtrl:GetRequestParam("version");
+local allvotes = TimesMagazineWeb.LoadVote();
+
+local open_time = MyCompany.Aries.Scene.GetElapsedSecondsSince0000();
+local voteconf_list,vote_list,choicelist;
+local deadline;
+local btn_list={};
+
+if(version and allvotes)then
+    voteconf_list = commonlib.deepcopy(allvotes[version]);
+    deadline =  voteconf_list["deadline"];
+    vote_list = commonlib.deepcopy(voteconf_list["data"]);
+end
+
+function DS_Func(index)
+    if(not vote_list)then return nil end
+	if(index == nil) then
+		return #(vote_list);
+	else        
+		return vote_list[index];
+	end
+end
+
+function GetDS()
+    return vote_list;
+end
+
+function HasChecked()
+
+    if(next(vote_list)~=nil) then             
+        local id;
+        local has_checked = true;
+        local chkstat={}
+        local radiostat={}
+        for id in pairs(btn_list) do
+            local s = btn_list[id].name;
+            local _RadioId=string.match(s,"radio_(%d+)");
+            local _CheckId=string.match(s,"check_(%d+)");
+            local _SelectId=string.match(s,"select_(%d+)");
+            local _TextId=string.match(s,"text_(%d+)");
+
+            if (_RadioId) then
+                if (not radiostat[_RadioId]) then
+                    radiostat[_RadioId] = false;
+                end
+                if(btn_list[id].checked)then
+                    radiostat[_RadioId] = radiostat[_RadioId] or btn_list[id].checked; 
+                end                
+            elseif (_CheckId) then
+                if (not chkstat[_CheckId]) then
+                    chkstat[_CheckId] = false;
+                end
+                if (btn_list[id].checked) then                    
+                    chkstat[_CheckId] = chkstat[_CheckId] or btn_list[id].checked; 
+                end
+            elseif (_SelectId) then
+                local isSelect = pageCtrl:GetValue(s);
+                btn_list[id].vote = isSelect;
+                if (not isSelect) then
+                    return false;
+                else
+                    btn_list[id].checked=true;
+                end
+            elseif (_TextId) then
+                local isText = pageCtrl:GetValue(s);
+                btn_list[id].vote = isText;
+                if (not isText) then
+                    return false;
+                elseif (isText=="") then
+                    return false;
+                else
+                    btn_list[id].checked=true;
+                end
+            end 
+        end
+
+        for id in pairs(radiostat) do 
+            if (not radiostat[id]) then
+                return false;
+            end
+        end
+        for id in pairs(chkstat) do 
+            if (not chkstat[id]) then
+                return false;
+            end
+        end
+        
+        return has_checked;       
+    else
+        return false;
+    end    
+end
+
+function DoPost()
+    if(not HasChecked())then
+        _guihelper.MessageBox("你还没有全部填写完成呢，不能提交！");
+        return
+    end
+
+    local post = {};    
+    post["version"] = version;
+    local id;
+    for id in pairs(btn_list) do
+        if(btn_list[id].checked)then
+            table.insert(post,{ label = btn_list[id].label, vote = btn_list[id].vote});
+        end
+    end
+
+    if(HasPost())then
+        _guihelper.MessageBox("你已经提交过信息了！");
+        return
+    end
+
+    local current_time = MyCompany.Aries.Scene.GetElapsedSecondsSince0000();
+    post.keeptime = current_time - open_time;
+
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("本期调查问卷只有一次提交的机会，确定要提交你的选择吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            local key = string.format("post_%s_%s",version,tostring(Map3DSystem.User.nid));
+            MyCompany.Aries.Player.SaveLocalData(key, true)
+            NPL.load("(gl)script/apps/Aries/Desktop/NotificationArea/vote.lua");
+            local vote = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.vote");
+            vote.InvokeSuccessCallback(version);
+
+            paraworld.PostLog({action = "post_vote", post = post}, 
+							        "post_vote_log", function(msg)
+						        end);
+            
+             Page:CloseWindow();
+             local s=string.format("意见已经提交，感谢您对 %s 的支持!",MyCompany.Aries.ExternalUserModule:GetConfig().product_name or "魔法哈奇")
+            _guihelper.MessageBox(s);
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+end
+
+function getSelectList(t)
+    local list = {
+    }
+    local k;
+    for i,k in ipairs(t) do
+        local node = {
+            text = k,
+            value = K,
+        }
+        table.insert(list,node);
+    end
+    list[3].selected = "true";
+    return list;
+end
+
+function GetTitle()
+    if(voteconf_list)then
+        return voteconf_list.title;
+    end
+end
+
+function GetComment()
+    if(voteconf_list)then
+        return voteconf_list.comment;
+    end
+end
+
+function HasPost()
+    local key = string.format("post_%s_%s",version,tostring(Map3DSystem.User.nid));
+    return MyCompany.Aries.Player.LoadLocalData(key, false);
+end
+
+function RadioChoice(t,kk,ItemsPerLine)
+    local i,k;
+    local j=1;
+    local s="";
+    for i,k in ipairs(t) do
+        local btn=string.format("radio_%d",kk);
+        local _btn=string.format("radio_%d_%d",kk,i);
+        SetBtnName(_btn,"radio",k);
+        s = string.format("%s <input type=\"radio\" style=\"float:left;\" name=\"%s\" value=\"%s\" checked=\"\" onclick=\"OnRadioChkClick\" /> %s",s,btn,k,k);
+        if (i>1 and (i%ItemsPerLine==0)) then
+            s= string.format("%s<br/>",s);
+        end
+        j=i;
+    end
+    s=string.format("<div style=\"margin-left:30px;margin-top:0px;\"> %s</div>",s); 
+    return s;
+end
+
+function CheckChoice(t,kk,ItemsPerLine)
+    local i,k;
+    local j=1;
+    local s="";
+    for i,k in ipairs(t) do
+        local btn=string.format("check_%d_%d",kk,i);
+        SetBtnName(btn,"check",k);
+        s = string.format("%s <input type=\"checkbox\" style=\"float:left;\" name=\"%s\" value=\"%s\" onclick=\"OnRadioChkClick\" /> %s",s,btn,k,k);
+        if (i>0 and (i%ItemsPerLine==0)) then
+            s= string.format("%s<br/>",s);
+        end
+        j=i;
+    end
+    return string.format("<div style=\"margin-left:30px;margin-top:0px;\">%s</div>",s);  
+end
+
+function SelectChoice(t,kk)
+    local _btn = string.format("select_%d",kk);
+    
+    SetBtnName(kk,"select");
+    local s=string.format("<select style=\"float:left;\" name=\"%s\" AllowUserEdit=\"false\" DataSource='<%%=getSelectList(Eval(\"askchoice\")) %%>' /> ",_btn);    
+    return s;
+end
+
+function TextInput(kk)
+    local _btn = string.format("text_%d",kk);
+    
+    SetBtnName(kk,"text");
+    local s=string.format("<input type=\"text\" name=\"%s\" textscale=\"1.3\" style=\"width:320px;\"/> ",_btn);    
+    return s;
+end
+
+
+function OnRadioChkClick(_v,_node)
+    local id;
+    local radioID;
+
+    local _name=_node:GetAttribute("name");
+
+    local _RadioId=string.match(_name,"radio_(%d+)");
+    for id in pairs(btn_list) do
+        if (_RadioId) then
+            if (btn_list[id].vote==_v) then
+                if (not btn_list[id].checked) then                
+                    btn_list[id].checked=true;
+                    radioID = id;
+                else
+                    btn_list[id].checked=false;
+                end
+            end
+        else
+            if (id==_name) then
+                if (not btn_list[id].checked) then                
+                    btn_list[id].checked=true;
+                else
+                    btn_list[id].checked=false;
+                end
+            end
+        end
+    end
+    
+    if (radioID) then
+        local pattern=string.format("radio_%d_",_RadioId);
+        for id in pairs(btn_list) do
+            local _chk=string.match(id,pattern);
+            if (_chk) then
+                if (id~=radioID) then
+                    btn_list[id].checked=false;
+                else
+                    btn_list[id].checked=true;
+                end
+            end                
+        end
+    end
+end
+
+function SetBtnName(id,stype,v)
+    local _v;
+
+    if (stype=="radio" or stype=="check") then
+        _v = id;
+    else
+        _v  = string.format("%s_%d",stype,id);
+    end
+    btn_list[_v]= TimesMagazineWeb.btnName(id,stype,v,vote_list);    
+end
+
+function IsOver()
+    local today=ParaGlobal.GetDateFormat("yyyyMMdd");
+    if (today<=deadline) then
+        return false
+    else
+        return true
+    end
+end
+
+]]></script>
+
+<div style="margin-left:0px;width:750px;height:500px;background:url();">    
+    <div style="width:720px;margin-left:7px;font-size:12px;color:#ffff00"><%=GetComment() %></div>
+      <pe:treeview style="background:;margin-left:10px;margin-top:10px;height:440px;" VerticalScrollBarStep="30" VerticalScrollBarPageSize="200" >
+        <div>
+        <pe:repeat DataSource="<%=GetDS()%>">
+            <pe:repeatitem>
+                <div class="default" >
+                    <%=Eval("index")%>.<%=Eval("askitem")%>  
+                    <pe:if condition='<%=Eval("asktype")==2%>' >                                                
+                        <%=SelectChoice(Eval("askchoice"),Eval("index")) %>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("asktype")==1%>' >                                                    
+                        <%=RadioChoice(Eval("askchoice"),Eval("index"),7) %>                            
+                    </pe:if>
+                    <pe:if condition='<%=Eval("asktype")==3%>' >
+                        <%=CheckChoice(Eval("askchoice"),Eval("index"),6) %>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("asktype")==4%>' >
+                        <%=TextInput(Eval("index")) %>                           
+                    </pe:if>
+				</div>
+            </pe:repeatitem>
+        </pe:repeat>
+        </div>
+      </pe:treeview>
+    <pe:if condition='<%=not IsOver() %>'>
+        <input type="button" value="提交" onclick="DoPost()" zorder="2" style="width:60px;margin-top:10px;margin-left:610px;"/> 
+    </pe:if>
+    <pe:if condition='<%=IsOver() %>'>
+        <input type="button" value="本次调查已结束" class="defaultbutton" zorder="2" style="width:120px;margin-top:10px;margin-left:450px;"/> 
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html> 

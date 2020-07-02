@@ -1,0 +1,184 @@
+<!-- "script/apps/Aries/DealDefend/DealLockPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" >
+<![CDATA[
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+NPL.load("(gl)script/kids/3DMapSystemApp/API/paraworld.dealdefend.lua");
+NPL.load("(gl)script/apps/Aries/DealDefend/DealLockPage.lua");
+local DealLockPage = commonlib.gettable("MyCompany.Aries.DealDefend.DealLockPage");
+DealLockPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function GetStr(num)
+    return tostring(num);
+end
+function DoClick(num)
+    _guihelper.MessageBox(num);
+end
+function UpdateButtonStatus(params)
+    local _this = ParaUI.CreateUIObject("container", "UpdateButtonStatus_Deal", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "";
+	params.parent:AddChild(_this);
+	
+	_this.onframemove = ";MyCompany.Aries.DealDefend.DealLockPage.IsOK();";
+end
+function LoadTryNum()
+    local nid = Map3DSystem.User.nid;
+    local key = string.format("DealChangeLockPassword_%d",nid);
+	local date = ParaGlobal.GetDateFormat("yyyy-MM-dd")
+    local result = MyCompany.Aries.Player.LoadLocalData(key, {date = date,num = 0});
+    if(result.date ~= date)then
+        result.date = date;
+        result.num = 0;
+    end
+    return result.num,result;
+end
+function SaveTryNum()
+    local nid = Map3DSystem.User.nid;
+    local key = string.format("DealChangeLockPassword_%d",nid);
+	local date = ParaGlobal.GetDateFormat("yyyy-MM-dd")
+    local __,result = LoadTryNum();
+    result.num = result.num + 1;
+    MyCompany.Aries.Player.SaveLocalData(key, result);
+    return result.num;
+end
+function DoSubmit()
+    local password_user = pageCtrl:GetValue("password_user");
+    local password_deal = pageCtrl:GetValue("password_deal");
+    local password_deal_confirm = pageCtrl:GetValue("password_deal_confirm");
+    if(DealLockPage.edit_state == "set_lock_psd")then
+        local msg = {
+            nid = Map3DSystem.User.nid,
+            -- logonpass = ParaMisc.md5(password_user),
+            secapt="",
+            secpass = password_deal_confirm,
+        }
+        local msg_input = msg;
+        paraworld.dealdefend.SetSecPass(msg,"",function(msg)
+            LOG.std(nil, "debug", "dealdefend.SetSecPass", {msg_input, msg, })
+            if(msg.issuccess)then
+                --成功设置密码
+                DealDefend.has_lock_password = true;
+                ClosePage();
+                Dock.UpdateDealButtonState();
+                _guihelper.MessageBox("恭喜你成功设定了物品交易密码！");
+            else
+                if(msg.errorcode == 407)then
+                    _guihelper.MessageBox("登陆密码输入错误！");
+                elseif(msg.errorcode == 417)then
+                    _guihelper.MessageBox("已经具有交易密码！");
+                elseif(msg.errorcode == 419)then
+                    _guihelper.MessageBox("用户不存在！");
+                else
+                    _guihelper.MessageBox(msg);
+                end                
+            end
+        end)
+    else
+        local msg = {
+            nid = Map3DSystem.User.nid,
+            oldsecpass = password_user,
+            newsecpass = password_deal_confirm,
+            newsecpasspt="",
+        }
+        local try_num = LoadTryNum();
+        if(try_num > 3)then
+            _guihelper.MessageBox("密码输入错误次数过多，交易密码锁定一天！");
+            return;
+        end
+        paraworld.dealdefend.ChgSecPass(msg,"",function(msg)
+            _guihelper.MessageBox(msg);
+            if(msg.issuccess)then
+                --成功更改密码
+                DealDefend.has_lock_password = true;
+                DealDefend.is_locked = true;
+                ClosePage();
+                Dock.UpdateDealButtonState();
+                _guihelper.MessageBox("恭喜你成功修改了物品交易密码！");
+             else
+                 try_num = SaveTryNum();
+                 try_num = 4 - try_num;
+                try_num = math.max(try_num,0);
+                
+                if(msg.errorcode == 420)then
+                    _guihelper.MessageBox(string.format("当前交易密码输入错误，你今天最多还能尝试%d次！",try_num));
+                elseif(msg.errorcode == 433)then
+                    _guihelper.MessageBox("密码输入错误次数过多，交易密码锁定一天！");
+                elseif(msg.errorcode == 419)then
+                    _guihelper.MessageBox("用户不存在！");
+                end    
+            end
+        end)
+    end
+end
+
+function GetHeaderText()
+    if(MyCompany.Aries.DealDefend.DealLockPage.edit_state == "set_lock_psd") then
+        return "新建交易密码"
+    else
+        return "修改交易密码"
+    end
+end
+]]>
+</script>
+  <aries:window width="500" height="300" title="交易密码设置" onclose="ClosePage" mode="lite">
+      <pe:div style="position:relative;width:500px;height:30px;background:;color:#ffffff;" zorder="2">
+            <pe:if condition='<%=MyCompany.Aries.DealDefend.DealLockPage.edit_state == "set_lock_psd" %>'>
+                <div style="position:relative;margin-left:170px;">创建交易密码，加强账号保护。<input type="button" zorder="1" style="margin-top:-3px" onclick="MyCompany.Aries.DealDefend.DealLockPage.DoViewHelp()" value="[详细]" class="linkbutton" /></div>
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.DealDefend.DealLockPage.edit_state ~= "set_lock_psd" %>'>
+                <div style="position:relative;margin-left:170px;">忘记交易密码？<input type="button" zorder="1" style="margin-top:-3px" onclick="MyCompany.Aries.DealDefend.DealLockPage.DoViewHelp()" value="[详细]" class="linkbutton" /></div>
+            </pe:if>
+      </pe:div>
+    <div class="clientarea" style="width:495px;margin-left:-5px;margin-top:0px;padding-left:10px;padding-right:10px;" >
+    <pe:tabs name="tradepw" style="height:230px;">
+        <pe:tab-item selected="true" name="1" text='<%=GetHeaderText() %>'>
+            <div style="margin-top:5px;">
+                <pe:if condition='<%=MyCompany.Aries.DealDefend.DealLockPage.edit_state ~= "set_lock_psd" %>'>
+                    <div style="float:left;width:100px;text-align:right;">
+                    当前交易密码:
+                    </div>
+                    <input type="text" name="password_user" PasswordChar="*" style="float:left;width:330px;height:23px;" />
+                    <div style="float:left;width:32px;height:32px;margin-left:10px;background:url(Texture/Aries/Common/ThemeTeen/minikeyboard_32bits.png:0 0 32 32)"class="minikeyboard" for="minikeyboard_user"></div>
+                    <pe:minikeyboard name="minikeyboard_user" for="password_user" style="margin-left:150px;"/>
+                    <pe:label name="password_label" style="margin-top:-5px;height:20px;margin-left:100px;" />
+                </pe:if>
+            </div>
+           <div style="margin-top:20px;">
+                <div style="float:left;width:100px;text-align:right;">交易密码:</div>
+                <input type="text" name="password_deal" PasswordChar="*" style="float:left;width:330px;height:23px;" />
+                <div style="float:left;width:32px;height:32px;margin-left:10px;background:url(Texture/Aries/Common/ThemeTeen/minikeyboard_32bits.png:0 0 32 32)"class="minikeyboard" for="minikeyboard_deal"></div>
+                <pe:minikeyboard name="minikeyboard_deal" for="password_deal" style="margin-left:150px;"/>
+                <pe:label name="password_deal_label" style="margin-top:-5px;height:20px;margin-left:100px;" />
+            </div>
+            <div style="margin-top:20px;">
+                <div style="float:left;width:100px;text-align:right;">重复交易密码:</div>
+                <input type="text" name="password_deal_confirm" PasswordChar="*" style="float:left;width:330px;height:23px;" />
+                <div style="float:left;width:32px;height:32px;margin-left:10px;background:url(Texture/Aries/Common/ThemeTeen/minikeyboard_32bits.png:0 0 32 32)"class="minikeyboard" for="minikeyboard_deal_repeat"></div>
+                <pe:minikeyboard name="minikeyboard_deal_repeat" for="password_deal_confirm" style="margin-left:150px;"/>
+                <pe:label name="password_deal_confirm_label" style="margin-top:-5px;height:20px;margin-left:100px;" />
+            </div>
+            <pe:custom oncreate="UpdateButtonStatus" style="width:16px;height:16px"/>
+        </pe:tab-item>
+    </pe:tabs>
+   <div align="right" style="width:190px;margin-top:5px;">
+    <input type="button" value="确定" name="confirm_btn" onclick="DoSubmit()" style="width:80px;"/>
+    <input type="button" value="取消" style="margin-left:10px;width:80px;" onclick="ClosePage()"/>
+   </div>
+   </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

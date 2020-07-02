@@ -1,0 +1,80 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/EnergyPool.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="EnergyPool.lua"><![CDATA[
+local page = document:GetPageCtrl();
+
+function GetState_master_view()
+    local curState = MyCompany.Aries.Inventory.EnergyPoolPage.curState;
+    if(curState == "master_view")then
+        return true;
+    end
+end
+function GetState_master_edit()
+    local curState = MyCompany.Aries.Inventory.EnergyPoolPage.curState;
+    if(curState == "master_edit")then
+        return true;
+    end
+end
+function GetState_guest_view()
+    local curState = MyCompany.Aries.Inventory.EnergyPoolPage.curState;
+    if(curState == "guest_view")then
+        return true;
+    end
+end
+function GetParams()
+    local node = MyCompany.Aries.Inventory.EnergyPoolPage.node;
+    if(node)then
+        local objParams = node:GetEntityParams();
+        if(objParams and type(objParams) == "table")then
+            local r = commonlib.serialize(objParams)
+            return r;
+        end
+    end
+end
+function CanAdd()
+    NPL.load("(gl)script/apps/Aries/Pet/main.lua");
+    return MyCompany.Aries.Pet.CombatIsOpened();
+end
+]]></script>
+<pe:if condition='<%=GetState_master_view()%>'>
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box" >
+                <pe:canvas3d miniscenegraphname="LeftTopCanvas128" RenderTargetSize="128" autoRotateSpeed="0.12" style="width:128;height:128;" value='<%=GetParams()%>' MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.png"/>
+                <div style="margin-left:35px;margin-top:0px;width:64px;">
+                    <pe:if condition='<%=CanAdd()%>'>
+                        <div style="margin-bottom:-10px;padding:0px;"  >
+                            <input type="button" name="move" animstyle="22" 
+                                style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Add_32bits.png);" 
+                                onclick="MyCompany.Aries.Inventory.EnergyPoolPage.DoAction"
+                                tooltip="加血"/>
+                        </div>
+                    </pe:if>
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:if> 
+<pe:if condition='<%=GetState_guest_view()%>'>
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box" >
+                <pe:canvas3d miniscenegraphname="LeftTopCanvas128" RenderTargetSize="128" autoRotateSpeed="0.12" style="width:128;height:128;" value='<%=GetParams()%>' MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.png"/>
+                <div style="margin-left:35px;margin-top:-12px;width:64px;">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+ </pe:if> 
+</pe:mcml> 
+</body>
+</html>

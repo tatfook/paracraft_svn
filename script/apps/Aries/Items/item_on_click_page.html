@@ -1,0 +1,59 @@
+﻿<!-- "script/apps/Aries/Items/item_on_click_page.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="item_on_click_page.lua"><![CDATA[
+item_on_click_page = commonlib.gettable("MyCompany.Aries.Items.item_on_click_page");
+item_on_click_page.init();
+Page:GetRequestParam("gsid");
+
+icon_size = (item_on_click_page.icon_size or 48);
+
+function OnClickMenuItem(name)
+    item_on_click_page.on_click(name);
+    Page:CloseWindow();
+end
+]]></script>
+
+<pe:if condition='<%=(#(item_on_click_page.left_menu)>0) %>'>
+    <div style="position:relative;margin-left:0px;width:90px;padding:5px;padding-top:3px;" class="tooltip">
+        <pe:repeat DataSource="<%=item_on_click_page.left_menu%>" >
+            <pe:repeatitem>
+                <div style="height:20px;">
+                    <pe:if condition='<%=Eval("is_default") %>'>
+                        <input type="button" tooltip="鼠标右键：直接使用此物品" style="font-size:12px;font-weight:bold;width:78px;height:20px;background:;background2:url(Texture/Aries/Common/ThemeKid/menu_item_hl.png)" name='<%=Eval("name")%>' value='<%=Eval("text")%>' onclick="OnClickMenuItem" />
+                    </pe:if>
+                    <pe:if condition='<%=not Eval("is_default") %>'>
+                        <input type="button" style="font-size:12px;width:78px;height:20px;background:;background2:url(Texture/Aries/Common/ThemeKid/menu_item_hl.png)" name='<%=Eval("name")%>' value='<%=Eval("text")%>' onclick="OnClickMenuItem" />
+                    </pe:if>
+                </div>
+            </pe:repeatitem>
+        </pe:repeat>
+    </div>
+</pe:if>
+<div style='<%=format("position:relative;margin-left:98px;margin-top:-2px;width:%dpx;height:%dpx;background:url(Texture/Aries/Common/ThemeKid/item_hl.png:6 6 6 6)", icon_size+4, icon_size+4)%>' >
+</div>
+<pe:if condition='<%=(#(item_on_click_page.right_menu)>0) %>'>
+    <div style='<%=format("position:relative;margin-left:%dpx;width:90px;padding:5px;padding-top:3px;", icon_size+105)%>'  class="tooltip">
+        <pe:repeat DataSource="<%=item_on_click_page.right_menu%>" >
+            <pe:repeatitem>
+                <div style="height:20px;">
+                    <pe:if condition='<%=Eval("is_default") %>'>
+                        <input type="button" tooltip="鼠标右键：直接使用此物品" style="font-size:12px;font-weight:bold;width:78px;height:20px;background:;background2:url(Texture/Aries/Common/ThemeKid/menu_item_hl.png)" name='<%=Eval("name")%>' value='<%=Eval("text")%>' onclick="OnClickMenuItem" />
+                    </pe:if>
+                    <pe:if condition='<%=not Eval("is_default") %>'>
+                        <input type="button" style="font-size:12px;width:78px;height:20px;background:;background2:url(Texture/Aries/Common/ThemeKid/menu_item_hl.png)" name='<%=Eval("name")%>' value='<%=Eval("text")%>' onclick="OnClickMenuItem" />
+                    </pe:if>
+                </div>
+            </pe:repeatitem>
+        </pe:repeat>
+    </div>
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,129 @@
+----[[
+--Title:
+--Author(s):
+--Date: 
+--Note: 
+--use the lib:
+--------------------------------------------------------------
+--NPL.load("(gl)script/tutorials/preboy/NewFilter1/exercise.lua");
+--local t_1 = Preboy.exercise:new{
+	----x = 10,
+	--
+	--left = 10,
+	--top = 10,
+	--my_data = {
+	--
+	--},
+--}
+--t_1:CreateUI();
+--t_1.my_data.name = "preboy 1";
+--
+--local t_2 = Preboy.exercise:new{
+	----x = 100,
+	--
+		--
+	--left = 10,
+	--top = 100,
+	--my_data = {
+	--},
+--}
+--t_2:CreateUI();
+--commonlib.echo(t_2.my_data.name);
+--
+---------------------------------------------------------
+--]]
+--
+--
+---- Displays hierarchical data, such as a table of contents, in a tree structure.
+----local exercise = {
+	----uid = "exercise_instance",
+	----x = 0,
+----
+	----left = 0,
+	----top = 0,
+	----
+	----my_data = {
+	----
+	----},
+----}
+----
+----commonlib.setfield("Preboy.exercise", exercise);
+------ constructor
+----function exercise:new (o)
+	----o = o or {}   -- create object if user does not provide one
+	----setmetatable(o, self)
+	----self.__index = self
+	----o.uid = ParaGlobal.GenerateUniqueID();
+	----return o;
+----end
+----function exercise:CreateUI()
+	----local _dock = ParaUI.CreateUIObject("container", "Aries_Dock", "_lt", self.left,self.top, 100, 200);
+	----_dock.background = "";
+	----_dock:AttachToRoot();
+	----
+	----
+	----local _ok = ParaUI.CreateUIObject("button", "Ok", "_lt",100,100,50,50);
+	----_ok.background = "Texture/Aries/Common/OK_32bits.png; 0 0 150 80";
+	----_ok.onclick = string.format(";Preboy.exercise.DoClick('%s');",self.uid);
+	----_ok.tooltip = "确定";
+	----_dock:AddChild(_ok);
+	----
+	 ----CommonCtrl.AddControl(self.uid,self)
+----end
+----function exercise:GetX()
+	----return self.x;
+----end
+----function exercise.DoClick(sName)
+	----local ctl =  CommonCtrl.GetControl(sName);
+	----if(ctl)then
+		----commonlib.echo(ctl:GetX());
+	----end
+----end
+----
+------------------------
+----local Test_static = {
+----
+----}
+----commonlib.setfield("Preboy.Test_static", Test_static);
+----Preboy.Test_static.name = "aaa";
+--
+--<!-- "script/apps/Aries/NPCs/Farm/30191_GruntUncle_dialog.html" -->
+--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+--<html xmlns="http://www.w3.org/1999/xhtml">
+--<head>
+    --<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    --<title>30191_GruntUncle_dialog, by LiXizhi, 2009/12/27</title>
+--</head>
+--<body>
+    --<pe:mcml>
+--<script type="text/npl" src="30191_GruntUncle.lua"><![CDATA[
+--local page = docuent:GetPageCtrl();
+--npc_id = page:GetRequestParam("npc_id") or 0;
+--npc_id = tonumber(npc_id);
+--
+--local pageCtrl = document:GetPageCtrl();
+--local ItemManager = System.Item.ItemManager;
+--local hasGSItem = ItemManager.IfOwnGSItem;
+--local equipGSItem = ItemManager.IfEquipGSItem;
+--
+--name = "NPCDialog_"..tostring(npc_id);
+--
+--function HasAllSource()
+    --return MyCompany.Aries.Quest.NPCs.GruntUncle.HasAllSource();
+--end
+--
+--function GetLaBaZhou()
+    --return MyCompany.Aries.Quest.NPCs.GruntUncle.GetLaBaZhou();
+--end
+--]]></script>
+    --<pe:Dialog NPC_id = '<%=Eval("npc_id")%>' width ="204" height = "330" style = "background:url(Texture/Aries/Quest/Dialog_BG2_32bits.png: 88 45 31 31);" >
+        --<div style="width:128px;height:128px;margin-left:-33px;margin-top:-85px;margin-bottom:-34px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;">
+            --<div style="width:128px;height:128px;">
+                --<pe:player nid='30191' object="npc" name='<%=Eval("name")%>' miniscenegraphname="NPCDialog_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait="true" IsInteractive="false"/>
+            --</div>
+        --</div>
+        --<pe:state id = "0">
+		    --<pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    --<pe:answer-if condition = "true" target_state = "1"/>
+		    --</pe:answer>
+	    --</pe:state>

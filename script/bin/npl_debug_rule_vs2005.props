@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(Lua_Run_FileBeforeTargets)' == '' and '$(Lua_Run_FileAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <Lua_Run_FileBeforeTargets>Midl</Lua_Run_FileBeforeTargets>
+    <Lua_Run_FileAfterTargets>CustomBuild</Lua_Run_FileAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Lua_Run_FileDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(Lua_Run_FileDependsOn)</Lua_Run_FileDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Lua_Run_File>
+      <CommandLineTemplate>$(ProjectDir)script\bin\lua5.1.exe  %(FullPath)</CommandLineTemplate>
+      <Outputs>$(OutDir)%(Filename).o</Outputs>
+      <ExecutionDescription>ParaEngine Corporation</ExecutionDescription>
+    </Lua_Run_File>
+  </ItemDefinitionGroup>
+</Project>

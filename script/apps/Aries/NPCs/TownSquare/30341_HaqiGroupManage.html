@@ -1,0 +1,451 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30341_HaqiGroupManage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/FamilyServer/FamilyServerSelect.lua");
+NPL.load("(gl)script/apps/Aries/FamilyServer/FamilyServerSet.lua");
+NPL.load("(gl)script/apps/Aries/Friends/Main.lua");
+MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnInit()
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local FamilyServerSelect = commonlib.gettable("MyCompany.Aries.FamilyServer.FamilyServerSelect");
+
+local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info or {};
+local join_requirement = group_info.join_requirement or {};
+local combat_level = join_requirement[1] or 0;
+local magic_star_level = join_requirement[2] or -1;
+function get_req_info()
+    local s="";
+    local s1,s2;
+    if(combat_level > 0 or magic_star_level > -1)then
+        s= "申请加入家族条件:"
+        if(combat_level > 0)then
+            local s1 = string.format([[<br/>战斗等级:%d]],combat_level);
+            s = s .. s1;
+        end
+        if(magic_star_level > -1)then
+            local s2 = string.format([[<br/>魔法星等级:%d]],magic_star_level);
+            s = s .. s2;
+        end
+    end
+    return s;
+end
+function ClosePage()
+    if(pageCtrl)then
+        pageCtrl:CloseWindow();
+    end
+end
+
+function DS_Func_HaqiGroupJoin(index)
+    local list = MyCompany.Aries.Quest.NPCs.HaqiGroupManage.member_list;
+    if(not list)then return 0 end
+    if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+
+function getMouseOverBG()
+    return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28";
+end
+
+function formatID(id)
+    id = tonumber(id);
+    if(id)then
+        if(id <= 9999)then
+            id = string.format("%05d", id)
+            return id;
+        end
+        return id;
+    end
+end
+
+function getName(name,activity,pvp,treasure,school,combatlel)
+    --nid = tostring(nid);
+    local name = string.format("%s", commonlib.Encoding.EncodeStr(name) or "");
+
+    local classicon={
+        [986]="Texture/Aries/Desktop/CombatCharacterFrame/card/fire.png", 
+        [987]="Texture/Aries/Desktop/CombatCharacterFrame/card/ice.png", 
+        [988]="Texture/Aries/Desktop/CombatCharacterFrame/card/storm.png", 
+        [989]="Texture/Aries/Desktop/CombatCharacterFrame/card/myth.png", 
+        [990]="Texture/Aries/Desktop/CombatCharacterFrame/card/life.png", 
+        [991]="Texture/Aries/Desktop/CombatCharacterFrame/card/death.png", 
+        [992]="Texture/Aries/Desktop/CombatCharacterFrame/card/balance.png",
+    }
+    school=tonumber(school);
+    if (school ==0) then
+        school = 988;
+    end
+    local school_ico = string.format("%s;0 0 30 30",classicon[school]);
+
+
+--    return string.format([[<div style="float:left;margin-left:-10px;width:180px;">%s</div>
+--    <div style="float:left;margin-left:-10px;width:40px;">[%d]</div>
+--    <div style="float:left;margin-left:10px;width:45px;">[%s]</div>
+--    <div style="float:left;margin-left:0px;width:45px;">[%s]</div>
+--    <div style="float:left;margin-left:5px;width:20px;"><img style="float:left;width:20px;height:20px;margin-left:0px;margin-top:0px;" src="%s" /></div>
+--    <div style="float:left;margin-left:10px;width:40px;">[%d]</div>
+--    ]], name_nid, activity or 0, pvp or "-", boss or "-", school_ico, combatlel);
+
+    return string.format([[<div style="float:left;margin-left:-10px;width:100px;">%s</div>
+    <div style="float:left;margin-left:3px;width:40px;">[%d]</div>
+    <div style="float:left;margin-left:7px;width:80px;">[%s]</div>
+    <div style="float:left;margin-left:5px;width:70px;">[%s]</div> 
+    <div style="float:left;margin-left:0px;width:10px;"></div>   
+    <div style="float:left;margin-left:0px;width:20px;"><img style="float:left;width:20px;height:20px;margin-left:0px;margin-top:0px;" src="%s" /></div>
+    <div style="float:left;margin-left:10px;width:40px;">[%d]</div>
+    ]], name, activity or 0, pvp or "-",treasure or "-", school_ico, combatlel);
+end
+
+function getGroupName()
+    local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+    if(group_info)then 
+        local id = formatID(group_info.id);
+        id = tostring(id);
+
+        return string.format("%s(%s)",group_info.name or "",id or "");
+    end
+end
+
+function getGroupContent()
+    local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+    if(group_info)then
+        return group_info.desc or "";
+    end
+    return ""
+end
+
+function getFamilyServerName() 
+    if(MyCompany.Aries.Friends.familyworld and MyCompany.Aries.Friends.familyworld ~= "" )then
+        return "家族服务器:" .. (FamilyServerSelect.familyworldname or "无");
+    else
+        return "家族服务器: 此功能暂时关闭";
+    end
+end
+
+function getGroupNumber()
+    local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+    local list = MyCompany.Aries.Quest.NPCs.HaqiGroupManage.member_list;
+    if(group_info and list)then
+        return string.format("(%d/%d)",#list,group_info.maxcontain);
+    end
+    return ""
+end
+
+function getBgLable(index)
+    if(index == MyCompany.Aries.Quest.NPCs.HaqiGroupManage.selected_index)then
+        return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28"
+    end
+    return "";
+end
+
+function BuildURL(index)
+	return MyCompany.Aries.Quest.NPCs.HaqiGroupManage.BuildURL(index);
+end
+
+function getLevel()
+    local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+    if(group_info and group_info.level and group_info.level > 0)then
+        local level = group_info.level;
+        local s = string.format("Texture/Aries/NPCs/HaqiGroup/star_%d.png;0 0 88 16",level);
+        return s;
+    end
+end
+
+local cur_value = 0;
+local max_value = 100;
+local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+if(group_info)then
+    cur_value = group_info.activity or 0;
+    max_value = group_info.nextup or 100;
+end
+local progress = pageCtrl:GetNode("progressbar");
+if(progress)then
+     progress:SetValue(cur_value);
+     progress:SetAttribute("Maximum", max_value)
+end
+
+--获取进度
+function GetInfo_GrownValue()
+    local s = "";
+    s =  string.format("%d/%d",cur_value,max_value);
+    return s;
+end
+
+function ShowFS()
+    pageCtrl:CloseWindow();
+    MyCompany.Aries.FamilyServer.FamilyServerSet.ShowPage();
+end
+
+function showLevelStar()
+    local group_info =  MyCompany.Aries.Quest.NPCs.HaqiGroupManage.group_info;
+    if(group_info and group_info.level and group_info.level > 0)then
+        return true;
+    end
+end
+
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/FamilyHelp/FamilyHelpPage.lua");
+    MyCompany.Aries.Help.FamilyHelpPage.ShowPage();
+end
+
+function ShowPage_BlackList()
+    MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowPage_BlackList();
+end
+function ShowPage_GroupSetting()
+    MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowPage_GroupSetting();
+end
+]]></script>
+<div style="width:760px;height:497px;margin-left:0px;margin-top:0px;background:Texture/Aries/NPCs/HaqiGroup/group_manage_2_32bits.png# 0 0 760 497" >
+<input style="margin-left:725px;margin-top:-10px;width:40px;height:40px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+<input style="margin-left:25px;margin-top:-15px;width:28px;height:28px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+        type="button" name="help" onclick="ViewHelp()" value="" tooltip="家族帮助"/>
+<div style="position:relative;margin-left:300px;margin-top:5px;"><%=get_req_info() %></div>
+<div style="text-align:left;margin-left:63px;margin-top:-25px;height:40px;"><%=getGroupName()%></div>
+<div style="float:left;margin-left:360px;margin-top:-38px;height:30px;"><%=getFamilyServerName() %></div>
+<div style="float:left;margin-left:40px;margin-top:-40px;width:80px;height:30px;">
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 0%>'>
+        <input tooltip = "解散家族" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoDisband()" value="解散家族"/>
+    </pe:if>
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status > 0%>'>
+        <input tooltip = "退出家族" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoQuit()" value="退出家族"/>
+    </pe:if>
+</div>
+<!--<pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 0%>'>
+    <div style="position:relative;float:left;margin-left:0px;margin-top:-45px;">
+        <input style="width:63px;height:23px;background:url(Texture/Aries/genghuanfuwuqi_32bits.png#0 0 63 23);" tooltip="更换家族服务器" type="button" name="show" onclick="ShowFS()" />
+    </div>
+</pe:if>-->
+<div style="margin-left:0px;margin-top:0px;width:730px;height:64px;">
+    <div style="float:left;margin-left:0px;margin-top:0px;width:236px;">         
+        <div style="margin-left:50px;margin-top:-6px;height:16px;">
+            <pe:if condition = '<%= not showLevelStar()%>' >
+                <div style="float:left;width:88px;">家族等级：0</div>
+            </pe:if>
+            <pe:if condition = '<%=showLevelStar()%>' >
+                家族等级：<img src='<%=getLevel() %>' style="float:left;margin-top:2px;width:88px;height:16px;" />
+            </pe:if>
+        </div>
+        <div> 
+            <div style="float:left;padding:2px;margin-left:46px;margin-top:5px;width:285px;height:30px;">
+                                    活跃度：
+                                    <pe:progressbar name="progressbar"  isshowtooltip = "true" 
+                                        background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                        blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                        style="float:left;margin:0px;margin-left:55px;margin-top:-20px;margin-bottom:0px;width:90px;height:15px;"/>
+                                     <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:45px;margin-top:-22px" >
+                                        <%=GetInfo_GrownValue()%>
+                                     </div>
+            </div>
+            
+            <input tooltip="提升活跃度" value="提升活跃度" class="defaultbutton" style="float:left;margin-left:195px;margin-top:-30px;width:90px;height:20px;" type="button" name="clicksign" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoSignIn()" />        
+        </div>
+    </div> 
+    <div style="float:left;margin-left:110px;margin-top:15px;width:236px;">
+        <div style="margin-left:140px;margin-top:-12px;height:40px;">
+            <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.is_edit == false%>'>
+                <div style="float:left;margin-left:-45px;margin-top:-5px;width:250;height:60px;">
+                <%=getGroupContent()%>
+                </div>
+            </pe:if>
+             <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.is_edit == true%>'>
+                <div style="float:left;margin-left:-50px;margin-top:-5px;width:250;height:60px;">
+                    <textarea  name="content_info" style="margin-top:0px;height:60px;"  rows="2" value = ""/>
+                </div>
+            </pe:if>
+            <!--如果是族长-->
+            <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 0%>'>
+                <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.is_edit == false%>'>
+                    <input tooltip = "修改" style="float:left;margin-left:170px;margin-top:-37px;width:32px;height:21px;background:url(Texture/Aries/NPCs/HaqiGroup/group_manage_modify_btn_32bits.png#0 0 32 21);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.EditGroupInfo()" value=""/>
+                </pe:if>
+                <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.is_edit == true%>'>
+                    <input tooltip = "保存" style="float:left;margin-left:170px;margin-top:-37px;width:32px;height:21px;background:url(Texture/Aries/NPCs/HaqiGroup/group_manage_save_32bits.png#0 0 32 21);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.SaveGroupInfo()" value=""/>
+                </pe:if>
+            </pe:if>
+        </div>
+    </div>
+</div>
+
+<div style="margin-left:50px;margin-top:-10px;height:40px;">
+    家族成员：<%=getGroupNumber()%>
+    <div style="margin-left:155px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按贡献度，从高到低排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="contribute">贡献度</a></div>
+    <div style="margin-left:225px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按赛场积分，从高到低排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="pvp">赛场</a></div>
+    <div style="margin-left:305px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按寻宝积分，从高到低排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="treasure">寻宝</a></div>
+    <div style="margin-left:360px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按系别排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="school">系别</a></div>
+    <div style="margin-left:400px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按战斗等级，从高到低排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="combatlel">等级</a></div>
+    <div style="margin-left:435px;margin-top:-22px;"><a style="font-size:12px;" tooltip="点击即可按职位高低排列家族成员" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickSort" param1="occup">职位</a></div>
+</div>
+<div style="margin-left:40px;margin-top:-17px;width:600;height:420px;background:url();">
+<pe:gridview DataSource="<%=DS_Func_HaqiGroupJoin%>" name="DS_Func_HaqiGroupJoin" 
+        VerticalScrollBarStep="30" CellPadding="0" DefaultNodeHeight = "20"  ItemsPerLine="1" AllowPaging="true" pagesize="11">
+        <Columns>
+             <div style="margin:0px;width:542px;height:24px;">
+                 <div style="float:left;margin-left:0px;margin-top:0px;width:30px;"><%=Eval("index")%>.</div>
+                 <div style="float:left;margin-left:12px;margin-top:0px;width:16px;">
+                    <!--族长-->
+                    <pe:if condition = '<%=Eval("status") == 0%>'>
+                        <input type="button" tooltip="族长" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_headman_32bits.png#0 0 16 20;"/>
+                    </pe:if>
+                    <!--副族长-->
+                    <pe:if condition = '<%=Eval("status") == 1%>'>
+                        <input type="button" tooltip="副族长" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_assistant_32bits.png#0 0 16 20;"/>
+                    </pe:if>
+                     <!--普通人员-->
+                    <pe:if condition = '<%=Eval("status") == 2%>'>
+                        <pe:if condition = '<%=Eval("online")%>'>
+                            <input type="button" style="width:22px;height:19px;margin-left:-2px;margin-top:4px;background:url(Texture/Aries/Friends/FriendsWnd_BuddyIcon_Online_32bits.png#0 0 30 26);"/>
+                        </pe:if>
+                        <pe:if condition = '<%=not Eval("online")%>'>
+                            <input type="button" style="width:22px;height:19px;margin-left:-2px;margin-top:4px;background:url(Texture/Aries/Friends/FriendsWnd_BuddyIcon_Offline_32bits.png#0 0 30 26);"/>
+                        </pe:if>
+                    </pe:if>
+                 </div>
+                 <div style="float:left;margin-left:2px;margin-top:2px;width:430px;">
+                        <a  onclick = "MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoClick"   tooltip='右侧面板中查看详细资料' param1='<%=Eval("index")%>' style="background:">
+                            <input type="button" Normal_BG="" MouseOver_BG='<%=getMouseOverBG()%>' alwaysmouseover="true" style="margin-top:-5px;margin-left:0px;width:428px;height:23px;background:"/>
+                            <pe:if condition = '<%=Eval("vip") == true%>'>
+                                <div style="float:left;margin-top:-21px;margin-left:10px;width:427px;font-size:12;color:#ff0000;text-align:center;">
+                                           <%=getName(Eval("nickname"),Eval("contribute"),Eval("pvp"),Eval("treasure"),Eval("combatschool"),Eval("combatlel"))%>
+                                </div>
+                            </pe:if>
+                             <pe:if condition = '<%=Eval("vip") == false%>'>
+                                <div style="float:left;margin-top:-21px;margin-left:10px;width:427px;font-size:12;color:#000000;text-align:center;">
+                                           <%=getName(Eval("nickname"),Eval("contribute"),Eval("pvp"),Eval("treasure"),Eval("combatschool"),Eval("combatlel"))%>
+                                </div>
+                            </pe:if>
+                            <img zorder = "-1" src='<%=getBgLable(Eval("index")) %>' style="margin-top:-24px;margin-left:0px;width:428px;height:22px;"/>
+                        </a>
+                 </div>
+
+                 <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowMS(Eval("index")) %>'>
+                     <div style="float:left;margin-left:-215px;margin-top:-3px;width:21px;height:15px;">
+                        <input type="button" tooltip="魔法星" name='<%=Eval("index") %>' onclick='<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.OnClickMagicStar() %>' style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png#0 0 21 21);"/>
+                        <img src='<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.GetMLevel(Eval("index")) %>' style="margin-top:-21px;margin-left:11px;width:16px;height:10px;"/> 
+                     </div>
+                 </pe:if>
+                 <pe:if condition = '<%=not MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowMS(Eval("index")) %>'>
+                    <div style="float:left;margin-left:-230px;margin-top:0px;width:21px;height:15px;">
+                    </div>
+                 </pe:if>
+
+                 <!--如果自己是族长-->
+                 <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 0%>'>
+                    <!--如果是普通成员-->
+                     <pe:if condition = '<%=Eval("status") == 2%>'>
+                         <div style="float:left;margin-left:170px;margin-top:1px;width:20px;">
+                            <input type="button" tooltip="任命副族长" name='<%=Eval("index") %>' onclick = "MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoAppoint_Assistant" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_appoint_assistant_32bits.png#0 0 16 20;"/>
+                        </div>
+                     </pe:if>
+                      <!--如果是副族长-->
+                     <pe:if condition = '<%=Eval("status") == 1%>'>
+                        <div style="float:left;margin-left:170px;">
+                            <input type="button" tooltip="撤销副族长" name='<%=Eval("index") %>' onclick = "MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoQuit_Assistant" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_fire_assistant_32bits.png#0 0 16 20;"/>
+                        </div> 
+                        <div style="float:left;margin-left:2px;">
+                            <input type="button" tooltip="转让族长" name='<%=Eval("index") %>' onclick = "MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoHand_Headman" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_appoint_headman_32bits.png#0 0 16 20;"/>
+                        </div>
+                     </pe:if>
+                 </pe:if> 
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="36" style="margin-left:27px;margin-top:0px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" zorder=2 style="margin-left:160px;margin-top:-117px;width:22px;height:22px;background:Texture/Aries/homeland/arrow_left_32bits.png#0 0 34 34;"/>
+                <div style="float:left;margin-left:200px;margin-top:-117px;width:60px;">
+	                <label name="page" style="text-align:center;width:50px;height:18px;margin:0px"/>
+	            </div>               
+                <input type="button" name="next" zorder=2 style="margin-left:290px;margin-top:-117px;width:22px;height:22px;background:Texture/Aries/homeland/arrow_right_32bits.png#0 0 34 34;"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="margin-left:530px;margin-top:-425px;width:115;height:350px;">
+    <iframe style ="height:350px"name="contentframe" src='<%=BuildURL(MyCompany.Aries.Quest.NPCs.HaqiGroupManage.selected_index or 1)%>'/>
+</div>
+
+<!--<div style="position:relative;margin-left:340px;margin-top:-436px;">
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowMS(MyCompany.Aries.Quest.NPCs.HaqiGroupManage.selected_index or 1) %>'>
+        <img src='Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar5_32bits.png;0 0 43 42' style="width:43px;height:42px;"/>
+        <div style="position:relative;margin-left:29px;margin-top:-42px;color:#000000;width:20px;text-align:center"><%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowLevel(MyCompany.Aries.Quest.NPCs.HaqiGroupManage.selected_index or 1) %></div>
+    </pe:if>
+</div>-->
+
+
+<div style="float:left;margin-left:50px;margin-top:-120px;">
+    
+    <!--如果自己是族长-->
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 0%>'> 
+        <div style="float:left;margin-left:80px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "刷新列表" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoRefresh()" value="刷新列表"/>
+        </div>
+         <div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "家族聊天" class="defaultbutton" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoChat()" value="家族聊天"/>
+        </div>
+         <div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "邀请成员" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowInvitePanel()" value="邀请成员"/>
+        </div>
+         <div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "开除成员" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoFire()" value="开除成员"/>
+        </div>
+        <!--<div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "解散家族" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoDisband()" value="解散家族"/>
+        </div>-->
+        <div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+            <input tooltip = "黑名单" style="width:80px;height:20px;" type="button"  onclick="ShowPage_BlackList()" value="黑名单"/>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:5px;width:80px;height:22px;">
+            <input tooltip = "家族设置" style="width:80px;height:20px;" type="button"  onclick="ShowPage_GroupSetting()" value="家族设置"/>
+        </div>
+    </pe:if>
+     <!--如果自己是副族长-->
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 1%>'> 
+        <div style="float:left;margin-left:160px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "刷新列表" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoRefresh()" value="刷新列表"/>
+        </div>
+         <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "家族聊天" class="defaultbutton" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoChat()" value="家族聊天"/>
+        </div>
+         <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "邀请成员" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.ShowInvitePanel()" value="邀请成员"/>
+        </div>
+        <!-- <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "退出家族" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoQuit()" value="退出家族"/>
+        </div>-->
+    </pe:if>
+     <!--如果自己是普通成员-->
+    <pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupManage.my_status == 2%>'> 
+        <div style="float:left;margin-left:240px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "刷新列表" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoRefresh()" value="刷新列表"/>
+        </div>
+         <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "家族聊天" class="defaultbutton" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoChat()" value="家族聊天"/>
+        </div>
+         <!--<div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:22px;">
+        <input tooltip = "退出家族" style="width:80px;height:20px;" type="button"  onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoQuit()" value="退出家族"/>
+        </div>-->
+        
+    </pe:if>
+</div>
+
+</div>
+</pe:mcml>
+</body>
+</html>

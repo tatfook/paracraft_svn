@@ -1,0 +1,247 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/30362_UglyDuckling.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30362_UglyDuckling.lua" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+OpenQuest = function()
+    MyCompany.Aries.Quest.NPCs.UglyDuckling.DoAccept();
+end
+GiveSpringWater = function()
+    MyCompany.Aries.Quest.NPCs.UglyDuckling.GiveSpringWater();
+end
+Condition1 = function()
+    return not MyCompany.Aries.Quest.NPCs.UglyDuckling.IsAccepted();
+end
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.UglyDuckling.IsAccepted() and  MyCompany.Aries.Quest.NPCs.UglyDuckling.IsFreeze();
+end
+Condition3 = function()
+    --return not MyCompany.Aries.Quest.NPCs.UglyDuckling.HasWaterSpring() and  not MyCompany.Aries.Quest.NPCs.UglyDuckling.IsFreeze();
+    return true;
+end
+Condition4 = function()
+    return MyCompany.Aries.Quest.NPCs.UglyDuckling.IsFinished();
+end
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+--[[
+获取环保小屋的逻辑
+获取天然水晶 顺序固定
+1 从冬冬获取 第一块天然水晶
+2 从白天鹅获取 第二块天然水晶
+3 从莫卡获取 第三块天然水晶
+--]]
+NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/30346_DongDong.lua");
+
+MyCompany.Aries.Quest.NPCs.DongDong.page = page;
+
+function Condition_A()
+    local hasHouse = MyCompany.Aries.Quest.NPCs.DongDong.HasNaturalHouse();
+    local num = MyCompany.Aries.Quest.NPCs.DongDong.GetNaturalCrystal();
+    if(not hasHouse)then
+        if(num == 1)then
+            return true;
+        end
+    end
+end
+function Condition_B()
+    local hasHouse = MyCompany.Aries.Quest.NPCs.DongDong.HasNaturalHouse();
+    local num = MyCompany.Aries.Quest.NPCs.DongDong.GetNaturalCrystal();
+    if(not hasHouse)then
+        if(num == 2)then
+            return true;
+        end
+    end
+end
+function RefreshQuestion()
+    MyCompany.Aries.Quest.NPCs.DongDong.cur_question = MyCompany.Aries.Quest.NPCs.DongDong.Get_Question();
+end
+RefreshQuestion();
+function GetQuestionLabel()
+    local cur_question = MyCompany.Aries.Quest.NPCs.DongDong.cur_question;
+    if(cur_question)then
+        return cur_question.label;
+    end
+end
+function GetQuestionOption(op)
+    local cur_question = MyCompany.Aries.Quest.NPCs.DongDong.cur_question;
+    if(cur_question and cur_question.option)then
+        return cur_question.option[op];
+    end
+end
+function HasQuestionOption(op)
+   if(GetQuestionOption(op))then
+    return true;
+   end
+end
+--回答是否正确
+function IsCorrectAnswer(sName)
+    return MyCompany.Aries.Quest.NPCs.DongDong.IsCorrectAnswer(sName);
+end
+function GiveItem()
+    return MyCompany.Aries.Quest.NPCs.DongDong.GiveNaturalCrystal_2();
+end
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30362' />
+            <pe:placeholder id="name" source="{this}" value="美丽的白天鹅"/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template> 
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Condition_A()%>' target_state = "20"/>
+			    <pe:answer-if condition = '<%=Condition_B()%>' target_state = "21"/>
+			    <pe:answer-if condition = 'true' target_state = "4"/>
+		       <!-- <!--quest is finished-->
+			    <pe:answer-if condition = '<%=Eval("Condition4") %>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition1") %>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2") %>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3") %>' target_state = "3"/>-->
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是一只小鸭子，大家都说我丑，谁都不和我玩，兄弟姐妹们也不喜欢我；我逃到这里想在泉水里休息下，泉水都冻起冰来了，难道我真的
+		    这么惹人讨厌吗？
+		    <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/LetMeHelpYou_32bits.png#0 0 139 38);">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("OpenQuest")%>' target_state = "5"/>
+		    </pe:answer>
+
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "2">
+		    冰块越来越厚了，但我却能感觉到脚下的泉水有点暖暖的，难道是我的幻觉吗？
+		    <br />
+		    要找到凿子，拿在手上才能凿开冰块，可是谁会为了我这么丑的一只鸭子费心呢，也许我已经看不到这个春天了。。。		 
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true"  target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "3">
+		    天呐，这真的是我吗？原来我不是丑小鸭，是美丽的白天鹅！
+		    <br />
+		    亲爱的小哈奇，太感激你了，是你救了我，在你身上我感受到了春水一般的温暖！这一捧春水送给你吧，祝福你们早日迎来哈奇小镇的春天！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("GiveSpringWater") %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+           哈奇小镇是个美丽而充满温暖的地方，是这里让我从丑小鸭变成了白天鹅，我很喜欢这里，感激充满爱心的小哈奇！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+           水面冻成了冰块，除非找到凿子，把冰块都凿开，才能把我救出来；
+           <br />
+           我是一只这么丑的鸭子，谁会愿意为了我费这么大的劲呢，我在这里安静的等待最后的时光吧！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	     <!-- 处理获得天然水晶的逻辑 -->
+	     <pe:state id = "20">
+		   生命之泉的水早不如从前的清澈了，想要净化环境就得懂得更多的环保知识，让我来考考你吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "22"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "21">
+		   我也不太清楚哪里有更多的天然水晶，不过你倒是可以去购物街的爱家小铺问问看！！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "22">
+		 经过我的考验，你会得到你想要的东西。
+		   <pe:editor style="width:600px;margin-left:-5px;margin-top:-10px;background:;color:#6d2f00">
+                 <%=GetQuestionLabel() %>
+                <br/>
+                <pe:if condition="<%=HasQuestionOption('a') %>"><div><input type="radio" name="answer_1" value="a"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('a') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('b') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_1" value="b"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('b') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('c') %>"><div><input type="radio" name="answer_1" value="c"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('c') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('d') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_1" value="d"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('d') %></div></div><br/></pe:if>
+            </pe:editor>
+		        <pe:answer template_id = "ok_right">
+			        <pe:answer-if condition = '<%=IsCorrectAnswer("answer_1")%>' target_state = "23"/>
+			        <pe:answer-if condition = 'true' transition = '<%=RefreshQuestion() %>'  target_state = "24"/>
+		        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "23">
+		  不错，你很有潜质做一名环保小卫士，天然水晶送给你了，希望你能保护小镇环境的同时也要净化自己的家园！
+		        <pe:answer template_id = "iknow">
+			        <pe:answer-if condition = "true" transition = '<%=GiveItem() %>' target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+	     <pe:state id = "24">
+		 不对哦，再想想吧！
+		   <pe:editor style="width:600px;margin-left:-5px;margin-top:-10px;background:;color:#6d2f00">
+                 <%=GetQuestionLabel() %>
+                <br/>
+                <pe:if condition="<%=HasQuestionOption('a') %>"><div><input type="radio" name="answer_2" value="a"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('a') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('b') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_2" value="b"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('b') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('c') %>"><div><input type="radio" name="answer_2" value="c"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('c') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('d') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_2" value="d"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('d') %></div></div><br/></pe:if>
+            </pe:editor>
+		    <pe:answer template_id = "ok_right">
+			        <pe:answer-if condition = '<%=IsCorrectAnswer("answer_2")%>' target_state = "23"/>
+			    <pe:answer-if condition = 'true' transition = '<%=RefreshQuestion() %>' target_state = "25"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "25">
+		 不对哦，再想想吧！
+		   <pe:editor style="width:600px;margin-left:-5px;margin-top:-10px;background:;color:#6d2f00">
+                 <%=GetQuestionLabel() %>
+                <br/>
+                <pe:if condition="<%=HasQuestionOption('a') %>"><div><input type="radio" name="answer_3" value="a"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('a') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('b') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_3" value="b"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('b') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('c') %>"><div><input type="radio" name="answer_3" value="c"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('c') %></div></div><br/></pe:if>
+                <pe:if condition="<%=HasQuestionOption('d') %>"><div style="left:250px;top:-25px;"><input type="radio" name="answer_3" value="d"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('d') %></div></div><br/></pe:if>
+            </pe:editor>
+		    <pe:answer template_id = "ok_right">
+			    <pe:answer-if condition = '<%=IsCorrectAnswer("answer_3")%>' target_state = "23"/>
+			    <pe:answer-if condition = 'true' transition = '<%=RefreshQuestion() %>' target_state = "24"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+        
+</pe:mcml>
+</body>
+</html>

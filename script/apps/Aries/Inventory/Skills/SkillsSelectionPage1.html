@@ -1,0 +1,41 @@
+﻿<!-- "script/apps/Aries/Inventory/Skills/SkillsSelectionPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local SkillsSelectionPage = commonlib.gettable("MyCompany.Aries.Inventory.SkillsSelectionPage");
+SkillsSelectionPage.TabValue = SkillsSelectionPage.TabValue or "1";
+
+function ShowItemView(value, mcmlNode)
+	local frame = page:GetNode("AriesInventoryMountItemView");
+	local urls = {
+	    ["1"] = "script/apps/Aries/Inventory/Skills/Architecture_Skill_Progress1.html",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            SkillsSelectionPage.TabValue = value;
+            page:GetNode("AriesInventoryMountItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+]]></script>
+
+<div style="width:330px;height:386px;margin-top:10px;background:Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png#0 0 32 32:10 10 10 10">
+    <iframe name="AriesInventoryMountItemView" src="script/apps/Aries/Inventory/Skills/Architecture_Skill_Progress1.html"/>
+</div>
+            
+</pe:mcml> 
+</body>
+</html>

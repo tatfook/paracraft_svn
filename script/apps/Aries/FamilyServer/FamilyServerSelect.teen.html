@@ -1,0 +1,423 @@
+<!-- "script/apps/Aries/FamilyServer/FamilyServerSelect.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>FamilyServerSelect. spring  2011.9.1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FamilyServerSelect.teen.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local FamilyServerSelect = commonlib.gettable("MyCompany.Aries.FamilyServer.FamilyServerSelect");
+
+rookie = tonumber(pageCtrl:GetRequestParam("rookie")) or 0;
+from = pageCtrl:GetRequestParam("from");
+allworld = pageCtrl:GetRequestParam("allworld") or FamilyServerSelect.use_servers;
+
+if (from=="setting" and FamilyServerSelect.SwitchSvr==0) then
+    FamilyServerSelect.SwitchSvr = 1;    
+end
+FamilyServerSelect.OnInit(pageCtrl);
+
+allworld = allworld or FamilyServerSelect.IsAllworld;
+
+if(allworld == "true") then
+    allworld = true;
+end
+
+function onclose()
+    if (from=="setting") then
+        pageCtrl:CloseWindow();
+    end
+end
+
+function DS_Func_ServerList(index)          
+    if(allworld == true) then
+        return FamilyServerSelect.DS_AllWorld_Func(index, pageCtrl)
+    else
+        if (rookie==1) then
+            return FamilyServerSelect.DS_Rookie_Func(index, pageCtrl)
+        else
+            return FamilyServerSelect.DS_Func(index, pageCtrl)
+        end
+    end
+end
+
+function DS_Func_BigZone(index)
+    return FamilyServerSelect.DS_Func_BigZone(index);
+end
+
+function OnViewAllWorld()
+    if(not pageCtrl:GetRequestParam("allworld") and FamilyServerSelect.dsAllWorlds) then
+        local url = pageCtrl:GetRequestURL();
+        url = System.localserver.UrlHelper.BuildURLQuery("script/apps/Aries/FamilyServer/FamilyServerSelect.teen.html", {from=from, allworld="true", rookie=rookie});
+        pageCtrl:Init(url);
+    end
+end
+
+function SwitchBigZone(zoneid)
+    FamilyServerSelect.SwitchBigZone(zoneid,pageCtrl);
+end
+
+function getButtonText(text)
+    local text = string.format("%26s%s ","",text);
+    return text;
+end
+
+function GetFamilySvrName()
+    local s="";
+    s = FamilyServerSelect.GetFamilyText();
+    return s
+end
+
+function HasLastLogin()
+    if (GetLastLoginWorld_text()~="") then
+        return true
+    else
+        return false
+    end
+end
+
+function GetLastLoginWorld_text()
+    return FamilyServerSelect.GetLastLoginWorld_text()
+end
+
+function GetLastLoginWorld_seqno()
+    return FamilyServerSelect.GetLastLoginWorld_seqno()
+end
+
+function OnSelectWorld(ws_id)
+    FamilyServerSelect.OnSelectWorld(ws_id)
+end
+
+function HasFamilyServer()
+    return FamilyServerSelect.HasFamilyServer();
+end
+
+function GetFamilySeqno()
+    return FamilyServerSelect.GetFamilySeqno()
+end
+
+function GetFamilyPeople()
+    return FamilyServerSelect.GetFamilyPeople()
+end
+
+function IsRecommendBigZone(zoneid)
+    return FamilyServerSelect.IsRecommendBigZone(zoneid)
+end
+
+function GetLatencyMCML(gameserver_nid)
+    local latency = MyCompany.Aries.MainLogin.network_latency[gameserver_nid or ""];
+    if(latency) then
+        if(latency > 300) then
+            return format("<div style=\"float:left;color:#ff0000\">网络延迟: %s毫秒 (不好)</div>", latency);
+        elseif(latency > 150) then
+            return format("<div style=\"float:left;color:#ff9900\">网络延迟: %s毫秒 (一般)</div>", latency);
+        else
+            return format("<div style=\"float:left;color:#008000\">网络延迟: %s毫秒 (流畅)</div>", latency);
+        end
+    else
+        return ""
+    end
+end
+]]></script>
+
+<aries:window title="选择服务器" width="660" height="470" onhelp="" onclose="" mode="lite">
+<!--<div style="width:660px;height:470px;" class="pane">
+    <div style="height:19px;">
+        <div class="windowlabel">选择服务器</div>
+-->
+    <div style="margin-left:0px;margin-top:0px;width:650px;height:430px;" class="border_bg1_css">
+        <div style="margin-left:240px;margin-top:0px;width:400px;height:30px;">
+            <form>
+            <input type="text" name="world_name" tooltip="请输入服务器名字" style="margin-left:80px;margin-top:5px;width:220px;height:25px;"/>
+            <input type="submit" value="搜索服务器" name="btnSelectWorld" tooltip="快速进入" style="margin-left:5px;margin-top:6px;width:80px;" onclick="MyCompany.Aries.FamilyServer.FamilyServerSelect.OnClickSelectWorld"/>
+            </form>
+        </div>
+
+        <div style="float:left;width:180px;height:30px;margin-left:0px;margin-top:-25px;" >
+            <pe:tabs name="region_tab" ItemSpacing="0" style="margin-top:0px;position:relative;height:30px;" class="default_tabs">
+              <pe:tab-item text="选择大区" selected="true" style="width:90px;"  tooltip="步骤 1：选择大区">
+              </pe:tab-item>
+            </pe:tabs>
+        </div>
+        <div style="margin-top:2px;margin-left:5px;height:300px;width:173px;" class="border_bg2_css">
+                <pe:gridview style="height:300px" DataSource="<%=DS_Func_BigZone%>" name="bigzoneList" ItemsPerLine="1" VerticalScrollBarStep="35" >
+                    <Columns>                                       
+                            <pe:if condition='<%=IsRecommendBigZone(Eval("zoneid"))%>'>
+                                <input type="button" class="listbutton_selected" value='<%=Eval("name")%>' style="width:170px;height:26px;margin-top:0px;" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换大区了"/>
+                                <div style="float:left;margin-left:-150px;margin-top:10px;">
+                                    <img style="width:8px;height:8px" enabled="false" src="Texture/Aries/Common/ThemeTeen/lightbutton_checked_32bits.png;0 0 8 8" />
+                                </div>  
+                            </pe:if>
+                            <pe:if condition='<%=not IsRecommendBigZone(Eval("zoneid")) %>'>
+                                <input type="button" class="listbutton_unselected" value='<%=Eval("name")%>' style="width:170px;height:26px;margin-top:0px;" onclick="SwitchBigZone" name='<%=Eval("zoneid")%>' tooltip="点击就可以切换大区了"/>
+                                <div style="float:left;margin-left:-150px;margin-top:10px;">
+                                    <img style="width:8px;height:8px" enabled="false" src="Texture/Aries/Common/ThemeTeen/lightbutton_unchecked_32bits.png;0 0 8 8" />
+                                </div> 
+                            </pe:if>
+
+                            <pe:if condition='<%=Eval("isnew") %>'>
+                                <div style="margin-left:120px;margin-top:-20px;">
+                                    <img style="width:26px;height:11px" enabled="false" src="Texture/Aries/Common/ThemeTeen/new_svr_32bits.png;0 0 26 12" />
+                                </div>                                 
+                            </pe:if>
+                            <div style="width:170px;height:1px;" class="black_line"/>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取大区列表, 您也可以查看全部大区</b>
+                        </div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin-top:70px;">
+                            <b>正在获取大区列表, 请稍候 ... </b>
+                        </div>
+                    </FetchingDataTemplate>
+
+                    <PagerTemplate>
+	                    <form>
+		                    <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+			                    <input type="button" name="page" class="pagertext" />
+		                    <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                    </form>
+                    </PagerTemplate>
+                </pe:gridview>
+                
+        </div>
+        <div class="border_bg2_css" style="margin-left:5px;margin-top:5px;height:84px;width:173px;">
+            <div style="margin-left:6px;margin-top:5px;width:160px;">
+                <div style="color:#cccccc;font-size:14px">
+                    <pe:if condition='<%=System.options.whereipfrom~=nil and System.options.locale=="zhCN"%>'>
+                        <div style="">
+                            <div>
+                                您的网络是:<div style="float:left;"><%=System.options.whereipfrom%></div>
+                            </div>
+                            <div style="font-weight:bold">
+                                推荐进入<div style="float:left;color:#00ff00;" ><%=if_else(System.options.whereipfrom~="联通", "电信", "联通")%></div>区
+                            </div>
+                        </div>
+                    </pe:if>
+                    <div style="margin-left:0px;">
+                        大区间是互通的
+                    </div>
+                </div>
+                 <!--一个大区内的服务器是相互联通的，玩家可在服务器之间自由切换。好友、家族、组队、PK等均是跨服共享。-->
+             </div>
+        </div>
+       
+        <div style="position:relative;width:180px;height:398px;margin-left:2px;margin-top:-394px;"  class="border_bg3_css">
+        </div>
+
+
+        <div style="float:left;width:95px;height:35px;margin-left:100px;margin-top:-415px;" >
+            <pe:tabs name="region_tab" ItemSpacing="0" style="margin-left:220px;margin-top:-8px;position:relative;height:30px;" class="default_tabs">
+              <pe:tab-item text="选择服务器" selected="true" style="width:90px;" tooltip="步骤 2：选择服务器">
+              </pe:tab-item>
+            </pe:tabs>
+        </div>
+        <div style="margin-left:190px;margin-top:-390px;width:452px;height:350px" class="border_bg1_css">
+            <div style="float:left;margin-left:2px;margin-top:1px;width:449px;height:25px;" class="border_bg2_css">
+              <!--  <input type="button" value="编号" class="titlebutton" style="float:left;margin-left:25px;width:70px;" enabled="false"/>-->
+                <input type="button" value="服务器" class="titlebutton" style="float:left;margin-left:100px;width:70px;" enabled="false"/>
+                <input type="button" value="状态" class="titlebutton" style="float:left;margin-left:25px;width:150px;" enabled="false"/>
+            </div>
+            <div class="blue_line" style="float:left;margin-left:5px;margin-top:-2px;width:275px;height:1px;" />
+            <pe:if condition='<%=HasFamilyServer()==true %>'>
+                <div>
+                    <input type="button" value='<%=getButtonText(GetFamilySvrName())%>' class="defaultbutton_unselected" style="margin-left:5px;width:445px;height:25px;text-align:left;" onclick="OnSelectWorld" name='<%=GetFamilySeqno()%>' tooltip="点击这里可以快速进入家族服务器，在家族服务器中有额外的奖励！"/>
+                    <div style="float:left;margin-left:-420px;margin-top:3px;color:#ffff04">家族服务器</div>
+
+                    <div style="float:left;padding-top:0px;margin-left:195px;margin-top:-22spx;width:180px;height:20px;background:url()">
+                        <div style="float:left;margin-left:20px;margin-top:0px;width:300px">
+                            <div style="margin-left:0px;margin-top:0px;width:180px;height:20px;">
+                                <pe:if condition='<%=GetFamilyPeople()<2 %>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:15px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/bluebar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()>=2 and GetFamilyPeople()<=3%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:50px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/greenbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()==4%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:80px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/yellowbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()>=5%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:100px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/redbar_32bits.png#0 0 16 12: 3 3 3 7);" /> </pe:if>
+                            </div>
+
+                            <div style="margin-left:135px;margin-top:-35px;width:100px;height:20px;color:#52dff4">
+                            <pe:if condition='<%=GetFamilyPeople()>=0%>'>
+                                <pe:if condition='<%=GetFamilyPeople()<2 %>'>  <div style="margin-left:35px;margin-top:15px;color:#52dff4">空闲</div> </pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()>=2 and GetFamilyPeople()<=3 %>'> <div style="margin-left:35px;margin-top:15px;color:#07f056">良好</div> </pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()==4 %>'> <div style="margin-left:35px;margin-top:15px;color:#f0a607">拥挤</div> </pe:if>
+                                <pe:if condition='<%=GetFamilyPeople()>=5 %>'> <div style="margin-left:35px;margin-top:15px;color:#ed1350">爆满</div> </pe:if>
+                            </pe:if>
+                            </div>
+                        </div>
+                    </div>                 
+                </div>
+                <div style="width:450px;height:1px;" class="black_line"/>
+                <div style="margin-top:2px;">
+                    <pe:gridview style="height:370px" DataSource="<%=DS_Func_ServerList%>" name="gvwServerList" ItemsPerLine="1"   AllowPaging='<%=Eval("allworld")%>' pagesize="9">
+                        <Columns>                                                                                                                                                                                                                                                                                                                                                                                            
+                         <div style="float:left;margin-left:0px;padding-top:1px;padding-bottom:1px;" >
+                            <input type="button" value='<%=getButtonText(Eval("text"))%>' class="listbutton_unselected" style="margin-left:5px;width:445px;height:25px;text-align:left;" onclick="OnSelectWorld" name='<%=Eval("seqno")%>' tooltip="点击就可以进入服务器了"/>
+                            <pe:if condition='<%=Eval("people")<=3%>'>
+                                <!--<div style="float:left;margin-left:-440px;margin-top:2px;"><img zorder = "3" enabled="false" style="margin-left:0px;margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/tuijian2_yellow_32bits.png#0 0 16 16);" /></div>-->
+                                <div style="float:left;margin-left:-440px;margin-top:2px;color:#ffff00;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;text-offset-y:-2;">[ 推荐 ]</div>
+                            </pe:if>
+                            <!--<div style="float:left;margin-left:-420px;margin-top:5px;color:#52dff4"><%=Eval("id")%></div>-->
+
+                            <div style="float:left;padding-top:0px;margin-left:195px;margin-top:-22spx;width:180px;height:20px;background:url()">
+                                <pe:if condition='<%=Eval("people")<0%>'>
+                                    <!--<img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />-->
+                                </pe:if>
+                                <div style="float:left;margin-left:20px;margin-top:0px;width:300px">
+                                        <div style="margin-left:0px;margin-top:0px;width:180px;height:20px;">                                   
+                                        <pe:if condition='<%=Eval("people")<2 %>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:15px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/bluebar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=2 and Eval("people")<=3%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:50px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/greenbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")==4%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:80px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/yellowbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:100px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/redbar_32bits.png#0 0 16 12: 3 3 3 7);" /> </pe:if>
+                                        </div>
+
+                                        <div style="margin-left:135px;margin-top:-35px;width:100px;height:20px;color:#52dff4">
+                                        <pe:if condition='<%=Eval("people")>=0%>'>
+                                            <pe:if condition='<%=Eval("people")<2 %>'>  <div style="margin-left:35px;margin-top:15px;color:#52dff4">空闲</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")>=2 and Eval("people")<=3 %>'> <div style="margin-left:35px;margin-top:15px;color:#07f056">良好</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")==4 %>'> <div style="margin-left:35px;margin-top:15px;color:#f0a607">拥挤</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")>=5 %>'> <div style="margin-left:35px;margin-top:15px;color:#ed1350">爆满</div> </pe:if>
+                                        </pe:if>
+                                        </div>
+
+                                </div>
+                            </div>                 
+                        </div>
+                         <div style="width:450px;height:1px;" class="black_line"/>
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div style="margin-top:70px;margin:10px" class="default">
+                                <b>正在获取服务器列表, 您也可以查看全部服务器</b>
+                            </div>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                            <div style="margin-top:70px;margin:10px" class="default">
+                                <b>正在获取服务器列表, 请稍候 ... </b>
+                            </div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Bottom" height="25" style="margin-left:190px;margin-top:-5px;width:268px;height:25px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+                                    <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+                            </form>
+	                    </PagerTemplate>
+                    </pe:gridview>
+                </div>
+            </pe:if>
+
+            <pe:if condition='<%=HasFamilyServer()==false %>'>       
+                <div>
+                    <pe:gridview style="height:370px" DataSource="<%=DS_Func_ServerList%>" name="gvwServerList1" ItemsPerLine="1"   AllowPaging='<%=Eval("allworld")%>' pagesize="10">
+                        <Columns>                                                                                                                                                                                                                                                                                                                                                                                            
+                         <div style="float:left;margin-left:0px;padding-top:1px;padding-bottom:1px;" >
+                            <input type="button" value='<%=getButtonText(Eval("text"))%>' class="listbutton_unselected" style="margin-left:5px;width:445px;height:25px;text-align:left;" onclick="OnSelectWorld" name='<%=Eval("seqno")%>' tooltip="点击就可以进入服务器了"/>
+                            <pe:if condition='<%=Eval("people")<=3%>'>
+                                <!--<div style="float:left;margin-left:-440px;margin-top:2px;"><img zorder = "3" enabled="false" style="margin-left:0px;margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/tuijian2_yellow_32bits.png#0 0 16 16);" /></div>-->
+                                <div style="float:left;margin-left:-440px;margin-top:2px;color:#ffff00;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;text-offset-y:-2;">[ 推荐 ]</div>
+                            </pe:if>
+
+                            <!--<div style="float:left;margin-left:-400px;margin-top:5px;color:#52dff4"><%=Eval("id")%></div>-->
+
+                            <div style="float:left;padding-top:0px;margin-left:195px;margin-top:-22spx;width:180px;height:20px;background:url()">
+                                <pe:if condition='<%=Eval("people")<0%>'>
+                                    <!--<img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />-->
+                                </pe:if>
+                                <div style="float:left;margin-left:20px;margin-top:0px;width:300px">
+                                        <div style="margin-left:0px;margin-top:0px;width:180px;height:20px;">                                  
+                                        <pe:if condition='<%=Eval("people")<2 %>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:15px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/bluebar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=2 and Eval("people")<=3%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:50px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/greenbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")==4%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:80px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/yellowbar_32bits.png#0 0 16 12: 3 3 3 7);" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:20px;margin-top:3px;width:100px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/redbar_32bits.png#0 0 16 12: 3 3 3 7);" /> </pe:if>
+                                        </div>
+
+                                        <div style="margin-left:135px;margin-top:-35px;width:100px;height:20px;color:#52dff4">
+                                        <pe:if condition='<%=Eval("people")>=0%>'>
+                                            <pe:if condition='<%=Eval("people")<2 %>'>  <div style="margin-left:35px;margin-top:15px;color:#52dff4">空闲</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")>=2 and Eval("people")<=3 %>'> <div style="margin-left:35px;margin-top:15px;color:#07f056">良好</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")==4 %>'> <div style="margin-left:35px;margin-top:15px;color:#f0a607">拥挤</div> </pe:if>
+                                            <pe:if condition='<%=Eval("people")>=5 %>'> <div style="margin-left:35px;margin-top:15px;color:#ed1350">爆满</div> </pe:if>
+                                        </pe:if>
+                                        </div>
+
+                                </div>
+                            </div>                 
+                        </div>
+                         <div style="width:450px;height:1px;" class="black_line"/>
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div style="margin-top:70px;">
+                                <b>正在获取服务器列表, 您也可以查看全部服务器</b>
+                            </div>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                            <div style="margin-top:70px;">
+                                <b>正在获取服务器列表, 请稍候 ... </b>
+                            </div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Bottom" height="25" style="margin-left:190px;margin-top:-5px;width:268px;height:25px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+						                <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							                <input type="button" name="page" class="pagerbuttontext" /> 
+						                <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+                            </form>
+	                    </PagerTemplate>
+                    </pe:gridview>
+                </div>
+            </pe:if>
+        </div>
+
+        <pe:if condition='<%=Eval("allworld") ~= true%>'>
+            <input type="button" value="查看全部" style="margin-left:510px;margin-top:-73px;width:85px;" onclick="OnViewAllWorld" tooltip="点击这里可以查看本区全部服务器"/>
+        </pe:if>
+
+<!--     <div style="margin-left:190px;margin-top:-85px;width:452px;height:40px;" class="static_block_2">
+                
+               <div style="position:relative;margin-left:20px;margin-top:10px;">
+               家族服务器：
+                    <pe:if condition='<%=HasFamilyServer()==true %>'>
+                        <div style="margin-left:100px;margin-top:-18px;color:#07f056"><b><%=GetFamilySvrName() %></b></div>
+                        <div style="margin-left:300px;margin-top:-22px;">
+                           <input type="button" style="width:85px;" value='立即进入'  tooltip="点击这里可以快速进入家族服务器，在家族服务器中有额外的奖励哦！"
+                            onclick="OnSelectWorld" name='<%=GetFamilySeqno()%>'/>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=HasFamilyServer()==false %>'>
+                        <div style="margin-left:50px;margin-top:-18px;color:#07f056">
+                            <img zorder = "3" style="margin-left:20px;margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/exclamationmark_32bits.png#0 0 16 16);"/>
+                            <div style="margin-left:50px;margin-top:-18px;"><b>  你还没有家族服务器，登录家族服务器有额外的奖励哦！</b> </div>                           
+                        </div>
+                    </pe:if>
+                </div>
+            </div>-->
+
+            <div style="margin-left:190px;margin-top:-40px;width:452px;height:39px;" class="border_bg2_css">                
+               <div style="position:relative;margin-left:20px;margin-top:10px;">
+                    上次登录服务器：<div style="float:left;position:relative;margin-top:13px;" tooltip="网络延迟时间:越小越好"><%=GetLatencyMCML(MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_nid())%></div>
+                    <pe:if condition='<%=HasLastLogin() %>'>
+                        <div style="float:left;position:relative;color:#07f056"><b><%=GetLastLoginWorld_text()%></b></div>
+                        <div style="float:left;position:relative;margin-left:200px;">
+                           <input type="button" style="margin-top:-3px;width:95px;font-weight:bold;font-size:14px;height:28px;" class="defaultbutton" value='再次进入' tooltip="点击这里可以快速进入到上次登录的服务器！"
+                                onclick="OnSelectWorld" name='<%=GetLastLoginWorld_seqno()%>'/>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=HasLastLogin()==false %>'>
+                        <div style="float:left;position:relative;color:#07f056"><b>无</b></div>
+                    </pe:if>
+                </div>
+            </div>
+
+        <div style="position:relative;width:460px;height:396px;margin-left:185px;margin-top:-394px;"  class="border_bg1_css">
+        </div>
+    </div>
+</aries:window>
+<pe:if condition='<%=Eval("from") == "setting"%>'>
+    <input type="button" onclick="onclose" zorder="2" class="close_btn_css" align="right" style="margin-right:5px;margin-top:-465px;" />
+</pe:if>  
+</pe:mcml>
+</body>
+</html>
+

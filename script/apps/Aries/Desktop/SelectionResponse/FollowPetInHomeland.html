@@ -1,0 +1,61 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/FollowPetInHomeland.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FollowPetInHomeland, by Andy, 2009/6/29</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FollowPetInHomeland.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+guid = pageCtrl:GetRequestParam("guid") or "";
+]]>
+</script>
+
+<!--is loggedin user, show the avatar selected page-->
+
+<pe:if-is-user nid="loggedinuser">
+    <!--<div style="width:128px;height:512px;margin:0px;padding:0px;background:Texture/Aries/Dock/TargetArea4.png;">-->
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box">
+                <pe:player nid="loggedinuser" object="homelandpet" guid='<%=Eval("guid")%>' name="FollowPetInhomeland" miniscenegraphname="Aries_SelectedArea_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+                <!--IsInteractive-->
+                <div style="margin-left:32px;margin-top:-12px;width:64px;">
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="1" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyFollow_32bits.png);" 
+                            onclick="MyCompany.Aries.Desktop.TargetArea.ShowSelectedFollowPetInfoInHomeland"
+                            tooltip="查看宠物"/>
+                    </div>
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="2" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/FollowMe_32bits.png);" 
+                            onclick="MyCompany.Aries.Desktop.TargetArea.EquipSelectedFollowPet"
+                            tooltip="带我逛逛"/>
+                    </div>
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="3" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/GoAway_32bits.png);" 
+                            onclick="MyCompany.Aries.Desktop.TargetArea.HideSelectedFollowPet"
+                            tooltip="收回背包, 不在家园中显示"/>
+                    </div>
+                    <!--<div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="3" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/GoAway_32bits.png);" 
+                            onclick="MyCompany.Aries.Desktop.TargetArea.FreeSelectedFollowPet"
+                            tooltip="放生"/>
+                    </div>-->
+                    <!--<div style="margin:-2px;padding:0px;">
+                        <input type="button" name="4" animstyle="22" style="margin:0px;width:64px;height:40px;background:url(Texture/Aries/Dock/TargetAreaMyselfText.png#0 120 64 40);" onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"/>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:if-is-user> 
+
+</pe:mcml> 
+</body>
+</html>

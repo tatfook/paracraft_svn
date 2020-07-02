@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sample GSL server config file -->
+<GSL>
+<!--game server modules that should be loaded in per game world thread. Dependency and async loading is supported, so that 
+some modules can call other system or module functions asynchrounously and use the result for initialization.
+-->
+<modules>
+  <!--<module src="script/apps/GameServer/Modules/SampleServerModule.lua"></module>-->
+  <module src="script/apps/Aries/Combat/ServerObject/CombatService.lua"></module>
+  <module src="script/apps/Aries/Quest/QuestService.lua" version="kids"></module>
+  <module src="script/kids/3DMapSystemItem/PowerItemService.lua"></module>
+  <module src="script/apps/GameServer/TradeService/TradeService.lua" version="kids"></module>
+  <module src="script/apps/GameServer/BattlefieldService/BattlefieldService.lua" debug_stream="false" version="kids" 
+            can_start_players_count="12"  max_players_side="15"
+            start_time_after_full="7000" winning_score="200000"
+            occupation_threshold="50" cursor_speed_per_player="0.002" attack_basevalue="0.05">
+  </module>
+  <module src="script/apps/GameServer/LobbyService/GSL_BroadcastService.lua"></module>
+</modules>
+<GridServer>
+  <!--
+  @param worldfilter:  it is internally to lower cased
+  @param MinStartUser: minimum user count to start the grid node
+  @param MaxStartUser: max allowed user count. if this is specified, the worldteam_server server_object needs to be used to start the server. 
+  -->
+  <GridNodeRules>
+    <!--<rule worldfilter="^worlds/MyWorlds/AlphaWorld/$" UserRole="guest" gridsize="200" fromx="19000" fromy="19000" tox="21000" toy="21000"/>
+    <rule worldfilter="^worlds/MyWorlds/DoodleWorld/$" UserRole="friend" gridsize="200" fromx="19000" fromy="19000" tox="21000" toy="21000"/>-->
+
+    <!--user's world-->
+    <rule worldfilter="^worlds/MyWorlds/.*homeland/$" close_server_ticks="2" fromx="20000" fromy="20000"/>
+    
+    <!--instance world-->
+    <!--<rule worldfilter="^worlds/MyWorlds/CombatTutorial/$" fromx="20000" fromy="20000"/>-->
+    <rule id="100" worldfilter="^worlds/Instances/Instance_Test/.*$" MinStartUser="1" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.Instance_Test.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="101" worldfilter="^HaqiTown_FireCavern" MinStartUser="1" MaxStartUser="16" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_FireCavern.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="102" worldfilter="^FlamingPhoenixIsland_TheGreatTree" MinStartUser="2" MaxStartUser="16" npc_file="config/Aries/NPCFiles/Aries.FlamingPhoenixIsland_TheGreatTree.NPC.xml" fromx="20000" fromy="20000"/>
+    <!--tricky: when rule id is specified, worldfilter is not used for pattern matching, however, worldfilter is used as key so they can be anything unique. -->
+    <rule id="103" worldfilter="^HaqiTown_LightHouse_S1" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LightHouse_S1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="104" worldfilter="^HaqiTown_LightHouse_S2" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LightHouse_S2.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="105" worldfilter="^HaqiTown_LightHouse_S3" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LightHouse_S3.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="106" worldfilter="^HaqiTown_LightHouse_S4" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LightHouse_S4.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="107" worldfilter="^HaqiTown_YYsDream_S1" MinStartUser="1" MaxStartUser="20" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_YYsDream_S1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="108" worldfilter="^HaqiTown_YYsDream_S2" MinStartUser="1" MaxStartUser="20" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_YYsDream_S2.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="109" worldfilter="^Global_HaqiTown_TreasureHouse" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.Global_HaqiTown_TreasureHouse.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="110" worldfilter="^Global_FlamingPhoenixIsland_TreasureHouse" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.Global_FlamingPhoenixIsland_TreasureHouse.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="111" worldfilter="^Global_FrostRoarIsland_TreasureHouse" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.Global_FrostRoarIsland_TreasureHouse.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="112" worldfilter="^Global_AncientEgyptIsland_TreasureHouse" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.Global_AncientEgyptIsland_TreasureHouse.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="113" worldfilter="^HaqiTown_TrialOfChampions_Amateur" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Amateur.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="114" worldfilter="^HaqiTown_TrialOfChampions_Intermediate" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Intermediate.NPC.xml" fromx="20000" fromy="20000"/>
+    <!--<rule id="115" worldfilter="^HaqiTown_TrialOfChampions_Master" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Master.NPC.xml" fromx="20000" fromy="20000"/>-->
+
+    <rule id="116" worldfilter="^FlamingPhoenixIsland_GoldenOgreTreasureHouse" MinStartUser="1" MaxStartUser="12" npc_file="config/Aries/NPCFiles/Aries.FlamingPhoenixIsland_GoldenOgreTreasureHouse.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="117" worldfilter="^HaqiTown_RedMushroomArena_1v1" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="118" worldfilter="^HaqiTown_RedMushroomArena_2v2" MinStartUser="4" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_2v2.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="119" worldfilter="^HaqiTown_RedMushroomArena_3v3" MinStartUser="6" MaxStartUser="6" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_3v3.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="120" worldfilter="^HaqiTown_RedMushroomArena_4v4" MinStartUser="8" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_4v4.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="121" worldfilter="^HaqiTown_FireCavern_110527_1" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_FireCavern_110527_1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="122" worldfilter="^HaqiTown_FireCavern_110527_2" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_FireCavern_110527_2.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="123" worldfilter="^FlamingPhoenixIsland_TheGreatTree_110610_3" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.FlamingPhoenixIsland_TheGreatTree_110610_3.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="124" worldfilter="^FrostRoarIsland_IceBearLair" MinStartUser="1" MaxStartUser="12" npc_file="config/Aries/NPCFiles/Aries.FrostRoarIsland_IceBearLair.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="125" worldfilter="^HaqiTown_FireCavern_Hero" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_FireCavern_Hero.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="126" worldfilter="^FrostRoarIsland_IceKingCave" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.FrostRoarIsland_IceKingCave.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="127" worldfilter="^AncientEgyptIsland_LostTemple" MinStartUser="1" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.AncientEgyptIsland_LostTemple.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="128" worldfilter="^FrostRoarIsland_StormEye" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.FrostRoarIsland_StormEye.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="129" worldfilter="^HaqiTown_YYsNightmare" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_YYsNightmare.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="130" worldfilter="^AncientEgyptIsland_PharaohFortress" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.AncientEgyptIsland_PharaohFortress.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="131" worldfilter="^HaqiTown_LightHouse_Hero" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LightHouse_Hero.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="132" worldfilter="^FlamingPhoenixIsland_TheGreatTree_Hero" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.FlamingPhoenixIsland_TheGreatTree_Hero.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="133" worldfilter="^HaqiTown_TrialOfChampions_Amateur1v1" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Amateur1v1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="134" worldfilter="^HaqiTown_TrialOfChampions_Intermediate1v1" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Intermediate1v1.NPC.xml" fromx="20000" fromy="20000"/>
+    <!--<rule id="135" worldfilter="^HaqiTown_TrialOfChampions_Master1v1" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Master1v1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="136" worldfilter="^HaqiTown_TrialOfChampions_Legendary1v1" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_Legendary1v1.NPC.xml" fromx="20000" fromy="20000"/>-->
+
+    <rule id="141" worldfilter="^AncientEgyptIsland_LostTemple_NanJue" MinStartUser="2" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.AncientEgyptIsland_LostTemple_NanJue.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="142" worldfilter="^BattleField_ChampionsValley" MinStartUser="1" MaxStartUser="30" npc_file="config/Aries/NPCFiles/Aries.BattleField_ChampionsValley.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="143" worldfilter="^HaqiTown_GraduateExam_54_55" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_GraduateExam_54_55.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="144" worldfilter="^BattleField_ChampionsValley_Master" MinStartUser="1" MaxStartUser="30" npc_file="config/Aries/NPCFiles/Aries.BattleField_ChampionsValley_Master.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="145" worldfilter="^HaqiTown_CampfireChallenge" MinStartUser="1" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_CampfireChallenge.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="146" worldfilter="^HaqiTown_TrialOfChampions_FairPlay_LowLevel" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_FairPlay_LowLevel.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="147" worldfilter="^HaqiTown_TrialOfChampions_FairPlay_HighLevel" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_TrialOfChampions_FairPlay_HighLevel.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="151" worldfilter="^AncientEgyptIsland_LostTemple_DeathLandEntrance" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.AncientEgyptIsland_LostTemple_DeathLandEntrance.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="161" worldfilter="^CrazyTower_1_to_5" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_1_to_5.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="162" worldfilter="^CrazyTower_6_to_10" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_6_to_10.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="163" worldfilter="^CrazyTower_11_to_15" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_11_to_15.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="164" worldfilter="^CrazyTower_16_to_20" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_16_to_20.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="165" worldfilter="^CrazyTower_21_to_25" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_21_to_25.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="166" worldfilter="^CrazyTower_26_to_30" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_26_to_30.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="167" worldfilter="^CrazyTower_31_to_35" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_31_to_35.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="168" worldfilter="^CrazyTower_36_to_40" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_36_to_40.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="169" worldfilter="^CrazyTower_41_to_45" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_41_to_45.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="170" worldfilter="^CrazyTower_46_to_50" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_46_to_50.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="171" worldfilter="^CrazyTower_51_to_55" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_51_to_55.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="172" worldfilter="^CrazyTower_56_to_60" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_56_to_60.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="173" worldfilter="^CrazyTower_61_to_65" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_61_to_65.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="174" worldfilter="^CrazyTower_66_to_70" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_66_to_70.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="175" worldfilter="^CrazyTower_71_to_75" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_71_to_75.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="176" worldfilter="^CrazyTower_76_to_80" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_76_to_80.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="177" worldfilter="^CrazyTower_81_to_85" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_81_to_85.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="178" worldfilter="^CrazyTower_86_to_90" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_86_to_90.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="179" worldfilter="^CrazyTower_91_to_95" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_91_to_95.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="180" worldfilter="^CrazyTower_96_to_100" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_96_to_100.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <!--<rule id="186" worldfilter="^Global_CatTreasureHouse_Basic" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.Global_CatTreasureHouse_Basic.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="187" worldfilter="^Global_CatTreasureHouse_Adv" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.Global_CatTreasureHouse_Adv.NPC.xml" fromx="20000" fromy="20000"/>-->
+    
+    <rule id="189" worldfilter="^DarkForestIsland_PirateSeamaster" ticket_gsid="12063" MinStartUser="2" MaxStartUser="8" npc_file="config/Aries/NPCFiles/Aries.DarkForestIsland_PirateSeamaster.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="191" worldfilter="^CrazyTower_WaterBubbleSupreme" ticket_gsid="17454" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_WaterBubbleSupreme.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="192" worldfilter="^CrazyTower_IroncladSupreme" ticket_gsid="17454" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_IroncladSupreme.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="193" worldfilter="^CrazyTower_SnowmanSupreme" ticket_gsid="17454" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_SnowmanSupreme.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="194" worldfilter="^CrazyTower_WaterBubbleCasern" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_WaterBubbleCasern.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="195" worldfilter="^CrazyTower_IroncladCasern" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_IroncladCasern.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="196" worldfilter="^CrazyTower_SnowmanCasern" MinStartUser="1" MaxStartUser="1" npc_file="config/Aries/NPCFiles/Aries.CrazyTower_SnowmanCasern.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="197" worldfilter="^BattleField_ChampionsValley_Coliseum" MinStartUser="1" MaxStartUser="30" npc_file="config/Aries/NPCFiles/Aries.BattleField_ChampionsValley_Coliseum.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="198" worldfilter="^HaqiTown_LafeierCastle_PVP_OneTeam" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LafeierCastle_PVP_OneTeam.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="199" worldfilter="^HaqiTown_LafeierCastle_PVP_TwoTeam" MinStartUser="4" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LafeierCastle_PVP_TwoTeam.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="200" worldfilter="^HaqiTown_LafeierCastle_PVP_Matcher" MinStartUser="6" MaxStartUser="6" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LafeierCastle_PVP_Matcher.NPC.xml" fromx="20000" fromy="20000"/>
+        
+    <rule id="211" worldfilter="^HaqiTown_RedMushroomArena_AI_1v1" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_AI_1v1.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="212" worldfilter="^HaqiTown_RedMushroomArena_AI_2v2" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_AI_2v2.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="213" worldfilter="^HaqiTown_RedMushroomArena_AI_3v3" MinStartUser="3" MaxStartUser="3" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_AI_3v3.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="214" worldfilter="^HaqiTown_RedMushroomArena_AI_4v4" MinStartUser="4" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_AI_4v4.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="215" worldfilter="^HaqiTown_LafeierCastle_PVP_ThreeTeam" MinStartUser="6" MaxStartUser="6" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_LafeierCastle_PVP_ThreeTeam.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <rule id="221" worldfilter="^HaqiTown_YYsDream_S4" MinStartUser="1" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_YYsDream_S4.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="222" worldfilter="^HaqiTown_Christmas_Colorful_World" MinStartUser="1" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_Christmas_Colorful_World.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="223" worldfilter="^DarkForestIsland_MarshNest" MinStartUser="1" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.DarkForestIsland_MarshNest.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="224" worldfilter="^HaqiTown_RedMushroomArena_1v1_599" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1_599.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="225" worldfilter="^HaqiTown_RedMushroomArena_1v1_799" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1_799.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="226" worldfilter="^HaqiTown_RedMushroomArena_1v1_999" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1_999.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="227" worldfilter="^HaqiTown_RedMushroomArena_1v1_1199" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1_1199.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="228" worldfilter="^HaqiTown_RedMushroomArena_1v1_1200" MinStartUser="2" MaxStartUser="2" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_1v1_1200.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="229" worldfilter="^FrostRoarIsland_HeroStormEye" MinStartUser="1" MaxStartUser="3" npc_file="config/Aries/NPCFiles/Aries.FrostRoarIsland_HeroStormEye.NPC.xml" fromx="20000" fromy="20000"/>
+
+    <rule id="251" worldfilter="^HaqiTown_RedMushroomArena_2v2_1999" MinStartUser="4" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_2v2_1999.NPC.xml" fromx="20000" fromy="20000"/>
+    <rule id="252" worldfilter="^HaqiTown_RedMushroomArena_2v2_5000" MinStartUser="4" MaxStartUser="4" npc_file="config/Aries/NPCFiles/Aries.HaqiTown_RedMushroomArena_2v2_5000.NPC.xml" fromx="20000" fromy="20000"/>
+    
+    <!--public world-->
+    <rule worldfilter="^worlds/MyWorlds/61HaqiTown/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.HaqiTown.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+    <rule worldfilter="^worlds/MyWorlds/FlamingPhoenixIsland/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.FlamingPhoenixIsland.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+    <rule worldfilter="^worlds/MyWorlds/FrostRoarIsland/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.FrostRoarIsland.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+    <rule worldfilter="^worlds/MyWorlds/AncientEgyptIsland/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.AncientEgyptIsland.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+    <rule worldfilter="^worlds/MyWorlds/DarkForestIsland/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.DarkForestIsland.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+    <rule worldfilter="^worlds/MyWorlds/NewUserIsland/$" is_persistent="true" npc_file="config/Aries/NPCFiles/Aries.NewUserIsland.NPC.xml" use_cell="false" fromx="20000" fromy="20000"/>
+
+    <!--multi user chat (muc) world-->
+    <rule worldfilter="^worlds/muc/default/$"/>
+    
+    <!--test world-->
+    <rule worldfilter="^worlds/MyWorlds/flatgrassland/$" npc_file="config/Aries/NPCFiles/Aries.Demo.NPC.xml" use_cell="false"/>
+    
+    <!-- empty rule(worldfilter) maps to any world-->
+    <rule fromx="20000" fromy="20000" />
+  </GridNodeRules>
+</GridServer>
+<GatewayServer nidfilter=".*">
+</GatewayServer>
+</GSL>

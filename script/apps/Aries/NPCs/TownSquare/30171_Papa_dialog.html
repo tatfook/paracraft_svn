@@ -1,0 +1,260 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30171_Papa_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30171_Papa_dialog, by Andy, 2009/8/20</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50042_DoneMouseTutorial
+-- 50043_NewbieQuest_Acquire
+-- 50044_NewbieQuest_Complete
+-- 50045_NewbieQuest_HasReadTimeMagazine
+-- 50046_NewbieQuest_HasReadCitizenHandbook
+-- 50047_NewbieQuest_HasUsedLocalMap
+
+local dragonFetched = MyCompany.Aries.Pet.IsMyDragonFetchedFromSophie();
+
+local ran = math.random(0, 120);
+Condition1 = function()
+    return not hasGSItem(50042);
+end;
+
+Condition3 = function()
+    return hasGSItem(50043) and not (hasGSItem(50044)) and (not hasGSItem(50045) or not hasGSItem(50046) or not hasGSItem(50047) or not dragonFetched);
+end;
+
+Condition4 = function()
+    return hasGSItem(50043) and not (hasGSItem(50044)) and hasGSItem(50045) and hasGSItem(50046) and hasGSItem(50047) and dragonFetched;
+end;
+
+Condition5 = function()
+    return hasGSItem(50044) and (ran <= 20);
+end;
+Condition6 = function()
+    return hasGSItem(50044) and (ran <= 40);
+end;
+Condition7 = function()
+    return hasGSItem(50044) and (ran <= 60);
+end;
+Condition8 = function()
+    return hasGSItem(50044) and (ran <= 80);
+end;
+Condition9 = function()
+    return hasGSItem(50044) and (ran <= 100);
+end;
+Condition10 = function()
+    return hasGSItem(50044) and (ran <= 120);
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+-- 50042_DoneMouseTutorial
+-- 50043_NewbieQuest_Acquire
+-- 50044_NewbieQuest_Complete
+-- 50045_NewbieQuest_HasReadTimeMagazine
+-- 50046_NewbieQuest_HasReadCitizenHandbook
+-- 50047_NewbieQuest_HasUsedLocalMap
+
+function ExitAction(from, to)
+    if(from == 2 and to == -1) then
+		ItemManager.PurchaseItem(50043, 1, function(msg) end, function(msg) 
+			log("+++++++Purchase item #50043_NewbieQuest_Acquire return: +++++++\n")
+			commonlib.echo(msg);
+			if(msg.issuccess == true) then
+			    MyCompany.Aries.Quest.NPCs.Papa.RefreshQuestStatus();
+		        local QuestArea = MyCompany.Aries.Desktop.QuestArea;
+		        QuestArea.FlashQuestNormalIcon("script/apps/Aries/NPCs/TownSquare/30171_Papa_newbiequest_status.html");
+			end
+		end, nil, "none", true);
+		-- CitizenHandbook
+		local ItemManager = System.Item.ItemManager;
+		ItemManager.PurchaseItem(19002, 1, function(msg) end, function(msg)
+			log("+++++++Purchase item #19002 CitizenHandbook return: +++++++\n")
+			commonlib.echo(msg);
+		end);
+    elseif(from == 4 and to == -1) then
+		ItemManager.PurchaseItem(50044, 1, function(msg) end, function(msg) 
+			log("+++++++Purchase item #50044_NewbieQuest_Complete return: +++++++\n")
+			commonlib.echo(msg);
+	        -- hard code the AddMoney here, move to the game server in the next release candidate
+	        local AddMoneyFunc = commonlib.getfield("MyCompany.Aries.Player.AddMoney");
+	        if(AddMoneyFunc) then
+		        AddMoneyFunc(1000, function(msg) 
+			        log("======== 50044_NewbieQuest_Complete_AddMoney returns: ========\n")
+			        commonlib.echo(msg);
+					-- send log information
+				    if(msg.issuccess == true) then
+					    paraworld.PostLog({action = "joybean_obtain_from_tutorialquest"}, "joybean_obtain_from_tutorialquest_log", function(msg)
+					    end);
+				    end
+		        end);
+	        end
+			MyCompany.Aries.Quest.NPCs.Papa.RefreshQuestStatus();
+		end, nil, "none", true);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+GiveCarnationToday = function()
+    return MyCompany.Aries.Quest.NPCs.Papa.GiveCarnationToday();
+end
+
+NotGiveCarnationTodayAndHaveCarnation = function()
+    return MyCompany.Aries.Quest.NPCs.Papa.NotGiveCarnationTodayAndHaveCarnation();
+end
+
+GiveCarnation = function()
+    MyCompany.Aries.Quest.NPCs.Papa.GiveCarnation();
+end
+
+reward_name = MyCompany.Aries.Quest.NPCs.Papa.GetRandomRewardName();
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30171" />
+            <pe:placeholder id="name" source="{this}" value='帕帕'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = "true" target_state = "25"/>     <!--comment this line to return to original imp--> 
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    请按照屏幕上的提示完成操作吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+            送你一本公民手册。<br/>
+            我还为你准备了1000奇豆，做完以下4件事情就可以找我领取了。<br />
+            1. 阅读最新的时报； 2. 阅读公民手册； 3. 使用地图； 4. 领回自己的抱抱龙；
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    你还没有办理完入住手续哦。<br/>
+            点击右上角的图标，可以查看任务的要求和进度。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你已经完成了入住手续,送给你1000奇豆。<br/>
+            希望你在哈奇小镇生活愉快！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+                告诉你个小秘密，使用<div style="float:left;color:#FF0000">键盘</div>上的<div style="float:left;color:#FF0000">方向键</div>，可以更灵活的控制移动呢！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+            告诉你个小秘密，要想买到漂亮的衣服，就去<div style="float:left;color:#FF0000">购物街</div>看看吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    告诉你个小秘密，要想买到漂亮的家园物品，就去<div style="float:left;color:#FF0000">购物街</div>看看吧！
+            <br/>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "8">
+		    告诉你个小秘密，要想买到炮竹，就去<div style="float:left;color:#FF0000">购物街</div>看看吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+            告诉你个小秘密，<div style="float:left;margin-left:-10px;color:#FF0000">龙龙乐园</div>的商店里，有抱抱龙喜欢的食品和日用品卖呢！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+            又是一年新年到，小哈奇们又要长大一岁了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "21">
+		    哈奇小镇越来越热闹了，好多小哈奇入住，每天迎接他们，再辛苦我也觉得很快乐。
+		    <pe:answer text="送你康乃馨" template_id="giveyoucarnation">
+			    <pe:answer-if condition = '<%=Eval("GiveCarnationToday")%>' target_state = "22"/>
+			    <pe:answer-if condition = '<%=Eval("NotGiveCarnationTodayAndHaveCarnation")%>' target_state = "24"/>
+			    <pe:answer-if condition = "true" target_state = "23"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "22">
+		    我今天已经收到你送的一朵康乃馨了，温馨又甜蜜，谢谢你啦，这朵你先留着吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "23">
+		    你还没有康乃馨呢，把两个春天的气息放到生机瓶里就能获得康乃馨种子了，快去种点康乃馨吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "24">
+		    <%=string.format("香香的康乃馨，温暖我的心，谢谢你啦！我要送你一个%s，快回家去把它们摆出来吧。", Eval("reward_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GiveCarnation")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "25">
+		    每天都在这里迎接小哈奇的入住，再辛苦我也觉得很快乐！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

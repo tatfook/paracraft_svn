@@ -1,0 +1,368 @@
+<!-- "script/apps/Aries/Profile/FullProfile.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Full profile for Aries by Andy 2009/6/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FullProfile.lua"><![CDATA[
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+MyCompany.Aries.FullProfilePage.OnInit(nid);
+nid_str = tostring(nid);
+nid_str = MyCompany.Aries.ExternalUserModule:GetNidDisplayForm(nid_str)
+isminifamilyview = page:GetRequestParam("minifamilyview");
+
+miniscenename = "fullprofile_avatar_"..nid..ParaGlobal.GenerateUniqueID();
+name = "fullprofile_avatar_miniscene_"..nid..ParaGlobal.GenerateUniqueID();
+name2 = "fullprofile_avatar_miniscene2_"..nid..ParaGlobal.GenerateUniqueID();
+
+function IsMiniProfileInFamilyWnd()
+    if(isminifamilyview == "true") then
+        return true;
+    end
+    return false;
+end
+
+function IsMyself()
+    if(nid == System.App.profiles.ProfileManager.GetNID()) then
+        return true;
+    end
+    return false;
+end
+
+function NicknameInMem()
+    local ProfileManager = System.App.profiles.ProfileManager;
+    local profile = ProfileManager.GetUserInfoInMemory(ProfileManager.GetNID());
+    if(profile) then
+        return profile.nickname;
+    end
+    return "";
+end
+
+function IsNotMyself()
+    return not IsMyself();
+end
+
+function IsEdit()
+    local isEditing = MyCompany.Aries.FullProfilePage.GetEditState();
+    if(isEditing) then
+        return isEditing;
+    end
+    return false;
+end
+
+function IsNotEdit()
+    return not IsEdit();
+end
+
+function ChangeName()
+    MyCompany.Aries.FullProfilePage.SetEditState(true);
+    page:Refresh(0.01);
+    
+    page:SetValue("nickname", tostring(NicknameInMem()))
+end
+
+function SaveName()
+	local nickname = page:GetValue("nickname");
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+	MyCompany.Aries.NewProfileMain.ChangeNickName(nickname, page);
+end
+
+function OnClose()
+	page:CloseWindow();
+    MyCompany.Aries.FullProfilePage.SetEditState(false);
+end
+
+function IsMyFriend()
+	local Friends = MyCompany.Aries.Friends;
+	return Friends.IsFriendInMemory(nid);
+end
+
+function IsNotMyFriend()
+    return not IsMyFriend();
+end
+
+function OnClickAdd()
+    MyCompany.Aries.FullProfilePage.OnAddAsFriend(nid);
+    OnClose();
+end
+
+function OnClickRemove()
+    MyCompany.Aries.FullProfilePage.OnRemoveFriend(nid);
+    OnClose();
+end
+
+function OnClickMountPetInfo()
+    MyCompany.Aries.FullProfilePage.OnViewMountPetInfo(nid);
+    OnClose();
+end
+
+function OnClickGoHome()
+    if(not MyCompany.Aries.Desktop.Dock.IsIdleMode()) then
+        MyCompany.Aries.FullProfilePage.OnVisitHome(nid);
+    end
+    OnClose();
+end
+
+function OnClickCheckFamily()
+    NPL.load("(gl)script/apps/Aries/Profile/FamilyProfile.lua");
+    MyCompany.Aries.FamilyProfilePage.ShowFamilyInfoOfNID(nid);
+    OnClose();
+end
+
+function OnClickSearch()
+    if(not MyCompany.Aries.Desktop.Dock.IsIdleMode()) then
+        MyCompany.Aries.FullProfilePage.OnSearchFriend(nid);
+    end
+    OnClose();
+end
+
+-- status: nil not available, 1 fetching all, 2 fetched. 
+dsMedals = Eval("dsMedals") or {status = nil, };
+
+function DS_Func_Aries_Medals(index)
+    return MyCompany.Aries.FullProfilePage.DS_Func_Items(dsMedals, index, page);
+end
+
+function OnVotePolularity()
+    if(tonumber(nid)) then
+        MyCompany.Aries.FullProfilePage.OnVotePolularity(tonumber(nid));
+    end
+    OnClose();
+end
+
+function OnVotePolularitySkipShowProfile()
+    if(tonumber(nid)) then
+        MyCompany.Aries.FullProfilePage.OnVotePolularity(tonumber(nid), true);
+    end
+    OnClose();
+end
+
+function ViewAvatarHelp()
+    NPL.load("(gl)script/apps/Aries/Help/RoleHelp/RoleHelpPage.lua");
+    MyCompany.Aries.Help.RoleHelpPage.ShowPage();
+end
+function OnShowProfile()
+    if(tonumber(nid)) then
+		System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid=tonumber(nid)});
+    end
+end
+]]></script>
+<pe:if condition="<%=(not IsMiniProfileInFamilyWnd())%>">
+<div style="margin-left:314px;margin-top:6px;position:relative;">
+    <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+</div>
+<div style="width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="margin-left:140px;margin-top:20px;width:150px;height:40px;">
+        <div style="width:200px;height:40px;font-size:14pt;font-weight:bold;color:#FFFFFF">
+            <pe:if condition='<%=IsMyself()%>'>
+                <pe:if condition='<%=IsNotEdit()%>'>
+                    <div style="margin-top:10px;float:right;">
+                        <pe:name name="FullProfileUserName" nid='<%=Eval("nid")%>' useyou="false" linked="false" style="font-weight:bold;"/>
+                    </div>
+                    <input type="button" zorder="3" style="width:32px;height:32px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+                        onclick="ChangeName();" tooltip="修改昵称" value=""/>
+                </pe:if>
+                <pe:if condition='<%=IsEdit()%>'>
+                    <input type="text" name="nickname" style="margin-left:-40px;margin-top:3px;width:140px;height:26px;"/>
+                    <input type="button" zorder="3" style="width:32px;height:32px;margin-left:8px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                        onclick="SaveName();" tooltip="保存" value=""/>
+                </pe:if>
+                <div style="position:relative;margin-left:-120px;margin-top:-32px;width:54px;height:54px;">
+                    <input style="width:32px;height:32px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+                        type="button" name="help" onclick="ViewAvatarHelp()" value="" tooltip="角色帮助"/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=IsNotMyself()%>'>
+                <div style="margin-left:-60px;margin-top:10px;width:200px;text-align:center;float:right;"><pe:name nid='<%=Eval("nid")%>' useyou="false" linked="false" style="font-weight:bold;"/></div>
+            </pe:if>
+        </div>
+        <!--<div style="float:right;margin-left:174px;margin-top:-56px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+        </div>-->
+    </div>
+    <div style="float:right;margin-left:25px;margin-top:0px;width:310px;height:248px;padding-left:14px;padding-top:34px;background:url(Texture/Aries/Profile/medal_bg_32bits.png:104 120 23 119);">
+        <div style="width:150px;height:100px;">
+            <div style="margin-left:0px;margin-top:-10px;width:280px;height:200px;background:;">
+                <div style="margin-left:-16px;margin-top:14px;width:256px;height:256px;">
+                    <pe:player nid='<%=Eval("nid")%>' object="self" name='<%=Eval("name")%>' miniscenegraphname="FullProfile_Player" RenderTargetSize="256" style="width:192px;height:192px;" background="" IsPortrait=true IsInteractive=false/>
+                </div>
+                <div style="margin-left:130px;margin-top:-180px;width:128px;height:128px;">
+                    <aries:mountpet nid='<%=Eval("nid")%>' object="mount" name='<%=Eval("name2")%>' miniscenegraphname="FullProfile_MountPet" RenderTargetSize="128" style="width:128px;height:128px;" background="" IsPortrait=true IsInteractive=false/>
+                </div>
+            </div>
+            <div style="margin-left:100px;margin-top:-210px;padding-left:20px;padding-top:10px;width:180px;height:100px;color:#000000;background:url(Texture/Aries/Profile/BasicInfo_bg_32bits.png# 0 0 64 46: 22 22 22 22)">
+                <div style="float:left;margin-left:4px;height:16px;"><%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div><div style="float:left;margin-left:-8px;height:20px"><%=Eval("nid_str")%></div><br/>
+                <div style="float:left;margin-left:4px;height:16px;">生日: </div><div style="float:left;margin-left:-8px;height:20px"><aries:userinfo nid='<%=Eval("nid")%>' field="birthday"/></div><br/>
+                <div style="float:left;margin-left:4px;height:20px;">奇豆: </div><div style="float:left;margin-left:-8px;height:20px"><aries:userinfo nid='<%=Eval("nid")%>' field="emoney"/></div><br/>
+                <div style="float:left;margin-left:4px;height:20px;">人气值: </div><div style="float:left;margin-left:-8px;height:20px"><aries:userinfo nid='<%=Eval("nid")%>' field="popularity"/></div>
+                <pe:if condition='<%=IsNotMyself()%>'>
+                    <input type="button" style="float:left;margin-left:4px;margin-top:-2px;width:40;height:26px;background:url(Texture/Aries/Profile/vote_32bits.png#0 0 40 26)" onclick="OnVotePolularitySkipShowProfile()" tooltip="给他投票" />
+                </pe:if>
+                <br/>
+            </div>
+            <div style="margin-left:-27px;margin-top:-210px;font-weight:norm;padding-left:20px;padding-top:10px;width:180px;height:100px;color:#000000;background:;">
+                <div style="margin-top:-6px;width:64px;height:32px;color:#000000;background:url(Texture/Aries/Profile/combat_school_level_tag_32bits.png)">
+                    <aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' style="margin-left:8px;margin-top:1px;"/>
+                </div>
+                <br/>
+                <div style="margin-top:-8px;width:64px;height:32px;color:#000000;background:url(Texture/Aries/Profile/combat_school_level_tag_32bits.png)">
+                    <aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" style="margin-left:12px;margin-top:1px;"/>
+                    <div style="margin-left:-36px;float:left;">级</div>
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:220px;margin-top:45px;width:100px;height:100px;">
+            <aries:vip-sign nid='<%=Eval("nid")%>' style="width:64px;height:64px;" vip_icon="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar_and_level_bg_32bits.png"/>
+            <aries:mountpet-status2 name="mlel" nid='<%=Eval("nid")%>' type="mlel" style="margin-left:-70px;margin-top:5px;width:40px;height:24px;color:#003300;font-weight:bold;text-align:center;"/>
+        </div>
+    </div>
+    <div style="margin-left:160px;margin-top:4px;width:32px;height:16px;background:url(Texture/Aries/Profile/MedalName_32bits.png)">
+    </div>
+    <div style="width:380px;height:4px;background:url(Texture/Aries/Profile/Line_32bits.png# 0 0 512 2)">
+    </div>
+    <div style="float:right;margin-left:25px;margin-top:0px;width:356px;height:70px;background:;">
+       <pe:gridview DataSource="<%=DS_Func_Aries_Medals%>" name="Item_Medals" 
+            VerticalScrollBarStep="48" CellPadding="1"  DefaultNodeHeight = "48" ItemsPerLine="6" AllowPaging="false" pagesize="6">
+            <Columns>
+                <div style="margin-top:0px;margin-bottom:3px;width:48px;height:48px;background:;">
+                    <!--<pe:slot guid='<%=Eval("guid")%>' style="width:38px;height:38px;"/>-->
+                    <!--<pe:item gsid='1001' style="width:40px;height:40px;"/>-->
+                    <!--<img src='<%=Eval("background")%>' style="width:64px;height:64px;"/>-->
+                    <pe:if condition='<%=Eval("isempty")%>'>
+                        <img src='<%=Eval("slot")%>' style="width:64px;height:64px;"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("isnotempty")%>'>
+                        <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" style="width:64px;height:64px;"/>
+                    </pe:if>
+                    <input type="button" zorder=2 tooltip='<%=Eval("tooltip")%>' style="margin-left:8px;margin-top:-64px;width:48px;height:64px;background:;"/>
+                    <!--<pe:if condition='<%=ismine%>'>
+                        <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;"/>
+                    </pe:if>
+                    <pe:if condition='<%=isnotmine%>'>
+                        <pe:slot guid='<%=Eval("guid")%>' nid='<%=Eval("nid")%>' style="width:64px;height:64px;"/>
+                    </pe:if>
+                    <pe:if condition='<%=isempty%>'>
+                        <img src='<%=Eval("background")%>' style="width:64px;height:64px;"/>
+                    </pe:if>-->
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:45px;margin-top:20px;">数据加载中，请稍等......</div>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div>
+    <div style="width:380px;height:4px;margin-top:-6px;background:url(Texture/Aries/Profile/Line_32bits.png# 0 0 512 2)">
+    </div>
+    
+    <!--<div style="float:right;margin-left:88px;margin-top:60px;width:90px;height:92px;background:texture/alphadot.png">
+        <pe:avatar miniscenegraphname='<%=Eval("miniscenename")%>' uid='<%=Eval("nid")%>' IsFacePortrait=true IsInteractive='false'/>
+    </div>-->
+
+    <div style="float:right;margin-left:67px;margin-top:-4px;padding:8px;width:400px;height:64px;"> 
+        <pe:if condition='<%=IsNotMyself()%>'>
+            <pe:if condition='<%=IsMyFriend()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/DeleteFriend_32bits.png;" type="button" name="Police" value="" tooltip="删除好友"
+                    onclick="OnClickRemove()" />
+            </pe:if>
+            <pe:if condition='<%=IsNotMyFriend()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/AddFriend_32bits.png;" type="button" name="Police" value="" tooltip="添加好友"
+                    onclick="OnClickAdd()" />
+            </pe:if>
+            <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/ViewDragon_32bits.png;" type="button" name="Police" value="" tooltip="抱抱龙资料"
+                onclick="OnClickMountPetInfo()" />
+            <pe:if condition='<%=not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/VisitHome_32bits.png;" type="button" name="Police" value="" tooltip="拜访家园"
+                    onclick="OnClickGoHome()" />
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/VisitHome_grey_32bits.png;" type="button" name="Police" value="" tooltip="拜访家园"/>
+            </pe:if>
+            <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/FamilyInfo_32bits.png;" type="button" name="Police" value="" tooltip="家族资料"
+                onclick="OnClickCheckFamily()" />
+            <pe:if condition='<%=IsMyFriend() and not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/FindFriend_32bits.png;" type="button" name="Police" value="" tooltip="查找好友"
+                    onclick="OnClickSearch()" />
+            </pe:if>
+            <pe:if condition='<%=IsNotMyFriend() or MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:32px;height:32px;background:texture/Aries/Profile/FindFriend_grey_32bits.png;" type="button" name="Police" value="" tooltip="查找好友"
+                    />
+            </pe:if>
+            <!--<input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/AddToBlackList_32bits.png;" type="button" name="Police" value="" tooltip="加入黑名单"/>
+            <input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/ReportAbuse_32bits.png;" type="button" name="Police" value="" tooltip="举报"/>
+            <input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/MailExpress_32bits.png;" type="button" name="Police" value="" tooltip="速递"/>-->
+            
+        </pe:if>
+            
+    </div>
+</div>
+</pe:if>
+<pe:if condition="<%=(IsMiniProfileInFamilyWnd())%>">
+<div style="width:215px;height:350px;background:url();">
+    
+    <div style="width:150px;height:100px;">
+        <div style="margin-left:14px;margin-top:8px;padding-left:25px;padding-top:7px;width:160px;height:90px;color:#663200;background:url(Texture/Aries/Profile/BasicInfo_bg_32bits.png# 0 0 64 46: 22 22 22 22)">
+            <div style="float:left;margin-left:3px;margin-top:-5px;width:120px;height:18px;"><pe:name name="FullProfileUserName" nid='<%=Eval("nid")%>' useyou="false" linked="false" style="font-weight:bold;text-align:center;"/></div><br/>
+            <div style="float:left;margin-left:-4px;margin-top:-2px;height:15px;font-size:12;"><%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div><div style="float:left;margin-left:-8px;margin-top:-2px;height:18px;font-size:12;"><%=Eval("nid_str")%></div><br/>
+            <div style="float:left;margin-left:-4px;margin-top:-2px;height:15px;font-size:12;">生日: </div><div style="float:left;margin-left:-8px;margin-top:-2px;height:18px;font-size:12;"><aries:userinfo nid='<%=Eval("nid")%>' style="margin-left:5px;" field="birthday" /></div><br/>
+            <div style="float:left;margin-left:-4px;margin-top:-2px;height:15px;font-size:12;">等级: </div><div style="float:left;margin-left:-8px;margin-top:-2px;height:18px;font-size:12;"><aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" style="margin-left:5px;margin-top:1px;width:22px;font-size:12px;"/></div><br/>
+            <div style="float:left;margin-left:-4px;margin-top:-2px;height:15px;font-size:12;">人气值: </div><div style="float:left;margin-left:-8px;margin-top:-2px;height:18px;font-size:12;"><aries:userinfo nid='<%=Eval("nid")%>'style="margin-left:5px;" field="popularity" /></div>
+        </div>
+        <div style="margin-left:0px;margin-top:-25px;width:280px;height:200px;background:;">
+            <div style="margin-left:-2px;margin-top:0px;width:256px;height:256px;">
+                <pe:player nid='<%=Eval("nid")%>' object="self" name='<%=Eval("name")%>' miniscenegraphname="FullProfile_Player" RenderTargetSize="256" style="width:192px;height:192px;" background="" IsPortrait=true IsInteractive=false/>
+            </div>
+        </div>
+        <div style="margin-left:100px;margin-top:-180px;">
+            <pe:if condition='<%=IsNotMyself()%>'>
+                <input type="button" style="float:left;margin-left:4px;margin-top:-22px;width:35;height:24px;background:url(Texture/Aries/Profile/vote_32bits.png#0 0 40 26)" onclick="OnVotePolularitySkipShowProfile()" tooltip="给他投票" />
+            </pe:if>
+        </div>
+    </div>
+    <div style="margin-left:16px;margin-top:150px;padding:8px;width:400px;height:64px;"> 
+        <pe:if condition='<%=IsNotMyself()%>'>
+  <!--          <pe:if condition='<%=IsMyFriend()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/DeleteFriend_32bits.png;" type="button" name="Police" value="" tooltip="删除好友"
+                    onclick="OnClickRemove()" />
+            </pe:if>
+            <pe:if condition='<%=IsNotMyFriend()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/AddFriend_32bits.png;" type="button" name="Police" value="" tooltip="添加好友"
+                    onclick="OnClickAdd()" />
+            </pe:if>
+            <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/ViewDragon_32bits.png;" type="button" name="Police" value="" tooltip="抱抱龙资料"
+                onclick="OnClickMountPetInfo()" />
+            <pe:if condition='<%=not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/VisitHome_32bits.png;" type="button" name="Police" value="" tooltip="拜访家园"
+                    onclick="OnClickGoHome()" />
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/VisitHome_grey_32bits.png;" type="button" name="Police" value="" tooltip="拜访家园"/>
+            </pe:if>-->
+            <!--<pe:if condition='<%=IsMyFriend() and not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/FindFriend_32bits.png;" type="button" name="Police" value="" tooltip="查找好友"
+                    onclick="OnClickSearch()" />
+            </pe:if>
+            <pe:if condition='<%=IsNotMyFriend() or MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                <input style="margin-left:8px;width:25px;height:25px;background:texture/Aries/Profile/FindFriend_grey_32bits.png;" type="button" name="Police" value="" tooltip="查找好友"
+                    />
+            </pe:if>-->
+            <input type="button" onclick="OnShowProfile" style="margin-left:28px" value="查看详细资料"/>
+            <!--<input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/AddToBlackList_32bits.png;" type="button" name="Police" value="" tooltip="加入黑名单"/>
+            <input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/ReportAbuse_32bits.png;" type="button" name="Police" value="" tooltip="举报"/>
+            <input enabled="false" style="width:32px;height:32px;background:texture/Aries/Profile/MailExpress_32bits.png;" type="button" name="Police" value="" tooltip="速递"/>-->
+            
+        </pe:if>
+            
+    </div>
+</div>
+</pe:if>
+</pe:mcml>
+</body>
+</html>
+

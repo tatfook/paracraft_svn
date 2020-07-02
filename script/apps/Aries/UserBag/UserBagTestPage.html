@@ -1,0 +1,70 @@
+<!--script/apps/Aries/UserBag/UserBagTestPage.html-->
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/UserBag/UserBagTestPage.lua");
+local UserBagTestPage = commonlib.gettable("MyCompany.Aries.Inventory.UserBagTestPage");
+UserBagTestPage.OnInit();
+local page = document:GetPageCtrl();
+function GetFolderDataSource()
+    return UserBagTestPage.folder_menu;
+end
+function GetSubfolderDataSource()
+    return UserBagTestPage.subfolder_menu;
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        UserBagTestPage.DoChangeFolder(node.keyname);
+    end
+end
+function OnClickSubfolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        UserBagTestPage.DoChangeSubfolder(node.keyname);
+    end
+end
+function DS_Func_Items(index)
+    return UserBagTestPage.DS_Func_Items(index);
+end
+]]></script>
+<div style="width:760px;height:470px;" class="window">
+<div style="margin-left:20px;margin-top:30px;">
+    <div style="position:relative;margin-top:2px;">
+        <pe:togglebuttons name="folder_menu" DataSource='<%=GetFolderDataSource() %>' 
+        ItemSpacing="2"
+        ButtonWidth="60"
+        ButtonHeight="25"
+        onclick='OnClickFolder'/>
+    </div>
+    <div style="position:relative;margin-top:30px;">
+        <pe:togglebuttons name="subfolder_menu" DataSource='<%=GetSubfolderDataSource() %>' 
+        ItemSpacing="2"
+        ButtonWidth="60"
+        ButtonHeight="25"
+        onclick='OnClickSubfolder'/>
+    </div>
+    <div style="margin-top:55px;">
+    <pe:gridview name="gridview_items" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="8" AllowPaging="true" pagesize="48">
+		<Columns>
+			<div class="block" style="margin-left:2px;margin-top:2px;width:48px;height:48px;">
+                <pe:slot guid='<%=Eval("guid")%>' style="width:48px;height:48px;" isdragable="true"/>
+			</div>
+		</Columns>
+		<EmptyDataTemplate>
+		</EmptyDataTemplate>
+		<FetchingDataTemplate>
+			<b>请稍等 ... </b>
+		</FetchingDataTemplate>
+		<PagerSettings Position="Bottom" style="margin-left:115px;margin-top:0px;width:260px;height:25px;"/>
+		<PagerTemplate>
+			<form>
+				<input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+					<input type="button" name="page" class="pagerbuttontext" /> 
+				<input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	        </form>
+		</PagerTemplate>
+	</pe:gridview>
+    </div>
+    </div>
+</div>
+</pe:mcml>

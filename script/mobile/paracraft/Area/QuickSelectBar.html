@@ -1,0 +1,144 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Areas/QuickSelectBar.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl" src="QuickSelectBar.lua"><![CDATA[
+QuickSelectBar = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.QuickSelectBar");
+QuickSelectBar.OnInit();
+GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
+
+function GetKeyNum(index)
+    if(not index)then return end
+    local n = math.mod(index,QuickSelectBar.static_view_len);
+    if(n == 0)then n = QuickSelectBar.static_view_len end;
+    return n;
+end
+function PageIndexChanged(ctrlName, nPageIndex)
+    QuickSelectBar.static_view_page_index = nPageIndex;
+end
+
+function ds_CustomBtn(index)
+    if(not index) then
+        return #(QuickSelectBar.custombtn_nodes);
+    else
+        return QuickSelectBar.custombtn_nodes[index];
+    end
+end
+
+function OnClickItem(mcmlNode)
+    GameLogic.GetPlayerController():SetHandToolIndex(mcmlNode.slot.slotIndex);
+end
+
+function GetExpValue()
+    return 16;
+end
+
+function OnCreateExpBar(params,node)
+    local _this = ParaUI.CreateUIObject("button", "mc_exp_bar", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;340 45 10 4:4 2 4 2";
+    _guihelper.SetUIColor(_this, "#ffffffff");
+	params.parent:AddChild(_this);
+end
+
+function OnCreateHPAndHunger(params,node)
+    local name = node:GetAttribute("name");
+    local background;
+    if(name:match("mc_hp")) then
+        background = "Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;118 68 18 18"
+    elseif(name:match("mc_hunger")) then
+        background = "Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png;118 45 18 22"
+    end
+    local _this = ParaUI.CreateUIObject("button", name, 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = background;
+    _this.enabled = false;
+    _guihelper.SetUIColor(_this, "#ffffffff");
+
+	params.parent:AddChild(_this);
+end
+
+]]></script>
+<div style="width:400px;height:96px;" >
+    <pe:if condition="<%=not System.options.IsMobilePlatform and MyCompany.Aries.Creator.Game.EventHandler.IsTouchInputting() == false%>">
+        <div style="position:relative;margin-left:400px;margin-top:48px;width:128px;height:22px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 88 128 22)">
+            <!--帮助提示-->
+        </div>
+    </pe:if>
+    <pe:if condition='<%=GameLogic.GameMode:IsEditor()%>'>
+        <div style="position:relative;height:12px;margin-left:5px;margin-top:27px;">
+            <pe:container name="progress_wnd" visible='<%=QuickSelectBar.IProgressBar~=nil %>' style="background:;width:390px;">
+                <div style="float:left;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#355 45 10 7:4 3 4 3);width:360px;height:7px;">
+                    <pe:custom name="mc_exp_bar" oncreate="OnCreateExpBar" style="margin-left:2px;margin-top:2px;width:70px;height:4px;" />   
+                </div>
+                <div style="position:relative;float:left;">
+                    <input type="button" name="btnAccelerate" tooltip="自动完成" onclick="QuickSelectBar.OnClickAccelerateProgress" style="background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#445 127 32 16);margin-left:0px;margin-top:-3px;width:24px;height:12px;" />
+                </div>
+            </pe:container>
+        </div>
+    </pe:if>
+    <!-- 自定义按钮 -->
+    <div style="height:25px;margin-top:16px;width:400px;">
+        <pe:container name="survival_stats" visible='<%=GameLogic.GameMode:IsShowExpHPBar()%>' style="background:;height:25px;width:400px;">
+            <div style="float:left;margin-top:2px;">
+                <pe:custom name="mc_hp_1" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_2" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_3" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_4" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_5" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_6" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_7" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_8" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <!--<pe:custom name="mc_hp_9" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />
+                <pe:custom name="mc_hp_10" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:18px;" />-->
+            </div>
+            <div style="float:left;margin-left:42px;">
+                <!--<pe:custom name="mc_hunger_10" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_9" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />-->
+                <pe:custom name="mc_hunger_8" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_7" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_6" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_5" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_4" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_3" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_2" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+                <pe:custom name="mc_hunger_1" oncreate="OnCreateHPAndHunger" style="float:left;margin-left:2px;width:18px;height:22px;" />
+            </div>
+        </pe:container>
+    </div>
+    <pe:container style="margin-top:5px;background:;">
+        <pe:container name="handtool_highlight_bg" zorder="-1" style="position:relative;margin-top:-1px;margin-left:3px;width:42px;height:42px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#74 45 40 40:12 12 12 12)">
+        </pe:container>
+        <input name="handtool_tooltip" type="button" visible="false" enabled="false" zorder="-1" style="color:#cccccc;position:relative;font-weight:bold;font-size:14px;font-size:14px;margin-top:-36px;background-color:#ffffffff;margin-left:3px;width:100px;height:28px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12)" />
+        <script type="text/npl"><![CDATA[
+            QuickSelectBar:OnHandToolIndexChanged();
+        ]]></script>
+        <pe:container zorder="-2" style="position:relative;background:;">
+            <pe:gridview style="position:relative;margin-left:1px;" RememberLastPage="true" name="quickSelectBar" CellPadding="0" ItemsPerLine="9" AllowPaging="false" DefaultNodeHeight="40" pagesize="9"
+                DataSource='<%=ds_CustomBtn%>'>
+	            <Columns>
+                    <div style="width:40px;height:40px;padding:3px;margin-left:1px;">
+                        <div zorder="-1" style="position:relative;margin-top:-3px;margin-left:-3px;width:38px;height:38px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#32 45 38 38:12 12 12 12)"></div>
+                    </div>
+                </Columns>
+            </pe:gridview>
+        </pe:container>
+        <pe:gridview style="position:relative;margin-left:1px;" RememberLastPage="true" name="quickSelectBar" CellPadding="0" ItemsPerLine="9" AllowPaging="false" DefaultNodeHeight="40" pagesize="9"
+            DataSource='<%=ds_CustomBtn%>'>
+	        <Columns>
+		        <div style="width:40px;height:40px;padding:3px;margin-left:1px;">
+                    <pe:mc_slot bagpos ='<%=Eval("index")%>' style="width:32px;height:32px;" onclick='OnClickItem' />
+                </div>
+	        </Columns>
+        </pe:gridview>
+    </pe:container >
+</div>
+</pe:mcml>
+</body>
+</html>
+

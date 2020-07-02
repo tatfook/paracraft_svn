@@ -1,0 +1,105 @@
+﻿<!-- "script/apps/Aries/CombatPet/CombatPetPropsTip.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" Refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local provider = CombatPetHelper.GetClientProvider();
+local cards = provider:GetCurLevelCards_FollowingPet() or {};
+cards = provider:Get_Cards_List(cards)
+local props = provider:GetCurLevelProps_FollowingPet() or {};
+props = provider:Get_Props_List(props)
+function GetGrownState()
+    return provider:GetGrownState_FollowingPet()
+end
+function GetSelectedNodeLevel()
+    return provider:GetLevel_FollowingPet()
+end
+function ShowCurPropsByIndex(index)
+    if(props[index])then
+        return props[index].label
+    end
+end
+function ShowCardsByIndex(index)
+    if(cards[index])then
+        return cards[index].gsid;
+    end
+end
+]]></script>
+<div style="margin-left:3px;margin-top:2px;width:238px;height:208px;" class="smooth_border_bg">
+    <div style="float:left;margin-left:2px;margin-top:2px;padding:5px;width:234px;height:205px;" class="spark_bg">
+        <div>
+            <div style="color:#5bf00f;float:left;">当前属性:</div>
+            <div style="color:#5bf00f;float:left;">
+                <pe:if condition='<%= GetGrownState()== "junior" %>'>
+                    成长:<div style="float:left;color:#fdde07;font-weight:bold;"><%= GetSelectedNodeLevel()%></div>级
+                </pe:if>                
+                <pe:if condition='<%= GetGrownState()== "senior" %>'>
+                    进化:<div style="float:left;color:#fdde07"><%= GetSelectedNodeLevel()%></div>级
+                </pe:if>                
+            </div>
+        </div>
+            <div style="margin-top:4px;">
+                <div style="padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                    <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(1) %></div>
+                    <div style="float:left;"><%=ShowCurPropsByIndex(2) %></div>
+                </div>
+                <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                    <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(3) %></div>
+                    <div style="float:left;"><%=ShowCurPropsByIndex(4) %></div>
+                </div>
+                <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                    <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(5) %></div>
+                    <div style="float:left;"><%=ShowCurPropsByIndex(6) %></div>
+                </div>
+                <div >
+                    <div style="color:#5bf00f;">附加卡片:</div>
+                    <div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(1) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(2) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(3) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(4) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(5) %>'/>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(6) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(7) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(8) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(9) %>'/>
+                        </div>
+                        <div style="float:left;width:38px;height:38px;margin-left:4px;" class="block">
+                            <pe:item isclickable="false" style="width:38px;height:38px;" gsid='<%=ShowCardsByIndex(10) %>'/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

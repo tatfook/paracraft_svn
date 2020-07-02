@@ -1,0 +1,239 @@
+﻿<!-- "script/apps/Aries/NPCs/Doctor/30081_Sophie_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30081_Sophie_dialog, by Andy, 2009/8/24</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local dragonFetched = MyCompany.Aries.Pet.IsMyDragonFetchedFromSophie();
+
+-- 50181_DoctorInauguralQuest_Accept
+-- 50182_DoctorInauguralQuest_Complete
+-- 17012_ReviveElixar
+-- 17005_RainbowFlower
+-- 17015_ColorCloudCrystal
+
+Condition1 = function()
+    -- haven't fetch the dragon from sophie
+    return (dragonFetched == false);
+end;
+Condition2 = function()
+    -- old implementation without doctor quest
+    return false;
+end;
+Condition3 = function()
+    -- not acquire InauguralQuest
+    return not hasGSItem(50181);
+end;
+Condition5 = function()
+    -- acquire InauguralQuest and not all required items are obtained
+    return hasGSItem(50181) and not hasGSItem(50182) and (not hasGSItem(17012) or not hasGSItem(17005) or not hasGSItem(17015));
+end;
+Condition6 = function()
+    -- acquire InauguralQuest and all required items are obtained
+    return hasGSItem(50181) and not hasGSItem(50182) and (hasGSItem(17012) and hasGSItem(17005) and hasGSItem(17015));
+end;
+Condition7 = function()
+    -- acquire InauguralQuest and all required items are obtained
+    return hasGSItem(50181) and hasGSItem(50182);
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 1 and to == -1) then
+        local function FollowMe()
+            -- take the dragon from sophie, and follow the user
+	        local item = ItemManager.GetMyMountPetItem();
+	        if(item and item.guid > 0) then
+	            -- make the mount pet follow the user
+	            item:FollowMe(function(msg)
+		            -- refresh the status for dragon wish
+	                if(commonlib.getfield("MyCompany.Aries.Quest.NPCs.DragonWish.RefreshStatus")) then
+		                MyCompany.Aries.Quest.NPCs.DragonWish.RefreshStatus();
+	                end
+	                -- create effect of newly born pet
+		            local _pet = MyCompany.Aries.Pet.GetUserMountObj();
+		            if(_pet and _pet:IsValid() == true) then
+			            local params = {
+				            asset_file = "character/v5/temp/Effect/DampenMagic_Impact_Base.x",
+				            binding_obj_name = _pet.name,
+				            duration_time = 2000,
+				            end_callback = function()
+		                        -- show newbiequest help dialog
+		                        System.App.Commands.Call("File.MCMLWindowFrame", {
+			                        url = "script/apps/Aries/NPCs/TownSquare/30171_Papa_NewbieQuest_Help_dialog.html?forcestate=6", 
+			                        app_key = MyCompany.Aries.app.app_key, 
+			                        name = "NPC_Dialog", 
+			                        isShowTitleBar = false,
+			                        DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
+			                        style = CommonCtrl.WindowFrame.ContainerStyle,
+			                        zorder = 2,
+			                        directPosition = true,
+					                    align = "_lt",
+					                        x = 41,
+					                        y = 165,
+					                        width = 204,
+					                        height = 430,
+		                        });
+				            end
+			            };
+			            local EffectManager = MyCompany.Aries.EffectManager;
+			            EffectManager.CreateEffect(params);
+		            end
+		            -- call hook for dragon fetch
+			        local hook_msg = { aries_type = "OnFetchDragonFromSophie", wndName = "main"};
+			        CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+	            end);
+	        end
+        end
+        -- purchase the dragon free of charge
+        local ItemManager = System.Item.ItemManager;
+        ItemManager.PurchaseItem(10001, 1, function(msg)
+	        if(msg) then
+		        log("+++++++Fetch dragon from sophie return: +++++++\n")
+		        commonlib.echo(msg);
+		        if(msg.issuccess == true) then
+		            -- init the dragon data
+		            NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandProvider.lua");
+		            System.App.HomeLand.HomeLandProvider.PetInit(System.User.nid, function(msg)
+			            if(msg and not msg.errorcode) then
+				            -- continue
+				            FollowMe();
+			            else
+			                -- fail
+	                        _guihelper.MessageBox("本次连接已经断开，请尝试重新登陆！", function()
+			                    paraworld.PostLog({action="user_restart", reason="sophie_fetchdragon_initfail"}, "logout_log", function(msg)
+			                    end);
+		                        Map3DSystem.App.Commands.Call("Profile.Aries.Restart", {method="soft"});
+	                        end, _guihelper.MessageBoxButtons.OK);
+			            end
+		            end);
+		        end
+	        end
+        end, function(msg) end, nil, "none", true);
+    elseif(from == 3 and to == 4) then
+        -- accept the quest
+	    ItemManager.PurchaseItem(50181, 1, function(msg) end, function(msg)
+		    if(msg) then
+			    log("+++++++Accept Doctor Inaugural Quest 50181_DoctorInauguralQuest_Accept return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+			        -- flash the quest icon and append quest status
+			        MyCompany.Aries.Desktop.QuestArea.FlashQuestMedalIcon();
+			        MyCompany.Aries.Quest.NPCs.Sophie.RefreshStatus();
+			    end
+		    end
+	    end);
+    elseif(from == 0 and to == 6) then
+        -- finish the quest
+        -- exid 102: Doctor_InauguralQuestComplete
+        ItemManager.ExtendedCost(102, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 102: Doctor_InauguralQuestComplete return: +++++++\n")
+		    commonlib.echo(msg);
+		    MyCompany.Aries.Quest.NPCs.Sophie.RefreshStatus();
+		    if(msg.issuccess == true) then
+		        -----------MyCompany.Aries.Quest.NPCs.StandGuardPost.RefreshStatus();
+		    end
+        end);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+ <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="Ambassador_hqtym" />
+            <pe:placeholder id="Ambassador_cktym" />
+            <pe:placeholder id="viewcontent" />
+            <pe:placeholder id="later" />
+            <pe:placeholder id="ok" />
+        </pe:template>
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+			    <pe:answer-if condition = 'true' target_state = "7"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "1">
+		    我是哈奇小镇的医生<br/>——苏菲。<br/>
+            你是来接抱抱龙回家的吧，我现在就把它交给你，你好好照顾它哦。
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    最近医院新增了很多需要治疗的抱抱龙呀，可是我一个人忙不过来呀，你愿意成为医生来帮我照顾他们吗？
+            <pe:answer template_id="iwill">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer> 
+            <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>  
+	    </pe:state>
+
+	    <pe:state id = "4">
+		    七色花、回魂草和彩云结晶是做抱抱龙药品的必须原料，你把这三种物品收集齐再来找我，就可以成为医生了。
+              <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer> 
+	    </pe:state>
+
+	    <pe:state id = "5">
+		    七色花、回魂草和彩云结晶是做抱抱龙药品的必须原料，你还没有找齐，继续努力吧。
+              <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer> 
+	    </pe:state>
+
+	    <pe:state id = "6">
+		    干的漂亮，你现在已经成为一名医生了，为此我奖励给你一套医生制服，现在你可以去徽章展示框领取一枚天使木徽章了。
+              <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer> 
+	    </pe:state>
+	    <pe:state id = "7">
+		    今年哈奇小镇的春天一点都不逊色于往年，大家一定要好好珍惜美好的时光哦。
+              <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer> 
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+ </pe:dialog>  
+    
+</pe:mcml>
+</body>
+</html>

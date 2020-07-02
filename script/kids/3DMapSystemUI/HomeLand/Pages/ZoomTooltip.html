@@ -1,0 +1,85 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/ZoomTooltip.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandNodeProcessor.lua");
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/Pages/NormalView.lua");
+local NormalViewPage = commonlib.gettable("MyCompany.Aries.Inventory.NormalViewPage");
+local page = document:GetPageCtrl();
+--"zoomin" or "zoomout"
+local state = page:GetRequestParam("state");
+local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+local bean = Pet.GetBean() or {};
+local energy = bean.energy or 0;
+local m = bean.m or 0;
+local mlel = bean.mlel or 0;
+function GetState()
+    return state;
+end
+function IsNotVip()
+    if(mlel == 0 and energy == 0)then
+        return true;
+    end
+end
+function IsFullLevel()
+    if(mlel >= 10)then
+        return true;
+    end
+end
+function GetScale()
+    local node = MyCompany.Aries.Inventory.NormalViewPage.node;
+    if(node and node.GetScale)then
+        return node:GetScale() or 1;
+    end
+end
+function GetCurLevelTip()
+   local max_scale = Map3DSystem.App.HomeLand.HomeLandNodeProcessor.VIP_Scale_Map[mlel] or 1;
+    if(state == "zoomin")then
+        return string.format("%d级魔法星，可以放大%.1f倍",mlel,max_scale);
+    else
+        return string.format("%d级魔法星，可以缩小0.5倍",mlel);
+    end
+end
+function GetNextLevelTip()
+   local max_scale = Map3DSystem.App.HomeLand.HomeLandNodeProcessor.VIP_Scale_Map[mlel+1] or 1;
+    if(state == "zoomin")then
+        return string.format("下一等级，可以放大%.1f倍",max_scale);
+    else
+        return string.format("下一等级，可以缩小0.5倍");
+    end
+end
+function GetShortcutTip()
+    if(state == "zoomin")then
+        return string.format([[快捷键 "+" 当前缩放比例%.1f]],GetScale());
+    else
+        return string.format([[快捷键 "-" 当前缩放比例%.1f]],GetScale());
+    end
+end
+]]></script>
+<div style="padding:5px;font-size:12;width:200px;height:70px;" class="static_block">
+    <pe:if condition="<%=IsNotVip()%>">
+        <div>
+            <img style="float:left;width:20px;height:20px;background:url(Texture/Aries/Dock/teen/magicstar_32bits.png);"/>
+            <div style="float:left;color:#0026ff">魔法星用户可以进行放大/缩小操作</div>
+        </div>
+    </pe:if>
+    <pe:if condition="<%=not IsNotVip()%>">
+        <div>
+            <img style="float:left;width:20px;height:20px;background:url(Texture/Aries/Dock/teen/magicstar_32bits.png);"/>
+            <div style="float:left;margin-left:2px;color:#0026ff"><%=GetCurLevelTip()%></div>
+        </div>
+        <pe:if condition="<%=not IsFullLevel()%>">
+            <div style="margin-left:20px;color:#808080"><%=GetNextLevelTip()%></div>
+        </pe:if>
+    </pe:if>
+    <div style="margin-left:20px;color:#808080"><%=GetShortcutTip()%></div>
+</div>
+</pe:mcml> 
+</body>
+</html>

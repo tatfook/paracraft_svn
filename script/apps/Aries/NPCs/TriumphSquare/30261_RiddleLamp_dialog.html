@@ -1,0 +1,142 @@
+﻿<!-- "script/apps/Aries/NPCs/TriumphSquare/30261_RiddleLamp_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30261_RiddleLamp_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30261);
+memory[instance] = memory[instance] or {};
+memory = memory[instance];
+
+IsLightupLamp = function()
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30261);
+    if(memory.LastLightupTimes[instance]) then
+        return true;
+    end
+    return false;
+end;
+function getQuestionLabel()
+    local riddleliamp = MyCompany.Aries.Quest.NPCs.RiddleLamp;
+    if(riddleliamp.cur_question)then
+        return riddleliamp.cur_question.label;
+    end
+end
+function getQuestionOption(op)
+    local riddleliamp = MyCompany.Aries.Quest.NPCs.RiddleLamp;
+    if(riddleliamp.cur_question and riddleliamp.cur_question.option)then
+        return riddleliamp.cur_question.option[op];
+    end
+end
+function isCorrect(v)
+    local riddleliamp = MyCompany.Aries.Quest.NPCs.RiddleLamp;
+    if(riddleliamp.cur_question)then
+        return riddleliamp.cur_question.answer == v;
+    end    
+end
+
+local answer1;
+function OnSelectQuestion1(value, mcmlNode)
+    answer1 = value;
+end
+
+function ConditionAnswer()
+    return isCorrect(answer1);
+end
+
+CorrectRiddle = function()
+    MyCompany.Aries.Quest.NPCs.RiddleLamp.CorrectRiddle(instance);
+end
+
+ResetAnswerState = function()
+    MyCompany.Aries.Quest.NPCs.RiddleLamp.answered_wrong = nil;
+end
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+function ExitAction(from, to)
+    if(from == 10)then
+        MyCompany.Aries.Quest.NPCs.RiddleLamp.OpenQuestionAgain();
+    end
+end
+
+]]></script>
+     <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='灯谜桥的灯'/>
+            <pe:placeholder id="ok" />
+            <pe:placeholder id="later" />
+            <pe:placeholder id="iknow" />
+        </pe:template>
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=Eval("IsLightupLamp")%>' target_state = "2"/>
+		        <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	            <pe:if condition = '<%= not MyCompany.Aries.Quest.NPCs.RiddleLamp.answered_wrong%>'>
+		        欢迎来挑战灯谜，来看看你的题目是什么吧，选好以后点确定哦：
+		        </pe:if>
+		        <pe:if condition = '<%= MyCompany.Aries.Quest.NPCs.RiddleLamp.answered_wrong%>'>
+		        很可惜，没有答对哦，重新换一道题目看看，加油哦：
+		        </pe:if>
+                <pe:editor style="margin-top:-10px;background:;color:#6d2f00">
+                     <%=getQuestionLabel() %>
+	                <br/>
+                    <div style="width:250px;float:left;"><input type="radio" name="answer" value="a"  onclick="OnSelectQuestion1()" style="float:left;"/><div style="float:left;"><%=getQuestionOption('a') %></div></div> 
+                    <div style="width:250px;float:left;"><input type="radio" name="answer" value="b"  onclick="OnSelectQuestion1()" style="float:left;"/><div style="float:left;"><%=getQuestionOption('b') %></div></div> 
+                    <div style="width:250px;float:left;"><input type="radio" name="answer" value="c"  onclick="OnSelectQuestion1()" style="float:left;"/><div style="float:left;"><%=getQuestionOption('c') %></div></div> 
+                    <div style="width:250px;float:left;"><input type="radio" name="answer" value="d"  onclick="OnSelectQuestion1()" style="float:left;"/><div style="float:left;"><%=getQuestionOption('d') %></div></div> 
+		        </pe:editor>
+		        <pe:answer template_id = "ok_right">
+		            <pe:answer-if condition = '<%=Eval("ConditionAnswer")%>' transition = '<%=Eval("CorrectRiddle")%>' target_state = "4"/>
+		            <pe:answer-if condition = 'true'   target_state = "10"/>
+		        </pe:answer>
+		        <pe:answer template_id = "later_right">
+			        <pe:answer-if condition = "true" transition = '<%=Eval("ResetAnswerState")%>' target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    我里面的灯谜你已经答对了，快快抓紧时间点亮所有的灯，然后去点燃烟花发射台，别在我这里浪费时间了！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    真不错，答对哦！
+		    <br/>
+            你已经把我点亮了，快快点亮所有的灯，然后点燃烟花发射台吧！
+  		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>    
+</pe:mcml>
+</body>
+</html>

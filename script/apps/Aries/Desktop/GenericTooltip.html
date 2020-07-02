@@ -1,0 +1,163 @@
+<!-- script/apps/Aries/Desktop/GenericTooltip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/GenericTooltip.lua");
+
+local GenericTooltip = CommonCtrl.GenericTooltip:new({
+	user_nid,
+	gsid = 0, 
+	guid = 0,
+	name = "",--object display name
+	icon = "",
+	quality = -1, -- -1 means unknown.
+
+	durability = "",-- for equip durability.
+	level = "",
+	bind_self = "",
+	school = "",
+	item_type = "", -- item type
+
+	self_stats = "",
+	--extra mount attr
+	extra_stats = "",
+    trade = "",
+
+	hold_slots = 0,--hold slots count of equip.
+	usable_slots = 0,--usable slots count of equip.
+	unusable_slots = 0,
+	equiped_list_count = 0,
+	total_equip_list_count = 0,
+
+	equip_suit_name = "",--display equip suit name.
+	equiped_list = "",
+
+	equipsuit_mount_stats = "",
+    card_list = "",
+	avatar_school = "",
+    equip_compare_url = "",
+
+	item = {},
+	goods = {},
+    description = "",
+    exp = "",
+    addon_perperty_section = ""
+});
+
+GenericTooltip:Init();
+
+--GetEquipCompareURL = function() return GenericTooltip.equip_compare_url;end
+GetItemName = function() return GenericTooltip.name;end
+GetDescription = function() return GenericTooltip.description;end
+GetSocketingDescription = function() return GenericTooltip.socketing_description; end
+GetItemIcon = function() return GenericTooltip.icon;end
+GetEquipDurability = function() return GenericTooltip.durability;end
+IsBinding = function() return GenericTooltip.bind_self;end
+GetItemType = function() return GenericTooltip.item_type;end
+GetSchool = function() return GenericTooltip.school;end
+GetSelfStats = function() return GenericTooltip.self_stats;end
+GetExtraStats = function() return GenericTooltip.extra_stats;end
+GetEquippedList = function() return GenericTooltip.equiped_list;end
+GetItemLevel = function() return GenericTooltip.level;end
+GetCardList = function() return GenericTooltip.card_list; end
+GetAddonProp = function() return GenericTooltip.addon_perperty_section; end
+GetNpcTips = function() return GenericTooltip.npctips; end
+GetOpenNumberTips = function() return GenericTooltip.opennumbertips; end
+GetExtendInfo = function()
+    if(GenericTooltip.exp and GenericTooltip.exp ~= "")then
+    GenericTooltip.exp = string.format([[<div>制造需要熟练度:%s</div>]],GenericTooltip.exp or 0)
+    return GenericTooltip.exp;
+    end
+    return ""; end
+    
+
+    function GetGenericTooltip_trade()
+    return GenericTooltip.trade;
+    end
+
+    GetDiffStats = function() 
+        local str_diff_stats = "";
+        if(GenericTooltip.diff_stats)then
+            local i,v;
+            for i,v in ipairs(GenericTooltip.diff_stats)do
+                str_diff_stats = str_diff_stats .. v;
+            end
+        end
+        return str_diff_stats;
+    end
+]]></script>
+
+<pe:if condition='<%= System.options.version =="kids" %>'>
+<div class="tooltip">
+    <!-- object name -->
+    <div style="font-weight:bold;"><%=GetItemName() %></div>
+    <div>
+        <div style="float:left;">
+            <pe:if condition='<%=GetItemIcon() ~= "" %>'>
+               <div class="item" style="width:54px;height:54px;" ><%=GetItemIcon() %></div>
+            </pe:if>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:-3px;">
+            <%=GetEquipDurability()%>
+            <%=GetItemType() %>     
+            <%=GetSchool() %>
+        </div>
+    </div>
+    
+    <div><%=GetDescription() %></div>
+    <div><%=GetOpenNumberTips() %></div>
+    <div><%=GetNpcTips() %></div>    
+    <div><%=GetGenericTooltip_trade() %></div>
+    <!--<div><%=IsBinding() %></div>-->
+    <div><%=GetItemLevel() %></div>
+    <div><%=GetSelfStats() %></div>
+    <div><%=GetAddonProp() %></div>
+    <div><%=GetExtraStats() %></div>
+    <div style="color:#018b21;"><%=GetSocketingDescription() %></div>   
+    <!-- equip suit stats -->
+    <div style="width:180px;"><%=GetEquippedList() %></div>
+
+    <div><%=GetCardList() %></div>
+    
+</div>
+</pe:if>
+<pe:if condition='<%= System.options.version =="teen" %>'>
+<div class="tooltip">
+    <!-- object name -->
+    <div style="font-weight:bold;"><%=GetItemName() %></div>
+   
+    <div>
+        <div style="float:left;">
+            <%=GetItemIcon() %>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:-3px;">
+            <%=GetItemType() %><%=GetEquipDurability()%><div><%=IsBinding() %></div>
+        </div>
+    </div>
+    <%=GetSchool() %>
+    <div><%=GetItemLevel() %></div>
+    <div><%=GetSelfStats() %></div>
+    <div><%=GetAddonProp() %></div>
+    <div><%=GetDescription() %></div>    
+    <div><%=GetGenericTooltip_trade() %></div>
+    <div><%=GetExtraStats() %></div>
+
+    
+    <!-- equip suit stats -->
+    <div style="min-width:100px;"><%=GetEquippedList() %></div>
+
+    <div><%=GetCardList() %></div>
+    <%= GetExtendInfo()%>
+    <pe:if condition='<%= GetDiffStats() ~= "" %>'>
+        <div style="color:#52dff4;">装备后属性差异:</div>
+        <div style="margin-left:10px;"><%=GetDiffStats() %></div>
+    </pe:if>
+</div>
+</pe:if>
+</pe:mcml>
+</body>
+</html>
+

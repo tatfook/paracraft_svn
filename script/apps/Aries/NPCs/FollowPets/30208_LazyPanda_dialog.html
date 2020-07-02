@@ -1,0 +1,315 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30207_DirtyElk_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30207_DirtyElk_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30208);
+
+-- 10114_FollowPet_Panda
+
+Condition1 = function()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+Condition4 = function()
+    if(memory.dialog_state == 4) then
+        return true;
+    end
+    return false;
+end;
+Condition5 = function()
+    if(memory.dialog_state == 5) then
+        return true;
+    end
+    return false;
+end;
+
+Condition10 = function()
+    if(memory.dialog_state == 10) then
+        return true;
+    end
+    return false;
+end;
+
+
+
+HasHerd = function()
+    -- 17043_HaemostaticHerb
+    if(hasGSItem(17043, 12)) then
+        -- has herd in collection bag
+        return true;
+    end
+    return false;
+end
+CurePandaLeg = function()
+    if(hasGSItem(17043, 12)) then
+		-- 193 CurePandaLeg
+		ItemManager.ExtendedCost(193, nil, nil, function(msg)end, function(msg) 
+			log("+++++++ Extended cost 193: CurePandaLeg return: +++++++\n")
+			commonlib.echo(msg);
+		end, nil, nil, 12);
+    end
+end
+
+HasBalloon = function()
+    -- 17041_ColorfulBalloon
+    if(hasGSItem(17041, 12)) then
+        -- has balloon in collection bag
+        return true;
+    end
+    return false;
+end
+RescueWithBalloon = function()
+    if(hasGSItem(17041, 12)) then
+		-- 194 RescuePandaWithBalloon
+		ItemManager.ExtendedCost(194, nil, nil, function(msg)end, function(msg) 
+			log("+++++++ Extended cost 194: RescuePandaWithBalloon return: +++++++\n")
+			commonlib.echo(msg);
+			if(msg.issuccess == true) then
+			    MyCompany.Aries.Quest.NPCs.LazyPanda.RescueWithBalloon()
+			end
+		end, nil, nil, 12);
+    end
+end
+
+HasRope = function()
+    -- 17014_BrownRope
+    if(hasGSItem(17014, 12)) then
+        -- has rope in collection bag
+        return true;
+    end
+    return false;
+end
+RescueWithRope = function()
+    if(hasGSItem(17014, 12)) then
+		-- 195 RescuePandaWithRope
+		ItemManager.ExtendedCost(195, nil, nil, function(msg)end, function(msg) 
+			log("+++++++ Extended cost 195: RescuePandaWithRope return: +++++++\n")
+			commonlib.echo(msg);
+			if(msg.issuccess == true) then
+			    MyCompany.Aries.Quest.NPCs.LazyPanda.RescueWithRope()
+			end
+		end, nil, nil, 12);
+    end
+end
+
+HasBamboo = function()
+    -- 17003_CollectableBamboo
+    if(hasGSItem(17003, 12)) then
+        -- has bamboo in collection bag
+        return true;
+    end
+    return false;
+end
+FeedWithBamboo = function()
+    local bHas_17003, guid_17003 = hasGSItem(17003, 12);
+    local bHas_50240, guid_50240 = hasGSItem(50240);
+    local bHas_50241, guid_50241 = hasGSItem(50241);
+    local bHas_50242, guid_50242 = hasGSItem(50242);
+    if(bHas_17003 and bHas_50240 and bHas_50241 and bHas_50242) then
+		-- 190 Get_10114_FollowPet_Panda
+		local froms = guid_17003..",1|"..guid_50240..",1|"..guid_50241..",1|"..guid_50242..",1|";
+		local bags = {12, 30208, 30208, 30208};
+		ItemManager.ExtendedCost(190, froms, bags, function(msg)end, function(msg) 
+			log("+++++++ Extended cost 190: Get_10114_FollowPet_Panda return: +++++++\n")
+			commonlib.echo(msg);
+			if(msg.issuccess == true) then
+			    MyCompany.Aries.Quest.NPCs.LazyPanda.NinjaJump()
+	            -- refresh quest status
+	            MyCompany.Aries.Quest.NPCs.LazyPanda.RefreshStatus();
+			end
+		end, "none");
+    end
+end
+
+PandaGoHome = function()
+    MyCompany.Aries.Quest.NPCs.LazyPanda.PandaGoHome();
+end
+
+function EntryAction(from, to)
+    if(from == 1 and to == 10) then
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+	if(from == 1 and to == -1) then
+	    MyCompany.Aries.Quest.NPCs.DirtyElk.LeaveTown();
+	elseif(from == 2 and to == -1) then
+	    ItemManager.PurchaseItem(17032, 2, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 17032_WinterMushroom return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+			        MyCompany.Aries.Quest.NPCs.DirtyElk.LeaveTown();
+			    end
+		    end
+	    end);
+	    
+	end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30208" />
+            <pe:placeholder id="name" source="{this}" value='名贵的懒熊猫'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition10")%>' target_state = "10"/>
+			    <pe:answer-if condition = 'true' target_state = "20"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+            哎呦，终于有哈奇来了！我是传说中最名贵的熊猫，刚走到这边，不小心滚到这个大坑里来了；现在又冷又饿，脚还摔伤了，赶紧去找医生先拿点药给我！
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=Eval("HasHerd")%>' transition = '<%=Eval("CurePandaLeg")%>' target_state = "2"/>
+			    <pe:answer-if condition = "true" target_state = "6"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    小乖的止血草药真管用，左脚的伤已经好了，谢谢你啦！
+            不过好事做到底呀，你赶紧想个办法把我弄上去呀！我这么名贵的熊猫，总不能在这个破坑里待着吧！
+		    <pe:answer text="给你气球串" template_id="giveyouballoon">
+			    <pe:answer-if condition = '<%=Eval("HasBalloon")%>' transition = '<%=Eval("RescueWithBalloon")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "7"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="给你绳子" template_id="giveyourope">
+			    <pe:answer-if condition = '<%=Eval("HasRope")%>' transition = '<%=Eval("RescueWithRope")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "8"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    那个气球串好看不中用啊，才飞这点高就又把我摔下来了，疼死我了，赶紧再想想其他办法呀！
+		    <pe:answer text="给你绳子" template_id="giveyourope">
+			    <pe:answer-if condition = '<%=Eval("HasRope")%>' transition = '<%=Eval("RescueWithRope")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "8"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    哎呦，疼死我了~！<br/>
+            你哪里找来这么跟破绳子呀，一点都不结实，你怎么能用这样的工具来营救我这么名贵的熊猫呢！赶紧想想其他办法！
+		    <pe:answer text="给你气球串" template_id="giveyouballoon">
+			    <pe:answer-if condition = '<%=Eval("HasBalloon")%>' transition = '<%=Eval("RescueWithBalloon")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "7"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    完了，完了，气球串和绳子都不管用，我熊猫一世英名，难道注定要困在这个破坑里吗？<br/>
+            算了，我肚子饿了，先拿根竹子给我吃吧，冻死也比饿死强！
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=Eval("HasBamboo")%>' transition = '<%=Eval("FeedWithBamboo")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "9"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+            没止血草药你瞎点什么呀！赶紧去找苏菲的小乖拿啊！像我这么名贵的熊猫，居然落到这个破坑里，真是没天理！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    你没气球串乱点什么呀，快去图书馆附近找找！找到赶紧回来救我啊，我这么名贵。。。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "8">
+		    你没绳子还好意思说给我，快去探索号上找找！找到赶紧回来救我啊，我这么名贵。。。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    没竹子还在这里磨蹭什么呀，快去种点竹子或让别人送你根呀，我都快饿死了，没心情和你开玩笑！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    哇！我居然自己跳上来了，用生命之泉灌溉的竹子果然不一般！<br/>
+            看在你爱心和耐心都还不错的份上，以后我就住你家吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("PandaGoHome")%>' target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    我回家等你去了，记得天天回来给我梳理毛发，我的绒毛可是宝贝，用处大着呢！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "20">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "21">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CardTips.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local bean = MyCompany.Aries.Pet.GetBean();
+
+gsid = tonumber(pageCtrl:GetRequestParam("gsid"));
+tiptype = pageCtrl:GetRequestParam("tiptype");
+
+function GetName()
+    local gsid_name="";
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if (gsItem) then
+        gsid_name = gsItem.template.name;	
+    end
+    return gsid_name;
+end
+
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+if (tiptype=="card") then
+    buttontips="查看卡包"
+    titletip="获得新卡牌"
+elseif (tiptype=="rune") then
+    buttontips="查看卡包"
+    titletip="获得新符文"
+elseif (tiptype=="mount") then
+    buttontips="立即使用"
+    titletip="获得新坐骑"
+    NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    local HaqiShop = commonlib.gettable("MyCompany.Aries.HaqiShop");
+    HaqiShop.OnClickItem(gsid,nil,nil, pageCtrl);
+elseif(tiptype=="fatecard") then
+    buttontips="立即查看"
+    titletip="获得新卡牌"
+end
+
+function onClickEquip()
+    ClosePage()
+    if (tiptype=="card" or tiptype=="rune") then
+        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+	    local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");	
+	    local state = MyCardsManager.GetPropByTemplateGsid(gsid);
+	    if (gsid>23000) then
+		    MyCardsManager.SetRunePage();	
+            MyCardsManager.SetPageState(state);	
+	    else
+            MyCardsManager.SetCombatCardPage()
+		    MyCardsManager.SetPageState(state);	
+	    end
+	    MyCardsManager.ShowPage()
+    elseif (tiptype=="mount") then
+	    
+    elseif(tiptype=="fatecard") then
+        NPL.load("(gl)script/apps/Aries/Desktop/Functions/FateCard.lua");
+        local FateCard = commonlib.gettable("MyCompany.Aries.Desktop.FateCard");
+        local index;
+        if(gsid >= 17488 and gsid <= 17502) then
+            index = 1;
+        elseif(gsid >= 17503 and gsid <= 17517) then
+            index = 2;
+        end
+        FateCard.ShowPage(index);         
+    end
+end
+
+--_guihelper.MessageBox(gsid_name)
+]]></script>
+
+<pe:if condition='<%=Eval("tiptype")=="fatecard" %>'>
+    <div style="width:358px;height:439px;background:url(texture/aries/common/themekid/fatecard/trigger_panel.png#0 0 358 439);" >
+        <input type="button" onclick="ClosePage()" style="position:relative;margin-left:229px;margin-top:64px;width:39px;height:37px;background:url(texture/aries/common/themekid/fatecard/trigger_closebtn.png#0 0 39 37);" />
+        <div style="position:relative;margin-left:45px;width:190px;margin-top:116px;height:260px;">
+            <pe:item gsid='<%=Eval("gsid")%>' isclickable = "false" isenabled="false" style="margin-top:1px;margin-left:1px;width:186px;height:256px;"/>    
+	    </div>
+        <pe:button class="button_highlight" style="position:relative;margin-left:86px;margin-top:387px;width:112px;height:40px;background:url(texture/aries/common/themekid/fatecard/open_page.png#0 0 112 40);" onclick="onClickEquip()" />
+    </div>
+</pe:if>
+
+<pe:if condition='<%=Eval("tiptype")~="fatecard" %>'>
+    <div style="width:256px;height:380px;" class="window">
+        <div class="titlebar" width="100%">
+          <div class="windowlabel"><%=Eval("titletip") %></div>
+          <input type="button" onclick="ClosePage()" class="closewindow" />
+        </div>
+        <div class="clientarea">
+            <div style="position:relative;width:250px;height:360px;background:url(Texture/Aries/Common/ThemeTeen/davidstar_pattern_32bits.png# 0 0 108 64);" >
+	            <div style="position:relative;margin-left:5px;width:225px;margin-top:10px;height:280px;background:url(Texture/Aries/npcs/suit/tile_3_bg_32bits.png#0 0 294 391);">
+                    <pe:if condition='<%=Eval("tiptype")=="card" or Eval("tiptype")=="rune"%>'>
+                        <pe:item gsid='<%=Eval("gsid")%>' isenabled="false" style="margin-top:20px;margin-left:38px;width:151px;height:230px;"/>    
+                    </pe:if>
+                    <pe:if condition='<%=Eval("tiptype")=="fatecard"%>'>
+                        <pe:item gsid='<%=Eval("gsid")%>' isclickable = "false" isenabled="false" style="margin-top:10px;margin-left:18px;width:186px;height:256px;"/>    
+                    </pe:if>
+                    <pe:if condition='<%=Eval("tiptype")=="mount"%>'>
+                        <div style="position:relative;width:256px;height:256px;margin-left:-15px;">
+                            <pe:canvas3d  minZoomDist="5" DefaultRotY="-0.9"  DefaultLiftupAngle="0.1" name="HaqiShopAvatar" miniscenegraphname="AvatarMyselfTabCharacter" IsInteractive="true"/>
+                        </div>
+                        <input type="button" zorder="1" style="background:;margin-left:20px;margin-top:240px;color:#ffffff;font-size:14px;font-weight:bold" value='<%=GetName()%>'/>
+		            </pe:if>
+                
+	            </div>
+	            <!--<div style="position:relative;margin-left:210px;width:256px;margin-top:360px;height:30px;background:url(Texture/Aries/Common/ThemeTeen/cardtip_prompt_32bits.png#0 0 256 30);" />-->
+					
+	            <div style="position:relative;margin-left:15px;margin-top:25px;">
+                    <pe:button class="button_highlight" style="position:relative;margin-left:55px;margin-top:275px;width:75px;height:26px;" onclick="onClickEquip()" value='<%=Eval("buttontips") %>'/>
+                    <!--<input type="button" value="装配卡牌" class="defaultbtn" style="margin-left:50px;width:80px;height:30px;" onclick="onClickEquipCard"/>-->
+                </div>		
+        
+        	    <!--
+			    <div style="float:left;margin-left:20px;width:160px;margin-top:40px;height:360px;background:url(Texture/Aries/Common/ThemeTeen/float_bg_32bits.png#0 0 171 128: 14 14 14 14);">
+				    <pe:gridview name="school_view" style="margin-left:25px;margin-top:30px;" DataSource="<%=DS_school_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="7">
+					    <Columns>
+							    <img style="width:35px;height:37px;margin-left:5px;margin-top:5px;" src="<%=Eval('icon')%>" />
+							    <div style="margin-left:53px;margin-top:-32px;color:#52dff4"><%=Eval("name")%></div>
+					    </Columns>
+					    <EmptyDataTemplate>
+						    <b>空</b>
+					    </EmptyDataTemplate>
+					    <FetchingDataTemplate>
+						    <b>请稍等 ... </b>
+					    </FetchingDataTemplate>
+					    <PagerSettings Position="Bottom" style="margin-left:155px;margin-top:-130px;width:160px;height:25px;"/>
+					    <PagerTemplate>
+						    <form>
+						    </form>
+					    </PagerTemplate>
+				    </pe:gridview>				
+			    </div>
+			    <div style="float:left;margin-left:-155px;width:146px;margin-top:25px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/title_bg_32bits.png#0 0 146 32);">
+				    <div style="margin-left:50px;margin-top:7px;color:#e2fee1">魔法系别</div>
+			    </div>
+	
+			    <div style="float:left;margin-left:90px;width:400px;margin-top:60px;height:300px;" >
+					    <input type="button" style="margin-left:28px;margin-top:155px;width:126px;height:92px;background:url(Texture/Aries/Common/ThemeTeen/border_line_32bits.png#0 0 126 92);" />
+					    <input type="button" style="margin-left:-155px;margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+					    <input type="button" style="margin-left:60px;margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+					    <input type="button" style="margin-left:-178px;margin-top:110px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+					    <input type="button" style="margin-left:40px;margin-top:110px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+							
+					    <div style="float:left;margin-left:-273px;width:102px;margin-top:30px;height:4px;" >
+							    <input type="button" style="margin-left:0px;margin-top:0px;width:102px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4: 31 1 1 1);" />
+					    </div>		
+					    <div style="float:left;margin-left:167px;width:40px;margin-top:30px;height:4px;" >
+							    <input type="button" style="margin-left:0px;margin-top:0px;width:40px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+					    </div>				
+					    <div style="float:left;margin-left:-235px;width:40px;margin-top:140px;height:4px;" >
+							    <input type="button" style="margin-left:0px;margin-top:0px;width:40px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+					    </div>						
+					    <div style="float:left;margin-left:146px;width:100px;margin-top:140px;height:16px;" >
+							    <input type="button" style="margin-left:0px;margin-top:0px;width:110px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#0 0 64 16: 31 1 1 1);" />
+					    </div>				
+					    <div style="float:left;margin-left:150px;width:40px;margin-top:-50px;height:4px;" >
+							    <input type="button" style="margin-left:0px;margin-top:0px;width:60px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+					    </div>
+	
+					    <div style="float:left;margin-left:-240px;width:30px;margin-top:-150px;height:100px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+							    <div style="margin-left:10px;width:18px;margin-top:5px;height:80px;color:#e2fee1">释放成功率</div>
+					    </div>
+	
+					    <div style="float:left;margin-left:230px;width:30px;margin-top:-300px;height:170px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+							    <div style="margin-left:10px;width:18px;margin-top:5px;height:80px;color:#e2fee1">释放消耗的魔法点数</div>
+					    </div>
+					    <div style="float:left;margin-left:210px;width:30px;margin-top:-80px;height:120px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+							    <div style="margin-left:10px;width:18px;margin-top:5px;height:80px;color:#e2fee1">魔法作用描述</div>
+					    </div>							
+			    </div>	
+													
+			    <div style="float:left;margin-left:530px;width:160px;margin-top:-360px;height:360px;background:url(Texture/Aries/Common/ThemeTeen/float_bg_32bits.png#0 0 171 128: 14 14 14 14);">
+				    <pe:gridview name="func_view" style="margin-left:35px;margin-top:20px;" DataSource="<%=DS_func_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="8">
+					    <Columns>							
+							    <img style="float:left;width:32px;height:34px;margin-left:5px;margin-top:5px;" src='<%=Eval("icon")%>' />
+							    <div style="margin-left:50px;margin-top:-28px;color:#52dff4"><%=Eval("name")%></div>																			
+					    </Columns>
+					    <EmptyDataTemplate>
+						    <b>空</b>
+					    </EmptyDataTemplate>
+					    <FetchingDataTemplate>
+						    <b>请稍等 ... </b>
+					    </FetchingDataTemplate>
+					    <PagerSettings Position="Bottom" style="margin-left:155px;margin-top:-130px;width:160px;height:25px;"/>
+					    <PagerTemplate>
+						    <form>
+						    </form>
+					    </PagerTemplate>
+				    </pe:gridview>
+			    </div>			
+		        <div style="float:left;margin-left:540px;width:146px;margin-top:-376px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/title_bg_32bits.png#0 0 146 32);">
+			        <div style="margin-left:50px;margin-top:7px;color:#e2fee1">魔法类型</div>
+		        </div>
+                -->
+
+	        </div>   
+        </div>    
+    </div>
+</pe:if>
+    	  
+</pe:mcml>
+</body>
+</html>
+

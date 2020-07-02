@@ -1,0 +1,193 @@
+﻿<!-- "script/apps/Aries/NPCs/Doctor/30087_AuntAngel_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30087_AuntAngel_dialog, by Andy, 2009/8/24</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id); 
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+adopteddays = 0;
+local bean = MyCompany.Aries.Pet.GetBean();
+if(bean) then
+    adopteddays = bean.adopteddays;
+end
+
+NotAdopted = function ()
+    if(MyCompany.Aries.Pet.IsAdopted()) then
+        return false;
+    else
+        return true;
+    end
+end
+
+AdoptedAndWithin5Days = function ()
+    if(MyCompany.Aries.Pet.IsAdopted()) then
+        if(adopteddays < 5) then
+            return true;
+        end
+    end
+    return false;
+end
+
+AdoptedAndAfter5DaysWithin7Days = function ()
+    if(MyCompany.Aries.Pet.IsAdopted()) then
+        if(adopteddays >= 5 and adopteddays <= 7) then
+            return true;
+        end
+    end
+    return false;
+end
+
+AdoptedAndAfter7Days = function ()
+    if(MyCompany.Aries.Pet.IsAdopted()) then
+        if(adopteddays > 7) then
+            return true;
+        end
+    end
+    return false;
+end
+
+DragonAtHome = function()
+    local ItemManager = System.Item.ItemManager;
+    local item = ItemManager.GetMyMountPetItem();
+    if(item and item.guid > 0) then
+        if(item:WhereAmI() == "home") then
+            return true;
+        end
+    end
+    return false;
+end
+
+NotEnoughMoney = function()
+    local emoney = MyCompany.Aries.Player.GetMyJoybeanCount()
+    if(emoney < 500) then
+        return true;
+    end
+    return false;
+end
+
+DoAdoptDragon = function()
+    MyCompany.Aries.Quest.NPCs.AuntAngel.DoAdoptDragon();
+end
+
+DoRetrieveDragon = function()
+    MyCompany.Aries.Quest.NPCs.AuntAngel.DoRetrieveDragon();
+end
+
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'>
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30087" />
+            <pe:placeholder id="name" source="{this}" value="安吉奶奶" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("NotAdopted")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("AdoptedAndWithin5Days")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("AdoptedAndAfter5DaysWithin7Days")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("AdoptedAndAfter7Days")%>' target_state = "7"/>
+			    <pe:answer-if condition = 'true' target_state = "7"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    如果你平时太忙没有时间照顾抱抱龙，只需要花500奇豆就可以把抱抱龙寄养在我这里一星期了，你现在就要寄养抱抱龙吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = '<%=Eval("DragonAtHome")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("NotEnoughMoney")%>' target_state = "3"/>
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你没把抱抱龙带过来呢，快先把抱抱龙召唤过来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    哎呀你的奇豆还不够，快去赚够500奇豆再来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    把抱抱龙交给我来照料，你就放一百个心吧，如果你5到7天内来接他，抱抱龙的能力数值还会提升呢，如果你7天以后来接他，他会因为太思念你导致数值下降哦。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("DoAdoptDragon")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    小哈奇，你的抱抱龙寄养在我这里，玩的很开心，你现在就想接走他吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("DoRetrieveDragon")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    你是来接你的抱抱龙的吗？你的抱抱龙正欢天喜地的等着你来呢。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("DoRetrieveDragon")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    你总算来了，你的抱抱龙就盼着你接他回家呢，现在就把他接回去吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("DoRetrieveDragon")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "100">		    
+		    
+		    你没把抱抱龙带过来呢，快先把抱抱龙召唤过来吧。
+		    哎呀你的奇豆还不够，快去赚够500奇豆再来吧。
+		    把抱抱龙交给我来照料，你就放一百个心吧，如果你5到7天内来接他，抱抱龙的能力数值还会提升呢，如果你7天以后来接他，他会因为太思念你导致数值下降哦。
+		    
+		    
+		    运气真不错啊，抱抱龙玩儿的时候给你捡到了一个【随机物品】，接他回去后要好好照顾他呀。
+		    好吧好吧，看你和你的抱抱龙这么粘呼，快把他接走吧，他吃饱了洗干净了，心情也很棒。回去要好好照顾他啊。
+		    
+		    
+		    这段时间抱抱龙过的可好了，吃饱了，洗得香香的，心情倍儿棒，出去玩的时候还提升了2点【XX值】，回去要好好照顾他啊！
+		    
+		    
+		    喔噢！你没有按时来接你的抱抱龙，他因为思念你，【XX值】降了1点。不过他还是吃得饱饱的了。
+		    
+		    
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

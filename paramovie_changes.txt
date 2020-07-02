@@ -1,0 +1,1668 @@
+/** @page ParaScript_change	NPL script demo change history
+@author LiXizhi
+
+2008.2.21
+	- multiple check out should be allowed in vss. 
+	- TODO: when jabber logs out where another user kicks in, we should never auto reconnect. 
+	- InstalledAppPage.html is implemented with dragging implemented with UI animation. 
+	- TODO: div should support background2 attribute and attribute property. 
+	- TODO: Treeview and pe:gridview should be able to remember its last scroll position. 
+
+2008.2.19
+	- wireshark is used to analyze the traffic a bit. 
+	- The " is always translated to &quot; which costs lots of space in jabber/xml, so we shall avoid using it as lua content, [[]] is a better choice. or a CDATA is a better.
+	- The NPL lua table will be serialized more compact by using key name, instead of ["key"], if key contains only alphabetic letters. 
+	- Subversion is fully studied and planned to develop a 3d world coauthoring system for internal developers. TortoizeSVN is installed. 
+
+2008.2.17
+	- Terrain now tesselate according to max vertex error, which delivers much better result. 
+
+2008.2.14
+	- ParaAssetObject.GetAttributeObject() is implemented. ParaX and static mesh model asset now supports attributes like PolyCount and TextureUsage.
+	- ObjectInspectorPage.html is implemented, which will report polycount and texture usages of asset in ObjectAddPage.html
+	- pe:tabs now support TabPosition, which can specify where the tab buttons are placed. We can place the tabs on the bottom. 
+
+2008.2.13
+	- ide/FileViewCtrl.lua now support recursive folder content display. 
+	
+2008.2.12
+	- skypage will now search disk files as well for new skyboxes. 
+	- when terrain main texture is not found, the default one "Texture/tileset/generic/MainTexture1.dds" is used instead. 
+	- _guihelper.AutoTrimTextByWidth is implemented. 
+	- ide/FileViewCtrl.lua is fully implemented. It supports lazy rendering for file icons
+	- pe:filebrowser now supports both TreeView and FileView styles. 
+
+2008.2.8
+	- .Net ResEditor is compiled. It can be used to edit .resources file.
+	- ide/MainMenu now supports ItemStyle property set to "ButtonOnly".
+	- pe:tabview now supports ItemStyle property which corresponds to ide/MainMenu's ItemStyle
+	- ObjectsPage.html is implemented using pe:tabview with button tabs.
+
+2008.2.3
+	- Studying the FarCry2 editor:
+		- editor settings: show fog, show shadows, show water, show collections, show headon display, enable sounds, show grid(grid resolution), keep objects with terrain, auto snap object, auto snap object rotation, camera stays above terrain, invert mouse view, inverse mouse pan, Engine quality(Optimal,)
+		  overwrite object distance, viewport quality (100%)...
+		- Bottom indicator: movement speed(2-64), position, ftp, etc.   
+		- object:group selection, neighbourhood selection, move(local, global), Use gizmo, snap, add
+		- collection system: vegetations
+		- shadow system: interpolate(real-time shadow map + precomputed shadow). The shadow map itself is restricted to a limited region, so that the shadow quality can be guaranteed. 
+			And the shadow paint is a seperate render pass that interpolate according to distance in a similar fashion as the fog.
+		- bird: unlike buildings. such objects contains helper display object for object selection in editing mode. Such is the case with the light and camera object. 
+		- the x file shold support exporting helper meshes that is only shown in editing mode, such as ladders, etc. 
+		- occlussion volume is used for outdoor environment: they are usually placed under mount of terrains and inside enclosed buildings. 
+		- light mesh: light can be animated and exported via a mesh object
+		- LOD of objects is saved in the same x file. Skin LOD and bone LOD can be specified separately. Appears that bone LOD can greatly increase performance than skin LOD. 
+		- road rendering: line segments for edition, and one directional map with triangles that mix with the terrain, the borders are alpha blended. 
+		- gizmo picking: the gizmo is drawn withouting scaling. and its picking is very simple, appears to be circles around the corners of the 3 planes and arrows. 
+		- early z cull is enabled for avoiding pixel shader
+		- for shore line: we can render to the depth buffer and use the depth buffer to generate the shoreline. This allows for shoreline alpha blending with not only terrain, but also static shadow casting objects. 
+		- ocean: Different LODs had different index buffers but they all referenced to one vertex buffer that had the FFT data.
+	- ParaWorld Editor: 
+		- login screen text: ParaWorld Editor
+		- customizing initial world. Initial world default to worlds/Official/ParaWorldEditor
+		- MainbarIcons: Creator, ModelBrowser, create new world, personal world browser, object Browser, ArtTools, terrain editor, Movie, MCML Browser, Submit Bug.
+		- create ParaWorldEditor.bat. write the art pipeline for the above process.
+		
+2008.2.2
+	- TODO: we are planning to leverage kids movie creator using the paraworld platform. A separate planet editor will be released under the name of ParaEngine Kids Edition (KidsMovie2). 
+		It will compensate the lack of UGC in the early pala5.com product line. It is in fact the world editor used by our artists for creating various planets, yet with all rules removed. 
+
+2008.1.30
+	- TerraGenPage.html is implemented for heightfield generation and application. 
+	- ide/SaveFileDialog.lua is implemented. 
+	- ParaDataProvider now supports: ExecSQL. world_db now updates world attributes by batching transaction using ExecSQL("BEGIN") and ExecSQL("END")
+	- ParaTerrain.MergeHeightField(), ParaTerrain.SetHole, ParaTerrain.IsHole, and ParaTerrain.UpdateHoles() is added. 
+	- "Ramp", "SetHole" and "MergeHeightField" is operation is added to environment message processor. Terrain holes can now be created via the TerraFormPage.
+	
+2008.1.29
+	- ParaTerrain.Flatten() and ParaTerrain.Spherical() is implemented
+	- TerraFormPage is fully implemented with various terrain filters. 
+	- AttributeBind property is supported by pe:treenode, we can now bind a pe:treenode to a ParaAttributeObject with selected fields.
+		e.g. see TerraPropertyPage.html
+
+2008.1.28
+	- TerraPaintPage is fully implemented with drag paint operations and detail texture replace and remove. 
+	
+2008.1.27
+	- pe:sliderbar and ide sliderbar now supports textbox editor. 
+	- TerraForm and TerraPaint pages are added to environment app. 
+	
+2008.1.26
+	- terrain paint will now normalize all texture layer masks. 
+	
+2008.1.22
+	- paraworld.email is implemented and tested. 
+	- dev schedule is being made company wide
+
+2008.1.21
+	- ParaEngine.GetAttributeObject():SetField("EnableProfiling", true) is implemented, which will generate the perf.txt file at the working directory. 
+	- fixed on some computer, the getserverlist gives me ClientVersion=1.00100004673, where trailing numbers are meaningless. This is due to TinyJson implementation of double type variables. 
+	- fixed: character command point will now stop sliding along wall if the sliding wall speed is too small. 
+	
+2008.1.20
+	- BUG: IME sometimes crashes when switching input method or typing too fast. Currently, the IME uses windows message while the editbox uses hardware device. this sometimes
+		leads to input errors when the keys belonging to IME is processed by the hardware.
+	- QueryPerformanceCount() leap forward bug is corrected in DXUtil_Timer. this fixed a bug of display error in hardware defects. see: http://support.microsoft.com/kb/274323
+	- Fix: Sometimes the graphics suddenly becomes super slow when switching from full screen to windowed mode. This also occurs when the window loses focus for some extend time and then switch back. 
+		it is related to the timer function that I use. It is now fixed by using the improved version of DXUtil_Timer
+
+2008.1.18
+	- character.db is read locked when opened in the game engine. This will preserve sqlite page cache for all following sql queries. 
+	- CCS texture is generated using raw GPU instead of CPU. The default body texture size is reduced to 256 from 512. 
+
+2008.1.17
+	- NPL.AppendURLRequest() now support "request_timeout" field, which allows the caller to specify the request timeout time. The default value is rather small as 15000 milliseconds. For file upload and image download, we usually needs to give it a bigger value. 
+	- script/ide/timer.lua is added
+	- localserver now uses lazy writing, which improves database write performance by over 100x. Please see localserver/readme.txt. the implementation is in WbeCacheDB_def.lua.
+	- container scrollbar now supports all animation properties with respect to its container. 
+	- sqlite is upgraded from 3.3 to 3.6, which is a major upgrade and support shared db cache. NOTE: sqlite will be default clear cache for each db transaction. 
+		sqlite is now a single embedded file in ParaEngine; the old style sqlite3 project is obsoleted.
+
+2008.1.15
+	- Chat will reconnect, automatically. 
+	
+2008.1.14
+	- servers moved to IDC center. 
+	
+2008.1.12
+	- increased dynamic buffer size and make it multiple of 3. this fixes a bug when too many triangles are in a single draw pass. 
+	- NPL jabber client recv function will now use a buffer of 1024000, so that if we call recv 30 times a second(our current script frame rate). we can have a maximum rate of 30MB/s. This fix  a bug that the client can only process at 30KB/s, when the buffer size is set very small.
+	- TeleportPage is refactored. 
+	
+2008.1.11
+	- character facing and animation are supported in JGSL. 
+	- JGSL now support recover field in case some agent is intact. 
+
+2008.1.10
+	- NPL_NET_REV performance timer is added: it is the total time to receive net messages, especially the jabber and libcurl. 
+		If the same client is emulating many concourrent jabber connections, this could grow to 0.05s for 50 connections, because our rev block time is set to 10 microseconds per connection(actually 100 microseconds, since it is the smallest inverval CPU can recognize). 
+    - NPL_NET_PRC performance timer is added: this is the net time for processing all the npl.activation stuffs. In case, we handle lots of jabber messages, this is where messages get processed. but it only takes 0.001s, for a gateway server with 50 concurrent users.
+    - System.options.ForceGateway is added to force using a gateway server for testing purposes. 
+    - from the NPL_NET_REV and NPL_NET_PRC performance: we are sure that it is the ejabberd server that are delaying all the packets. 
+    
+2008.1.9
+	- CGUIToolTip is refactored. and CGUIToolTip_background property is added to config.lua. 
+	- NPL.ChangeTimer() bug is fixed. It now behaves as expected. 
+	
+2008.1.8
+	- OpenFileDialog will automatically switch to windowed mode when called in full screen mode.
+	- multi-sampling could crash the application if not set properly, we need to switch to a safe graphics mode or a previously correct graphics mode in such conditions. 
+		SOLUTION: we will save new config settings to config/config.new.txt if new config contains error prone settings, such as screen resolution and multisample type. 
+		at start up, we will delete the config/config.new.txt, file immediately after loading it. It is the game application's task to check for whether we have changed settings and ask the user to save to config.txt.
+	- the canvas3d source code is modified, so that active rendering and miniscenegraph name must be explicitly specified. 	
+		
+2008.1.7
+	- GetMCML and GetInfo web service call will only return once regardless whether local version is expired or not. Currently, expired version is only returned when network is not available. 
+		Only one exception is that if appkey in GetMCML is nil, expired version is not returned. This is because the local server does not know for which appkey to fetch the result for.
+	- when walking to a given direction. facing is not applied. 	
+
+2008.1.6
+	- libcurl in ParaEngine now supports manual time out, which is 15 seconds by default. This work around a windows vista issue where DNS resolving time out is not received. 
+	- Movement style for bipeds are implemented. ParaObject:GetAttributeObject():SetField("MovementStyle", 4). 
+		now that OPC movement has no physics applied. 
+	- TODO: if client find an unknown avatar in ping list, it can make request to server to query pinged objects. 
+	
+2008.1.4
+	- portals and zones can now be exported as filename.x.meta file in ParaXExporter. 
+
+2008.1.1
+	- TODO: when there are more than JGSL_grid.max_users on a single server, and when we leaves a such a grid node and reconnect again. the client will lose its information. 
+	- epolling style server proxy for client communicating with REST server is implemented. it is used for GetBBS with the lobby server. examples in BBSChatWnd
+	- TODO: JGSL is connected, but can not be authenticated. 
+
+2008.12.31
+	- only relative to grid position is sent during JGSL. this makes the data send smaller than sending absolute position.
+
+2008.12.30
+	- both JGSL server and client now send only changed data via server time id(st) and client time id (ct). st and ct are exchanged on both client and server with each message. 
+	- TODO: bone billboard in 3dsmax, requires that the bone must be created at the parent pivot location. otherwise the pivot point will be wrong. 
+	- we can now limit thet number of character triangles to draw by ParaScene.GetAttributeObject():SetField("MaxCharTriangles", 30000);
+	- we can turn on/off menu by ParaEngine.GetAttributeObject():SetField("ShowMenu", false);
+	
+2008.12.29
+	- JGSL streams are encoded with opcode
+
+2008.12.28
+	- I accidentally have crash during gethostbyname in libcurl, as described here http://curl.haxx.se/mail/lib-2007-01/0067.html and http://curl.haxx.se/mail/lib-2007-03/0206.html
+		solutions is here http://curl.haxx.se/mail/lib-2007-03/0217.html
+		To switch to synchronous DNS resolver. see hostip.c. and we need to undefine  CURLRES_THREADED and define CURLRES_SYNCH
+	- curl_multi_setopt can be used to configure how the multi interface behave. this is very useful, such as CURLMOPT_PIPELINING and CURLMOPT_MAXCONNECTS
+		when using multi interface, it appears that DNS cache and connection cache are automatically shared by default. and one can even pipeline connections. 
+	- c-ares is added to ParaEngine in order to support multithreaded libcurl. inet_ntop.* is renamed to inet_ntop_cres.* since the name conflicts with file under libcurl.
+		USE_ARES is defined in the preprocessor so that libcurl knows that c-ares is compiled. adig.c ahost.c and acountry should be removed from source file. 
+	- table.resize() is added to NPL. 
+	- ValueTracker.lua is added to JGSL.	
+	- onmouseleave event in ParaUIObject is not called when the mouse leaves one of its child controls. the old behavior is reversed. 
+	- offline authentication mode is added to paraworld.auth.AuthUser(). msg.HasOfflineMode denotes whether offline mode is supported. 
+		we can support it if user has at least successfully logged in once. The caller of paraworld.auth.AuthUser can suppress offline mode by simply display the msg.info. 
+		Offline mode dialog is shown if the caller does not supress offline mode like above. 
+	- ide/stringmap.lua is implemented for bidirection map. see example in JGSL_stringmap.lua	
+		
+2008.12.27
+	- EmuUsers now support autoreply text. 
+	- ParaGlobal.random() function is fixed by providing our own my_rand function.
+	- URLResourceStore:GetURL() default behavior changes to: if fetching failed, we will return the local server version (even if it is expired). 
+		if there is no local server version either, the error HTTP msg is returned. However, there is bUseExpire params, if one wants to return the expired version immediately before fetching the updated version. 
+
+2008.12.25
+	- minimap.xml is implemented in minimapwnd. we can put minimap.xml to the world root directory.
+	- JGSL is refactored to support multiple gateway and multiple gridnodes architecture. See JGSL_doc.txt
+
+2008.12.22
+	- Ocean technique is now persistent during world saving. We support the old slow water rendering with reflection and ocean height. and we support a new faster ocean shader called ocean_water_high.fx.
+		One can change the ocean rendering tech via the OceanPage.html. 
+	- The old ocean FFT	now uses a single bump texture
+	- ParaScene.GetObject(myParaObject:GetID()) is supported. GetID returns the ID of the object. The ID of the object is only generated when the first time this function is called. 
+		One can then easily get the object, by calling ParaScene.GetObject. When an object is released, its ID is not longer used. Please note that the ID is neither unique outside the world, nor persistent in the same world.
+
+2008.12.21
+	- msg.jckey is added to all jabber messages. ALL jabber messages now contains jckey, which allows you to distinguish which JC instance received the message. 
+		One can use local jc = JabberClientManager.CreateJabberClient(msg.jckey); to get the instance if there are more than one possible client. 
+	
+2008.12.20
+	- HTTP/FTP status code is returned in msg.rcode during URL request. This saves us time to manually check msg.header for status code. 
+	
+2008.12.19
+	- ocean bump texture is not inited until used. TODO: find a better way to render ripple on terrain. 
+	- ParaAsset.SetAssetServerUrl() is implemented. if an asset is not found, we will fetch it via the provided asset server. 
+	- static textures and static model without LOD can now be loaded from remote server if any.
+
+2008.12.18
+	- HTTP texture cache is set to "temp/cache/"
+	- miniscenegraph:SaveToFile() will save dds with DXT3 by default.
+	- ccs compositive texture is saved to "temp/composeskin/". the file name is hashed according to the different layer names. 
+		This makes loading CCS character faster on subsequent runs. CCS based NPC characters never change appearance, so they are most likely to share the same appearance and compositive texture files. 
+		TODO: ccs face compositive texture may be treated the same way. 
+	- ParaGlobal.OpenFileDialog is implemented. 
+	
+2008.12.17
+	- Customizable character model now fully support .xml LOD. Usually lowest LOD is used for shadow map pass. 
+
+2008.12.16
+	- localserver will now automatically detect current version and upgrade itself if needed. This is done by creating a Database/localserver.ver file besides the local server db file. 
+	- All paraworld services are converted to REST with local server support. 
+	- NPL.FromJson is added, which uses tinyJson to parse json string to NPL table. 
+	
+2008.12.14
+	- CUrlUtility and CUrlBuilder class implemented in ParaEngine. 
+	- script/ide/Json.lua is implemented for encoding and decoding json with lua table. 
+	- JsonRest web service wrapper implemented. 
+	- NPL.AppendURLRequest now supports both HTTP post, HTTP post file, and HTTP get with NPL table parameter passing. See TestCurl.lua. 
+
+2008.12.13
+	- NPL.AppendURLRequest is fully implemented with the curllib interface. It will now handle connection pools with limited worker slots. Both file and http get/post are supported. 
+	- I haved included libcUrl source statically to ParaEngine. I used to have it as dynamic dll, however, it causes crashes in the debug build. This may be a visual studio bug. so I just included all sources in the core engine. 
+		Visual Studio 2008 has a bug of ignoring compiling files with the same file name in different directories. So i have to change base64.c and md5.c to curl_base64.c, and curl_md5.c, since there are already such files in the solution. 
+		More over: CURL_STATICLIB needs to be added to preprocessor, Wldap32.lib should be added to the link. 
+	- URLResourceStore is supported by localserver with full rest support.	
+
+2008.12.9
+	- NPL text and code encoding is changed from system default to UTF8. This is a major change, especially for file related strings. 
+		Use "script/ide/Encoding.lua" whenever you want to display any file related strings, or use GUI strings as input to file IOs. 
+		In the future, we must be aware of the NPL file encoding, MCML encoding, GUI encoding, jabber message, REST API, and all system IO string encodings. 
+		UTF8 is the recommented choice for NPL file, MCML file, GUI, Jabber and REST. however, all strings used by system calls like IO functions are only supported in native system encoding. 
+		For an example, please see FileExplorerCtrl.lua and PersonalWorldPage.lua. PersonalWorldPage.lua demostrates conversion between IO, MCML, and GUI. 
+		Rule:  whenever you get a string in the GUI, and want to use it as input to file IO functions, you need to convert it from UTF8 to default encoding; whenever you want to display a filename via a GUI object, you need to convert it from default encoding to UTF8. 
+	- It is highly recommended that all model asset files and world files use only standard english words. 
+	- Visual studio and VSS(source control server) both recognize file encoding when checking in/out files. They will automatically omit BOM (such as utf8 signature when comparing files). Ultraedit also use some magic code to decide the best encoding by examing a large segment of code if BOM is not at the beginning of the file. 
+	- NPL.load is able to load source files with or without UFT8 signature. However, the visual studio NPL compiler will fail if there is a BOM (0xEFBBBF) at the beginning of the file. 
+		So it is highly recommended that one saves lua file as UTF8 without signature. If you are not sure about which encoding to use, just never include localized strings in source files( just read those strings from other places (such as text or db files) whose encoding you know).
+	- currently all world files and model assets path strings use system default encoding, this makes saving and reading on the native computer easier. And it is generally not a problem to copy and paste files from one machine to another. 
+		However, if the default encoding on the other machine is different from the development machine's, it will display bizzar characters, but data itself should be fine. So if one wants to display strings based on file name, make sure they are explicitly saved with a known encoding (such as UTF8), other than the default. 
+	
+2008.12.7
+	- CNplWriter class is implemented for ease of generating npl table code in jabber event handler. 
+	- npl jabber interface now support registration
+	- npl jabber event binding is improved
+	
+2008.12.6
+	- F6 key will trigger the unit test console. 
+	- TODO: who is going to oversee the servers when released during spring festival. 
+
+2008.12.5
+	- ParaUIObject.ApplyAnim() is added. This is usually used on container objects to apply its animation to all its children using the reference point of current object. More info, see TestGUI.lua. 
+	
+2008.12.4
+	- camera facing and billboarding is supported for static and animated models, with material and bones, respectively. 
+	- ParaUIObject.colormask attribute added. It is usually used to alpha fade a control. 
+      
+2008.12.2
+	- addictive alpha blending model is added for parax exporter for both static and animated models.
+	- MaxScript is added to script/MaxScript/Start_ParaEditor.ms
+	- reflection surface height will now derive the height from the first triangle in the material. 
+	- reflection material is supported in lightmapped models. 
+	- commonlib.multi_inherit is implemented in NPL. 
+	- NPL.GetURL("www.paraengine.com") is implemented. 
+
+2008.12.1
+	- guicontainer's onactivate event is added to NPL, which allows us to receive activate and deactivate events when a top level container changes focus. see TestEvent.lua.
+	- 3dsmax exporter for paraengine is upgraded to vs 2008. A few 3dsmax 8 sdk include files are changed according to new c++ compiler. 
+	- Bug fixed: static mesh object will not load any unused materials. This fixed a bug when the material id is not the same as the mesh attribute id. 
+
+2008.11.30
+	- we prevent camera movement if either ctrl, alt, shift key is pressed.
+	- key up event is added to 3d scene. please note that key up event is fired to 3d scene key up handler even the GUI has focus. In other words, there are more up events than down event. 
+	- ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) is implemented. more info, please see event_mapping.lua
+	- ParaScene.GetObjectsByScreenRect is implemented. see TestPicking.lua
+	
+2008.11.29
+	- All NPL jabber function implementations can now be compiled to use either c++ (gloox,curl) or .Net. There is however, a performance boost for c++ version. 
+		we will now completely get rid of .net dependency on release mode. 
+	- zlib is now moved to a dynamic dll
+	- gloox (c++ jabber client) is added as part of ParaEngine instead of a dynamic dll. dynamic dll is fine at release time, however, it generates warnings at debug time. So I decide to include gloox as part of paraengine core.
+
+2008.11.25
+	- NPL now supports curl. see "script/test/TestCurl.lua"
+	- simulated sky is now persistent on world db.
+	
+2008.11.24
+	- libcURL is compiled and added to ParaWorld. I build curl as a dynamic dll with multithreaded c lib, and copy dll from curl/lib/release to root directory.
+	- raw lua-cUrl is added to NPL. We can now call cUrl via NPL.
+	- paraworld solution is ported from vs 2005 to vs 2008. 
+	- the f-in-box dll is now updated to become vs 2008 compatible. version is 3_3_1
+	- Compiled FCollada in vs2008. i commented the lines: in libxml/config.h and libxml/win32config.h otherwise i was having a lot of errors regarding vsnprintf and snprintf). and added #define snprintf _snprintf
+
+2008.11.22
+	- TextSprite is added to IDE. script/ide/TextSprite.lua. It can be used to render large numbers. 
+	
+2008.11.21
+	- MouseButtons can now be disabled via camera attribute. 
+	- Simulated sky is implemented in ParaEngine. See EnvPage.html for more information. 
+
+2008.11.16-2008.11.20
+	- readjust the product direction to bring kids virtual world to top priority
+
+2008.11.8 - 2008.11.15
+	- a one week visit to hangzhou and shanghai, meet lots of people
+
+2008.11.7
+	- hello chat user and room registration page layout created. 
+	- domain name can now be changed when logging in. rulemapping.replaceables_replace implemented. webservice_constants now uses the new replaceables. paraworld.ChangeDomain method is added. 
+
+2008.11.6
+	- HelloChat now supports loading world from external command. 
+	- pe:canvas3d now supports objectbinding attribute.  see AssetInfoViewer.html for example. model asset viewer layout (AssetInfoViewer.html) is implemented in HelloChat app. 
+	- HelloChat Animation Skill command is added for demo purposes. "Profile.HelloChat.DoSkill"
+	- Load Movie Immediately from external command
+	- TODO: World registration is enabled. 
+	- TODO: a task dialog created for demo purposes. 
+	- TODO: The chat window displays. 
+	
+2008.11.5
+	- pe:bag drag and drop operation implemented. 
+	- pe:bag supports inner node command. The HelloChat demos the use of pe:bag for all its asset types. It can add selection to bag, and it can drag an asset to outside to delete it. 
+	- the movie app demo is done by leio. pretty cool.
+	
+2008.11.4
+	- pe:bag mcml page is implemented. 
+	- bAutoSize params added to "File.MCMLWindowFrame" command
+	
+2008.11.3
+	- BCS asset creation order bug fixed. 
+
+2008.11.2
+	- HelloChat layout is improved with world editing functions.
+	
+2008.11.1
+	- windowframe directPosition supported with drag operations. We can now create window frame by different alignment type, such as bottom right alignment.
+	- BUG: sometimes, tiny xml parse function will fail or crash when parsing xml files. This happens very rarely and is not repeatable. 
+	- TIXML_USE_STL is moved from tinyxml.h to preprocessor macros.  
+	- pe:asset is implemented. we can now easily embed model assets in mcml pages. 
+	- window frame default style can be replaced via external application. see HelloChat demo for more information.
+
+2008.10.31
+	- "Creation.UpdatePanels" command added to creator app. Call this function when selection changed. 
+	- os.window.IsVisible implemented
+	- *.bat batch scripts are created to load paraengine applications in different mode.  
+	- CurrentSpeed, WalkSpeed, ForceStop, ForceMove attributes are added to biped object.  
+
+2008.10.30
+	- TODO: needs to replace the C# downloader with C++ downloader. Since, the latter will be much faster. 
+	- Fixed: we will automatically switch left and right button according to windows settings. The left mouse button in paraengine is always the primary mouse button. 
+	- ParaUIObject now support GetAttributeObject() method. editbox can use this to change CaretColor and SelectedBackColor attribute
+	- attribute FieldType_DWORD is implemented, which can be used for 32bits color
+	- note: if multiple inheritance is used, make sure IAttributeFields is the first one. 
+	- "showboundingbox" property is added for all ParaObject. OBJ_SelectObject now support several selection effect in addion to firing missile to selected object. 
+
+2008.10.28
+	- pe:ribbonbar and pe:command implemented.  see pe_ribbon.lua
+	- PageCtrl not support GetUsedSize() which can retrieve the actual space taken to render the inner mcml control
+	- RibbonControl implemented. See RibbonControl.lua. RibbonControl will automatically resize itself to best contain the current selected mcml ribbon tab page. 
+	
+2008.10.27
+	- LoadUI is made fully customizable.
+	- LoginPage now support cmdredirect. And we now support custom login module.
+
+2008.10.26
+	- Logo page is refactored to be more general. Prese P key will pause/resume the logo
+	- www.kongfuchat.com/download.htm contains the sample down page test.
+	- HelloChat redist files created: see packages/redist/art_hellochat-1.0.txt, main_hellochat-1.0.txt and BuildParaWorld.lua
+	- HelloChat basic UI outline is created. 
+	- an example world "worlds/MyWorlds/KongFuChat" is created.
+	- BUG: printf_s is not working as expected. I have to switch back to the old _snprintf instead.
+	- unfound texture of CCS is reported to log file. 
+	
+2008.10.25
+	- script/ide/IDE.lua is added for IDE central include. script/kids/ParaWorldCore.lua is added to ParaWorldCore include.
+	- HelloChat app is a standalone app created on top of ParaWorld App architecture. See script/apps/HelloChat.
+	- HelloWorld app is created.
+	- TODO: FBX file format may be supported along with Collada.
+
+2008.10.24
+	- ParaEngine plugins\PEDetectActiveX\PEDetectActiveX.dll is implemented and registered with ParaWorldViewer. 
+	- BUG: if config/config.txt contains an unsupported type, such as multisample type 2. the engine will not start. We should fallback to safe settings. 
+
+2008.10.23
+	- ParaEngine wiki developer site outline are written.
+	- NPLDocGen.GenerateChangeLogWiki is implemented which will generate change log to wiki automatically.
+
+2008.10.21
+	- we now support namespace (ns) attribute to variables, so that a table can reside in a nested namespace. such as <variable name="Class1" type="Class1" ns="MyCompany.MyProject.Class1"/>
+		more information please see VsNPL.LuaLauguageService.XmlDocumentationLoader.AddTableDeclaration();
+		
+2008/10/20
+	- system event type is added to EventsCenter. we can now listen to system event. 
+	- Sys_Event.SYS_COMMANDLINE is implemented and added to event_mapping.lua
+	- commonlib.Lua2XmlString is implemented. 
+	- script/installer/GenVisualStudioDocProject.lua is implemented to generate a script doc project for SDK users. 
+
+2008/10/17
+	- visual c++ runtime library is distributed as shared assembly. Private assembly is examined but decided not to use. 
+	- if the ParaEngine.sig file is not found, we will set the working directory as the current executable path using GetModuleFileName();
+	- ParaGlobal.ReadRegStr and ParaGlobal.ReadRegDWORD implemented to NPL. 
+	- the paraworldviewer web installer is created, which is a 50KB setup file to download and install the paraworldviewer application. See script/installer/TestDownload.htm for example.
+
+2008/10/16
+	- paraworldviewer installer nsis script created. I have find no good way to develop direct plugin for all kinds of web browsers. 
+		However, by designing url protocal, we can achieve similar result. Current I installs the paraworldviewer:// and paraworld:// protocal when the two clients are installed on disk. 
+		I will secretly inject the single parameter to ensure that only one instance of the client is running and that a message is send to the existing exe if it is requested on a different world.
+	- fullscreen command line is supported so that we can specify whether to start full screen or not. 	
+
+2008/10/15
+	- VsNPL is fully implemented. see script/VisualStudioNPL/readme.txt for extending intellisense via xml files.
+	
+2008/10/14
+	- VsNPL solution is added. 
+		- download the WowAddonStudio source from SVN from codeplex
+		- install visual studio 2008 SDK. 
+		- Generate a PLK for product name and version, etc. Embed the PLK in resource file. and modify the LuaLanguageServicePackage.cs accordingly. 
+		- Edit the project property to add debug command in debug mode: /ranu /rootsuffix Exp /novsip
+		- Edit the project property to add post build event to generate reg file for deployment
+			"C:\Program Files\Microsoft Visual Studio 2008 SDK\VisualStudioIntegration\Tools\bin\RegPkg.exe" /regfile:DeployVsNPL.reg /codebase "$(TargetDir)LuaLanguageService.dll"
+		- change the default registry root to [DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0")] since we are deploying to isolated shell. 
+		- Added Documentation/NplDocumetation.xml
+		- VSPackages is set to load whenever a solution exists. 
+		  [ProvideAutoLoad("F1536EF8-92EC-443C-9ED7-FDADF150DA82")] // = VSConstants.UICONTEXT_SolutionExists.ToString()
+		- Fixed: we need to regenerate all GUIDs in order for language service to load correctly. 
+		- Now that debug and release mode are compiled with different GUID.
+		- DeployVsNPL.reg is used to create the SetupVsNPL project: needs to replace following key values
+			- [TARGETDIR]LuaLanguageService.dll
+			- [SystemFolder]mscoree.dll
+		- SetupVsNPL project is implemented which is based on the tutorial of http://msdn.microsoft.com/en-us/library/bb458038.aspx
+		- Note: if *.xml documentation file is not valid, it may render the entire code sense invalid for any lua files. 
+		- TODO: NPLDocumentation will be added in future. 
+	- Install VsNPL is easy, run the installer at VsNPL/SetupVsNPL/Release/*.msi	
+
+2008/10/13
+	- API servers are designed to be deployed on clusters.
+	- Talked about the finance system in paraworld extensively.
+
+2008/10/11
+	- Discussed the server architecture with kenny. It appears that ejabberd implementation may be rewritten in future. 
+		- TODO: Move all game server logics to linux platform, I may still need to use NPL on this server side. 
+		- the number of available racks may be a bottleneck on server architecture. 
+		- TODO: decrease the radius of visible characters if there are too many characters on server, but do not exempt transmit load character
+
+2008/10/10
+	- project DarkStar is studied extensively. project DarkStar is an open source
+	- movie platform demo is previewed by leio. 
+	
+2008/10/9
+	- randint(lower, upper) bug fixed. it will generate correct upper value.
+	- Texture:UnloadAsset() will delete texture info for static texture. this corrects a bug when the dimension of the texture changes when unloaded. 
+
+2008/10/8
+	- mini map is can now be captured and saved, which uses the new ParaScene.CaptureSceneState interface. 
+	- Portal rendering tutorial is given and fixed some minor bugs with portal editing system. 
+		
+2008/10/7
+	- successfully ported ParaEngine from vs 2003 to vs 2005. All statically linked libs need to be rebuild using the new compiler, these include, lua, luabind, pcre, sqlite, and directshow base class.
+	- to prevent dll hell, all libs are using multithreaded c run time, instead of multithreaded dll.
+	- About building directX show libs. DirectX Show is now part of the windows platform SDK. however, I still build  it from the dxsdk_feb2005_extras, the steps are below
+		- download and install to Root/dxsdk_feb2005_extras/DirectShow/Include, add to additional project include path
+		- go to and build dxsdk_feb2005_extras\DirectShow\Samples\C++\DirectShow\BaseClasses and copy debug and release output to Root\lib_release\lib\strmbasd.lib and STRMBASE.lib. 
+		- (During build, needs to correct several bugs to the source code and change to multithreaded mode,since they are not compatible with the new compiler)
+	  Note: the above project and files are	stored in vss as well. One can grab all files from vss.
+	- TODO: FCollada is added to solution. I intend to support collada file format for static models. 
+	
+2008/10/6
+	- seems that we need to run a devenv /setup to fix the problem. 
+	- ParaScene.CaptureSceneState and ParaScene.RestoreSceneState implemented in ParaEngineExtension.lua.
+	- mini map is can now be captured and saved, which uses the new ParaScene.CaptureSceneState interface. 
+	- jmonkeyengine studied. 
+	- Fixed: luabind updated to 7.1. I have tried to port ParaEngine from vs 2003 to vs 2005. But stuck at the place 
+		where LuaBind does not support out_value or pure_out_value for luabind object type. Anything except object is OK. 
+	
+2008/10/5
+	- GenMiniMapPage.html implemented. 
+	
+2008/10/4
+	- objects on miniscene graph are always shown in the main scene regardless of which zone they belongs. 
+	- main scene rebuild processing logics changed from queue traversing to recursive functions. 
+	- BaseCamera now inherits from the BaseObject interface, which has the homezone property. 
+	- BUG: after right clicking on the object property to edit its position, the creation panel's click to drag create function failed to function. 
+	- TODO: when adding new objects to the scene via user interface, we should automatically add the mesh object to the zone where the camera eye position resides. 
+	
+2008/10/3
+	- transparent shader's zwrite enable is reenabled after finished with the effect. 
+	- Render logic change: OBJ_VOLUMN_CONTAINER is obsoleted, use portal system instead. Child objects of scene graph are invisible by default, unless it is miniscenegraph.
+	- objects with home zone are removed from shadow caster list. 
+	- shadow rendering logics are slightly changed.
+	- Microsoft made a WOW addin for visual studio 2008 to demo its extensibility. It contains a lua language service which may be of use in future. 
+
+2008/10/2
+	- zonepage can not pick, select, list, highlight portals that belong to the current zone. 
+	- zone object picking, selection, deletion is implemented in zone page. 
+	- ParaObject:SetHomeZone() method is implemented. Mesh objects are serialized with it. 
+	- rough CBaseObject collistion test method is refactored to use accurate sphere testing against frustum. 
+	- Portal and Zone object camera frustum testing is made different from normal object, because it must shift the near plane to the eye position. Also portalFrustum's camera frustum should be zero near plane distance. 
+	- BUG: sometimes, first camera persion view's vEye's Y axis can be invalid. 
+
+2008/10/1
+	- when right click to edit an object position, the creation panel's left click does not work anymore. 
+	- personalworldpage are now sorted by write date. 
+	- Portal, Zone auto generation functions are fully implemented. PortalDemo world is created for demostrating the portal rendering system. 
+
+2008/9/30
+	- installed visual assist X again. 	
+	- syntax coloring for lua is implemented using visual studio usertype.dat. see "script/ide/visualstudio_highlight/readme.txt"
+
+2008/9/29
+	- NOTE: vs 2005 suddenly failed to restart. after uninstalling some components, and have a disk check on c and e drive and restart, the vs 2005 magically start again. however, on the next day, on a clean reboot, the vs 2005 will not start again
+		I uninstalled, started and killed process many times, and it wonnot work. After installing a asus AI software and have the E drive disk checked (actually skipped on reboot), the vs 2005 can restart again. but the message
+		The Windows Forms Designer Hosting Package ({68939055-38E0-4D17-92CB-8909710D8178}) did not load because of previous errors. For assistance, contact the package vendor. To attempt to load this package again, type 'devenv /resetskippkgs' at the command prompt.
+		appears on each subsequent reboot. and it asks me to run "devenv.exe" /resetskippkgs next times. There are some google results of failed loading packages on vs. however, I also suspect that it is the disk problem. 
+	- for highlighting lua source code, there are two ways without using additional software, like lualangpak. 
+		One is provided by VS itself. http://msdn.microsoft.com/en-us/library/aa301710.aspx
+		the other is by visual assist X, because VB code looks a lot like lua, except the comment. 
+
+2008/9/28
+	- PortalNode now exposes homezone, targetzone, portalpoints, AutoGenPortalPoints properties.
+	- ZoneNode now exposes zoneplanes, AutoGenZonePlanes, AutoFillZone properties
+	- ParaScene.GetObject("<portal|zone>name") is implemented. 
+	- pe:tabs can now function inside form node. 
+
+2008/9/27
+	- width, height, depth, facing attributes added for BaseObject. they are used for databinding for zone/portal's bounding box. see PortalPage for example.
+
+2008/9/26
+	- PortalPage, ZonePage, PortalSystemPage implemented. 
+	- MousePick now support filter function which allows picking of any object type combinations. 
+	- Map3DSystem.msg.OBJ_PickObject is implemented which allows picking via a callback function and a filter. It is used with portal and zone picking. 
+
+2008/9/25
+	- pe:numericupdown tag is implemented in MCML for NumericUpDown control
+	- the character may have alternative standing animations. A character must have the standing animation ANIM_STAND(0), 
+	   it may also have up to 4 custom standing animations, in the id range ANIM_CUSTOM0-ANIM_CUSTOM3
+	   we will play the custom animations, if any, randomly after the default standing animation is played after some set time(such as 10 seconds).
+
+2008/9/24
+	- NumericUpDown control is fully implemented in IDE, with spin buttons, mouse wheel and mouse drag. 
+	- databinding also support NumericUpDown via IDE_numeric type. 
+
+2008/9/23
+	- TODO: world upload service should use patching on the server side. and the server need to apply patch via a seperate process that runs at idle time or at night. 
+	- Asynchronous web request on the server side is studied.
+
+2008/9/22
+	- sky shader now renders with z test enabled, and with depth value set to 1.0. so it is now rendered after the terrain to make the z-buffer work better. Currently both the shader version and fixed function will allow this function of optimization. 
+
+2008/9/21
+	- BUG: when running debug build, I once have the message g:\scm\release\PhysX_2.8.1\novodex\SDKs\Core\Common\src\SceneRaycast.cpp (470) :invalid parameter : NxRay direction not valid: must be unit vector.
+		I wonder this caused the infinit plane problem.
+	- TODO: View/fog Distance should be saved in machine config, not in the world db. When saving effect level, make sure shadow, etc are changed accordingly. 
+
+2008/9/20
+	- portal rendering algrithm itself is fully implemented. there are some limitations to the current portal system
+		- only the outer world zone can contain other zones
+		- the camera can see into a room via at most one portal. in other words, there can not be two doors in to the same room with positive dot product. 
+			if there have two such doors, one of the door contents are ignored which renders the result undefined. 
+		- mobile characters will be automatically added to appropriate zones. However, it is advised to use simple zone shapes with just a few planes	
+		- static mesh objects are manually added to zones at scene saving time or model exporting time
+		- objects inside a zone will not be shadow casters.
+		- zones consists of planes, which are expressed as normal from the origin(0,0,0), hence the zone must be convex and contain the origin 0,0,0 point in its inner space. if the zone node contains a exact point (0,0,0) it will automatically become the ground plane. 
+	- portal system will automatically disable sky, ocean, shadow, and terrain when camera is in a zone disconnected with the outer world. 
+	- BUG: the mainmenu in script will black out once when first show up. 		
+	- TODO: export zones from 3dsmax or create directly in the game. 
+
+2008/9/19
+	- data binding class now support MCML_node type. See pe:fileuploader for an example. 
+	- pe:container now support relation and visible attributes. 
+	- Project template: InstallApps is refactored.
+	- PageCtrl:CloseWindow() is added which allow a page to close its container standard mcml browser. 
+	- log method will not throw exceptions for some strings with percentage letter %.
+	- TemplateProcessor.lua is created for creating components via mcml page in DeveloperApp.
+
+2008/9/18
+	- pe:fileuploader now supports  "*." as dir attribute
+	- DeveloperWnd in DeveloperApp is refactored. Project template: NPL_File is refactored.
+	- IM account import is studied.
+	
+2008/9/15
+	- all render targets (miniscenegraph) are created with preset alpha to 0.f. 
+	- CCS UI is optimized for lazy loading. A number of other UI themes are made consistent. 
+	- new installer is made with the new UI system. 
+
+2008/9/14
+	- portal rendering is improved with camera support.
+	- new black UI theme are done. the content client area is now non-transparent white, with a black border. 
+	- debugwnd, testconsole UI layout improved. 
+	- text property of all ParaUIObject will not affect its color. 
+	- bug: "warning: sCode exceed the length limit of 4096" occurs on JGSL server when the creation string is too long. 
+	
+2008/9/13
+	- the best full screen resolution will always be smaller or equal to the current adapter resolution. 
+	- nsis updated to 2.39. installer slightly refined. 
+	- JGSL servermode will now automatically reconnect every 10 minutes if disconnected. 
+	- vista UAC installer problem solved. the new installer will run by requesting admin level permission.
+	
+2008/9/12
+	- ParaEngine attended the Shenzhen ChuangYeZhiXing and won the fifth prise.
+
+2008/9/11
+	- portal rendering system is further implemented. ParaScene now support ShowPortalSystem attribute. CZoneNode and CPortalNode are implemented. 
+	- ParaScene.CreatePortal and ParaScene.CreateZone are implemented via scripting interface. 
+	- PortalSystemPage is created for testing portal rendering system. 
+	- CBaseObject are now reference counted as well. 
+	
+2008/9/10
+	- portal rendering system is partially implemented. PortalFrustum is implemented. More information, please see CPortalNode.cpp file for my design. 
+	- google chrome source code studied and webkit rendering core studied. TODO: maybe we can update the internal browser to webkit. 
+
+2008/9/7
+	- paraworld installer now supports vista. dx and physx installs as non silent mode during vista operating system. 
+	- occlusion query for ocean is improved to use the query result from previous frames if available. 
+	- occlusion query banks are now created on demand. 
+	- TODO: use portal and anti-portal for rendering small meshes, instead of using hardware occlusion query, since the query result may not be available until next frame, otherwise it will stall the CPU. 
+	
+2008/9/6
+	- portal and antipoatal rendering studied as occlusion technique in the public world. For public world, we must do LOD and portal based occlusion. 
+	
+2008/9/5
+	- attended CSDN hero 2008 at shanghai and give a lecture on paraworld
+	- listened the "smart" development lecture by ivory jaconbsin. 
+
+2008/9/3
+	- ArtToolsPage.html and ProToolsPage.html are added to developersapp. They maintain a list of micellanous tools for artists and developers.
+	- character, ocean, small meshes now all use hardware occlusion testing. 
+	- ingame statistic descriptions are added to developerapp wiki topic. 
+	- front page is slightly refactored. 
+
+2008/9/2
+	- MapPosLogPage are implemented in minimapapp. It can be used to store important positions within a given world. 
+	- performance statistics are implemented for all directX draw calls in paraengine.
+	- Ocean occlussion testing is fully implemented. we will only render when occlussion test is passed. It will greatly improve ocean rendering speed. 
+	- occlussion testing is by default enabled for small smeshes, when their count is above a given threshold, such as 25. 
+
+2008/9/1
+	- pe:name now uses fixed height. <a> mcml tag now support fixed height.
+	- left click now takes no effect no current player. 
+	- preload.lua and onload.lua script are added to paraworld world loading procedure. the preload script can be used to download and load art resource files. wow models and worlds are ported to engine for art references. 
+	
+2008/8/31
+	- custom game fonts are supported at "fonts/*.ttf". See ParaAsset.AddFontName(). One can also add mapping via "GUI_font_mapping" property in config.lua. see script/config.lua for example. A lite font is used and added to installer. 
+	- most mcml and npl files are localized using TranslateFilePage with autotranslation. 
+
+2008/8/30
+	-  http://translate.google.com are used to translate locale files. I modified the NPL.AsyncDownload() method to include the UserAgent in the http request header. 
+	 some site such as the translate.google.com need the user agent header to behave properly. Current UserAgent I used in NPL web service client is below. 
+	 (request as HttpWebRequest).UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1;)";
+	- TranslateFilePage now support machine translation from chinese to english via web services.  http://translate.google.com and http://www.windowslivetranslator.com/ are two choices. we support the first one. 
+
+2008/8/29
+	- the installer now supports multiple languages via MUI2. If the user selects a installer language, the product will automatically assume that language via its config file. 
+	- bug submit page is implemented. 
+
+2008/8/28
+	- config/config.txt will automatically remove the read-only file attribute when overwriting the file. 
+	- ParaMisc.EncodingConvert("utf-8", "", s) now supports utf-8 to/from ansci conversions. 
+	- translator now output mcml translations correctly. 
+	- ParaMisc.CopyTextToClipboard is now functional with ansci string.
+	- TranslateFilePage.html is implemented and added in developersapp. 
+
+2008/8/27
+	- mcml page translation is implemented. for any div style tags, including the pe:mcml page, we can use the trans attribute to specify how the child nodes are translated. 
+	- ParaworldMCML translation table are implemented. The Build process now include the generation of translation tables. 
+
+2008/8/26
+	- ParaIO.SetSegment and ParaIO.GetBase64String are added. They are used to send files via web services by blocks
+	- paraworld.map.UploadFileEx() is implemented which will break large files to pieces before sending. see paraworld.map.UploadFileEx_Test() for details. 
+
+2008/8/25
+	- whether we treat png file as DXT3 by default. if the texture filename ends with "_32bits.png", we will load with D3DFMT_A8R8G8B8 instead of DXT3. If one wants to ensure high resolution texture, use TGA format instead.
+	
+2008/8/24
+	- bug fixed: when xref objects are animated twice when rending ocean reflection. 
+
+2008/8/23
+	- mipmapping is used for dds. png and jpg are by default using DXT3 and DXT1 without mipmapping, which may lose some colors. To use ARGB8 format, one can use tga file format. 
+	- cartoon face and ccs body compositive textures are saved as compressed dds format with full mipmapping, instead of ARGB8 format. 
+	- Texture LOD can now be set at run time. 
+	- CommonSettingPage.html page are implemented in settingsapp. Texture LOD and anti-aliasing are added to it.  
+
+2008/8/21	
+	- MovieApp are fully designed. 
+	- New main task bar UI is available 
+	
+2008/8/19
+	- MovieApp architecture code are implemented. 
+
+2008/8/18
+	- ccs component can now have xref objects. 
+
+2008/8/15
+	- personalworldpage.html is implmented with multiple view mode. 
+	- pe:if tag condition will be evaluated each time page is refreshed, instead of just once. 
+	- ParaIO.SearchFile now support getting all file info, such as file size, file attribute, file times. etc. see. ParaSearchResult.GetItemData
+
+2008/8/14
+	- starviewpage is partially implemented. 
+	- in pe:gridview one can also apply css style to PageSettings.
+
+2008/8/11
+	- new attachment points for CCS is defined. ear, facial addon, back, waist, boots, etc are defined. 
+	- artists want high heel boot models. BootHeight property (attribute) is added for character. boot height, default to 0.f meters. It only affects rendering. In case, the character is wearing a high heel boot, we may set this to 0.1-0.2 meters. 
+		e.g. obj:GetAttributeObj():setfield("BootHeight", 0.1);
+	- Post processing pipeline are fully implemented and tested with a motionblur shader sample. a dozen of new api is available for doing post processing in NPL. 
+
+2008/8/10
+	- Post processing pipeline is implemented in ParaEngine. see the script/ide/PostProcessor.lua for example usage. 
+	- post processing shaders are added in script/shaders/*.fx
+
+2008/8/9
+	- An application called NTWrapper is used to host ParaEngine JGSL public server instances as windows service. See the wiki site for operation details. 
+		- alternatively, windows also provides a tool to start app as system service, see http://support.microsoft.com/default.aspx?scid=kb;en-us;137890
+		- winserv is an open source command line application which does the same job, which is good for the task. 
+
+2008/8/8
+	- jgsl grid server is tested with multiple users and multiple worlds. Max history reset number is implemented. 
+	- jgsl client and server agent timeout logics are corrected. 
+	- cheer for Beijing Olympic 2008
+	
+2008/8/7
+	- grid server is fully implemented. server.1@pala5.cn is registered. AutoLobby is configured to join public server before trying for private servers. 
+		wiki documentation for operation is added. see JGSLPublicGameServers
+	- JGSL server bandwidth limit is removed for official public servers. 
+	- JGSL client logics are slightly changed to recover from temporary packet lost. 
+
+2008/8/6
+	- grid server is implemented. please see JGSL_grid and JGSL_servermode.
+
+2008/8/4
+	- installer now will not delete screen shot and world/MyWorlds during uninstallation.
+	- NPL jabber client will now output error messages in msg.error={code, condition, msg} field, such as offline messages. 
+	- JGSL will now handle offline user responses. 
+	
+2008/8/3
+	- PageCtrl backward page now support inner iframes. The inner visible page, if any,  first goes backward, and then the parent page ctrl.
+
+2008/8/2
+	- unhandled mouse up event is allowed to be sent to 3d scene event when there is a 2D window who has focus.
+	- texture info are not deleted when device is deleted. However, it is deleted when texture are refreshed. This fix a bug when remote http texture reloads. 
+
+2008/8/1
+	- cursor file is loaded from memory (managed asset) to increase speed when cursor images changes frequently.
+	- we can generate pkg file while the pkg file is still in use. 
+	- ParaIDE project is moved from AB to VSS
+	- A bug when changing source control provider in vs2005 is corrected: First UNBIND old solution from old source control provider and save and exit vs. Now delete *.suo file, this is very important. Finally, change the *.sln binding to the new source control provider and get latest version.  
+	- ejabberd is made as a boot service in ubuntu linux server. See the ejabberd solution for details. 
+	- All VMs are auto started with the host server machines
+	- the ubuntu linux service can now share folders with windows development server via smb service. 
+
+2008/7/31
+	- script solution is moved from AB to vss 2005. Integrated windows account now seperates two different users types artist and programmer. 
+		BuildParaWorld.BuildInHouseSDK() is implemented to build a main.pkg at the root dir for in-house development. It contains the latest script and xml files, but is different from the release version main package.
+	- AB buckets are created with each 2GB, with a total of 17GB data. Buckets are moved offline and backed up to persistent disks. 	
+		AB consistency checked are scheduled monthly, old consistency are corrected. 
+	- left button move logics changes slightly: if user double clicks or does not select any object we will get the picking object and move the current character to that location. 
+
+2008/7/30
+	- mcml browser window can now toggle display nav address bar
+	- BUG fixed: multiline editbox press enter key on the first line will not break text. 
+	- translation locale will generate warning instead of error for unfound translations. 
+	- KidsUI translation is removed. ParaWorld translation is added. 
+
+2008/7/29
+	- Camera position, character facing, and time of day are now perserved when saving to db. 
+	- default LoginWorld changed to an ordinary game world. LoadWorld now support loading a world without resetting UI. This allows us to silently switch main scene while UI is unchanged. 
+	- ParaUIObject.cursor is added. we allow any UI object to specify a 32*32 image cursor file when mouse over it. 
+	
+2008/7/28
+	- Game Cursor is changed automatically according to current selection. 
+	- ParaWorldStart page now uses real scene instead of miniscenegraph for login scene.
+	
+2008/7/26
+	- if render target conflicts with a static texture, it will replace the static texture in the texture manager. 
+	- CloseWindow added in os.windows. It also fixes a bug when editing replaceable textures in the scene, cancel editing now triggers the end editing event correctly.
+	- css:max-width and align property added to div mcml tag. 
+	- MCML browserWnd now support navigation bar to be separate. 
+
+2008/7/25
+	- glow effect parameters are saved with the game world. 
+	
+2008/7/24
+	- when character is mounted, any moving state is removed from state manager. 
+	- SettingsPage for EnvApp is implemented. 
+	- AutoPatcher design and intial implemented is done. see autopatcherpage.html. 
+	- UI is once again refactored by designers
+
+2008/7/23
+	- ParaUI.GetCursorFile is implemented. We can now change the cursor regularly according to our logic
+	- all paraworld services are now on vmserver 2.0
+
+2008/7/22
+	- TODO: auto patching should be implemented. using vpatch3.2 and nsis
+	- TODO: JGSL game server should be implemented as a system service for public world.
+	- changed cursor for different action hints on the mouse. 
+
+2008/7/21
+	- persistent earth world view is get rid of. the ParaWorld world view is the only view in the platform. The star world view is reserved for future consideration. 
+	- container will now leak all unhandled mouse messages to 3d scenes. 
+	- disablemousewheel is added to treeview. QuickChatPage now uses the new feature to display interactive chat content with two states.
+	- movie script is designed, which is a wiki style text scripts that can be used to direct speech and actions in a scene. Character speech and camera(actors) may also be extracted completely from the scene. 
+	- vmserver and vmconverter are downloaded and used for the server. 
+
+2008/7/20
+	- ParaCamera CameraMode is implemented. Conflicts of WASD key when in free camera mode is resolved. 
+	- When left button is down, camera lock behind is disabled. when right click, camera is locked behind character. When camera is not locked. left click will move the current character to a given location. See mouse handler for more information.
+	- backward key will remove the current biped's waypoint.
+	- TODO: JGSL is too easy to have a broken line. we should reconnect to old server once gain after a broken line. If reconnection failed, we will try to host our own server.
+	- TODO: VIP: model update and sharing: if a model is not found, it will search in the global object category and download if found. We also allow people to upload objects to our category. 
+		global object category is the AssetApp application service. It is for artists to share models with the community. A user can constantly download models to their local server and use offline models with ease. 	
+	- TODO: People can only corporate on a published read-only world. If they wants to save their improvisional creations, they can package them into blueprints and use them in their homeworld.
+		In future release, we will support saving as a different file from a readonly cooperative world. This will allow people to work on terrain and landscaping together. 
+	- TODO: VIP: a Beeper with XRef that could play MP3 music, etc.
+	- TODO: Think about business model and coporation models who wants to run serious virtual worlds on it. 
+	- TODO: Saving animations to world or improving the movie shooting functions. 
+	- TODO: Dumping non-existing models and characters in the world. 
+	- TODO: toggle jabber server address automatically.
+	- TODO: occasionally, the same character has two same avatars on server. 
+	- TODO: adding jabber friends between lxz1 and lxz2 is one directional. 
+	
+2008/7/19
+	- linux system services and boot order is studied and configed the ejabberd. 
+	- TreeView scrolling is fixed. Now that we can disable clipping for fixed height tree view items. However, the scroll step, scroll page size, and the tree view height must all be integer times of treeview item height. 
+		Example usage can be seen in Lobby BBS channel page. 
+	- button mouse over	will now only take effect when all its parents and itself are enabled.
+	- Lobby BBS channel page refactored to use new treeview and mouse over feature. 
+	- bug fix: ParaUIObject:LostFocus() can now loses focus to 3D scene completely. It used to loses focus to its parent container only. 
+	
+2008/7/18
+	- ParaScene.FireMissile now support any ParaXEntity as first parameter. 
+	- summonmode and summonagent is implemented. 
+
+2008/7/17
+	- action feed can now be cleared by group.
+	- TextureEntity now support hit count property and MakeInvalid method. 
+	- miniscenegraph active rendering will now only render when there is an visible object in 3D or UI that calls the GetTexture() method. 
+		Internally, it used the hit count property of TextureEntity to decide whether there are hits in the last frame.
+	- particles can now be rendered properly in miniscenegraph and main scene. The scenestate caches global particle for different scene.
+	- User confirmation email can now be resent when unactivated user signed in. 	
+
+2008/7/16
+	- TeleportPage is refined and support none-remote-world. profile page and a few other places now supports teleport shortcut. 
+	- aabb bounding box can now be exported from the reference model for characters.
+	
+2008/7/15
+	- TeleportPage is fully implemented. it now allows people to easy teleport to another user.
+
+2008/7/14
+	- username can not be empty when register profile.
+	- downloaded world will be saved as worldname_fileid.zip.
+	- bug fixed: address bar visibility is now persistent.
+	- bug fixed: retry_cancel is now properly displayed by MessageBox. When logging in, the user can retry or cancel login process via the new message box buttons. 
+
+2008/7/13
+	- right click OPC to see its mcml profile is supported. JGSL query profile is implemented with local server support. Right click an jabber client character, we can retrieve its profile from context menu. 
+	- Bug fixed: JID of server used to contain upper case letters. After the fix,all JID are converted to lower case using string.lower(), see JGSL.GetJID()
+	- Map3DSystem.JGSL.query.GetWorldInfo is implemented. see JGSL_query
+	- paraworld.users.getInfo is implemented with local server.
+
+2008/7/10
+	- inner world listing is sorted by date on the client
+	- switch character right is granted to friend role.
+	- bug fix: user can refresh a previously uploaded world.
+	- art and model asset are moved to the packages/startup. Main core packages is reduced to include only script and UI texture, which makes granular update easier later on. 
+	- it takes me hours to find a random occurs bug: when compiling and loading empty script file, it may sometimes generate runtime error. Avoid loading empty script file.
+	- bug fixed: we can publish a world twice. 
+	
+2008/7/9
+	- bug fixed: mcml text width sometimes miscalculated. pe_text is fixed. however, multiple lines of scaled font may still appear wrong, but will not affect parent layout.
+
+2008/7/8	
+	- BCS Xref dependencies solved. now it uses the app framework.
+	- Headon text uses physics height. Headon text display bug corrected: it used to render invisible UI attached to 3D objects like headon text. 
+	- pe:if and pe:if-not are added to mcml tags. 
+	- disabled creating two objects at the same place 
+	
+2008/7/7
+	- bug fix: remote texture whose file name is same as texture sequence does not show up.
+	
+2008/7/6
+	- full screen size is auto picked which is nearest to the window size. 
+	- bug fix: full screen mouse is not displayed on some computer 
+
+2008/7/5
+	- ParaWorld preview version is released. 
+	
+2008/7/3
+	- ParaWorld automated build pipeline is established. See script/installer/BuildParaWorld
+	- numerical key 1, 2-9, 0 can be used to face camera and play various predefined animations. 
+	- autotips is fully implemented. camera, fly mode, pause game all added to autotips. 
+	- ParaAsset.GeneratePkgFile() is implemented. 
+	- Basic security fix on BBS chat and action feed with XPath.XMLEncodeString();
+	- assetmap is disabled in release build. watermark is disabled in release build. 
+	- Ebook is supported in new ParaWorld app. EBook tutorials worlds are refactored using new world format. 
+
+2008/7/2
+	- biped character picking bounding box is read from ParaX asset file and is different from physics boundingbox. This makes mouse picking of character object more easier. This also makes headon speech dialog display more accurate.
+	- TODO: mouse picking: if ray intersects with more characters, we can loop among the touched characters, instead of using the closest candidates.  
+	- biped that floats on water surface animation (like boat) will now use land running animation instead of falling down animation. 
+
+2008/7/1
+	- ParaWorld installer script is completely refactored to use nsis script. It has dependecy check and auto install for windows installer 3.1, .Net 2.0, vc8 sp1, DirectX 9, DX Update, Nvidia PhysX
+	  where only vc8 sp1, DX Update, Nvidia PhysX are contained in the install package, all other dependencies are downloaded from the web if not present.
+	  More information, please see paraworld_installer_v1.nsi, and script/installer.nsi, installer assets are Texture\3DMapSystem\brand folder. 
+	- random walk will retain its initial center position when the behavior is assigned. 
+
+2008/6/30
+	- Nvidia PhysX upgraded to 2.8.1. Please note that the experimental NX_SUPPORT_MESH_SCALE is still not supported in this latest version.
+	- pw_sandbox_file is added which included mcml in sandbox mode. sandbox mode is applied to all zip file. 
+	- Tutorial world is made via a minimap.
+	
+2008/6/29
+	- shift character access right is added. 
+	- middle key to fast move the character at administrator right. 
+	- mini-map background is supported. minimap.png(or jpg) file under world root directory is used as the default minimap of the world. 
+	- UploadWorldPage is fully implemented which upload the current world to user's logical path "worlds/[worldname].zip" on the remote server
+
+2008/6/28
+	- PublishWorldPage is implemented with local saving and saving as. World Preview image can be generated from save page. Full scene saving (renaming) is supported.
+
+2008/6/27
+	- quick chat and BBS channel is implemented with better mcml based UI and some basic formatting to chat text is implemented. 
+	- JGSL client/server is improved with broken line recovery. And performance is boosted by using local namespace. 
+	- JGSL query class is implemented for query information about a given client. 
+	- mcml checkbox and radiobox now supports onclick events. 
+	- linux and win server security is studied for paraworld api and jabber. TODO: more needs to be explored. 
+	- all paraworld server
+	
+2008/6/26
+	- character rflections supported. 
+	- JGSL broadcasting logic is changed. It will only broadcast content after connection, instead of from world loading. Bug fix: The first history message is not resent. 
+	
+2008/6/25
+	- ChatDomainIP is supported in JGSL, although at release time we need to remove it. see webservice_constants.lua. 
+	- headon_speech.lua is improved with full mcml text support, such as <a href="#">link text</a>. Pure text support auto-sized background. If mouse is over text, it will not disappear with life count down.
+
+2008/6/24
+	- A serious bug in os.hook is corrected. All hook messages are called twice in the old days, now it is working as expected.
+	- AutoLobbyPage is implemented with auto login feature. More information, please see Map3DSystem.App.worlds.AutoLobbyPage.AutoJoinRoom() method. 
+	- session key logics (JGSL_msg.CS_PING and JGSL_msg.SC_PING_REPLY) are built into JGSL client and server. currently we allow a PC to be either a client or a server, but not both. Each time the world path changes, session key will change, thus all servers and clients are disconnected. 
+		because we have session keys, offline or other irrelavent messages can be wisely filtered by server or client. and it sures that it only serves the recently connected client or server. 
+
+2008/6/23
+	- following official worlds are added: 
+		worlds/Official/NewUserVillage1: used as basic tutorial for both online and offline version
+		worlds/Official/NewUserVillage2: used as advanced tutorial for both online and offline version
+		worlds/Official/NewUserVillage3: used as developer tutorial for both online and offline version
+		worlds/Official/DefaultHomeWorld: used as default homeworld of a user who has not submitted any homeworld before. This makes it possible for other users to join its world even it has never been created before. 
+
+2008/6/22
+	- OpenInBrowserDlgPage.html is implemented to replace the old dialog box.
+	- WelcomePage.html are created for all important official applications.
+	- DestroyOnClose property supported for File.MCMLBrowser and File.MCMLWindowFrame
+	- LogoPage.lua now support use anykey to continue.
+	- AutoLobbyPage is implemented and added to statusbar via application interface. 
+	- when moving or copying or selecting using context menu, characters will always face the selected object. 
+	- MiniMapPage.html is implemented and added to status bar. 
+
+2008/6/21
+	- CharSavePage is improved with saving functions 
+	- LoginStatus is shown immediately, when clicking the login button.
+	- input button in mcml now support Get/SetUIValue method. 
+	- VisitWorldPage is implmented with user tile, world info retrieval.
+
+2008/6/20
+	- mount animation is deprecated in ParaEngine, instead use the scripting interface to specify which animation to play.
+	- witching off a character(vehicle), the character will be stoped to prevent it runs to infinity without a controller. 
+	- character head turning angle is set to 0 when mounted. 
+	- MQL is upgraded. FriendsFinder.html support strict email and partial name match. 
+
+2008/6/19
+	- DynamicVertexBufferEntity now can fail gracefully if it can not get enough video memory on restore. 
+	- LogoPage is refactored and used in ParaWorld for the logopage when application starts. 
+	- ContextMenu and PopupEditor now always stays in their safe screen area. 
+	- S_Mount action is deprecated. One needs to use ParaCharacter:MountOn(obj) instead. Recording of mount action is no longer supported. 
+	- "IgnoreWindowSizeChange" attribute is added to ParaEngine attribute, one can now specialy whether window resizing to affect backbuffer. 
+	- windows cursor now works correctly when IgnoreWindowSizeChange is true and window is resized.  mouse position is updated completely via windows ::GetCursorPosition(), instead of d3d cursor.
+	- pe:editor and pe:container now support aligment="_fi" and width="100%". 
+
+2008/6/18
+	- autotip is refactored to application desktop and uses mcml and work with paraworld application.
+	- pe:label and font mcml tag support text-shadhow property. 
+	- tooltip of UI buttons are improved with milliseconds accurate popup delay time setting. 
+	- Application Help Page implemented by SettingsApp. File.Help command can be used to trigger it. Each application can register a help page with app:SetHelpPage() like they did with app settings page. F1 key will trigger only the help page of the given application. 
+
+2008/6/17
+	- ParaWorld official site on wiki is planned
+	- TutorialPage is implemented in LoginApp. It will be shown when user logged in using the File.WelcomePage command from SettingsApp. 
+	- CreditsPage and OfficialWebPage is added to LoginApp. 
+
+2008/6/16
+	- Profile.CCS.FaceCamera is added to turn a character to the current camera. 
+	- F1 key will trigger MyDesktopApp's WelcomePage. C key will toggle camera mode.
+	- WelcomePage is added to SettingsApp. It allows each application to have a welcome page. See example in MyDesktopApp. 
+
+2008/6/15
+	- CharPropertyPage and ObjTexPropertyPage is added. Context menu for object and character property logics are fully implemented. 
+	- CharPropertyPage and ObjTexPropertyPage is fully implemented with all kids movie functions. Character Skin is supported in objeditor. 
+
+2008/6/14
+	- pe:script now support "refresh" property. This allows inline script to be evaluated only once. it is useful for query parameter tab page selection. pe:script documentation is improved. 
+	- MyDesktop app now handles fly (F key) and run (R key) toggling. 
+	- localserver will now save empty mcml profile. It can be used to delete invalid mcml profile when detected for the current user.
+	- popup object modifcation window is refactored in CreatorApp. The UI is on mcml page PopupObjModPage.html
+	- BlueprintApp, ProfileApp, VideoRecorderApp, now works on the new application framework. 
+	- TODO: pe:world, publish world wizard. 
+
+2008/6/13
+	- developer app switch desktop added. Online user page and recent registered user page is implemented in loggedinuserpage.html.
+	- pe_gridview paging rendering is now correct with page refresh. TODO: Design a method to refresh only smallest part of the page. Because gridview node are rebuilt during refresh. fetching property of pe:name does not take effect. 
+	- AnimationPage is fully implemented by the CCS interface. However it requires that animation files not in zip package for the from file tab to work properly
+	- os.hook post call back are called correctly
+	- text-align:center now works properly in mcml. 
+	- all alignment type UI controls can now be draggable. In the old days, only "_lt" can be correctly dragged. 
+	- objmodpage is improved with advanced and simple SRT tranformation. 
+	
+2008/6/12
+	- Entire paraworld namespace refactored to remove unused files and tables. TableDef.lua is mostly useless. Each system file will define their own local table space. 
+		- ccs.lua is refactored to use local table for improved executation performance. ccs.lua is considered a ccs data file and used in ide/objecteditor. TODO: move ccs.lua to ide/objecteditor. 
+	- AppDesktop is implemented to provide public application desktop functions for application developers. The most important one is desktop mode. it also wraps the desktop main menu and app task bar. 
+		- desktop mode is implemented. one can search for Map3DSystem.UI.DesktopMode in source code to find where they are used. 
+	- ParaUIObject.Destroy() now support id. Destory method in ParaUI is refactored to use id and a bug with PostDestory is corrected. 
+	- ParaUIObject.lifetime property is refactored. It corrects a bug of error deletion. 
+	- Bug fix: the first created character will not be used as the default character. This may errounously make a mini scene graph character a main scene player. 
+	
+2008/6/11
+	- ParaUIObject slider now support background and button property. And the background now support 9 element bg. 
+	- colorpicker control now uses colored slider buttons and centered text. 
+	- kids_db is reimplemented as world_db and user_db. the paraworld now completely break dependency from kidsmovie code base. headonspeach display dialog correctly with Reposition called. EBookApp break dependency from kidsmovie code. 
+	- ParaUIObject.lifetime property is fixed. The old implementation may lead to crash with UI deletion time?
+	- dropdownlistbox control now uses id instead of global name. 
+
+2008/6/10
+	- Advanced create world page is implemented. 
+	- APP_WORLD_CLOSING is sent to each application before a world switching occurs. This gives an application a chance to display some user interface before the current world is closed. For example, see worldsApp.
+	- one can now hook the onsize window of input application. The msg contains current screen width and height.  More information see Map3DSystem.OnScreenSize()
+	- Terrain MainTexture can now be null or invalid. TODO: better use unchopped main texture, otherwise too many textures are wasted. 8*8=64 main textures per terrain is a waste of space. 
+	
+2008/6/9
+	- NewWorldPage in worldsAPP is implemented with category template, world info page at worlds/Templates/*.*. 
+	- new worlds are created at worlds/MyWorlds by default. 
+	- Empty world templates are created at worlds/Templates/Empty/*.*
+
+2008/6/8
+	- pe:custom tag is fully implemented for embedded NPL UI objects inside mcml page. 
+	- a tag support page scoping onclick function with type property set to button.  
+	- AvatarRegPage is refactored with gridview and uses the new a tag with page scoping. 
+	- ScreenshotApp will take UI screen shot without the screen shot window itself. It will now upload image to web via 
+		paraworld.actionfeed.SubmitArticle and paraworld.actionfeed.UploadScreenshot is added for kidsmovie in paraworld. 
+	- pe:avatar now support inner nodes and support TakeSnapshot function. AvatarRegPage.html now uses it to display a take snap button. 
+	
+2008/6/7
+	- ocean, sky, terrain page is fully refactored in mcml. All old functions are functional, the UI is in mcml page file.  See OceanPage.html, TerrainPage.html, SkyPage.html.
+	- application switching is now enabled for AppTaskBar. 
+	- ide/AutoHide is fully implemented. It gives auto hide capability to any container one specifies. desktop mainmenu is now autohide by default using this technique. 
+	- png and dds static textures are created with dxt3 and dxt1 respectively in ParaEngine. 
+
+2008/6/6
+	- pe:sliderbar is fully implemented, which embed the ide/sliderbar. sliderbar onchange event is fixed to avoid duplicate value calls. 
+	- ide/colorpicker is added and implemented. pe:colorpicker is fully implemented, which embed the ide/colorpicker. colorpicker onchange event is fixed to avoid duplicate value calls. 
+		more information, please see script/kids/3DMapSystemApp/mcml/test/test_pe_design.html.
+	- File.MCMLWindowFrame commands is added to create mcml based window frame via app command. SkyPage is refactored to use mcml page window frame. 
+	- LoginPage is fully implemented by the LoginApp. 
+	- pe:gridview now support ItemsPerLine property which allows multiple items to be displayed on a single line. 
+
+2008/6/5
+	- Logged in front page is completely done with story, request and message feed.  ActionFeedApp now implements data source functions for mcml pages. 
+
+2008/6/4
+	£­simple mcml style like div support width, height property with percentage like width="70%"
+	- Support multiple feedtype and feed template: what kinds of feed is sent, nil,"story", "action", "request", "message". Defaults to "message", where "story" and "action" requires that the receiver is a friend of the current user. 
+	- Page object is exposed via embedded code script. It is the same object as the document:GetPageCtrl(). 
+	
+2008/6/3
+	- rulemapping now support multiple strings in a table as value field. the auto character animation will now use this feature to play different animation when mounted according to the user input such as pressing forward key or down key. 
+	- adding and becoming friends are published to action feeds
+	- fixed: invalid objects are not attached to miniscenegraph now. 
+	- NPLParser class now support auto indexed table items {"string1", "string2\r\n", 213, nil,["A"]="B", true, false, {"another table", "field1"}}. So NPL.IsPureData() for the above items will be returning true. and NPLWebServiceClientLib also support this. 
+	- IDE/contentmenu now will indent correctly. TreeNode can indent correctly. 
+	- a_class, a_style is added to pe:name mcml tag. 
+	- "_mcmlblank" can be specified as target property in a tag. ProfilePage.html is added to show the profile of the given user. 
+	
+2008/6/2
+	- PublishFeedPage is fully implemented with url, content. Feed is displayed on front page. 
+	- NPL.IsPureData now support limited lua 5.1 syntax. I actually implemented over the old 5.0 syntax, to make it recognize \r in additional to \n in string. Full 5.1 syntax is not ported. It is still basically 5.0 syntax. 
+	- os.lua is now fully integrated with ide/windowsframe. McmlBrowserWnd now uses the new ide/WindowFrame interface. 
+	
+2008/6/1
+	- Profile.Actionfeed.Add command is added. Actionfeed is now displayed on logged in user's home page.  
+	- zorder is added to windowsframe. AppTaskBar integration is partially done. 
+
+2008/5/31
+	- AppStartPage theme art is fully implemented with or without animation. 
+	- PateCtrl:Redirect() method is implemented, which allows page script to redirect to a different page. This is used in startpage to display different content based on logged in status. 
+		Although we can use iframe for the same function, the backward, forward navigation button will not be usable. So use Redirect and specify a time delay.  
+	- XPath is now moved to commonlib.XPath. The old one conflict with the mcml XPath function. 	
+	
+2008/5/30
+	- fixed: ide's multiline editbox can now hold pure chinese character. and it uses global unique id for selected line, instead of global name. 
+	
+2008/5/29
+	- zorder is added to ParaUIObject, default value is 0, the larger the more top level. usually set to 1. Internally stable sort (bubble sort) is applied to children at AddChild and BringToFront and BringToBack() function. 
+	  for real top level windows, the z-order is secretly increased by 1000 to make them stay above all zorder.
+	- AppTaskBar's StartAppPage is implemented with datasource.  AppTaskBar is a z-order 1 window. 
+	- Universal bone includes hand extension bones: finger0, finger1, finger2, ... . 
+	- Fixed: pivot point of the root bone is not exported in v1/boy. In order for pivot point to be exported, we need to assign weight to each bone. 
+		It is common to forget to do so to Root bone. A trick to fix this is to bound all bones to a invisible mesh triangle and assign some weights for each bone. This shall ensure all bones' pivot points are exported. 
+	- InviteFriends.html is fully implemented with paraworld.users.Invite api call. 
+
+2008/5/28
+	- iframe tag in mcml support relative path. pe:if-is-user supports loggedinuser as uid property. The StartPage.html in loginapp uses this features to display different pages for logged in and not logged in user
+	- Online mode buttons are displayed via app command interface. 
+	- if the command line contains "startpage", it will be used as startup page of loginapp. e.g. C:\InstallDir\ParaWorld.exe startpage="script/kids/3DMapSystemApp/Login/NewUserRegPage.html"
+	- pe:script inline code block with document:write() will handle Chinese character correctly. 
+	- wordbreak is supported in mcml label tag. 
+	
+2008/5/27
+	- buf fix: dymaic vertex buffer size overflow: if the requested buffer is larger than the total dynamic buffer size, we will break the input. 
+	- pe:progressbar is added to MCML tags. It is used in PackageMaker. pe:if-is-user is added to MCML tags. 
+	- FriendsPage is fully implemented, with adding, removing, showing friends, etc. see FriendsPage.html.
+
+2008/5/26
+	- mcml a tag supports onclick events and parameters. LoggedInPage is refined. 
+
+2008/5/25
+	- pe:mqldatasource is fully implemented. see mcml/pe_datasource.lua
+	- FriendsFinder now uses mqldatasource and gridview. TODO: if a page contains multiple web service calls to the same paraworldAPI only one is called. This is not the desired behavior. 
+	
+2008/5/24
+	- company mail server is fully configured with pop3 and smtp support using smartermail and dynamic DNS. 
+
+2008/5/23
+	- pe:download now supports refreshing, download status text, such as the total number of bytes currently downloaded. 
+		More information, please see "script/kids/3DMapSystemApp/mcml/pe_component.lua" and "script/kids/3DMapSystemApp/mcml/test/test_pe_components.html"
+	- localserver resourcestore now supports individual file progress report callback. 
+	- Maximum numberof Mount attachment points of a character is increased from 10 to 20. One can bind bones to Path in 3dsmax. 
+
+2008/5/22
+	- mcml tag pe:download is fully implemented. mcml tag div support background and onclick event. 
+	- Microcosmos Query Language is implemented. see. NPL.load("(gl)script/kids/3DMapSystemApp/API/paraworld.MQL.lua");
+	
+2008/5/21
+	- all simple mcml tag like div now support "display" attribute, it is similar to css.display property. except that it only recognize "none" as input
+	- <pe:tab-item onclick="funcName()"/> onclick event is added. <a href="open://relative file path "> is supported. 
+	- rulemapping lib is implemented. see "script/ide/rulemapping.lua" and "script/ide/test/test_rulemapping.lua". Currenly, this is used in MCML url mapping rules, and mount.rules.table file for the auto character mount animation.
+	- "mount.rules.table" is added and used in event_handlers_keyboard. We can now map any model to their default mount animation using either strict mapping or regular expression mapping. 
+
+2008/5/20
+	- Animated Xref object inside static mesh may contain mount points. This is fit for models like swing, where most of the model is static,only part of the model is animated, and the character can sit on the animated part if it contains mount point. 
+	- Multiple mount point is supported, it will mount to the closest mount point. 
+	- ParaXExporter: A critical bug in release 2008/4/8 is fixed. static mesh bounding box is not exported correctly as before. now this is fixed. bones whose name ends with Mount, Mount1-9 are supported. 
+	- New API added ParaObject:HasAttachmentPoint() ParaObject:GetAttachmentPosition() ParaObject:SetAnimation() ParaObject:GetAnimation().
+	- In ParaWorld script logic, the left shift key will switch to and mount on characters or static mesh with xrefed mountable objects. When it is the latter, camera remains on the current character and the W and S key can be used to start/stop the default running/standing animation on the mesh object. 
+
+2008/5/19
+	- LoggedInHomePage.html is added in LoginApp. It is the page to display after user logged in. 
+	- the registration process is refined with already filled app registration page skiped. Profile reg page check for username and photo and automatically display the tab page. 
+	- Mcml browser and page control can now nagivate back and forward among rcently opened urls. 
+	- ParaUIObject:SetDefault() is added for default button in a container. DefaultButton property in button MCML is also added. When enter key is pressed in editor box, the default button of its container will be clicked.
+	- double precision fixed when transmitting double number over web services. 
+	- ParaUIObject:Reposition(alignment, x,y,w,h) is added. We can now change the position and alignment even after control is created. ParaUIObject.height and ParaUIObject.width will now work for "_m*" alignment. Their meaning, however, is the distance from right and bottom border of its parent.
+	- pe:xmldatasource is fully implemented with internal xml data node or external xml data file. see "script/kids/3DMapSystemApp/mcml/test/test_pe_gridview.html" for example
+
+2008/5/18
+	- pe:pager is fully implemented and integrate well with pe:gridview control. pe:pager also support custom look. all events are now working in pe:gridview.
+	- background2 attribute for button mcml is added which can be used to set vista style buttons. 
+	- "_ctt", "_ctl", "_ctr", "_ctb" alignment now works properly on child controls and also supported in mcml pe:container tag via its alignment property. 
+
+2008/5/17
+	- pe:gridview is fully implemented, with embedded code block and templated rows. More information, please see mcml/pe_gridview.lua and mcml/test/test_pe_gridview.html
+	  pe:gridview uses another important design pattern in mcml called templated iterator. 
+
+2008/5/15
+	- pe:gridview is added. pe:gridview and related tags(pe:pager) are used for displaying a long list of templated data with paging. 
+	- ide/windowsframe.lua is refactored and works together with ide/os windows. It simplifies window and window frame creation and messaging.
+	
+2008/5/14
+	- MyDesktop app is added. EnvApp is refactored to use the new UI framework with AppTaskApp.
+
+2008/5/13
+	- AppTaskBar is implemented which uses the new application centric UI framework
+	
+2008/5/12
+	- ide/OpenFolderDialog is refactored to use the fileexplorerctrl.lua. 
+	- AssetsApp/PackageMakerPage is fully implemented, and is now compatible with the ide's commonlib.package framework. 
+	- currently only editbox can have focus(control can not), thus tab key can be used to switch between editboxes. A minor bug is created, when tab key will occasionally jump twice. This is because when clearevent does not clear cached repeated key
+
+2008/5/11
+	- commonlib.package is fully implemented. It is a package extension system implemented in pure NPL. It support a very simple versioning system. 
+
+2008/5/10
+	- "stdint.h" is added from the web for the bit lib in NPL. I modified lua 5.1.3 core to allow string.format("%x") to work for entire 52 bits, instead of 31 bits in the official release. 
+	- NPL is now able to display debug information for source file up to 120 characters (used to be 60).
+	
+2008/5/9
+	- ParaUIObject.id is redefined as the global unique id of an GUI object. ParaUI.GetUIObject(id) now accept both id and name of a given UI object. ParaUI.GetUIObject(id) is fast because it uses an internal hash. Since we use an id mapping, unattached ui objects can now be detected and reported. 
+	  Hence, commonlib.GetUIObjectByGlobalID is obsoleted. use ParaUI.GetUIObject(id) and commonlib.GetGlobalIDFromUIObject is obsoleted. use ParaUIObject.id property
+	- ParaUIObject:SetScript(eventName, Func, ...) is implemented in ide/ParaEngineExtension. 
+	- commonlib.LibStub is implemented which is a simple versioning stub meant for use in Libraries. See test in script/ide/test/test_LibStub.lua
+	- bit lib in NPL can be opened via luaopen_bit() which is implemented with native bitwise operations. luaopen_bit() is used in ide/math/bit.lua. 
+	- ide/math/TEA and ide/math/MD5 is added which is via the libstub interface. 
+
+2008/5/8
+	- Seeing Olympic holy fire within 100 meters from me near our Company in Shenzhen. 
+	- ide/MessageBox is refactored and can be set to use animations for popup and background fade. ide/styles/*MotionData.xml contains motion data in xaml for the animation effect used within. 
+	- Some minor bugs is fixed in Motion engine, such as ensuring first frame is played immediately upon play and the last frame is shown when animation ends.
+
+2008/5/6
+	- motionlib support ParaUIObject name and id binding. motionlib in MCML supports motion binding to img, div(any simple tags), text input, button, inner text
+	- FileExplorerCtrl and mcml pe:filebrowser supports new attributes to enable check boxes and several new events, like oncheck and oncreatenode. 
+	- PackageMakerPage is implemented in AssetsApp. ParaAsset.PrintToFile() is added. It can be used to determine which asset files are currently in use by the game engine. 
+
+2008/5/5
+	- Social MCML tag pe:name and pe:profile-photo is refactored. more information, see script/kids/3DMapSystemApp/mcml/test/SocialTagsTest.html. It utilizes an asynchronous page pattern with pageCtrl:Refresh()
+		the code is shorter by using only meta code to produce standard mcml inner control for most social tags.
+	
+2008/5/4
+	- Profile registration page now uses pe:label and pe:fileupload. User photo upload is implemented. ParaMovie.GetImageInfo is implemented
+	- motion lib MCML tags are implemented. please see mcml/test/MotionTest.html and mcml/pe_motion
+	- PageCtrl Refresh method with time delay is implemented. it is used with the pe:name to provide an asynchronous page element pattern. 
+
+2008/5/3
+	- mcml <pe:tabs> now support Set/GetUIValue and Set/GetValue methods which allows switching tab pages with run time page code. Examples, see FriendsPage.html
+	- NPL.activate("ParaAllInOne.dll", "exec:OpenFileDialog"); is implemented which opened an external win32 window asking for file path.
+	- pe:fileupload control for <pe:fileupload> and <input type="file"> tags is implemented. Examples, see mcml/test/browser.html. if "dir" property is not set, it will open using external browser. 
+	
+2008/5/1
+	- commonlib.echo and commonlib.dump is added which handles recursive table and function serialization. They are useful for debugging. see ide/serialization.lua. commonlib.echo is now the referred way to output temporary log string.
+	- commonlib.log has no limit to string size and with formatting like commonlib.log("hello %s \n", "paraengine").
+	- inline script code defined inside <pe:script> or <script> is executed in a page environment. One can define global variable and functions in the inline code block and use them as they are in the page event handler. They will not pollute the real global NPL environment or glia environment. 
+	  for example code, please see mcml/browser.xml. src property of <script> also support relative path.
+
+2008/4/30
+	- regular expression is supported in addtion to wild card, in ParaIO.SearchFiles method when searching zip files. e.g. this allows us to locate *.jpg in a zip file, etc. 
+	- LoadWorldPage in WorldsApp support world image preview. It will display the first found jpg image in the world root folder(same rule applies to zip file world); and image not available is displayed for world without previews. 
+	  The SnapshotPage in ScreenShotApp can be used to generate world preview image. It will resize the current snapshot and save it to the current world folder as preview.jpg file. 
+	- FriendsFinder, InviteFriends and FriendsPage are added to ProfilesApp.
+
+2008/4/29
+	- SnapshotPage is implemented via MCML in screen shot app. Some minor fix in mcml controls. <img> in mcml now handles dynamic sized src texture correctly. 
+	- pe:lable and html label is implemented in MCML. 
+
+2008/4/28
+	- MCMLBrowserWnd is implemented in WebBrowserApp. "File.MCMLBrowser" command is implemented to allow any other application to open an MCML page by calling this command. 
+	- Bugs with mcml select tag is fixed when there are less than 3 items in the drop down list. pe:filebrowser tag double click event is fixed. 
+	- ModelBrowserPage.html(lua) in AssetsApp is fully implemented with code in complete MCML. 
+	- LoadWorldPage is implemented in MCML in WorldsApp. 
+	- long string is lua 5.1 is supported in NPL and .Net lib. EncodeStringInQuatation of NPL and .Net will handle \r \000 correctly in long string. 
+	
+2008/4/27
+	- ParaEngine goes exhibition at Shenzhen Cartoon Animation Park. ParaWorld movie script is written. 
+
+2008/4/25
+	- OpenFileDialog is rewritten using the new FileExplorerCtrl control. 
+	- pe:filebrowser in MCML is implemented, which is the ide/FileExplorerCtrl control wrapper. 
+	- pe:canvas3d in MCML is implemented, which is the ide/Canvas3D control wrapper. 
+
+2008/4/24
+	- FileExplorerCtrl is fully implemented. see ide/FileExplorerCtrl.lua. Cartoon face coordiate is adjusted. ejabberd server is configured behind NAT and is working well.
+
+2008/4/21
+	- wide screen video recording is suppported in MovieApp. 
+	- Path replaceable is fully implemented. see test case in ParaIO_PathReplaceable() in script/test/ParaIO_test.lua
+	
+2008/4/19
+	- Desktop front page is refined with branded PEDN logo added and a few UI tweaks. Login settings page is completely rewritten using the new DOM and MCML code behind pattern. Please see script/kids/3DMapSystemApp/Login/setting.html(lua). It is a very good example of using MCML with NPL. 
+		- commonlib.compare is implemented. MCML <hr> is now based on css style. 
+
+2008/4/18
+	- DOM in MCML is improved to support button onclick script. PageCtrl added SetUIValue() method. This makes it convenient to use the code behind model in MCML and NPL. 
+		More information, please see the script/kids/3DMapSystemApp/Login/setting.html(lua) file. 
+	- Leio has done an NPL motion lib in ide/Motion which supports animation exported from flash in XAML format.
+
+2008/4/17
+	- application setting page is fully implemented. LoginApp, CCSApp, ProfileApp and MapApp both have their own self-contained settings page. The SettingsApp will automatically display settings for app with setting mcml page. 
+	   see app:SetSettingPage() for more information. See ProfileApp(ProfileRegPage.html) or LoginApp(setting.xml) for an example. 
+	- external ParaWorld authentification is implemented for PEDN twiki site. Please see PEDNOperationGuide in PEDN.
+
+2008/4/16
+	- onload callback of pe:mcml and other HTML tags are added to MCML. such as <pe:mcml onload="commonlib.echo">, the first input of onload is the including node object. the implementation is actually in pe_simple_styles.create().
+	- MCML <option> now support value field and will now automatically add non-existing ones. Databinding and IDE.dropdownlistbox also support value field, in additional to text field.
+	- Official Paraworld website framework is done via twiki. Please see paraworld web. 
+
+2008/4/15
+	- pe:script and script is added to MCML, one can now embed inline or external NPL script in MCML, like javascript in HTML. More information, please see pe_script.lua.
+
+2008/4/11
+	- PageCtrl is improved and BrowserWnd becomes a thin wrapper of PageCtrl, instead of a different implementation. Request query result can be retrieved. 
+	- <a target="_self"> and <form action="url" target="_self"> is supported for page rendered by PageCtrl. Since both BrowserWnd and <iframe> uses page control, they all support open url in target.
+	   Sample code, please see script/kids/3DMapSystemApp/mcml/test/test_iframe.html.
+	
+2008/4/10
+	- ParaEngine Co. is added to the wikipedia.com. Please see the topic ParaEngineWikipedia in PEDN. 
+	- <iframe name="page1"> is implemented in MCML. <a target="page1">  can be used to open a MCML page link in a given iframe of the same mcml page. 
+
+2008/4/9
+	- Raw view and raw edit of PEDN now supports HTML special unicode Chinese characters. Raw view of any kind will need Change permission. I modified the perl module to get it right. Please see the PEDNOperationGuide for more information.
+	- ParaWorld Rest interface is designed. A ParaWorld Python client is designed. The reference code is python client for facebook. The preview edition of google app is studied(also used on python). 
+		Technologies found in the above places, such as simplejson, perl, python, CGI, etc are studied.
+
+2008/4/8
+	- SmarterMail server is fully configured on the PEDN, documentation is written on PWOperations topics. Email confirmation is required on PEDN registration.
+	- SiteMap.xml is generated and uploaded for pedn and submitted to google. 
+
+2008/4/7
+	- PEDN is fully deployed to pedn.paraengine.com and added to google webmaster tools. The server is on Intranet, I used a free service at dnsexit.com which allows dynamic IP hosting. 
+		CName of pedn.paraengine is mapped to pala5.cn, whose DNS server is provided by dynexit.com. I installed a free client updater on 220 PEDN server to update dynamic IP to DNS server every 15 minutes. 
+		PEDN front page translation is done and page writing task assigned to groups. HR portal is done; Download Portal is done; Page translation plugin is done; Forum web is multi-lingual. 
+	- Access right (InsidePEGroup) is applied to all sub webs of PEDN. Variable based page caching is applied to pages with time consuming search and include variables. 
+
+2008/4/5
+	- ParaUI.DestroyUIObject, ParaUIObject.GetChildByName, ParaUIObject.GetChildByID, ParaUIObject.id is added. 
+	- CGUIBase now uses ansi code identifier instead of unicode identifier. Performance is improved for getting UI by ansi name. 
+	
+2008/4/4
+	- Python, Ejabberd, ParaWorldAPI is setup on a linux vm running ubuntu. Ejabberd authentification module is implemented and fully documented in ParaEnginePlugin. 
+	- JGSLOperationGuide is written on PEDN. Bash shell script, linux, python, ejabberd, VM workstation are studied again. 
+	- ParaWorld.JGSL.ubuntu.vm virtual machine snapshoted and deployed to development server. 
+	- PEDN.Downloads web is added. 
+
+2008/4/3
+	- App registration page title bar is implemented. It will display and highlight the current uncomplete registration steps in bullet image list. 
+	- pe:avatar is fully implemented using data from CCSApp's profile MCML box data alive. ara
+	- PEDN wiki translations framework is done, I modified the view.pattern.template to add a language translation bar on top, so that any user can contribute to PEDN translated pages. Currently the default is en, secondary is zh-cn. More information, please see the translation plugin in twiki.
+	- ejabberd external authentication is examined, please see ChatApp for a discussion. It is possible to write a command line program to authenticate with paraworld REST server and install the program on ejabberd server.
+	- pe:a is designed to support asynchronous download of anything like app plug-in, world templates, asset files, etc. 
+	
+2008/4/2
+	- App interface now supports 3 more messages: APP_WORLD_LOAD, APP_WORLD_STARTUP_STEPS, APP_WORLD_SAVE, APP_WORLD_CLOSING, APP_WORLD_CLOSED. 
+		For more info, please see script/kids/3DMapSystemApp/BaseApp.lua
+	- CCS app now handles APP_WORLD_LOAD to load user appearance from its profile MCML box. 
+	- OBJ_ModifyObject now supports CCS modification correctly. 
+	- The linux scheduler crontab and cron is studied. page cache addon of twiki requires this. MailerContrib of twiki also requires it. 
+	- Ejabberd is deployed on ubuntu 7.1. The virtual host must be a domain or IP address accessable from the network, such as 192.168.0.222 or paraweb3d.com, etc. 
+
+2008/4/1
+	- Profile definition can now be applied. see Map3DSystem.App.AppManager.app:ApplyProfileDefinition(raw_profile) and Map3DSystem.App.AppManager.app:SetProfileDefinition(AppProfileDefinition_)
+	  All application profile MCML should use profile definition to keep only relavent information in MCML profile. In case the profile format changes, it will automatically clear unused fields. 
+	  Please see script/kids/3DMapSystemApp/profiles/app_main.lua for example. 
+
+2008/3/31
+	- Task scheduled for ParaEngine developer network. Localization of PEDN is done using perl localization framework. 
+		TFly and webtopbar is refactored to support IE, mozilla and opera web browsers. Most browser issues involves empty lines in HTML, "overflow:visible!important" should be applied to <pre> css.
+
+2008/3/30
+	- ParaEngine Developer site webtopbar is implemented on PatternSkin of twiki. It has a similar look to MSDN, with localization, web navigation, search and quick action popup menu.More information see Main.ParaEngineCssSkin
+	- Perl localization framework is studied. Poedit and translation memory is studied. twiki localization is programmed to add paraengine resources. 
+	  A very important feature is to be able to get text strings from all existing source code. NPL and paraworld application needs to be able to do it as well. i.e. extracting localization strings from a given set of files, automatically replace, append, delete older strings. Possibliy do an automatic translate according to a base file. 
+	  
+2008/3/29
+	- ParaEngine team is out for a play.
+
+2008/3/28
+	- ParaWorldAPI documentation is automatically generated, preprocessor is added to NPLDocGen for ParaWorld API web service wrapper doc generation
+
+2008/3/27
+	- I found that the xmlserializer strips away \r\n out during deserialization (and just leave \n). WebService strips out \r\n (an leave \n) even using XMLNode.SetInnerText(). 
+	  so the msg code sending using InnerText of XML web service call will have \r removed. This leads to errors for scode. 
+	  A workaround is to replace \r and \n with &#x000d; and &#x000a; respectively in FillDataToXmlElement of NPLParser.cs and SerializeToScode in message converter for string type. In fact, I just replace \r, since \n is not removed unless it is for xml attribute. 
+	  NOTE: I do not know if there are other hidden rules for ANSI code page by MS web service. but currently, I only find \r is an undocumented exception. 
+	- SetValue and GetValue is implemented for each mcml control base class. This allows databinding with MCML node at page load time or later with page region update. 
+		So far, MCML databinding is bidirectional. Please see script/kids/3DMapSystemApp/profiles/ProfileRegPage.lua for an example of two-way databinding. The above page class uses databinding to display existing user profile as well as collecting user input
+
+2008/3/24
+	- ParaEngine team moved to a new office at B603. 
+	- pe:container and pe:editor now support refresh method. PageCtrl supports UpdateRegion() method which can be used to reconstruct a sub region of mcml in a page. 
+	- Relationship in profile is collected. Map reg page is created. CCS reg page is beautified a bit. The latter two uses UpdateRegion() from PageCtrl to build interactive MCML page 
+	- ParaMisc.EncodingConvert now supports "HTML" unicode character to/from  NPL default text encoding. 
+	- All application development docs is automatically generated: They are created as child topics of Main.OfficialApps. see Map3DSystem.App.GenerateAppDevWikiPages()
+	
+
+2008/3/16
+	- text-align css is supported in MCML. 
+
+2008/3/13
+	- NPLDocGen is fully implemented. Most NPL modules are converted to wiki site. 
+
+2008/3/10
+	- <form> <font color> added to MCML. style "float:left;" added to MCML.
+
+2008/3/9
+	- app config functions added. Applications can now write name, value pairs in its own config file locally. 
+	- getUserInfo local server implementation 
+	- ParaScene.GetObject(x,y,z,epsilon) added an epsilon. 
+	- wiki DebugApp added. 
+	- Designed UI for Login and registrations as well as profiles, etc. 
+
+2008/3/8
+	- multiline editbox fully implemented with treeview, readonly, line number and syntax highlighting
+	- NPL build rule is used and LuaLangPack.msi is used instead of VSlua. the build rule file for vs 2005 is at script/bin/*.rule
+		One can right click the script project and add this custom build rule file. Edit the build rule file so that the compiler exe path points to a correct path on your machine. 
+	- ParaUIObject.shadow is added for text object. a black shadow can be rendered underneath the text. 
+	
+2008/3/6
+	- treeView can now bind to NPL table. Editing string field is supported now. See TreeNode:BindNPLTable
+	- TestConsoleWnd is fully implemented with user interface. CommonCtrl.UnitTestDlg.OnSelectTestCase uses TreeNode:BindNPLTable() data binding. 
+	- Default HTTP texture in ParaEngine now uses local server resource store as well. see ParaAsset.GetRemoteTexture(url) in script/ide/ParaEngineExtension.lua
+		- because of the delayed loading. GUI's texture dimension is not updated when texture is updated. ParaEngine now deals with http textures by retrieving its size each time they are used. 
+		  There is some tricky code to set size to (-1,-1) and use whitedot.png when texture is being downloaded.
+		- call ParaAsset.ClearTextureCache() to clear cached data. 
+
+2008/3/3
+	- web service local server is fully functional. 
+
+2008/2/26
+	- twiki site is fully set up, with apache server, active perl and twiki. Twiki is thoroughly studied. 
+	- ParaEngine developer site and corporation wiki site are setup with navigations and placeholder pages. 
+	- Microsoft SyncToy is used for wiki site backup and NPL reference sync with the developer wiki site. 
+	- TODO: planning to sync doc from NPL code files to wiki dynamically. %INCLUDE{"url"}%, %STARTINCLUDE%, %STOPINCLUDE%,  %STARTSECTION{type="include"}% ... %ENDSECTION{type="include"}%  can be used. 
+
+2008/2/24
+	- localserver is partially implemented in app/localserver/*.* script folder. 
+
+2008/2/22
+	- virtualization technology is studied: microsoft server|application virualization, vmware|thininstall. A concept called Dynamic IT is studied. 
+	- The following open source applications are installed using vmware and evaluated: 
+		wiki software: twiki, mediawiki, pmwiki. I like twiki most, its plug-in architecture is strong.
+		os systems: fedora, ubuntu. all linux based os. 
+		web content building: joomla with a very large number of community developed add-ons. 
+		trac and a few other project management software. 
+
+2008/2/19
+	- mcml controls layout class fully implemented. The mcml control renderer now handles content flow similar to standard HTML renderer. e.g. div, text and image,etc will float to the right and automatically wrap a line. see. mcml/mcml_controls_layout.lua
+
+2008/2/17
+	- following mcml tag controls are done: pe:treeview pe:treenode 
+	    HTML tags:<text>, h1, h2,h3, h4, li, p, hr, div, a(href), img(src,height, width, title), anyTag(attr: style="color: #006699; left: -60px; position: relative; top: 30px;width: 100px;height: 100px"),
+		see script/kids/3DMapSystemApp/mcml/test/dlg_tabs.xml for more information.
+	
+2008/2/15
+	- all mcml tag node definition is defined and documented in mcml/mcml. mcml_controls for rendering mcml data is defined in mcml/mcml_controls and mcml/pe_* files. 
+		- social tags: pe:profile pe:userinfo pe:friends pe:app pe:name pe:profile-action
+		- design tags: pe:tabs pe:tab-item pe:treeview pe:treenode pe:image pe:flash
+		- component tags:pe:roomhost pe:market pe:comments 
+		- editor display: pe:editor pe:editor-buttonset pe:editor-button pe:editor-text pe:editor-divider
+		- control tags: pe:visible-to-owner
+		- worlds tags:pe:world pe:model pe:avatar
+	
+2008/2/14
+	- added profiles, worlds, task app to the platform. layed out the initial app infrastructure. 
+	- moved following apps to app directory: inventory, bcs, ccs, env, theme, chat, pet.
+	- layed out the initial infrastructure for mcml data binding controls. they are mainly used for displaying profile data in a data binding tree view control. 
+	- ProfileManager and profile interface are designed in code. see profiles/ProfileManager.lua. The TODO web services are marked in API/*.lua. 
+	
+2008/2/13
+	- designed and scheduled profiles, worlds, task, inventory app
+	- thought about AI app, MMORPG app. 
+
+2008/2/9
+	- IDE/canvas3d now supports panning with middle button. 
+	- onframemove event is added to ParaUIObject. duplicated code in UI binding is removed. 
+	- functions in ParaIO will now accept NULL input and greecefully return nil instead of throw exceptions. 
+
+2008/2/8
+	- setting common general panel is fully implemented, with screen resolution settings. 
+		BUG: when toggle to an unsupported resolution, the application will fail. m_pMouse in GUIRoot will be 0. and a mem dump is generated. 
+	- sliderbar supported databinding. 
+	- Ocean manager exposes reflection properties from its atttribute fields. ParaEngine exposes screen settings from its attribute fields. 
+	- asset app's preview is implemented for model and character. 
+	- IDE/canvas3d is implemented for previewing asset and models. 
+	
+2008/2/7
+	- all paraobjectattributes has been exposed and translated to settings app
+
+2008/2/6
+	- settings app is updated with advanced ParaAttributeObject data binding. 
+	
+2008/2/5
+	- ide/TreeView and ide/DataBinding now support automatic ParaAttributeObject binding. see TreeView:BindParaAttributeObject()
+
+2008/2/4
+	- Currently all assets are loaded by the asset application.Assets file are now in asset package format. see the asset application for more information.  
+	- Mainbar Creator is ported to be app compatible. all assets are now converted to the new asset package file format. 
+	- Xref mouse pick bug is corrected. exact match seems to have some floating point error. we will use the min distance version by searching closest xref. 
+	
+2008/2/3
+	- ide/DataBinding further supports radio box and TreeView node. 
+	- bug corrected. ide/OpenFileDialog can use search ranges properly. It displays an optional title and use a default dialogbox backgroud.
+	- application assets/assetmanager is implemented with add package, add asset functionalities. 
+
+2008/2/2
+	- script/ide/DataBinding.lua is implemented, which allows NPL programmers to bind table to ParaUIObject or IDE controls. 
+	- _guihelper.ShowDialogBox() is implemented which usually works with DataBinding to get simple input from user. 
+	- ide/radiobox can now uses SelectedIndex to check in a radio box group. 
+
+2008/1/23
+	- minor bug corrected for dropdownlistbox(floating up if no space for drop down)  and treeview(can remove last element and detach a node). 
+
+2007/11/2
+	- loader UI converted to map system
+	- paraworld intro page added to map system
+
+2007/6/18
+	- ebook can now be published and uploaded.
+	
+2007/6/16
+	- userinfo tracker is implemented in kids_db. It will display different messages when the user register or login or uses the game world for the first time. 
+
+2007/6/5
+	- both the EBook and world zip file can have a different filename than the folder name within. 
+
+2007/4/29
+	- multiline editbox
+	- server world restart enabled
+	
+2007/4/12
+	- EBook implementation
+	- web 3d explorer
+	- 2d map service
+
+2007/1/11
+	- AI game libs
+
+2007/1/5
+	- logo page can use mouse click
+	- exit page is added
+	
+2006/9/26
+	- terrain detail texture reimplemented in the kids UI.
+	
+2006/8/25
+	- Kids GUI have been completely updated.
+	
+2006/7/26
+	- canvas is added. 
+	
+2006/7/21
+	- static characters can be randomly faced when created. 
+	
+2006/7/11
+	- world editing logics from the old demo script have been moved to the IDE folder, which can be shared among many implementations of the world editing UI.
+	- object and character can now be edited in the same manner.
+	- press F3 to inspect the GUI object at current mouse position. GUI object inspector added in NPL.load("(gl)script/ide/GUI_inspector_simple.lua");
+	
+2006/7/4
+	- bug corrected for demo/object/*.* : when reset scene, UI are not displayed. 
+	
+2006/7/3
+	- source control is moved from VSS to AlienBrain
+	
+2006/6/29
+	- modifier control can now modify any kind of object.
+	- GreatView modifier added. 
+
+2006/6/24
+	- local lights can now be added. Select ObjectCreation->Other->lights
+	
+2006/6/8
+	- TODO: when derived from other world, player location and specially WOW resources are not loaded.
+	
+2006/6/8
+	- most windows are made invisible instead of deleted. 
+	- the attribute database is used when loading and saving game world, making player position persistent. see kids/loadworld and saveworld.lua
+	- a new world can be derived from another world when newing a world.
+	
+2006/6/5
+	- external editor can be used to edit script in the property window.
+
+2006/5/30
+	- both character and static mesh can now be properly managed by property window (including deletion and global/local toggling, etc).
+		supported attribute field type is boolean, string, int, float, vector3
+	- property window now uses late evaluation, which only update UI binding when it is visible or not minimized.
+	
+2006/5/29
+	- visibility group is implemented. see script/common/visibilitygroup.lua
+	- property window is implemented. see script/common/property_control.lua
+	
+2006/5/25
+	- character persistency added. All created characters will be treated as persistent objects,which will be saved to NPC database.
+	- NPC database implemented. See kids_db.lua
+	
+2006/5/8
+	- character creation is added in object manager.x files under ./character/ directory will be treated as character.
+
+2006/5/5
+	- sqlite3 interface is added. see the readme under sqlite folder. 
+
+2006/4/27
+	- object creation dialog is updated. 
+
+2006/4/24
+	- paraengine settings are added
+	- object modifier slightly updated.
+	-TODO; refresh of xmodel asset. 
+	directory listing and navigation. 
+
+2006/3/9
+	- the object creation will now enable and disable physics according to the file name. If the file name ends with _a,  such as "xxx_a.x", then 
+		the mesh will by default created without physics. Of course, the user can always add physics to any objects in the later stage.
+		see CreatePhysicsObject() in 3ddev/3ddevlib.lua
+
+2006/3/8	
+	- object rotation +-90 degrees are added. 
+	
+2006/3/6
+	- common dialog: file listing is implemented. See ide/FileDialog.lua.
+
+2006/3/4
+	- physics can now be removed or added. 
+
+2006/2/27
+	- scene saving is added.
+	- object deletion and removal is enhanced.
+
+2006/1/25
+	- object position editing is now relative to the current camera position
+
+2006/1/23
+	- right click to erase terrain textures.
+	- terrain saving is added.
+
+2006/1/2
+	- mouse ray picking added in object/main.lua. Event registering.
+		Usage: Open Object Creation Dialog, you can now left click any 3D object in the scene to edit. A missile will be fired to the selected object. 
+		Please note that one can now only edit non-biped object. 
+	
+2005/12/16
+	- radio buttons are used for all property pages and grouped check buttons.
+	- fast render is added
+	- unuseful code cleaned up
+	- terrain editor is added.
+	
+2005/11/26
+	- movie platform log created
+	- movie file will now save all global characters. For non-actor characters, they are just saved using their current status.
+		Every characters will be saved by default once they are created.
+	- some English UI have been translated to Chinese
+	- MovieUI lib is created to replace the old event system. 
+	- scene object files will be automatically backed up to filename+".bak" when saving.
+	- when recording a character, it is automatically added to the current movie's actor list if not done so.
+	- the search bar can now select object directly from the list.
+	-TODO: when the application exits, it should check if some file needs to be saved.
+	
+	
+@section  TODO_List		TODO lists	
+-------------------------------------------------------------------------------------------------------------
+*/

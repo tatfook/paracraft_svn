@@ -1,0 +1,242 @@
+<!-- "script/apps/Aries/Login/NewAvatarFinishPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Server Select Page. 2009.8.1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="NewAvatarFinishPage.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+canvasvalue = pageCtrl:GetRequestParam("canvasvalue");
+
+asset_table = {
+    name = "user_newlycreatedavatar",
+    AssetFile="character/v3/Elf/Female/ElfFemale.xml",
+	CCSInfoStr=canvasvalue or "0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#1027#1029#1031#0#1032#0#0#0#0#0#",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+asset_table_purple = {
+    name = "user_newlycreatedeggpurple",
+    AssetFile="character/v3/PurpleDragonMinor/PurpleDragonMinor.xml",
+    ReplaceableTextures={[1] = "character/v3/PurpleDragonMinor/SkinColor01.dds"},
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+asset_table_green = {
+    name = "user_newlycreatedegggreen",
+    AssetFile="character/v3/PurpleDragonMinor/PurpleDragonMinor.xml",
+    ReplaceableTextures={[1] = "character/v3/PurpleDragonMinor/SkinColor03.dds"},
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+asset_table_orange = {
+    name = "user_newlycreatedeggorange",
+    AssetFile="character/v3/PurpleDragonMinor/PurpleDragonMinor.xml",
+    ReplaceableTextures={[1] = "character/v3/PurpleDragonMinor/SkinColor02.dds"},
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+MyCompany.Aries.NewAvatarFinishPage.asset_table_orange = asset_table_orange;
+MyCompany.Aries.NewAvatarFinishPage.asset_table_green = asset_table_green;
+MyCompany.Aries.NewAvatarFinishPage.asset_table_purple = asset_table_purple;
+MyCompany.Aries.NewAvatarFinishPage.asset_table = asset_table;
+
+MyCompany.Aries.NewAvatarFinishPage.OnInit();
+
+function IsConfirmed()
+    return (MyCompany.Aries.NewAvatarFinishPage.bConfirmed == true);
+end
+
+function IsUnchosen()
+    return (MyCompany.Aries.NewAvatarFinishPage.Choice == nil);
+end
+function IsPurple()
+    return (MyCompany.Aries.NewAvatarFinishPage.Choice == "purple");
+end
+function IsOrange()
+    return (MyCompany.Aries.NewAvatarFinishPage.Choice == "orange");
+end
+function IsGreen()
+    return (MyCompany.Aries.NewAvatarFinishPage.Choice == "green");
+end
+
+function SelectPurple()
+    pageCtrl:SetValue("ColorSelect", "1");
+    local node = pageCtrl:GetNode("selected_btn");
+    node:SetAttribute("enabled", "true");
+    MyCompany.Aries.NewAvatarFinishPage.OnSelectDragon("purple");
+end
+
+function SelectGreen()
+    pageCtrl:SetValue("ColorSelect", "2");
+    local node = pageCtrl:GetNode("selected_btn");
+    node:SetAttribute("enabled", "true");
+    MyCompany.Aries.NewAvatarFinishPage.OnSelectDragon("green");
+end
+
+function SelectOrange()
+    pageCtrl:SetValue("ColorSelect", "3");
+    local node = pageCtrl:GetNode("selected_btn");
+    node:SetAttribute("enabled", "true");
+    MyCompany.Aries.NewAvatarFinishPage.OnSelectDragon("orange");
+end
+
+function OnSelectColor()
+    local v = pageCtrl:GetValue("ColorSelect");
+    commonlib.echo(v);
+end
+
+commonlib.echo(commonlib.getfield("MyCompany.Aries.MainLogin.state.reg_user.username"))
+email = commonlib.getfield("MyCompany.Aries.MainLogin.state.reg_user.username");
+if(type(email) ~= "string") then
+    email = "";
+end
+commonlib.echo(email)
+
+]]></script>
+
+<div width="100%" height="100%" style="background:">
+<!--3d canvas for avatar and dragons-->
+<div style="width:0px;height:0px">
+    <pe:canvas3d name="userCanvas" 
+        DefaultRotY="1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="0" 
+        ExternalOffsetX="19750" ExternalOffsetY="3.3" ExternalOffsetZ="19966" 
+        ExternalSceneName="Aries_CreateNewAvatar_ingame" IgnoreExternalCamera="true"
+        value='<%=commonlib.serialize(Eval("asset_table"))%>'
+        IsInteractive="false" />
+    <pe:if condition="<%=IsPurple()%>">
+    <pe:canvas3d name="eggCanvas1" DefaultRotY="-1.8" DefaultCameraObjectDist = "5" IsInteractive="false" LookAtHeight="1.2" DefaultLiftupAngle="0.1" RenderTargetSize="256" value='<%=commonlib.serialize(Eval("asset_table_purple"))%>'
+            ExternalSceneName="Aries_DragonSelect_ingame"
+            ExternalOffsetX="19752" ExternalOffsetY="3.3" ExternalOffsetZ="19966" 
+        />
+    </pe:if>
+    <pe:if condition="<%=IsGreen()%>">
+    <pe:canvas3d name="eggCanvas2" DefaultRotY="-1.8" DefaultCameraObjectDist = "5" IsInteractive="false" LookAtHeight="1.2" DefaultLiftupAngle="0.1" RenderTargetSize="256" miniscenegraphname="CreateUserEgg2" value='<%=commonlib.serialize(Eval("asset_table_green"))%>'
+            ExternalSceneName="Aries_DragonSelect_ingame"
+            ExternalOffsetX="19752" ExternalOffsetY="3.3" ExternalOffsetZ="19966" 
+        />
+    </pe:if>
+    <pe:if condition="<%=IsOrange()%>">
+    <pe:canvas3d name="eggCanvas3" DefaultRotY="-1.8" DefaultCameraObjectDist = "5" IsInteractive="false" LookAtHeight="1.2" DefaultLiftupAngle="0.1" RenderTargetSize="256" miniscenegraphname="CreateUserEgg3" value='<%=commonlib.serialize(Eval("asset_table_orange"))%>'
+        ExternalSceneName="Aries_DragonSelect_ingame"
+        ExternalOffsetX="19751" ExternalOffsetY="3.3" ExternalOffsetZ="19966" 
+    />
+    </pe:if>
+</div>
+<pe:if condition="<%=IsConfirmed() or not IsUnchosen()%>">
+<div style="position:absolute;width:280px;height:190px;padding-left:48px;padding-top:45px;padding-right:50px;margin-left:-60px;margin-top:-60px;background:url(Texture/Aries/Login/DragonSelect/dialog_bg.png#0 0 280 190);color:#02346c;" align="center" valign="center">
+    <pe:if condition="<%=not IsConfirmed()%>">
+        <pe:if condition="<%=IsPurple()%>">
+            我是神奇高贵的小紫，我很希望成为你的好伙伴！
+        </pe:if>
+        <pe:if condition="<%=IsGreen()%>">
+            我是勇敢的小绿，你一定会喜欢我的！
+        </pe:if>
+        <pe:if condition="<%=IsOrange()%>">
+            我是热情情活泼的小橙，我是最可爱的！
+        </pe:if>
+    </pe:if>
+    <pe:if condition="<%=IsConfirmed()%>">
+        亲爱的小哈奇，真高兴成为你的好伙伴！我们一起出发吧！
+    </pe:if>
+</div>
+</pe:if>
+<div style="position:absolute;height:130px;width:210px" align="center" valign="bottom">
+    <div>
+        <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar_ingame" type="rotateleft" zorder="2" 
+            Normal_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_normal_32bits.png; 0 0 128 44"
+            MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_highlight_32bits.png; 0 0 128 44"
+            Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_pressed_32bits.png; 0 0 128 44"
+            style="float:left;width:96px;height:33px;background:url(Texture/Aries/Login/NewAvatar/RotateLeft_32bits.png# 0 0 128 44)"/>
+        <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar_ingame" type="rotateright" zorder="2" 
+            Normal_BG = "Texture/Aries/Login/NewAvatar/RotateRight_normal_32bits.png; 0 0 128 44"
+            MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateRight_highlight_32bits.png; 0 0 128 44"
+            Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateRight_pressed_32bits.png; 0 0 128 44"
+            style="float:left;margin-left:10px;width:96px;height:33px;background:url(Texture/Aries/Login/NewAvatar/RotateRight_32bits.png# 0 0 128 44)"/>
+    </div>
+</div>
+
+<div style="width:360px;height:560px;" align="right">
+    <!--dragon not selected-->
+    <pe:if condition="<%=(not IsConfirmed())%>">
+        <div style="margin-top:20px;width:352px;height:64px;background:url(Texture/Aries/Login/DragonSelect/SelectDragonTitle_32bits.png#0 0 352 64)">
+        </div>
+        <form name="gewae">
+        <div style="margin-top:5px;margin-left:20px;padding:5px;background:url(Texture/Aries/Login/DragonSelect/frame_bg.png:15 15 15 15)">
+            <div style="height:100px;">
+                <div style="float:left;margin:6px;width:88px;height:88px;background:url(Texture/Aries/Login/DragonSelect/dragon_purple.png#0 0 88 88)"/>
+                <div style="float:left;margin:6px;width:88px;height:88px;background:url(Texture/Aries/Login/DragonSelect/dragon_green.png#0 0 88 88)"/>
+                <div style="float:left;margin:6px;width:88px;height:88px;background:url(Texture/Aries/Login/DragonSelect/dragon_orange.png#0 0 88 88)"/>
+            </div>
+            <div style="margin-top:-100px;">
+                <input type="radio" name="ColorSelect" id="Radio1" value="1" checked="true" style="margin-top:0px;width:100px;height:100px"
+                    CheckedBG="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" 
+                    UncheckedBG="" tooltip="点击选择我"
+                    onclick="SelectPurple()"/>
+                <input type="radio" name="ColorSelect" id="Radio2" value="2" style="margin-top:0px;width:100px;height:100px"
+                    CheckedBG="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" 
+                    UncheckedBG="" tooltip="点击选择我"
+                    onclick="SelectGreen()"/>
+                <input type="radio" name="ColorSelect" id="Radio3" value="3" style="margin-top:0px;width:100px;height:100px"
+                    CheckedBG="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" 
+                    UncheckedBG="" tooltip="点击选择我"
+                    onclick="SelectOrange()"/>
+            </div>
+        </div>
+        <div style="color:#3030c0;margin:10px;padding:20px;padding-top:30px;margin-left:75px;width:210px;height:170px;background:url(Texture/Aries/Login/DragonSelect/frame_bg.png:15 15 15 15)">
+            <span style="color:#02346c;font-weight:bold;font-size:14px">抱抱龙</span>是哈奇的小伙伴.
+            他会在你的照顾下慢慢长大; 带着你飞向蓝天, 跟你一起探索小镇上的秘密!
+        </div>
+        <div style="margin-top:30px;margin-left:150px">
+            <input type="button" style="width:128px;height:128px;background:url();" tooltip="请先选择一只小龙"/><br />
+            <input type="button" enabled="false" name="selected_btn" 
+                Normal_BG = "Texture/Aries/Login/Selected_btn_32bits.png"
+                MouseOver_BG = "Texture/Aries/Login/Selected_btn_light_32bits.png"
+                Disabled_BG = "Texture/Aries/Login/Selected_btn_grey_32bits.png"
+                style="width:128px;height:128px;margin-top:-130px;background:url();" onclick="MyCompany.Aries.NewAvatarFinishPage.OnConfirm"/>
+        </div>
+        </form>
+    </pe:if>
+    <!--dragon selected, ask user to confirm-->
+    <pe:if condition="<%=(IsConfirmed())%>">
+        <div style="margin-top:20px;margin-bottom:5px;width:323px;height:74px;background:url(Texture/Aries/Login/DragonSelect/RegFinishedTitle_32bits.png#0 0 323 74)">
+        </div>
+        <div style="margin-left:70px;margin:3px;padding:15px;width:250px;background:url(Texture/Aries/Login/DragonSelect/frame_bg.png:15 15 15 15)">
+            <div style="color:#02346c;font-size:14px;font-weight:bold;">
+                <div>昵称：<pe:name nid="loggedinuser" linked="false" /></div>
+                <div><%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%>
+                    <div style="float:left">
+                        <pe:if condition='<%=MyCompany.Aries.ExternalUserModule:GetRegionID() == 0%>'>
+                            <aries:userinfo nid="loggedinuser" field="nid"/>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.ExternalUserModule:GetRegionID() ~= 0%>'>
+                            <%=System.User.nid%>
+                        </pe:if>
+                    </div>
+                </div>
+                <div>密码:<%=System.User.Password%></div>
+                <div>入住日期:<div style="float:left"><aries:userinfo nid="loggedinuser" field="birthday"/></div></div>
+            </div>
+        </div>
+        <div style="margin-left:70px;margin:3px;padding:15px;color:#02346c;width:250px;background:url(Texture/Aries/Login/DragonSelect/frame_bg.png:15 15 15 15)">
+            来拿起笔和纸,记录下你的<%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%>和密码;并且好好保存!
+        </div>
+        <!--<div style="margin-left:70px;margin:3px;padding:15px;color:#02346c;width:250px;background:url(Texture/Aries/Login/DragonSelect/frame_bg.png:15 15 15 15)">
+            你还获得了<span style="color:#c00000">2000</span>奇豆！祝你在哈奇小镇生活愉快！
+        </div>-->
+        <div style="margin-left:150px;margin-top:0px;">
+            <input type="button" style="width:128px;height:128px;background:url(Texture/Aries/Login/DragonSelect/EnterHaqiTown_btn_32bits.png);" 
+                onclick="MyCompany.Aries.NewAvatarFinishPage.OnNext"/>
+        </div>
+    </pe:if>
+</div>            
+</div>
+</pe:mcml>
+</body>
+</html>

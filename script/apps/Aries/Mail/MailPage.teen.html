@@ -1,0 +1,174 @@
+<!-- "script/apps/Aries/Mail/MailPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Mail/MailPage.lua");
+local MailPage = commonlib.gettable("MyCompany.Aries.Mail.MailPage");
+MailPage.OnInit();
+NPL.load("(gl)script/apps/Aries/Mail/ReadMailPage.lua");
+local ReadMailPage = commonlib.gettable("MyCompany.Aries.Mail.ReadMailPage");
+NPL.load("(gl)script/apps/Aries/Scene/main.lua");
+local Scene = commonlib.gettable("MyCompany.Aries.Scene");
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function GetNode(index)
+    if(MailPage.mail_list)then
+        return MailPage.mail_list[index];
+    end
+end
+function ds_func_mail(index)
+    return MailPage.ds_func_mail(index);
+end
+function IsSelected(index)
+    if(MailPage.selected_index and MailPage.selected_index == index)then
+        return true;
+    end
+end
+function OnClickItem(index)
+    MailPage.selected_index = index;
+    page:Refresh(0);
+end
+function IsRead(isread)
+    if(isread and isread == 1)then
+        return true;
+    end
+end
+function GetExpireDays(date)
+    if(date and System.User.LastAuthServerTime)then
+        local day = commonlib.GetTimeStr_BetweenToDate(date,System.User.LastAuthServerTime);
+        day = day or 0
+        day = 30 - day;
+        day = math.max(day,0);
+        return day;
+    end
+end
+function GetPreIndex()
+    MailPage.selected_index = MailPage.selected_index - 1;
+    if(MailPage.selected_index <=0 )then
+        return 0
+    end
+    if(not GetNode(MailPage.selected_index))then
+        GetPreIndex();
+    end
+    return MailPage.selected_index;
+end
+function DeleteMail(index)
+    local node = GetNode(index);
+    if(node)then
+        OnClickItem(index)
+        local eid = node.eid;
+        MailPage.DeleteMail(eid,function(msg)
+            MailPage.LoadMail(nil,nil,nil,function(msg)
+                MailPage.selected_index = GetPreIndex();
+                OnClickItem(MailPage.selected_index);
+            end);
+        end)
+    end
+end
+function OnRead(index)
+    local node = GetNode(index);
+    if(node)then
+        OnClickItem(index)
+        ReadMailPage.ShowPage(node.eid)
+    end
+end
+function OnWrite()
+    NPL.load("(gl)script/apps/Aries/Mail/WriteMailPage.lua");
+    local WriteMailPage = commonlib.gettable("MyCompany.Aries.Mail.WriteMailPage");
+    WriteMailPage.ShowPage()
+end
+function GetTitle(title)
+    if(title)then
+        local max_len = 22;
+        local len = ParaMisc.GetUnicodeCharNum(title);
+        if(len > max_len)then
+            local s = ParaMisc.UniSubString(title,1,max_len);
+            return s.."...";
+        end
+        return title;
+    end
+end
+]]></script>
+<aries:window width="760" height="470" title="邮箱" onclose="ClosePage" mode="lite" >
+    <div>
+        <div class="tab_static" style="float:left;margin-left:10px;width:80px;height:25px;text-align:center;padding-top:2px;">收件箱</div>
+        <input type="button" value="写邮件" style="float:left;position:relative;width:80px;margin-left:550px;margin-top:5px;" class="defaultbutton" onclick="OnWrite"/>
+    </div>
+    <div class="border_bg1_css" style="width:745px;height:407px;margin-top:2px;margin-left:0px;" >
+        <div style="text-align:left;margin-left:2px;margin-top:2px;width:741px;" class="border_bg3_css">
+            <input type="button" value="发件人" class="titlebutton" style="float:left;margin-left:5px;width:165px;text-align:left;" />
+            <input type="button" value="主题" class="titlebutton" style="float:left;margin-left:5px;width:360px;text-align:left;" />
+            <input type="button" value="时间" class="titlebutton" style="float:left;margin-left:5px;width:80px;text-align:left;" />
+            <input type="button" value="剩余" tooltip="剩余天数" class="titlebutton" style="float:left;margin-left:5px;width:60px;text-align:left;" />
+            <input type="button" value="操作" class="titlebutton" style="float:left;margin-left:5px;width:40px;text-align:left;" />
+        </div>
+        <div style="margin-left:3px;">
+             <pe:gridview name="mail_list_view" DataSource="<%=ds_func_mail%>" style="height:400px;" ItemsPerLine="1" AllowPaging="true" pagesize="13">
+				    <Columns>
+                        <div style="width:740px;height:26px;">
+                             <div>
+						        <pe:if condition='<%=IsSelected(Eval("index")) %>' >
+							        <input type="button" class="listbutton_selected" 
+								        style="margin-left:2px;margin-top:0px;width:736px;height:26px;" />
+						        </pe:if>
+						        <pe:if condition='<%=not IsSelected(Eval("index")) %>' >
+							        <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:736px;height:26px;" />
+						        </pe:if>
+			
+					        </div>
+					        <div style="margin-top:-22px;font-size:12;color:#52dff4;">
+						        <div style="float:left;margin-left:5px;width:165px;"><aries:mountpet-status2 name="nickname" nid='<%=Eval("from")%>' type="nickname" /></div>
+						        <div style="float:left;margin-left:5px;width:390px;">   
+                                    <pe:if condition='<%=IsRead(Eval("isread"))%>'>
+                                        <input type="button" value='<%=GetTitle(Eval("title"))%>' enabled="false" name='<%=Eval("index")%>' style="text-align:left;width:340px;background:;"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not IsRead(Eval("isread"))%>'>
+                                        <input type="button" value='<%=GetTitle(Eval("title"))%>' enabled="false" name='<%=Eval("index")%>' style="text-align:left;font-weight:bold;width:340px;background:;"/>
+                                    </pe:if>
+						        </div>
+						        <div style="float:left;margin-left:-80px;width:120px;">
+                                    <%=Eval("cdate")%>
+						        </div>
+                                 <div style="float:left;margin-left:20px;width:20px;">
+                                    <%=GetExpireDays(Eval("cdate"))%>
+						        </div>
+						        <div style="float:left;margin-left:5px;width:80px;">
+                                    <input type="button" value="查看" onclick="OnRead" name='<%=Eval("index")%>' />
+                                    <input type="button" value="删除" onclick="DeleteMail" name='<%=Eval("index")%>' />
+						        </div>
+                                
+					        </div>
+                             <div style="width:736px;height:1px;margin-left:2px;margin-top:-1px;" class="black_line"/>
+					    </div>
+				    </Columns>
+				    <EmptyDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">暂时没有新邮件</div>
+				    </EmptyDataTemplate>
+				    <FetchingDataTemplate>
+					   <div style="text-align:center;" class="defaultstyle">正在更新邮件...</div>
+				    </FetchingDataTemplate>
+				    <PagerSettings Position="Bottom" style="margin-left:260px;margin-top:-5px;"/>
+				    <PagerTemplate>
+					    <form>
+						     <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="default_btn_css" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						    <input type="button" name="next" invisibleondisabled="false" value="下一页" class="default_btn_css" />
+	                    </form>
+				    </PagerTemplate>
+			    </pe:gridview>                
+        </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

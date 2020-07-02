@@ -1,0 +1,51 @@
+<!-- "script/apps/Aries/Login/VersionSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Version Select Page. 2011.4.6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local MainLogin = commonlib.gettable("MyCompany.Aries.MainLogin");
+
+
+page._timer = page._timer or commonlib.Timer:new({callbackFunc = function(timer)
+    local att = ParaCamera.GetAttributeObject();	
+    att:SetField("CameraRotY", att:GetField("CameraRotY", 0) + 0.001);
+end})
+page._timer:Change(0,33);
+
+function OnSelect(name)
+    page._timer:Change();
+    System.options.isKid = (name == "kids");
+    System.options.version = if_else(System.options.isKid, "kids", "teen");
+    
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    MyCompany.Aries.ExternalUserModule:Init(true);
+
+    MainLogin:next_step({IsVersionSelected = true});
+    page:CloseWindow();
+end
+]]></script>
+<div width="480px" height="232px">
+    <div style="width:480px;height:216px;background:url(Texture/Aries/Common/bg_blue_1_32bits.png:20 20 20 20)" align="center" >
+        <div align="center" style="margin-left:0px;margin-top:20px;width:256px;height:32px;background:url(Texture/Aries/Desktop/CameraMode/SelectYourCameraMode.png)"><!--请选择适合你的操作方式：--></div>
+        <div align="center" style="margin-top:0px;width:400px;height:4px;background:url(Texture/Aries/Desktop/CameraMode/horizontal_line.png)"></div>
+        <div style="float:left;margin:5px;margin-left:15px;width:220px;height:220px">
+            <div style="width:220px;text-align:center;font-weight:bold;font-size:14px;color:#023e63">儿童版</div>
+            <div align="center" tooltip="儿童版入口" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/3dmode_demo.jpg)"/>
+            <input type="button" style="margin-top:8px;margin-left:30px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" name="kids" onclick="OnSelect" />
+        </div>
+        <div style="float:left;margin-left:0px;margin:5px;width:220px;height:220px">
+            <div style="width:220px;text-align:center;font-weight:bold;font-size:14px;color:#023e63">青年版</div>
+            <div align="center" tooltip="青年版入口" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/2dmode_demo.jpg)"/>
+            <input type="button" style="margin-top:8px;margin-left:35px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" name="tean" onclick="OnSelect" />
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

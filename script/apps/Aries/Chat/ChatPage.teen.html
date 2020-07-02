@@ -1,0 +1,82 @@
+<!-- "script/apps/Aries/Chat/ChatPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local ChatPage = commonlib.gettable("MyCompany.Aries.ChatPage");
+local pageCtrl = document:GetPageCtrl();
+local nid = pageCtrl:GetRequestParam("nid")
+local chatPageInstance = ChatPage.GetPageInstanceByNID(nid);
+chatPageInstance:SetPageCtrl(pageCtrl);
+function ClosePage()
+    chatPageInstance:ClosePage();
+end
+
+local history = chatPageInstance.history or {};
+
+function DS_Func_Items(index)
+    if(not index) then return #history; end
+    return history[index];
+end
+function OnKeyUp()
+    if(virtual_key == Event_Mapping.EM_KEY_RETURN or virtual_key == Event_Mapping.EM_KEY_NUMPADENTER) then
+        SendMsg();
+    end
+end
+function SendMsg()
+    chatPageInstance:SendMSG();
+end
+function GetMySelf()
+    return Map3DSystem.User.nid;
+end
+function GetOtherPlayer()
+    return nid;
+end
+function SetFocus()
+    local _editbox = pageCtrl:FindUIControl("content");
+    if(_editbox and _editbox:IsValid() == true) then
+        _editbox:Focus();
+        _editbox:SetCaretPosition(-1);
+    end
+end
+SetFocus();
+]]>
+
+</script>
+  <div style="width:370px;height:400px;" class="window">
+    <div class="titlebar">
+      <div class="windowlabel" style="text-align:left;margin-left:70px;">与<pe:name nid="<%=GetOtherPlayer() %>" customformat="%s(%s)"/>聊天中</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:323px;" />
+    </div>
+    <div class="clientarea">
+        <div style="float:left;height:330px;margin-left:0px;margin-top:0px" class="border">
+            <pe:gridview name="chat_view" DataSource="<%=DS_Func_Items%>"  AllowPaging="false" ScrollToEnd="true">
+				<Columns>
+                    <div style="width:340px;" class="defaultcolor">
+                        <div>
+                        <div style="float:left"><pe:name nid="<%=Eval('nid') %>" />说:</div>
+                        <div style="float:left"><%=Eval("content") %></div>
+                        </div>
+					</div>
+				</Columns>
+				<EmptyDataTemplate>
+				</EmptyDataTemplate>
+				<FetchingDataTemplate>
+				</FetchingDataTemplate>
+			</pe:gridview>            
+        </div>
+        <div style="margin-top:2px;">
+            <input type="text" name="content" style="float:left;width:280px;height:25px;" onkeyup="OnKeyUp" class="defaulttextfield"/>
+            <input type="button" class="defaultbutton" style="float:left;margin-top:0px;margin-left:10px;width:60px;" value="发送" onclick="SendMsg()"/>
+        </div>
+    </div>
+  </div>
+</pe:mcml>
+</body>
+</html>
+

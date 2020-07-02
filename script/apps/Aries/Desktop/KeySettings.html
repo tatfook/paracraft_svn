@@ -1,0 +1,98 @@
+﻿<!-- "script/apps/Aries/Desktop/KeySettings.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>KeySettings,add by WD, 2011/11/24</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/KeySettings.lua");
+
+local KeySettings = commonlib.gettable("MyCompany.Aries.Desktop.KeySettings");
+KeySettings:Init();
+
+function OnClickItem(arg)
+KeySettings:OnClickItem(arg);
+end
+
+function GetDataSource(arg)
+    return KeySettings:GetDataSource(arg);
+end
+
+function ClosePage()
+KeySettings.CloseWindow()
+end
+
+function IsExcludeKeys(key)
+    return MyCompany.Aries.Desktop.KeySettings.IsExcludeKeys(key);
+end
+
+]]></script>
+<div style="width:350px;height:470px;" class="pane">
+    
+    <div style="height:19px;">
+      <div class="windowlabel">按键设定</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:305px;" />
+    </div>
+
+    <div style="width:340px;height:443px;margin-top:3px;" class="border">
+        <div style="padding:1px;width:334px;height:406px;margin-top:3px;margin-left:3px;" class="inborder">
+            <pe:gridview VerticalScrollBarStep="30" RememberScrollPos="true" name="pegvwShortcuts" 
+                CellPadding="2" ItemsPerLine="1" AllowPaging="false" RememberLastPage="true"
+                DataSource='<%=GetDataSource %>' >
+                <Columns>
+                    <div style="height:30px;margin-top:-1px;" >
+                        <pe:if condition='<%=Eval("is_selected")%>' >
+                            <div style="width:328px;height:30px;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png);">
+                                <input zorder="2" type="button" enabled="false" name='<%=Eval("key")%>' value='<%=Eval("text") %>'
+                            style="background:;color:#52dff4;position:relative;text-align:left;margin-top:3px;margin-left:3px;"  /> 
+
+                            <pe:if condition='<%=not IsExcludeKeys(Eval("shortcuts"))%>'>
+                            <input zorder="2" type="button" enabled="false" name='<%=Eval("key")%>' value='<%=Eval("shortcuts") %>'
+                            style="color:#52dff4;text-align:center;width:126px;margin-top:4px;margin-left:180px;"  />
+                            </pe:if>
+                            <pe:if condition='<%=IsExcludeKeys(Eval("shortcuts"))%>'>
+                            <input zorder="2" type="button" enabled="false" class="defaultbutton"  value='<%=Eval("shortcuts") %>'
+                            style="color:#98fffc7f;text-align:center;width:126px;margin-top:4px;margin-left:180px;"  /> 
+                            </pe:if>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=not Eval("is_selected")%>' >
+                            <input type="button" class="listbutton_unselected" zorder="2" style="position:relative;width:328px;height:30px;background:"
+                             onclick="OnClickItem" name='<%=Eval("key")%>' />
+                            <input zorder="2" type="button" enabled="false" name='<%=Eval("key")%>' value='<%=Eval("text") %>'
+                            style="background:;color:#52dff4;position:relative;text-align:left;margin-top:3px;margin-left:3px;"  /> 
+
+                            <pe:if condition='<%=not IsExcludeKeys(Eval("shortcuts"))%>'>
+                            <input zorder="2" type="button" enabled="false" value='<%=Eval("shortcuts") %>'
+                            style="color:#52dff4;text-align:center;width:126px;margin-top:4px;margin-left:180px;"  />
+                            </pe:if>
+                            <pe:if condition='<%=IsExcludeKeys(Eval("shortcuts"))%>'>
+                            <input zorder="2" type="button" enabled="false" class="defaultbutton" value='<%=Eval("shortcuts") %>'
+                            style="color:#98fffc7f;text-align:center;width:126px;margin-top:4px;margin-left:180px;"  /> 
+                            </pe:if>
+                        </pe:if>
+                    </div>
+                </Columns>
+            </pe:gridview>
+        </div>   
+
+            <div style="margin-top:4px;">
+
+                <input type="button" name="btnPurchase" zorder="2"  text="恢复默认设置" tooltip="恢复到游戏默认按键设置"
+                onclick="<%=MyCompany.Aries.Desktop.KeySettings.RestoreDefault %>" 
+                style="margin-left:41px;width:85px;height:25px;" />
+                <input type="button" name="btnAllEquipSlotting" zorder="2" text="确定" tooltip="保存当前的按键设置"
+                 onclick="<%=MyCompany.Aries.Desktop.KeySettings.ConfirmModify %>" 
+                style="margin-left:5px;width:85px;height:25px;" />
+                <input type="button" name="btnPurchase" zorder="2"  text="取消"
+                onclick="<%=ClosePage() %>" 
+                style="margin-left:5px;width:85px;height:25px;" />
+            </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

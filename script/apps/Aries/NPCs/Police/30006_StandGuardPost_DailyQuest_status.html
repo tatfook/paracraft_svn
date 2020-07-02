@@ -1,0 +1,350 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30006_StandGuardPost_DailyQuest_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30006_StandGuardPost_DailyQuest_status, by Andy, 2009/7/26</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+local StandGuardPost = MyCompany.Aries.Quest.NPCs.StandGuardPost;
+local index = StandGuardPost.GetPostIndex();
+
+if(hasGSItem(50003)) then
+    state = 5 + index;
+else
+    local memory_dutylist = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30002);
+    if(memory_dutylist.zoneAssigned == true) then
+        state = 1 + index;
+    else
+        state = 1;
+    end
+    
+	-- 50003_StandGuardPost_DailyQuestAccept
+	local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(50003);
+	if(gsObtain and gsObtain.inday > 0 and not hasGSItem(50003)) then
+	    state = 10;
+	end
+end
+
+foot_1 = not StandGuardPost.IsFootStepVisible(1);
+foot_2 = not StandGuardPost.IsFootStepVisible(2);
+foot_3 = not StandGuardPost.IsFootStepVisible(3);
+foot_4 = not StandGuardPost.IsFootStepVisible(4);
+foot_5 = not StandGuardPost.IsFootStepVisible(5);
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+
+
+<pe:if condition='<%=Eval("state") == 1%>'>
+    
+    <div style="float:left;width:82px;height:512px;background:url()">
+    </div>
+    <div style="float:left;width:655px;height:440px;margin-top:30px;background:url(texture/Aries/Quest/QuestStatus_panel_bg_32bits.png#0 0 128 440: 50 120 50 70)">
+        <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+            <div style="width:256px;height:32px;background:url()">
+                <div style="margin-left:-280px;margin-top:-60px;width:180px;height:64px;">
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+            <div style="width:1024px;height:440px;background:url()">
+                <!--<aries:questobjectivestatus gsids="17005"
+                    on_bg = "texture/Aries/Quest/Doctor/17005_RainbowFlower.png;0 0 128 150"
+                    off_bg = "texture/Aries/Quest/Doctor/17005_RainbowFlower_grey.png;0 0 128 150"
+                    tooltip = "龙源密境旁的七色丛林"
+                    style="left:100px;top:280px;position:relative;width:128px;height:150px;"/>
+                <aries:questobjectivestatus gsids="17012"
+                    on_bg = "texture/Aries/Quest/Doctor/17012_ReviveElixar.png;0 0 128 155"
+                    off_bg = "texture/Aries/Quest/Doctor/17012_ReviveElixar_grey.png;0 0 128 155"
+                    tooltip = "生长在生命之泉附近"
+                    style="left:260px;top:280px;position:relative;width:128px;height:155px;"/>
+                <aries:questobjectivestatus gsids="17015"
+                    on_bg = "texture/Aries/Quest/Doctor/17015_ColorCloudCrystal.png;0 0 180 128"
+                    off_bg = "texture/Aries/Quest/Doctor/17015_ColorCloudCrystal_grey.png;0 0 180 128"
+                    tooltip = "龙龙商店附近"
+                    style="left:400px;top:290px;position:relative;width:180px;height:128px;"/>-->
+                <div style="position:absolute;left:225px;top:54px;width:512px;height:64px;background:url(texture/Aries/Quest/Police/GuardPostTitle1_32bits.png)">
+                </div>
+                <div style="position:absolute;left:140px;top:150px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/GuardPostBody1.png)">
+                </div>
+            </div>
+            <input style="margin-left:600px;margin-top:-452px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+        <div style="margin-left:224px;margin-top:-63px;width:208px;height:49px">
+            <a style="width:208px;height:49px;padding:0px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusMedal.html">
+                <div style="margin-top:-2px;width:208px;height:49px;">
+                    <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" />
+                </div>
+            </a>
+        </div>
+    </div>
+</pe:if>
+
+<pe:if condition='<%=Eval("state") == 2 or Eval("state") == 3 or Eval("state") == 4 or Eval("state") == 5%>'>
+    
+    <div style="float:left;width:82px;height:512px;background:url()">
+    </div>
+    <div style="float:left;width:655px;height:440px;margin-top:30px;background:url(texture/Aries/Quest/QuestStatus_panel_bg_32bits.png#0 0 128 440: 50 120 50 70)">
+        <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+            <div style="width:256px;height:32px;background:url()">
+                <div style="margin-left:-280px;margin-top:-60px;width:180px;height:64px;">
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+            <div style="width:1024px;height:440px;background:url()">
+                <div style="position:absolute;left:170px;top:54px;width:512px;height:64px;background:url(texture/Aries/Quest/Police/GuardPostTitle2_32bits.png)">
+                    <pe:if condition='<%=Eval("state") == 2%>'>
+                        <div style="margin-left:150px;margin-top:33px;color:#037fd7">多克特营地</div>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("state") == 3%>'>
+                        <div style="margin-left:170px;margin-top:33px;color:#037fd7">农场</div>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("state") == 4%>'>
+                        <div style="margin-left:160px;margin-top:33px;color:#037fd7">阳光海岸</div>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("state") == 5%>'>
+                        <div style="margin-left:170px;margin-top:33px;color:#037fd7">警署</div>
+                    </pe:if>
+                </div>
+                <pe:if condition='<%=Eval("state") == 2%>'>
+                    <div style="position:absolute;left:210px;top:136px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zone1.png)"/>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 3%>'>
+                    <div style="position:absolute;left:210px;top:136px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zone2.png)"/>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 4%>'>
+                    <div style="position:absolute;left:210px;top:136px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zone3.png)"/>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 5%>'>
+                    <div style="position:absolute;left:210px;top:136px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zone4.png)"/>
+                </pe:if>
+            </div>
+            <input style="margin-left:600px;margin-top:-452px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+        <div style="margin-left:224px;margin-top:-63px;width:208px;height:49px">
+            <a style="width:208px;height:49px;padding:0px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusMedal.html">
+                <div style="margin-top:-2px;width:208px;height:49px;">
+                    <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" />
+                </div>
+            </a>
+        </div>
+    </div>
+</pe:if>
+
+<pe:if condition='<%=Eval("state") == 6 or Eval("state") == 7 or Eval("state") == 8 or Eval("state") == 9%>'>
+    
+    <div style="float:left;width:82px;height:512px;background:url()">
+    </div>
+    <div style="float:left;width:655px;height:512px;background:url(texture/Aries/Quest/QuestMedalStatus_panel_bg_32bits.png#0 0 102 512: 50 120 50 70)">
+        <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+            <div style="width:256px;height:32px;background:url()">
+                <div style="margin-left:-280px;margin-top:-60px;width:180px;height:64px;">
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+            <div style="width:1024px;height:512px;background:url()">
+                <div style="position:absolute;left:225px;top:24px;width:512px;height:64px;background:url(texture/Aries/Quest/Police/GuardPostTitle3_32bits.png)">
+                </div>
+                <pe:if condition='<%=Eval("state") == 6%>'>
+                    <div style="position:absolute;left:170px;top:110px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zonemap1.png#0 0 412 248)">
+                        <pe:if condition='<%=Eval("foot_1") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:203px;top:171px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_1") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:203px;top:171px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:246px;top:70px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:246px;top:70px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:359px;top:135px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:359px;top:135px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:253px;top:187px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:253px;top:187px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:70px;top:90px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:70px;top:90px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 7%>'>
+                    <div style="position:absolute;left:170px;top:110px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zonemap2.png# 0 0 437 245)">
+                        <pe:if condition='<%=Eval("foot_1") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:269px;top:77px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_1") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:269px;top:77px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:216px;top:43px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:216px;top:43px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:385px;top:27px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:385px;top:27px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:167px;top:75px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:167px;top:75px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:243px;top:141px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:243px;top:141px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 8%>'>
+                    <div style="position:absolute;left:170px;top:110px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zonemap3.png# 0 0 389 256)">
+                        <pe:if condition='<%=Eval("foot_1") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:44px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_1") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:44px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:111px;top:167px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:111px;top:167px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:190px;top:145px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:190px;top:145px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:300px;top:160px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:300px;top:160px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:400px;top:102px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:400px;top:102px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=Eval("state") == 9%>'>
+                    <div style="position:absolute;left:170px;top:110px;width:512px;height:256px;background:url(texture/Aries/Quest/Police/zonemap4.png#0 0 410 256)">
+                        <pe:if condition='<%=Eval("foot_1") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:202px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_1") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:202px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:277px;top:107px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_2") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:277px;top:107px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:220px;top:80px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_3") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:220px;top:80px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:160px;top:50px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_4") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:160px;top:50px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == false%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:60px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_grey_32bits.png);"/>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("foot_5") == true%>'>
+                            <pe:item gsid='1' isclickable="false" style="left:60px;top:120px;position:relative;width:64px;height:64px;background:url(texture/Aries/Quest/Police/footstep_32bits.png);"/>
+                        </pe:if>
+                    </div>
+                </pe:if>
+                <div style="position:absolute;left:230px;top:432px;width:512px;height:32px;background:url(texture/Aries/Quest/Police/tip_32bits.png)"/>
+                
+            </div>
+            <input style="margin-left:600px;margin-top:-522px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+        <div style="margin-left:224px;margin-top:-32px;width:208px;height:49px">
+            <a style="width:208px;height:49px;padding:0px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusMedal.html">
+                <div style="margin-top:-2px;width:208px;height:49px;">
+                    <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" />
+                </div>
+            </a>
+        </div>
+    </div>
+</pe:if>
+
+<pe:if condition='<%=Eval("state") == 10%>'>
+    
+    <div style="float:left;width:82px;height:512px;background:url()">
+    </div>
+    <div style="float:left;width:655px;height:440px;margin-top:30px;background:url(texture/Aries/Quest/QuestStatus_panel_bg_32bits.png#0 0 128 440: 50 120 50 70)">
+        <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+            <div style="width:256px;height:32px;background:url()">
+                <div style="margin-left:-280px;margin-top:-60px;width:180px;height:64px;">
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+            <div style="width:1024px;height:440px;background:url()">
+                <div style="position:absolute;left:105px;top:54px;width:1024px;height:64px;background:url(texture/Aries/Quest/Police/GuardPostTitle4_32bits.png)">
+                    
+                </div>
+                <div style="position:absolute;left:220px;top:120px;width:384px;height:384px;background:url(texture/Aries/Quest/Police/GuardPostBody2.png)">
+                </div>
+            </div>
+            <input style="margin-left:600px;margin-top:-452px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+        <div style="margin-left:224px;margin-top:-63px;width:208px;height:49px">
+            <a style="width:208px;height:49px;padding:0px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" tooltip="返回列表" target="_self" href="script/apps/Aries/Quest/QuestStatusMedal.html">
+                <div style="margin-top:-2px;width:208px;height:49px;">
+                    <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" />
+                </div>
+            </a>
+        </div>
+    </div>
+</pe:if>
+
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,87 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30004_MysteryAcinusTree_selected" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MysteryAcinusTree Selection Response, by Andy, 2009/7/21</title>
+</head>
+<body>
+<pe:mcml>
+<script><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+name = "MysteryAcinusTree_"..npc_id;
+
+NPL.load("(gl)script/apps/Aries/Quest/NPCAIMemory.lua");
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30004);
+
+function OnWaterBalloon()
+    memory.throweditem = 9501;
+end
+
+function OnJelly()
+    memory.throweditem = 9502;
+end
+
+function OnFireCracker()
+    memory.throweditem = 9503;
+end
+
+function TalkToNPC()
+    MyCompany.Aries.Desktop.TargetArea.TalkToNPC(30004);
+end
+
+]]></script>
+
+<!--is loggedin user, show the avatar selected page-->
+<pe:if-is-user nid="loggedinuser">
+    <!--<div style="width:128px;height:512px;margin:0px;padding:0px;background:Texture/Aries/Dock/TargetArea2.png;">-->
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box">
+                <!--<pe:canvas3d name="NPCSelection" objectbinding="selection" MaskTexture="Texture/Aries/Dock/SunFlower_Mask.png" style="width:128px;height:128px" IsPortrait=true IsInteractive=false/>-->
+                <pe:player nid='<%=Eval("npc_id")%>' object="npc" name='<%=Eval("name")%>' miniscenegraphname="NPCDialog_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+                <!--IsInteractive-->
+                <div style="margin-left:32px;margin-top:-12px;width:64px;">
+                    <!--<div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="1" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Temp/png-0630.png);" 
+                            onclick="TalkToNPC"
+                            tooltip="对话"/>
+                    </div>
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="2" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyMount_32bits.png);" 
+                            onclick="OnWaterBalloon"
+                            tooltip="水球"/>
+                    </div>
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="2" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyMount_32bits.png);" 
+                            onclick="OnJelly"
+                            tooltip="果冻"/>
+                    </div>
+                    <div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="2" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyMount_32bits.png);" 
+                            onclick="OnFireCracker"
+                            tooltip="炮竹"/>
+                    </div>-->
+                    <!--<div style="margin-bottom:-10px;padding:0px;">
+                        <input type="button" name="3" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyFollow_32bits.png);" 
+                            onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"
+                            tooltip="按钮3"/>
+                    </div>-->
+                    <!--<div style="margin:-2px;padding:0px;">
+                        <input type="button" name="4" animstyle="22" style="margin:0px;width:64px;height:40px;background:url(Texture/Aries/Dock/TargetAreaMyselfText.png#0 120 64 40);" onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"/>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:if-is-user> 
+
+</pe:mcml> 
+</body>
+</html>

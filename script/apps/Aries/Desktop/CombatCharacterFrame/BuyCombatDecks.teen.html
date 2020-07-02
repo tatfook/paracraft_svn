@@ -1,0 +1,176 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/BuyCombatDecks.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+----------------------- init
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local _deck_list = {
+	[1] = { bag_gsid=24002,exid=1443},	
+	[2] = { bag_gsid=24012,exid=1268},		
+	[3] = { bag_gsid=24013,exid=5},		
+	[4] = { bag_gsid=24014,exid=6},	
+	[5] = { bag_gsid=24015,exid=1179},		
+    [6] = { bag_gsid=24016,exid=8},
+}
+
+local mySchool = MyCompany.Aries.Combat.GetSchoolGSID();
+local deck_list={};
+local _;
+local _deck={};
+
+for _,_deck in ipairs(_deck_list) do
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(tonumber(_deck.bag_gsid));
+	local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(tonumber(_deck.exid));
+    local sHas = hasGSItem(_deck.bag_gsid);
+    if(not sHas) then
+	    _deck.currency = exTemplate.froms[1].key;
+	    _deck.price = exTemplate.froms[1].value;
+	    _deck.name = gsItem.template.name;
+	    table.insert(deck_list,_deck);
+    end
+end
+
+function DS_list(index)
+	if(index == nil) then
+		return #(deck_list);
+	else
+		return deck_list[index];
+	end  
+end
+----------
+function RechargeCurrency(key,keyname)
+		local _gsid = key;        
+        local _name = keyname;
+        local s;
+        
+		if (key==-17) then
+			_gsid=998;
+			s="你的魔法星等级不够，不能购买该物品，是否要购买能量石提升魔法星等级?";
+		elseif (key==0) then
+			s="你的银币不够，不能购买该物品，是否要购买银币大钱袋兑换更多的银币?";
+			_gsid=17213;
+		elseif(key==984) then
+			s=string.format("你的%s不够，不能购买该物品，是否充值?",_name);
+		else
+			s=string.format("你的%s不够，不能购买该物品，是否要用金币补充?",_name);
+		end
+		---------
+		_guihelper.MessageBox(s, function(result)
+			if(result==_guihelper.DialogResult.Yes) then
+				if (_gsid==984) then
+					NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+					local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+					PurchaseMagicBean.Show()
+				else
+					Map3DSystem.mcml_controls.pe_item.OnClickGSItem(_gsid,true);
+				end
+			else
+				return
+			end
+		end, _guihelper.MessageBoxButtons.YesNo)     
+end
+									
+function BuyDeck(index)
+	local _deck = deck_list[index];
+	local _currency = _deck.currency;
+    local sHas,_,__,_copies;
+    local _currname;
+    if (_currency==0) then
+		local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory(System.User.nid) or {};
+		local emoney = userinfo.emoney or 0;--绑定货币
+--		local pmoney = userinfo.pmoney or 0;    
+        sHas = true;
+        _copies = emoney;
+        _currname = "银币";
+    else
+	    sHas,_,__,_copies = hasGSItem(_currency);
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(_currency);
+        _currname = gsItem.template.name;
+    end
+--    commonlib.echo("============BuyDeck currency")
+--    commonlib.echo(_copies)
+--    commonlib.echo(_deck)    
+--    commonlib.echo(_currname)
+    
+    local _name = _deck.name;
+	if (sHas) then
+        if (_copies>=_deck.price) then
+            MyCardsManager.BuyCombatDeck(_deck.exid,_deck.bag_gsid,_name,_currname);
+        else
+            RechargeCurrency(_currency,_currname)
+        end
+    else
+		RechargeCurrency(_currency,_currname)
+    end    
+	
+  ClosePage();
+end
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+---------
+]]>
+</script>
+
+<aries:window title="购买新卡包" width="485" height="245" onhelp="" onclose="ClosePage()" mode="lite">
+    
+	<div style="width:520px;height:245px;margin-left:1px;margin-top:1px;">
+
+			<pe:gridview name="cardsdeck" DataSource="<%=DS_list%>"  DefaultNodeHeight="60" ItemsPerLine="3" AllowPaging="false" pagesize="6">
+					<Columns>
+              <div class="border_bg10_css" style="margin-left:2px;margin-top:2px;width:155px;height:100px;font-size:12;">
+                  <div style="position:relative;margin-left:3px;margin-top:25px;padding:3px;width:70px;height:70px;" class="block">
+                      <pe:item isclickable="false" gsid='<%=Eval("bag_gsid")%>' showdefaulttooltip="true" style="width:64px;height:64px;" />
+                  </div>
+                  <div style="position:relative;margin-top:1px;text-align:center;" class="bordertext">
+                      <%=Eval("name") %>
+                  </div>
+                  <pe:if condition='<%=Eval("currency") == 984 %>'>
+                      <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                          <%=Eval("price") %>金币
+                      </div>
+                  </pe:if>
+                  <pe:if condition='<%=Eval("currency") == 17143 %>'>                                           
+                      <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                          <%=Eval("price") %>白水晶
+                      </div>
+                  </pe:if>            
+              
+                  <pe:if condition='<%=Eval("currency") == 0 %>'>
+                      <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                          <%=Eval("price") %>银币
+                      </div>
+                  </pe:if>   
+                  <input type="button" name='<%=Eval("index") %>' onclick="BuyDeck" zorder="2" style="margin-left:90px;margin-top:70px;width:51px;height:23px;" class="defaultbutton" value="购买"/>              
+              </div>
+					</Columns>
+					<EmptyDataTemplate>
+					<b>空</b>
+					</EmptyDataTemplate>
+					<FetchingDataTemplate>
+					<b>请稍等 ... </b>
+					</FetchingDataTemplate>
+					</PagerTemplate>
+			</pe:gridview>
+	</div>      
+    
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+
+ 

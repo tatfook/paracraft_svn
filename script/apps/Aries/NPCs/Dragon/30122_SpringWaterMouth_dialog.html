@@ -1,0 +1,117 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30122_SpringWaterMouth_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30122_SpringWaterMouth_dialog, by Andy, 2009/7/30</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id); 
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 21005: MorningGlory
+-- 17006: LifeSpringWater
+
+Condition1 = function()
+    -- doesn't have MorningGlory
+    return (not hasGSItem(21005));
+end;
+Condition2 = function()
+    -- have MorningGlory, but not equiped on hand
+    return (hasGSItem(21005) and not equipGSItem(21005));
+end;
+Condition3 = function()
+    -- equip MorningGlory
+    return (equipGSItem(21005));
+end;
+
+function EntryAction(from, to)
+    if(from == 3 and to == 4) then
+        -- accept the quest
+        if(equipGSItem(21005)) then
+	        ItemManager.PurchaseItem(17006, 3, function(msg) end, function(msg)
+		        if(msg) then
+			        log("+++++++ Purchase 17006_LifeSpringWater 3 copies return: +++++++\n")
+			        commonlib.echo(msg);
+		        end
+	        end);
+        end
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30122" />
+            <pe:placeholder id="name" source="{this}" value="生命泉水" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    嘿小家伙，你想来打泉水吗？可是生命泉水只愿意装在喇叭花里，如果你还没有喇叭花，快在周围找找吧，它可是被生命之泉养育的呢。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    嘿小家伙，你想来打泉水吗？可是生命泉水只愿意装在喇叭花里，你把它拿在手上再来找我吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+	        嗨！我是无处不在的生命之泉水，这不是跟我最亲密的喇叭花吗？哎呀快把我装进喇叭花的喇叭里去吧，我可不想让它枯萎呀。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你已经打了三份生命之泉，放在你的背包里了。如果你还想要泉水，可以拿着你的喇叭花再来打泉水哦。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

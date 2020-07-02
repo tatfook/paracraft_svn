@@ -1,0 +1,232 @@
+﻿<!-- "script/apps/Aries/HaqiShop/HaqiShop.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HaqiShop, by zrf, 2010/12/13</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+local page = document:GetPageCtrl();
+MyCompany.Aries.HaqiShop.Init();
+
+function BuyMagicBean()
+    _guihelper.MessageBox("封测期间，暂不开放金币购买！");
+    --MyCompany.Aries.HaqiShop.BuyMagicBean()
+end
+
+function RechargeMagicBean()
+    _guihelper.MessageBox("封测期间，暂不开放金币充值！");
+    -- MyCompany.Aries.HaqiShop.GotoTaomeePage()
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+]]></script>
+
+<div style="width:827px;height:539px;" class="pane">
+    <div style="height:19px;">
+      <div class="windowlabel">金币商店</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:780px;" />
+    </div>
+    <div style="width:817px;height:513px;margin-top:3px;" class="border">
+        <!-- left -->
+        <div style="float:left;" class="defaultcolor">
+            <div style="float:left;position:relative;width:231px;height:155px;padding:5px;margin-top:3px;" class="inborder">
+            <div style="position:relative; margin-left:10px;font-weight:bold;">
+                金币余额:<div style="float:left"><pe:slot type="count" gsid="984"></pe:slot></div>
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:30px;">
+            1元RMB可购买10金币
+            </div>
+            <div style="position:relative;margin-left:80px;margin-top:55px;">
+                <img style="width:55px;height:55px" src='<%=MyCompany.Aries.HaqiShop.GetMoDouIcon() %>' />
+            </div>
+            <div style="position:relative;margin-top:120px;margin-left:10px;">
+                <input type="button" onclick="BuyMagicBean()" zorder="2" style="float:left;width:100px;height:23px;" value="购买"/>
+                <input type="button" onclick="RechargeMagicBean()" zorder="2" value='账户充值' style="float:left;margin-left:10px;width:100px;"/>
+            </div>
+        </div>
+ 
+            <div style="float:left;margin-top:160px;height:348px" class="inborder">
+                <div style="margin-top:3px;margin-left:3px;width:230px;text-align:center;font-weight:bold;">形象预览</div>
+                <div style="height:308px;width:231px;">
+                    <pe:canvas3d  minZoomDist="3" DefaultRotY="-1" style="margin-top:24px;margin-left:-12px;height:256px;width:256px;" DefaultLiftupAngle="0.1" name="HaqiShopAvatar" miniscenegraphname="AvatarMyselfTabCharacter" IsInteractive="true"/>
+                </div>
+                <div style="margin-left:25px; height:21px;margin-top:-20px;">
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:right;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#1 0 51 21)"/>
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:right;margin-left:70px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                </div>
+            </div>
+        </div>
+        <!-- right -->
+        <div style="float:left;" class="defaultcolor" >
+            <div style="margin-left:0px;margin-top:5px;width:587px;height:440px;">
+                <div style="margin-left:-12px;width:587px;height:70px;">
+                <pe:tabs name="tabShop" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="shoptabs" >
+                    <pe:tab-item name="tabTuijian" selected="true" text="推荐" width="70" class="shoptabs" >
+                        <pe:tabs name="tabTuijian2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;" >
+                            <pe:tab-item name="1003" text="热卖" selected="true" class="default_tab_item" ></pe:tab-item>
+                            <!--<pe:tab-item name="1002" text="促销" class="default_tab_item" ></pe:tab-item>-->
+                            <!--<pe:tab-item name="1001" text="新品" class="default_tab_item" ></pe:tab-item>-->
+                        </pe:tabs>
+                    </pe:tab-item>
+                    <%=Map3DSystem.App.MiniMap.NewMiniMap.BuildAnchorCodeFromXML("") %>
+
+                    <pe:tab-item name="tabInventory"  text="宝石" width="70" class="shoptabs" >
+                    <pe:tabs name="tabInventory2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;" >
+                        <pe:tab-item name="2001" selected="true" text="1级宝石" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="2002" text="2级宝石" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="2003" text="3级宝石" height="28" style="padding-left:5px"></pe:tab-item>
+                        <!--<pe:tab-item name="2004" text="4级宝石" height="28" style="padding-left:5px"></pe:tab-item>-->
+                        <pe:tab-item name="2005" text="宝石相关" height="28" style="padding-left:5px"></pe:tab-item>              
+                    </pe:tabs>
+                    </pe:tab-item>
+
+                    <!--<pe:tab-item name="tabTool" text="符文" width="70" class="shoptabs" >
+                    <pe:tabs name="tabTool2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="3001" selected="true" text="风暴系" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="3002" text="烈火系" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="3003" text="寒冰系" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="3004" text="生命系" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="3005" text="死亡系" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>-->
+
+                    <!--<pe:tab-item name="tabPet" text="宠物" width="70" class="shoptabs" >
+                    <pe:tabs name="tabPet2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="4001" selected="true" text="口粮" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>-->
+                    
+                    <pe:tab-item name="tabMount" text="坐骑" width="70" class="shoptabs" >
+                    <pe:tabs name="tabMount2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="5001" selected="true" text="坐骑召唤石" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>
+
+                    <pe:tab-item name="tabClothes" text="时装" width="70" class="shoptabs" >
+                    <pe:tabs name="tabClothes2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="6001" selected="true" text="新品" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="6002" text="炫彩男装" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="6003" text="炫彩女装" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="6004" text="男女通用" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>
+
+                    <pe:tab-item name="tabGear" text="家具" width="70" class="shoptabs" >
+                    <pe:tabs name="tabGear2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="7001" selected="true" text="家具" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>
+
+                    <pe:tab-item name="tabOther" text="辅助" width="70" class="shoptabs" >
+                    <pe:tabs name="tabOther2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="default_tabs" style="margin-top:-25px;margin-left:5px;">
+                        <pe:tab-item name="8001" selected="true" text="特殊用品" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="8002" text="战斗药丸" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="8003" text="回血物品" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="8004" text="卡片包" height="28" style="padding-left:5px"></pe:tab-item>
+                        <pe:tab-item name="8005" text="宠物" height="28" style="padding-left:5px"></pe:tab-item>
+                    </pe:tabs>
+                    </pe:tab-item>
+
+                    </pe:tabs>
+                </div>
+                <div style="position:relative;padding:1px;margin-top:-12px;width:572px;height:445px;" class="inborder">
+                    <div style="width:1000px;height:500px;margin-left:5px;">
+                    <pe:gridview name="haqishopgrid" DataSource="<%=MyCompany.Aries.HaqiShop.DS_Func %>"
+                        CellPadding="1" ItemsPerLine="3" AllowPaging="true" pagesize="12" >
+                        <Columns>
+                            <div class="border_bg10_css" style="margin-left:2px;margin-top:2px;width:182px;height:100px;font-size:12;">
+                                <div style="position:relative;margin-left:3px;margin-top:25px;padding:3px;width:70px;height:70px;" class="block">
+                                    <pe:item onclick="MyCompany.Aries.HaqiShop.OnClickItem()"  param1='<%=Eval("index") %>' gsid='<%=Eval("gsid")%>'showdefaulttooltip="true" style="width:64px;height:64px;" />
+                                </div>
+                                <div style="position:relative;margin-top:1px;text-align:center;" class="bordertext">
+                                    <%=Eval("name") %>
+                                </div>
+                
+                                <pe:if condition='<%=Eval("price") ~= nil and tonumber(Eval("price")) > 0 %>'>
+                                    <pe:if condition='<%=Eval("orgmodou") == nil and Eval("orgqidou") == nil %>'>
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                                            <%=Eval("price") %>金币
+                                        </div>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("orgmodou") ~= nil %>'>
+                                        <div style="position:relative;margin-left:133px;margin-top:2px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                        <div style="position:relative;margin-left:80px;margin-top:39px;width:94px;height:2px;background:url(Texture/Aries/HaqiShop/line_32bits.png#0 0 94 2);" />                        
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                                            <%=Eval("orgmodou") %>金币<br />
+                                            <%=Eval("price") %>金币
+                                        </div>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("orgqidou") ~= nil %>'>
+                                        <div style="position:relative;margin-left:133px;margin-top:2px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                        <div style="position:relative;margin-left:80px;margin-top:39px;width:94px;height:2px;background:url(Texture/Aries/HaqiShop/line_32bits.png#0 0 94 2);" />                        
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                                            <%=Eval("orgqidou") %>银币<br />
+                                            <%=Eval("price") %>金币
+                                        </div>
+                                    </pe:if>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("qidouprice") ~= nil and tonumber(Eval("qidouprice")) > 0 %>'>
+                                    <pe:if condition='<%=Eval("orgmodou") == nil and Eval("orgqidou") == nil %>'>
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                                            <%=Eval("qidouprice") %>银币
+                                        </div>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("orgqidou") ~= nil %>'>
+                                        <div style="position:relative;margin-left:133px;margin-top:2px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                        <div style="position:relative;margin-left:80px;margin-top:39px;width:94px;height:2px;background:url(Texture/Aries/HaqiShop/line_32bits.png#0 0 94 2);" />                        
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;">
+                                            <%=Eval("orgqidou") %>银币<br />
+                                            <%=Eval("qidouprice") %>银币
+                                        </div>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("orgmodou") ~= nil %>'>
+                                        <div style="position:relative;margin-left:133px;margin-top:2px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                        <div style="position:relative;margin-left:80px;margin-top:39px;width:94px;height:2px;background:url(Texture/Aries/HaqiShop/line_32bits.png#0 0 94 2);" />                        
+                                        <div style="position:relative;margin-left:80px;margin-top:30px;" >
+                                            <%=Eval("orgmodou") %>金币<br />
+                                            <%=Eval("qidouprice") %>银币
+                                        </div>
+                                    </pe:if>
+                                </pe:if>
+                                <div style="position:relative;margin-left:120px;margin-top:69px;">
+                                    <pe:if condition='<%=not Eval("disable_buy")%>'>
+                                        <input type="button" name='<%=Eval("gsid") %>' onclick="MyCompany.Aries.HaqiShop.BuyMoDou()" zorder="2" style="width:51px;height:23px;" class="defaultbutton" value="购买"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("disable_buy")~=false%>'>
+                                        <input type="button" name='<%=Eval("gsid") %>' onclick="MyCompany.Aries.HaqiShop.OnDisableBuy()" zorder="2" style="width:51px;height:23px;"  class="defaultbutton" value="购买"/>
+                                    </pe:if>
+                                </div>
+                            </div>
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div style="text-align:center;margin-left:187px;margin-top:203px;width:177px;" class="defaultstyle">暂时没有该类商品</div>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                            <div style="text-align:center;margin-left:185px;margin-top:203px;width:177px;" class="defaultstyle">正在更新数据...</div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Bottom" height="0" style="margin-left:223px;margin-top:-85px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+                                <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+	                            <input type="button" name="page" class="pagertext" />
+                                <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                        </form>
+	                    </PagerTemplate>
+                    </pe:gridview>
+                </div>
+                </div>    
+            </div>
+        </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

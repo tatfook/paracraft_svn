@@ -1,0 +1,146 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30354_WeatherForcastBox_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30354_WeatherForcastBox_panel</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30349_MoveHouseCar_frame.lua"><![CDATA[
+    
+local page = document:GetPageCtrl();
+
+local Scene = MyCompany.Aries.Scene;
+
+local today = Scene.GetServerDate() or ParaGlobal.GetDateFormat("yyyy-MM-dd");
+t_y, t_m, t_d = string.match(today, "^(%d+)%-(%d+)%-(%d+)$");
+if(t_y and t_m and t_d) then
+	t_y = tonumber(t_y);
+	t_m = tonumber(t_m);
+	t_d = tonumber(t_d);
+	month = t_m;
+	day = t_d;
+end
+
+-- t: today m: tomorrow a: the day after tomorrow
+
+
+local tomorrow = Scene.GetNextDate(today);
+_, m_m, m_d = string.match(tomorrow, "^(%d+)%-(%d+)%-(%d+)$");
+if(m_m and m_d) then
+    m_m = tonumber(m_m);
+    m_d = tonumber(m_d);
+else
+    -- NOTE: do not check if the date is out of month range
+    m_m = t_m;
+    m_d = t_d + 1;
+end
+local dayaftertomorrow = Scene.GetNextDate(Scene.GetNextDate(today));
+_, a_m, a_d = string.match(dayaftertomorrow, "^(%d+)%-(%d+)%-(%d+)$");
+if(a_m and a_d) then
+    a_m = tonumber(a_m);
+    a_d = tonumber(a_d);
+else
+    -- NOTE: do not check if the date is out of month range
+    a_m = t_m;
+    a_d = t_d + 2;
+end
+
+page:SetValue("date_1", t_m.."月"..t_d.."日");
+page:SetValue("date_2", m_m.."月"..m_d.."日");
+page:SetValue("date_3", a_m.."月"..a_d.."日");
+
+weather_1 = "晴天";
+icon_1 = "texture/Aries/Quest/WeatherForcastBox/SunnyIcon_32bits.png";
+if(MyCompany.Aries.Scene.GetWeather() == "snow") then
+    weather_1 = "雪天";
+    icon_1 = "texture/Aries/Quest/WeatherForcastBox/SnowIcon_32bits.png";
+elseif(MyCompany.Aries.Scene.GetWeather() == "cloudy") then
+    weather_1 = "阴天";
+    icon_1 = "texture/Aries/Quest/WeatherForcastBox/CloudyIcon_32bits.png";
+end
+weather_2 = "晴天";
+icon_2 = "texture/Aries/Quest/WeatherForcastBox/SunnyIcon_32bits.png";
+if(MyCompany.Aries.Scene.GetWeather(m_m, m_d) == "snow") then
+    weather_2 = "雪天";
+    icon_2 = "texture/Aries/Quest/WeatherForcastBox/SnowIcon_32bits.png";
+elseif(MyCompany.Aries.Scene.GetWeather(m_m, m_d) == "cloudy") then
+    weather_2 = "阴天";
+    icon_2 = "texture/Aries/Quest/WeatherForcastBox/CloudyIcon_32bits.png";
+end
+weather_3 = "晴天";
+icon_3 = "texture/Aries/Quest/WeatherForcastBox/SunnyIcon_32bits.png";
+if(MyCompany.Aries.Scene.GetWeather(a_m, a_d) == "snow") then
+    weather_3 = "雪天";
+    icon_3 = "texture/Aries/Quest/WeatherForcastBox/SnowIcon_32bits.png";
+elseif(MyCompany.Aries.Scene.GetWeather(a_m, a_d) == "cloudy") then
+    weather_3 = "阴天";
+    icon_3 = "texture/Aries/Quest/WeatherForcastBox/CloudyIcon_32bits.png";
+end
+
+page:SetValue("weather_1", weather_1);
+page:SetValue("weather_2", weather_2);
+page:SetValue("weather_3", weather_3);
+
+page:SetValue("icon_1", icon_1);
+page:SetValue("icon_2", icon_2);
+page:SetValue("icon_3", icon_3);
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+
+<div style="margin-left:50px;margin-top:40px;width:853px;height:512px;background:url(texture/Aries/Quest/WeatherForcastBox/bg.png#0 0 853 512)">
+    <div style="margin-left:0px;margin-top:0px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:1024px;height:512px;background:url()">
+        <!--近期暴风雪加大，为了广大哈奇的安全，暂时封锁上山入口，等过段时间天气好点再来吧！ <br/>
+        文字下需要配一副图，显示风雪很大，不安全-->
+            <form>
+            <div style="margin-left:110px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="date_1"/>
+            </div>
+            <div style="margin-left:320px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="date_2"/>
+            </div>
+            <div style="margin-left:530px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="date_3"/>
+            </div>
+            <div style="margin-left:180px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="weather_1"/>
+            </div>
+            <div style="margin-left:390px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="weather_2"/>
+            </div>
+            <div style="margin-left:600px;margin-top:190px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <label name="weather_3"/>
+            </div>
+            <div style="margin-left:125px;margin-top:230px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <img style="width:128px;height:128px;" name="icon_1"/>
+            </div>
+            <div style="margin-left:330px;margin-top:230px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <img style="width:128px;height:128px;" name="icon_2"/>
+            </div>
+            <div style="margin-left:535px;margin-top:230px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                <img style="width:128px;height:128px;" name="icon_3"/>
+            </div>
+            </form>
+            <div style="margin-left:100px;margin-top:380px;position:relative;font-size:14;font-weight:bold;color:#FF0000">
+                温馨小贴士---不同的生肖宠物喜欢出现在不同的天气哦：
+            </div>
+            <div style="margin-left:100px;margin-top:410px;position:relative;font-size:14;font-weight:bold;color:#003300">
+                喜欢在晴天出现的生肖宠物有：百变鼠；百变鸡；百变猪；百变蛇；百变牛；百变龙；
+                <br/>
+                喜欢在阴天出现的生肖宠物有：百变兔；百变狗；百变猴；百变羊；百变马；百变虎
+            </div>
+        </div>
+        <input style="margin-left:715px;margin-top:-520px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose()" value=""/>
+    </div>
+    
+  </div>
+
+</pe:mcml>
+</body>
+</html>

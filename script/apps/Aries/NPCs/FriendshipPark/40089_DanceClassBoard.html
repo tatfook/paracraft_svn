@@ -1,0 +1,56 @@
+<!-- "script/apps/Aries/NPCs/FriendshipPark/40089_DanceClassBoard.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>40089_DanceClassBoard, by LiXizhi, 2009/12/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="40089_DanceClassBoard.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.DanceClassBoard.OnInit();
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:878px;height:668px;background:;padding-left:75px;padding-top:70px">
+    <div style="width:642px;height:418px;background:url(Texture/Aries/NPCs/Dancer/DanceClassBoard_bg_32bits.png#0 0 642 418)">
+        <div style="position:relative;margin-top:-6px;margin-left:585px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+        </div>
+        <div style="margin-left:320px;padding-top:57px;height:134px;font-size:14px;font-weight:bold;color:#cc3333">
+            <pe:label name="dance_skill" style="float:left;height:20px;width:70px"/>
+            <pe:label name="popularity" style="float:left;height:20px;width:70px;margin-left:50px;"/>
+        </div>
+        <pe:gridview DataSource="<%=MyCompany.Aries.Quest.NPCs.DanceClassBoard.DS_Func_DanceSkills%>"  name="dancerlevel_gridview" style="margin-left:480px;margin-top:0px;width:100px;" AllowPaging="false" pagesize="6">
+            <Columns>
+                <div style="width:82px;height:30px;padding-top:6px;">
+                    <pe:if condition='<%=Eval("state")==1%>'>
+                        <img style="width:80px;height:20px;background:url(Texture/Aries/NPCs/Dancer/btn_learnt_32bits.png#0 0 80 20)"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("state")==0 or Eval("state")==-2%>'>
+                        <a style="background:;" param1='<%=Eval("index")%>' onclick="MyCompany.Aries.Quest.NPCs.DanceClassBoard.LearnSkill" >
+                            <input type="button" alwaysmouseover="true" style="width:80px;height:20px;background:url(Texture/Aries/NPCs/Dancer/btn_learn_32bits.png#0 0 80 20)"/>
+                        </a>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("state")==-1%>'>
+                        <a style="background:;" param1='<%=Eval("index")%>' onclick="MyCompany.Aries.Quest.NPCs.DanceClassBoard.ClickUnlearntSkill" >
+                            <input type="button" alwaysmouseover="true" style="width:80px;height:20px;background:url(Texture/Aries/NPCs/Dancer/btn_not_learnt_32bits.png#0 0 80 20)"/>
+                        </a>
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>请稍等 ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div> 
+</div>
+</pe:mcml>
+</body>
+</html>

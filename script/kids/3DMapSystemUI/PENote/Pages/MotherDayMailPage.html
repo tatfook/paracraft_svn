@@ -1,0 +1,103 @@
+﻿<!-- "script/kids/3DMapSystemUI/PENote/Pages/MotherDayMailPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiteMailPage, by Leio, 2009/11/16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/PENote/Pages/LiteMailPage.lua");
+Map3DSystem.App.PENote.LiteMailPage.OnInit()
+local page = document:GetPageCtrl();
+function doClose()
+    page:CloseWindow();
+end
+function DS_Func_Items(index)
+    NPL.load("(gl)script/apps/Aries/NPCs/TownSquare/30384_RecycleBin.lua");
+   return MyCompany.Aries.Quest.NPCs.MotherDayMail.DS_Func_Items(index);
+end
+local items = MyCompany.Aries.Quest.NPCs.MotherDayMail.items or {};
+function getTitle(index)
+    local item = items[index];
+    if(item)then
+        local nid = item.nid;
+        local s = string.format([[%s：%s]],MyCompany.Aries.ExternalUserModule:GetConfig().account_name,tostring(nid));
+        return s;
+    end
+end
+function getImg(index)
+    local item = items[index];
+    if(item)then
+        local s = string.format("Texture/Aries/PENote/MotherDayMail/%s.png#0 0 462 360",item.pic or 1);
+        local img = string.format([[<img style="width:462;height:360px;margin-left:0px;margin-top:0px;background:url(%s)" />]],s);
+        return img;
+    end
+end
+function getNID(index)
+    local item = items[index];
+    if(item)then
+        local nid = item.nid;
+        return nid;
+    end
+end
+]]></script>
+    <div style="width:793px;height:510px;margin-left:0px;background:url(Texture/Aries/PENote/MotherDayMail/bg_32bits.png#0 0 793 510)">
+	<input type="button" style="width:54px;height:54px;margin-left:750px;margin-top:-10px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+          onclick="doClose()" />
+    <div>
+        <div style="float:left;width:470px;height:600px;">
+            <pe:gridview DataSource="<%=DS_Func_Items%>" name="PicShow" 
+                VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "512" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+                <Columns>
+                    <div style="width:470px;height:470px;margin-top:-65px;">
+                        <div style="margin-left:50px;margin-top:36px;width:500px;height:30px;">
+                            <div style="float:left;width:200px;">
+                            <%=getTitle(Eval("index")) %>
+                            </div>
+                            <div style="float:left;width:50px;">
+                           昵称：
+                            </div>
+                             <div style="float:left;width:200px;">
+                            <pe:name style=""  nid='<%=Eval("nid") %>' linked="false"/>
+                            </div>
+                        </div>
+                        <div style="margin-left:23px;margin-top:6px;"><%=getImg(Eval("index")) %></div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    Empty
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    Searching...
+                </FetchingDataTemplate>
+	            <PagerSettings Position="Top" height="64" style="margin-left:10px;margin-top:350px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate>
+	                <form>
+	                    <input type="button" name="pre" invisibleondisabled="false" zorder=2 style="margin-left:-34px;margin-top:30px;width:53px;height:53px;background:Texture/Aries/PENote/MotherDayMail/left_32bits.png;0 0 60 60;"/>
+	                    <input type="button" name="next" invisibleondisabled="false" zorder=2 style="margin-left:467px;margin-top:30px;width:53px;height:53px;background:Texture/Aries/PENote/MotherDayMail/right_32bits.png;0 0 60 60"/>
+	                </form>
+	            </PagerTemplate>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+             <div style="margin-left:60px;margin-top:35px;">
+            母亲节来了，对妈妈说点什么吧！
+            </div>
+            <div style="margin-left:50px;">
+            <input type="text" style="margin-left:37px;margin-top:22px;width:190px;height:25px;background:" text="" name="send_info_title"/>
+            <br />
+            <textarea style="width:240px;height:225;margin-left:-5px;margin-top:35px;" name="send_info"  rows="7" />
+            <br />
+              <input type="button" text="" style="margin-left:60px;margin-top:15px;width:139px;height:40px;background:url(Texture/Aries/PENote/MotherDayMail/submit_32bits.png# 0 0 139 40)" 
+            onclick = "Map3DSystem.App.PENote.LiteMailPage.SendMail"
+        />
+            </div>
+        </div>
+    </div>
+    </div>
+</pe:mcml>
+</body>
+</html>
+

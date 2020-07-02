@@ -1,0 +1,53 @@
+﻿<!-- "script/apps/Aries/NPCs/TeenAction/WarmHeartPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+NPL.load("(gl)script/apps/Aries/NPCs/TeenAction/WarmHeartPage.lua");
+local WarmHeartPage = commonlib.gettable("MyCompany.Aries.Quest.NPCs.TeenAction.WarmHeartPage");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+WarmHeartPage.OnInit();
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function GetHeartNum()
+   local __,__,__,copies = hasGSItem(50337);
+	copies = copies or 0;
+    local s = string.format("%d",copies);
+    return s;
+end
+function DoShop()
+    NPCShopPage.ShowPage(31081,"menu1");
+    ClosePage();
+end
+]]></script>
+<div style="width:760px;height:484px;background:url(Texture/Aries/Quest/Ambassador/Teen/bg_32bits.png#0 0 760 484)" >
+    <div style="height:19px;">
+        <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:715px;margin-top:2px;" />
+    </div>
+    <div style="position:relative;margin-left:40px;margin-top:50px;" class="defaultcolor">
+        <div style="float:left;">我的热心果</div>
+        <div style="float:left;margin-left:30px;">:<b style="color:#ff6600;"><%=GetHeartNum() %></b></div>
+        <div style="float:left;">颗    (注:热心果可以积累,但最多只能积累<b style="color:#ff6600;">30</b>个)</div>
+    </div>
+    <div style="position:relative;margin-left:455px;margin-top:50px;">
+        <input type="button" class="defaultbutton" onclick="DoShop" value="查看热心果奖励" />
+    </div>
+    <div style="position:relative;margin-left:320px;margin-top:165px;">
+        <input type="button" onclick="DoShop" style="width:79px;height:80px;background:url(Texture/Aries/Quest/Ambassador/Teen/open_shop_2_32bits.png#0 0 79 80)"/>
+    </div>
+    <input type="button" style="position:relative;margin-left:405px;margin-top:175px;width:120px;height:30px;background:url()"/>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

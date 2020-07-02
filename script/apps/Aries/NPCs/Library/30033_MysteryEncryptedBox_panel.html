@@ -1,0 +1,94 @@
+<!-- "script/apps/Aries/NPCs/Library/30033_MysteryEncryptedBox_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30033_MysteryEncryptedBox_panel.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.MysteryEncryptedBox_panel.OnInit();
+
+function ClosePage()
+    page:CloseWindow()
+end
+
+function OnSubmit()
+    local code = Page:GetRequestParam("code");
+    MyCompany.Aries.Quest.NPCs.MysteryEncryptedBox_panel.OnSubmit(code);
+end
+
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_2_32bits.png;0 0 212 30";
+function DS_Func_MysteryEncryptedBox_panel(index)
+    return MyCompany.Aries.Quest.NPCs.MysteryEncryptedBox_panel.DS_Func_MysteryEncryptedBox_panel(index);
+end
+
+asset_table = {
+    name = "user_exchange_avatar",
+    AssetFile="character/v3/Elf/Female/ElfFemale.xml",
+	--CCSInfoStr="1#1#1#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#1005#1006#0#1007#0#0#0#0#0#0#",
+	-- before:2010/4/21 CCSInfoStr="0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#0#0#0#0#0#1085#0#1086#1101#0#0#1132#0#0#0#0#0#",
+	CCSInfoStr="0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#0#0#0#0#0#0#0#1190#0#0#0#0#0#0#0#0#0#",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+]]></script>
+<div style="margin-left:109px;margin-top:57px;width:630px;height:486px;background:url(Texture/Aries/NPCs/MysteryEncryptedBox/bg1_with_btn.png#0 0 630 486)">
+    
+    <pe:gridview DataSource="<%=DS_Func_MysteryEncryptedBox_panel%>" name="MysteryEncryptedBox_panel_gridview" style="margin-left:30px;margin-top:120px;margin-right:380px;margin-bottom:120px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="10">
+        <Columns>
+            <div style="width:212px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                <a style="width:212px;height:30px;margin:0px;padding:0px;background:;"
+                    onclick="MyCompany.Aries.Quest.NPCs.MysteryEncryptedBox_panel.DoClick" param1='<%=Eval("index")%>'>
+                    <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:212px;height:30px;background:;"/>
+                    <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:212px;height:30px;">
+                        <a width="30" height="26" style="padding:0px;background:;"
+                            onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.DoClick" param1='<%=Eval("index")%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="margin-top:-3px;width:32px;height:32px" isclickable="false"/>
+                        </a>
+                        <div style="float:left;margin-left:6px;margin-top:3px;width:150px;font-size:12pt;color:#000000">
+                            <div style="float:left;width:110px;">
+                                <%=Eval("name")%>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </a>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+        <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+            <div style="float:right;margin-top:4px;width:40px;">
+                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+            </div>
+            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+             </form>
+        </PagerTemplate>
+    </pe:gridview>
+    
+    <div style="left:300px;top:-400px;position:relative;width:256px;height:256px;">
+    <pe:canvas3d DefaultRotY="-1.57" DefaultCameraObjectDist = "6" LookAtHeight="1.2" DefaultLiftupAngle="0.1" name="ExchangeAvatar" RenderTargetSize="256" miniscenegraphname="Aries_CreateNewAvatar" value='<%=commonlib.serialize(Eval("asset_table"))%>'
+                        ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="false"/>
+    </div>
+    
+    <input style="margin-left:580px;margin-top:-490px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    
+    <input style="margin-left:357px;margin-top:-140px;width:153px;height:49px;background:url(Texture/Aries/NPCs/MysteryEncryptedBox/Claim_32bits.png#0 0 153 49);" type="button" onclick="OnSubmit()" value=""/>
+</div>
+
+</pe:mcml>
+</body>
+</html>

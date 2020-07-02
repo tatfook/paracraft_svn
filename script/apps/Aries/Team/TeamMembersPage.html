@@ -1,0 +1,305 @@
+﻿<!-- "script/apps/Aries/Team/TeamMembersPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="TeamMembersPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Pet/main.lua");
+local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+NPL.load("(gl)script/apps/Aries/Team/TeamWorldInstancePortal.lua");
+local TeamWorldInstancePortal = commonlib.gettable("MyCompany.Aries.Team.TeamWorldInstancePortal");
+
+local TeamMembersPage = commonlib.gettable("MyCompany.Aries.Team.TeamMembersPage");
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+TeamMembersPage.OnInit()
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+		
+function DS_Func_Items(index)  
+    return TeamMembersPage.DS_Func_Items(index)
+end
+function ClosePage()
+    TeamMembersPage.ClosePage();
+end
+function DoKickOut(nid)
+    nid = tonumber(nid)
+     local s = string.format([[你确认要把<pe:name nid="%s" linked="false"/>从当前队伍里踢出吗？]],tostring(nid));
+     _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            TeamClientLogics:DelTeamMember(nid);
+	    else
+		    commonlib.echo("no");
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+end
+function DoCaptian(nid)
+    nid = tonumber(nid)
+    local s = string.format([[你确认让<pe:name nid="%s" linked="false"/>当队长吗？ ]],tostring(nid));
+     _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            TeamClientLogics:SetTeamLeader(nid);
+	    else
+		    commonlib.echo("no");
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+function DoLeave(nid)
+    nid = tonumber(nid)
+    _guihelper.Custom_MessageBox("你确定要退出当前队伍吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+             TeamClientLogics:DelTeamMember(nid);
+	    else
+		    commonlib.echo("no");
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+function IsTeamLeader()
+    if(TeamClientLogics.GetJC)then
+		local isleader = TeamWorldInstancePortal.IsTeamLeader();
+		return isleader;
+	end
+end
+function IsTeamLeader_NID(nid)
+    if(nid and TeamClientLogics:GetTeamLeaderNid() == nid)then
+        return true;
+    end
+end
+function GetSchool(nid)
+    nid = tonumber(nid)
+    if(not nid)then return end
+    local gsid = MyCompany.Aries.Combat.GetSchoolGSID(nid);
+    return gsid;
+end
+function GetSchool_Tooltip(nid)
+    local gsid = GetSchool(nid);
+    local school = "风暴系";
+	if(gsid == 986) then
+		school = "烈火系";
+	elseif(gsid == 987) then
+		school = "寒冰系";
+	elseif(gsid == 988) then
+		school = "风暴系";
+	elseif(gsid == 989) then
+		school = "神秘系";
+	elseif(gsid == 990) then
+		school = "生命系";
+	elseif(gsid == 991) then
+		school = "死亡系";
+	elseif(gsid == 992) then
+		school = "平衡系";
+	end
+    return school;
+end
+function GetSchool_Pic(nid)
+    local gsid = GetSchool(nid);
+    local tooltip = GetSchool_Tooltip(nid);
+    local s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/fire_32bits.png);" />]],tooltip,tostring(nid));
+	if(gsid == 986) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/fire_32bits.png);" />]],tooltip,tostring(nid));
+		school = "烈火系";
+	elseif(gsid == 987) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/ice_32bits.png);" />]],tooltip,tostring(nid));
+		school = "寒冰系";
+	elseif(gsid == 988) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/storm_32bits.png);" />]],tooltip,tostring(nid));
+		school = "风暴系";
+	elseif(gsid == 989) then
+		s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/myth_32bits.png);" />]],tooltip,tostring(nid));
+		school = "神秘系";
+	elseif(gsid == 990) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/life_32bits.png);" />]],tooltip,tostring(nid));
+		school = "生命系";
+	elseif(gsid == 991) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/death_32bits.png);" />]],tooltip,tostring(nid));
+		school = "死亡系";
+    elseif(gsid == 992) then
+        s = string.format([[<input type="button" tooltip="%s" name="%s" style="float:left;margin-left:2px;width:16px;height:16px;background:url(Texture/Aries/Team/balance_32bits.png);" />]],tooltip,tostring(nid));
+		school = "平衡系";
+	end
+    return s;
+end
+function ShowProfile(nid)
+    nid = tonumber(nid)
+    if(not nid)then return end
+    System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+end
+function IsVip(nid)
+    nid = tonumber(nid)
+    if(not nid)then return end
+    local bean = Pet.CreateOrGetDragonInstanceBean(nid,callbackFunc,cache_policy)
+    if(bean and bean.energy > 0)then
+        return true;
+    end
+end
+function IsMySelf(nid)
+    nid = tonumber(nid)
+    if(not nid)then return end
+    if(nid and nid == Map3DSystem.User.nid)then
+        return true;
+    end
+end
+function DoCall(nid)
+   System.App.Commands.Call("Profile.Aries.ComeHereChat", { nids = {nid}});
+end
+function ShowMoreInfo(nid)
+    if(nid == "-1" or nid == -1)then return end
+	local ctl = CommonCtrl.ContextMenu:new{
+			name = "showMoreInfo_teammembers",
+			width = 100,
+			height = 80, -- add menuitemHeight(30) with each new item
+			DefaultNodeHeight = 24,
+			style = {
+				borderTop = 4,
+				borderBottom = 4,
+				borderLeft = 4,
+				borderRight = 4,
+				
+				fillLeft = 0,
+				fillTop = 0,
+				fillWidth = 0,
+				fillHeight = 0,
+				
+				titlecolor = "#283546",
+				level1itemcolor = "#283546",
+				level2itemcolor = "#3e7320",
+				
+				iconsize_x = 24,
+				iconsize_y = 21,
+				
+				menu_bg = "Texture/Aries/Creator/border_bg_32bits.png:3 3 3 3",
+				menu_lvl2_bg = "Texture/Aries/Creator/border_bg_32bits.png:3 3 3 3",
+				shadow_bg = nil,
+				separator_bg = "Texture/Aries/Dock/menu_separator_32bits.png", -- : 1 1 1 4
+				item_bg = "Texture/Aries/Dock/menu_item_bg_32bits.png: 10 6 10 6",
+				expand_bg = "Texture/Aries/Dock/menu_expand_32bits.png; 0 0 34 34",
+				expand_bg_mouseover = "Texture/Aries/Dock/menu_expand_mouseover_32bits.png; 0 0 34 34",
+				
+				menuitemHeight = 24,
+				separatorHeight = 2,
+				titleHeight = 24,
+				
+				titleFont = "System;12;bold";
+			},
+		};
+		local node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "Group", Type = "Group", NodeHeight = 0 });
+        if(IsMySelf(nid))then
+    		node:AddChild(CommonCtrl.TreeNode:new({Text = "查看资料", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="show_profile", nid = nid,}));
+    		node:AddChild(CommonCtrl.TreeNode:new({Text = "离开队伍", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="leave", nid = nid,}));
+            if(IsTeamLeader())then
+        		node:AddChild(CommonCtrl.TreeNode:new({Text = "召唤全队", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="call_all", nid = nid,}));
+                node:AddChild(CommonCtrl.TreeNode:new({Text = "全队跟随", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="team_followme", nid = nid,}));
+            end
+        else
+    		node:AddChild(CommonCtrl.TreeNode:new({Text = "查看资料", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="show_profile", nid = nid,}));
+            node:AddChild(CommonCtrl.TreeNode:new({Text = "跟随", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="follow_target", nid = nid,}));
+            if(IsTeamLeader())then
+        		node:AddChild(CommonCtrl.TreeNode:new({Text = "踢出队伍", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="kickout", nid = nid,}));
+        		node:AddChild(CommonCtrl.TreeNode:new({Text = "指定队长", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="captian", nid = nid,}));
+        		node:AddChild(CommonCtrl.TreeNode:new({Text = "召唤队友", Name = "UseItem", Type = "Menuitem", onclick = TeamMembersPage.DoMenu, state="call", nid = nid,}));
+            end         
+        end
+       
+	local x, y = ParaUI.GetMousePosition();
+	if(x and y)then
+		ctl:Show(x, y);
+	end
+end
+function GetHpStr(index)
+    if(TeamMembersPage)then
+        local item = TeamMembersPage.data_source[index];
+        if(item)then
+            local s = string.format("%d/%d",item.cur_hp or 0,item.hp or 0);
+            return s;
+        end
+    end
+end
+
+function OnClickShowProfile(nid)
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.ShowPage(tostring(nid));
+end
+function ChangeState()
+    TeamMembersPage.ChangeShowState();
+end 
+]]></script>
+<div style="position:relative;">
+    <pe:if condition='<%=MyCompany.Aries.Team.TeamMembersPage.show_state == "expand" %>'>
+        <input style="margin-top:15px;width:12px;height:58px;background:url(Texture/Aries/Team/toggle_button_left_32bits.png#0 0 12 58: 5 5 5 5)" tooltip="隐藏组队面板" type="button" onclick="ChangeState" />
+    </pe:if>
+    <pe:if condition='<%=MyCompany.Aries.Team.TeamMembersPage.show_state ~= "expand" %>'>
+        <input style="margin-top:15px;width:12px;height:58px;background:url(Texture/Aries/Team/toggle_button_right_32bits.png#0 0 12 58: 5 5 5 5)" tooltip="打开组队面板" type="button" onclick="ChangeState" />
+    </pe:if>
+</div>
+<div style="margin-left:10px;width:600px;height:400px;background:">
+    <pe:if condition='<%=MyCompany.Aries.Team.TeamMembersPage.show_state == "expand" %>'>
+    <pe:gridview style="margin-left:0px;margin-top:0px;width:200;height:300px" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="1" AllowPaging="false" pagesize="4" ClickThrough="true">
+        <Columns>
+        <div style="margin-top:5px;margin-top:10px;height:50px;">
+            <div>
+                <div style="float:left;margin-left:10px;margin-top:-5px;width:45px;height:24px;background:url(Texture/Aries/Team/bg2_32bits.png#0 0 45 24);">
+                    <div style="float:left;margin-top:1px;"><%=GetSchool_Pic(Eval('nid')) %></div>
+                    <div style="float:left;margin-left:0px;margin-top:2px;text-align:center;font-size:12;color:#ffffff;">
+                        <aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" />
+                    </div>
+                </div>
+                <input type="button" name="<%=Eval('nid') %>" onclick="ShowMoreInfo()"  style="float:left;margin-left:60px;margin-top:0px;width:19px;height:19px;background:url(Texture/Aries/Team/dropmenu_32bits.png#0 0 19 19);" />
+            </div>
+            <div style="margin-left:5px;margin-top:-10px;width:130px;height:40px;text-align:center;font-size:12;color:#572200;background:url(Texture/Aries/Team/bg_32bits.png#0 0 32 30 : 10 10 10 10);">
+                <pe:if condition="<%=IsVip(Eval('nid')) %>">
+                    <div style="position:relative;margin-left:52px;margin-top:-12px;width:20px;height:20px;background:url(Texture/Aries/Dock/Web/magic_star_32bits.png# 0 0 45 45);" />
+                </pe:if>
+                <div style="height:20px;margin-top:6px;" tooltip="点击查看个人资料" name="<%=Eval('nid') %>" onclick="OnClickShowProfile()">
+                    <div style="float:left;margin-left:2px;margin-top:2px;width:20px;">
+                        <pe:if condition='<%=IsTeamLeader_NID(Eval("nid"))%>'>
+                            <div style="float:left;margin-left:5px;width:16px;height:16px;background:url(Texture/Aries/Team/captain_32bits.png);" />
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-top:1px;">
+                        <pe:if condition="<%= IsMySelf(Eval('nid'))%>">
+                            <pe:name nid="<%=Eval('nid') %>" style="color:#1856e2" linked="false"/>
+                        </pe:if>
+                        <pe:if condition="<%= not IsMySelf(Eval('nid'))%>">
+                            <pe:name nid="<%=Eval('nid') %>" linked="false"/>
+                        </pe:if>
+                    </div> 
+                </div>
+                <div style="margin-left:4px;">
+                    <pe:progressbar name="<%='pb'..tostring(Eval('nid')) %>" Minimum = "0" Maximum = "<%=Eval('hp') %>" Value = "<%=Eval('cur_hp') %>" Step = "1"
+                        style="width:121px;height:10px;"
+                        blockimage="Texture/Aries/Team/teen/red_progressbar.png;0 0 16 10: 7 5 8 4"
+                        background="Texture/Aries/Team/teen/gray_progressbar.png;0 0 16 10: 7 5 8 4"
+                        />
+                    <div style="margin-top:-14px;width:121px;text-align:center;color:#ffffff;font-size:11px;">
+                        <%=GetHpStr(Eval('index')) %>
+                    </div>
+                    </div>
+            </div>
+            <pe:custom oncreate="MyCompany.Aries.Team.TeamMembersPage.OnCreate()" nid="<%=Eval('nid') %>" show_duration="8000" style="position:relative;width:1px;height:1px;margin-left:100px;margin-top:-60px;" show_height="60"/>
+        </div>
+        </Columns>
+        <EmptyDataTemplate>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+        </FetchingDataTemplate>
+        <PagerSettings Position="" height="36" style="margin-left:440px;margin-top:30px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+                <div style="float:right;margin-top:4px;width:0px;">
+                    <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                </div>
+                <input type="button" name="next" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

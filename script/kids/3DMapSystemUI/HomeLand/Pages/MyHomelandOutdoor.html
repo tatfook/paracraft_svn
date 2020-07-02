@@ -1,0 +1,80 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandOutdoor.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland outdoor, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+
+function ShowOutdoorItemView(value, mcmlNode)
+	local frame = page:GetNode("HomelandOutdoorInventoryItemView");
+	local urls = {
+	    ["house"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=house",
+	    ["plant"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=plant",
+	    ["other"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=other",
+	    ["effect"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=effect",
+	    ["parterre"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=parterre",
+	    
+	    ["all"] = "script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&subclass=all",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            mcmlNode:SetValue(value);
+            page:GetNode("HomelandOutdoorInventoryItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<pe:editor style="margin:0px;padding:0px;background:;">
+<div style="width:702px;height:123px;">
+    <div style="float:right;width:834px;height:28px;padding-left:24px;">
+        <input type="radio" name="OutdoorTabs" checked="checked" value="all" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_all_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_all_up_32bits.png;0 0 102 28" 
+            onclick="ShowOutdoorItemView()"/>
+        <input type="radio" name="OutdoorTabs" value="parterre" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Garden_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Garden_up_32bits.png;0 0 102 28" 
+            onclick="ShowOutdoorItemView()"/>
+<!--        <input type="radio" name="OutdoorTabs" value="plant" style="width:98px;height:32px;"
+            Label="种子"
+            CheckedBG="Texture/Aries/Homeland/itemLibs_tab_selected.png:20 16 20 6" 
+            UncheckedBG="Texture/Aries/Homeland/itemLibs_tab_unselected.png:20 16 20 6" 
+            onclick="ShowOutdoorItemView()"/>-->
+        <input type="radio" name="OutdoorTabs" value="house" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Housing_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Housing_up_32bits.png;0 0 102 28" 
+            onclick="ShowOutdoorItemView()"/>
+        <input type="radio" name="OutdoorTabs" value="effect" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Effects_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Effects_up_32bits.png;0 0 102 28" 
+            onclick="ShowOutdoorItemView()"/>
+        <input type="radio" name="OutdoorTabs" value="other" style="width:102px;height:28px;"
+            CheckedBG="Texture/Aries/Homeland/hometab_Other_32bits.png;0 0 102 28" 
+            UncheckedBG="Texture/Aries/Homeland/hometab_Other_up_32bits.png;0 0 102 28" 
+            onclick="ShowOutdoorItemView()"/>
+    </div>
+    <div style="float:right;margin-top:0px;width:702px;height:95px;">
+        <iframe name="HomelandOutdoorInventoryItemView" src="script/kids/3DMapSystemUI/HomeLand/Pages/MyHomelandStore.html?class=homeoutdoor&amp;subclass=all"/>
+    </div>
+    <div style="float:right;margin-left:-40px;margin-top:-30px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+</div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

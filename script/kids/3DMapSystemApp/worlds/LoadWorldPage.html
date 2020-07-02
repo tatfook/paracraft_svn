@@ -1,0 +1,51 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/LoadWorldPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Load World Page by LiXizhi, 2008.4.28</title>
+</head>
+<body>
+<pe:mcml style="max-width:640px" align="center">
+<script type="text/npl" src="script/kids/3DMapSystemApp/worlds/LoadWorldPage.lua">
+    Map3DSystem.App.worlds.LoadWorldPage.OnInit();
+</script>
+<pe:tabs name="ModelTabs">
+  <pe:tab-item text="打开本地世界" selected="true">
+    <div style="float:left;width:300px;margin:5px">
+     类别: 
+      <select name="CurFolder" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnSelectFolder()">
+          <option selected="true" value="worlds/MyWorlds">我创建的世界</option>
+          <option value="worlds/Official">官方世界</option>
+          <option value="worlds/Templates">模板世界</option>
+          <option value="worlds/Instances">副本世界</option>
+          <option value="worlds/downloads">我下载过的世界</option>
+          <option value="worlds">全部世界</option>
+          <option value="/">根目录(/)</option>
+      </select><br/>
+      类型:
+      <select name="CurFilter" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnSelectFilter()">
+        <option selected="true" value="*.zip;*.pkg;*.worldconfig.txt">任何世界(*.*)</option>
+        <option value="*.zip;*.pkg">只读的世界(*.zip)</option>
+        <option value="*.worldconfig.txt">可编辑的世界(*.)</option>
+      </select><br/>
+      <pe:filebrowser name="FileBrowser" DisableFolderExpand="true" AllowFolderSelection="true" filter="*.zip;*.pkg;*.worldconfig.txt" rootfolder="worlds/MyWorlds" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnSelectFile()" ondoubleclick="Map3DSystem.App.worlds.LoadWorldPage.OnDoubleClickFile()" />
+    </div>
+    <div style="float:left;margin:5px;">
+        <div><font style="color:#808080;">提示: 请从左侧选择世界文件, 或者直接在下面文本框中输入路径, 然后点击打开世界</font></div>
+        当前世界路径: <select name="filepath" style="width:230px"><option value="" selected="true"></option></select><br/>
+       <div><font style="font-weight:bold">世界预览:</font></div>
+       <img name="WorldImage" style="width:256px;height:150px;margin-left:10px"/>
+       <hr />
+        <input type="button" name="LoadWorld" class="defaultbutton" value="打开世界" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnClickLoadWorld()"/>
+        <input style="margin-left:10px" type="button" name="DeleteWorld" value="删除" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnClickDeleteWorld()"/>
+        <input style="margin-left:10px" type="button" name="RefreshPreview" value="预览" onclick="Map3DSystem.App.worlds.LoadWorldPage.OnClickRefreshPreview()"/>
+    </div>
+  </pe:tab-item>  
+  <pe:tab-item text="网上推荐世界">
+    <iframe name="RecommendedWorldsFrame" src="%WIKI%/Main/RecommendedOpenWorlds?skin=text" style="margin:5px;padding:5px" />
+  </pe:tab-item>
+</pe:tabs>
+
+</pe:mcml>
+</body>
+</html>

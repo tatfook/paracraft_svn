@@ -1,0 +1,206 @@
+﻿<!-- "script/apps/Aries/Quest/QuestDialogPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="QuestDialogPage.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local QuestDialogPage = commonlib.gettable("MyCompany.Aries.Quest.QuestDialogPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+QuestDialogPage.OnInit();
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+MyCompany.Aries.Desktop.HideAllAreas();
+NPL.load("(gl)script/apps/Aries/NPCs/Combat/39000_BasicArena.lua");
+local BasicArena = commonlib.gettable("MyCompany.Aries.Quest.NPCs.BasicArena");
+BasicArena.EnableEnterCombat(false);
+
+function ClosePage()
+    local item = QuestDialogPage.GetCurItem();
+   
+    if(item and item.id) then
+		QuestHelp.SayGoodbyeToNPC(item.id);
+    end
+
+    QuestDialogPage.ClosePage();
+end
+function DS_Func_Items_Buttons(index)
+    return QuestDialogPage.DS_Func_Items_Buttons(index);
+end
+function GetGroupListTooltip(index)
+    index = tonumber(index);
+    local item = QuestDialogPage.GetCurItem();
+     if(index and item and item.buttons and item.buttons[index])then
+        local node = item.buttons[index];
+	    local questid = node.questid;
+	    local state = node.state;
+        local action = node.action;
+        --local s = string.format("任务：%d,状态：%s,%s",questid or 0,state or "",action or "")
+        local s = string.format("%s",action or "")
+        return s;
+     end
+end
+
+function GetDialogNpc()
+    local item = QuestDialogPage.GetCurItem();
+   
+    if(item)then
+        return item.id;
+    end
+end
+function GetDialogNpcName()
+    local item = QuestDialogPage.GetCurItem();
+    local npc_list,npc_list_map = QuestHelp.GetNpcList();
+    if(item and npc_list_map)then
+        local id = item.id;
+        local npc_node = npc_list_map[id];
+        if(npc_node)then
+            local label = npc_node.label
+            return label;
+        end
+    end
+end
+function GetContent(isPage)
+    return QuestDialogPage.GetContent(isPage)
+end
+function GetTitle(index)
+    index = tonumber(index);
+    local item = QuestDialogPage.GetCurItem();
+     if(index and item and item.buttons and item.buttons[index])then
+        local node = item.buttons[index];
+        local label = node.label;
+	    local state = node.state;
+        local action = node.action;
+        local title="";
+        local goalpointer = "";
+        local img="Texture/Aries/Common/ThemeTeen/others/mark6_32bits.png";
+        local color="#6e3001"
+        local background_color="";
+        local has_indicator;
+        if(action == "gotogroup")then
+            if(state=="start")then
+                title = string.format("%s(可以接受)",label)
+                img="Texture/Aries/Common/ThemeTeen/others/mark4_32bits.png";
+            elseif(state=="end")then
+                title = string.format("%s(可以完成)",label)
+                img="Texture/Aries/Common/ThemeTeen/others/mark5_32bits.png";
+            end
+        elseif(action == "show_npcdialog_in_quest")then
+            title = string.format("%s(对话)",label)
+            img="Texture/Aries/Common/ThemeTeen/others/mark5_32bits.png";
+        elseif(action == "showpage")then
+            title = string.format("%s",label)
+
+            background_color="background-color:#6e3001"
+            if(node.tag and node.tag.loadfile == "script/apps/Aries/HaqiShop/NPCShopPage.lua" and node.tag.param1) then
+                goalpointer = format("<pe:goalpointer listen='open_npc_shop' param_name1='npc_shop_id' param_value1='%s' style='position:relative;width:64px;height:24px;margin-top:-3px;'></pe:goalpointer>", node.tag.param1)
+            end
+        else
+            if(action == "gotogroup_progressing")then
+                title = string.format("%s(进行中)",label)
+            else
+                title = string.format("%s",label)
+            end
+            background_color="background-color:#6e3001"
+        end
+        local s = string.format([[
+            <div style="width:540px;">
+                <div style="float:left;">
+                    <img src="%s" style="width:16px;height:16px;%s"/>
+                </div>
+                <div style="float:left;">%s
+                    <input type="button" name="%d" value="%s" onclick="DoClick()"
+                        style="margin-top:0px;width:520px;text-align:left;height:18px;color:%s;font-size:13px;font-weight:bold;shadow-quality:8;shadow-color:#30ffffff;text-shadow:true"
+                        class="questbutton_selected" /> 
+                </div>
+            </div>
+        ]],img,background_color,goalpointer,index,title,color)
+        if(index == 1) then
+            if(MyCompany.Aries.Player.GetLevel()<=11) then
+                s = [[<img style="position:relative;margin-left:-2px;margin-top:-4px;width:90px;height:26px;" zorder="1" enabled="false" class="animated_btn_overlay" />]]..s;
+            end
+        end
+        return s;
+     end
+end
+function CanPaging()
+    local item = QuestDialogPage.GetCurItem();
+    if(item and item.buttons)then
+        local len = #item.buttons;
+        if(len > 3)then
+            return true;
+        end
+    end
+end
+
+function DoClick(index)
+    QuestDialogPage.DoClick(index);
+end
+]]></script>
+<pe:if condition="<%=GetContent(true)~=nil %>">
+    <div style="position:relative">
+        <pe:template filename="<%=GetContent(true) %>"></pe:template>
+    </div>
+</pe:if>
+<pe:container alignment="_mb" width="0" height="210" style="background:">
+<pe:container alignment="_ctt" ClickThrough="true" width="930" height="210" style="background:;">
+<div style="width:867px;height:210px;background:url(Texture/Aries/Quest/Dialog_bg3.dds#0 0 867 210);" align="center">
+    <div style="position:relative;margin-right:-20px;margin-top:30px;width:86px;height:65px;" align="right">
+        <input tooltip="关闭" style="width:86px;height:65px;background:url(Texture/Aries/Quest/quest_common_close_32bits.png#0 0 86 55);" type="button" name="close" onclick="ClosePage()" value=""/>
+    </div>
+    <div>
+        <div style="position:relative;width:258px;height:248px;">
+            <div style="width:220px;height:220px;margin-left:13px;margin-top:22px;">
+                <pe:player nid='<%=GetDialogNpc() %>' object="npc" name='no name' miniscenegraphname="NPCDialog_miniscene" style="width:204px;height:204px;" background="" MaskTexture="Texture/Aries/Quest/NewSunFlowerMask.dds" IsPortrait="true" IsInteractive="false" />
+                <input type="button" value='<%=GetDialogNpcName() %>' style="background:;margin-left:0px;font-size:14px;font-weight:bold;margin-top:-46px;width:190px;height:20px;color:#6d2f00" />
+            </div>
+        </div>
+        <div style="float:left;margin-top:60px;margin-left:240px;margin-right:60px;">
+            <div style="height:55px;color:#6d2f00;">
+                <pe:container style="color:#6d2f00;base-font-size:16;font-size:16;font-weight:bold;line-height:16px;background:" valign="center">
+                    <div style="min-height:40px;">
+                    <%=GetContent() %>
+                    </div>
+                </pe:container>
+            </div>
+             <div style="margin-left:0px;margin-top:-30px;">
+                <pe:gridview DataSource="<%=DS_Func_Items_Buttons%>" name="DS_Func_Items_Buttons" style="margin-left:0px;margin-top:0px;margin-right:30px;margin-bottom:0px;" 
+                        VerticalScrollBarStep="20" CellPadding="1"  DefaultNodeHeight = "18" ItemsPerLine="1" AllowPaging="true" pagesize="3">
+                        <Columns >
+                           <%=GetTitle(Eval('index')) %>
+                        </Columns>
+                        <EmptyDataTemplate>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Top" height="36" style="margin-left:520px;margin-top:80px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+                            <pe:if condition="<%=not CanPaging() %>" >
+	                        <input type="button" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:0px;height:0px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	       
+	                        <input type="button" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:0px;height:0px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+                            </pe:if>
+                            <pe:if condition="<%=CanPaging() %>" >
+	                        <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:30px;height:30px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	       
+	                        <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:30px;height:30px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+                            </pe:if>
+	                        </form>
+	                    </PagerTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:container>
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

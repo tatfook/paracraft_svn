@@ -1,0 +1,173 @@
+﻿<!-- "script/apps/Aries/NPCs/Playground/30071_MicroOven_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30094_Beehive_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30071_MicroOven_panel.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.OnInit();
+
+-- status: nil not available, 1 fetching all, 2 fetched. 
+dsItems = Eval("dsItems") or {status = nil, };
+
+function DS_Func_Food(index)
+    return MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.DS_Func_Items(dsItems, index, pageCtrl);
+end
+
+function DS_Func_Selected(index)
+    if(index == nil) then
+        return 3;
+    elseif(index <= 3) then
+        return {};
+    end
+end
+
+function OnClose()
+    if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked) then
+        return;
+    end
+    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ClearSelectedItems();
+    pageCtrl:CloseWindow();
+end
+
+slot1 = MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.selected1_gsid or 0;
+slot2 = MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.selected2_gsid or 0;
+slot3 = MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.selected3_gsid or 0;
+
+
+function OnSteam()
+    if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked) then
+        return;
+    end
+    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ChooseCookingMethod("steam");
+end
+function OnBake()
+    if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked) then
+        return;
+    end
+    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ChooseCookingMethod("bake");
+end
+function OnBoil()
+    if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked) then
+        return;
+    end
+    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ChooseCookingMethod("boil");
+end
+
+function OnReset()
+    if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked) then
+        return;
+    end
+    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ClearSelectedItems();
+    pageCtrl:SetValue("glass", "");
+    pageCtrl:Init(pageCtrl.url);
+end
+
+function ShowTimeScrew(params)
+    local _this = ParaUI.CreateUIObject("container", "Screw_30071_MicroOven_panel", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "Texture/Aries/NPCs/MicroOven/Time_Screw_32bits.png;0 0 91 91";
+	params.parent:AddChild(_this);
+	
+	if(MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ChosenMethod == true) then
+	    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.ChosenMethod = nil;
+	    MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked = true;
+	    pageCtrl:SetValue("glass", "Texture/Aries/NPCs/MicroOven/glass_32bits.png;0 0 344 256");
+	    
+        UIAnimManager.PlayCustomAnimation(3000, function(elapsedTime)
+            if(elapsedTime) then
+                local _this = ParaUI.GetUIObject("Screw_30071_MicroOven_panel");
+                if(_this:IsValid() == true) then
+                    _this.rotation = (3.14 + 1.57) - elapsedTime/3000 * (3.14 + 1.57);
+                end
+            end
+            if(elapsedTime == 3000) then
+                MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.UILocked = nil;
+                MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.StartCooking();
+            end
+        end);
+	end
+end
+
+]]></script>
+    
+    <div style="width:1250px;height:450px;">
+        <div style="float:left;width:610px;height:439px;background:url(Texture/Aries/NPCs/MicroOven/BasePanel_bg_32bits.png#0 0 610 439);">
+            <div style="float:left;width:190px;height:400px;">
+                <!--<input type="button" name="start" style="margin-left:110px;margin-top:90px;width:64px;height:52px;background:url(Texture/Aries/NPCs/MicroOven/Start_btn_32bits.png#0 0 64 52)" onclick="OnStart()"/>
+                <br/>-->
+                <input type="button" name="reset" style="margin-left:110px;margin-top:65px;width:64px;height:52px;background:url(Texture/Aries/NPCs/MicroOven/Reset_btn_32bits.png#0 0 64 52)" onclick="OnReset()"/>
+                <br/>
+                <pe:custom oncreate="ShowTimeScrew" style="margin-left:50px;margin-top:163px;width:91px;height:91px;"/>
+            </div>
+            <div style="float:left;width:400px;height:400px;">
+                <div style="width:400px;height:120px;">
+                    <input type="button" name="steam" 
+                        Normal_BG = "Texture/Aries/NPCs/MicroOven/Steam_btn_32bits.png"
+                        MouseOver_BG = "Texture/Aries/NPCs/MicroOven/Steam_btn_light_32bits.png"
+                        Pressed_BG = "Texture/Aries/NPCs/MicroOven/Steam_btn_dark_32bits.png"
+                        style="margin-left:50px;margin-top:50px;width:64px;height:64px;background:;" onclick="OnSteam()"/>
+                    <input type="button" name="bake" 
+                        Normal_BG = "Texture/Aries/NPCs/MicroOven/Bake_btn_32bits.png"
+                        MouseOver_BG = "Texture/Aries/NPCs/MicroOven/Bake_btn_light_32bits.png"
+                        Pressed_BG = "Texture/Aries/NPCs/MicroOven/Bake_btn_dark_32bits.png"
+                        style="margin-left:50px;margin-top:50px;width:64px;height:64px;background:;" onclick="OnBake()"/>
+                    <input type="button" name="boil" 
+                        Normal_BG = "Texture/Aries/NPCs/MicroOven/Boil_btn_32bits.png"
+                        MouseOver_BG = "Texture/Aries/NPCs/MicroOven/Boil_btn_light_32bits.png"
+                        Pressed_BG = "Texture/Aries/NPCs/MicroOven/Boil_btn_dark_32bits.png"
+                        style="margin-left:50px;margin-top:50px;width:64px;height:64px;background:;" onclick="OnBoil()"/>
+                </div>
+                <div style="width:400px;height:300px;">
+                    <div style="width:400px;height:300px;">
+                        <pe:item gsid='<%=Eval("slot1")%>' name="slot1" style="left:150px;top:40px;position:relative;width:128px;height:128px;" isclickable="false"/>
+                        <pe:item gsid='<%=Eval("slot2")%>' name="slot2" style="left:75px;top:70px;position:relative;width:128px;height:128px;" isclickable="false"/>
+                        <pe:item gsid='<%=Eval("slot3")%>' name="slot3" style="left:165px;top:80px;position:relative;width:128px;height:128px;" isclickable="false"/>
+                    </div>
+                    <img zorder="2" name="glass" src="" style="float:left;margin-left:15px;margin-top:-285px;width:344px;height:256px;"/>
+                </div>
+            </div>
+        </div>
+        <img zorder="2" style="float:left;margin-left:-30px;margin-top:236px;width:76px;height:64px;background:url(Texture/Aries/NPCs/MicroOven/Arrow_32bits.png#0 0 76 64)"/>
+        <div style="float:left;margin-left:-25px;margin-top:40px;width:302px;height:388px;background:url(Texture/Aries/NPCs/MicroOven/FoodPanel_bg_32bits.png#0 0 302 388)">
+            
+            <pe:gridview DataSource="<%=DS_Func_Food%>" name="MicroOven_Food" style="margin-left:20px;margin-top:70px;" CellPadding="8"  DefaultNodeHeight = "65" ItemsPerLine="2" AllowPaging="True" pagesize="4">
+                <Columns>
+                    <div style="margin-left:3px;width:110px;height:112px;">
+                        <div style="padding-top:10px;padding-left:10px;width:120px;height:120px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#0 0 108 103:24 24 24 24)">
+                            <pe:slot guid='<%=Eval("guid")%>' style="width:56px;height:56px;" onclick="MyCompany.Aries.Quest.NPCs.MicroOvenPanelPage.OnClickItem"/>
+                        </div>
+                        <pe:if condition='<%=Eval("selected") == true%>'>
+                            <img style="margin-left:30px;margin-top:-96px;width:64px;height:64px;background:url(Texture/Aries/Temp/TargetFunc1.png)"/>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>Empty Items</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin-left:55px;margin-top:30px;color:#FFFFFF">数据加载中，请稍等</div>
+                </FetchingDataTemplate>
+	            <PagerSettings Position="Bottom" height="36" style="margin-left:60px;margin-top:-28px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate>
+	                <form>
+	                    <input type="button" name="pre" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+	                    <div style="float:right;margin-top:4px;width:64px;">
+	                        <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                    </div>
+	                    <input type="button" name="next" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+	                </form>
+	            </PagerTemplate>
+            </pe:gridview>
+        </div>
+        <input style="margin-left:-48px;margin-top:30px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+    
+    
+</pe:mcml>
+</body>
+</html>

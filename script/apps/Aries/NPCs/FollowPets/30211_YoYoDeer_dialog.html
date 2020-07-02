@@ -1,0 +1,108 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30211_YoYoDeer_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30211_YoYoDeer.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+
+Condition1 = function()
+   return MyCompany.Aries.Quest.NPCs.YoYoDeer.FindDeer_UnOpen();
+end;
+Condition2 = function()
+   return MyCompany.Aries.Quest.NPCs.YoYoDeer.FindDeer_Less_6();
+end;
+Condition3 = function()
+   return MyCompany.Aries.Quest.NPCs.YoYoDeer.FindDeer_6();
+end;
+
+function EntryAction(from, to)
+    
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 4 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.YoYoDeer.GetFoundYoyoDeerTag();
+    elseif(from == 5 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.YoYoDeer.GetMyYoyoDeer();
+    end
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30211" />
+            <pe:placeholder id="name" source="{this}" value='呦呦鹿'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是呦呦鹿，别问我古奇在哪了，我的6个孩子也在突然的晃动中走散，我找了很久都没有找到它们，我好难过！
+		    <pe:answer text="帮你找" template_id="helpyou">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    我的6个孩子还没找齐，你赶紧帮我找呀！我现在真没心思和你说古奇的事情，我好担心我的孩子！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    太好了，我的孩子，终于都平安回来了！真谢谢你！
+		    <br />
+		    古奇刚刚去了前面石门那，他好像也遇到危险了，你赶紧去看看吧！另外，我最小的孩子很喜欢你，你愿意带它回家吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		   谢谢你这么热心，我的6个孩子应该就在这片雪地里，他们可能被晃动吓坏躲起来了，你找到它们赶紧回来告诉我！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    好好照顾我的孩子，它已经先回家等你了！我也要带着其他的孩子离开这里，它们都被晃动吓坏了，你也要多小心！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

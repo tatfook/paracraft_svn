@@ -1,0 +1,65 @@
+<!-- "script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.html" -->
+<html>
+<body>
+<pe:mcml>
+<script type="text/npl" src="script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua" refresh="false"><![CDATA[
+local buttons = {
+    ["接受"] = "Texture/Aries/Common/accept_32bits.png; 0 0 153 49",
+    ["拒绝"] = "Texture/Aries/Common/reject_32bits.png; 0 0 153 49",
+}
+function GetValue(v)
+    return buttons[v];
+end
+if(_Custom.CustomMessageBox.customBtnIcon.show_label) then
+    if(_Custom.CustomMessageBox.buttons == _guihelper.MessageBoxButtons.OK)  then
+        local v = GetValue(_Custom.CustomMessageBox.customBtnIcon.ok)
+        if(v) then
+            _Custom.CustomMessageBox.customBtnIcon.ok = v;
+            _Custom.CustomMessageBox.customBtnIcon.show_label = false;
+        end
+    elseif(_Custom.CustomMessageBox.buttons == _guihelper.MessageBoxButtons.YesNo)  then
+        local v1 = GetValue(_Custom.CustomMessageBox.customBtnIcon.yes)
+        local v2 = GetValue(_Custom.CustomMessageBox.customBtnIcon.no)
+        if(v1 and v2) then
+            _Custom.CustomMessageBox.customBtnIcon.yes = v1;
+            _Custom.CustomMessageBox.customBtnIcon.no = v2;
+            _Custom.CustomMessageBox.customBtnIcon.show_label = false;
+        end
+    end
+end
+]]></script>
+<div width="400" style="background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 465 196:50 50 50 100)">
+  <div width="100%" style="margin-left:15px;margin-right:25px;margin-top:15px;height:150px;">
+    <div style="margin-left:20px;margin:10px;margin-right:25px;">
+        <div style="float:left;padding:16px;">
+            <!-- tricky: always reference content like below. It allows MCML code that needs page:Refresh to work inside content.-->
+            <script refresh="false" >
+                document.write(_Custom.CustomMessageBox.content);
+            </script>
+        </div>
+    </div>
+  </div>
+  <div style="margin-left:20px;height:49px;">
+      <pe:if condition='<%=_Custom.CustomMessageBox.buttons==_guihelper.MessageBoxButtons.OK%>'>
+            <pe:if condition='<%=_Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+                <input type="button" hotkey="DIK_RETURN" name="OK" class="button_highlight" value='<%=_Custom.CustomMessageBox.customBtnIcon.ok %>' style="margin-left:110px;margin-top:0px;width:100px;height:28px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+            </pe:if>
+            <pe:if condition='<%=not _Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+                <input type="button" hotkey="DIK_RETURN" name="OK" Replace_BG = "<%=_Custom.CustomMessageBox.customBtnIcon.ok%>" style="margin-left:100px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+            </pe:if>
+      </pe:if>
+      <pe:if condition='<%=_Custom.CustomMessageBox.buttons==_guihelper.MessageBoxButtons.YesNo%>'>
+            <pe:if condition='<%=_Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+                <input type="button" hotkey="DIK_RETURN" name="Yes" class="button_highlight" value='<%=_Custom.CustomMessageBox.customBtnIcon.yes %>' style="margin-left:50px;margin-top:0px;width:100px;height:28px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+                <input type="button" name="No" class="button" value='<%=_Custom.CustomMessageBox.customBtnIcon.no %>' style="margin-left:40px;margin-top:0px;width:100px;height:28px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+            </pe:if>
+            <pe:if condition='<%=not _Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+                <input type="button" hotkey="DIK_RETURN" name="Yes" Replace_BG = "<%=_Custom.CustomMessageBox.customBtnIcon.yes%>" style="margin-left:26px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/Yes_32bits.png# 0 0 153 49)" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+                <input type="button" name="No" Replace_BG = "<%=_Custom.CustomMessageBox.customBtnIcon.no%>" style="margin-left:0px;margin-top:16px;width:153px;height:49px;background:url(Texture/Aries/Common/No_32bits.png#0 0 153 49)" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+            </pe:if>
+      </pe:if>
+  </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

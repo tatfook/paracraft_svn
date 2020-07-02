@@ -1,0 +1,342 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_cutgem_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="30042_SueSue_equipment_cutgem_panel.lua"><![CDATA[
+local SueSue_equipment_cutgem_panel = MyCompany.Aries.Quest.NPCs.SueSue_equipment_cutgem_panel;
+local pageCtrl = document:GetPageCtrl();
+local GameObject = MyCompany.Aries.Quest.GameObject;
+local NPC = MyCompany.Aries.Quest.NPC;
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+SueSue_equipment_cutgem_panel.OnInit();
+
+nid = System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function GetPercent()
+    local num = 99;
+    local s = string.format("基础成功率：%d%%",num);
+    return s;
+end
+function GetPercent_ex()
+    local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+    local level = 0;
+    local bean = Pet.GetBean();
+    if(bean)then
+        level = bean.mlel;
+    end
+    --魔法星加成都为1%
+    level = 1;
+    local s = string.format("魔法星加成：%d%%",level);
+    return s,level;
+end
+function GetCount(gsid)
+    gsid = gsid or 17179;
+    local bHas,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function GetImg()
+    local gsid = SueSue_equipment_cutgem_panel.selected_gsid;
+    if(gsid)then
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+        if(gsItem)then
+            local icon = gsItem.icon;
+            return icon;
+        end
+    end
+end
+function GetNum_Left()
+    local num = GetCount();
+    local gem_gsids = SueSue_equipment_cutgem_panel.gem_gsids;
+    local selected_num = 0;
+    local k,v;
+    if(gem_gsids)then
+    for k,v in ipairs(gem_gsids) do
+            if(v.has_selected)then
+                selected_num = selected_num + 1;
+            end
+        end
+    end
+    num = num - selected_num;
+    num = math.max(num,0);
+    return num,selected_num;
+end
+function GetNum()
+    local num = GetNum_Left();
+    local s = string.format([[剩余宝石调羹数量：<b style="color:#ff0000" >%d</b>]],num);
+    return s;
+end
+function DS_Func(index)
+    if(index == nil) then
+		return #(SueSue_equipment_cutgem_panel.gem_gsids);
+	else
+		return SueSue_equipment_cutgem_panel.gem_gsids[index];
+	end
+end
+function OnRadioClick(value)
+   MyCompany.Aries.Quest.NPCs.SueSue_equipment_cutgem_panel.OnRadioClick(value)
+   pageCtrl:CallMethod("bags_view", "Refresh", 0.01);
+
+end
+function DoSelected(gsid)
+   local gem_gsids = SueSue_equipment_cutgem_panel.gem_gsids;
+   if(gem_gsids and gsid)then
+        local k,v;
+        for k,v in ipairs(gem_gsids) do
+            if(v.gsid == gsid)then
+                if(v.has_selected)then
+                    v.has_selected = false
+                else
+                    local num = GetNum_Left();
+                    if(num <= 0)then
+                        ShowTip();
+                        return
+                    end
+                    local max_num = 1000;
+                    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+                    if(gsItem)then
+                        max_num = gsItem.template.maxcopiesinstack;
+                    end
+                    if(GetCount(gsid) >= max_num)then
+                        ShowTip2();
+                        return
+                    end
+                    v.has_selected = true;
+                end
+            end
+        end
+   end
+   --NOTE:在第一次点最后一个记录的时候 会显示全部选中
+   SueSue_equipment_cutgem_panel.DoRefresh(0);
+   SueSue_equipment_cutgem_panel.DoRefresh(0);
+end
+function HasSelectedGem()
+    local gem_gsids = SueSue_equipment_cutgem_panel.gem_gsids;
+    for k,v in ipairs(gem_gsids) do
+        if(v.has_selected)then
+            return true;
+        end
+    end
+end
+function GoShop()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabGems","3001");
+    SueSue_equipment_cutgem_panel.ClosePage();
+end
+function ShowTip()
+     NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        _guihelper.Custom_MessageBox("你没有多余的宝石调羹了！",function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+	        else
+                GoShop();
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/GoShop_32bits.png; 0 0 153 49"});
+end
+function ShowTip2()
+     NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+     _guihelper.Custom_MessageBox("你背包的同类宝石太多了，暂时无法挖取哦！",function(result)
+	    if(result == _guihelper.DialogResult.OK)then
+		    commonlib.echo("OK");
+	    end
+    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+end
+function GetCutInfo(success,gem_gsids)
+    success = success or {}
+    gem_gsids = gem_gsids or {}
+    local success_str = "";
+    local fail_str = "";
+    local function is_success(gsid)
+        if(not gsid)then return end
+        local k,v;
+        for k,v in ipairs(success)do
+            if(gsid == v)then
+                return true;
+            end
+        end
+    end
+    local k,v;
+    for k,v in ipairs(gem_gsids) do
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(v.gsid);
+        if(gsItem and v.has_selected)then
+            local name = gsItem.template.name;
+            if(is_success(v.gsid))then
+                if(success_str == "")then
+                    success_str = name;
+                else
+                    success_str = success_str .. "," .. name;
+                end
+            else
+                if(fail_str == "")then
+                    fail_str = name;
+                else
+                    fail_str = fail_str .. "," .. name;
+                end
+            end
+        end
+    end
+    if(success_str == "")then
+        success_str = "无";
+    end
+    if(fail_str == "")then
+        fail_str = "无";
+    end
+    local s = string.format("剥离成功:%s<br/>剥离失败:%s",success_str,fail_str);
+    _guihelper.MessageBox(s);
+    return s;
+end
+function _DoCut()
+    local gsid = SueSue_equipment_cutgem_panel.selected_gsid;
+    local gem_gsids = SueSue_equipment_cutgem_panel.gem_gsids;
+    local k,v;
+    if(gsid and gem_gsids)then
+        local result = {};
+        for k,v in ipairs(gem_gsids) do
+            if(v.has_selected)then
+                table.insert(result,v.gsid);
+            end
+        end
+        local bHas,guid = hasGSItem(gsid);
+        commonlib.echo("======before ItemManager.UnEquipGemFromSocket");
+        commonlib.echo(result);
+        commonlib.echo(guid);
+        ItemManager.UnEquipGemFromSocket(result,guid,function(msg)
+            commonlib.echo("======ItemManager.UnEquipGemFromSocket");
+            commonlib.echo(msg);
+            if(msg and msg.issuccess)then
+                local gem_gsids = SueSue_equipment_cutgem_panel.gem_gsids;
+                SueSue_equipment_cutgem_panel.OnlyRefreshPage();
+                GetCutInfo(msg.success,gem_gsids);
+            end
+        end,function(msg)
+            SueSue_equipment_cutgem_panel.OnlyRefreshPage();
+        end);
+    end
+    
+end
+function DoCut()
+    local gsid = SueSue_equipment_cutgem_panel.selected_gsid;
+    if(not gsid)then
+        return
+    end
+    local __,selected_num = GetNum_Left();
+    local __,level = GetPercent_ex();
+    local odds = 99 +  (level or 0);
+    odds = math.min(odds,100);
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local s = string.format("你选择了%d个调羹来剥离%d颗宝石，单个宝石剥离的成功率为%d%%，现在就开始吧！",selected_num,selected_num,odds);
+         _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                _DoCut()
+	        else
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_2_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+end
+
+function OnClickMountGems()
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_extend_panel.lua");
+    MyCompany.Aries.Quest.NPCs.SueSue_equipment_extend_panel.ShowPage();
+end
+]]></script>
+<div style="width:850px;height:515px;color:#0c618a;font-size:12px;">
+    <div style="float:left;width:410px;height:490px;background:url(Texture/Aries/NPCs/EquipmentCutGem/bg_32bits.png#0 0 410 490)">
+        <input style="margin-left:358px;margin-top:35px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+        <div>
+            <div style="float:left;width:200px;">
+                <div style="width:64px;height:64px;margin-left:70px;margin-top:40px;">
+                    <img src="<%=GetImg() %>" style="width:64px;height:64px;" />
+                </div>
+                <div style="margin-left:50px;margin-top:30px;"><%=GetPercent() %></div>
+                <div style="margin-left:50px;margin-top:0px;"><%=GetPercent_ex() %></div>
+            </div>
+            <div style="float:left;">
+                <div style="width:64px;height:61px;margin-left:50px;margin-top:30px;background:url(Texture/Aries/NPCs/EquipmentCutGem/tiaoge_32bits.png#0 0 64 61)"/>
+                <div style="margin-left:10px;margin-top:20px;"><%=GetNum() %></div>
+                <input type="button" onclick="GoShop()" style="width:103px;height:24px;margin-left:10px;margin-top:10px;background:url(Texture/Aries/NPCs/EquipmentCutGem/buy_btn_32bits.png#0 0 103 24)"/>
+            </div>
+        </div>
+        <div style="margin-left:30px;margin-top:10px;">点击下方格子:选中或者取消你想要剥离的宝石</div>
+         <pe:gridview DataSource="<%=DS_Func%>" name="_gridview" style="margin-left:22px;margin-top:0px;margin-right:0px;margin-bottom:0px;" 
+            VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="5" AllowPaging="true" pagesize="10">
+            <Columns>
+                    <div style="width:65px;height:65px;">
+                        <pe:item  style="width:60px;height:60px;"showdefaulttooltip="true" onclick="DoSelected" name="<%=Eval('gsid') %>" gsid="<%=Eval('gsid') %>" />
+                         <pe:if condition="<%=Eval('has_selected') %>">
+                            <input type="button" name="<%=Eval('gsid') %>" onclick="DoSelected"  style="width:70px;height:68px;margin-left:0px;margin-top:-63px;background:url(Texture/Aries/NPCs/EquipmentCutGem/border_32bits.png#0 0 69 68)"/>
+                        </pe:if>
+                    </div>
+               
+            </Columns>
+            <EmptyDataTemplate>
+                <div style="font-size:12;color:#114d81;padding-right:55px;margin-top:120px;">
+              
+                </div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	       <PagerSettings Position="Bottom" height="36" style="margin-left:130px;margin-top:-30px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	            <div style="float:left;margin-top:-2px;width:64px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	        </form>
+	    </PagerTemplate>
+        </pe:gridview>
+        <pe:if condition="<%=not HasSelectedGem() %>">
+            <input type="button" style="width:149px;height:46px;margin-left:130px;margin-top:-20px;background:url(Texture/Aries/NPCs/EquipmentCutGem/cut_gray_btn_32bits.png#0 0 149 46)"/>
+        </pe:if>
+        <pe:if condition="<%=HasSelectedGem() %>">
+            <input type="button" onclick="DoCut" style="width:149px;height:46px;margin-left:130px;margin-top:-20px;background:url(Texture/Aries/NPCs/EquipmentCutGem/cut_btn_32bits.png#0 0 149 46)"/>
+        </pe:if>
+
+    </div>
+    <div style="float:left;width:30px;">
+        <img style="margin:left:-35px;margin-top:250px;width:85px;height:61px;background:url(Texture/Aries/NPCs/EquipmentExtend/arrow_32bits.png#0 0 85 61)"/>
+    </div>
+    <div style="float:left;width:385px;height:488px;background:url(Texture/Aries/NPCs/EquipmentExtend/bgright_32bits.png#0 0 385 488)">
+        <input style="margin-left:333px;margin-top:6px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+        <div style="padding-left:30px;padding-right:40px;margin-top:-20px;color:#114d81;height:40px;">
+        
+        </div>
+        <div style="margin-left:30px;margin-top:-25px;font-size:14;font-weight:bold;">
+            <input type="button" name="mount_gem" value="宝石镶嵌" tooltip="切换到宝石镶嵌" onclick="OnClickMountGems" style="position:relative;margin-top:0px;margin-left:220px;" class="button" />
+            请选择镶有宝石的装备
+        </div>
+         <div style="margin-left:50px;margin-top:5px;background:;height:30px;">
+            <pe:tabs name="tabs" onclick="OnRadioClick()" SelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg1_32bits.png:12 14 12 14" UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14"   
+                style="padding-top:30px;margin-left:-13px;margin-top:5px;background:;"
+                SelectedTextColor="#000000" ItemSpacing="0" TextFont="System;12;norm" >  
+                              
+                <pe:tab-item name="1" text="全部" selected="true"></pe:tab-item>
+                <pe:tab-item name="2" text="帽子" ></pe:tab-item>
+                <pe:tab-item name="3" text="衣服" ></pe:tab-item>
+                <pe:tab-item name="4" text="鞋子" ></pe:tab-item>
+                <pe:tab-item name="5" text="饰品" ></pe:tab-item>
+                <pe:tab-item name="6" text="背部" ></pe:tab-item>
+                <pe:tab-item name="7" text="武器" ></pe:tab-item>
+            </pe:tabs>
+        </div>
+        <div style="margin-left:0px;margin-top:10px;width:400px;height:500px;">
+            <iframe name="bags_view" src="script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_cutgem_bagpage.html"/>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

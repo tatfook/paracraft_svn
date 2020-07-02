@@ -1,0 +1,195 @@
+<!-- "script/apps/Aries/Help/MagicStarHelp/MagicStarHelp.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Terrain Editing Page by LiXizhi 2008.6.8</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local MagicStarHelpPage = commonlib.gettable("MyCompany.Aries.Help.MagicStarHelpPage");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatMagicStarPage.lua");
+local CombatMagicStarPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatMagicStarPage");
+CombatMagicStarPage.bean = MyCompany.Aries.Pet.GetBean();
+CombatMagicStarPage.IsVIP = MyCompany.Aries.VIP.IsVIPAndActivated();
+if( CombatMagicStarPage.bean.energy <= 0)then
+	CombatMagicStarPage.energyflag = true;
+elseif(CombatMagicStarPage.energyflag==true)then
+	CombatMagicStarPage.energyflag = false;
+	CombatMagicStarPage.OnClickEquip();
+end
+
+function ClosePage()
+    page:CloseWindow();
+    MagicStarHelpPage.TabValue = "1";
+end
+
+function GetEMoney()
+	NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+	local PurchaseMagicBean = MyCompany.Aries.Inventory.PurChaseMagicBean;
+	PurchaseMagicBean.Pay("recharge");
+    -- ParaGlobal.ShellExecute("open", "http://pay.61.com/buy/paytype?type=cardpay", "", "", 1);
+end
+
+function GetEnergyStone()
+--    NPL.load("(gl)script/apps/Aries/VIP/PurChaseEnergyStone.lua");
+--    local PurchaseEnergyStone = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseEnergyStone");
+--    PurchaseEnergyStone.Show();
+    local gsid=998;
+    Map3DSystem.mcml_controls.pe_item.OnClickGSItem(gsid,true);
+end
+
+function GetMagicStar()
+    local s;
+    if ( CombatMagicStarPage.energyflag ) then
+        s= [[<img src="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar1_32bits.png; 0 0 82 84" zorder="2" style="width:82px;height:84px;margin-left:12px;margin-top:10px;"/>]];
+    else
+        s= [[<img src="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar2_32bits.png; 0 0 82 84" zorder="2" style="width:82px;height:84px;margin-left:12px;margin-top:10px;"/>]];
+    end
+    return s
+end
+
+function ShowMagicStarInfo() 
+	NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCharMainFramePage.lua");
+	local CombatCharacterFrame = commonlib.gettable("MyCompany.Aries.Desktop.CombatCharacterFrame");
+	if (CombatCharacterFrame) then
+		CombatCharacterFrame.ShowMainWnd(5);
+	end
+end
+
+function ShowMagicStarEquipBtn()
+	if( MyCompany.Aries.VIP.IsMagicStarEquipped() )then
+		return false;
+	else
+		return true;
+	end
+end
+
+function equipMagicStar()
+	if (CombatMagicStarPage.bean.energy <= 0) then
+		_guihelper.Custom_MessageBox("您的魔法星能量值为0，所有神奇功能都消失了,无法携带。快用能量石为魔法星补充能量吧！",function(result)
+			if (result == _guihelper.DialogResult.No) then
+				CombatMagicStarPage.OnClickGetMagicStone();
+			end
+		end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49", no = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/getstone_btn_32bits.png; 0 0 153 49"});
+	else
+		MyCompany.Aries.VIP.EquipMagicStar();
+        page:Refresh(0.1);
+	end
+end
+
+function unequipMagicStar()
+	MyCompany.Aries.VIP.UnequipMagicStar();
+    page:Refresh(0.1);
+end
+
+]]></script>
+
+<div style="width:762px;height:487px;background:url(Texture/Aries/Common/bg.png#0 0 64 64: 14 14 14 14)">
+    <input type="button" onclick="ClosePage()" zorder="100" name="close" style="margin-left:725px;margin-top:-3px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" value="" />
+
+    <div style="position:relative;margin-left:260px;margin-top:-30px;width:228px;height:32px;">
+        <img src="Texture/Aries/MapHelp/MagicStarHelp/title.png; 0 0 228 32" zorder="2" style="width:228px;height:32px;"/>
+    </div>
+
+    <div style="position:relative;margin-left:20px;margin-top:20px;width:308px;height:400px;background:url(Texture/Aries/Common/left_bg.png# 0 0 64 64:20 20 20 20);">
+        <div style="position:relative;margin-left:80px;margin-top:10px;width:128px;height:32px;">
+            <img src="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png; 0 0 21 21" zorder="2" style="margin-left:0px;margin-top:5px;width:21px;height:21px;"/>
+            <img src="Texture/Aries/MapHelp/MagicStarHelp/left_title.png; 0 0 128 32" zorder="2" style="margin-left:30px;margin-top:-22px;width:128px;height:32px;"/>
+        </div>
+
+        <div style="position:relative;margin-left:35px;margin-top:40px;width:190px;height:82px;">
+            <div style="position:relative;margin-left:65px;margin-top:10px;width:38px;height:38px;color:#fdfe40;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/number_bg.png# 0 0 38 38);">
+                <div style="position:relative;margin-left:-15px;margin-top:9px;width:70px;height:30px;color:#003300;text-align:center;font-weight:bold">
+                    <%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetMLevel() %>
+                </div>                
+            </div>
+            <div style="position:relative;margin-left:-10px;margin-top:10px;width:109px;height:109px;color:#fdfe40;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_bg.png# 0 0 109 109);">
+                <%=GetMagicStar() %>
+            </div>
+
+            <div style="position:relative;margin-left:85px;margin-top:20px;width:170px;height:64px;color:#fdfe40;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_M_bg.png# 0 0 170 64);">
+                <div style="position:relative;margin-left:32px;margin-top:5px;width:170px;height:64px;">
+                    <%=MyCompany.Aries.Desktop.CombatMagicStarPage.ShowMLine() %>
+                </div>
+                <div style="position:relative;margin-left:50px;margin-top:5px;color:#000000;font-weight:bold;">
+                    <%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetM() %>
+                </div>
+            </div>
+
+            <div style="position:relative;margin-left:110px;margin-top:55px;width:172px;height:26px;color:#fdfe40;font-weight:bold;"> 
+                <div style="float:left;position:relative;margin-left:-5px;color:#fdfe40">
+                能量值:<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetEnergy() %>
+                </div>
+            </div>
+
+            <div style="position:relative;margin-left:150px;margin-top:98px;">
+                <div style="position:relative;width:90px;height:3px;margin-left:10px;margin-top:15px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#003399;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"></div>                
+                <pe:if condition='<%=ShowMagicStarEquipBtn() %>'>
+                    <input type="button" value="▶ 携带魔法星" zorder="11" onclick="equipMagicStar()" style="margin-top:-5px;width:110px;height:24px;color:#022a57;font-size:12;background:;"
+                    Normal_BG = ""
+                    MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />
+                </pe:if>
+                <pe:if condition='<%=not ShowMagicStarEquipBtn() %>'>
+                    <input type="button" value="▶ 不携带魔法星" zorder="11" onclick="unequipMagicStar()" style="margin-top:-5px;width:110px;height:24px;color:#022a57;font-size:12;background:;" 
+                    Normal_BG = ""
+                    MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />
+                </pe:if>
+            </div>
+         </div>
+
+        <input style="margin-left:30px;margin-top:168px;width:108px;height:30px;color:#330000;background:url(Texture/Aries/Common/btn_bg.png#0 0 108 30);" type="button" name="buy" onclick="GetEnergyStone()" value="获得能量石"/>
+        <input style="margin-left:5px;margin-top:168px;width:108px;height:30px;color:#330000;background:url(Texture/Aries/Common/btn_bg.png#0 0 108 30);" type="button" name="send" onclick="GetEMoney()" value='<%=format("%s帐户充值", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>'/>    
+
+        <div style="position:relative;color:#022a57;margin-left:38px;margin-top:5px;width:240px;height:120px;">
+            <div style="position:relative;color:#022a57;margin-left:0px;margin-top:10px;width:220px;height:120px;font-size:12;">
+                魔法星需要用能量石来补充能量，才能激活所有神奇的魔力并且越来越强大哦！</div>  
+
+ <!--       <div style="float:left;margin-left:-5px;margin-top:50px;color:#11436E;font-size:12px">
+            <div style="margin-left:10px;">
+                <div style="float:left;margin-left:-5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png);"></div>
+                能量石优惠促销大礼包<pe:item gsid=17182 showdefaulttooltip="true" style="margin-top:-6px;margin-right:3px;width:32px;height:32px;" />(点击购买)
+            </div>
+            <div style="margin-top:5px;margin-left:10px;">
+                <div style="float:left;margin-left:-5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png);"></div>
+                能量石包年大礼包<pe:item gsid=17212 showdefaulttooltip="true" style="margin-top:-6px;margin-right:3px;width:32px;height:32px;" />(点击购买)
+            </div>        
+        </div>-->
+                             
+            <div style="position:relative;color:#022a57;margin-left:0px;margin-top:70px;width:220px;height:120px;font-size:12;">
+                快给你的魔法星补充能量，让它伴随你一起战斗和成长吧！</div>
+            <div style="position:relative;width:130px;height:3px;margin-left:120px;margin-top:105px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#003399;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"></div>                
+            <input type="button" value="▶ 查看魔法星背包 >>>" zorder="11" onclick="ShowMagicStarInfo()" style="margin-left:108px;margin-top:85px;width:150px;height:24px;color:#022a57;font-size:12;background:;" 
+                        Normal_BG = ""
+                        MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />    
+        </div>
+    </div>    
+
+    <div style="margin-left:350px;top:20px;width:380;height:370px;">
+     <pe:tabs name="PageFrames" ItemStyle="" DefaultIconSize="26" ItemSpacing="0" SelectedMenuItemBG="Texture/Aries/Common/ico0_on.png" UnSelectedMenuItemBG="Texture/Aries/Common/ico0_off.png" TextColor="#022a57" TextFont="System;12;norm"> 
+        <pe:tab-item name="propadd" onclick="" style="padding-top:0px;" selected="true" text="属性增强">
+            <iframe name="porpaddFrame" src="MagicStarHelp_1.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="combathelper" onclick="" style="padding-top:0px;" text="战斗帮手">
+            <iframe name="combathelperFrame" src="MagicStarHelp_2.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="freetake" onclick="" style="padding-top:0px;" text="免费领取">
+            <iframe name="freetakeFrame" src="MagicStarHelp_3.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="others" onclick="" style="padding-top:0px;" text="其他功能">
+            <iframe name="othersFrame" src="MagicStarHelp_4.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="howtogrow" onclick="" style="padding-top:0px;" text="成长秘籍">
+            <iframe name="howtogrowFrame" src="MagicStarHelp_5.html"></iframe>
+        </pe:tab-item>
+    </pe:tabs>
+    </div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+
+

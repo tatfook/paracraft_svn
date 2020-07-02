@@ -1,0 +1,223 @@
+﻿<!-- "script/apps/Aries/VIP/PurChaseMagicBean.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local bean = MyCompany.Aries.Pet.GetBean();
+
+NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+PurchaseMagicBean.OnInit();
+
+gsid=984;
+name="魔豆";
+PurchaseMagicBean.tab_type = PurchaseMagicBean.tab_type or "guide";
+
+local ItemManager = System.Item.ItemManager;
+
+function GetBuyDesc()
+    local count = 300;
+    count = pageCtrl:GetValue("count", count);
+    local s = string.format("%d个魔豆需要%d%s，你确认要购买吗？",count,count*0.1,MyCompany.Aries.ExternalUserModule:GetConfig().currency_name);
+    return s;
+end
+--defaultDesc = GetBuyDesc();
+
+function OnOK()
+    PurchaseMagicBean.BuyMagicBean();
+end
+
+function ClosePage()
+  PurchaseMagicBean.StopTimer();
+  pageCtrl:CloseWindow();
+end
+
+function GotoWebPage(url0, default_url)
+    if(false) then
+        paraworld.auth.AuthUser({
+		    username = System.User.username,
+		    password = System.User.Password,
+		    }, "login", function (msg)
+		    if(msg.issuccess) then	
+			    -- successfully recovered from connection. 
+			    LOG.std("", "system","Login", "Successfully authenticated for pay");
+			    local payurl = string.format("%s&userid=%d&session=%s&gid=4",url0,msg.nid,msg.sessionid);
+			    ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+                _guihelper.MessageBox(format("将自动为你打开充值页面:<br/>%s<br/>如果浏览器没有弹出,请手工打开上面的网址", default_url or "http://pay.61.com"));
+                PurchaseMagicBean.RefreshBag0()
+		    end
+	    end, nil, 20000, function(msg)	end);	
+    else
+        LOG.std("", "system","Login", "Successfully authenticated for pay");
+	    local payurl = string.format("%s&userid=%d&gid=4",url0,System.User.nid);
+	    ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+        _guihelper.MessageBox(format("将自动为你打开充值页面:<br/>%s<br/>如果浏览器没有弹出,请手工打开上面的网址", default_url or "http://pay.61.com"));
+        PurchaseMagicBean.RefreshBag0()
+    end
+end
+
+function GetEMoneyByCard()
+    GotoWebPage("http://pay.61.com/GameCoin/?", "http://pay.61.com/GameCoin/?gid=4");
+end
+
+function GetEMoneyByMiBi()
+    GotoWebPage("http://pay.61.com/GameCoin/?", "http://pay.61.com/GameCoin/?gid=4");
+end
+
+function GetEMoneyByAlipay()
+    GotoWebPage("http://pay.61.com/GameCoin/?", "http://pay.61.com/GameCoin/?gid=4");
+end
+
+function GetEMoneyByBank()
+	GotoWebPage("http://pay.61.com/GameCoin/?", "http://pay.61.com/GameCoin/?gid=4")
+end
+
+function GetEMoneyByPhone()
+    GotoWebPage("http://pay.61.com/GameCoin/?")
+end
+
+function GetEMoneyByBank_old()
+    GotoWebPage("http://pay.61.com/GameCoin/?")
+end
+
+function GetEMoneyByMobile()
+    GotoWebPage("http://pay.61.com/GameCoin/?")
+end
+function GetEMoneyByKeepWork()
+    PurchaseMagicBean.PayKeepWork();
+end
+function OpenActivitiesForStoneShop()    
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    MyCompany.Aries.NPCShopPage.ShowPage(30431,"menu1",nil,13);
+end
+
+function ActivitiesForStone_tips()
+    local s="<b>哈奇岛:特殊物品管理员</b><br/>(点击传送)<br/>“活动兑换石”可兑换的物品：<br/><li>成为VIP必备的“能量石”，</li><li>红蘑菇天梯赛必备的“大客户仙豆保险单”，</li><li>超炫拉风的坐骑，</li><li>快速升级神器“面包棒”</li>";
+    return string.format("page://script/apps/Aries/Service/CommonTooltip.html?s=%s",s);	
+end
+
+function OnClickTeleportSpecialItemNPC()
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(30431);
+end
+
+--pageCtrl:SetValue("PayTabs", PurchaseMagicBean.tab_type);
+-- PurchaseMagicBean.StartTimer(pageCtrl.name, gsid);
+
+]]></script>
+  <div class="window" style="width:473px;height:320px;" >  	
+
+  <div style="width:464px;height:312px;margin-top:5px;margin-left:5px;" class="textfieldbutton">
+    <input type="button" onclick="ClosePage()" zorder="2" class="closewindow" style="position:relative;align:right;margin-right:2px;"/>
+
+    <pe:tabs class="tabs" name="PayTabs" onclick="ShowItemView()" ItemSpacing="5" style="margin-left:3px;margin-top:16px;width:465px;height:312px;">
+        <pe:tab-item name="guide" text="充值指引" selected="true">
+            <!--<div style="width:450px;height:38px;margin-left:6px" class="block_blue">
+                <div style="font-size:14px;margin-left:10px;margin-top:8px;">
+	                <div style="float:left;min-width:110px">我已经有米币:</div>
+                    <input type="button" class="button" value="兑换魔豆" style="width:70px;height:26px;margin-top:-3px;margin-left:0px;font-size:12px;" zorder="3" onclick="GetEMoneyByMiBi" /> 
+                </div>
+            </div>     		
+            <div style="width:450px;height:38px;margin-left:6px" class="block_blue">
+                <div style="font-size:14px;margin-left:10px;margin-top:8px;color:#a0f100;font-weight:bold">
+	                <div style="float:left;min-width:110px">我还没有米币:</div>
+                    <input type="button" class="button_highlight" style="float:left;margin-top:-3px;margin-left:0px;width:80px;height:26px;font-size:12px;" value="米米卡充值" zorder="3"  onclick="GetEMoneyByCard"/> 
+                    <input type="button" class="button_highlight" value="银行卡充值" style="float:left;width:80px;height:26px;margin-top:-3px;margin-left:2px;font-size:12px;" zorder="3"  onclick="GetEMoneyByBank" />
+                    <input type="button" class="button_highlight" value="支付宝..." style="float:left;width:80px;height:26px;margin-top:-3px;margin-left:2px;font-size:12px;" zorder="3"  onclick="GetEMoneyByAlipay" />
+                    <input type="button" class="button_highlight" value="KeepWork" tooltip="通过KeepWork充值" style="float:left;font-weight:bold;width:80px;height:26px;margin-top:-3px;margin-left:2px;font-size:12px;" zorder="3"  onclick="GetEMoneyByKeepWork" />
+                </div>	
+            </div>-->     		
+
+            <div style="width:450px;height:160px;margin-top:10px;margin-left:15px;" >
+                <div style="margin-left:10px;margin-top:20px;">
+                    你的数字账号是: <input type="text" name="account" value='<%=tostring(System.User.nid)%>' style="height:24px;width:150px"/>
+                </div>
+                <div style="margin-left:10px;margin-top:30px;">
+                    <input type="button" class="button_highlight" value="淘米充值" style="float:left;font-weight:bold;width:150px;height:60px;font-size:12px;" zorder="3"  onclick="GetEMoneyByCard" />
+                    <input type="button" class="button_highlight" value="KeepWork充值" style="float:left;margin-left:10px;font-weight:bold;width:150px;height:60px;font-size:12px;" zorder="3"  onclick="GetEMoneyByKeepWork" />
+                </div>
+                <!--<input type="button" class="button" value="固定电话" style="float:left;margin-top:3px;margin-left:18px;width:80px;height:26px;font-size:12px;" zorder="3"  onclick="GetEMoneyByPhone"/> 
+                <input type="button" class="button" value="手机充值" style="float:left;width:80px;height:26px;margin-top:36px;margin-left:-80px;font-size:12px;" zorder="3"  onclick="GetEMoneyByMobile" />
+                <input type="button" class="button" value="其它..." style="float:left;width:80px;height:26px;margin-top:72px;margin-left:-80px;font-size:12px;" zorder="3"  onclick="GetEMoneyByBank_old" />
+                <div style="float:left;margin-top:15px;margin-left:10px;width:21px;height:73px;background:url(Texture/Aries/Common/branch_32bits.png#0 0 21 73)"></div>
+                <div style="float:left;margin-top:35px;margin-left:10px;width:30px;height:32px;background:url(Texture/Aries/Common/yellowarrow_32bits.png#0 0 30 32)"></div>
+                <div style="float:left;width:70px;height:26px;margin-top:38px;margin-left:20px;font-size:14px;color:#a0f100;font-weight:bold;">获得米币</div>
+                <div style="float:left;margin-top:35px;margin-left:5px;width:30px;height:32px;background:url(Texture/Aries/Common/yellowarrow_32bits.png#0 0 30 32)"></div>
+                <input type="button" class="button" value="兑换魔豆" style="width:80px;height:26px;margin-top:36px;margin-left:15px;font-size:12px;" zorder="3" onclick="GetEMoneyByMiBi" />-->
+            <!--
+                <div style="width:403px;height:84px;margin-left:30px;background:url(Texture/Aries/Common/ThemeTeen/pay/recharge_guide_32bits.png# 0 0 403 84)"></div>
+                -->
+            </div> 
+            		
+            <div style="width:450px;height:25px;margin-left:2px;margin-top:20px;">
+                <div style="font-size:12px;margin-left:20px;margin-top:0px;">
+	               注：1人民币=10魔豆
+                </div>
+            </div> 
+            
+            <div style="width:450px;height:38px;margin-top:3px;margin-left:6px" class="block_blue">            
+            <div style="float:left;width:30px;height:30px;margin-top:3px;margin-left:6px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar2_32bits.png# 0 0 82 84);"></div>
+                <div style="font-size:14px;margin-left:40px;margin-top:-25px;">
+	  	                单笔每兑换<span style="color:#a01027;font-weight:bold;">100</span>魔豆即送<span style="color:#a01027;font-weight:bold;">活动兑换石</span>一颗。
+                        <div onclick="OnClickTeleportSpecialItemNPC" style="color:#ffffff;font-size:10px;margin-left:300px;margin-top:-30px;width:100px;height:30px;" tooltip="<%=ActivitiesForStone_tips() %>">活动兑换石可以买什么？</div>
+                </div>
+            </div>     		
+
+
+        </pe:tab-item>
+
+        <!--<pe:tab-item name="pay" text="米币直接支付" >
+            <div style="width:411px;height:120px;">
+                <div class="equip_bg" style="margin-left:20px;margin-top:20px;float:right;padding-left:10px;padding-top:10px;width:100px;height:100px;margin:21px;">
+                    <pe:item gsid='<%=Eval("gsid") %>' style="margin-left:10px;margin-top:15px;width:64px;height:64px" isclickable="false"/>
+                </div>
+
+                <div style="margin-left:65px;float:right;margin-top:20px;padding-left:-124px;">
+                    <div style="margin-left:48px;color:#243b5d">请选择购买魔豆的数量</div>
+                    
+                    <div style="float:right;padding-left:50px;padding-top:8px;width:500px;height:40px;color:#243b5d;font-size:12;background:">
+                            <input type="radio" name="count" value="10" /> 10 魔豆
+                            <input type="radio" name="count" value="100" /> 100 魔豆
+                            <input type="radio" name="count" value="300" checked="true" /> 300 魔豆
+                            <input type="radio" name="count" value="1000" /> 1000 魔豆                        
+                    </div>
+                    
+                    <br/>
+                    <div style="margin-left:60px;margin-top:5px;color:#243b5d">    <%=format("请输入%s帐户支付密码", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+                    <a style="font-size:12px" onclick="MyCompany.Aries.Inventory.PurchaseMagicBean.SetPayPasswd">设置支付密码</a></div>
+                    <div style="margin-left:68px;float:right;padding-left:10px;padding-top:8px;width:280px;height:36px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40:12 12 12 12)">
+                        <input type="text" name="passwd" PasswordChar="*" value="" style="width:280px;height:26px;background:;"/>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div style="margin-left:100px;margin-top:42px;color:#011132">
+                <label name="buydesc" value='你确认要购买吗？'/>
+            </div>
+            
+            <div style="width:560px;height:48px;margin-top:10px;">
+                <input type="button" class="button" value="马上购买" style="margin-left:100px;width:85px;height:28px;" onclick="OnOK()"/>
+                <input type="button" class="button" value="官网充值" style="margin-left:60px;width:85px;height:28px;" onclick="MyCompany.Aries.Inventory.PurchaseMagicBean.WebPay"/>
+            </div>
+        </pe:tab-item>-->
+    </pe:tabs>
+
+	     			  
+  </div>   
+  
+  </div>   
+</pe:mcml>
+</body>
+</html>
+ 

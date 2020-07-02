@@ -1,0 +1,48 @@
+<!-- "script/apps/Aries/Login/NewAvatarFinishPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Server Select Page. 2011.8.10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="NewAvatarFinishPage.lua"><![CDATA[
+local NewAvatarFinishPage = commonlib.gettable("MyCompany.Aries.NewAvatarFinishPage")
+NewAvatarFinishPage.OnInitTeen();
+
+-- TODO: shall we select pet color?
+local color = "purple";
+if(color == "purple") then
+	gsid = 11009;
+	gsid_key = "11009_DragonBaseColor_Purple";
+elseif(color == "orange") then
+	gsid = 11010;
+	gsid_key = "11010_DragonBaseColor_Orange";
+elseif(color == "green") then
+	gsid = 11011;
+	gsid_key = "11011_DragonBaseColor_Green";
+end
+local ItemManager = System.Item.ItemManager;
+ItemManager.PurchaseItem(gsid, 1, function(msg)
+	if(msg) then
+		log("+++++++Purchase "..gsid_key.." return: +++++++\n")
+		commonlib.echo(msg);
+		-- 424: 购买数量超过限制 
+		if(msg.issuccess == true or msg.errorcode == 424) then
+			-- send log information
+			-- NOTE: remember to post the log for other two colors of dragon
+			paraworld.PostLog({action = "get_dragon_success"}, "get_dragon_success_log", function(msg)
+			end);
+			NewAvatarFinishPage.bConfirmed = true;
+			NewAvatarFinishPage.OnNext();
+		end
+	end
+end, function(msg) end, nil, "none", false);
+
+]]></script>
+</pe:mcml>
+<div style="width:200px;height:48px;padding:10px;" class="pane" valign="center" align="center">
+    正在进入游戏请稍候...
+</div>
+</body>
+</html>

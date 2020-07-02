@@ -1,0 +1,96 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/GameObject.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Common Game Object Selection Response, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GameObject.lua"><![CDATA[
+local page = document:GetPageCtrl();
+gameobj_id = page:GetRequestParam("gameobj_id") or 0;
+gameobj_id = tonumber(gameobj_id);
+gameobj_type = page:GetRequestParam("gameobj_type") or "";
+gsid = page:GetRequestParam("gsid") or 0;
+gsid = tonumber(gsid);
+page_url = page:GetRequestParam("page_url") or "";
+
+name = "GameObjSelection"..gameobj_id;
+
+tooltip = "";
+icon = "texture/alphadot.png";
+if(gameobj_type == "GSItem") then
+    tooltip = "购买";
+    icon = "Texture/Aries/Temp/Quest5.png";
+    --gsid
+elseif(gameobj_type == "FreeItem") then
+    tooltip = "拾取";
+    icon = "Texture/Aries/Temp/MontlyPaid.png";
+    --gsid
+elseif(gameobj_type == "MCMLPage") then
+    tooltip = "阅读";
+    icon = "Texture/Aries/Temp/Diary.png";
+    --page_url
+end
+
+local action1 = page:GetNode("action1");
+if(action1) then
+    action1:SetAttribute("style", "margin:0px;width:64px;height:64px;background:"..icon..";")
+    action1:SetAttribute("tooltip", tooltip);
+end
+
+function Action1()
+    if(gameobj_type == "GSItem") then
+        MyCompany.Aries.Desktop.TargetArea.PurchaseGameObject(gameobj_id, gsid)
+    elseif(gameobj_type == "FreeItem") then
+        MyCompany.Aries.Desktop.TargetArea.PickGameObject(gameobj_id, gsid)
+    elseif(gameobj_type == "MCMLPage") then
+        MyCompany.Aries.Desktop.TargetArea.ReadGameObject(gameobj_id, page_url)
+    end
+end
+
+]]>
+</script>
+
+<!--is loggedin user, show the avatar selected page-->
+<pe:if condition="false">
+    <pe:if-is-user nid="loggedinuser">
+        <!--<div style="width:128px;height:512px;margin:0px;padding:0px;background:Texture/Aries/Dock/TargetArea2.png;">-->
+        <div style="width:128px;height:512px;margin:0px;padding:0px;">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+                <div style="width:128px;height:128px;margin:0px;padding:0px;">
+                    <!--<pe:canvas3d name="NPCSelection" objectbinding="selection" MaskTexture="Texture/Aries/Dock/SunFlower_Mask.png" style="width:128px;height:128px" IsPortrait=true IsInteractive=false/>-->
+                    <pe:player nid='<%=Eval("gameobj_id")%>' object="gameobject" name='<%=Eval("name")%>' miniscenegraphname="Aries_SelectedArea_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+                    <!--IsInteractive-->
+                    <div style="margin-left:32px;margin-top:-12px;width:64px;">
+                        <!--<div style="margin-bottom:-10px;padding:0px;">
+                            <input type="button" name="action1" animstyle="22" 
+                                style="margin:0px;width:64px;height:64px;background:;" 
+                                onclick="Action1"/>
+                        </div>
+                        <div style="margin-bottom:-10px;padding:0px;">
+                            <input type="button" name="2" animstyle="22" 
+                                style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyMount_32bits.png);" 
+                                onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"
+                                tooltip="按钮2"/>
+                        </div>
+                        <div style="margin-bottom:-10px;padding:0px;">
+                            <input type="button" name="3" animstyle="22" 
+                                style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Dock/MyFollow_32bits.png);" 
+                                onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"
+                                tooltip="按钮3"/>
+                        </div>-->
+                        <!--<div style="margin:-2px;padding:0px;">
+                            <input type="button" name="4" animstyle="22" style="margin:0px;width:64px;height:40px;background:url(Texture/Aries/Dock/TargetAreaMyselfText.png#0 120 64 40);" onclick="MyCompany.Aries.Desktop.TargetArea.ShowMyselfProfile"/>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </pe:if-is-user> 
+</pe:if>
+
+</pe:mcml> 
+</body>
+</html>

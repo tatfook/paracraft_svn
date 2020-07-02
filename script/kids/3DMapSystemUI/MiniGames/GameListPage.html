@@ -1,0 +1,45 @@
+<!-- "script/kids/3DMapSystemUI/MiniGames/GameListPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/MiniGames/MiniGameCommon.lua");
+local MiniGameCommon = commonlib.gettable("Map3DSystem.App.MiniGames.MiniGameCommon")
+local games = MiniGameCommon.games;
+local game_list = {};
+local k,v;
+for k,v in pairs(games) do
+    table.insert(game_list,v);
+end
+function DS_Func_GameList(index)
+    if(not game_list)then return 0 end
+	if(index == nil) then
+		return #(game_list);
+	else
+		return game_list[index];
+	end
+end
+]]></script>
+<pe:gridview style="margin-left:10px;margin-top:10px;width:600;height:400px" DataSource="<%=DS_Func_GameList%>"  ItemsPerLine="2" AllowPaging="true" pagesize="20">
+                <Columns>
+                    <a onclick="Map3DSystem.App.MiniGames.MiniGameCommon.DoClick" param1='<%=Eval("gamename")%>' 
+                        style="width:160px;height:28px;">
+                            <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px" ><%=Eval("gametitle")%></div>
+                        </div>
+                    </a>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>请稍等 ... </b>
+                </FetchingDataTemplate>
+</pe:gridview>
+</pe:mcml> 
+</body>
+</html>

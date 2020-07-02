@@ -1,0 +1,91 @@
+﻿<!-- "script/apps/Aries/Desktop/AriesMinRequirementPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>min requirement page, by LiXizhi, 2010/7/3</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="AriesSettingsPage.lua"><![CDATA[
+minRequirement = MyCompany.Aries.Desktop.AriesSettingsPage.GetMinRequirementData();
+sMsg = minRequirement.sMsg;
+result = minRequirement.result or 1;
+local settings = {
+    {title="操作系统", base="Window XP/Vista/7", good="Window XP/Vista/7"},
+    {title="CPU", base="Pentium4 1.8 GHz 以上", good="Pentium4 2.0 GHz 以上"},
+    {title="内存", base="512MB", good="1024MB"},
+    {title="显卡", base="NVidia 系列 - Geforce FX5200以上", good="NVidia 系列 - Geforce FX6200以上"},
+    {title="",  base="ATI 系列 - Radeon 9000以上", good="ATI 系列 - Radeon 9000以上"},
+    {title="硬盘", base="1GB", good="2GB"},
+    {title="DirectX", base="DirectX 9.0c 以上", good="DirectX 9.0c 以上"},
+}
+function DS_Func_MinSettings(index)
+	if(index == nil) then
+		return #(settings);
+	else
+		return settings[index];
+	end
+end
+
+function OnClickExit()
+    ParaEngine.GetAttributeObject():SetField("IsWindowClosingAllowed", true);
+    ParaGlobal.ExitApp();
+end
+
+function OnClickContinueAnyway()
+    Page:CloseWindow();
+end
+]]></script>
+<div style="width:550px;height:380px;background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 465 196:50 50 50 100)">
+    <div style="padding-top:36px;padding-bottom:8px;padding-left:29px;padding-right:37px;height:315px">
+    <pe:tabs TextFont="System;12;norm" name="AriesMinRequiement">
+        <pe:tab-item name="Common" text="您的电脑需要升级" selected="true" style="padding-left:5px">
+            <div style="margin-top:5px; height:200px;">
+                <div>
+                    <div style="float:left;margin-left:15px;width:48px;height:48px;background:url(Texture/Aries/Login/ServerSelect/full_32bits.png#0 0 48 48)" />
+                    <div style="float:left;margin-top:0px;font-size:14px;color:#CC0000">
+                        <!--很抱歉, 您的电脑需要升级才能正常运行哈奇小镇!-->
+                        为保证游戏流畅，请关闭其它程序或网页。<br />
+                        您的电脑配置过低，请换台电脑试试吧！
+                    </div>
+                    <hr />
+                </div>
+                <div style="margin-left:10px;margin-top:5px;">原因是：<br />
+                    <div style="margin-left:48px;"><%=Eval("sMsg") or "您的显卡需要升级"%></div>
+                </div>
+            </div>
+        </pe:tab-item>
+        <pe:tab-item name="Recommended" text="推荐电脑配置" style="padding-left:5px">
+            <div style="margin-top:5px;">
+                <div style="font-weight:bold">
+                    <div style="float:left;text-align:right;width:70px;">项目</div>
+                    <div style="float:left;text-align:center;width:190px">基本配置</div>
+                    <div style="float:left;text-align:center;width:190px">推荐配置</div>
+                </div>
+                <pe:gridview name="min_settings" DataSource="<%=DS_Func_MinSettings%>" CellPadding="0" ItemsPerLine="1" AllowPaging="false">
+                    <Columns>
+                        <div style="font-size:12px;">
+                            <div style="float:left;text-align:right;width:70px;"><%=Eval("title")%></div>
+                            <div style="float:left;text-align:center;width:190px"><%=Eval("base")%></div>
+                            <div style="float:left;text-align:center;width:190px" ><%=Eval("good")%></div>
+                        </div>
+                    </Columns>
+                </pe:gridview>
+            </div>
+        </pe:tab-item>
+    </pe:tabs>
+    </div>
+    <div style="margin-top:0px;">
+      <input type="button" name="OK" style="margin-left:40px;margin-top:8px;width:128px;height:32px;background:url(Texture/Aries/Login/Exit_32bits.png)" onclick="OnClickExit"/>
+      <!--<input type="button" name="Cancel" style="margin-left:100px;width:153px;height:49px;background:url(Texture/Aries/Common/Cancel_32bits.png# 0 0 153 49)" onclick=""/>-->
+      <pe:if condition='<%=Eval("result")>=0%>' >
+         <div style="margin-top:13px; margin-left:20px;float:left">
+            <input type="button" onclick="OnClickContinueAnyway" style="background:url();color:#0000CC" tooltip="强制运行, 游戏画面和流畅度可能都不理想" value="我知道了，但是我还是想用目前的电脑试试看"/>
+         </div>
+      </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

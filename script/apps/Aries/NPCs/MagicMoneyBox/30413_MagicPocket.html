@@ -1,0 +1,220 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicMoneyBox/30413_MagicPocket.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MagicPocket, by Spring, 2010/12/3</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30413_MagicPocket.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+
+local gift_take, gift_num;
+local mlel=0;
+local system_magicbaginfo = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_magicbaginfo");
+
+function getgiftNum()
+    local bean = MyCompany.Aries.Pet.GetBean();
+    if(bean) then
+        if (bean.mlel) then
+            mlel=bean.mlel;
+        end
+    end    
+    
+    local bVIP=VIP.IsVIP();
+    
+    if (bVIP) then
+        gift_take=ItemManager.GlobalStoreObtainCounts[50317];
+        gift_num = mlel+1-gift_take.inweek;
+    else
+        gift_num = 0;
+    end;
+
+    if (gift_num<0) then
+        gift_num=0;
+    end;
+    gift_num=tostring(gift_num);
+    return gift_num;
+end
+
+
+function GetGiftName(gift_gsid)
+    local gsid = tonumber(gift_gsid);
+    if(not gsid)then return end
+	local str = string.format("page://script/apps/Aries/NPCs/MagicMoneyBox/GiftTooltips.html?gsid=%d",gsid);
+    return str;
+end
+
+function Gifts_DS_Func(index) 
+    return MyCompany.Aries.Quest.NPCs.MagicPocket.DS_Func(index);
+end
+
+function TakeGift()
+    local bean = MyCompany.Aries.Pet.GetBean();
+    if(bean) then
+        if (bean.mlel) then
+            mlel=bean.mlel;
+        end
+    end    
+    local bVIP=VIP.IsVIP();
+    local s="";
+    local gift_gsid,gift_name,gift_exid;
+
+    if (bVIP) then
+        gift_take=ItemManager.GlobalStoreObtainCounts[50317];
+        gift_num = mlel+1-gift_take.inweek;
+
+        if (gift_num>0) then           
+        --  判断公共变量 magicbag_gift_cantake, 排除玩家不等网络返回抽取礼物的可能性
+            if (system_magicbaginfo.cantake) then
+                system_magicbaginfo.cantake = false;                
+                local gift=MyCompany.Aries.Quest.NPCs.MagicPocket.GetGift();
+                gift_gsid=tonumber(gift.gsid);
+                gift_exid=tonumber(gift.exid);
+                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gift_gsid);
+                if(gsItem) then
+				    gift_name = gsItem.template.name;	
+                    ItemManager.ExtendedCost(gift_exid, nil, nil, function(msg) end, function(msg)
+		                if(msg) then
+			                if(msg.issuccess == true) then
+                                    
+                                local obtain_gift_name = "";
+                                if(msg.obtains) then
+                                    local obtain_gsid, _;
+                                    for obtain_gsid, _ in pairs(msg.obtains) do
+                                        if(obtain_gsid < 39999) then
+                                            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(obtain_gsid);
+                                            if(gsItem) then
+				                                obtain_gift_name = gsItem.template.name;
+                                            end
+                                        end
+                                    end
+                                end
+                                    
+                                system_magicbaginfo.cantake = true; 
+                                s="哇～你从魔法口袋拿出了"..obtain_gift_name.."！";
+    		                    _guihelper.Custom_MessageBox(s,function(result)			
+				                    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);     
+                                page:Refresh(0.1);         
+                            end
+                        end
+	                end,"none",true,nil,3000, function () 
+                        -- 如果超时，3s 超时
+                        s="魔法口袋现在比较忙，等会儿再来吧！";
+                        _guihelper.Custom_MessageBox(s,function(result)			
+	                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);   
+                        system_magicbaginfo.cantake = true;
+                        page:CloseWindow();                     
+                    end ); 
+                else -- 如果gsItem 为空，退出再取，不扣减礼物次数
+                    s="魔法口袋现在比较忙，等会儿再来吧！";
+                    _guihelper.Custom_MessageBox(s,function(result)			
+	                    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);   
+                    system_magicbaginfo.cantake = true;
+                    page:CloseWindow();                     
+                end
+            else
+                s="魔法口袋正在给你准备礼物，等你拿到这个礼物后再拿下一个！"
+    		    _guihelper.Custom_MessageBox(s,function(result)			
+				    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);                     
+                system_magicbaginfo.cantake = true;
+                page:CloseWindow();
+            end
+        else
+            gift_take=ItemManager.GlobalStoreObtainCounts[50317];
+            gift_num = mlel+1-gift_take.inweek;
+            local gift_takes=gift_take.inweek;
+            if (gift_num<0) then
+                gift_takes=mlel+1;
+            end;
+			s="你本周已经从魔法口袋中拿出 "..gift_takes.." 份礼物了，<br/> 不要太贪心哦!";
+    		_guihelper.Custom_MessageBox(s,function(result)			
+				end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);            
+        end
+    else
+        ItemManager.UseOrBuy_EnergyStone(nil,function(msg) return "非魔法星用户不能领取礼物。<br/>" end);
+        -- s="你的魔法星能量值为0，失去魔法了，不能从魔法口袋中取出礼物了。小哈奇用能量石赶快给魔法星补充能量吧！"
+		-- _guihelper.Custom_MessageBox(s,function(result)
+		--		if(result == _guihelper.DialogResult.No)then		
+		--			-- NPL.load("(gl)script/apps/Aries/VIP/PurChaseEnergyStone.lua");
+		--			-- local PurchaseEnergyStone = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseEnergyStone");
+		--			-- PurchaseEnergyStone.Show();
+        --           local gsid=998;
+        --            Map3DSystem.mcml_controls.pe_item.OnClickGSItem(gsid,true);
+		--		end
+		-- end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49", no = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/getstone_btn_32bits.png; 0 0 153 49"},12);
+        
+    end 
+    
+end
+
+function OnClose()
+    system_magicbaginfo.cantake = true;
+    page:CloseWindow();
+end
+
+MyCompany.Aries.Quest.NPCs.MagicPocket.Init();
+
+
+]]></script>
+<div style="width:800px;height:500px;">
+    <div style="position:relative;margin-left:30px;margin-top:30px;width:710px;height:457px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/pocket_bg.png# 0 0 128 449:24 24 32 32);">
+        <div style="margin-left:0px;font-size:14;font-weight:bold;color:#FFFFFF">
+            <input style="margin-left:670px;margin-top:-5px;width:49px;height:59px;background:url(Texture/Aries/Common/Close_48_32bits.png#0 0 49 59);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+        <div style="margin-left:260px;margin-top:-45px;width:28px;height:32px;background:url(Texture/Aries/MapHelp/MagicStarHelp/title.png# 0 0 28 32)" ></div>
+        <div style="margin-left:300px;margin-top:-45px;width:106px;height:27px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/title_pocket.png#0 0 106 27)" ></div>
+        <div style="margin-left:420px;margin-top:-45px;width:28px;height:32px;background:url(Texture/Aries/MapHelp/MagicStarHelp/title.png# 0 0 28 32)" ></div>
+        <div style="position:relative;margin-left:50px;margin-top:5px;width:600px;color:#022a57;font-size:14;">
+            神奇的魔法口袋里有好多宝贝，魔法星存在能量时，每周可以拿出比自己魔法星等级多1的礼物。</div>
+        <div style="position:relative;margin-left:130px;margin-top:30px;width:600px;color:#022a57;font-size:14;">
+            具体能拿到什么要看你自己的手气哦！你本周还可以拿出<font color='#ff0000'><%=getgiftNum()%></font>份礼物！</div>        
+      
+        <div style="position:relative;margin-left:80px;margin-top:70px;width:550px;height:280px;background:url(Texture/Aries/Common/right_bg.png#0 0 64 64: 16 16 16 16);">
+            <div style="margin-left:30px;margin-top:10px;color:#022a57;font-size:14;">
+            魔法口袋中的礼物有：
+                <pe:gridview DataSource="<%=Gifts_DS_Func%>" 
+                    name="MagicPocket" style="margin-left:2px;margin-top:5px;" CellPadding="4"  
+                    DefaultNodeHeight = "80" ItemsPerLine="5" AllowPaging="True" pagesize="10">
+                    <Columns>
+                        <div style="padding-top:15px;padding-left:15px;width:92px;height:93px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 92 93);">
+                            <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" tooltip='<%=GetGiftName(Eval("gsid"))%>'  tooltip_offset_x="-10" tooltip_offset_y="60" style="width:64px;height:64px;"/>                  
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>
+	                <PagerSettings Position="Bottom" height="36" style="margin-left:120px;margin-top:-5px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+	                        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                        <div style="float:right;margin-left:68px;margin-top:-2px;width:64px;">
+	                            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                        </div>
+	                        <input type="button" name="next" zorder="2" style="margin-left:210px;margin-top:-22px;width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-left:90px;margin-top:5px;width:412px;height:65px;">
+                <div style="margin-top:0px;width:152px;height:47px;">
+                    <input type="button" onclick="TakeGift" style="width:152px;height:47px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/TakeGift_32bits.png#0 0 152 47);" />
+                </div>
+    
+                <div style="margin-left:200px; margin-top:-47px;width:152px;height:47px;">
+                    <input type="button" onclick="OnClose();" style="width:152px;height:47px;background:url(Texture/Aries/Common/Later_32bits.png# 0 0 152 47);" />
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</pe:mcml> 
+</body>
+</html> 

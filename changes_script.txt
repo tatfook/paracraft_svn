@@ -1,0 +1,93 @@
+/** @page ParaScript_change	NPL script
+
+2012.1.30
+	-  TODO: purchase https://www.wosign.com/Products/WoSign_CodeSigning.htm  for ParaEngine and resign the haqi2 cab 
+
+TODO:
+   * TreeView remember scroll pos is not perfect because of the rendering algorithm. the logical bottom value may be calculated twice with different results. 
+
+Done: AutoUpdater should be updated to support multiple process download. 
+Haqi should support multiple user login perfectly
+On start up AutoUpdater should support verifying md5 of all files. 
+Firebreath should be updated to latest version and to svn as well.
+Haqi should support switching servers dynamically without causing any problems. There should a handy interface for switching servers(no need to switch users)
+haqi should support teleporting to a non-stranger(team member or friend) (the friend chat ui should replace go to homeland button with go to user button). 
+Taurus should support saving world without any problems.
+GM tools requirement.
+Game preload to avoid raw and script file synchrounous loading. 
+
+
+
+DBServer refactor avoid using multiple thread (a single one is enough), instead of query sql, query NPL directly,so that per user info is not needed. Only flush every 5 minutes. 
+Designing DB server and maintaining scripts so that server can run all day, every day. 
+
+Pondering game design: a robot contest, a movie contest, a world creation contest.  
+
+Sending invitation for a new programmer guy. 
+Prepare new seats for new members. 
+Prepare computer for clayman
+   The first task for clayman is to refactor the ocean rendering for low end computers with C++. Using only shader 1.0. 
+   The second task for clayman is to extract all wow models and animations from WOW in max format and compatible to ParaX format. 
+   The third task for clayman is to abstract the rendering api so that it can work.
+
+Create a tool so that designers can dynamically add new homeland creation items in shop and stores, and also in local dream world. 
+
+The login page can use full 3d display: use real 3d scene and scene picking as the background, so that it is resolution independent. 
+DEADLINE 2.24: The login interface should support verification image
+DEADLINE 2.24: Support account registration interface within the game.  Try to bridge with Kuaiwan. 
+IExplorer should be opened from the game engine on any machine. 
+
+If a mob will drop a given item with a fixed probability, then we will inform the user that he or she does not get the item by chance. w101 does a better job on this. 
+A simple script that ping the DBServer and verify that all servers are working as expected. We may need to prepare many nid for this. 
+
+ParaX Exporter should not merge vertex if there normals differs a lot. 
+
+2010.2.9
+	- Created a anim exporter tool for leyee.com
+
+2010.12.3
+	- EnvironmentPresets added to PETOOLS 
+
+2010.9.16
+	- pe_stackview implemented. see pe_stackview and test_pe_stackview.html for examples
+
+2010.9.15
+	- Aries web redist now uses bat file instead of pure short cut with command line. this will prevent 360 from reporting potential virus
+
+2010.9.13
+	- hierachical databinding for pe:treeview implemented
+	
+2010.9.12
+	- WorldManager is added to implement multiple game world and settings . See script/apps/Aries/Scene/WorldManager.lua
+	  A lot of related files like HomeLandGateway, LocalMap, Scene/main, etc are modified (or cleaned up). It is not totally clean yet. 
+	  The new config file is here. "config/Aries/Scene/AriesGameWorlds.config.xml"
+	  TODO: There is still some special case in LocalMap and some old wish quests that teleporting may not work. 
+
+2010.9.10
+	- web redist support plugin install while plugin is being used. the new plugin will take effect when IE restart
+
+2010.7.21
+	we need to arrange some time to optimize the combat system. 
+	The arena timer function is already optimized. 
+	now there are several other places in OnArenaNormalUpdate_by_key_value. 
+	- For each arena of OnArenaNormalUpdate_by_key_value in all arenas
+	   - 1. CreateArenaObj: only create once and use visibility. make unused characters invisible to pass render in C++.
+	   - 2. For each mob only create once, and move hp, headon text, etc to OnFramemove of the mob. 
+			So we can REMOVE all mobs iteraction code, except the first time for creation. 
+	   - 3. For each player in arena, move all code to OPC frame move. and REMOVE all OPC iteration code. 
+			No need to (Un)MountPlayerOnSlot except for the self player, let the GSL to do the jobs for OPCs every 3 seconds. 
+	If we do above, there will be zero C++ API calls unless some mobs or OPC is in view range. 
+
+2010.7.13
+	- echo is commonlib.echo
+	- runtime errors within MCML page will show which file and line
+	- echo and applog now print on a single line and uses the more optimized C++ API for serialization
+
+2010.5.31
+	- [LiXizhi] every developer can co-edit this file. 
+	
+2010.5.30
+	- script vss solution is now moved to svn, using a mixture of lock and merge mode on its files. 
+	- script solution is upgraded from vs 2008 to vs 2010. 
+
+*/

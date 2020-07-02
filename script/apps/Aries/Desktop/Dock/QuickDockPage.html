@@ -1,0 +1,93 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/QuickDockPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/11/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuickDockPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/Dock/QuickDockPage.lua");
+local QuickDockPage = commonlib.gettable("MyCompany.Aries.Desktop.Dock.QuickDockPage");
+QuickDockPage.Init();
+local list = {
+	{ gsid =12017, exid=0,},{ gsid =12018, exid=0,},{ gsid =12014, exid=0,},{ gsid =12013, exid=0,},{ gsid =12012, exid=0,},
+	{ gsid =17159, exid=0,},{ gsid = 17277, exid=1483},{ gsid = 12036, exid=0,},{ gsid = 12059, exid=0,},{ gsid = 12060, exid=0,},{ gsid = 12061, exid=0,},{ gsid = 12062, exid=0,},{ gsid = 0, exid=0,},{ gsid =0, exid=0,},{ gsid =0, exid=0,},{ gsid =0, exid=0,},
+}
+function DS_Func_Items(index)
+    return QuickDockPage.DS_Func_Items(index);
+--[[
+	if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+--]]
+end
+function OnBuyItem(gsid, mcmlNode)
+    local item = mcmlNode:GetPreValue("this", true);
+    if(item.empty_click_goto_npc) then
+        local npc_id = item.empty_click_goto_npc;
+        MyCompany.Aries.WorldManager:GotoNPC(npc_id,function()
+		end)
+        return 
+    end
+    if(not gsid)then return end
+    if(gsid == 17155 or gsid == 17156)then
+        gsid = 17157;
+    end
+    
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+    if(command) then
+        local item = mcmlNode:GetPreValue("this", true);
+        if(item) then
+            command:Call({gsid = gsid, exid = item.exid, });
+        end
+   end
+end
+
+function GetMenu()
+    return QuickDockPage.category_menus;
+end
+
+function OnClickFolder(datasource,index)
+    QuickDockPage.OnClickFolder(tonumber(index));
+end
+
+function OnClose()
+    MyCompany.Aries.Desktop.Dock.OnClickQuickDockButton();
+end
+]]></script>
+<div class="window" style="width:333px;height:120px;padding:5px;padding-bottom:6px;">
+    <input type="button" style="position:relative;margin-top:2px;margin-right:0px" onclick="OnClose" class="closewindow"/>
+        <div style="position:relative;height:23px;margin-left:2px;margin-top:2px;">
+            <pe:togglebuttons 
+                ButtonWidth="80" 
+                ButtonHeight="27"    
+                ItemSpacing="5"
+                SelectedTextColor="#464f45"
+                TextColor="#464f45"
+                TextFont="System;12;norm"
+                SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png;0 0 32 32:12 12 12 12" 
+                UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png;0 0 32 32:12 12 12 12" 
+                DataSource='<%=GetMenu() %>' onclick='OnClickFolder'/>
+        </div>
+    <pe:gridview ClickThrough="true" style="position:relative;margin-top:25px;width:295px;" name="quick_dock_pageview" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="7" AllowPaging="false" pagesize="14">
+		<Columns>
+            <div style="padding-left:4px;padding-top:4px;margin-left:2px;margin-top:2px;width:40px;height:40px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10)">
+                <pe:item gsid='<%=Eval("gsid")%>' on_emptyclick_item="OnBuyItem" isshortcut="true" style="width:32px;height:32px;" />
+			</div>
+		</Columns>
+		<EmptyDataTemplate>
+			<b>空</b>
+		</EmptyDataTemplate>
+		<FetchingDataTemplate>
+			<b>请稍等 ... </b>
+		</FetchingDataTemplate>
+	</pe:gridview>                
+</div>
+</pe:mcml> 
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!-- "script/mobile/paracraft/Login/SelectLoginModePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2009.8.2</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="false" type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+MainLogin = commonlib.gettable("ParaCraft.Mobile.MainLogin");
+
+NPL.load("(gl)script/mobile/paracraft/Login/VersionUpdate.lua");
+local VersionUpdate = commonlib.gettable("ParaCraft.Mobile.Login.VersionUpdate");
+local updateInfos = VersionUpdate.GetUpdateInfo();
+local hasNewVersion = true;
+if(not updateInfos) then
+    hasNewVersion = false
+    updateInfos = {};
+    table.insert(updateInfos,{text = L"当前已是最新Mobile移动版本",});
+    table.insert(updateInfos,{text = L"强烈推荐下载PC电脑版，创造属于你的电影世界",});
+end
+
+SettingExpanded = false;
+function SwitchMenuState()
+    SettingExpanded = not SettingExpanded;
+    Page:Refresh(0.1);
+end
+
+function HasNewVersion()
+    return hasNewVersion;
+end
+
+function GetUpdateDS(index)
+    if(index) then
+        return updateInfos[index];
+    else
+        return #updateInfos;
+    end
+end
+
+-- @param name: "local", "internet"
+function OnSelect(name,mcmlNode)
+    System.options.loginmode = name;
+    page:CloseWindow();
+    MainLogin:next_step({IsLoginModeSelected = true});
+end
+
+function OnToggleLuaJit()
+    if(jit) then
+        if(jit.status()) then
+            page:SetValue("jit", L"开启Jit");
+            jit.off();
+        else
+            page:SetValue("jit", L"关闭Jit");
+            jit.on();
+        end
+        log(string.format("ParaEngine JIT version:%s status:%s \r\n", tostring(jit.version), tostring(jit.status())));
+    end
+end
+
+function OnOpenModulePage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/SelectModulePage.lua");
+    local SelectModulePage = commonlib.gettable("MyCompany.Aries.Game.MainLogin.SelectModulePage")
+    SelectModulePage.ShowPage()
+end
+
+function OnChangeLanguagePage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Translation.lua");
+    local Translation = commonlib.gettable("MyCompany.Aries.Game.Common.Translation")
+    Translation.ShowPage(function()
+        page:Refresh(0.01);
+    end);
+end
+
+function OnBaiduTest()
+    NPL.load("(gl)script/mobile/paracraft/Login/BaiduTestPage.lua");
+    local BaiduTestPage = commonlib.gettable("ParaCraft.Mobile.Login.BaiduTestPage")
+    BaiduTestPage.ShowPage()
+    page:CloseWindow();
+end
+
+function OnExit()
+    ParaGlobal.ExitApp();
+end
+
+function OpenMobileURL(url)
+    ParaGlobal.ShellExecute("open", url, "", "", 1);
+end
+    
+function OnDownloadPCVersion()
+    OpenMobileURL("http://www.paracraft.cn/download")
+end
+
+function OnOpenOfficialSite()
+    OpenMobileURL("http://www.paracraft.cn")
+end
+function OnOpenWeixin()
+    OpenMobileURL("http://www.paracraft.cn/download")
+end
+function OnSummitReport()
+    OpenMobileURL("http://bbs.paraengine.com/forum.php?mod=forumdisplay&fid=53")
+end
+function OnCredit()
+    OpenMobileURL("http://www.paraengine.com/twiki/bin/view/ParaEngine/Team")
+end
+HardwareNotice = "";
+function VerifyHardware()
+    if(MobileDevice and MobileDevice.getMemoryInfo) then
+        MobileDevice.getMemoryInfo({},nil,function(msg)
+            if(msg and msg.totalMem) then
+                local totalMem = math.floor(msg.totalMem/1024/1024);
+                LOG.std(nil, "info", "MobileDevice", "totalMem : %d", totalMem);
+                if(totalMem < 1000 and totalMem >10) then
+                    HardwareNotice = format(L"你的机器内存%dMB太小, 部分世界可能闪退, 推荐1GB以上", totalMem);
+                end
+            end
+	    end);
+    end
+end
+VerifyHardware();
+
+function OnClickDonate()
+    MainLogin.donate_window = MainLogin.donate_window or System.Windows.Window:new();
+    MainLogin.donate_window:Show({url="script/apps/Aries/Creator/Game/Login/DonatePage.html", alignment="_rb", left=-210, top=-200, width=200, height=200, zorder=10, allowDrag=true});
+    ParaGlobal.ShellExecute("open", L"http://www.nplproject.com/paracraft-donation", "", "", 1);
+end
+function OnClickCredits()
+    ParaGlobal.ShellExecute("open", L"https://github.com/LiXizhi/ParaCraftSDK/wiki/Credits", "", "", 1);
+end
+]]></script>
+<pe:container alignment="_ct" style="position:relative;background:;margin-left:-260px;margin-top:-200px;width:520px;height:500px;">
+    <div style='<%=L"position:relative;margin-left:0px;margin-top:-10px;width:512px;height:177px;background:url(Texture/Aries/Creator/Mobile/blocks_Background.png#0 259 512 175);"%>'>
+    </div>
+    <div style="position:relative;margin-left:0px;width:480px;margin-top:150px;color:#572712;font-size:14px;text-align:center">
+        <%=L"免费的电影创作工具"%>
+    </div>
+    <div style="margin-top:178px;margin-left:120px;">
+        <input type="button" value='<%=L"在线世界" %>' class="mc_big_button" style="font-size:18px;font-weight:bold;color:#572712;shadow-quality:8;shadow-color:#f0cec8c4;text-shadow:true;text-offset-y:-8;width:240px;height:64px;" name="internet" onclick="OnSelect" />
+        <input type="button" value='<%=L"本地世界" %>' class="mc_big_button" style="margin-top:5px;font-size:14px;color:#572712;width:240px;height:36px;" name="local" onclick="OnSelect" />
+    </div>
+    <div style="margin-top:16px;margin-left:110px;">
+            <input type="button" value='<%=L"MOD加载..." %>' class="mc_big_button" style="margin-top:16px;color:#572712;font-size:14px;width:256px;height:36px;" onclick="OnOpenModulePage" />    
+            <input type="button" value='<%=L"语言..." %>' spacing="20" class="mc_big_button" style="margin-top:16px;color:#572712;font-size:14px;height:36px;margin-left:20px" onclick="OnChangeLanguagePage" />    
+    </div>
+    <!--<div style="margin-top:178px;margin-left:0px;height:100px;">
+        <div zorder="3" style="float:left;width:210px;height:100px;" name="internet" onclick="OnSelect" >
+            <div style="position:relative;width:240px;height:135px;margin-left:-25px;margin-top:-5px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#237 431 78 78:38 38 38 38)" />
+            <div zorder="1" style="position:relative;width:210px;height:100px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#478 2 32 32)" />
+            <div zorder="2" style='<%=L"position:relative;margin-left:24px;margin-top:32px;width:164px;height:36px;background:url(Texture/Aries/Creator/Mobile/blocks_Background.png#0 429 164 36)"%>'/>
+        </div>
+        <div zorder="3" style="float:left;margin-left:70px;width:210px;height:100px;" name="local" onclick="OnSelect" >
+            <div style="position:relative;width:240px;height:135px;margin-left:-25px;margin-top:-5px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#237 431 78 78:38 38 38 38)" />
+            <div zorder="1" style="position:relative;width:210px;height:100px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#478 2 32 32)" />
+            <div zorder="2" style='<%=L"position:relative;margin-left:35px;margin-top:32px;width:158px;height:36px;background:url(Texture/Aries/Creator/Mobile/blocks_Background.png#165 429 158 36)"%>'/>
+        </div>
+    </div>-->
+    <pe:if condition='<%=Eval("HardwareNotice")~=""%>'>
+        <div style="position:relative;padding:5px;color:#ff0000;font-size:20px;base-font-size:20;width:700px;">
+            <%=Eval("HardwareNotice")%>
+        </div>
+    </pe:if>
+    <pe:if condition='<%=Eval("SettingExpanded")%>'>
+        <div class="mobile_panel" style="padding:8px;padding-left:15px;margin-left:0px;width:490px;margin-top:20px;color:#ffffff;line-height:30px;font-size:20px;base-font-size:20px;height:120px;background-color:#ffffff80;">
+            <pe:if condition='<%=HasNewVersion() %>'>
+                <div style="position:relative;margin-top:-24px;margin-left:-55px;color:#ff0000;line-height:30px;font-size:20px;base-font-size:20px;">
+                    <%=L"New Version!"%>
+                </div>
+            </pe:if>
+            <pe:gridview RememberScrollPos="true" style="height:120px" AllowPaging="false" VerticalScrollBarStep="30" DefaultNodeHeight="30" ItemsPerLine="1" CellPadding="0" name="gwUpdateInfo" DataSource='<%=GetUpdateDS%>' >
+                <Columns>
+                    <div style="color:#ffffff;line-height:30px;font-size:20px;base-font-size:20px;">
+                        <%=Eval("text") %>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <div style="margin:10px;font-weight:bold;color:#ffffff;font-size:20px;"><%=L"空"%></div>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin:10px;font-weight:bold;color:#ffffff;font-size:20px;"><%=L"正在搜索, 请稍候 ..."%></div>
+                </FetchingDataTemplate>
+            </pe:gridview>
+        </div>
+    </pe:if>
+</pe:container>
+
+<!--persistent setting button-->
+<pe:container alignment="_rb" style="position:relative;background:;width:300px;height:50px;">
+    <input type="button" value='<%="Credits"%>' align="right" spacing="20" class="mc_light_grey_button_with_fillet" style="position:relative;font-size:14px;height:36px;margin-right:160px" onclick="OnClickCredits" />
+    <input type="button" value='<%=L"捐赠" %>' align="right" spacing="20" class="mc_light_grey_button_with_fillet" style="font-size:14px;height:36px;margin-right:20px" onclick="OnClickDonate" />
+</pe:container>
+<!--<pe:if condition='<%=Eval("SettingExpanded")%>'>
+    <pe:container alignment="_rb" style="position:relative;background:;width:120px;height:372px;">
+        <div style="position:relative;">
+            <pe:if condition='<%=HasNewVersion() %>'>
+                <input type="button" name="update" value='<%=L"下载PC版"%>' class="mobile_button" style="color:#ff0000;font-size:20px;width:100px;height:45px;" onclick="OnDownloadPCVersion" />
+            </pe:if>
+            <pe:if condition='<%=not HasNewVersion() %>'>
+                <input type="button" name="update" value='<%=L"下载PC版"%>' class="mobile_button" style="color:#ffffff;font-size:20px;width:100px;height:45px;" onclick="OnDownloadPCVersion" />
+            </pe:if>
+            <input type="button" name="jit" value='<%=L"开启Jit"%>' class="mobile_button" style="margin-top:10px;color:#ffffff;font-size:20px;width:100px;height:45px;" onclick="OnToggleLuaJit" />
+            <input type="button" name="jit" value='<%=L"制作群"%>' class="mobile_button" style="margin-top:10px;color:#ffffff;font-size:20px;width:100px;height:45px;" onclick="OnCredit" />
+            <input type="button" name="exit" value='<%=L"退出"%>' class="mobile_button" style="margin-top:10px;color:#ffffff;font-size:20px;width:100px;height:45px;" onclick="OnExit" />
+        </div>
+    </pe:container>
+    <pe:container alignment="_rb" style="position:relative;background:;width:700px;height:80px;">
+        <div style="margin-left:100px;">
+            <div style="float:left;">
+                <input type="button" name="btnOfficial" value='<%=L"官网"%>' class="mc_light_grey_button_with_fillet" style="margin-top:5px;margin-left:20px;color:#ffffff;font-size:20px;height:30px;" onclick="OnOpenOfficialSite" />
+                <input type="button" name="btnWeixin" value='<%=L"微信号:paracraft"%>' class="mc_light_grey_button_with_fillet" style="margin-top:5px;margin-left:20px;color:#ffffff;font-size:20px;height:30px;" onclick="OnOpenWeixin" />
+                <br />
+                <input type="button" name="btnSuggestion" value='<%=L"提交意见与Bug"%>' class="mc_light_grey_button_with_fillet" style="margin-top:5px;margin-left:20px;color:#ffffff;font-size:20px;height:30px;" onclick="OnSummitReport" />
+            </div>
+        </div>
+    </pe:container>
+</pe:if>
+<pe:container alignment="_rb" style="position:relative;background:;width:120px;height:90px;">
+    <div valign="bottom" style="position:relative;margin-bottom:10px; margin-left:10px;width:89px;height:76px;background-color:#ffffff80;" class="mobile_button" onclick="SwitchMenuState">
+        <pe:if condition='<%=not Eval("SettingExpanded")%>'>
+            <div zorder="1" style="position:relative;margin-left:0px;margin-top:0px;width:16px;height:16px;background-color:#ff0000ff;font-size:11px;font-weight:bold;color:#ffffff;padding-left:3px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#285 46 16 16)"></div>
+        </pe:if>
+        <div zorder="1" style="position:relative;margin-left:26px;margin-top:19px;width:37px;height:37px;background-color:#ffffff80;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#460 73 37 37)"/>
+    </div>
+</pe:container>-->
+</pe:mcml>
+</body>
+</html>

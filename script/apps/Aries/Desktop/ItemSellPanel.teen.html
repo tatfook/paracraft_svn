@@ -1,0 +1,156 @@
+﻿<!-- "script/apps/Aries/Desktop/ItemSellPanel.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+local ItemSellPanel = commonlib.gettable("MyCompany.Aries.Desktop.ItemSellPanel");
+ItemSellPanel.Init();
+local pageCtrl = document:GetPageCtrl();
+function closePage()
+    pageCtrl:CloseWindow();
+end
+
+function OnDecrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local max = ItemSellPanel.GetCount();
+    if(count) then
+        count = count - 1;
+        if(count < 1) then
+            count = max;
+        end
+        pageCtrl:SetValue("count", count);
+        UpdatePrice();
+    end
+end
+
+function OnIncrease()
+    local count = pageCtrl:GetValue("count");
+    local max = ItemSellPanel.GetCount();
+    count = tonumber(count);
+    if(count) then
+        count = count + 1;
+        if(count > max) then
+            count = 1;
+        end
+        pageCtrl:SetValue("count", count);
+        UpdatePrice();
+    end
+end
+
+function UpdatePrice()
+    pageCtrl:SetValue("priceText", ItemSellPanel.GetPriceText());
+end
+function GetGuid()
+    return ItemSellPanel.guid;
+end
+function GetGsid()
+    if(ItemSellPanel.guid)then
+		local item = Map3DSystem.Item.ItemManager.GetItemByGUID(ItemSellPanel.guid);
+		if(item)then
+            return item.gsid;
+        end
+    end
+end
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(GetGsid());
+if(gsItem) then
+	name = gsItem.template.name;
+end
+local b_confirm = false;
+if(gsItem) then
+    local apparel_quality = gsItem.template.stats[221] or -1;
+    if(apparel_quality >= 2)then
+      b_confirm = true;  
+    end
+end
+function NeedConfirm()
+    return b_confirm;
+end
+function OnClickSell()
+    local value = pageCtrl:GetValue("confirm_box");
+    if(b_confirm)then
+        if(not value)then
+            _guihelper.MessageBox("请勾选确定出售这件贵重物品！");
+            return
+        end
+        MyCompany.Aries.Desktop.ItemSellPanel.OnClickSell()
+    else
+        MyCompany.Aries.Desktop.ItemSellPanel.OnClickSell()
+    end
+end
+function DoCheck()
+    local obj = pageCtrl:FindControl("btnSell");
+    local value = pageCtrl:GetValue("confirm_box");
+    if(obj and obj:IsValid())then
+        obj.enabled = value;
+    end
+end
+function CheckButtonState()
+    local obj = pageCtrl:FindControl("btnSell");
+    if(obj and obj:IsValid())then
+        obj.enabled = not b_confirm;
+    end
+end
+function OnKeyUp()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count) or 1;
+    local max = ItemSellPanel.GetCount();
+    if(count < 1)then
+        count = 1;
+        pageCtrl:SetValue("count", count);
+    elseif(count > max)then
+        count = max;
+        pageCtrl:SetValue("count", count);
+    else
+        -- pageCtrl:SetValue("count", count);
+    end
+    UpdatePrice();
+end
+UpdatePrice();
+
+function GetCountDesc()
+    return format("出售数量(1-%d)", ItemSellPanel.GetCount() or 99);
+end
+
+]]></script>
+<aries:window  width="466" height="220" title='<%=Eval("name")%>' mode="lite" onclose="closePage" isdeepbg="true" >
+        <div style="width:466px;height:220px;padding-left:30px;padding-right:30px;color:#ffffff;" >
+            <div style="width:411px;height:120px;">
+                <div style="float:right;padding-left:10px;padding-top:10px;width:100px;height:100px;margin:21px;" class="panel_window">
+                    <pe:slot guid='<%=GetGuid()%>' isdragable="false" style="width:80px;height:80px" isclickable="false"/>
+                </div>
+                <div style="float:right;margin-top:28px;">
+                    <input type="button" style="width:23px;height:25px;" onclick="OnDecrease()" class="pagerleft"/>
+                    <div style="float:right;padding-left:50px;padding-top:2px;width:116px;height:30px;" class="property_bg_css">
+                        <input type="text" name="count" enable_ime="false"  value="1" onkeyup="OnKeyUp" style="width:60px;height:20px;background:;" />
+                    </div>
+                    <input type="button" style="margin-left:0px;width:23px;height:25px;" onclick="OnIncrease()" class="pagerright"/>
+                    <div style="margin-left:48px;"><%=GetCountDesc() %></div>
+                    <div style="margin-left:-8px;margin-top:35px;color:#33ffff">
+                        <pe:if condition="<%=NeedConfirm()%>">
+                            <input type="checkbox" name="confirm_box" checked="false" onclick="DoCheck"/>勾选确定出售这件贵重物品
+                        </pe:if>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div style="margin-left:136px;margin-top:-35px;">
+                <label name="priceText" style="width:400px;height:300px;" />
+            </div>
+            
+        </div>
+        <div style="width:466px;height:48px;margin-top:-75px;">
+            <input type="button" style="margin-left:150px;width:80px;height:30px;" onclick="OnClickSell()" class="defaultbutton" name="btnSell"  value="出售"/>
+            <input type="button" style="margin-left:30px;width:80px;height:30px;" onclick="closePage()" value="下次再说"/>
+        </div>
+    <%=CheckButtonState()%>
+</aries:window>
+
+</pe:mcml> 
+</body>
+</html>

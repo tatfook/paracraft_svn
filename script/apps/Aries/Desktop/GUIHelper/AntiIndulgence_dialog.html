@@ -1,0 +1,72 @@
+﻿<!-- "script/apps/Aries/Desktop/GUIHelper/AntiIndulgence_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AntiIndulgence_dialog, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CommonNPC.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+instance = page:GetRequestParam("instance") or nil;
+name = "NPCSelection"..npc_id..(instance or "");
+
+npc_id = tonumber(npc_id);
+if(instance) then
+    instance = tonumber(instance);
+end
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' width = "204" height = "230" style="background:url(Texture/Aries/Quest/Dialog_BG2_32bits.png: 88 45 31 31);" 
+        entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <div style="width:128px;height:128px;margin-left:-33px;margin-top:-85px;margin-bottom:-34px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;">
+                <pe:player nid='<%=npc_id%>' instance="<%=instance%>" object="npc" name='<%=Eval("name")%>' miniscenegraphname="NPCDialog_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+            </div>
+        </div>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	        <div style="margin-left:27px;margin-right:27px;margin-top:40px;margin-bottom:25px;height:65px;color:#d58302">
+		    你今天已经在哈奇小镇玩了太长时间，先休息一下，明天再来玩吧！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+
+
+</pe:mcml> 
+</body>
+</html>

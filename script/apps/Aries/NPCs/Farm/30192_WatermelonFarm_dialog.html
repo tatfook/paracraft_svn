@@ -1,0 +1,79 @@
+﻿<!-- "script/apps/Aries/NPCs/Farm/30192_WatermelonFarm_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30192_WatermelonFarm_dialog, by LiXizhi, 2009/12/27</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30192_WatermelonFarm.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+name = "NPCDialog_"..tostring(npc_id);
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' >
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30192" />
+            <pe:placeholder id="name" source="{this}" value='呼噜大叔'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    <!--<pe:answer-if condition = "true" target_state = "1"/>-->  <!--labazhou logic is deprecated-->
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	           我做的腊八粥，口味堪称一流，你现在就想做一份腊八粥吗？
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "2"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+	            <pe:answer-if condition = 'true' target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "2">
+	           想做出地道香醇的腊八粥，要很讲究的，我需要松子、冬菇、海苔、樱桃、西梅、百合、珍珠果、蜂窝结晶这八种材料熬成腊八粥，你愿意把这八种材料给我吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = '<%=Eval("HasAllSource")%>' target_state = "3"/>
+			    <pe:answer-if condition = "true" target_state = "4"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+	            <pe:answer-if condition = 'true' target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "3">
+	            哇，好香啊，我做的腊八粥不会让你失望的，现在就给你了。
+		    <pe:answer text="谢谢" template_id="thanks">
+		        <pe:answer-if condition = "true" transition = '<%=Eval("GetLaBaZhou")%>' target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "4">
+               喔噢，你的材料还不够，我难为无米之炊呀，快把原料找齐了再来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "5">
+               又是一个新年到，在新的一年里我可不打盹了，要勤快的干活咯。
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,228 @@
+﻿<!-- "script/apps/Aries/NPCs/Playground/30371_OddEgg_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30371_OddEgg.lua" ><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.OddEgg.page = page;
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+
+
+--MyCompany.Aries.Quest.NPCs.OddEgg.cur_egg_type = MyCompany.Aries.Quest.NPCs.OddEgg.egg_map[1];
+--MyCompany.Aries.Quest.NPCs.OddEgg.cur_gift_type = MyCompany.Aries.Quest.NPCs.OddEgg.gift_map[1];
+if(MyCompany.Aries.Quest.NPCs.OddEgg.cur_egg_type == "intelligent")then
+	MyCompany.Aries.Quest.NPCs.OddEgg.cur_question = MyCompany.Aries.Quest.NPCs.RiddleLampQuestionsLib.Get_Question();
+end
+	
+	
+function Condition1()
+    local cur_question = MyCompany.Aries.Quest.NPCs.OddEgg.cur_question;
+    if(cur_question)then
+        return true;
+    end
+end
+function GetQuestionLabel()
+    local cur_question = MyCompany.Aries.Quest.NPCs.OddEgg.cur_question;
+    if(cur_question)then
+        return cur_question.label;
+    end
+end
+function GetQuestionOption(op)
+    local cur_question = MyCompany.Aries.Quest.NPCs.OddEgg.cur_question;
+    if(cur_question and cur_question.option)then
+        return cur_question.option[op];
+    end
+end
+--是否已经被别人拿走
+function GetByOther(callbackFunc)
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetByOther();
+end
+--回答是否正确
+function IsCorrectAnswer()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.IsCorrectAnswer();
+end
+--返回标题
+function GetTitle()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetTitle();
+end
+function GetLabel_Successful()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetLabel_Successful();
+end
+function GetLabel_Failed()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetLabel_Failed();
+end
+function GetLabel_Failed_GetByOther()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetLabel_Failed_GetByOther();
+end
+function GetLabel_ExtendItem()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.GetLabel_ExtendItem();
+end
+function Is_Ok_Btn()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.Is_Ok_Btn();
+end
+function Is_GiveYou_Btn()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.Is_GiveYou_Btn();
+end
+function Is_Sure_Btn()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.Is_Sure_Btn();
+end
+--满足要求的物品
+function IsCorrrectItems()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.IsCorrrectItems();
+end
+--满足要求的物品后 执行的函数
+function Check_Effect()
+    --MyCompany.Aries.Quest.NPCs.OddEgg.Check_Effect();
+    --MyCompany.Aries.Quest.NPCs.OddEgg.KillTimer();
+end
+--判断是否已经拥有 将要奖励的物品
+function Condition_HasItem()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.Condition_HasItem();
+end
+function Give_Items()
+    MyCompany.Aries.Quest.NPCs.OddEgg.Give_Items();
+end
+function Give_Ex_Items()
+    MyCompany.Aries.Quest.NPCs.OddEgg.Give_Ex_Items();
+end
+function IsCondition_MaybeDuplicate()
+    return MyCompany.Aries.Quest.NPCs.OddEgg.IsCondition_MaybeDuplicate();
+end
+--停止询问server 当前选中的试题是否已经被别人回答过
+function KillTimer()
+    MyCompany.Aries.Quest.NPCs.OddEgg.KillTimer();
+end
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+   
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>' />
+            <pe:placeholder id="name" source="{this}" value="聪明蛋" />
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <!--聪明蛋 回答问题-->
+			    <pe:answer-if condition = '<%=Condition1()%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=not Condition1()%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+            
+		    我是聪明蛋，要拿我的礼物很容易，答对题目再说：
+		       <pe:editor style="margin-left:10px;background:;font-weight:bold;color:#6d2f00">
+                     <%=GetQuestionLabel() %>
+                    <br/>
+                    <div style="width:150px;float:left;" ><input type="radio" name="answer" value="a"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('a') %></div></div>
+                    <div style="width:150px;float:left;"><input type="radio" name="answer" value="b"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('b') %></div></div>
+                    <div style="width:150px;float:left;"><input type="radio" name="answer" value="c"   style="float:left;"/><div style="float:left;"><%=GetQuestionOption('c') %></div></div>
+                    <div style="width:150px;float:left;"><input type="radio" name="answer" value="d"  style="float:left;"/><div style="float:left;"><%=GetQuestionOption('d') %></div></div>
+                </pe:editor>
+		    <pe:answer text="确定" template_id="ok_right">
+			    <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+			    <pe:answer-if condition = '<%=IsCorrectAnswer()%>' transition = '<%=Check_Effect()%>' target_state = "10"/>
+			    <pe:answer-if condition = '<%=not IsCorrectAnswer()%>' transition = '<%=KillTimer()%>'  target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		     <%=GetTitle() %>
+		    <!--确定-->
+		    <pe:if condition = '<%=Is_Ok_Btn()%>'>
+		        <pe:answer text="确定" template_id="ok">
+			        <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+			        <pe:answer-if condition = '<%=IsCorrrectItems()%>' transition = '<%=Check_Effect()%>' target_state = "10"/>
+			        <pe:answer-if condition = '<%=not IsCorrrectItems()%>' transition = '<%=KillTimer()%>'  target_state = "11"/>
+		        </pe:answer>
+		    </pe:if>
+		    <!--给你-->
+		    <pe:if condition = '<%=Is_GiveYou_Btn()%>'>
+		        <pe:answer text="给你" template_id="giveyou">
+			        <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+			        <pe:answer-if condition = '<%=IsCorrrectItems()%>' transition = '<%=Check_Effect()%>' target_state = "10"/>
+			        <pe:answer-if condition = '<%=not IsCorrrectItems()%>' transition = '<%=KillTimer()%>'  target_state = "11"/>
+		        </pe:answer>
+		    </pe:if>
+		    <!--好的-->
+		    <pe:if condition = '<%=Is_Sure_Btn()%>'>
+		        <pe:answer text="确定" template_id="ok">
+			        <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+			        <pe:answer-if condition = '<%=IsCorrrectItems()%>' transition = '<%=Check_Effect()%>' target_state = "10"/>
+			        <pe:answer-if condition = '<%=not IsCorrrectItems()%>' transition = '<%=KillTimer()%>'  target_state = "11"/>
+		        </pe:answer>
+		    </pe:if>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <%=GetLabel_Successful() %>
+		    <pe:if condition = '<%=IsCondition_MaybeDuplicate()%>'>
+		        <!--确定-->
+		        <pe:answer text="确定" template_id="ok">
+			        <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+		            <!--如果没有宠物，直接送宠物-->
+			        <pe:answer-if condition = '<%=not Condition_HasItem()%>'  transition = '<%=Give_Items()%>'  target_state = "-1"/>
+		            <!--如果有 送其他物品-->
+			        <pe:answer-if condition = '<%=Condition_HasItem()%>'target_state = "21"/>
+		        </pe:answer>
+		        <br/>
+		            <!--取消-->
+		        <pe:answer text="取消" template_id="cancel">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+		    </pe:if>
+		    <pe:if condition = '<%=not IsCondition_MaybeDuplicate()%>'>
+		            <!--知道了-->
+		        <pe:answer text="我知道了" template_id="iknow">
+			        <pe:answer-if condition = '<%=GetByOther()%>'  target_state = "12"/>
+			        <pe:answer-if condition = "true" transition = '<%=Give_Items()%>' target_state = "-1"/>
+		        </pe:answer>
+		    </pe:if>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <%=GetLabel_Failed() %>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "12">
+		    <%=GetLabel_Failed_GetByOther() %>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "21">
+		    <%=GetLabel_ExtendItem() %>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Give_Ex_Items()%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

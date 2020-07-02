@@ -1,0 +1,56 @@
+﻿<!-- "script/apps/Aquarius/Profile/userprofile_view.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>a read-only user profile page</title>
+</head>
+<body>
+<pe:mcml style="max-width:550px;max-height:430px">
+<script type="text/npl" src="userprofile.lua"><![CDATA[
+MyCompany.Aquarius.userprofilePage.OnInit()
+local pageCtrl = document:GetPageCtrl();
+uid = pageCtrl:GetNodeValue("uid")
+
+function BuildURL(url)
+    return System.localserver.UrlHelper.BuildURLQuery(url, {uid=uid});
+end
+]]></script>
+<input type="hidden" name="uid"/>
+<div style="float:left;width:120px;">
+<pe:treeview name="categories" style="background:;">
+    <pe:treenode text="基本信息" expanded="true">
+        <a tooltip="查看最新的动态" href='<%=BuildURL("feed_view.html")%>' target="contentframe">最新动态</a>
+        <a tooltip="查看基础信息" href='<%=BuildURL("basicinfo_view.html")%>' target="contentframe">基础信息</a>
+        <a tooltip="查看我的好友" href='<%=BuildURL("friends_view.html")%>' target="contentframe">他/她的好友</a>
+        <a tooltip="查看3D形象" href='<%=BuildURL("avatar_view.html")%>' target="contentframe">3D形象</a>
+    </pe:treenode>
+    <pe:treenode text="星球信息" expanded="true">
+        <a tooltip="查看拥有的星球" href="myplanet.html" target="contentframe">拥有的星球</a>
+        <a tooltip="查看入住的星球" href="homeplanet.html" target="contentframe">入住的星球</a>
+    </pe:treenode>
+    <pe:treenode text="他/她的兴趣" expanded="false">
+        <a tooltip="查看兴趣爱好" href="interests_view.html" target="contentframe">兴趣爱好</a>
+    </pe:treenode>
+    <pe:treenode text="真实资料" expanded="false">
+        <a tooltip="查看真实信息" href='<%=BuildURL("aboutme_view.html")%>' target="contentframe">真实信息</a>
+    </pe:treenode>
+    <pe:treenode text="他/她的组件" expanded="false">
+        <a tooltip="查看安装的应用程序" href="apps_view.html" target="contentframe">应用程序</a>
+    </pe:treenode>
+</pe:treeview>
+</div>
+<div style="float:left;margin-left:3px;margin:2px"  width="100%"> 
+    <iframe style ="height:340px"name="contentframe" src='<%=BuildURL("feed_view.html")%>'/>
+    <div style="margin-top:3px">
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnVisitHomeZone" param1='<%=Eval("uid")%>' style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/transmit.png"/>去他房间</a>
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnTeleportToUser" param1='<%=Eval("uid")%>' style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/transmit.png"/>去他身边</a>
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnSendMail" param1='<%=Eval("uid")%>'style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/script.png"/>发邮件</a>
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnAddAsFriend" param1='<%=Eval("uid")%>' style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/user_add.png"/>加为好友</a>
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnChatHistory" param1='<%=Eval("uid")%>' style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/anchor.png"/>聊天记录</a>
+    <a onclick="MyCompany.Aquarius.userprofilePage.OnBlockUser" param1='<%=Eval("uid")%>' style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/cancel.png"/>举报</a>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

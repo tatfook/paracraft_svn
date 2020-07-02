@@ -1,0 +1,65 @@
+﻿<!-- "script/apps/Aquarius/Profile/basicinfo_view.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>a read-only user profile page</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="basicinfo.lua"><![CDATA[
+local page = document:GetPageCtrl();
+uid = page:GetRequestParam("uid") or Map3DSystem.App.profiles.ProfileManager.GetUserID();
+MyCompany.Aquarius.basicinfoPage.OnInit();
+]]></script>
+<div>
+<div style="float:left;padding:3px;background:url(Texture/Aquarius/Common/Container2_32bits.png: 4 4 4 4);">
+    <div style="width:150px;height:120px">
+        <pe:profile-photo uid='<%=Eval("uid")%>' width="150" height="120"/>
+    </div>
+</div>
+<div style="float:left;padding:3px">
+  <div style="width:80px;float:left;text-align:right">昵称:
+  </div><pe:name uid='<%=Eval("uid")%>' useyou="false" linked="false" style="font-weight:bold;"/><br/>
+  <div style="width:80px;float:left;text-align:right">性别:</div>
+    <select name="gender" AllowUserEdit="false" IsReadonly="true">
+        <option value="male">男</option>
+        <option value="female" selected="selected">女</option>
+    </select><br/>
+  <div style="width:80px;float:left;text-align:right">身份:</div>临时居民<br/>  
+  <div style="width:80px;float:left;text-align:right">身份证号:</div>无<br/>  
+  <div style="width:80px;float:left;text-align:right">年龄:</div>
+    <pe:label name="age" value="0"/><br/>  
+  <div style="width:80px;float:left;text-align:right">血型:</div>
+    <select name="blood" AllowUserEdit="false" IsReadonly="true">
+        <option value="0" selected="selected">保密</option>
+        <option value="1">O型</option>
+        <option value="2">A型</option>
+        <option value="3">B型</option>
+        <option value="4">AB型</option>
+    </select><br/>
+  <div style="width:80px;float:left;text-align:right">星座:</div>
+    <select name="horoscope" AllowUserEdit="false" IsReadonly="true">
+        <option value="0" selected="selected">保密</option>
+        <option value="1">白羊座</option>
+        <option value="2">金牛座</option>
+        <option value="3">双子座</option>
+        <option value="4">巨蟹座</option>
+        <option value="5">狮子座</option>
+        <option value="6">处女座</option>
+        <option value="7">天秤座</option>
+        <option value="8">天蝎座</option>
+        <option value="9">射手座</option>
+        <option value="10">摩羯座</option>
+        <option value="11">水瓶座</option>
+        <option value="12">双鱼座</option>
+    </select><br/>  
+</div>
+</div>
+<div>
+    <div>个人简介:</div>
+    <pe:label name="selfdescription" style="margin-top:3px;height:60px"/>
+</div>
+</pe:mcml>
+</body>
+</html>
+

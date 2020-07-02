@@ -1,0 +1,213 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30002_DutyList_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30002_DutyList_dialog, by Andy, 2009/7/24</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" refresh=false><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local DutyList = MyCompany.Aries.Quest.NPCs.DutyList;
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30002);
+
+Condition1 = function()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+
+zonename = memory.zonename or "";
+reward = memory.reward or "";
+
+dialog2_text = "你今天的执勤任务是在"..zonename.."片区巡逻，具体的巡逻的线路在"..zonename.."片区的巡逻亭上有，赶紧去看看吧。";
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30002' />
+            <pe:placeholder id="name" source="{this}" value="巡逻站台" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	        真遗憾，你还不是一名哈奇小镇的警官，不能参与巡逻值勤。<br/>
+	        希尔警长会告诉你如何才能成为一名优秀的警官。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "2">
+		    <%=Eval("dialog2_text")%>
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "3">
+		    你今天的巡逻执勤任务已经完成，并且领取过工资啦，请明天再来吧！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+        
+    <!--<pe:dialog NPC_id = '<%=Eval("npc_id")%>' width = "468" height = "317" style="" 
+        entryaction="<%=EntryAction%>" 
+        exitaction="<%=ExitAction%>">
+        
+	    <pe:state id = "0">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+            这里是警察值勤表
+            </div>
+		    <pe:answer autoexec = true value="dialogbegin" style="width:90px;height:34px;margin-left:170px;background:Texture/Aries/Temp/MessageBoxAquaBlueYes.png;"
+		        prepareaction="<%=PrepareAction%>">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+            真遗憾，你还不是一名哈奇小镇的警官，不能参与巡逻值勤。<br/>
+            希尔警长会告诉你如何才能成为一名优秀的警官。
+            </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "2">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+	        你本周的值勤任务是：在 <%=Eval("guardingPlace")%> 巡逻2次；每次1分钟。<br/>
+            完成后记得回来签到哦！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+            你本周的值勤任务是：在 <%=Eval("guardingPlace")%> 巡逻2次；每次1分钟。<br/>
+            你已经完成了 <%=Eval("guardingCount")%> 次，请继续努力吧！<br/>
+            完成后记得回来签到哦！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "4">
+		    <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    你已经完成了本周的巡逻任务！<br/>
+            有了你的努力，哈奇小镇一定会更美好！<br/>
+            1000奇豆奖励已经放入你的背包中了，快去看看吧。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "5">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    你已经完成了本周的巡逻任务，请好好休息。如果想保卫哈奇小镇的安定与和平，请下周再来巡逻。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "6">
+	        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:165px;color:#6d2f00">
+		    出错  把log.txt发给andy
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+    </pe:dialog>-->
+    
+    
+</pe:mcml>
+</body>
+</html>

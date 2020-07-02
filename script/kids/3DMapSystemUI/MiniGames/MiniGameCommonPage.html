@@ -1,0 +1,56 @@
+﻿<!-- "script/kids/3DMapSystemUI/MiniGames/MiniGameCommonPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+local MiniGameCommon = commonlib.gettable("Map3DSystem.App.MiniGames.MiniGameCommon")
+local page = document:GetPageCtrl();
+ MiniGameCommon.SetPage(page)
+local gamename = page:GetRequestParam("gamename");
+local gamepage = page:GetRequestParam("gamepage");
+
+local gamepage = commonlib.gettable(gamepage)
+if(gamepage and gamepage.OnInit)then
+    gamepage.OnInit();
+end
+function GetFlashDiv()
+	if(not gamename)then return end
+    local width,height = MiniGameCommon.max_width,MiniGameCommon.max_height;
+	local args = MiniGameCommon.games[gamename];
+	local flash_w = MiniGameCommon.flash_width;
+	local flash_h = MiniGameCommon.flash_height;
+    local left = (width - flash_w);
+    local top = (height - flash_h);
+	if(args)then
+		local swffile = args.swffile;
+		local s = string.format([[
+		<pe:flash name = "flashctl" DisableWindowClosing="false" src="%s" style="margin-left:%dpx;margin-top:%dpx;width:%dpx;height:%dpx;"/>
+		]],
+		swffile,left,top,flash_w,flash_h);
+		return s;
+	end
+end
+function closePage()
+    page:CloseWindow();
+end
+function getBg()
+    local width,height = MiniGameCommon.max_width,MiniGameCommon.max_height;
+    local flashDiv = GetFlashDiv();
+    local s = string.format([[
+            <div style="margin-left:0px;margin-top:0px;width:%dpx;height:%dpx;background:url(texture/Aries/Common/bg_32bits.png)" >
+            %s
+            </div>
+        ]],width,height,flashDiv);
+    return s;
+end
+]]></script>
+<%=getBg() %>
+
+</pe:mcml> 
+</body>
+</html>

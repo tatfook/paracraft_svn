@@ -1,0 +1,43 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/UploadWorldPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>publish world page by LiXizhi 2008.6.27</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="UploadWorldPage.lua"><![CDATA[
+Map3DSystem.App.worlds.UploadWorldPage.OnInit();
+]]></script>
+<div style="float:left;margin-bottom:5px">
+    <div style="float:left;margin-top:1px;font-weight:bold;color:#808080">世界预览图:</div><br />
+    <img name="WorldImage" src="Texture/3DMapSystem/brand/noimageavailable.dds" width="180" height="110"/><br />
+</div>
+<div style="float:left;margin-left:10px;">
+    <img style="margin-right:5px;background:url(Texture/3DMapSystem/common/arrow_refresh.png);width:16px;height:16px"/><b>您希望上传并发布当前世界么?</b><br />
+    <div style="margin-top:5px;">
+        <a onclick="Map3DSystem.App.worlds.UploadWorldPage.OnOpenWorldDir" tooltip="点击打开文件夹">
+            <img style="margin-right:3px;background:url(Texture/3DMapSystem/common/ViewFiles.png);width:16px;height:16px;"/>
+            世界路径:<label name="worldpath" style="height:20px;"/>
+        </a>
+    </div>
+    <label name="txtUploadProgress" style="height:18px">进度信息</label><br />
+    <pe:progressbar name="progressbar" onstep="Map3DSystem.App.worlds.UploadWorldPage.OnProgressBarStep"/><br />
+    <label name="txtUploadStatistics" style="width:120px;height:18px"></label><br />
+    <label name="result" style="height:30px;color:#006600;margin-top:5px;font-weight:bold"></label>
+</div>
+<hr />
+<input type="button" class="defaultbutton" name="quickpublish" value="快速发布" tooltip="生成压缩包，并上传到官方服务器" onclick="Map3DSystem.App.worlds.UploadWorldPage.OnQuickPublish()"/>
+<input type="button" style="margin-left:5px" name="packageonly" value="打包" tooltip="仅生成本地压缩包,但不上传" onclick="Map3DSystem.App.worlds.UploadWorldPage.OnGeneratePackage()"/>
+<input type="button" style="margin-left:5px" name="publishlink" value="发布链接..." enabled="false" tooltip="你可以将压缩包上传到自己的HTTP空间, 然后发布它的超链接" onclick="Map3DSystem.App.worlds.UploadWorldPage.OnPublishLink()"/>
+<div style="float:left;margin-left:5px;margin-top:2px;">
+    <a onclick="Map3DSystem.App.worlds.UploadWorldPage.OnClose()">关闭</a>
+</div>
+<hr />
+<img style="background:url(Texture/3DMapSystem/common/exclamation.png);width:16px;height:16px;"/>
+<div style="margin-left:5px;float:left;color:#808080">
+    如果您的世界打包后超过1MB, 上传可能会需要较长的时间。你也可以手工上传打包文件到其它HTTP空间，然后仅发布世界的超链接
+</div>
+</pe:mcml>
+</body>
+</html>

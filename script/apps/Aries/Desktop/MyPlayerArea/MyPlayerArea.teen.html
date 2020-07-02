@@ -1,0 +1,284 @@
+﻿<!-- "script/apps/Aries/Desktop/MyPlayerArea/MyPlayerArea.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemItem/ItemManager.lua");
+local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatFollowPetPane.lua");
+local CombatFollowPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatFollowPetPane");
+NPL.load("(gl)script/apps/Aries/Team/TeamClientLogics.lua");
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+NPL.load("(gl)script/apps/Aries/Combat/MsgHandler.lua");
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local page = document:GetPageCtrl();
+
+function IsTeamLeader()
+    if(TeamClientLogics.GetJC)then
+        local isleader = TeamClientLogics:GetJC():IsTeamLeader();
+		return isleader;
+	end
+end
+
+function OnClickMagicStar()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.lua");
+    local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+    MagicStarPage.ShowPage();
+end
+
+function OnClickFillHealth()
+    MyCompany.Aries.Combat.MsgHandler.RechargeHealthPoint();
+end
+function OnClickFillStamina()
+    _guihelper.MessageBox("是否使用一个精力药剂补充精力值？<br/>(魔法星可以提升精力值上限)" , function(result)
+        if(result == _guihelper.DialogResult.Yes)then
+            local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+            local hasGSItem = ItemManager.IfOwnGSItem;
+            local _,guid,_,copies = hasGSItem(17250); -- 精力药剂
+            if(not copies or copies <= 0)then
+                _,guid,_,copies = hasGSItem(17251); -- 绑定精力药剂
+                if(not copies or copies <= 0)then
+			        local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+					if(command) then
+						command:Call({gsid = 17250});-- 精力药剂
+					end
+                end
+            end
+            if(guid) then
+                local item  = ItemManager.GetItemByGUID(guid)
+                if(item and item.OnClick) then
+                    item:OnClick("left");
+                end
+            end
+        end
+    end, _guihelper.MessageBoxButtons.YesNo);
+end
+
+
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    local x, y = _guihelper.GetLastUIObjectPos()
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(System.User.nid, x, y+20);
+end
+function GetPetID()
+    local item = ItemManager.GetMyCurrentFollowPetItemOnEquip();
+    if(item and item.guid > 0) then
+        return item.gsid;
+	end
+end
+function IsFollow()
+    local item = ItemManager.GetMyCurrentFollowPetItemOnEquip();
+    if(item and item.guid > 0) then
+        return true;
+	end
+end
+    --"cur_exp" or "total_exp"
+function GetExp(state)
+    local gsid = GetPetID();
+    if(not gsid)then
+        return
+    end
+    NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetConfig.lua");
+    local CombatPetConfig = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetConfig");
+    local pet_config = CombatPetConfig.GetInstance_Client();
+    if(pet_config)then
+        local item = ItemManager.GetMyCurrentFollowPetItemOnEquip();
+        if(item and item.guid > 0) then
+            local serverdata = item:GetServerData();
+			local exp = serverdata.exp or 0;
+            local levels_info = pet_config:GetLevelsInfo(gsid,exp);
+            if(levels_info)then
+                if(levels_info.is_full)then
+                    return 100;
+                end
+                if(state == "cur_exp")then
+                    return levels_info.cur_level_exp or 0;
+                elseif(state == "total_exp")then
+                    return levels_info.cur_level_max_exp or 0;
+                end
+            end
+	    end
+    end
+    return 0;
+end
+function GetCurExp()
+    return GetExp("cur_exp");
+end
+function GetTotalExp()
+    return GetExp("total_exp");
+end
+function DoToggleHome()
+    local gsid = GetPetID();
+    if(IsFollow())then
+        NPL.load("(gl)script/apps/Aries/CombatPet/CombatFollowPetPane.lua");
+        local CombatFollowPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatFollowPetPane");
+        CombatFollowPetPane.DoToggleHome(gsid);
+        local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+	    HPMyPlayerArea.UpdateUI(true);
+    end
+end
+function OnClickShowPetMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    local x, y = _guihelper.GetLastUIObjectPos()
+    	local ctl = CommonCtrl.ContextMenu:new{
+			name = "showMoreInfo_RoomDetailPage",
+			width = 100,
+			height = 80, 
+			DefaultNodeHeight = 24,
+			
+		};
+		local node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "Group", Type = "Group", NodeHeight = 0 });
+		node:AddChild(CommonCtrl.TreeNode:new({Text = "休息", Name = "UseItem", Type = "Menuitem", onclick = DoToggleHome, }));
+	local x, y = ParaUI.GetMousePosition();
+	if(x and y)then
+		ctl:Show(x, y);
+	end
+end
+function CanLevelUp_FollowingPet()
+    return CombatFollowPetPane.CanLevelUp_FollowingPet();
+end
+function DoShowCombatpetPage()
+    CombatFollowPetPane.ShowPage();
+end
+
+function GetGearScoreText()
+	local hasGSItem = ItemManager.IfOwnGSItem;
+	local _,_,_,copies = hasGSItem(965);
+    return format("战斗力: %d", copies or 0)
+end
+
+function ToggleAutoAIMode()
+    MsgHandler.ToggleAutoAIMode();
+    page:Refresh(0);   
+end
+
+function IsAutoAIMode()
+    return MsgHandler.GetIsAutoAIMode();
+end
+
+function GetTips_AutoAIMode()
+    local s;
+    local __,__,__,copies = hasGSItem(12007);
+    copies = copies or 0
+    if(IsAutoAIMode())then
+        s = string.format([[在自动中 自动战斗药丸剩余:%d个]],copies);
+    else
+        s = string.format([[开始自动战斗 自动战斗药丸剩余:%d个]],copies);
+    end
+    return s;
+end
+
+]]></script>
+<div style="background:url(Texture/Aries/Common/Teen/Team/player_bg_32bits.png#0 0 255 88);width:255px;height:88px;">
+    <pe:if condition='<%=IsTeamLeader() %>'>
+        <div style="float:left;position:relative;margin-left:110px;margin-top:0px;">
+            <input type="button" tooltip="队长" style="background:url(Texture/Aries/Team/teen/captain_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:4px;margin-top:7px;" />
+        </div>
+    </pe:if>
+    <input type="button" class="defaultcolor" name="levelBtn" value='<%=tostring(MyCompany.Aries.Player.GetLevel())%>' style="position:relative;margin-left:87px;margin-top:17px;width:29px;height:16px;color:#93fafe;font-size:11px;font-weight:bold;background:;"/>
+    <div style="float:left;margin-left:10px;margin-top:10px;">
+        <div style="width:64px;heigth:64px;">
+            <aries:userhead nid = '<%=tostring(System.User.nid) %>' style="margin-left:2px;margin-top:6px;width:64px;height:64px;"/>
+        </div>
+    </div>
+        <div style="float:left;position:relative;margin-left:-16px;margin-top:0px;">
+        <div style="float:left;position:relative;margin-top:8px;">
+            <input type="button" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:4px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool())%>' />
+        </div>
+        
+        <div style="float:left;background:;width:25px;height:25px;margin-left:170px;margin-top:11px;">
+            <pe:if condition='<%=MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+                <div style="position:relative;width:100px;">
+                    <aries:mountpet-status2 name="mlel" nid='loggedinuser' type="mlel" showzero="true" style="margin-left:5px;margin-top:-5px;width:40px;height:24px;font-weight:bold;text-align:center;color:#93fafe;"/>
+                </div>
+                <input type="button" tooltip="魔法星(点击查看魔法星)" zorder="3" onclick="OnClickMagicStar" style="background:url(Texture/Aries/Common/Teen/Team/magicstar_32bits.png#0 0 25 25);background-color:#ffffff;width:25px;height:25px;margin-left:2px;margin-top:2px;" />
+            </pe:if>
+            <pe:if condition='<%=not MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+                <input type="button" tooltip="魔法星(点击查看VIP功能)" zorder="3" onclick="OnClickMagicStar" style="background:url(Texture/Aries/Common/Teen/Team/magicstar_gray_32bits.png#0 0 25 25);background-color:#ffffff;width:25px;height:25px;margin-left:2px;margin-top:2px;" />
+            </pe:if>
+        </div>
+        
+    </div>
+    <div style="float:left;position:relative;margin-left:0px;margin-top:13px">        
+        <div style="margin-left:30px;margin-top:5px;width:130px;text-align:center" tooltip="点击查看个人信息" onclick="OnClickShowMenu">
+            <pe:name name="name" style="color:#d5fcfd;height:20px;margin-left:3px;" uid='loggedinuser' linked="false" />
+        </div>        
+        <div style="margin-left:10px;margin-top:3px;">
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:164px;height:11px;" miniblockwidth="15"
+                    blockimage="Texture/Aries/Common/Teen/Team/blood_32bits.png;0 0 16 10: 7 4 7 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" type="button" tooltip="血量" style="position:relative;margin-top:-14px;margin-left:10px;width:164px;height:16px;color:#f6f655;font-size:11px;background:;" value="100/100" />
+        <div style="margin-left:8px;margin-top:8px;" >
+            <div style="position:relative;"><pe:progressbar name="stamina_bar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:97px;height:9px;" miniblockwidth="5"
+                    blockimage="Texture/Aries/Common/Teen/Team/stamina_32bits.png;0 0 16 9: 7 4 7 4"
+                    background=""
+                /></div>
+            <input name="stamina_text" type="button" tooltip="精力值:挑战Boss会消耗, 每天会自动补满&#10;(点击补充精力值)" onclick="OnClickFillStamina" style="position:relative;margin-top:-1px;margin-left:-10px;width:120px;height:12px;color:#ffffff00;color2:#ffffff;font-size:11px;background:;" value="100/100" />
+        </div>
+
+        <!--<div style="font-size:11;color:#ffffff;margin-left:-8px;margin-top:20px;">
+            <pe:item gsid="0" is_container="true" isclickable="false" style="float:left;width:63px;height:19px;">
+                <img src="Texture/Aries/Common/Teen/others/qidou_32bits.png" style="margin-left:3px;margin-top:2px;width:16px;height:16px;"/>
+                <pe:slot type="count" gsid="0" style="float:left;margin-left:0px;margin-top:-2px;" />
+            </pe:item>
+            <pe:item gsid="984" tooltip_headerline="点击可以充值" onclick="MyCompany.Aries.Desktop.Dock.PayGuide" is_container="true" style="float:left;width:70px;height:19px;">
+                <img src="Texture/Aries/Common/Teen/others/modou_32bits.png" style="margin-left:0px;margin-top:2px;width:16px;height:16px;"/>
+                <pe:slot type="count" gsid="984" style="float:left;margin-left:0px;margin-top:-2px;" />
+            </pe:item>
+        </div>-->
+        <input type="button" class="highlight2_btn_css" style="margin-left:120px;width:36px;margin-top:5px;height:16px;" onclick="MyCompany.Aries.Desktop.Dock.PayGuide" value="充值"/>
+        <div style="float:left;margin-left:8px;margin-top:-15px;width:164px;height:32px;" >           
+            <pe:if condition='<%=IsAutoAIMode()%>'>
+                <input type="button" style="float:left;margin-top:5px;margin-left:-75px;width:28px;height:28px;background:url(Texture/Aries/Common/Teen/mainbar/autoai_on_32bits.png);" tooltip='<%=GetTips_AutoAIMode()%>' onclick = "ToggleAutoAIMode" />
+            </pe:if>
+            <pe:if condition='<%=not IsAutoAIMode()%>'>
+                <input type="button" style="float:left;margin-top:5px;margin-left:-75px;width:28px;height:28px;background:url(Texture/Aries/Common/Teen/mainbar/autoai_off_32bits.png);" tooltip='<%=GetTips_AutoAIMode()%>' onclick = "ToggleAutoAIMode" />
+            </pe:if>
+            <input type="button" style="position:relative;margin-left:15px;margin-top:5px;width:28px;height:28px;background:url(Texture/Aries/Common/Teen/mainbar/firstaid_btn_32bits.png);" tooltip="消耗品助手" onclick = "MyCompany.Aries.Desktop.Dock.OnClickQuickDockButton();" />
+<!--            <input type="button" style="float:left;margin-top:15px;margin-left:-75px;color:#ffff00;font-size:11px;" value='<%=GetGearScoreText()%>' enabled="false" />
+-->
+        </div>
+    </div>
+    
+<!--    <input type="button" name="onClickMenuBtn" value="" onclick="OnClickShowMenu" style="position:relative;margin-left:-10px;margin-top:55px;width:20px;height:22px;background:url(Texture/Aries/Common/Teen/Team/arrow_down_32bits.png#0 0 20 22);"/>
+-->    
+</div>
+<pe:if condition="<%=IsFollow()%>">
+    <div style="margin-left:-40px;margin-top:2px;">
+        <input type="button" value="" onclick="OnClickShowPetMenu" style="position:relative;margin-left:100px;margin-top:34px;width:14px;height:15px;background:url(Texture/Aries/Common/Teen/Team/arrow_down_32bits.png#0 0 20 22);"/>
+        <div style="margin-left:58px;margin-top:-2px;background:url(Texture/Aries/Common/Teen/Team/combatpet_bg_32bits.png#0 0 190 60);width:190px;height:60px;">
+            <div style="position:relative;margin-left:55px;margin-top:31px;">
+                <pe:progressbar name="combatpet_exp_bar" Minimum = "0" Maximum = "<%=GetTotalExp()%>" Value = "<%=GetCurExp()%>" Step = "1"
+                        style="width:130px;height:8px;" miniblockwidth="10"
+                        blockimage="Texture/Aries/Common/Teen/Team/combatpet_exp_32bits.png: 5 3 5 3"
+                        background=""
+                    />
+                <pe:if condition='<%=CanLevelUp_FollowingPet()%>'>
+                    <div style="position:relative;margin-left:141px;margin-top:-27px;" >
+                        <img name="gift_animator" zorder="1" enabled="false" class="animated_btn3_overlay" width="85" height="32"/>
+                    </div>
+                    <input type="button" value="升级" class="defaultbutton"  style="margin-left:145px;margin-top:-20px;width:50px;" onclick="DoShowCombatpetPage"/>
+                </pe:if>
+            </div>
+            <aries:combatpet gsid="<%=GetPetID() %>" enable_tooltip="true"  show_icon="true" use_trans="true" style="position:relative;margin-left:13px;margin-top:15px;width:30px;height:30px;" />
+            <aries:combatpet pet_gsid="<%=GetPetID() %>" >
+                <aries:combatpet_item property="cur_level" style="position:relative;font-size:11;font-weight:bold;color:#93fafe;margin-left:43px;margin-top:8px;width:50px;text-align:center;"/>
+                <aries:combatpet_item property="school" style="position:relative;width:10px;height:10px;margin-left:42px;margin-top:8px;"/>
+                <aries:combatpet_item property="petname" style="position:relative;margin-left:50px;margin-top:12px;font-size:11;text-align:center;color:#ffffff;"/>
+            </aries:combatpet>
+        </div>
+    </div>
+</pe:if>
+
+<%MyCompany.Aries.Desktop.HPMyPlayerArea.UpdateUI();%>
+</pe:mcml> 
+</body>
+</html>

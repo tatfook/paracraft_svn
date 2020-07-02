@@ -1,0 +1,170 @@
+<!-- "script/apps/Aries/Gift/FirstRechargePage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+local RechargeActivityPage = commonlib.gettable("MyCompany.Aries.Gift.RechargeActivityPage");
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+
+local gifts = {};
+local need_money = 1;
+
+function GiftInit()
+    local exid = RechargeActivityPage.FirstRechargeGift.exid;
+    local check_gsid = RechargeActivityPage.FirstRechargeGift.check_gsid;
+
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    local tos = exTemplate.tos or {};
+    local pres = exTemplate.pres or {};
+    local k,v;
+
+	if (pres~=nil) then
+		for k,v in ipairs(pres) do
+			local gsid = tonumber(v.key);				
+			if (gsid == -103) then  -- 判断累计充值
+				need_money = tonumber(v.value);                
+            end
+        end
+    end
+
+    local result = {};
+    for k,v in ipairs(tos) do
+	    local gsid = v.key;
+	    if(check_gsid and check_gsid ~= gsid)then            
+		    table.insert(result,{gsid = v.key, cnt = v.value});
+	    end
+    end
+    gifts = result;
+end
+
+function DS_Func_loots(index)    
+	if(index == nil) then
+		return #(gifts);
+	else
+		return gifts[index];
+	end
+end
+
+function CanGetGift()
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local accummodou = bean.accummodou or 0;
+    if (accummodou>0) then
+        return true
+    else
+        return false
+    end
+end
+
+function DoOpen()
+    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+    PurchaseMagicBean.Show()    
+end
+
+function TakeGift()
+    local exID = RechargeActivityPage.FirstRechargeGift.exid;
+    ItemManager.ExtendedCost(exID, nil, nil, function(msg)
+            if (msg.issuccess) then 
+			    NPL.load("(gl)script/apps/Aries/Desktop/Dock.lua");		
+			    local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+			    Dock.OnExtendedCostNotification(msg);
+                local LinksAreaPage = commonlib.gettable("MyCompany.Aries.Desktop.LinksAreaPage");
+                LinksAreaPage.LoadLinksNode();
+                ClosePage();
+            else
+                if (msg.errorcode == 424) then
+				    local s = string.format("<div style='margin-left:10px;margin-top:10px;text-align:left'>您已经领取过了该礼包！</div>");
+				    _guihelper.MessageBox(s);			    
+                end
+		    end
+	    end,function(msg) end,"none",nil,nil, 10000, function()
+		    _guihelper.MessageBox("网络有故障，你等一会再来吧\n");
+	    end);
+end
+
+function GetTips()
+    local s="";
+    if (need_money>1) then
+        s = string.format("现在只要充值 %d 金币，即可<font color='#ff0000'>免费</font>领取价值<font color='#f6f655'>1888金币</font>大礼包！",need_money);
+    else
+        s = string.format("现在只要充值任意金额，即可<font color='#ff0000'>免费</font>领取价值<font color='#f6f655'>1888金币</font>大礼包！");
+    end
+    return s;
+end
+GiftInit();
+]]>
+</script>
+<aries:window width="460" height="380" title="首充送大礼" icon="Texture/Aries/Common/ThemeTeen/ElfGift/elf_ico_32bits.png" isdeepbg="true" onclose="ClosePage()">
+   <div class="border_bg1_css" style="float:left;width:450px;height:343px;margin-left:2px;margin-top:30px;padding:10px;color:#ffffff">
+       <div style="margin-top:10px;">
+            <div style="width:150px;height:150px;" class="spark_bg">
+               <div style="position:relative;margin-left:11px;margin-top:10px;width:128px;height:128px;background:url(Texture/Aries/Common/ThemeTeen/others/goldbox_32bits.png)"/>
+            </div>
+           <div style="margin-left:160px;margin-top:-130px;font-weight:bold;color:#ffffff;font-size:14px">
+                <div>尊敬的玩家，希望这个活动能带给你意外的惊喜！</div> 
+                <div style="margin-top:5px">
+                    <%=GetTips() %>
+                </div>
+           </div>     
+            <pe:item gsid="984" isenabled="false" style="width:20px;height:20px;"/>
+            <div style="float:left;margin-left:5px;">当前金币余额:</div><pe:slot type="count" gsid="984" style="float:left;" />
+
+           <div style="position:relative;margin-left:310px;margin-top:-28px;" >
+              <img name="gift_animator" zorder="1" enabled="false" class="animated_btn3_overlay" width="130" height="38"/>
+           </div>
+
+           <div style="margin-left:310px;margin-top:-20px;">                
+               <pe:if condition='<%=CanGetGift() %>'>
+                   <input type="button" style="width:80px;" class="highlight_btn_css" value="领取奖励" onclick="TakeGift"/>
+               </pe:if>
+               <pe:if condition='<%=not CanGetGift() %>'>
+                   <input type="button" style="width:80px;" class="highlight_btn_css" value="充值" onclick="DoOpen"/>
+               </pe:if>
+           </div>                 
+       </div>
+
+        <div style="float:left;margin-top:10px;font-weight:bold;font-size:12px;color:#f6f655">首充大礼包括:</div>
+        <div style="height:140px;">           
+            <div style="position:relative;width:445px;height:110px;margin-left:0px;">
+                <pe:gridview name="grid_view_loots" style="margin-top:5px;" DataSource="<%=DS_Func_loots%>" ItemsPerLine="8" AllowPaging="false" pagesize="16">
+	                <Columns>
+                        <div style="margin-left:0px;">
+                            <div style="width:48px;height:48px;padding:2px;" class="block">
+                                <pe:item gsid='<%=Eval("gsid") %>' ShowCount='<%=Eval("cnt") %>'  isclickable="false" showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                            </div>
+                        </div>
+	                </Columns>
+	                <EmptyDataTemplate>
+                        <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                </EmptyDataTemplate>
+	                <FetchingDataTemplate>
+	                </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" style="margin-left:5px;margin-top:-205px;width:260px;height:25px;"/>
+				    <PagerTemplate AutoHidePager="true">
+					    <form>
+						    <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						    <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                    </form>
+				    </PagerTemplate>
+                </pe:gridview>  
+            </div>
+       </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,907 @@
+<!-- "script/apps/Aries/NewProfile/ProfilePane.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemTranslationHelper.lua");
+local GemTranslationHelper = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemTranslationHelper");
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+local NewProfileMain = commonlib.gettable("MyCompany.Aries.NewProfileMain");
+NPL.load("(gl)script/apps/Aries/Team/TeamMembersPage.lua");
+local TeamMembersPage = commonlib.gettable("MyCompany.Aries.Team.TeamMembersPage");
+NPL.load("(gl)script/apps/Aries/Team/TeamClientLogics.lua");
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+NPL.load("(gl)script/apps/Aries/Family/FamilyMembersPage.lua");
+local FamilyManager = commonlib.gettable("Map3DSystem.App.Family.FamilyManager");
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+local ItemManager = System.Item.ItemManager;
+
+NPL.load("(gl)script/apps/Aries/Combat/main.lua");
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+NPL.load("(gl)script/apps/Aries/NewProfile/ProfilePane.lua");
+local ProfilePane = commonlib.gettable("MyCompany.Aries.ProfilePane");
+ProfilePane.OnInit();
+local timeLucky,starCount = MyCompany.Aries.Player.GetTimeLucky();
+local pageCtrl = document:GetPageCtrl();
+function GetLucky()
+    return starCount;
+end
+function ClosePage()
+
+     pageCtrl:CloseWindow();
+end
+function GetNid()
+    return ProfilePane.nid;
+end
+function IsSDK()
+	if(System.options.isAB_SDK)then
+        return true;
+    end    
+end
+function GetNidStr()
+    return tostring(GetNid());
+end
+function Get_account_name()
+    return MyCompany.Aries.ExternalUserModule:GetConfigByNid(nid).account_name
+end
+function IsEdit()
+    return ProfilePane.is_edit_name;
+end
+function IsMySelf()
+    local nid = GetNid();
+    if(nid == Map3DSystem.User.nid)then
+        return true;
+    end
+end
+function NicknameInMem()
+    return ProfilePane.GetNicknameInMem();
+end
+function DoRename()
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+	local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+	local can_pass = DealDefend.CanPass();
+	if(not can_pass)then
+		return
+	end
+    local bOwn, guid, bag, copies = ItemManager.IfOwnGSItem(984);
+	copies = copies or 0;
+	if(copies < 200)then		
+        _guihelper.Custom_MessageBox("改名需要200金币，你的金币不够！是否充值？",function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+                local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+                PurchaseMagicBean.Show()                    
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo);   
+		return
+	end
+    ProfilePane.is_edit_name = true;
+
+    pageCtrl:Refresh(0);
+    pageCtrl:SetValue("nickname", tostring(NicknameInMem()))
+end
+function DoSavename()
+	local nickname = pageCtrl:GetValue("nickname");
+    ProfilePane.ChangeNickName(nickname,pageCtrl);
+end
+function OnVotePolularitySkipShowProfile()
+    if(IsMySelf())then
+        return;
+    end
+    local nid = GetNid();
+    MyCompany.Aries.FullProfilePage.OnVotePolularity(nid,true);
+end
+function DoClick(sName)
+    ProfilePane.cur_type = sName;
+    pageCtrl:Refresh(0.1);
+end
+function DS_Func_Items_combatinfo_list(index)
+    return ProfilePane.DS_Func_Items_combatinfo_list(index);
+end
+function DS_Func_Items_medal_list(index)
+    return ProfilePane.DS_Func_Items_medal_list(index);
+end
+function DS_Func_Items_pvpstat_list(index)
+    return ProfilePane.DS_Func_Items_pvpstat_list(index);
+end
+function GetItemTooltip(index)
+    local medal_list = ProfilePane.medal_list;
+    if(medal_list)then
+        local node = medal_list[index];
+        if(node)then
+            local s = string.format("%s:%d",node.label,node.count);
+            return s;
+        end
+    end
+end
+function GetPercentStr(v)
+    if(v)then
+        local s = string.format("%d",v);
+        return s;
+    end
+end
+function GetRemainPoint()
+    local p = ProfilePane.GetRemainPoint or 0;
+    local s = string.format("潜力点:%d", p);
+    return s;
+end
+function DoViewRemainPoint()
+  --  _guihelper.MessageBox("技能百科全书");
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+    local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+
+    local zorder=1;
+    CombatSkillLearn.ShowSkillEncyclopedia(zorder);
+end
+
+function GoSchool()
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    local worldname,position,camera;
+    worldname,position,camera = WorldManager:GetWorldPositionByNPC(31026);
+    -- go back to cyandragon
+    WorldManager:GotoWorldPosition(worldname,position,camera,function()
+        pageCtrl:CloseWindow();
+		local _app = Map3DSystem.App.AppManager.GetApp(MyCompany.Aries.app.app_key);
+		if(_app and _app._app) then
+			_app = _app._app;
+			local _wnd = _app:FindWindow("ProfilePane.ShowPage") 
+			if (_wnd) then
+				local _wndFrame = _wnd:GetWindowFrame();
+				if (_wndFrame) then
+					-- close ProfilePane
+					_wnd:SendMessage(nil,{type=CommonCtrl.os.MSGTYPE.WM_CLOSE});
+				end
+			end
+		end
+    end,nil,true);    
+end
+
+function GetGridviewTooltip(row_index,key)
+   local node = ProfilePane.DS_Func_Items_combatinfo_list(index);
+   if(node and key)then
+        local value = node[key] or 0;
+        local label = node.label or "";
+        local s = "";
+        if(key == "damage")then
+            s = string.format("对%s攻击强度提升%d%%",label,value);
+        elseif(key == "resist")then
+            s = string.format("降低%s所受攻击强度%d%%",label,value);
+        end
+        return s;
+   end 
+end
+function ShowBagTip()
+    local is_over_weight = Combat.IsOverWeight()
+    if(is_over_weight)then
+        local s = string.format([[注意:你的背包已经超载,所有战斗属性下降一半!]]);
+        return s;
+    end
+end
+function Format(v)
+    if(not v)then return end
+    return string.format("%.2f",v);
+end
+function OnSelectFashionPreview()
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(false);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", false);
+    System.Item.ItemManager.RefreshMyself();
+    pageCtrl:Refresh(0.1);
+end
+
+function OnSelectCombatPreview()
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(true);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", true);
+    System.Item.ItemManager.RefreshMyself();
+    pageCtrl:Refresh(0.1);
+end
+function SkipFashionItemMode()
+    return MyCompany.Aries.Pet.GetSkipFashionItemMode();
+end
+------------------------------
+local key = string.format("profilepane_tips_%s",System.User.nid);
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+system_looptip.profilepane = Player.LoadLocalData(key, false) or false;
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage()
+    pageCtrl:SetValue("TooltipsPPT", "inventory1")    
+    if (not system_looptip.profilepane) then        
+	    system_looptip.profilepane=true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+local AutoTips = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips");
+if (AutoTips.OpenCharInfo and (not system_looptip.profilepane)) then
+    onGotoStartPage();
+end
+local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+function IsVip()
+    return VIP.IsVIP();
+end
+function GetTitle()
+    if(IsMySelf())then
+        return "个人资料"
+    else
+        System.App.profiles.ProfileManager.GetUserInfo(GetNid(), "", function (msg)
+			if(msg == nil) then	
+				return;
+			end
+			local username;
+			if(msg and msg.users and msg.users[1]) then
+				username = msg.users[1].nickname;
+                pageCtrl:CallMethod("wnd","SetTitle",string.format("%s的资料",username));
+			end
+        end);
+        return "个人资料"
+    end
+end
+function GetMenus()
+    local nid = GetNid();
+    local menus = {
+        { label = "邀请加入家族", tooltip = "邀请加入家族",  type = "InviteToFamily", onclick = function()
+                local manager = FamilyManager.CreateOrGetManager();
+				if(manager)then
+					manager:DoInvite(nid);
+				end
+            end },
+        { label = "邀请组队", tooltip = "邀请组队", type = "InviteToTeam", onclick = function()
+               TeamMembersPage.InviteToTeam(nid);
+            end },
+        { label = "单独聊天", tooltip = "单独聊天", type = "chat", onclick = function()
+               System.App.Commands.Call("Profile.Aries.ChatWithFriendImmediate", {nid = nid});
+            end },
+        { label = "交易", tooltip = "交易", type = "trade", onclick = function()
+               if(System.options.disable_trading) then
+					_guihelper.MessageBox("因个人账户安全原因，物品交换/邮件系统进行维护。预计将在下次更新后修复功能，若提前恢复交易功能不做另行通知。");
+					return;
+				end
+				NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+				local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+				local can_pass = DealDefend.CanPass();
+				if(not can_pass) then
+					return;
+				end
+
+				if(System.options.version =="teen")then
+					NPL.load("(gl)script/apps/Aries/Trade/TradeClientPage.teen.lua");
+				else
+					NPL.load("(gl)script/apps/Aries/Trade/TradeClientPage.kids.lua");		
+				end
+				if(MyCompany.Aries.Trade.TradeClientPage:CanTrade(nid))then
+					MyCompany.Aries.Trade.TradeClientPage.ShowPage(nid);	
+				else
+					_guihelper.MessageBox("距离太远了。");
+				end
+            end },
+        { label = "发送邮件", tooltip = "发送邮件", type = "sendgift", onclick = function()
+               NewProfileMain.OnSendGift(nid)
+            end },
+        { label = "加为好友", tooltip = "加为好友", type = "addasfriend", onclick = function()
+               NewProfileMain.OnAddAsFriend(nid);
+            end },
+        { label = "访问空间", tooltip = "访问空间", type = "visitspace", onclick = function()
+               NewProfileMain.OnVisitHome(nid);
+            end },
+        
+        }
+    local len = #menus;
+    while(len > 0)do
+        local node = menus[len];
+        if(node)then
+            local type = node.type;
+            local delete = false;
+            local manager = FamilyManager.CreateOrGetManager();
+            if(type == "InviteToFamily" and not manager:CanInviteMember())then
+                delete = true;
+            elseif(type == "InviteToTeam" and TeamClientLogics:MyTeamIncludeMember(nid))then
+                delete = true;
+            elseif(type == "addasfriend" and NewProfileMain.IsMyFriend(nid))then
+                delete = true;
+            end
+            if(delete)then
+                table.remove(menus,len);
+            end
+        end
+        len = len - 1;
+    end
+   
+    return menus;
+end
+local menus = GetMenus();
+function DS_Func_ContextMenu(index)
+	if(not menus)then return 0 end
+	if(index == nil) then
+		return #(menus);
+	else
+		return menus[index];
+	end
+end
+function DoClick_Menu(sName)
+    local k,v;
+    for k,v in ipairs(menus)do
+        if(v.type == sName and v.onclick)then
+            v.onclick();
+            ClosePage();
+        end
+    end
+end
+
+function CopyNIDToClipboard()
+    ParaMisc.CopyTextToClipboard(GetNid().."")
+    NPL.load("(gl)script/ide/TooltipHelper.lua");
+    local BroadcastHelper = commonlib.gettable("CommonCtrl.BroadcastHelper");
+    BroadcastHelper.PushLabel({id="treasuretip", label = "数字账号"..tostring(GetNid()).."复制到剪切板", max_duration=1000, color = "0 255 0", scaling=1.1, bold=true, shadow=true,});
+end
+function GetProp(key)
+    local s;
+    if(key == "GetHp")then
+        s = string.format("生命值:%d",MyCompany.Aries.ProfilePane.GetHp or 0);
+    elseif(key == "GetPowerPipChance")then
+        s = string.format("双倍魔力生成率:%.2f%%",MyCompany.Aries.ProfilePane.GetPowerPipChance or 0);
+    elseif(key == "GetCriticalStrikeChance")then
+        s = string.format("暴击率:%.2f%%",MyCompany.Aries.ProfilePane.GetCriticalStrikeChance or 0);
+    elseif(key == "GetOutputHealBoost")then
+        s = string.format("治疗加成率:%.2f%%",MyCompany.Aries.ProfilePane.GetOutputHealBoost or 0);
+    elseif(key == "GetResilienceChance")then
+        s = string.format("韧性:%.2f%%",MyCompany.Aries.ProfilePane.GetResilienceChance or 0);
+    elseif(key == "GetDodgeChance")then
+        s = string.format("闪避率:%.2f%%",MyCompany.Aries.ProfilePane.GetDodgeChance or 0);
+    elseif(key == "GetHitChance")then
+        s = string.format("命中:%.2f%%",MyCompany.Aries.ProfilePane.GetHitChance or 0);
+    elseif(key == "GetCriticalStrikeDamageBonus") then
+        s = string.format("暴击伤害:%.2f%%", (MyCompany.Aries.ProfilePane.GetCriticalStrikeDamageBonus or 0) + 30);
+    end
+    return s;
+end
+
+    function ds()
+        return "+++";
+    end
+function GetUserItemCopies(gsid)
+    gsid = tonumber(gsid);
+    local item = GemTranslationHelper.GetUserItem(GetNid(),gsid);
+    if(item)then 
+        return item.copies or 0
+    end
+    return 0;
+end
+function DS_Func_Items_boss_list(index)
+    return ProfilePane.DS_Func_Items_boss_list(index);
+end
+function GetBossInfo(index)
+    if(ProfilePane.boss_gsid_list)then
+        return ProfilePane.boss_gsid_list[index];
+    end
+end
+function HadKilled(index)
+    local boss_info = GetBossInfo(index);
+    if(boss_info and boss_info.cnt and boss_info.cnt > 0)then
+        return true;
+    end
+end
+   
+function GetCnt(index)
+    local boss_info = GetBossInfo(index);
+    if(boss_info and boss_info.cnt and boss_info.cnt > 0)then
+        return boss_info.cnt;
+    end
+end
+function GetBossTooltip(index)
+    local boss_info = GetBossInfo(index);
+    if(boss_info and boss_info.mode)then
+        local cnt = boss_info.cnt;
+        local mode_label = LobbyClientServicePage.mode_template[boss_info.mode];
+        boss_info = LobbyClientServicePage.GetBossInfoByWorldName(boss_info.worldname,boss_info.mode);
+        if(boss_info and boss_info.boss_template)then
+            local boss_template = boss_info.boss_template;
+            if(HadKilled(index))then
+                return string.format("%sBOSS:【%s】%d回合被击败",mode_label,boss_template.attr.displayname,cnt);
+            else
+                return string.format("%sBOSS:【%s】还未挑战",mode_label,boss_template.attr.displayname);
+            end
+        end
+    end
+end
+function GetBossQuality(mode)
+    local quality_background="";
+    if(mode == 1) then
+		quality_background = "Texture/Aries/Desktop/ItemOutline/outline_white_small_32bits.png: 7 7 7 7";
+    elseif(mode == 2) then
+		quality_background = "Texture/Aries/Desktop/ItemOutline/outline_green_small_32bits.png: 7 7 7 7";
+    elseif(mode == 3) then
+		quality_background = "Texture/Aries/Desktop/ItemOutline/outline_blue_small_32bits.png: 7 7 7 7";
+	elseif(mode == 4) then
+		quality_background = "Texture/Aries/Desktop/ItemOutline/outline_violet_small_32bits.png: 7 7 7 7";
+	elseif(mode == 5) then
+		quality_background = "Texture/Aries/Desktop/ItemOutline/outline_orange_small_32bits.png: 7 7 7 7";
+	end
+    return quality_background;
+end
+function GetBossIcon(index)
+    local boss_info = GetBossInfo(index);
+    if(boss_info)then
+        boss_info = LobbyClientServicePage.GetBossInfoByWorldName(boss_info.worldname,boss_info.mode);
+        if(boss_info and boss_info.boss_template)then
+            local boss_template = boss_info.boss_template;
+            local asset = boss_template.attr.asset;
+            if(asset)then
+                return string.format("%s.png",asset);
+            end
+        end
+    end
+    return "";
+end
+function OnShowMinorPage()
+    local MinorSkillPage = commonlib.gettable("MyCompany.Aries.Desktop.MinorSkillPage");
+    MinorSkillPage.ShowPage()
+    ClosePage();
+end
+function OnShowTotemPage()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/TotemPage.lua");
+    local TotemPage = commonlib.gettable("MyCompany.Aries.Desktop.TotemPage");
+    if(not TotemPage.HasLearned())then
+        TotemPage.ShowLearnPage();
+    else
+        TotemPage.ShowPage()
+    end
+    ClosePage();
+end
+function OnClickCheckFamily()
+    NPL.load("(gl)script/apps/Aries/Profile/FamilyProfile.lua");
+    MyCompany.Aries.FamilyProfilePage.ShowFamilyInfoOfNID(GetNid());
+end
+
+function GetGearScoreText()
+    return format("战斗力: %d", ProfilePane.GetGearScore())
+end
+]]></script>
+
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:0px;margin-left:5px;width:750px;height:460px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:560px;margin-top:420px;width:85px;height:30px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:400px;margin-top:330px;width:260px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			你每4级可以获得一个<span class="guide">潜力点</span>，可以用它去找别系导师学魔法!
+            <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-7px;margin-left:570px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:655px;margin-top:420px;width:80px;height:30px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:470px;margin-top:330px;width:240px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			点击这里，可以马上回到彩虹城<span class="guide">魔法学院</span>，去导师那里学魔法
+           <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-left:32px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-7px;margin-left:680px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+
+<aries:window width="800" height="470" name="wnd" title="<%=GetTitle()%>" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/character_icon_32bits.png" >
+<pe:block style="position:relative;margin-left:20px;margin-top:28px;" class="rename_bg_css" />
+<pe:block style="position:relative;margin-top:26px;width:310px;height:30px;background:;" zorder="5">
+            <pe:if condition='<%=IsMySelf()%>'>
+                <pe:if condition='<%=not IsEdit()%>'>
+                    <div style="position:relative;margin-top:8px;margin-left:10px;width:130px;height:16px;" >
+                    </div>
+                    <div class="highbluecolor" style="text-align:center;margin-top:5px;">
+                        <pe:name name="FullProfileUserName" nid='<%=GetNid()%>' useyou="false" linked="false" />
+                    </div>
+                    <div style="position:relative;margin-left:210px;margin-top:-15px;"><input type="button" tooltip="改名" class="change_name_button" onclick="DoRename()"/></div>
+                </pe:if>
+                <pe:if condition='<%=IsEdit()%>'>
+                        <div class="highbluecolor" style="text-align:center;margin-top:5px;">
+                        <input type="text" name="nickname" SkipAutoBadWordFilter="true" style="margin-left:75px;margin-top:0px;width:130px;height:22px;" class="defaulttextfield"/>
+                    </div>
+                    <div style="position:relative;margin-left:210px;margin-top:-20px;"><input type="button" tooltip="保存" class="save_name_button" onclick="DoSavename()"/></div>
+                </pe:if>
+            </pe:if>
+            <pe:if condition='<%=not IsMySelf()%>'>
+                <div class="highbluecolor" style="text-align:center;margin-top:5px;">
+                    <pe:name name="FullProfileUserName" nid='<%=GetNid()%>' useyou="false" linked="false" />
+                </div>
+            </pe:if>
+</pe:block>
+    <pe:block style="margin-top:26px;background:;">
+        <div style="float:left;">
+        <div class="border_bg1_css" style="width:310px;height:412px;margin-left:7px;margin-top:25px;">
+            <div style="height:10px;"/>
+            <div style="position:relative;margin-left:60px;margin-top:10px;">
+                <aries:vip-sign nid='<%=GetNid()%>' style="width:64px;height:64px;" vip_icon="Texture/Aries/Common/ThemeTeen/magic/star_32bits.png" vip_icon_gray="Texture/Aries/Common/ThemeTeen/magic/star_gray_32bits.png"/>
+                <aries:mountpet-status2 name="mlel" showzero="true" nid='<%=GetNid()%>' type="mlel" style="position:relative;margin-left:-38px;margin-top:0px;width:16px;height:16px;color:#003366;font-weight:bold;text-align:center;background:url(Texture/Aries/Common/ThemeTeen/magic/number_bg_32bits.png);"/>
+            </div>
+            <div style="position:relative;margin-left:170px;margin-top:10px;font-weight:norm;padding-left:20px;padding-top:10px;width:180px;height:100px;color:#000000;background:;">
+                <div style="margin-top:-6px;width:64px;height:32px;background:" class="highbluecolor">
+                    <aries:mountpet-combatschool name="combat_school" nid='<%=GetNid()%>' style="margin-left:8px;margin-top:1px;"/>
+                </div>
+                <br/>
+                <div style="margin-top:-8px;width:64px;height:32px;background:" class="highbluecolor">
+                    <aries:mountpet-status2 name="combat_level" nid='<%=GetNid()%>' type="combatlel" hideifnotvip="true" style="margin-left:12px;margin-top:1px;"/>
+                    <div style="margin-left:-36px;float:left;">级</div>
+                </div>
+            </div>
+                <div style="position:relative;margin-left:50px;">
+                    <img src="Texture/Aries/Common/ThemeTeen/others/profile_highlight_1_32bits.png;0 0 256 100" enabled="false" style="background-color:#ffffffff;margin-left:28px;margin-top:250px;width:200px;height:50px;" />
+                </div>
+                <div style="position:relative;margin-left:0px;margin-top:0px;width:344px;height:385px;background:;">
+                <div style="position:relative;float:left;margin-left:3px;margin-top:-9px;width:48px;height:228px;">
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="2" zorder=2 style = "width:40px;height:40px;" class="highbluecolor" HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="帽子"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="8" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="背部"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="5" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="衣服"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="9" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="手套"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="7" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="鞋子"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="11" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="主手"/>
+                    </div>
+                </div>
+                <div style="position:relative;float:left;margin-top:30px;margin-left:24px;width:256px;height:256px;">
+                    <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:256px;height:256px;" IsInteractive="false"/>
+                </div>
+                <div style="position:relative;margin-left:30px;margin-top:60px;">
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;margin-left:35px;margin-top:210px;width:36px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:105px;margin-top:210px;width:36px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                </div>
+                <div style="position:relative;float:left;margin-left:255px;margin-top:-9px;width:48px;height:228px;">
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="17" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="项链"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="14" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="耳环"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="15" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="手镯"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="16" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="戒指"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="12" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="腰带"/>
+                    </div>
+                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="10" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="副手"/>
+                    </div>
+                </div>
+                <div style="margin-left:5px;margin-top:300px;width:248px;height:42px;font-size:12px;" class="border_bg1_css">
+                    <div style="float:left;width:70px;margin-top:2px;">
+                    <pe:if condition='<%=IsMySelf()%>'>
+                        <pe:if condition='<%=not SkipFashionItemMode()%>'>
+                            <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                            <input type="button" value="炫彩装" style="float:left;width:40px;height:20px;" class="highlight_btn_css"/>
+                            <br />
+                            <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectCombatPreview" />
+                            <input type="button" value="战斗装" style="float:left;width:40px;height:20px;" class="default_btn_css" onclick="OnSelectCombatPreview" />
+                        </pe:if>
+                        <pe:if condition='<%=SkipFashionItemMode()%>'>
+                            <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectFashionPreview" />
+                            <input type="button" value="炫彩装" style="float:left;width:40px;height:20px;" class="default_btn_css" onclick="OnSelectFashionPreview" />
+                            <br />
+                            <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                            <input type="button" value="战斗装" style="float:left;width:40px;height:20px;" class="highlight_btn_css" />
+                        </pe:if>
+                    </pe:if>
+                    <pe:if condition='<%=not IsMySelf()%>'>
+                        <div style="position:relative;margin-left:5px;margin-top:5px;">
+                            <div style="position:relative;">
+                                <pe:slot nid='<%=GetNid()%>' bag="0" position="54" zorder=2 style = "width:28px;height:28px;" class="highbluecolor"  HideVIPTag="true" onclick="OnShowMinorPage"/>
+                            </div>
+                            <div style="position:relative;margin-left:28px;margin-top:0px;">
+                                <pe:slot nid='<%=GetNid()%>' bag="0" position="52" zorder=2 style = "width:28px;height:28px;" class="highbluecolor"  HideVIPTag="true" onclick="OnShowTotemPage"/>
+                            </div>
+                        </div>
+                    </pe:if>
+                </div>
+                    <div style="float:left;margin-left:2px;margin-top:2px;" >
+                        <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                            <pe:slot nid='<%=GetNid()%>' bag="0" position="72" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="玩具"/>
+                        </div>
+                        <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                            <pe:slot nid='<%=GetNid()%>' bag="0" position="18" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="炫帽"/>
+                        </div>
+                        <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                            <pe:slot nid='<%=GetNid()%>' bag="0" position="19" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="炫衣"/>
+                        </div>
+                        <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                            <pe:slot nid='<%=GetNid()%>' bag="0" position="70" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="炫背"/>
+                        </div>
+                        <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                            <pe:slot nid='<%=GetNid()%>' bag="0" position="71" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="炫鞋"/>
+                        </div>
+                    </div>
+                </div>
+                 <div style="position:relative;margin-left:257px;margin-top:-48px;width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="33" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" isclickable="false" ShowSlotNameIfEmpty="坐骑"/>
+                </div>
+            </div>
+            <div style="margin-left:5px;margin-top:345px;width:300px;height:50px;" class="border_bg1_css">
+                <div style="margin-left:5px;margin-top:5px;" class="highbluecolor">
+                    <div style="float:left;min-width:140px;">家族:<div style="float:left;"><aries:userinfo nid='<%=GetNid()%>' class="linkbutton" onclick="OnClickCheckFamily"  field="family" /></div></div>
+                    <div style="float:left;min-width:140px;" tooltip="人气值:有多少人为你进行了人气投票">人气值:
+                        <div style="float:left;" >
+                            <aries:userinfo nid='<%=GetNid()%>' field="popularity" />
+                        </div>
+                    </div>
+                </div>
+                <pe:if condition='<%=not IsMySelf()%>'>
+                    <div style="position:relative;margin-left:255px;margin-top:-19px;">
+                        <input type="button" tooltip="给对方加人气" style="width:40px;" onclick="OnVotePolularitySkipShowProfile()" value="投票" class="defaultbutton"/>
+                    </div>
+                </pe:if>
+                <div style="margin-left:5px;margin-top:5px;" class="highbluecolor">
+                    <div style="float:left;min-width:140px;" tooltip="数字账号:该角色在世界中的唯一编号">数字账号:<div style="float:left;"><%=GetNidStr()%></div></div>
+                    <pe:if condition="<%=IsSDK()%>">
+                        <div style="float:left;"><div style="float:left;">注册日期ABSDK:</div><aries:userinfo style="float:left;" nid='<%=GetNid()%>' field="birthday" onclick="CopyNIDToClipboard" tooltip="点击复制nid"/></div>
+                    </pe:if>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div style="float:left;">
+             <pe:tabs name="tabscontrol" class="tabs_blue" style="margin-top:3px;" onclick="DoClick" >
+                <pe:tab-item name="combatinfo" text="信息" selected="true" style="width:60px;"/>
+                <!--<pe:tab-item name="honour" text="荣誉" style="width:60px;"/>-->
+                <pe:tab-item name="pvpinfo" text="战绩" style="width:60px;"/>
+                <!--<pe:tab-item name="boss" text="成就" style="width:60px;"/>-->
+            </pe:tabs>
+            <div style="position:relative;width:473px;height:410px;margin-left:2px;margin-top:-418px;" class="border_bg2_css">
+                <pe:if condition='<%=MyCompany.Aries.ProfilePane.cur_type == "combatinfo"%>'>
+                 <div style="position:relative;margin-left:0px;margin-top:0px;">
+                    <!--<input type="button" class="border_bg3_css"   value="基础属性" enabled="false" style="margin-left:3px;margin-top:3px;width:467px;height:28px;"/>-->
+                     <input type="button" class="border_bg3_css" value='<%=GetGearScoreText()%>' enabled="false" style="margin-left:0px;margin-top:3px;width:467px;height:28px;" />
+                    <div style="margin-left:3px;margin-top:0px;width:467px;height:135px;" class="border_bg2_css">
+                        <div style="margin-left:4px;margin-top:4px;">
+                            <div style="float:left;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="生命值:生命值上限" value='<%=GetProp("GetHp")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                            <div style="float:left;margin-left:2px;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="双倍魔力生成率:增加获得双倍魔力点的几率" value='<%=GetProp("GetPowerPipChance")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                        </div>
+                        <div style="margin-left:4px;margin-top:2px;">
+                            <div style="float:left;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="暴击率:攻击中产生暴击的几率" value='<%=GetProp("GetCriticalStrikeChance")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                            <div style="float:left;margin-left:2px;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="治疗加成率:增加治疗法术的治疗强度" value='<%=GetProp("GetOutputHealBoost")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                        </div>
+                        <div style="margin-left:4px;margin-top:2px;">
+                            <div style="float:left;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="韧性:避免受到攻击时，被他人暴击" value='<%=GetProp("GetResilienceChance")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                            <div style="float:left;margin-left:2px;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="闪避率:增加躲避他人攻击的几率，躲避攻击后，仅受到50%伤害" value='<%=GetProp("GetDodgeChance")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                        </div>
+                        <div style="margin-left:4px;margin-top:2px;">
+                            <div style="float:left;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="命中:增加全系别技能的命中概率" value='<%=GetProp("GetHitChance")%>' style="text-align:left;color:#aedce0;background:;"/>
+                            </div>
+                            <div style="float:left;margin-left:2px;width:229px;" class="property_bg_css" >
+                                <input type="button" tooltip="暴击产生的伤害加成" value='<%=GetProp("GetCriticalStrikeDamageBonus")%>' style="text-align:left;color:#aedce0;background:;" />
+                            </div>
+                        </div>
+                         <div style="margin-left:4px;margin-top:2px;">
+                            <div style="float:left;width:229px;" class="property_bg_css" >
+                            </div>
+                            <div style="float:left;margin-left:2px;width:229px;" class="property_bg_css" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="position:relative;margin-top:165px;" >
+                    <div >
+                        <input type="button" class="border_bg3_css" value='系别属性' enabled="false" style="margin-left:0px;margin-top:3px;width:467px;height:28px;" />
+                    </div>
+                    <img class="border_bg8_css" style="position:relative;width:467px;height:183px;margin-left:3px;" />
+                    <div>
+                        <div style="margin-top:5px;">
+                            <img class="border_bg7_css" style="position:relative;width:453px;height:24px;margin-left:10px;margin-top:3px;" />
+                            <input type="button" value="系别" class="titlebutton" style="float:left;width:155px;" enabled="false"/>
+                            <input type="button" value="攻击力" class="titlebutton" style="float:left;width:155px;" enabled="false"/>
+                            <input type="button" value="防御力" class="titlebutton" style="float:left;width:155px;" enabled="false"/>
+                        </div>
+                    </div>
+                    <div >
+                        <pe:gridview name="combatinfo_list_view" DataSource="<%=DS_Func_Items_combatinfo_list%>"  ItemsPerLine="1" AllowPaging="false" pagesize="6">
+				            <Columns>
+                                <div style="width:467px;">
+					                <div style="margin-top:0px;">
+						                <div class="highbluecolor" style="float:left;margin-left:0px;width:155px;text-align:center;"><%=Eval("label") %></div>
+						                <div class="highbluecolor" style="float:left;margin-left:0px;width:155px;text-align:center;" tooltip='<%=GetGridviewTooltip(Eval("index"),"damage") %>' ><%=GetPercentStr(Eval("damage")) %></div>
+						                <div class="highbluecolor" style="float:left;margin-left:0px;width:155px;text-align:center;" tooltip='<%=GetGridviewTooltip(Eval("index"),"resist") %>' ><%=GetPercentStr(Eval("resist")) %></div>
+					                </div>
+                                    <div class="blue_line" style="position:relative;margin-left:18px;margin-top:5px;width:440px;height:1px;" />
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+				            </FetchingDataTemplate>
+				            <PagerSettings Position="Bottom" style="margin-left:600px;margin-top:-5px;width:160px;height:25px;"/>
+				            <PagerTemplate>
+					            <form>
+						            <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							            <input type="button" name="page" class="pagertext" />
+						            <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                            </form>
+				            </PagerTemplate>
+			            </pe:gridview>                
+                    </div>
+                </div>
+               <div style="position:relative;margin-left:3px;padding-left:10px;padding-top:2px;margin-top:379px;width:466px;height:25px;" class="border_bg2_css">
+                    <pe:if condition='<%=IsMySelf()%>'> 
+                        <div style="float:left;width:270px;color:#ff0000" ><%=ShowBagTip() %></div>
+                        <!--<input type="button" value="<%=GetRemainPoint()  %>" tooltip="每点可以学习一个非本系魔法, 点击查看" onclick="DoViewRemainPoint" style="float:left;margin-left:10px;margin-top:5px;width:80px;"/>
+                        <input type="button" value="去学魔法" tooltip="回彩虹岛魔法学院，找导师学新魔法" onclick="GoSchool" style="float:left;margin-left:10px;margin-top:5px;width:80px;"/>-->
+                    </pe:if>
+                    <pe:if condition='<%=not IsMySelf()%>'> 
+                        <div style="position:relative;margin-left:-10px;width:500px;height:100px;">
+                             <pe:gridview name="contextmenu_view" DataSource="<%=DS_Func_ContextMenu%>"  ItemsPerLine="15" AllowPaging="false" pagesize="15">
+				            <Columns>
+                                <div style="margin-left:2px;">
+                                    <input type="button" onclick="DoClick_Menu" name='<%=Eval("type")%>' value='<%=Eval("label")%>'/>
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+				            </FetchingDataTemplate>
+				           
+			            </pe:gridview>         
+                        </div>
+                    </pe:if>
+                </div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.ProfilePane.cur_type == "honour"%>'>
+                
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.ProfilePane.cur_type == "pvpinfo"%>'>
+                <div style="position:relative;">
+                    <div ><input type="button" class="border_bg3_css" value="红蘑菇赛场战绩" enabled="false" style="margin-left:3px;margin-top:3px;width:467px;height:28px;"/></div>
+                    <div>
+                        <img class="border_bg8_css" style="position:relative;width:467px;height:90px;margin-left:3px;" />
+                        <div style="margin-top:5px;">
+                            <img class="border_bg7_css" style="position:relative;width:453px;height:24px;margin-left:10px;margin-top:3px;" />
+                            <input type="button" value="项目" class="titlebutton" style="float:left;width:150px;" enabled="false"/>
+                            <input type="button" value="胜利" class="titlebutton" style="float:left;width:60px;" enabled="false"/>
+                            <input type="button" value="失败" class="titlebutton" style="float:left;width:60px;" enabled="false"/>
+                            <input type="button" value="胜率" class="titlebutton" style="float:left;width:60px;" enabled="false"/>
+                            <input type="button" value="本月积分" class="titlebutton" style="float:left;width:60px;" enabled="false"/>
+                        </div>
+                        <div>
+                            <pe:gridview name="pvpstat_list_view" DataSource="<%=DS_Func_Items_pvpstat_list%>"  ItemsPerLine="1" AllowPaging="false" pagesize="11">
+				                <Columns>
+                                    <div style="width:425px;">
+					                    <div style="margin-top:0px;">
+						                    <div style="float:left;margin-left:0px;width:150px;text-align:center;" class="highbluecolor"><%=Eval("label") %></div>
+						                    <div style="float:left;margin-left:0px;width:60px;text-align:center;" class="highbluecolor"><%=Eval("win_count") %></div>
+						                    <div style="float:left;margin-left:0px;width:60px;text-align:center;" class="highbluecolor"><%=Eval("lose_count") %></div>
+						                    <div style="float:left;margin-left:0px;width:60px;text-align:center;" class="highbluecolor"><%=GetPercentStr(Eval("winning_rate")) %></div>
+						                    <div style="float:left;margin-left:0px;width:60px;text-align:center;" class="highbluecolor"><%=Eval("rating") %></div>
+					                    </div>
+                                        <div class="blue_line" style="position:relative;margin-left:18px;margin-top:5px;width:440px;height:1px;" />
+					                </div>
+				                </Columns>
+				                <EmptyDataTemplate>
+				                </EmptyDataTemplate>
+				                <FetchingDataTemplate>
+				                </FetchingDataTemplate>
+				            </pe:gridview>                
+                        </div>
+                    </div>
+                    <div style="margin-left:10px;margin-top:-285px;height:80px;">
+                        <div class="border_bg3_css" style="background:;height:20px;">可贡献给家族:</div>
+                        <div class="highbluecolor">
+                            <div style="float:left;">
+                                <div style="float:left;margin-left:2px;">赛场荣誉:</div>
+                                <div style="float:left;"><%=GetUserItemCopies(20054)%></div>
+                            </div>
+                            <div style="float:left;">
+                                <div style="float:left;margin-left:60px;">挑战功勋:</div>
+                                <div style="float:left;"><%=GetUserItemCopies(20056)%></div>
+                            </div>
+                        </div>
+                        <div class="border_bg3_css" style="background:;height:20px;">个人当前荣誉:</div>
+                        <div class="highbluecolor">
+                            <div style="float:left;">
+                                <div style="float:left;margin-left:2px;">赛场荣誉:</div>
+                                <div style="float:left;"><%=GetUserItemCopies(20055)%></div>
+                            </div>
+                            <div style="float:left;">
+                                <div style="float:left;margin-left:60px;">挑战功勋:</div>
+                                <div style="float:left;"><%=GetUserItemCopies(20057)%></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-left:0px;margin-top:-210px;width:480px;height:400px;">
+                    <div ><input type="button" class="border_bg3_css" value="荣誉" enabled="false" style="margin-left:3px;margin-top:3px;width:467px;height:28px;"/></div>
+                        <pe:gridview DataSource="<%=DS_Func_Items_medal_list%>" style="margin-left:3px;"  ItemsPerLine="8" AllowPaging="false" pagesize="24">
+				            <Columns>
+                                <div style="margin-left:2px;margin-top:2px;width:56px;height:56px;padding:4px;" class="block">
+					                <div style="margin-top:0px;">
+                                        <pe:if condition='<%=Eval("guid") > 0%>'>
+                                            <pe:slot guid='<%=Eval("guid")%>' nid='<%=GetNid()%>' isclickable="false" style="width:48px;height:48px;"/>
+                                        </pe:if>
+					                </div>
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+				            </FetchingDataTemplate>
+				            <PagerSettings Position="Bottom" style="margin-left:150;margin-top:-15px;width:160px;height:0px;"/>
+				            <PagerTemplate>
+					            <form>
+						            <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							            <input type="button" name="page" class="pagertext" />
+						            <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                            </form>
+				            </PagerTemplate>
+			            </pe:gridview>                
+                    </div>
+                </div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.ProfilePane.cur_type == "boss"%>'>
+                <div style="position:relative;">
+                    <div style="margin-left:0px;margin-top:0px;width:480px;height:600px;">
+                    <div ><input type="button" class="border_bg3_css" value="挑战BOSS" enabled="false" style="margin-left:3px;margin-top:3px;width:467px;height:28px;"/></div>
+                        <pe:gridview DataSource="<%=DS_Func_Items_boss_list%>" style="margin-left:3px;" name="boss_view"  ItemsPerLine="8" AllowPaging="true" pagesize="48">
+				            <Columns>
+                                <div style="margin-left:2px;margin-top:2px;width:56px;height:56px;padding:4px;" class="block">
+					                <div style="margin-top:0px;">
+                                        <pe:if condition='<%=HadKilled(Eval("index"))%>'>
+                                            <img src='<%=GetBossQuality(Eval("mode"))%>' tooltip='<%=GetBossTooltip(Eval("index"))%>' style="position:relative;width:48px;height:48px;"/>
+                                            <img src='<%=GetBossIcon(Eval("index"))%>' tooltip='<%=GetBossTooltip(Eval("index"))%>' style="width:48px;height:48px;"/>
+                                            <div style="margin-top:-20px;text-align:right;width:48px;font-weight:bold;"><%=GetCnt(Eval("index"))%></div>
+                                        </pe:if>
+                                        <pe:if condition='<%=not HadKilled(Eval("index"))%>'>
+                                            <input type="button" enabled="false" tooltip='<%=GetBossTooltip(Eval("index"))%>' background='<%=GetBossQuality(Eval("mode"))%>' style="position:relative;width:48px;height:48px;"/>
+                                            <input type="button" enabled="false" tooltip='<%=GetBossTooltip(Eval("index"))%>' background='<%=GetBossIcon(Eval("index"))%>' style="width:48px;height:48px;"/>
+                                            <div tooltip='<%=GetBossTooltip(Eval("index"))%>' style="margin-top:-48px;width:48px;height:48px;" />
+                                        </pe:if>
+                                    </div>
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+				            </FetchingDataTemplate>
+				            <PagerSettings Position="Bottom" style="margin-left:180;margin-top:-195px;width:160px;height:0px;"/>
+				            <PagerTemplate>
+					            <form>
+						            <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							            <input type="button" name="page" class="pagertext" />
+						            <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                            </form>
+				            </PagerTemplate>
+			            </pe:gridview>                
+                    </div>
+                </div>
+                </pe:if>
+            </div>
+        </div>
+    </pe:block>   
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

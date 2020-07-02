@@ -1,0 +1,114 @@
+﻿<!-- "script/apps/Aries/CombatRoom/BattleFieldTeam.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="BattleFieldTeam.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local BattleFieldTeam = commonlib.gettable("MyCompany.Aries.CombatRoom.BattleFieldTeam");
+BattleFieldTeam.OnInit();
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+function DoJoin()
+    if(System.options.isAB_SDK) then
+		_guihelper.MessageBox("SDK版本可以直接进入英雄谷，是否现在进入？",function(result)
+			if(result == _guihelper.DialogResult.Yes) then
+				BattleFieldTeam.DoJoin();
+			end
+            if(result == _guihelper.DialogResult.Cancel) then
+				local canjoin = BattleFieldTeam.CanJoin();
+                if(canjoin) then
+                    BattleFieldTeam.DoJoin();
+                end
+			end
+		end,_guihelper.MessageBoxButtons.YesNoCancel);
+    else
+        local canjoin = BattleFieldTeam.CanJoin();
+        if(canjoin) then
+            BattleFieldTeam.DoJoin();
+        end
+    end
+end
+
+function DoCreate()
+    if(System.options.isAB_SDK) then
+		_guihelper.MessageBox("SDK版本可以直接进入英雄谷，是否现在进入？",function(result)
+			if(result == _guihelper.DialogResult.Yes) then
+				BattleFieldTeam.DoCreate();
+			end
+             if(result == _guihelper.DialogResult.Cancel) then
+				local canjoin = BattleFieldTeam.CanJoin();
+                if(canjoin) then
+                    BattleFieldTeam.DoCreate();
+                end
+			end
+		end,_guihelper.MessageBoxButtons.YesNoCancel);
+    else
+        local canjoin = BattleFieldTeam.CanJoin();
+        if(canjoin) then
+            BattleFieldTeam.DoCreate();
+        end
+    end
+end
+
+function ExchangeAwards()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+    NPCShopPage.ShowPage(30556);
+end
+
+function SeeBattlefieldRankingList()
+    NPL.load("(gl)script/apps/Aries/GoldRankingList/GoldRankingListMain.lua");
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMainWnd_BattleField();
+end
+
+function OpenPlayInformation()
+    BattleFieldTeam.ShowHelperPage();
+end
+
+function BugEgg(gsid)
+    local exidList = {[17540] = 1986,[17541] = 1987};
+    BattleFieldTeam.BuyLuckEgg(gsid,exidList[gsid]);
+end
+]]></script>
+<div style="width:720px;height:480px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_panel_bg_32bits.png#0 0 720 480)">   
+    <input type="button" onclick="ClosePage" zorder="10" style="position:relative;margin-top:14px;margin-left:670px;width:38px;height:38px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_close_btn.png#0 0 38 38);"/>
+    <pe:item gsid="23452" style="position:relative;margin-left:80px;margin-top:90px;width:64px;height:64px;" icon="Texture/ico.png;24 24 32 32:4 4 4 4" isclickable="false"/>
+    <pe:item gsid="23455" style="position:relative;margin-left:80px;margin-top:167px;width:64px;height:64px;" icon="Texture/ico.png;24 24 32 32:4 4 4 4" isclickable="false"/>
+    <pe:item gsid="23453" style="position:relative;margin-left:80px;margin-top:242px;width:64px;height:64px;" icon="Texture/ico.png;24 24 32 32:4 4 4 4" isclickable="false"/>
+    <pe:item gsid="23454" style="position:relative;margin-left:80px;margin-top:317px;width:64px;height:64px;" icon="Texture/ico.png;24 24 32 32:4 4 4 4" isclickable="false"/>
+    <div style="margin-top:25px;margin-left:30px;width:660px;height:440px;background:"> 
+        <div style="float:left;margin-top:9px;margin-left:330px;width:320px;height:230px;background:">
+            <div style="margin-top:5px;margin-left:10px;width:300px;height:190px;background:">
+                <div style="position:relative;margin-left:15px;margin-top:40px;width:144px;height:32px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_get_heroscore.png#0 0 144 32);"/>
+                <input type="button" onclick="DoJoin" style="position:relative;margin-left:165px;margin-top:30px;width:120px;height:55px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_joinstartedone.png#0 0 120 55)"/>
+                <div style="position:relative;margin-left:90px;margin-top:95px;width:186px;height:22px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_characters.png#0 0 186 22);"/>
+                <input type="button" onclick="ExchangeAwards" tooltip="打开积分兑换页面" style="position:relative;margin-left:15px;margin-top:70px;width:64px;height:64px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_heroscore_gift_32bits.png)"/>
+                <div style="position:relative;margin-left:15px;margin-top:145px;width:186px;height:24px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_characters.png#0 55 186 24);"/>
+                <pe:item gsid="17540" style="position:relative;margin-left:200px;margin-top:130px;width:39px;height:39px;" icon="Texture/Aries/Combat/Battle/battlefieldteam_luckegg_small.png;0 0 39 39" onclick="BugEgg"/>
+                <pe:item gsid="17541" style="position:relative;margin-left:238px;margin-top:118px;width:53px;height:53px;" icon="Texture/Aries/Combat/Battle/battlefieldteam_luckegg_big.png;0 0 53 53" onclick="BugEgg"/>
+            </div>
+            <div style="margin-top:1px;margin-left:10px;width:300px;height:200px;background:">
+                <div style="position:relative;margin-left:15px;margin-top:30px;width:144px;height:32px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_above_rankinglist.png#0 0 144 32);"/>
+                <input type="button" onclick="DoCreate" style="position:relative;margin-left:165px;margin-top:20px;width:120px;height:55px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_jion_newone.png#0 0 120 55)"/>
+                <div style="position:relative;margin-left:15px;margin-top:70px;width:162px;height:95px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_mammoth.png#0 0 162 95);"/>
+                <input type="button" onclick="SeeBattlefieldRankingList" tooltip="查看战魂榜" style="position:relative;margin-left:185px;margin-top:80px;width:64px;height:64px;background:url(Texture/Aries/Combat/Battle/battlefieldteam_look_rankinglist.png)"/>
+                <input type="button" onclick="OpenPlayInformation" tooltip="新英雄谷规则" style="position:relative;margin-left:230px;margin-top:160px;width:55px;height:32px;background:"/>
+                
+
+            </div>                      
+        </div>
+    </div>  
+</div>
+
+</pe:mcml> 
+</body>
+</html>

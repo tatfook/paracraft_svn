@@ -1,0 +1,146 @@
+﻿<!-- "script/apps/Aries/Books/DragonEncyclopedia.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DragonEncyclopedia, by Andy, 2009/8/1</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+--50028_WishLevel6_Acquire
+--50029_WishLevel6_Complete
+
+local hasLollipop = false;
+
+if(hasGSItem(50028) and not hasGSItem(50029)) then
+    hasLollipop = true;
+end
+
+local datainfo = {
+{ name="神奇技能", startpage=2, endpage=3 },
+{ name="养成攻略", startpage=4, endpage=7 },
+{ name="抱抱龙FAQ", startpage=8, endpage=8 },
+}
+
+function Goto(index)
+    if(index) then
+        index = tonumber(index);
+        pageCtrl:CallMethod("DragonEncyclopedia", "GotoPage", index);
+    end
+end
+
+--显示目录
+function ShowCatalog(x,y,step)
+	local s = "";
+	local tmp;
+	local i,v;
+
+	for i,v in pairs(datainfo) do
+		if( v.startpage == v.endpage ) then
+			tmp = string.format([[<div style="position:relative;margin-left:%dpx;margin-top:%dpx;width:256px;height:128px;background:url()">
+							<a tooltip="%s  （A%d）" style="width:150px;height:24px;background:url(Texture/Aries/Books/TimesMagazineWeb/arrow_32bits.png#4 4 24 24: 22 1 1 1)" name="A2" onclick="Goto" param1='%d'><div style="width:120px;height:24px;"/></a>
+							</div>]], x, y + ( i - 1 ) * step, v.name, v.startpage, v.startpage );
+		else
+			tmp = string.format([[<div style="position:relative;margin-left:%dpx;margin-top:%dpx;width:256px;height:128px;background:url()">
+							<a tooltip="%s  （A%d-A%d）" style="width:150px;height:24px;background:url(Texture/Aries/Books/TimesMagazineWeb/arrow_32bits.png#4 4 24 24: 22 1 1 1)" name="A2" onclick="Goto" param1='%d'><div style="width:120px;height:24px;"/></a>
+							</div>]], x, y + ( i - 1 ) * step, v.name, v.startpage, v.endpage, v.startpage );
+		end
+
+		s = s .. tmp;
+	end
+
+	return s;
+end
+
+function DS_Func_DragonEncyclopedia(index)
+    if(index == nil) then
+        return 7;
+    elseif(index == 1) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic01.png; 0 0 550 430",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 2) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic08_32bits.png; 0 0 550 430",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 3) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic02.png; 0 0 550 430",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 4) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic03.png; 0 0 550 430",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 5) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic04.png; 0 0 550 430", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 6) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic06.png; 0 0 550 430", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 7) then
+        return {background = "Texture/Aries/Books/DragonEncyclopedia_v1/book_pic07.png; 0 0 550 430", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    end
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<input type="button" onclick="Confirm()" style="margin-left:700px;margin-top:50px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-40px;margin-left:40px;padding-left:110px;padding-top:56px;padding-bottom:-10px;background:url(Texture/Aries/Books/Green_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_DragonEncyclopedia%>" name="DragonEncyclopedia" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("background")%>' style="width:550px;height:430px;" />
+            </div>
+            <div style="margin-top:-430px;">
+                <pe:if condition='<%=Eval("index") == 1%>'>
+                    <%=ShowCatalog(20,76,20) %>
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-38px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+
+<div style="float:left;margin-left:115px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----抱抱龙百科全书----
+</div>
+<div style="float:left;margin-left:415px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----抱抱龙百科全书----
+</div>
+
+</pe:mcml> 
+</body>
+</html>

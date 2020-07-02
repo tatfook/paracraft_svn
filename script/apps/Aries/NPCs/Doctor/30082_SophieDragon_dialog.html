@@ -1,0 +1,146 @@
+﻿<!-- "script/apps/Aries/NPCs/Doctor/30082_SophieDragon_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30081_Sophie_dialog, by Andy, 2009/8/24</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local dragonFetched = MyCompany.Aries.Pet.IsMyDragonFetchedFromSophie();
+
+Condition1 = function()
+    -- haven't fetch the dragon from sophie
+    return (dragonFetched == false);
+end;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30082);
+
+Condition3 = function()
+    return (memory.dialog_state == 3);
+end;
+Condition4 = function()
+    return (memory.dialog_state == 4);
+end;
+Condition5 = function()
+    return (memory.dialog_state == 5);
+end;
+Condition6 = function()
+    return (memory.dialog_state == 6);
+end;
+
+function EntryAction(from, to)
+    if(from == 0 and to == 4) then
+        -- 50191_WishElkFeed_TalkedToSophieDragon
+	    ItemManager.PurchaseItem(50191, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase item 50191_WishElkFeed_TalkedToSophieDragon return: +++++++\n")
+			    commonlib.echo(msg);
+		    end
+	    end);
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+ <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="name" source="{this}" value='苏菲姐姐'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="Ambassador_hqtym" />
+            <pe:placeholder id="Ambassador_cktym" />
+            <pe:placeholder id="viewcontent" />
+            <pe:placeholder id="later" />
+            <pe:placeholder id="ok" />
+        </pe:template>
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = 'true' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+
+        <pe:state id = "1">
+		    我是哈奇小镇的医生<br/>——苏菲。<br/>
+            你是来接抱抱龙回家的吧，我现在就把它交给你，你好好照顾它哦。
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "2">
+            春天还是如约而至呀，在龙龙乐园晒太阳真舒服，暖和的很呐！
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "3">
+		    苏菲姐姐最近在忙着做麋鹿爱吃的鲜苔飘香卷呢，你别来打扰她哦！有空你也去做几个吧，抱抱龙也很喜欢吃的！
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "4">
+		    苏菲姐姐在忙着给麋鹿做鲜苔飘香卷，她忙不过来，我们偷偷的帮她一起做吧！<br/>
+            不过我只记得原料是菠萝，七色花，冬菇，海苔四种材料中的三种，你能先帮忙试着做做看吗？做好记得回来告诉我哦！
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "5">
+		    鲜苔飘香卷的原料是菠萝，七色花，冬菇，海苔四种材料中的三种，然后用龙龙乐园神奇的微波炉来做，至于是烤，是煮，还是蒸，我也不知道哦。<br/>
+            你多试几次肯定能做出来的，做完记得来告诉我！
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "6">
+		    鲜苔飘香卷的原料是菠萝，七色花，冬菇，海苔四种材料中的三种，然后用龙龙乐园神奇的微波炉来做，至于是烤，是煮，还是蒸，我也不知道哦。<br/>
+            你多试几次肯定能做出来的，做完记得来告诉我！
+            <pe:answer template_id="giveyou">
+			    <pe:answer-if condition = "true" target_state = "7"/>
+		    </pe:answer>
+            <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        
+        <pe:state id = "7">
+		    热心聪明的小哈奇，太感谢你了！<br/>
+            送你一顶圣诞帽吧，祝你圣诞快乐！
+            <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

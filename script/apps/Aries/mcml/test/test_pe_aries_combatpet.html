@@ -1,0 +1,176 @@
+<!-- "script/apps/Aries/mcml/test/test_pe_aries_combatpet.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2011.07.19</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local provider = CombatPetHelper.GetClientProvider();
+
+local page = document:GetPageCtrl();
+local id = page:GetRequestParam("id");
+id = tonumber(id) or 10137;
+
+local combat_pet_props = provider:GetPropertiesByID(id) or {};
+local exp_level_list = combat_pet_props.exp_level_list;
+local append_card_level_list = combat_pet_props.append_card_level_list;
+local append_prop_level_list = combat_pet_props.append_prop_level_list;
+
+local senior_exp_level_list = combat_pet_props.senior_exp_level_list;
+local senior_append_card_level_list = combat_pet_props.senior_append_card_level_list;
+local senior_append_prop_level_list = combat_pet_props.senior_append_prop_level_list;
+local place_list = combat_pet_props.place_list;
+
+function getID()
+    return id;
+end
+function DS_Func(index,t)
+    if(not t)then return 0 end
+	if(index == nil) then
+		return #(t);
+	else
+		return t[index];
+	end
+end
+function DS_Func_exp_level(index)
+    return DS_Func(index,exp_level_list);
+end
+function DS_Func_append_card_level(index)
+    return DS_Func(index,append_card_level_list);
+end    
+function DS_Func_append_prop_level(index)
+    return DS_Func(index,append_prop_level_list);
+end    
+function DS_Func_senior_exp_level(index)
+    return DS_Func(index,senior_exp_level_list);
+end
+function DS_Func_senior_append_card_level(index)
+    return DS_Func(index,senior_append_card_level_list);
+end    
+function DS_Func_senior_append_prop_level(index)
+    return DS_Func(index,senior_append_prop_level_list);
+end  
+function DS_Func_place_list(index)
+    return DS_Func(index,place_list);
+end  
+]]></script>
+<div style="font-size:12px;">
+    <aries:combatpet gsid="10137" click_teleport="true" show_if_not_owned="true" show_icon="true" style="float:left;width:32px;height:32px;" />
+    <aries:combatpet gsid="10162" click_teleport="true" show_if_not_owned="true" show_icon="true" style="float:left;width:32px;height:32px;" />
+    <aries:combatpet gsid="10186" click_teleport="true" show_icon="true" style="float:left;width:32px;height:32px;" />
+    <aries:combatpet gsid="10138" click_teleport="true" show_icon="true" style="float:left;width:32px;height:32px;" />
+    <aries:combatpet gsid="10139" click_teleport="true" show_icon="true" style="float:left;width:32px;height:32px;" />
+<div>
+
+<div style="float:left;width:250px;padding-left:10px;">
+    <aries:combatpet pet_gsid="<%=getID() %>" >
+        <aries:combatpet_item property="gsid" />
+        <div>名称:<aries:combatpet_item property="petname" style="float:left;"/></div>
+        <div>经验值总和:<aries:combatpet_item property="max_exp" style="float:left;"/></div>
+        <div>级别:<aries:combatpet_item property="level" style="float:left;"/></div>
+        <div>最大级别:<aries:combatpet_item property="max_level" style="float:left;color:#ff0000"/></div>
+        <div>要求魔法星等级:<aries:combatpet_item property="req_magic_level" style="float:left;"/></div>
+        <div>当天喂养次数:<aries:combatpet_item property="cur_feed_num" style="float:left;"/></div>
+        <div>剩余喂养次数:<aries:combatpet_item property="left_feed_num" style="float:left;"/></div>
+        <div>默认单场获得最大经验:<aries:combatpet_item property="add_exp_max_default" style="float:left;"/></div>
+        <div>默认单场经验提成百分比:<aries:combatpet_item property="add_exp_percent_default" style="float:left;"/></div>
+        <div>出现地点1:<aries:combatpet_item property="place" params_place_index="1" style="float:left;"/></div>
+        <div>出现地点2:<aries:combatpet_item property="place" params_place_index="2" style="float:left;"/></div>
+        <div>出现地点3:<aries:combatpet_item property="place" params_place_index="3" style="float:left;"/></div>
+
+        <div>senior_级别:<aries:combatpet_item property="senior_level" style="float:left;"/></div>
+        <div>senior_最大级别:<aries:combatpet_item property="senior_max_level" style="float:left;color:#ff0000"/></div>
+        <div>senior_食物:<aries:combatpet_item property="senior_gsid" style="float:left;color:#ff0000"/></div>
+    </aries:combatpet>
+</div>
+<div style="float:left;">
+        <div style="float:left;">
+            <pe:gridview style="width:200;height:340px" DataSource="<%=DS_Func_exp_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">等级:<%=Eval("level") %></div>
+                    <div style="float:left">经验:<%=Eval("exp") %></div>
+                </div>
+                </Columns>
+                <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+            <pe:gridview style="width:240;height:340px" DataSource="<%=DS_Func_append_card_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">等级:<%=Eval("level") %></div>
+                    <div style="float:left">卡片:<%=Eval("cards_str") %></div>
+                </div>
+                </Columns>
+                <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+            <pe:gridview style="width:240;height:340px" DataSource="<%=DS_Func_append_prop_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">等级:<%=Eval("level") %></div>
+                    <div style="float:left">属性:<%=Eval("props_str") %></div>
+                </div>
+                </Columns>
+	            <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+</div>
+</div>
+<div>
+        <div style="float:left;width:250;height:340px">
+            <pe:gridview style="width:200;height:340px" DataSource="<%=DS_Func_place_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">出现地点:<%=Eval("label") %></div>
+                </div>
+                </Columns>
+                <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+            <pe:gridview style="width:200;height:340px" DataSource="<%=DS_Func_senior_exp_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">senior_等级:<%=Eval("level") %></div>
+                    <div style="float:left">经验:<%=Eval("exp") %></div>
+                </div>
+                </Columns>
+                <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+            <pe:gridview style="width:240;height:340px" DataSource="<%=DS_Func_senior_append_card_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">senior_等级:<%=Eval("level") %></div>
+                    <div style="float:left">卡片:<%=Eval("gsid_str") %></div>
+                </div>
+                </Columns>
+                <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;">
+            <pe:gridview style="width:240;height:340px" DataSource="<%=DS_Func_senior_append_prop_level%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                <div>
+                    <div style="float:left">senior_等级:<%=Eval("level") %></div>
+                    <div style="float:left">属性:<%=Eval("props_str") %></div>
+                </div>
+                </Columns>
+	            <PagerSettings Position="Bottom" PreviousPageText="上一页" NextPageText="下一页"/>
+            </pe:gridview>
+        </div>
+</div>
+</div>
+</pe:mcml>
+</body>
+
+</html>
+

@@ -1,0 +1,115 @@
+﻿<!-- "script/kids/3DMapSystemUI/MiniMap/GenMiniMapPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>GenMiniMapPage Page 2008.10.5</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GenMiniMapPage.lua">
+    Map3DSystem.App.MiniMap.GenMiniMapPage.OnInit();
+</script>
+<div style="padding:5px">
+    <div style="margin-bottom:5px">
+        <img style="background:url(Texture/3DMapSystem/AppIcons/minimap_64.dds);width:32px;height:32px"/>
+        <div style="float:left;margin-top:5px;margin-left:5px">生成当前世界的小地图</div>
+    </div>
+     <pe:tabs name="GenMapTabs"> 
+     <pe:tab-item text="生成" selected="true" style="padding-left:5px;padding-right:5px">
+        <form name="genminimapform2">
+        <div style="float:left;">start_index:</div><pe:numericupdown style="width:90px" name="start_index" value="35" min="0" max="20000"/><br />
+        <div style="float:left;">end_index:</div><pe:numericupdown style="width:90px" name="end_index" value="39" min="0" max="20000"/><br />
+
+<!--        <div style="float:left;">x:</div><pe:numericupdown style="width:90px" name="genminimap_x" value="19200" valueformat="%.2f" min="64" max="20000"/><br />
+        <div style="float:left;">y:</div><pe:numericupdown style="width:90px" name="genminimap_y" value="19200" valueformat="%.2f" min="64" max="20000"/><br />
+        <div style="float:left;">w:</div><pe:numericupdown style="width:90px" name="genminimap_w" value="1600" valueformat="%.2f" min="64" max="20000"/><br />
+        <div style="float:left;">h:</div><pe:numericupdown style="width:90px" name="genminimap_h" value="1600" valueformat="%.2f" min="64" max="20000"/><br />
+        <input name="default_snap" type="submit" tooltip="恢复默认值，从第36格子起，3格的范围"  value="默认值" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/>
+        <input name="snap" type="submit"  tooltip="自动对齐格子的数量" value="校正" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />-->
+        <hr />
+        切片图片路径：<input type="text" name="txt_save_clip" />
+        <br />
+        合成图片路径：<input type="text" name="txt_source_image" />
+        <br />
+        Region路径：<input type="text" name="txt_save_region" />
+        <br />
+        地图层数：<select name="maplevel_value">
+        <option selected="selected" value="-1">所有</option>
+        <option value="1">2</option>
+        <option value="2">3</option>
+        <option value="3">4</option>
+        </select>
+        <br />
+        第一步：<input name="btnGenRegionMap" type="submit" tooltip="生成地图切片" value="生成地图切片" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />
+
+        第二步：<input name="btnEditRegionMap" type="submit" tooltip="用外部程序编辑图像" value="编辑图像" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />
+
+       
+        第三步：<input name="btnSaveRegionMap" type="submit" tooltip="生成地图region" value="生成地图region" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />
+        类型：
+        <select name="attvalue">
+        <option selected="selected" value="move">移动(move)</option>
+        <option value="sound">声音(sound)</option>
+        <option value="test">测试(test)</option>
+        </select>
+        <br />
+        Region尺寸：<select name="region_size_value">
+        <option selected="selected" value="128">128</option>
+        <option value="256">256</option>
+        <option value="512">512</option>
+        </select>
+        <br />
+        Region格式：<select name="region_pixelformat_value">
+        <option value="0">四位(0)</option>
+        <option value="1">八位(1)</option>
+        <option value="2">二十四位(2)</option>
+        <option  selected="selected" value="3">三十二位(3)</option>
+        </select>
+        <br />
+        <hr />
+        <input name="btnReloadRegionMap" type="submit" tooltip="如果已经存在region了，可以重新加载" value="重新加载region" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/>
+        
+        <hr />
+        <input name="btnShowSwfMap" type="submit" tooltip="预览地图" value="预览地图" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />
+        <hr />
+        <input name="btnShowNewMiniMap" type="submit" tooltip="test" value="地图" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.ShowNewMiniMap"/><br />
+        <br />
+        <input name="btnShowTile" type="submit" tooltip="查看region" value="查看region" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenRegionMap"/><br />
+        </form>
+     </pe:tab-item>
+     
+     <pe:tab-item text="图像"  style="padding-left:5px;padding-right:5px">
+        <form name="genminimapform">
+        <div style="float:left;text-align:right;width:80px">地图半径(m):</div><pe:numericupdown style="width:90px" name="radius" value="266.67" valueformat="%.2f" min="64" max="4096"/><br />
+        <div style="float:left;text-align:right;width:80px">中心(x,y):</div>
+            <div style="float:left">
+                <pe:numericupdown style="width:90px" name="pos_x" value="266.67" valueformat="%.2f" min="0" max="40000"/><br />
+                <pe:numericupdown style="width:90px" name="pos_y" value="266.67" valueformat="%.2f" min="0" max="40000"/>
+            </div><br />
+        <div style="float:left;text-align:right;width:80px">图片尺寸:</div>
+        <select name="imagesize" style="width:90px">
+            <option selected="true">256</option><option>512</option><option>1024</option><option>2048</option><option>4096</option>
+        </select><br />
+        <hr />
+        <img name="preview" style="width:196px;height:196px" src="Texture/3DMapSystem/brand/noimageavailable.dds"/>
+        <hr />
+        <div>
+            <input name="btnGenMap" class="defaultbutton" type="submit" tooltip="重新生成小地图" value="生成" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnGenMap"/>
+            <input name="btnEditMap" type="submit" tooltip="用外部程序编辑图像" value="编辑" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnEditMap"/>
+            <input name="btnSaveMap" type="submit" tooltip="保存到当前世界" value="保存&应用" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnSaveMap"/>
+        </div>
+        </form>
+     </pe:tab-item>   
+
+     <pe:tab-item text="位置" style="padding-left:5px;padding-right:5px">
+        <form name="genminimapformP">
+        <div style="color:#808080">地图中的位置. 每行格式: <br />标记名字(x, y, color)</div>
+        <textarea rows="8" name="pointset"></textarea><br />
+        <input name="btnUpdateMapPoints" type="submit" value="更新" onclick="Map3DSystem.App.MiniMap.GenMiniMapPage.OnUpdateMapPoints"/>
+        </form>
+     </pe:tab-item>
+    </pe:tabs>
+</div>
+</pe:mcml>
+</body>
+</html>

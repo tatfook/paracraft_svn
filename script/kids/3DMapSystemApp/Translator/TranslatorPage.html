@@ -1,0 +1,82 @@
+﻿<!-- "script/kids/3DMapSystemApp/Translator/TranslatorPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Translate Page by Leio, 2008.7.9</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="script/kids/3DMapSystemApp/Translator/TranslatorPage.lua">
+    Map3DSystem.App.Translator.TranslatorPage.OnInit();
+</script>
+<pe:tabs name="TranslatorTabs">
+  <pe:tab-item text="步骤1:选择路径" name="new" selected="true">
+    <div style="margin:5px"><form name="newPkgForm"><div style="font-weight:bold">选择生成文本文件的路径</div>
+        <br />
+        名称: <select name="txtfileName" style="width:500px">
+              <option selected="true"  value="test-zhCN.lua">test-zhCN.lua</option>
+              <option  value="npl_translator.txt">NPL(npl_translator.txt)</option>
+              <option  value="mcml_translator.txt">MCML(mcml_translator.txt)</option>
+              </select>
+        <br />
+        路径: <select name="txtfilePath" style="width:500px">
+              <option selected="true" value="packages/translator">缺省路径(packages/translator)</option>
+              </select>
+          <input type="button" name="SelectNewFolder" style="margin:5px;"  class="defaultbutton"  value="浏览..." onclick="Map3DSystem.App.Translator.TranslatorPage.NewPkgSelectFolder"/>       
+    </form></div>
+    <hr />
+    <div style="font-weight:bold;margin:5px">清空所有数据</div>
+     <input type="button" value="清空" style="margin:5px;width:100%"  class="defaultbutton" onclick="Map3DSystem.App.Translator.TranslatorPage.OnInit()"/>
+  </pe:tab-item>
+  <pe:tab-item text="步骤2:选择文件" name="file" >
+    <div style="float:left;margin:5px">
+     目录: 
+      <select name="CurFolder" style="margin:5px;width:580px" onclick="Map3DSystem.App.Translator.TranslatorPage.OnSelectFolder()">
+          <option selected="true" value="/">根目录(/)</option>        
+      </select><br/>
+      类型:
+      <select name="CurFilter" style="margin:5px;width:580px" onclick="Map3DSystem.App.Translator.TranslatorPage.OnSelectFilter()">
+        <option selected="true" value="*.lua">NPL文件(*.lua)</option>  
+        <option value="*.html;*.xml">MCML文件(*.html;*.xml)</option>
+        <option value="*.html;*.htm;*.xml">MCML文件(*.html;*.htm;*.xml)</option>
+        <option value="*.txt">Txt文件(*.txt)</option>
+        <option value="*.lua;*.html;*.htm;*.xml">NPL/MCML文件(*.lua;*.html;*.htm;*.xml)</option>
+        <option value="*.*">所有文件(*.*)</option>
+      </select><br/>
+      <pe:filebrowser name="FileBrowser" style="margin:5px;width:650" filter="*.lua" rootfolder="/" AllowFolderSelection="true" onclick="Map3DSystem.App.Translator.TranslatorPage.OnSelectFile()"
+            CheckBoxes="true" 
+             />
+    </div>
+  </pe:tab-item>  
+  <pe:tab-item text="步骤3:生成文本文件">
+    <div style="margin:10px"> 
+    <pe:progressbar name="progressbar" onstep="Map3DSystem.App.Translator.TranslatorPage.OnPackageStep"/>
+    <br />
+    当前的进度:<label name="progress_result" style="margin:5px;height:16px;color:#006600"></label>
+    <br />
+    <textarea name="output_txt" rows="15" ShowLineNumber="true" ReadOnly="true"></textarea>
+    <br />
+    <div>
+     <input type="button" value="生成" style="margin:5px;width:100%"  class="defaultbutton" onclick="Map3DSystem.App.Translator.TranslatorPage.DoSave()"/>
+     </div>
+    </div>
+  </pe:tab-item>
+  <pe:tab-item text="高级:汉化文件">
+    <div style="margin:10px"> 
+    <pe:progressbar name="progressbar_write" onstep="Map3DSystem.App.Translator.TranslatorPage.OnPackageStep"/>
+    <br />
+    当前的进度:<label name="progress_result_write" style="margin:5px;height:16px;color:#006600"></label>
+    <br />
+    <textarea name="output_txt_write" rows="15" ShowLineNumber="true" ReadOnly="true"></textarea>
+    <br />
+    <div>
+     <input type="button" value="汉化" style="margin:5px;width:100%"  class="defaultbutton" onclick="Map3DSystem.App.Translator.TranslatorPage.DoWrite()"/>
+     </div>
+    </div>
+  </pe:tab-item>
+</pe:tabs>
+
+</pe:mcml>
+</body>
+</html>
+

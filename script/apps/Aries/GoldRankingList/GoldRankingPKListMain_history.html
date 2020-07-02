@@ -1,0 +1,177 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingPKListMain_history.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingPKListMain, by spring, 2011/6/2</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+
+MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.Init();
+
+rankdate = page:GetRequestParam("rdate") or MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.rankdate;
+-- rankdate=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.rankdate;
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local combatlvl,setlvl=0,0;
+if(bean) then
+	combatlvl = bean.combatlel or 0;
+end 
+
+if (combatlvl>=20 and combatlvl<=29) then
+    setlvl=20
+elseif (combatlvl>=30 and combatlvl<=39) then
+    setlvl=30
+elseif (combatlvl>=40 and combatlvl<=49) then
+    setlvl=40
+elseif (combatlvl>=50 or combatlvl<20) then
+    setlvl=50
+end
+--cur_lvl = cur_lvl or setlvl;
+cur_lvl = 50;
+function Confirm()
+    page:CloseWindow();
+end
+
+function getTitle()
+    local s = rankdate.." 赛季排名";
+    local listname = MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.GetCurPage();
+    if (listname=="family_pk") then
+        s = rankdate.." 赛季排名";
+    end
+    return s
+end
+
+function ChangeLvl(v)
+    cur_lvl=tonumber(v);
+    MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.ChangeList("pk",cur_lvl);
+end
+
+function GetLvl()
+    return cur_lvl;
+end
+
+function DS_Func_Lvl(index)
+    local lvl_list={
+        {name="20级", lvl=20},
+        {name="30级", lvl=30},
+        {name="40级", lvl=40},
+        {name="50级", lvl=50},
+    }
+	if(index == nil)then
+		return 1;
+	else
+		return lvl_list[index];
+	end
+end
+
+]]></script>
+<div style="position:relative;margin-left:830px;margin-top:20px;width:48px;height:48px;">
+    <input type="button" onclick="Confirm()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+</div>
+<div style="position:relative;margin-left:0px;margin-top:0px;width:857px;height:512px;background:url(Texture/Aries/GoldRankingList/bg_history.png#0 0 857 512);">
+    <div style="position:relative;margin-left:55px;margin-top:90px;width:220px;height:48px;color:#FFFEFF;font-family:Tahoma;font-size:14px;font-weight:bold;">
+        <%=getTitle() %>
+    </div>
+    <div style="position:relative;margin-left:45px;margin-top:118px;width:208px;height:353px;">
+<!--        <div style="margin-left:5px;margin-top:1px;width:208px;height:35px;">             
+            <pe:gridview DataSource="<%=DS_Func_Lvl%>" CellPadding="0" ItemsPerLine="4" AllowPaging="true" pagesize="4">
+                <Columns>
+                    <div style="margin-top:-3px;width:40px;height:20px;background:url(Texture/Aries/GoldRankingList/lvl_bg_32bits.png#0 0 37 18: 4 4 4 4)">
+                            
+                        <pe:if condition='<%=GetLvl() == Eval("lvl") %>'>
+                            <input type="button" style="float:left;margin-top:-1px;width:40px;height:20;color:#662d00;text-align:center;font-size:10;background:url(Texture/Aries/GoldRankingList/lvl_bg_selected_32bits.png#0 0 37 18: 4 4 4 4);"
+                                    value='<%=Eval("name") %>'  />   
+                        </pe:if>
+                        <pe:if condition='<%=GetLvl() ~= Eval("lvl") %>'>
+                            <input type="button" style="float:left;margin-top:-1px;width:40px;height:20;color:#ffffff;text-align:center;font-size:10;background:;"
+                                    name='<%=Eval("lvl") %>'
+                                    value='<%=Eval("name") %>'
+                                    onclick = 'ChangeLvl'
+                                    Normal_BG=""
+                                    MouseOver_BG="Texture/Aries/GoldRankingList/lvl_bg_selected_32bits.png;0 0 37 18"
+                                    Pressed_BG="Texture/Aries/GoldRankingList/lvl_bg_selected_32bits.png;0 0 37 18" />
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+            
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+            
+                </FetchingDataTemplate>
+	            <PagerSettings Position="Bottom" height="1" style="margin-left:-20px;margin-top:10px;width:10px;height:1px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate>
+	                <form>
+	                </form>
+	            </PagerTemplate>
+            </pe:gridview>
+            <div style="margin-left:35px;margin-top:-15px;width:150px;height:25px;color:#FFFFFF;font-size:14;font-weight:bold;"><%=GetLvl() %> 级分段排名</div>
+        </div>-->
+        <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.DS_Func%>" name="GoldRankingPKListMain" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="9">
+        <Columns>
+            <div style="margin-top:5px;width:165px;height:32px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.GetCurPage() == Eval("listname")%>'>
+                    <div style="position:relative;margin-top:0px;width:165px;height:32px;color:#FFFEFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                        <div style="margin-left:5px;margin-top:5px;"> <%=Eval("name") %> </div>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.GetCurPage() ~= Eval("listname")%>'>
+
+                    <div style="position:relative;width:165px;height:32px;">
+                        <input type="button" style="float:left;margin-top:-1px;width:165px;height:32;color:#FFFEFF;text-align:center;font-size:12;background:;"
+                            name='<%=Eval("index") %>'
+                            value='<%=Eval("name") %>'
+                            onclick = "MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.ChangePage()"
+                            Normal_BG=""
+                            MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                            Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32" />
+                    </div>   
+                </pe:if>
+                
+                <div style="position:relative;margin-left:130px;margin-top:3px;">
+                    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.GetCurList() == "pk" and Eval("listname")~= "popularity" %>'>
+                        <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/pk_32bits.png;0 0 32 32") %>' />
+                    </pe:if>
+                    <pe:if condition='<%=Eval("listname")== "popularity" %>'>
+                        <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/popularity_32bits.png;0 0 32 32") %>' />
+                    </pe:if>
+                </div> 
+                <pe:if condition='<%=Eval("isnew")==1 %>'>
+                    <div style="position:relative;margin-left:-15px;margin-top:-5px;">
+                        <img style="width:53px;height:42px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                    </div> 
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="0" style="margin-left:25px;margin-top:-10px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	            <div style="float:left;margin-top:-2px;width:64px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+
+    	    </form>
+	    </PagerTemplate>
+        </pe:gridview>
+    </div>
+
+    <div style="margin-left:240px;margin-top:125px;">
+        <%=MyCompany.Aries.GoldRankingList.GoldRankingPKListMain.GetFrame() %>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

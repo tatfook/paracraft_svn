@@ -1,0 +1,90 @@
+﻿<!-- "script/apps/Aries/NPCs/DrDoctor/30104_DuoDuoRobot_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30104_DuoDuoRobot_dialog, by Leio, 2009/12/1</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    return true;
+    --return MyCompany.Aries.Quest.NPCs.DuoDuoRobot.IsOutDay();
+end;
+Condition2 = function()
+   return not MyCompany.Aries.Quest.NPCs.DuoDuoRobot.IsOutDay();
+end;
+Condition3 = function()
+    return not MyCompany.Aries.Quest.NPCs.DuoDuoRobot.HasFlower();
+end;
+Condition4 = function()
+    return MyCompany.Aries.Quest.NPCs.DuoDuoRobot.HasFlower();
+end;
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    MyCompany.Aries.Quest.NPCs.DuoDuoRobot.GiveFlower(from, to);
+end
+]]></script>
+ <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30104" />
+            <pe:placeholder id="name" source="{this}" value="多多" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    看到贝壳海岸上的日光控制器了吗？那是博士为小哈奇准备的圣诞礼物，他为了这个发明已经辛苦了好久呢！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		   博士最近搞发明需要好多七色花，如果你能贡献一朵七色花，那真是再好不过了。
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "3">
+		    你还没有七色花呢，快去七色丛林里采一朵来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "4">
+		    你真是一个好心的哈奇，这下博士的新发明有望成功了，他特地托我送你一块晶晶石表示感谢。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

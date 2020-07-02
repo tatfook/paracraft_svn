@@ -1,0 +1,178 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30042_SueSue_dialog, by Andy, 2009/7/30</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id); 
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 10104: FollowPetXHM
+
+Condition1 = function()
+    -- doesn't accept the quest yet, or completed
+    return (not hasGSItem(50019) or (hasGSItem(50019) and hasGSItem(50020)));
+end;
+Condition2 = function()
+    -- accept the quest, and with the cat followed
+
+
+    return (hasGSItem(50019) and not hasGSItem(50020) and equipGSItem(10104));
+end;
+Condition3 = function()
+    -- accept the quest, but not with the cat followed
+    return (hasGSItem(50019) and not hasGSItem(50020) and not equipGSItem(10104));
+end;
+
+function EntryAction(from, to)
+    if(from == 2 and to == 4) then
+        -- accept the quest
+        local bHas, guid = equipGSItem(10104);
+        if(bHas == true and hasGSItem(50019)) then
+            -- finish the quest
+            -- exid 86: DragonQuestGrow_Level3
+            ItemManager.ExtendedCost(86, nil, nil, function(msg)end, function(msg)
+		        log("+++++++ExtendedCost 86: DragonQuestGrow_Level3 return: +++++++\n")
+		        commonlib.echo(msg);
+		        -- auto refresh after give cat
+		        System.Item.ItemManager.RefreshMyself();
+			    --50021_WishLevel3_RewardFriendliness
+			    if(msg.issuccess == true) then
+				    -- use the item 50021 to increase pet friendliness
+                    local bHas, guid = hasGSItem(50021);
+                    if(bHas and guid) then
+                        local item = ItemManager.GetItemByGUID(guid);
+                        if(item and item.guid > 0) then
+                            item:OnClick("left");
+                        end
+                    end
+				    --WishLevel0.RefreshStatus();
+			    end
+            end);
+        end
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+GiveCarnationToday = function()
+    return MyCompany.Aries.Quest.NPCs.SueSue.GiveCarnationToday();
+end
+
+NotGiveCarnationTodayAndHaveCarnation = function()
+    return MyCompany.Aries.Quest.NPCs.SueSue.NotGiveCarnationTodayAndHaveCarnation();
+end
+
+GiveCarnation = function()
+    MyCompany.Aries.Quest.NPCs.SueSue.GiveCarnation();
+end
+
+reward_name = MyCompany.Aries.Quest.NPCs.SueSue.GetRandomRewardName();
+
+]]></script>
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30042" />
+            <pe:placeholder id="name" source="{this}" value="苏苏" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+            <!--我目前设计的几款衣服，都还是大家比较喜欢的。还有更多漂亮帅气的衣服，我会稍后推出。请及时关注吧～-->
+            <!--圣诞节快到了，我为大家准备了圣诞节的特色服装，快进屋内选购吧，圣诞节过了想买都买不到的。-->
+            <!--新年喜洋洋！最近的节日一个接一个，我这也忙得不亦乐乎啦。听说新年会有舞会，一定要穿的漂漂亮亮去参加呀。-->
+            <!--新年喜洋洋！我要给大家多设计一些节日的装扮，真是忙得不亦乐乎噢！-->
+            <!--春天快快来吧，美妙的春天才能给我更多的设计灵感！-->
+            明媚的春光真是让我思绪如泉涌啊，大家很快会看到我新设计的服装咯。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    客人都想让我为他们设计独一无二的衣服，我哪有那么多时间设计出这么多种啊～哎，灵感都跑光了，如果有只小花猫陪我就好了。
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+	        小哈奇，我好想去养一只小花猫陪我啊。现在店里的这些衣服都是我亲自设计的，你可以随便挑选。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    哇！谢谢你送我小花猫，有了这只小花猫的陪伴，我会涌现出更多的灵感的。<br/>
+            嗯，为了感谢你，我决定送你一个可以背的<div style="float:left;color:#FF0000">小翅膀</div>，我已经把它放入你的背包了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+	        春天快快来吧，美妙的春天才能给我更多的设计灵感！
+		    <pe:answer text="送你康乃馨" template_id="giveyoucarnation">
+			    <pe:answer-if condition = '<%=Eval("GiveCarnationToday")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("NotGiveCarnationTodayAndHaveCarnation")%>' target_state = "7"/>
+			    <pe:answer-if condition = "true" target_state = "8"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+	        真的谢谢你，不过我今天已经收到过你送的康乃馨了，把这份祝福再送给别人吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+	        <%=string.format("这是你辛苦耕种的康乃馨吗？真香啊！我要送你%s，谢谢你啦！", Eval("reward_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GiveCarnation")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "8">
+	        你真好，不过你还没有康乃馨呢，如果能寻找到2个春天的气息就能得到康乃馨种。快快找到种子回家种点康乃馨吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "100">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "101">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

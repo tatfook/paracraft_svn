@@ -1,0 +1,283 @@
+﻿<!-- "script/apps/Aries/Quest/QuestWeeklyLinksViewPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+NPL.load("(gl)script/apps/Aries/Quest/QuestDialogPage.lua");
+local QuestDialogPage = commonlib.gettable("MyCompany.Aries.Quest.QuestDialogPage");
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+local provider = QuestClientLogics.GetProvider();
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestWeeklyLinksViewPage.lua");
+local QuestWeeklyLinksViewPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyLinksViewPage");
+QuestWeeklyLinksViewPage.OnInit();
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function GetTitle()
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        return QuestWeeklyLinksViewPage.cur_page_source.attr.label;
+    end
+end
+function PrePage()
+    if(QuestWeeklyLinksViewPage.page_index > 1)then
+        QuestWeeklyLinksViewPage.page_index = QuestWeeklyLinksViewPage.page_index - 1;
+    end
+    QuestWeeklyLinksViewPage.LoadPage();
+end
+function NextPage()
+    local len = #QuestWeeklyLinksViewPage.templates;
+    if(QuestWeeklyLinksViewPage.page_index  < len)then
+        QuestWeeklyLinksViewPage.page_index = QuestWeeklyLinksViewPage.page_index + 1;
+    end
+    QuestWeeklyLinksViewPage.LoadPage();
+end
+function CheckState()
+    local pre_button = page:FindUIControl("pre_button");
+    pre_button.enabled = true;
+    local next_button = page:FindUIControl("next_button");
+    next_button.enabled = true;
+    if(QuestWeeklyLinksViewPage.page_index <= 1)then
+        pre_button.enabled = false;
+    end
+    local len = #QuestWeeklyLinksViewPage.templates;
+    if(QuestWeeklyLinksViewPage.page_index >= len)then
+        next_button.enabled = false;
+    end
+end
+function DS_Func(index)
+    return QuestWeeklyLinksViewPage.DS_Func(index);
+end
+function GetValue(index,key)
+    if(key and QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local value = node.attr[key];
+        if(key == "icon")then
+            if(not value or value == "")then
+                value = "Texture/Aries/LobbyService/WorldPic/Teen/Wild_Boss_duoming.png"
+            end
+        end
+        return value;
+    end
+end
+function GetQuestState(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        if(questid)then
+            local state = provider:GetState(questid);
+            return state;
+        end
+    end
+end
+function GetQuestTips(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        if(questid)then
+            local info = QuestPane.BuildContentSource(questid);
+            if(info)then
+                local node;
+                local s = "";
+                for node in commonlib.XPath.eachNode(info, "//Goal_Item") do
+                    local label = node.attr.internal_label;
+                    if(label)then
+                        if(s == "")then
+                            s = label;
+                        else
+                            s = string.format("%s\n%s",s,label)
+                        end
+                    end
+                end
+                return s;
+            end
+        end
+    end
+end
+function DoTrack(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        if(questid)then
+            local info = QuestPane.BuildContentSource(questid);
+            if(info)then
+                local node;
+                for node in commonlib.XPath.eachNode(info, "//Goal_Item") do
+                    QuestTrackerPane.DoJump_params(node.attr);
+                    goal_manager.finish("do_begin_battle");
+                    ClosePage();
+                    return;     
+                end
+            end
+        end
+    end
+end
+function NeedHighlight(index)
+    local state = GetQuestState(index);
+    if(state and state==2 )then
+            return true;
+    end
+end
+function BuildLoots(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        local state = provider:GetState(questid);
+        if(state == 10)then
+            return ""
+        end
+        local list = QuestPane.GetExtraReword(questid);
+        if(list)then
+            local k,v;
+            local s = "";
+            for k,v in ipairs(list) do
+                local gsid = v.gsid;
+                local num = v.num or 1;
+                if(gsid)then
+                    local ss;
+                    if(num <= 1)then
+                        ss = string.format([[<pe:item  isclickable="false" style="float:left;margin-left:2px;width:20px;height:20px;" gsid="%d" />]],gsid) 
+                    else
+                        ss = string.format([[<div style="float:left;margin-left:2px;width:20px;">
+    <pe:item  isclickable="false" style="width:20px;height:20px;" gsid="%d" />
+    <div class="defaultcolor" style="position:relative;width:25px;text-align:center;margin-top:-16px;">%d</div>   
+    </div>]],gsid,num) 
+                    end
+                    s = s ..ss;
+                end
+            end
+            return s;
+        end
+    end
+end
+function DoFinished(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        if(questid)then
+            QuestDialogPage.DoAction_finished(questid);
+            QuestWeeklyLinksViewPage.LoadPage();
+        end
+    end
+end
+function DoAccept(index)
+    if(QuestWeeklyLinksViewPage.cur_page_source)then
+        local node = QuestWeeklyLinksViewPage.cur_page_source[index];
+        local questid = tonumber(node.attr.id);
+        if(questid)then
+            QuestClientLogics.TryAccept({id = questid}, function(msg)
+		        if(msg and msg.issuccess) then
+                    QuestWeeklyLinksViewPage.LoadPage();
+                    NPL.load("(gl)script/apps/Aries/Desktop/LinksArea/LinksAreaPage.lua");
+					local LinksAreaPage = commonlib.gettable("MyCompany.Aries.Desktop.LinksAreaPage");	
+					if (not QuestWeeklyLinksViewPage.tips_enable) then
+						LinksAreaPage.FlashBtn("weekly",false)	
+					end
+		        end
+	        end);
+        end
+    end
+end
+]]></script>
+<aries:window width="760" height="460" title="推荐任务" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/team_icon_32bits.png">
+    <div class="border_bg1_css" style="margin-left:5px;margin-top:28px;width:750px;height:428px;">
+        <div class="tab_static" style="margin-left:100px;width:150px;height:23px;margin-top:5px;text-align:center;padding-top:2px;">
+            <%=GetTitle()%>
+        </div>
+        <div class="border_bg2_css" style="margin-left:5px;width:740px;height:365px;">
+             <div style="position:relative;margin-left:-2px;width:800px;height:400px;">
+                <pe:gridview name="roomTemplates" DataSource="<%=DS_Func%>"  ItemsPerLine="5" AllowPaging="true" pagesize="15" DefaultNodeHeight = "120">
+                    <Columns>
+                        <div style="margin-left:15px;margin-top:0px;width:130px;height:120px;" >
+                            
+                            <div style="width:130px;height:96px;padding:4px;" class="block">
+                                
+                                <img src='<%=GetValue(Eval("index"),"icon")%>' tooltip='<%=GetQuestTips(Eval("index"))%>' style="width:122px;height:72px;"/>
+                                <!--<img style="position:relative;margin-top:0px;width:122px;height:20px;" class="dock_bg2_css" />-->
+                                <input type="button" value='<%=GetValue(Eval("index"),"label")%>' style="position:relative;margin-top:-2px;width:122px;height:20px;background:;color:#aedce0"/>
+                                <div style="position:relative;margin-left:5px;margin-top:-22px;width:130px;">
+                                    <%=BuildLoots(Eval("index"))%>
+                                </div>
+                            </div>
+                            <div>
+                                <pe:if condition='<%=GetQuestState(Eval("index")) == 0%>'>
+                                    <!--hasaccept and canfinished-->
+                                    <input type="button" style="margin-left:30px;margin-top:2px;width:80px;" value="完成任务" name='<%=Eval("index")%>' onclick="DoFinished" class="orange_btn_css"/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestState(Eval("index")) == 1%>'>
+                                    <!--hasaccept and not canfinished-->
+                                    <input type="button" style="margin-left:30px;margin-top:2px;width:80px;" value="挑战" name='<%=Eval("index")%>' onclick="DoTrack" class="highlight_btn_css"/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestState(Eval("index")) == 2%>'>
+                                    <!--canaccept-->
+                                    <input type="button" style="margin-left:30px;margin-top:2px;width:80px;" value="接受任务" name='<%=Eval("index")%>' onclick="DoAccept"/>
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestState(Eval("index")) == 9%>'>
+                                    <!--locked-->
+                                    <img src="Texture/Aries/CrazyTower/lock_32bits.png;0 0 36 41" style="position:relative;margin-left:52px;margin-top:-80px;width:36px;height:41px;"/>
+                                    <!--<input type="button" style="margin-left:30px;margin-top:2px;width:80px;" enabled="false" value="锁定" name='<%=Eval("index")%>' />-->
+                                </pe:if>
+                                <pe:if condition='<%=GetQuestState(Eval("index")) == 10%>'>
+                                    <!--finished-->
+                                    <input type="button" style="margin-left:30px;margin-top:2px;width:80px;" enabled="false" value="已经完成" name='<%=Eval("index")%>' />
+                                </pe:if>
+                                <pe:if condition='<%=NeedHighlight(Eval("index"))%>'>
+                                     <div style="position:relative;margin-left:25px;margin-top:-30px;width:130px;height:32px;background:" >
+                                        <pe:if condition='<%=MyCompany.Aries.Player.GetLevel()<6%>'>
+                                            <pe:goalpointer listen="do_begin_battle" style="position:relative;width:90px;height:25px;margin-left:0px;margin-top:5px;"></pe:goalpointer>
+                                        </pe:if>
+                                        <pe:if condition='<%=MyCompany.Aries.Player.GetLevel()>=6%>'>
+                                            <img name="gift_animator" zorder="1" enabled="false" class="animated_btn3_overlay" width="130" height="32"/>
+                                        </pe:if>
+                                    </div>
+                                </pe:if>
+
+                            </div>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b class="defaultcolor">目前没有适合你等级的副本</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b class="defaultcolor">请稍等 ... </b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" />
+                    <PagerTemplate AutoHidePager="true">
+                            <form>
+                            <div style="margin-left:-10px;margin-top:-7px;">
+                            <input type="button" name="pre" style="margin-left:260px;width:92px;" class="default_btn_css" zorder=2 value="上一页"/>
+                            <label name="page"  class="pagerbuttontext"/>
+                            <input type="button" name="next" zorder=2 style="width:92px;" class="default_btn_css" value="下一页"/>
+                            </div>
+                        </form>
+                    </PagerTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+   
+    <div style="margin-left:560px;margin-top:5px;">
+        <input type="button" value="上一章节" name="pre_button" onclick="PrePage" class="highlight_btn_css" />
+        <input type="button" value="下一章节" name="next_button" onclick="NextPage" class="highlight_btn_css" style="margin-left:10px;" />
+    </div>
+    </div>
+    
+<%=CheckState()%>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

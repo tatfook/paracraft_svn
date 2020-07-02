@@ -1,0 +1,51 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCollectableSubPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCollectableSubPage, by zrf, 2010/9/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="CombatCollectableSubPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local CombatCollectableSubPage = MyCompany.Aries.Desktop.CombatCollectableSubPage;
+CombatCollectableSubPage.curpage = 1; -- force first page
+CombatCollectableSubPage.Init();
+
+function OnRadioClick(value)
+    CombatCollectableSubPage.curpage = tonumber(value);
+    -- page:CallMethod("AriesCollectableAvatarSubView", "Refresh", 0.01);
+    local iframe_node = page:GetNode("AriesCollectableAvatarSubView");
+    if(iframe_node and iframe_node.pageCtrl) then
+        page:CallMethod("AriesCollectableAvatarSubView", "Refresh", 0);
+        iframe_node.pageCtrl:CallMethod("gwvCombatInventory", "GotoPage", 1);
+    end
+end
+
+]]></script>
+
+<div style="position:relative;margin-top:5px;width:645px;height:375px;color:#022a57;">
+    <div style="position:relative;float:left;margin-left:0px;margin-top:0px;width:308px;height:375px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+        <iframe name="AriesInventoryAvatarView" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatAvatarView.html"/>
+    </div>
+
+    <div style="position:relative;margin-left:308px;margin-top:0px;">
+        <pe:tabs name="tabs" class="tabs" ItemSpacing="1" onclick="OnRadioClick()" >  
+            <pe:tab-item name="1" text="全部" style="padding-left:0px;width:35px;" selected="true"></pe:tab-item>
+            <pe:tab-item name="2" text="消耗品"  style="padding-left:0px;width:45px;" ></pe:tab-item>
+            <pe:tab-item name="3" text="宝石镶嵌" style="padding-left:0px;width:58px;"></pe:tab-item>
+            <pe:tab-item name="4" text="战斗兑换" style="padding-left:0px;width:58px;"></pe:tab-item>
+            <pe:tab-item name="5" text="五花八门" style="padding-left:0px;width:58px;" ></pe:tab-item>
+            <pe:tab-item name="6" text="纪念品" style="padding-left:0px;width:45px;" ></pe:tab-item>
+        </pe:tabs>
+    </div>
+
+    <div style="position:relative;margin-left:308px;margin-top:31px;width:345px;height:375px;">
+        <iframe name="AriesCollectableAvatarSubView" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatCollectableSubPage_view.html"/>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

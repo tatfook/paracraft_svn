@@ -1,0 +1,298 @@
+﻿<!-- "script/apps/Aries/BigEvents/BigEvents.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>BigEventsListMain, by spring, 2011/5/17</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+
+local BigEventsListMain=MyCompany.Aries.BigEvents.BigEventsListMain;
+
+BigEventsListMain.Init();
+BigEventsListMain.islastpage = BigEventsListMain.islastpage or 0;
+BigEventsListMain.chapter.isopen = BigEventsListMain.chapter.isopen or 0;
+
+function IsLastPage()
+    if (BigEventsListMain.islastpage==1) then
+        return true
+    else
+        return false
+    end
+end
+
+function IsOpen()
+    if (BigEventsListMain.chapter.isopen==1) then
+        return true
+    else
+        return false
+    end
+end
+
+function CanNotGoTips()
+    if (IsOpen()==false) then
+        _guihelper.MessageBox("之后到底发生了什么呢？本章故事即将揭晓，敬请期待！")
+    else
+        _guihelper.MessageBox("请翻到最后一页, 才能进入！")
+    end
+end
+
+function Confirm()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="position:relative;margin-left:855px;margin-top:8px;width:48px;height:48px;">
+    <input type="button" onclick="Confirm()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+</div>
+<div style="margin-left:0px;margin-top:20px;width:890px;height:520px;background:url(Texture/Aries/common/bluebg32_32bits.png#0 0 32 32: 8 8 8 8);">
+    <div style="position:relative;margin-left:25x;margin-top:8px;width:200px;height:32px;font-size:14;">
+        <font color=white>大事件</font>
+    </div>
+    <div style="margin-left:25px;margin-top:35px;width:840px;height:465px;background:url(Texture/Aries/common/noframebg32_32bits.png#0 0 32 32: 8 8 8 8);">
+        <div style="margin-left:5px;margin-top:5px;width:400px;height:455px;background:url(Texture/Aries/common/whitebg32_32bits.png#0 0 32 32: 8 8 8 8);">
+            <div style="position:relative;margin-left:65x;margin-top:8px;width:180px;height:32px;font-size:14;">
+                <font color="#0f6191">大事件</font>
+            </div>
+            <div style="margin-left:5px;margin-top:30px;width:180px;height:420px;">
+                <pe:gridview DataSource="<%=MyCompany.Aries.BigEvents.BigEventsListMain.EventDS_Func%>" name="BigEventsListMain_Event" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="10">
+                <Columns>
+                    <div style="margin-top:5px;width:179px;height:32px;background:">
+                        <pe:if condition='<%=MyCompany.Aries.BigEvents.BigEventsListMain.GetCurEvent() == Eval("eventindex")%>'>
+                            <div style="margin-top:0px;width:176px;height:29px;color:#0f6191;text-align:left;background:url(Texture/Aries/common/selectedbg_32bits.png#0 0 159 29: 1 1 1 1)" >
+                                <div style="margin-left:5px;margin-top:5px;"><%=Eval("eventname") %> </div>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.BigEvents.BigEventsListMain.GetCurEvent()~= Eval("eventindex")%>'>
+                            <div style="width:179px;height:32px;">
+                                <input type="button" style="float:left;margin-top:-1px;width:175px;height:32;color:#0f6191;text-align:left;font-size:12;background:;"
+                                    name='<%=Eval("index") %>'
+                                    value='<%=Eval("eventname")%>'
+                                    onclick = "MyCompany.Aries.BigEvents.BigEventsListMain.ChangeEvent()"
+                                    Normal_BG=""
+                                    MouseOver_BG="Texture/Aries/common/selectedbg_32bits.png#0 0 159 29: 1 1 1 1"
+                                    Pressed_BG="Texture/Aries/common/selectedbg_32bits.png#0 0 159 29: 1 1 1 1" />
+                            </div>   
+                        </pe:if>
+                
+                        <pe:if condition='<%=Eval("isnew")==1 %>'>
+                            <div style="position:relative;margin-left:132px;margin-top:-38px;">
+                                <img style="width:64px;height:32px" src="Texture/Aries/Common/bluenew_32bits.png;0 0 64 32" />
+                            </div> 
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+            
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+            
+                </FetchingDataTemplate>
+	            <PagerSettings Position="Bottom" height="0" style="margin-left:15px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate>
+	                <form>	        	        
+	                    <input type="button" name="pre" zorder="2" style="width:31px;height:32px;background:url(Texture/Aries/Login/UserSelect_PageLeft3_32bits.png#0 0 31 32);"/>
+	                    <div style="float:right;margin-left:15px;margin-top:-2px;width:64px;">
+	                        <label name="page" style="color:#0f6191;text-align:center;width:64px;height:18px;margin:4px"/>
+	                    </div>
+	                    <input type="button" name="next" zorder="2" style="margin-left:0px;margin-top:2px;width:31px;height:32px;background:url(Texture/Aries/Login/UserSelect_PageRight3_32bits.png#0 0 31 32)"/>
+   	                </form>
+	            </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-left:180px;margin-top:-450px;width:220px;height:456px;background:url(Texture/Aries/common/bg4_32bits.png#0 0 64 58: 11 11 11 11);">           
+                <div style="position:relative;margin-left:95x;margin-top:8px;width:180px;height:32px;font-size:14;">
+                    <font color="#0f6191">事 件</font>
+                </div>
+                <div style="margin-left:5px;margin-top:35px;width:218px;height:420px;">
+                    <pe:gridview DataSource="<%=MyCompany.Aries.BigEvents.BigEventsListMain.ChapterDS_Func%>" name="BigEventsListMain_Chapter" CellPadding="0" ItemsPerLine="1" AllowPaging="true"  pagesize="10">
+                    <Columns>
+                        <div style="margin-top:5px;width:218px;height:32px;background:">
+                            <pe:if condition='<%=MyCompany.Aries.BigEvents.BigEventsListMain.GetCurChapter() == Eval("chapterindex")%>'>
+                                <div style="margin-top:0px;width:200px;height:30px;color:#ff33cc;text-align:left;background:" >
+                                    <div style="margin-left:2px;margin-top:5px;"> <%=Eval("chaptername") %> </div>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=MyCompany.Aries.BigEvents.BigEventsListMain.GetCurChapter()~= Eval("chapterindex")%>'>
+                                <div style="width:165px;height:26px;">
+                                    <input type="button" style="float:left;margin-top:-1px;width:200px;height:26;color:#0f6191;text-align:left;font-size:12;background:;"
+                                        name='<%=Eval("index") %>'
+                                        value='<%=Eval("chaptername") %>'
+                                        onclick = "MyCompany.Aries.BigEvents.BigEventsListMain.ChangeChapter()"
+                                        Normal_BG=""/>
+                                </div>   
+                            </pe:if>
+                
+                            <pe:if condition='<%=Eval("chapterisnew")==1 %>'>
+                                <div style="margin-left:169px;margin-top:-32px;">
+                                    <img zorder="2" style="width:64px;height:32px" src="Texture/Aries/Common/bluenew_32bits.png;0 0 64 32" />
+                                </div> 
+                            </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+            
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+            
+                    </FetchingDataTemplate>
+	                <PagerSettings Position="Bottom" height="0" style="margin-left:35px;margin-top:-35px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+	                    <input type="button" name="pre" zorder="2" style="width:31px;height:32px;background:url(Texture/Aries/Login/UserSelect_PageLeft3_32bits.png#0 0 31 32);"/>
+	                    <div style="float:right;margin-left:15px;margin-top:-2px;width:64px;">
+	                        <label name="page" style="color:#0f6191;text-align:center;width:64px;height:18px;margin:4px"/>
+	                    </div>
+	                    <input type="button" name="next" zorder="2" style="margin-left:0px;margin-top:2px;width:31px;height:32px;background:url(Texture/Aries/Login/UserSelect_PageRight3_32bits.png#0 0 31 32)"/>
+   	                    </form>
+	                </PagerTemplate>
+                    </pe:gridview>
+                </div>   
+            </div>
+        </div>
+    
+
+        <div style="margin-left:405px;margin-top:-455px;width:430px;height:465px;background:">
+	    <div style="margin-left:5px;margin-top:0px;width:425px;height:470px;">
+     		<pe:gridview DataSource="<%=MyCompany.Aries.BigEvents.BigEventsListMain.DramaDS_Func%>" name="BigEventsListMain_Drama" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        	<Columns>  
+                <div style="width:425px;height:470px;">
+                    <div style="margin-left:2px;margin-top:2px;width:420px;height:261px;background:url(Texture/Aries/common/picbg16_32bits.png#0 0 16 16: 3 3 3 3 );">
+                        <div style="padding:2px;">
+                            <img style="width:416px;height:256px" src='<%=string.format("%s; 0 0 416 256",Eval("imgdesc")) %>' />
+                        </div>
+                        <div style="padding:2px;margin-top:-67px;" width="100%">
+                            <img style="width:416px;height:65px" src='Texture/Aries/common/fontbg16_32bits.png;0 0 16 16' />
+                            <div style="position:relative;margin-left:43px;margin-top:-63px;font-weight:bold;font-size:13;color:#ffffff;width:328px;line-height:14px;">
+                                <%=Eval("scriptdesc")%>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position:relative;margin-left:20px;margin-top:150px;">
+                    <pe:if condition='<%=IsLastPage() and IsOpen()%>'>
+                                    <div style="margin-left:230px;margin-top:5px;width:90px;height:32px;background:">
+						                            <input type="button" zorder="100" style="float:left;margin-top:-1px;width:85px;height:32;color:#640033;text-align:center;font-size:12;background:url(Texture/Aries/Common/btnon_bg32_32bits.png#0 0 32 30: 10 9 10 13);"
+                                                        name='GoDirect'
+                                                        value='现在就去'
+                                                        onclick = "MyCompany.Aries.BigEvents.BigEventsListMain.GoDirect()"                        
+                                                        />           	
+                                    </div>
+<!--                                    <div style="margin-left:230px;margin-top:-35px;width:90px;height:32px;background:">
+						                            <input type="button" zorder="100" style="float:left;margin-top:0px;width:85px;height:32;color:#640033;text-align:center;font-size:12;background:url(Texture/Aries/Common/btnon_bg32_32bits.png#0 0 32 30: 10 9 10 13);"
+                                                        name='GoWithTeam'
+                                                        value='组队前往'
+                                                        onclick = "MyCompany.Aries.BigEvents.BigEventsListMain.GoWithTeam()"
+                                                        />           	
+                                    </div>-->
+                    </pe:if>
+                    <pe:if condition='<%=IsLastPage()==false or IsOpen()==false%>'>
+                                    <div style="margin-left:230px;margin-top:5px;width:165px;height:32px;background:">
+						                            <input type="button" style="background-color:#ffffff;float:left;margin-top:-1px;width:85px;height:32;color:#640033;text-align:center;font-size:12;background:url(Texture/Aries/Common/btnoff_bg32_32bits.png#0 0 32 30: 10 9 10 13);"
+                                                        name='GoDirect'
+                                                        value='现在就去'
+                                                        onclick = "CanNotGoTips()"
+                                                        />           	
+                                    </div>
+<!--                                    <div style="margin-left:230px;margin-top:-35px;width:165px;height:32px;background:">
+						                            <input type="button" style="float:left;margin-top:0px;width:85px;height:32;color:#640033;text-align:center;font-size:12;background:url(Texture/Aries/Common/btnoff_bg32_32bits.png#0 0 32 30: 10 9 10 13);"
+                                                        name='GoWithTeam'
+                                                        value='组队前往'                                                       
+                                                        />           	
+                                    </div>-->
+                    </pe:if>
+                    </div>    	
+                   </div>
+        	</Columns>
+        	<EmptyDataTemplate>            
+        	</EmptyDataTemplate>
+        	<FetchingDataTemplate>            
+        	</FetchingDataTemplate>
+					<PagerSettings Position="Bottom" height="0" style="margin-left:5px;margin-top:-250px;width:420px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+					<PagerTemplate>
+	    			<form>
+	      			<input type="button" tooltip="上一页" name="pre" zorder="1" style="width:39px;height:39px;background:url(Texture/Aries/common/arrow_left_32bits.png#0 0 39 39);" />
+	      				<div style="float:left;margin-top:-2px;width:335px;">
+	      				    <label name="page" style="color:#FFFFFF;text-align:center;width:335px;height:18px;margin:4px"/>
+				        </div>
+	      			<input type="button" tooltip="下一页" name="next" zorder="1" style="width:39px;height:39px;background:url(Texture/Aries/common/arrow_right_32bits.png#0 0 39 39)" />
+
+        		    </form>
+					</PagerTemplate>
+        </pe:gridview>
+    	</div>       					
+    
+
+        <div style="margin-left:5px;margin-top:-205px;width:400px;height:150px;background:">
+          <pe:gridview DataSource="<%=MyCompany.Aries.BigEvents.BigEventsListMain.DetailDS_Func%>" name="BigEventsListMain_Drama" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+            <Columns>
+            <div style="margin-left:2px;margin-top:3px;width:418px;height:26px;font-size:12;color:#0f6191;Background:url(Texture/Aries/common/bg16_32bits.png#0 0 16 16: 3 3 3 3);">
+                <pe:if condition='<%=Eval("needplayer")==1 %>'>
+                    <div style="margin-left:10px;margin-top:3px;">挑战难度：<%=Eval("needlvl")%>；单人可挑战！</div>
+                </pe:if>
+                <pe:if condition='<%=Eval("needplayer")>1 %>'>
+                    <div style="margin-left:10px;margin-top:3px;">挑战难度：<%=Eval("needlvl")%>；建议组队前往，最少<%=Eval("needplayer")%>人！</div>
+                </pe:if>
+            </div>
+            <div style="margin-left:10px;margin-top:3px;font-size:12;color:#0f6191;width:400px;height:50px;">
+                <div style="margin-left:10px;margin-top:3px;"><%=Eval("chapterdesc")%></div>
+            </div>
+            <div style="margin-left:10px;margin-top:3px;font-size:12;color:#0f6191;">任务奖励：
+                <div style="margin-left:10px;margin-top:2px;font-size:12;color:#0f6191;">经验：<%=Eval("rewardexp")%></div>
+            </div>
+							            	
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                    
+            </FetchingDataTemplate>
+	    	
+	    	    <PagerSettings Position="Bottom" height="0" style="margin-left:185px;margin-top:-285px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    	    <PagerTemplate>
+	            <form>
+    <!--		          <input type="button" name="pre" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:32px;width:32px;height:36px;background:url(Texture/Aries/Quest/QuestList/arrow1_32bits.png# 0 0 32 36);"/>
+	                <input type="button" name="next" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:-32px;margin-top:50px;width:32px;height:37px;background:url(Texture/Aries/Quest/QuestList/arrow2_32bits.png# 0 0 32 37);"/>
+    -->	            
+   	        </form>
+	    	    </PagerTemplate>
+          </pe:gridview>
+        </div>   
+
+
+        <div style="margin-left:100px;margin-top:-95px;width:350px;height:50px;background:">
+          <pe:gridview DataSource="<%=MyCompany.Aries.BigEvents.BigEventsListMain.RewardDS_Func%>" name="BigEventsListMain_Reward" CellPadding="5"  ItemsPerLine="4" AllowPaging="true" pagesize="4">
+            <Columns>
+              <div style="margin-left:5px;margin-top:-3px;width:50px;height:35px;font-size:12;color:#0f6191;Background:">           	
+                <pe:item gsid='<%=Eval("gsid")%>' tooltip='<%=Eval("name")%>'  isclickable="false" style="width:30px;height:30px;"/> × <%=Eval("num")%>
+              </div>
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                    
+            </FetchingDataTemplate>
+	    	
+	    	    <PagerSettings Position="Bottom" height="0" style="margin-left:185px;margin-top:-285px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    	    <PagerTemplate>
+	            <form>
+    <!--		          <input type="button" name="pre" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:32px;width:32px;height:36px;background:url(Texture/Aries/Quest/QuestList/arrow1_32bits.png# 0 0 32 36);"/>
+	                <input type="button" name="next" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:-32px;margin-top:50px;width:32px;height:37px;background:url(Texture/Aries/Quest/QuestList/arrow2_32bits.png# 0 0 32 37);"/>
+    -->	            
+   	        </form>
+	    	    </PagerTemplate>
+          </pe:gridview>
+        </div>   
+
+ 
+    </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

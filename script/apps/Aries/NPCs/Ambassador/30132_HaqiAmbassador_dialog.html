@@ -1,0 +1,120 @@
+﻿<!-- "script/apps/Aries/NPCs/Ambassador/30132_HaqiAmbassador_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30132_HaqiAmbassador_dialog, by Leio, 2009/12/1</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+--是否已经领取过体验码
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.HaqiAmbassador.HasTakeCode()
+end;
+
+Condition3 = function()
+    return not MyCompany.Aries.Quest.NPCs.HaqiAmbassador.HasTakeCode()
+end;
+--是否可以领取体验码
+Condition4 = function()
+    commonlib.echo("==================CanTakeCode");
+    commonlib.echo(MyCompany.Aries.Quest.NPCs.HaqiAmbassador.CanTakeCode());
+    return not MyCompany.Aries.Quest.NPCs.HaqiAmbassador.CanTakeCode()
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 5 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.HaqiAmbassador.ShowPage()
+    end
+end
+]]></script>
+ <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="name" source="{this}" value="哈奇大使威克"/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="Ambassador_hqtym" />
+            <pe:placeholder id="Ambassador_cktym" />
+            <pe:placeholder id="viewcontent" />
+            <pe:placeholder id="later" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = "true">
+			    <!--<pe:answer-if condition = 'true' target_state = "1"/>-->
+			    <pe:answer-if condition = 'true' target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是哈奇大使威克，把快乐传播给更多人，是每个哈奇的使命！如果你的抱抱龙到达3级以上，赶紧来找我领体验码，把快乐传播给大家哦！
+            <pe:answer template_id="Ambassador_hqtym">
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/><!-- 已经领取-->
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/><!-- 龙级别不够-->
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/><!-- 没有领取-->
+		    </pe:answer>
+		    <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    <div style="float:left;width:150px;">你的体验码已经领取过</div>
+		    <div style="float:left;width:150px;">啦，在右上角<pe:item gsid='50187' isclickable="false" style="width:32px;height:32px;margin-left:-5px;margin-top:-5px;"/></div>
+		    <div>图标里面有详细记录；记得要好好利用，把他们传播给真正喜欢与热爱哈奇的朋友哦！</div>
+		    <pe:answer template_id="Ambassador_cktym">
+			    <pe:answer-if condition = 'true' target_state = "10"/>
+		    </pe:answer>
+		    <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "3">
+		    <div style="float:left;width:160px;">你是个有责任心的哈奇，所以我放心把5个体验码交给你，点击右上角</div>
+		    <pe:item gsid='50187' isclickable="false" style="float:left;width:32px;height:32px;margin-left:125px;margin-top:-25px;"/>
+		    <div>图标里面有详细记录；记得要好好利用，把他们传播给真正喜欢与热爱哈奇的朋友哦！</div>
+		    
+            <pe:answer template_id="Ambassador_cktym">
+			    <pe:answer-if condition = 'true' target_state = "10"/>
+		    </pe:answer>
+		    <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你的抱抱龙还没达到3级，不能领取体验码呢！先把自己的抱抱龙照顾好才能把快乐传播给他人哦！
+		    <pe:answer template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    我是哈奇大使威克，把快乐传播给更多的朋友，是每个哈奇的使命！传播快乐的同时还可以获得红心果，可以兑换很多宝贝哦！
+		    <pe:answer template_id="viewcontent">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = "true">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

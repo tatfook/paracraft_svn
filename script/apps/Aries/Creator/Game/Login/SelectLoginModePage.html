@@ -1,0 +1,133 @@
+<!-- "script/apps/Aries/Creator/Game/Login/SelectLoginModePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2009.8.2</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local MainLogin = commonlib.gettable("MyCompany.Aries.Game.MainLogin");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Login/Rebranding.lua");
+Rebranding = commonlib.gettable("MyCompany.Aries.Creator.Game.Rebranding");
+
+-- @param name: "local", "internet"
+function OnSelect()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/ParaWorldLessons.lua");
+    local ParaWorldLessons = commonlib.gettable("MyCompany.Aries.Game.MainLogin.ParaWorldLessons")
+    ParaWorldLessons.CheckShowOnStartup(function(bBeginLessons)
+        if(not bBeginLessons) then
+            System.options.loginmode = "local";
+            page:CloseWindow();
+            MainLogin:next_step({IsLoginModeSelected = true});    
+        end
+    end)
+end
+
+function OnOpenModulePage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/SelectModulePage.lua");
+    local SelectModulePage = commonlib.gettable("MyCompany.Aries.Game.MainLogin.SelectModulePage")
+    SelectModulePage.ShowPage()
+end
+
+function OnChangeLanguagePage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Translation.lua");
+    local Translation = commonlib.gettable("MyCompany.Aries.Game.Common.Translation")
+    Translation.ShowPage(function()
+        page:Refresh(0.01);
+    end);
+end
+
+function GetModDes()
+    local modname = ParaEngine.GetAppCommandLineByParam("mod","");
+    local s = string.format(L"当前Mod:%s",modname);
+    return s;
+end
+
+function OnCustomCharacter()
+end
+
+function OnClickDonate()
+    MainLogin.donate_window = MainLogin.donate_window or System.Windows.Window:new();
+    MainLogin.donate_window:Show({url="script/apps/Aries/Creator/Game/Login/DonatePage.html", alignment="_rb", left=-210, top=-200, width=200, height=200, zorder=10, allowDrag=true});
+    ParaGlobal.ShellExecute("open", L"http://www.nplproject.com/paracraft-donation", "", "", 1);
+end
+
+function OnClickCredits()
+    ParaGlobal.ShellExecute("open", L"https://keepwork.com/official/paracraft/credits", "", "", 1);
+end
+    
+function GetModCountAsString()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Mod/ModManager.lua");
+    local ModManager = commonlib.gettable("Mod.ModManager");
+    local pluginloader = ModManager:GetLoader();
+    local nCount = pluginloader:GetActiveModCount();
+    if(nCount>0) then
+        return format("(%d)", nCount);
+    else
+        return "";
+    end
+end
+
+function OnClickCustomerService()
+    ParaGlobal.ShellExecute("open", L"https://keepwork.com/official/docs/FAQ/questions", "", "", 1);
+end
+    
+]]></script>
+<pe:container alignment="_fi" zorder="-1" width="100%" height="100%" style="position:relative;background:" onclick="OnSelect"></pe:container>
+    <pe:container alignment="_ctt" ClickThrough="true" style="position:relative;width:960px;height:64px;background:url()">
+        <iframe ClickThrough="true" src="script/apps/Aries/Creator/Game/Login/ParaWorldLoginDocker.html">
+        </iframe>
+    </pe:container>
+<pe:container alignment="_ct" ClickThrough="true" style="position:relative;background:;margin-left:-260px;margin-top:-200px;width:520px;height:500px;">
+    <div style='<%="position:relative;margin-left:0px;margin-top:-10px;width:512px;height:177px;background:url(Texture/Aries/Creator/Mobile/blocks_Background.png#0 550 512 175);"%>'>
+    </div>
+    <pe:if condition='<%=Rebranding:GetValue("companylogo")~=nil%>'>
+        <div style='<%=format("position:relative;margin-top:15px;margin-left:-220px;width:256px;height:64px;background:url(%s)", Rebranding:GetValue("companylogo"))%>'></div>
+    </pe:if>
+    <pe:if condition='<%=Rebranding:GetValue("company")~=nil and not Rebranding:GetValue("companylogo")%>'>
+        <div style="position:relative;margin-top:15px;margin-left:-220px;color:#572712"><%=Rebranding:GetValue("company")%></div>
+    </pe:if>
+    <div style="position:relative;margin-left:0px;width:520px;margin-top:150px;font-size:14px;font-weight:bold;color:#572712;shadow-quality:8;shadow-color:#f0cec8c4;text-shadow:true;text-align:center">
+        <%=Rebranding:GetValue("titleaddon")%>
+    </div>
+    <!--
+    <div style="position:relative;margin-left:0px;width:520px;text-align:center;margin-top:230px;padding:5px;padding-left:10px;padding-right:10px;font-size:14px;font-weight:bold;shadow-quality:8;shadow-color:#f0cec8c4;text-shadow:true;">
+        <%=L"点击任意位置继续"%>
+    </div>
+    -->
+    <div style="margin-top:230px;margin-left:120px;">
+        <input type="button" value='<%=L"点击开始"%>' class="mc_big_button" style="color:#572712;font-size:14px;width:280px;height:52px;" onclick="OnSelect" />    
+    </div>
+</pe:container>
+<!--persistent setting button-->
+<pe:container alignment="_ctb" ClickThrough="true" style="position:relative;background:;margin-left:70px;width:400px;height:105px;">
+    <pe:if condition='<%= System.options.isDevEnv == false %>'>
+        <pe:if  condition='<%= System.os.GetPlatform() ~= "ios" %>'>
+            <input type="button" value='<%=L"MOD加载..."..GetModCountAsString() %>' class="mc_big_button" style="margin-top:16px;color:#572712;font-size:14px;width:256px;height:36px;" onclick="OnOpenModulePage" />    
+        </pe:if>        
+    </pe:if>
+    <!--<input type="button" enabled="false" value='<%=L"更多设定..." %>' class="mc_big_button" style="margin-top:16px;font-size:14px;width:256px;height:36px;" onclick="OnCustomCharacter" />-->
+    <pe:if condition='<%= System.options.isDevEnv == true %>'>
+        <div style="margin-left:-40px;margin-top:6px;font-size:14px;width:336px;height:36px;color:#FF3030;text-align:center;font-weight:bold">
+            <%=L"开发者模式" %><br/>
+            <%= GetModDes()%>
+        </div>
+        
+    </pe:if>
+</pe:container>
+<pe:container alignment="_rb" ClickThrough="true" style="position:relative;background:;width:300px;height:90px;">
+    <input type="button" value='<%=L"语言..." %>' spacing="20" align="right" class="mc_big_button" style="position:relative;margin-top:1px;margin-right:10px;color:#572712;font-size:14px;height:36px;" onclick="OnChangeLanguagePage" />
+    <input type="button" value='<%=L"客服"%>' align="right" style="position:relative;margin-right:10px;margin-top:45px;padding:5px;padding-left:10px;padding-right:10px;font-size:14px;font-weight:bold;color:#ffffffcc;background:url(Texture/whitedot.png);background-color:#00000080" onclick="OnClickCustomerService" />
+    <!-- <input type="button" value='<%=L"致谢"%>' align="right" style="position:relative;margin-right:10px;margin-top:45px;padding:5px;padding-left:10px;padding-right:10px;font-size:14px;font-weight:bold;color:#ffffffcc;background:url(Texture/whitedot.png);background-color:#00000080" onclick="OnClickCredits" /> -->
+    <!--<pe:if condition='<%=Rebranding:GetValue("donation")~="false"%>'>
+        <input type="button" value='<%=L"捐赠" %>' align="right" spacing="20" class="mc_light_grey_button_with_fillet" style="font-size:14px;height:36px;margin-right:20px" onclick="OnClickDonate" />
+    </pe:if>-->
+    <!--<div style="position:relative;margin-left:0px;margin-top:5px;padding:5px;padding-left:10px;padding-right:10px;font-size:14px;font-weight:bold;color:#ffffffcc;background:url(Texture/whitedot.png);background-color:#00000080">
+        <%=L"点击任意位置继续"%>
+    </div>-->
+</pe:container>
+</pe:mcml>
+</body>
+</html>

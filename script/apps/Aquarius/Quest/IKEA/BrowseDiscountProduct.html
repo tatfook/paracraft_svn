@@ -1,0 +1,45 @@
+﻿<!-- "script/apps/Aquarius/Quest/IKEA/BrowseDiscountProduct.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>BrowseDiscountProduct page</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="BrowseDiscountProduct.lua">
+    <![CDATA[
+    function g_AddToMyBag(name, values)
+        local index = tonumber(name);
+        MyCompany.Aquarius.BrowseDiscountProductPage.AddToMyBag(index);
+    end
+    ]]>
+</script>
+
+<div style="margin:10px">
+<pe:gridview AllowPaging="true" pagesize="4" ItemsPerLine="4" name="DiscountIkeaChairs" DataSource='<%=MyCompany.Aquarius.BrowseDiscountProductPage.DS_Func%>' DefaultNodeHeight="100" CellPadding="10">
+    <Columns>
+        <div style="width:120px;background:texture/whitedot.png;">
+            <div style="margin:25px;width:64px;height:64px;"> <!--background:texture/alphadot.png-->
+                <img src='<%=Eval("preview")%>'width="64" height="64" />
+            </div>
+            <div style="float:left;padding:0px;padding-left:20px;padding-bottom:10px;margin-left:5px">
+                <a href="#" tooltip='<%=Eval("desc")%>'><div style="float:left;font-weight:bold;"><%=Eval("name")%></div><br/>椅子</a><br/>
+                <div style="color:#6A6A6A;float:left;background:Texture/Aquarius/Andy/TextLine.png: 13 13 1 1;"><%=Eval("price")%></div><br/>
+                <div style="color:#FF0000;float:left;width:200px"><%=Eval("discountprice")%></div><br/>
+                <input name='<%=Eval("index")%>' type="button" value="购买!" style="width:48px;height:32px;color:#FF0000;font-weight:bold;background:Texture/Aquarius/Andy/ATM_Dial_32bits.png: 8 8 8 8" tooltip="现在购买" onclick="g_AddToMyBag"/>
+            </div>
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>IKEA暂时还没有此类物品</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>正在搜索, 请稍候 ... </b>
+    </FetchingDataTemplate>
+</pe:gridview>
+</div>    
+
+</pe:mcml>
+</body>
+</html>
+

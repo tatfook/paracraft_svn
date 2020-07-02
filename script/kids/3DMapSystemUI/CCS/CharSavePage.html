@@ -1,0 +1,44 @@
+﻿<!-- "script/kids/3DMapSystemUI/CCS/CharSavePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Character save Page</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="CharSavePage.lua">
+    Map3DSystem.App.CCS.CharSavePage.OnInit();
+</script>
+
+<form name="avatarTab">
+
+  <div style="margin:10px;float:left;">
+    <div><font style="font-weight:bold">3D 预览:</font><font style="color:#808080;">用鼠标左键或中键拖拽可以改变视角</font></div>
+    <div>
+      <div style="float:left">
+        <pe:canvas3d name="avatar" style="width:256px;height:256px;"/>
+      </div>
+      <div style="float:left">
+        <input type="button" class="defaultbutton" name="refresh" onclick="Map3DSystem.App.CCS.CharSavePage.OnRefreshAvatar" value="刷新" />
+        <div style="color:#808080">如果显示的形象和当前的主角不一样, 请点击刷新</div>
+      </div>
+      
+      <hr />
+    </div>
+    <div>
+        我的签名: <input type="text" name="signature"/><br />
+        您这身衣服价值2000E币 <input type="button" name="Pay" value="购买" enabled="false"/>
+    </div>
+    <div>
+        <input type="button" style="height:26px;" class="defaultbutton" name="Upload" onclick="Map3DSystem.App.CCS.CharSavePage.OnClickSave" value="保存我的形象" />
+        <input type="button" style="margin-left:10px;" onclick="Map3DSystem.App.CCS.CharSavePage.TakeAvatarSnapshot" value="快照" />
+        <label name="result" style="color:#006600;margin-left:5px;margin-top:3px;"/>
+    </div>
+  </div>
+  </form>
+<%
+	Map3DSystem.App.CCS.CharSavePage.OnRefreshAvatar()
+%>
+</pe:mcml>
+</body>
+</html>

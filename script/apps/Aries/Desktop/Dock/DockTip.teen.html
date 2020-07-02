@@ -1,0 +1,140 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/DockTip.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/11/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local ItemManager = System.Item.ItemManager;
+local DockTip = commonlib.gettable("MyCompany.Aries.Desktop.DockTip");
+DockTip.GetInstance():OnInit_GetPageCtrl();
+local pageCtrl = document:GetPageCtrl();
+local name = pageCtrl:GetRequestParam("name");
+local node = DockTip.GetInstance():GetFirstNode(name) or {};
+--[[
+name="DockTip.MountPet.ShowMenu"
+name="DockTip.CombatPetPane.ShowPage"
+name="DockTip.CharacterBagPage.ShowPage"
+name="DockTip.CombatCardTeen"
+name="DockTip.FriendsPage.ShowPage"
+name="DockTip.Aries.LocalMapMCML"
+node = {gsid = 10154, title="测试 你获得了新坐骑！", btn="立即驾驭" };
+node = {gsid = 10154,};
+--]]
+local param = DockTip.GetInstance():GetParams(name) or {};
+function GetGsid()
+    return node.gsid;
+end
+function HasBtn()
+    if(node.btn and node.btn == "none")then
+        return false;
+    end
+    if(node.btn and node.btn ~= "")then
+        return true;
+    end
+    if(param.btn and param.btn ~= "")then
+        return true;
+    end
+end
+function GetBtnValue()
+    if(node.btn and node.btn ~= "")then
+        return node.btn;
+    end
+    if(param.btn and param.btn ~= "")then
+        return param.btn;
+    end
+    return "打开";
+end
+function GetName()
+    if(HasBtn())then
+        return
+    end
+    if(node.gsid)then
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(node.gsid);
+        if(gsItem)then
+		    local name = gsItem.template.name;
+            return name or ""
+        end
+    end
+end
+function GetTitle()
+    if(node.title)then
+        return node.title;
+    end
+    if(param.title)then
+        return param.title;
+    end
+end
+function DoAction()
+    DockTip.GetInstance():Manual_RemoveFirstNode();
+    local onclick_func = node.onclick;
+    local gsid = node.gsid;
+    if(onclick_func and DockTip[onclick_func])then
+        DockTip[onclick_func](gsid,node);
+    end
+end
+function IsType(type)
+    if(name == type)then
+        return true;
+    end
+end
+function GetText()
+    local s = string.format("%d秒自动关闭",DockTip.duration/1000)
+    return s;
+end
+function DoNext()
+    if(node.force_action_level and node.force_action_level >= MyCompany.Aries.Player.GetLevel()) then
+        DoAction();
+    else
+        DockTip.GetInstance():Manual_RemoveFirstNode();
+    end
+end
+function SetActiveTimer()
+    DockTip.GetInstance():SetActiveTimer();
+    pageCtrl:SetValue("active_timer",DockTip.GetInstance():TimerIsEnabled());
+end
+pageCtrl:SetValue("active_timer",DockTip.GetInstance():TimerIsEnabled());
+]]></script>
+
+ <div>
+<div class="anchor_tooltip_bg" style="width:200px;height:95px;">
+    <input type="button" onclick="DoNext" zorder="2" class="anchor_tooltip_close" style="position:relative;margin-left:160px;margin-top:-5px;"/>
+    <div style="position:relative;margin-left:90px;margin-top:60px;">
+        <input type="checkbox" name="active_timer" onclick="SetActiveTimer"/><%=GetText() %>
+    </div>
+    <div style="position:relative;margin-left:50px;margin-top:30px;">
+        <pe:if condition='<%=IsType("DockTip.CombatCardTeen") %>'>
+            <%=GetName() %>
+        </pe:if>
+    </div>
+    <input type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:80px;margin-left:105px;" />
+    <!--<div style="position:relative;margin-left:119px;margin-top:105px;" class="anchor_tooltip_highlight"/>-->
+    <pe:if condition='<%=IsType("DockTip.FriendsPage.ShowPage") %>'>
+        <div style="text-align:center;margin-top:25px;">
+            <%=GetTitle() %>   
+        </div>
+    </pe:if>
+    <pe:if condition='<%=not IsType("DockTip.FriendsPage.ShowPage") %>'>
+        <div style="text-align:center;">
+            <%=GetTitle() %>   
+        </div>
+        <div>
+            <pe:item gsid='<%=GetGsid()%>' isdragable="false" style="margin-left:10px;margin-top:10px;width:32px;height:32px" isclickable="false"/>
+            <pe:if condition='<%=HasBtn() %>'>
+                <input type="button" value='<%=GetBtnValue() %>' onclick="DoAction()" style="margin-left:15px;margin-top:15px;"/>
+                <div style="position:relative;margin-left:45px;margin-top:-31px;width:90px;height:28px;background:" >
+                    <img name="gift_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="100" height="32"/>
+                </div>
+            </pe:if>
+        </div>
+    </pe:if>
+</div>
+</div>
+</pe:mcml> 
+
+</body>
+</html>

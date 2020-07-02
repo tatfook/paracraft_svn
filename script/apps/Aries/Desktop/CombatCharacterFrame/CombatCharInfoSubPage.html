@@ -1,0 +1,266 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCharInfoSubPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCharInfoSubPage</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CombatCharInfoSubPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = Map3DSystem.Item.ItemManager;
+local GetItemByBagAndOrder = ItemManager.GetItemByBagAndOrder;
+MyCompany.Aries.Desktop.CombatCharInfoSubPage.Init();
+
+function NotEquiped(bag,pos)
+    local item = GetItemByBagAndOrder(bag,pos);
+    --commonlib.echo(item);
+    --if(item and item.order and item.order == pos)then return false;
+    --else
+    --return true;
+    --end
+    return false;
+end
+
+function IsEdit()
+    local isEditing = MyCompany.Aries.Desktop.CombatCharInfoSubPage.GetNameEditState();
+    if(isEditing) then
+        return isEditing;
+    end
+    return false;
+end
+
+function IsNotEdit()
+    return not IsEdit();
+end
+
+function GetNid()
+    return System.App.profiles.ProfileManager.GetNID();
+end
+
+function GetGS()
+    return MyCompany.Aries.Combat.GetGearScore();
+end
+
+function ChangeName()
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+	local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+	local can_pass = DealDefend.CanPass();
+	if(not can_pass)then
+		return
+	end
+    MyCompany.Aries.Desktop.CombatCharInfoSubPage.SetEditState(true);
+    page:Refresh(0.01);
+    
+    page:SetValue("nickname", tostring(NicknameInMem()));
+end
+
+function NicknameInMem()
+    local ProfileManager = System.App.profiles.ProfileManager;
+    local profile = ProfileManager.GetUserInfoInMemory(ProfileManager.GetNID());
+    if(profile) then
+        return profile.nickname;
+    end
+    return "";
+end
+
+function SaveName()
+	local nickname = page:GetValue("nickname");
+	MyCompany.Aries.Desktop.CombatCharInfoSubPage.SetEditState(false);
+	NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+	MyCompany.Aries.NewProfileMain.ChangeNickName(nickname, page);
+end
+
+function OnRadioClick(value, mcmlNode)
+    print("refresh")
+    page:Refresh(0.01);
+end
+
+NPL.load("(gl)script/apps/Aries/UserBag/BagHelper.lua");
+local BagHelper = commonlib.gettable("MyCompany.Aries.Inventory.BagHelper");
+NPL.load("(gl)script/apps/Aries/UserBag/EquipHelper.lua");
+EquipHelper = commonlib.gettable("MyCompany.Aries.Inventory.EquipHelper");
+CombatCharacterFrame = commonlib.gettable("MyCompany.Aries.Desktop.CombatCharacterFrame");
+
+--装备升级
+function CanUpgrade(gsid)
+    return EquipHelper.CanUpgrade(gsid)
+end
+--宝石镶嵌
+function CanAttachGem(gsid)
+    return EquipHelper.CanAttachGem(gsid,CombatCharacterFrame.gems_list);
+end
+--装备平移
+function CanTranslation(gsid)
+    return EquipHelper.CanTranslation(gsid,CombatCharacterFrame.translation_list);
+end
+
+function GetGsid(bag,position)
+    local item = ItemManager.GetItemByBagAndPosition(bag, position);
+    if(item)then
+        return item.gsid;
+    end
+end
+
+function CanShowExtraButton(gsid)
+    if(CanUpgrade(gsid) or CanAttachGem(gsid) or CanTranslation(gsid))then
+        return true;
+    end
+end
+]]></script>
+
+<div style="margin-top:5px;width:645px;height:375px;color:#022a57;" >
+    <div style="position:relative;margin-left:0px;margin-top:0px;height:375px;" >
+        <div style="position:relative;margin-left:0px;margin-top:0px;width:280px;height:42px;">
+            <pe:if condition='<%=IsNotEdit()%>'>
+                <div style="position:relative;margin-left:83px;margin-top:13px;float:right;">
+                    <pe:name name="FullProfileUserName" nid='<%=GetNid()%>' useyou="false" linked="false" style="width:150px;font-weight:bold;font-size:14px;text-align:center;"/>
+                </div>
+                <div style="position:relative;margin-left:230px;margin-top:5px;">
+                    <input type="button" zorder="3" style="width:32px;height:32px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+                        onclick="ChangeName();" tooltip="修改昵称" value=""/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=IsEdit()%>'>
+                <div style="position:relative;margin-left:125px;margin-top:5px;">
+                    <input type="text" name="nickname" SkipAutoBadWordFilter="true"  style="margin-left:-40px;margin-top:3px;width:140px;height:26px;"/>
+                    <input type="button" zorder="3" style="width:32px;height:32px;margin-left:8px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                        onclick="SaveName();" tooltip="保存" value=""/>
+                </div>
+            </pe:if>
+        </div>
+
+        <div zorder="3" style="position:relative;margin-left:308px;margin-top:0px;">
+            <pe:tabs class="tabs" name="tab_CombatCharInfoSubPage" style="width:345px;height:375px;" onclick="OnRadioClick">
+                <pe:tab-item name="1" text="属性" style="padding-left:0px;width:62px;" selected="true"  >
+                    <div style="padding:8px;padding-top:5px;">
+                        <iframe name="view_2" src="script/apps/Aries/NewProfile/NewProfileCombat.html"/>
+                    </div>
+                </pe:tab-item>
+                <pe:tab-item name="2" text="荣誉" style="padding-left:0px;width:62px;">
+                    <div style="padding:8px;padding-top:5px;">
+                        <iframe name="view_3" src="script/apps/Aries/NewProfile/NewProfileHonour.html"/>
+                    </div>
+                </pe:tab-item>
+                <pe:tab-item name="3" text="战绩"   style="padding-left:0px;width:62px;">
+                    <div style="padding:8px;padding-top:5px;">
+                        <iframe name="view_4" src="script/apps/Aries/NewProfile/NewProfilePvP.html"/>
+                    </div>
+                </pe:tab-item> 
+                 <pe:tab-item name="4" text="生活技能"   style="padding-left:0px;width:62px;">
+                    <div style="padding:8px;padding-top:5px;">
+                        <iframe name="view_5" src="script/apps/Aries/Desktop/CombatCharacterFrame/MinorSkillPage.html"/>
+                    </div>
+                </pe:tab-item> 
+            </pe:tabs>
+            <!--<div style="float:left;padding-left:160px;padding-top:-24px;">GS:<%=GetGS()%></div>-->
+        </div>
+
+        <div style="position:relative;margin-left:60px;margin-top:50px;">
+            <pe:if condition = '<%=MyCompany.Aries.Desktop.CombatCharInfoSubPage.GetEnergy()>0 %>'>
+                <img src='Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar5_32bits.png;0 0 43 42' style="width:43px;height:42px;"/>
+                <div style="position:relative;margin-left:19px;margin-top:-42px;width:40px;text-align:center"><%=MyCompany.Aries.Desktop.CombatCharInfoSubPage.GetMLevel() %></div>
+            </pe:if>
+        </div>
+
+        <div style="margin-left:180px;margin-top:50px;font-weight:norm;padding-left:20px;padding-top:10px;width:180px;height:100px;">
+            <div style="margin-top:-6px;width:56px;height:22px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                <aries:mountpet-combatschool name="combat_school" nid='<%=GetNid()%>' style="margin-left:8px;margin-top:1px;"/>
+            </div>
+            <br/>
+            <div style="margin-top:2px;width:56px;height:22px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                <aries:mountpet-status2 name="combat_level" nid='<%=GetNid()%>' type="combatlel" hideifnotvip="true" style="margin-left:12px;margin-top:0px;"/>
+                <div style="margin-left:-29px;float:left;">级</div>
+            </div>
+        </div>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:0px;width:308px;height:375px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+        <div style="position:relative;margin-left:8px;margin-top:40px;">
+            <div style="position:relative;float:left;margin-left:3px;margin-top:4px;width:40px;height:228px;">
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="2" zorder=2 style = "width:32px;height:32px;" class="highbluecolor" HideVIPTag="true" ShowSlotNameIfEmpty="帽子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="8" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="背部"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="5" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="衣服"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="15" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手镯"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="6" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="裤子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="11" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="右手"/>
+                </div>
+            </div>
+            <div style="position:relative;float:left;margin-top:-12px;margin-left:20px;width:256px;height:256px;">
+                <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID() == nil%>' >
+                    <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:256px;height:256px;" IsInteractive="false"/>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Player.GetPartnerNID() ~= nil%>' >
+                    <div style="position:relative;margin-left:232px;margin-top:-22px;padding:3px;width:38px;height:38px;" class="equip_bg">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="72" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty=""/>
+                    </div>
+                    <div style="position:relative;margin-left:-20px;margin-top:60px;">
+                        <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacterPartner" style="width:192px;height:192px;" IsInteractive="false"/>
+                    </div>
+                    <div style="position:relative;margin-left:90px;margin-top:60px;">
+                        <pe:player nid='<%=MyCompany.Aries.Player.GetPartnerNID()%>' name="AriesPlayerPartner" miniscenegraphname="AvatarMyselfTabCharacter" style="width:192px;height:192px;" IsInteractive="false"/>
+                    </div>
+                </pe:if>
+            </div>
+            <div style="position:relative;margin-left:63px;width:168px;height:168px;margin-top:80px;background:url(texture/aries/common/themekid/character/footer_place_32bits.png#0 0 150 165)"/>
+
+            <div style="position:relative;margin-top:20px;">
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;margin-left:54px;margin-top:208px;width:40px;height:30px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/left_rotate_32bits.png#0 0 40 32)"/>
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:108px;margin-top:208px;width:40px;height:30px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/right_rotate_32bits.png#0 0 40 32)"/>
+            </div>
+            <div style="position:relative;float:left;margin-left:252px;margin-top:4px;width:40px;height:228px;">
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="4" zorder=2 style = "width:32px;height:32px;" class="highbluecolor" HideVIPTag="true" ShowSlotNameIfEmpty="面部"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="17" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="项链"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="9" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手套"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="16" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="戒指"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="7" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="鞋子"/>
+                </div>
+                <div style="padding:3px;width:38px;height:38px;margin-top:2px;" class="equip_bg">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="10" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="左手"/>
+                </div>
+            </div>
+            <div style="margin-left:1px;margin-top:258px;width:290px;height:68px;font-size:12px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                <div style="margin-left:5px;margin-top:5px;height:15px;">
+                    <div style="float:left;min-width:140px;"><%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%><%=tostring(GetNid())%></div>
+                    <div style="float:left;min-width:140px">生日:<div style="float:left"><aries:userinfo nid='<%=GetNid()%>' field="birthday" /></div></div>
+                </div>
+                <div style="margin-left:5px;margin-top:2px;">
+                    <div style="float:left;min-width:140px">家族:<div style="float:left"><aries:userinfo nid='<%=GetNid()%>' field="family" /></div></div>
+                    <div style="float:left;min-width:140px">人气值:<div style="float:left"><aries:userinfo nid='<%=GetNid()%>' field="popularity" /></div></div>
+                </div>
+                <div style="margin-left:5px;margin-top:0px;height:15px;">
+                    <div style="float:left;min-width:140px">
+                        <pe:item gsid="17213" isenabled="false" style="width:20px;height:20px;"/>
+                        <div style="float:left;margin-left:2px;">仙豆:</div><pe:slot type="count" gsid="17213" style="float:left;" />
+                    </div>
+                    <div style="float:left;min-width:140px">奇豆:<div style="float:left"><aries:userinfo nid='<%=GetNid()%>' field="emoney" /></div></div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/NPCs/Farm/30191_GruntUncle_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30191_GruntUncle_dialog, by LiXizhi, 2009/12/27</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="30191_GruntUncle.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+name = "NPCDialog_"..tostring(npc_id);
+
+function condition1()
+    return not MyCompany.Aries.Quest.NPCs.GruntUncle.QuestIsOpened_Seawater();
+end
+function condition2()
+    return MyCompany.Aries.Quest.NPCs.GruntUncle.HasSeawater();
+end
+function condition3()
+    return not MyCompany.Aries.Quest.NPCs.GruntUncle.HasSeawater();
+end
+function hasMelon()
+    return MyCompany.Aries.Quest.NPCs.GruntUncle.HasMelon();
+end
+function giveMelon()
+    MyCompany.Aries.Quest.NPCs.GruntUncle.GiveMelon();
+end
+function showFlash()
+    MyCompany.Aries.Quest.NPCs.GruntUncle.ShowFlash();
+end
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30191" />
+            <pe:placeholder id="name" source="{this}" value='呼噜大叔'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+		        <!--quest is opened-->
+			    <pe:answer-if condition = "<%=condition1() %>" target_state = "1"/>
+			    <pe:answer-if condition = "true" target_state = "6"/>
+		       
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	         我是呼噜大叔，最喜欢吃西瓜，但摘西瓜的人太多了，我一直都摘不到，好心的小哈奇，你能送我5个西瓜，让我一次吃个过瘾吗？
+		    <pe:answer text="送给你" template_id="giveyou">
+	            <pe:answer-if condition = '<%=hasMelon() %>' target_state = "2"/>
+	            <pe:answer-if condition = 'true' target_state = "3"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "2">
+	          哇！整整5个西瓜耶，太感激你了！作为报答，我决定为你做一次神秘的尝试。
+	          <br />
+	          不过我现在还缺少一份咸咸的水，你到出过海的船上看看，找到了记得再回来找我！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = 'true' transition = '<%=giveMelon %>' target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "3">
+	           唉，别来逗我开心了，等你有5个西瓜再来找我吧，我做梦都想吃西瓜~
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true"  target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "4">
+               对了，海水是咸咸的，浓缩的海水应该可以用，我怎么就没想到呢，还是你聪明！
+               <br />
+               神奇的尝试就要开始了，你要睁大眼睛看着哦！
+		    <pe:answer text="开始吧" template_id="start">
+	            <pe:answer-if condition = 'true' transition = '<%=showFlash %>' target_state = "-1"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "5">
+              你怎么没有带咸咸的水过来呢？到出过海的探索号上好好找一下，找到了记得拿回来给我！
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+         <pe:state id = "6">
+              为了感谢你给我送来西瓜，我决定为你做一次尝试，你有从探索号上找来咸咸的水了吗？
+		    <pe:answer text="给你" template_id="giveyou">
+	                <!--has seawater-->
+			    <pe:answer-if condition = "<%=condition2() %>" target_state = "4"/>
+		        <!--has not seawater-->
+			    <pe:answer-if condition = "<%=condition3() %>" target_state = "5"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

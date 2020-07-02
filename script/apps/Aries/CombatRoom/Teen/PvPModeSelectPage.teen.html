@@ -1,0 +1,37 @@
+﻿<!-- "script/apps/Aries/CombatRoom/Teen/PvPModeSelectPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<!--Page._pvp_mode may be nil, "1v1", "2v2","3v3","4v4"-->
+<script refresh="true" type="text/npl" src="PvPModeSelectPage.lua"><![CDATA[
+Page._pvp_mode = nil;
+HasBattleField = Page:GetRequestParam("battlefield", false)
+function ClosePage()
+    Page:CloseWindow();
+end
+function OnSelectMode(name)
+    Page._pvp_mode = name;
+    ClosePage();
+end
+]]></script>
+<div class="window" style="width:240px;">
+    <div class="titlebar">
+      <div class="windowlabel">请选择PK对战模式</div>
+      <input type="button" onclick="ClosePage" class="closebutton" align="right" style="position:relative;margin-right:5px;" />
+    </div>
+    <div class="clientarea" style="padding:5px;">
+        <div style="margin:5px;"><input type="button" name="1v1" value="公平竞技场(1对1)" class="defaultbutton" style="width:200px;height:25px;" onclick="OnSelectMode" /></div>
+        <div style="margin:5px;"><input type="button" name="4v4" value="公平竞技场(4对4)" class="defaultbutton" style="width:200px;height:25px;" onclick="OnSelectMode" /></div>
+        <pe:if condition='<%=HasBattleField%>'>
+            <div style="margin:5px;"><input type="button" name="battlefield" value="英雄谷(大型团队合作)" class="defaultbutton" style="width:200px;height:25px;" onclick="OnSelectMode" /></div>
+        </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

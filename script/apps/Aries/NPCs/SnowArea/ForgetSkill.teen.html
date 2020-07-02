@@ -1,0 +1,167 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/ForgetSkill.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Player/main.lua");
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local ItemManager = Map3DSystem.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/ForgetSkill.teen.lua");
+local ForgetSkill = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.ForgetSkill");
+ForgetSkill:Init();
+local LearnedSkill_subpage = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage");
+
+function GetDataSource(arg)
+    return LearnedSkill_subpage:GetDataSource(arg);
+end
+
+function ClosePage()
+    ForgetSkill:CloseWindow();
+end
+
+function OnForgetSkill(gsid)
+    ForgetSkill:OnForgetSkill(gsid);
+end
+
+function __OnForgetSkill(arg)
+    if(not arg or arg == 0)then return end
+    ForgetSkill:OnForgetSkill(arg);
+end
+
+function HasLearned(gsid)
+    return hasGSItem(gsid);
+end
+
+function OnLearnSkill(gsid)
+    ForgetSkill:PurchaseNewSkill(gsid)
+    ClosePage(); -- actually to refresh the page
+end
+
+function GetExidMoney(exid)
+    if(not exid)then return end
+    local index = 1;
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate and exTemplate.froms and exTemplate.tos)then
+        
+        local node = exTemplate.froms[index];
+        if(node)then
+            local label;
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(node.key);
+            if(gsItem) then
+                label = gsItem.template.name;
+            elseif(node.key == 0 or node.key == 1) then
+                label = "银币";
+            end
+            return string.format([[
+<pe:item is_container="true" isclickable="false" gsid='%d' style="float:left;width:110px;margin-top:2px;height:20px" >
+    <pe:item gsid='%d' isenabled="false" style="width:20px;height:20px;"/>
+    <div style="float:left;margin-left:2px;">%s:</div>%s
+</pe:item>]], node.key, node.key, label or "", tostring(node.value));
+            
+        end
+    end
+end
+local learn_list = {
+        [21105] = 10,
+        [21106] = 25,
+        [21107] = 15,
+        [21108] = 20,
+        [21109] = 5,
+        [21110] = 5,
+    }
+
+function GetLearnLevel(gsid)
+    return learn_list[gsid] or 0;
+end
+function GetLearnLevelStr(gsid)
+    return string.format("%d级",GetLearnLevel(gsid));
+end
+function CanLearn(gsid)
+    local level = GetLearnLevel(gsid);
+    if(Player.GetLevel() >= level)then
+        return true;
+    end
+end
+]]></script>
+<div style="width:468px;height:470px;" class="window">
+    <div style="height:19px;">
+        <div class="windowlabel">学习生活技能</div>
+        <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:421px;" />
+    </div>
+    <div style="width:458px;height:443px;margin-top:3px;margin-left:5px;">
+        <pe:gridview VerticalScrollBarStep="358" RememberScrollPos="true" RememberLastPage="true" name="pegvwSKills" 
+            CellPadding="0" ItemsPerLine="2" AllowPaging="false" 
+            style="width:456px;height:438px;margin-top:3px;"
+            DataSource='<%=GetDataSource %>'DefaultNodeHeight="146" >
+		<Columns>
+            <div style="color:#52dff4;height:146px;width:223px;margin-top:0px;margin-left:5px;background:url(Texture/Aries/Common/ThemeTeen/spec/frame2_32bits.png#0 1 218 120: 7 7 7 7);">
+                <div style="height:64px;width:214px;margin-top:4px;margin-left:5px;background:url(Texture/Aries/Common/ThemeTeen/spec/frame1_32bits.png#0 0 209 64:77 34 40 23);">
+                        <div style="position:relative;margin-left:165px;margin-top:17px;color:#ff9a00"><%=GetLearnLevelStr(Eval("gsid"))%></div>
+                    <pe:if condition='<%=Eval("gsid") == 21105 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21105_32bits.png#3 3 58 58);"/>
+                        <div style="position:relative;height:27px;width:53px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/cooking_32bits.png#0 0 53 27);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21106 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21106_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/magic_32bits.png#0 0 72 27);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21107 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21107_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/stuff_32bits.png#0 0 72 27);" />
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21108 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21108_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:70px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/jewelry_32bits.png#0 0 70 27);"/>
+                    </pe:if> 
+                    <pe:if condition='<%=Eval("gsid") == 21109 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21109_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/medic_32bits.png#0 0 72 27);"/>
+                        <div style="position:relative;margin-left:160px;margin-top:70px;width:40px;height:25px;background:url(Texture/Aries/Desktop/GemMerge/tuijian_32bits.png# 0 0 40 25)" />
+                    </pe:if>
+                    <pe:if condition='<%=Eval("gsid") == 21110 %>'>
+                        <div style="position:relative;height:58px;width:58px;margin-top:3px;margin-left:3px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/bg_21110_32bits.png#3 3 58 58);" />
+                        <div style="position:relative;height:27px;width:72px;margin-top:25px;margin-left:90px;padding:1px;background:url(Texture/Aries/Common/ThemeTeen/spec/mineral_32bits.png#0 0 72 27);"/>
+                    </pe:if>       
+                </div>
+                <div style="position:relative;text-align:left;margin-left:6px;width:195px;color:#52dff4;" >
+                <%=Eval("desc")%>
+                </div>
+                <div style="position:relative;width:181px;height:28px;margin-top:46px;"  >
+                     <pe:if condition='<%=not HasLearned(Eval("gsid"))%>'>
+                        <div style="position:relative;margin-left:8px;">
+                            <%=GetExidMoney(Eval("exid"))%>
+                        </div>
+                         <pe:if condition='<%=CanLearn(Eval("gsid"))%>'>
+                             <input zorder="2" type="button"  onclick="OnLearnSkill"
+                            style="margin-left:140px;width:70px;" name='<%=Eval("gsid")%>'
+                            value='学习' />
+                         </pe:if>
+                        <pe:if condition='<%=not CanLearn(Eval("gsid"))%>'>
+                             <input zorder="2" type="button"  enabled="false"
+                            style="margin-left:140px;width:70px;" name='<%=Eval("gsid")%>'
+                            value='学习' />
+                         </pe:if>
+                    </pe:if>
+                    <pe:if condition='<%=HasLearned(Eval("gsid"))%>'>
+                        <pe:if condition='<%=System.options.isAB_SDK %>' >
+                            <input zorder="2" type="button"  onclick="OnForgetSkill"  tooltip='<%="SDK版本可见：遗忘制造技能" .. Eval("name") %>'
+                                style="position:relative;margin-left:90px;" name='<%=Eval("gsid")%>'
+                                value='遗忘' />
+                        </pe:if>
+                        <input zorder="2" type="button" value='已经掌握' style="margin-left:140px;width:70px;background:;" />
+                    </pe:if>
+                </div>
+           </div>
+		</Columns>	
+		</pe:gridview>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

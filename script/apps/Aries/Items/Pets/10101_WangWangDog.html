@@ -1,0 +1,196 @@
+<!-- "script/apps/Aries/Items/Pets/10101_WangWangDog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>10101_WangWangDog, by Andy, 2009/6/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="10101_WangWangDog.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    return (hasGSItem(10106));
+end;
+Condition2 = function()
+    return (not hasGSItem(10106) and (equipGSItem(21001) or equipGSItem(21002) or equipGSItem(21003)));
+end;
+Condition3 = function()
+    return (not hasGSItem(10106) and not equipGSItem(21001) and not equipGSItem(21002) and not equipGSItem(21003));
+end;
+Condition4 = function()
+    return (not hasGSItem(10106) and (hasGSItem(21001) or hasGSItem(21002) or hasGSItem(21003)) and not equipGSItem(21001) and not equipGSItem(21002) and not equipGSItem(21003));
+end;
+
+Condition5 = function()
+    return (equipGSItem(21001));
+end;
+Condition6 = function()
+    return (equipGSItem(21002));
+end;
+Condition7 = function()
+    return (equipGSItem(21003));
+end;
+
+
+function EntryAction(from, to)
+    if(from == 5 and to == 8) then
+		ItemManager.PurchaseItem(10106, 1, function(msg)
+			if(msg) then
+				log("+++++++Purchase wangwangdog return: +++++++\n")
+				commonlib.echo(msg);
+				
+				if(msg.issuccess == true) then
+	                local dog = ParaScene.GetCharacter("NPC:10106");
+	                if(dog:IsValid() == true) then
+				        ParaScene.Delete(dog);
+	                end
+				end
+			end
+		end);
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+function ExitAction(from, to)
+    if(from == 2 and to ~= -1) then
+        commonlib.echo("TODO: extended cost the acius item with the follow pet")
+        
+        local bEquip, guid = equipGSItem(21001);
+        if(guid) then
+            ItemManager.DestroyItem(guid, 1, function() end);
+            return;
+        end
+        local bEquip, guid = equipGSItem(21002);
+        if(guid) then
+            ItemManager.DestroyItem(guid, 1, function() end);
+            return;
+        end
+        local bEquip, guid = equipGSItem(21003);
+        if(guid) then
+            ItemManager.DestroyItem(guid, 1, function() end);
+            return;
+        end
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    <pe:dialog NPC_id = "10" width = "468" height = "317" style="background:url(Texture/Aries/Temp/MessageBoxAquaBlue.png# 0 0 468 317)" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    
+		    <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    你已经有一只汪汪狗了，真羡慕它。<br/>
+            我也希望成为一只出色的警犬，我还在等我的主人呢。
+            </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "2">
+	        <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    你手上的浆果闻上去真美味，我肚子好饿，能给我吃吗？
+		    </div>
+            <div style="width:200px;height:40px;">
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 37);">
+			        <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			        <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			        <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+		        </pe:answer>
+		        <pe:answer style="width:139px;height:37px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_Cancel_32bits.png#0 1 139 37);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-110px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "3">
+		    <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    森林中有棵神奇浆果树，结的浆果可好吃了。如果你想带我回家，就把美味的浆果拿在手中喂我吧。
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "4">
+		    <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    I can taste the smell of acinus on you. Can you feed me with it?
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "5">
+	        <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    太好吃了，你真是一个有爱心的小哈奇，你愿意收养我吗？
+		    </div>
+		    <pe:answer value="yes" style="width:90px;height:34px;margin-left:120px;background:Texture/Aries/Temp/MessageBoxAquaBlueYes.png;">
+			    <pe:answer-if condition = "true" target_state = "8"/>
+		    </pe:answer>
+		    <pe:answer value="no" style="width:90px;height:34px;margin-left:30px;background:Texture/Aries/Temp/MessageBoxAquaBlueNo.png;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+	        <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    怎么是黄色的浆果啊，我最讨厌黄色了！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "7">
+	        <div style="margin:45px;margin-bottom:25px;height:180px;">
+		    怎么是蓝色的浆果啊，我最讨厌蓝色了！
+		    </div>
+            <div style="width:200px;height:40px;margin-top:40px;">
+		        <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+                <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                </div>
+            </div>
+	    </pe:state>
+	    <pe:state id = "8">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

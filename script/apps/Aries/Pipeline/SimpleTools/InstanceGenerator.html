@@ -1,0 +1,276 @@
+﻿<!-- "script/apps/Aries/Pipeline/SimpleTools/InstanceGenerator.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>InstanceGenerator page, 2010/12/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+
+local tower_single_level_params = {
+    ["model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x"] = {
+        arena_offset = {0, 0.2, 0},
+        --levelup_asset = ,
+        --leveldown_asset = ,
+        levelup_portal_offset = {44.5, 0, 0.5},
+        levelup_portal_facing = 1.57,
+        levelup_dest_offset = {35, 0, 0.5},
+        levelup_dest_facing = 0,
+        leveldown_portal_offset = {-44.5, 0, 0.5},
+        leveldown_portal_facing = 1.57,
+        leveldown_dest_offset = {-35, 0, 0.5},
+        leveldown_dest_facing = 0,
+    },
+    ["model/01building/v5/04instance/LightTower/LightTower61/LightTower61.x"] = {
+        arena_offset = {0, 0.2, 0},
+        --levelup_asset = ,
+        --leveldown_asset = ,
+        levelup_portal_offset = {46.5, 0, 0.5},
+        levelup_portal_facing = 1.57,
+        levelup_dest_offset = {35, 0, 0.5},
+        levelup_dest_facing = 0,
+        leveldown_portal_offset = {-46.5, 0, 0.5},
+        leveldown_portal_facing = 1.57,
+        leveldown_dest_offset = {-35, 0, 0.5},
+        leveldown_dest_facing = 0,
+    },
+    ["model/01building/v5/04instance/TreasureHouse/TreasureHouse.x"] = {
+        arena_offset = {0, 0.2, 0},
+        --levelup_asset = ,
+        --leveldown_asset = ,
+        levelup_portal_offset = {44.5, 0, 0.5},
+        levelup_portal_facing = 1.57,
+        levelup_dest_offset = {35, 0, 0.5},
+        levelup_dest_facing = 0,
+        leveldown_portal_offset = {-44.5, 0, 0.5},
+        leveldown_portal_facing = 1.57,
+        leveldown_dest_offset = {-35, 0, 0.5},
+        leveldown_dest_facing = 0,
+    },
+    
+};
+tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x"] = tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x"];
+tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower8/LightTower8.x"] = tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x"];
+tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower26/LightTower26.x"] = tower_single_level_params["model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x"];
+
+local levels = {};
+
+local start_level_id = 1;
+local i = 1;
+for i = 1, 7 do
+    levels[i] = "model/01building/v5/04instance/LightTower/LightTower1/LightTower1.x";
+end
+local i = 8;
+for i = 8, 25 do
+    levels[i] = "model/01building/v5/04instance/LightTower/LightTower8/LightTower8.x";
+end
+local i = 26;
+for i = 26, 60 do
+    levels[i] = "model/01building/v5/04instance/LightTower/LightTower26/LightTower26.x";
+end
+local i = 61;
+for i = 61, 100 do
+    levels[i] = "model/01building/v5/04instance/LightTower/LightTower61/LightTower61.x";
+end
+
+levels = {};
+local i = 1;
+for i = 1, 5 do
+    levels[i] = "model/01building/v5/04instance/TreasureHouse/TreasureHouse.x";
+end
+
+--  start position: 20266.287109375, 21000.068359375, 20000.416015625
+
+function CreateChar(name, position, facing, assetfile, scale)
+	-- create a global character model for testing only
+	local asset = ParaAsset.LoadParaX("", assetfile);
+	local obj = ParaScene.CreateCharacter(name, asset, "", true, 0.35, facing, 1);
+		
+	obj:SetPersistent(true);
+	obj:SetPosition(position[1], position[2], position[3]);
+    obj:SetScale(scale or 1);
+		
+	ParaScene.Attach(obj);
+    return obj;
+end
+
+function CreatePortal(id, portal_position, portal_facing, portal_asset, dest_position, dest_facing, dest_asset)
+    
+    local portal = CreateChar("teleport-portal:"..id, portal_position, portal_facing, portal_asset, 1.5)
+    local dest = CreateChar("teleport-dest:"..id, dest_position, dest_facing, dest_asset, 0.00001)
+
+	local att = portal:GetAttributeObject();
+	att:SetField("OnLoadScript", [[;Map3DSystem.App.worlds.TeleportPortal.On_Load();]]);
+	-- att:SetField("On_FrameMove", [[;Map3DSystem.App.worlds.TeleportPortal.On_Framemove();]]);
+	att:SetField("FrameMoveInterval", 450);
+	att:SetField("PerceptiveRadius", 0);
+	att:SetField("Sentient Radius", 3);
+	portal:SetDynamicField("name", "");
+    -- NOTE: SentientGroupIDs.Player = 3; 
+	portal:SetSentientField(3, true);
+end
+
+function Gen()
+    
+    local arenas_lines = {}; 
+
+    local function PushLine(line)
+        table.insert(arenas_lines, line);
+    end
+    PushLine("\n\n\n\n\n\n\n\n\n\n\n\n");
+    PushLine([[<?xml version="1.0" encoding="utf-8"?>
+    <arenas>
+]])
+	local asset_entrance = "character/v5/09effect/InstanceDoor/InstanceDoor_Entrance.x";
+	local asset_exit = "character/v5/09effect/InstanceDoor/InstanceDoor_Exit.x";
+    local asset_dest = "character/common/headarrow/headarrow.x";
+
+    local starter_position = {0,0,0};
+    
+    local isFirst = true;
+    local isLast = false;
+    local level_id = start_level_id;
+    while(true) do
+        if(not levels[level_id]) then
+            break;
+        end
+        local this_level_param = tower_single_level_params[levels[level_id]];
+        local next_level_param = nil;
+        if(not levels[level_id + 1]) then
+            isLast = true;
+        else
+            next_level_param = tower_single_level_params[levels[level_id + 1]];
+        end
+
+        local base_pos_x = 10000 + level_id * 150;
+        local base_pos_y = 20005;
+        local base_pos_z = 20000;
+        local next_pos_x = 10000 + (level_id + 1) * 150;
+        local next_pos_y = 20005;
+        local next_pos_z = 20000;
+
+        if(isFirst == true) then
+            starter_position[1] = base_pos_x + this_level_param.leveldown_portal_offset[1];
+            starter_position[2] = base_pos_y + this_level_param.leveldown_portal_offset[2];
+            starter_position[3] = base_pos_z + this_level_param.leveldown_portal_offset[3];
+        end
+        
+        -- pass 1: create the models
+        local asset_file = levels[level_id];
+	    local asset = ParaAsset.LoadStaticMesh("", asset_file);
+        local obj = ParaScene.CreateMeshPhysicsObject("", asset, 100, 100, 100, true, "1,0,0,0,1,0,0,0,1,0,0,0");
+		obj:SetPosition(base_pos_x, base_pos_y, base_pos_z);
+        obj:GetAttributeObject():SetField("progress", 1);
+        obj:SetAttribute(8192, true);
+        obj:SetPhysicsGroup(1);
+        obj:SetField("ShadowCaster",false);
+        obj:SetField("ShadowReceiver",true);
+        ParaScene.Attach(obj);
+
+        -- pass 2: create the portals
+        if(not isLast) then
+            local base_id = level_id * 2 - 1;
+            NPL.load("(gl)script/kids/3DMapSystemApp/worlds/TeleportPortal.lua");
+            --Map3DSystem.App.worlds.TeleportPortal.CreatePortalPair2(base_id);
+            --Map3DSystem.App.worlds.TeleportPortal.CreatePortalPair2(base_id + 1);
+            
+            local portal_pos_offset = this_level_param.levelup_portal_offset;
+            local portal_facing = this_level_param.levelup_portal_facing;
+            local dest_pos_offset = next_level_param.leveldown_dest_offset;
+            local dest_facing = next_level_param.leveldown_dest_facing;
+            CreatePortal(base_id, {base_pos_x + portal_pos_offset[1], base_pos_y + portal_pos_offset[2], base_pos_z + portal_pos_offset[3]}, 
+                portal_facing, asset_entrance, 
+                {next_pos_x + dest_pos_offset[1], next_pos_y + dest_pos_offset[2], next_pos_z + dest_pos_offset[3]}, 
+                dest_facing, asset_dest);
+                
+            local portal_pos_offset = next_level_param.leveldown_portal_offset;
+            local portal_facing = next_level_param.leveldown_portal_facing;
+            local dest_pos_offset = this_level_param.levelup_dest_offset;
+            local dest_facing = this_level_param.levelup_dest_facing;
+            CreatePortal(base_id + 1, {next_pos_x + portal_pos_offset[1], next_pos_y + portal_pos_offset[2], next_pos_z + portal_pos_offset[3]}, 
+                portal_facing, asset_exit, 
+                {base_pos_x + dest_pos_offset[1], base_pos_y + dest_pos_offset[2], base_pos_z + dest_pos_offset[3]}, 
+                dest_facing, asset_dest);
+        end
+
+        local t_sec = "door_lock=\""..(level_id * 2 - 1).."\"";
+        if(isLast) then
+            t_sec = "";
+        end
+        -- pass 3: create the arenas
+        PushLine(string.format([[        <arena ai_module="" position="%f,%f,%f" id="%d" respawn_interval="99990000" facing="0" uid="%s" %s>
+]], 
+            base_pos_x + this_level_param.arena_offset[1], 
+            base_pos_y + this_level_param.arena_offset[2], 
+            base_pos_z + this_level_param.arena_offset[3],
+            10000 + level_id,
+            ParaGlobal.GenerateUniqueID(),
+            t_sec
+        ));
+        PushLine([[          <mob mob_template="config/Aries/Mob/MobTemplate_FireCavernFireRockyOgre01Level1.xml"/>
+]])
+        PushLine([[          <mob mob_template=""/>
+]])
+        PushLine([[          <mob mob_template=""/>
+]])
+        PushLine([[          <mob mob_template=""/>
+]])
+        PushLine([[      </arena>
+]])
+
+        Map3DSystem.SendMessage_obj({type = Map3DSystem.msg.SCENE_SAVE, bSkipCharacter = true})
+        ParaScene.GetPlayer():SetPosition(base_pos_x, base_pos_y, base_pos_z);
+
+        isFirst = false;
+
+        level_id = level_id + 1;
+    end
+    PushLine([[  </arenas>]]);
+    PushLine("\n\n\n\n\n\n\n\n\n\n\n\n");
+
+    local _, line;
+    for _, line in ipairs(arenas_lines) do
+        log(line)
+    end
+
+    local id_need_delete = {};
+    --local level_need_delete = {7, 25, 60};
+    local level_need_delete = {};
+    local _, level;
+    for _, level in pairs(level_need_delete) do
+        table.insert(id_need_delete, level * 2 - 1);
+        table.insert(id_need_delete, level * 2);
+    end
+    local _, id;
+    for _, id in pairs(id_need_delete) do
+	    local portal = ParaScene.GetCharacter("teleport-portal:"..id);
+	    local dest = ParaScene.GetCharacter("teleport-dest:"..id);
+	    if(portal:IsValid()) then
+		    ParaScene.Delete(portal);
+	    end
+	    if(dest:IsValid()) then
+		    ParaScene.Delete(dest);
+	    end
+    end
+    
+    --Map3DSystem.App.Commands.Call("File.QuickSaveWorld");
+
+    ParaScene.GetPlayer():SetPosition(starter_position[1], starter_position[2], starter_position[3]);
+    
+end
+]]></script>
+<div style="width:800px;height:448px;margin:0px;background:url();">
+    生成单层模型参数
+    <input type="button" zorder="1" style="width:96px;height:32px;" onclick="Gen()" text="测试1" name='Gen'/>
+    <br/>
+    制作一个副本需要根据基本单层模型划分若干个
+    Template Level Params:
+    {}{}{}{}{} model 4 upper and lower points and facing arena center position
+    Step1: ...
+    Step2: ...
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,72 @@
+﻿<!-- "script/apps/Aries/NPCs/TeenAction/CreateFamilyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by leio, 2011/11/07</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/TeenAction/CreateFamilyDialog.lua");
+local CreateFamilyDialog = commonlib.gettable("MyCompany.Aries.Quest.NPCs.TeenAction.CreateFamilyDialog");
+
+NPL.load("(gl)script/apps/Aries/Chat/BadWordFilter.lua");
+local BadWordFilter = commonlib.gettable("MyCompany.Aries.Chat.BadWordFilter");
+
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function DoCreate()
+    local name = pageCtrl:GetValue("family_name");
+    local content = pageCtrl:GetValue("family_content");
+
+    local canpass = CreateFamilyDialog.CheckGroup(name, content);
+    if(not canpass)then return end
+
+    local filtered_name = BadWordFilter.FilterStringForUserName(name);
+    local filtered_content = BadWordFilter.FilterStringForUserName(content);
+
+    if(filtered_name ~= name) then
+        _guihelper.MessageBox("家族名称包含敏感词汇: "..tostring(name));
+        return;
+    end
+    
+    if(filtered_content ~= content) then
+        _guihelper.MessageBox("家族宣言包含敏感词汇: "..tostring(content));
+        return;
+    end
+
+    local s = string.format("<div style='margin-left:15px;margin-top:15px;text-align:center'>家族名称不能修改，你确定要使用%s作为家族名称吗？</div>",name);
+    _guihelper.Custom_MessageBox(s,function(result)
+		if(result == _guihelper.DialogResult.Yes)then
+            ClosePage();
+			CreateFamilyDialog.DoCreate(name,content);
+		else
+			commonlib.echo("no");
+		end
+	end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/ThinkOver_32bits.png; 0 0 153 49"});
+end
+]]></script>
+<aries:window width="500" height="170" mode="lite" onclose="ClosePage()" title="创建家族">
+
+<div style="margin-left:5px;margin-top:5px;width:490px;height:140px;" >
+    <div style="margin-left:0px;margin-top:5px;width:480px;height:130px;color:#ffffff;" >
+        <div style="margin-top:10px;">
+            <div style="padding:10px;">
+                <div style="float:left;">家族名称:</div>
+                <input type="text" style="float:left;height:25px;" name="family_name" SkipAutoBadWordFilter="true"/>
+            </div>
+            <div style="padding-left:10px;padding-right:10px;">
+                <div style="float:left;">家族宣言:</div>
+                <input type="text" style="float:left;height:25px;" name="family_content" SkipAutoBadWordFilter="true"/>
+            </div>
+            <input type="button" style="margin-left:390px;margin-top:10px;width:80px;" onclick="DoCreate()" value="创建"/>
+        </div>
+    </div>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

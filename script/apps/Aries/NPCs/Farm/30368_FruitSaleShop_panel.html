@@ -1,0 +1,175 @@
+﻿<!-- "script/apps/Aries/NPCs/Farm/30368_FruitSaleShop_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+MyCompany.Aries.Quest.NPCs.FruitSaleShop.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function closePage()
+    pageCtrl:CloseWindow();
+end
+function doSell()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local max = MyCompany.Aries.Quest.NPCs.FruitSaleShop.GetMax();
+    count = math.min(count,max);
+    pageCtrl:SetValue("count",count);
+    MyCompany.Aries.Quest.NPCs.FruitSaleShop.DoSell();
+end
+function DS_Func(index)
+    return MyCompany.Aries.Quest.NPCs.FruitSaleShop.DS_Func(index);
+end
+function doClick(guid)
+    MyCompany.Aries.Quest.NPCs.FruitSaleShop.DoClick(guid);
+end
+function getDesc1()
+    local selected_item = MyCompany.Aries.Quest.NPCs.FruitSaleShop.selected_item;
+    if(not selected_item)then return end
+    local price = selected_item.price;
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    price = price * count;
+    local s = string.format("收购价：%d",price);
+    return s;
+end
+function getDesc2()
+    local selected_item = MyCompany.Aries.Quest.NPCs.FruitSaleShop.selected_item;
+    if(not selected_item)then return end
+    local max = MyCompany.Aries.Quest.NPCs.FruitSaleShop.GetMax();
+    local s = string.format("请输入出售数量(1-%d)",max or 0);
+    return s;
+end
+function OnDecrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local max = MyCompany.Aries.Quest.NPCs.FruitSaleShop.GetMax();
+    if(count) then
+        if(count <= 1) then
+            count = 1;
+        elseif(count > max) then
+            count = max;
+        else
+            count = count - 1;
+        end
+        pageCtrl:SetValue("count", count);
+        pageCtrl:SetValue("getDesc1_txt", getDesc1());
+        pageCtrl:SetValue("getDesc2_txt", getDesc2());
+    end
+end
+
+function OnIncrease()
+    local count = pageCtrl:GetValue("count");
+    local max = MyCompany.Aries.Quest.NPCs.FruitSaleShop.GetMax();
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = 1;
+        elseif(count >= max) then
+            count = max;
+        else
+            count = count + 1;
+        end
+        pageCtrl:SetValue("count", count);
+        pageCtrl:SetValue("getDesc1_txt", getDesc1());
+        pageCtrl:SetValue("getDesc2_txt", getDesc2());
+    end
+end
+function canSell()
+    local selected_item = MyCompany.Aries.Quest.NPCs.FruitSaleShop.selected_item;
+    if(selected_item)then
+        return true;
+    end
+end
+function getIcon()
+    local selected_item = MyCompany.Aries.Quest.NPCs.FruitSaleShop.selected_item;
+    if(not selected_item)then return end
+    return selected_item.icon;
+end
+function getGsid()
+    local selected_item = MyCompany.Aries.Quest.NPCs.FruitSaleShop.selected_item;
+    if(not selected_item)then return end
+    commonlib.echo("=====selected_item.gsid");
+    commonlib.echo(selected_item.gsid);
+    return selected_item.gsid;
+end
+ pageCtrl:SetValue("count", 1);
+pageCtrl:SetValue("getDesc1_txt", getDesc1());
+pageCtrl:SetValue("getDesc2_txt", getDesc2());
+]]></script>
+<div style="float:left;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="height:60px;">
+        <div style="float:left;margin-left:70px;margin-top:55px;width:250px;color:#ffffff;font-size:12;">
+           请从右边列表里选出你想要出售的物品吧，<br />我会给你最公道的价格！
+        </div>
+        <input style="margin-left:320px;margin-top:-80px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="closePage()" value=""/>
+    </div>
+    <div style="margin-left:65px;margin-top:60px;width:230px;height:160px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+         <pe:if condition='<%=canSell()%>'>
+         <img name = "icon" style="margin-left:90px;margin-top:50px;width:64px;height:64px;"/>
+        </pe:if>
+    </div>
+    <div style="margin-left:80px;margin-top:25px;margin-right:45px;height:100px;">
+            <pe:if condition='<%=canSell()%>'>
+            <div style="margin-left:-30px;margin-top:-20px;">
+                <label name="getDesc1_txt" style="font-size:12;color:#ffffff;text-align:center;" value='<%=getDesc1()%>'/>
+                <div style="width:32px;height:19px;margin-left:190px;margin-top:-20px;background:Texture/Aries/Quest/CastMachine/bean_32bits.png#0 0 32 19"/>
+            </div>
+            <div style="margin-left:-30px;margin-top:0px;height:10px;"/>
+            
+            <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+            <div style="float:right;padding-left:50px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)">
+                <input type="text" name="count" value="1" style="width:40px;height:26px;background:;"/>
+            </div>
+            <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+            <div style="margin-left:-30px;font-size:12;color:#ffffff;text-align:center;"><label name="getDesc2_txt" value='<%=getDesc2()%>'/></div>
+        </pe:if>
+    </div>
+    <div style="margin-top:27px;">
+         <pe:if condition='<%=not canSell()%>'>
+        <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Common/DealImmediately_Gray_32bits.png#0 0 153 49)" />
+        <input type="button" onclick="closePage()" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Common/Later_32bits.png#0 0 153 49)" />
+        </pe:if>
+         <pe:if condition='<%=canSell()%>'>
+        <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Common/DealImmediately_32bits.png#0 0 153 49)" 
+                    onclick="doSell()" name="btn_send"  />
+        <input type="button" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Common/Later_32bits.png#0 0 153 49)" 
+                    onclick="closePage()" name="btn_cancel" />
+        </pe:if>
+    </div> 
+</div>
+<div style="float:left;margin-left:-8px;margin-top:30px;width:322px;height:410px;background:url(Texture/Aries/Inventory/right_panel2_32bits.png# 16 0 48 436: 20 64 20 64);">
+    <pe:gridview DataSource="<%=DS_Func%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+        <Columns>
+            <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                <div style="width:64px;height:64px;">
+                    <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick = "doClick"/>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有果实可以出售哦</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在获取数据, 请稍候...</b>
+        </FetchingDataTemplate>
+        <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                <div style="float:left;margin-top:4px;width:64px;">
+                    <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+                </div>
+                <input type="button" name="next" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/MinAddonLevelTip.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local bean = MyCompany.Aries.Pet.GetBean();
+
+base_level = tonumber(pageCtrl:GetRequestParam("base_level"));
+
+lines = "";
+bIncludeMinItem = false;
+
+local itemlist = ItemManager.GetItemsInBagInMemory(0);
+local _, guid;
+for _, guid in pairs(itemlist or {}) do
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+		if(item.GetAddonLevel and item.GetMaxAddonLevel) then
+			local level_max = item:GetMaxAddonLevel();
+			local level = item:GetAddonLevel();
+			if(level_max and level_max > 0) then
+                local gsItem = ItemManager.GetGlobalStoreItemInMemory(item.gsid);
+                if(gsItem) then
+                    local name = gsItem.template.name;
+                    if(level >= base_level) then
+                        lines = lines..string.format([[<div >+%d %s</div><br/>]], level or 0, name);
+                    else
+                        lines = lines..string.format([[<div style="color:#ff0000">+%d %s</div><br/>]], level or 0, name);
+                        bIncludeMinItem = true;
+                    end
+                end
+			end
+		end
+	end
+end
+
+if(lines == "") then
+    lines = [[<div style="color:#ff0000">当前没有可强化装备</div><br/>]];
+else
+    if(bIncludeMinItem) then
+        lines = lines..[[<div style="margin-left:10px;color:#ff0000;">所有当前装备强化</div><br/>]];
+        lines = lines..string.format([[<div style="color:#ff0000;">达到%d级开启强化效果</div><br/>]], base_level);
+    else
+        lines = lines..string.format([[<div >已开启%d级强化效果</div><br/>]], base_level);
+    end
+end
+
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+
+]]></script>
+<div style="padding-left:8px;padding:4px;" class="tooltip">
+    
+      <div style="font-weight:bold;">当前装备强化等级</div>
+      <%=Eval("lines")%>
+    
+</div>    	  
+</pe:mcml>
+</body>
+</html>
+

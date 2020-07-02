@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- pay server configuration file -->
+<PayServer>
+  <!--which ip and port this server listens to. As well as the nid of itself.-->
+  <config  host="127.0.0.1" port="62001" nid="2001" public_files="config/NPLPublicFiles.xml"
+          compress_incoming = "true" CompressionLevel="-1" CompressionThreshold="90000" imserver_heartbeat_interval="5000"
+          TCPKeepAlive="true" KeepAlive="true" IdleTimeout="false" IdleTimeoutPeriod="0">
+    <rest reply_file="script/apps/GameServer/rest_client.lua"
+          api_file="config/WebAPI.power.config.xml" />
+  </config>
+  
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread
+  npl state name is the world id
+  -->
+  <npl_states>
+    <npl_state name="1"/>
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="127.0.0.1" port="62001" nid="router1"/>
+    <address host="127.0.0.1" port="62001" nid="2001"/>
+    <address host="127.0.0.1" port="62001" nid="IMServer1"/>
+    <address host="127.0.0.1" port="62001" nid="1103"/>
+    <address host="127.0.0.1" port="800" nid="1003"/>
+  </npl_runtime_addresses>
+
+  <!--the runtime state names on the NPL router--> 
+  <router_states>
+    <router_state name="1"/>
+  </router_states>
+
+  <!--home world server grids: we can use game server as home server or use dedicated home server -->
+  <hosts_allow>
+    <host address="127.0.0.1"/>
+    <host address="192.168.0.51"/>
+    <host address="192.168.0.228"/>
+    <host address="192.168.0.226"/>
+    <host address="192.168.0.229"/>
+  </hosts_allow>
+  
+</PayServer>

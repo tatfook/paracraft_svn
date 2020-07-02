@@ -1,0 +1,58 @@
+<!-- "script/apps/Aries/Friends/AddFriendPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Friends/Main.lua");
+local Friends = commonlib.gettable("MyCompany.Aries.Friends");
+local page = Page;
+
+local nid = page:GetRequestParam("nid")
+if(nid) then
+    page:SetValue("content", nid);
+end
+function ClosePage()
+    page:CloseWindow();
+end
+function DoSend()
+    local nid = page:GetValue("content");
+    nid = tonumber(nid);
+    if(not nid)then
+        _guihelper.MessageBox("请正确输入账号！");
+        return
+    end
+    Friends.AddFriendByNIDWithUI(nid)
+    ClosePage();
+end
+function OnKeyUp()
+    if(virtual_key == Event_Mapping.EM_KEY_RETURN or virtual_key == Event_Mapping.EM_KEY_NUMPADENTER) then
+        DoSend();
+    end
+end
+]]>
+
+</script>
+  <div style="width:370px;height:200px;" class="window">
+    <div class="titlebar">
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:323px;" />
+    </div>
+    <div class="clientarea">
+        <div style="margin-left:20px;margin-top:30px;">
+            <div style="float:left;width:100px;">请输入对方账号:</div>
+            <input type="text" name="content" style="float:left;width:180px;height:25px;" onkeyup="OnKeyUp" class="defaulttextfield"/>
+        </div>
+        <div style="margin-left:85px;margin-top:40px;">
+            <input type="button" class="defaultbutton" style="float:left;margin-left:10px;width:80px;" value="确定" onclick="DoSend()"/>
+            <input type="button" class="defaultbutton" style="float:left;margin-left:10px;width:80px;" value="取消" onclick="ClosePage()"/>
+        </div>
+    </div>
+  </div>
+</pe:mcml>
+</body>
+</html>
+

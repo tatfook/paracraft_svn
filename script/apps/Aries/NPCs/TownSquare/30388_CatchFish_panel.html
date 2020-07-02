@@ -1,0 +1,155 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30388_CatchFish_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/NPCs/TownSquare/30388_CatchFish_panel.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/TownSquare/30388_CatchFish.lua");
+MyCompany.Aries.Quest.NPCs.CatchFish_panel.OnInit();
+local catchfish = MyCompany.Aries.Quest.NPCs.CatchFish;
+local page = document:GetPageCtrl();
+function doClick(sName)
+    local index = tonumber(sName);
+    catchfish.index = index;
+    catchfish.CheckStart();
+end
+function DoStart()
+    catchfish.DoStart();
+end
+function DoReStart()
+    catchfish.DoReStart();
+end
+function DoQuit()
+    catchfish.DoQuitAll();
+end
+function ShowDragPane(params)
+	catchfish.MadeUI(params.parent,0,50,20,"00:00:01");
+end
+function MenuClick(node)
+    if(node and node.gsid)then
+        catchfish.selected_net_gsid = node.gsid;
+        MyCompany.Aries.Quest.NPCs.CatchFish_panel.OnUpdateUI();
+    end
+end
+
+function GetCopies(gsid)
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function GetNodeText(gsid)
+    local s;
+    if(gsid == 17113)then
+        s = string.format("捕鱼网(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17346)then
+        s = string.format("特大捕鱼网(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17347)then
+        s = string.format("翻倍捕鱼网(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17348)then
+        s = string.format("皇冠鱼专用网(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17349)then
+        s = string.format("皇冠鱼必中网(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17465)then
+        s = string.format("卓越捕鱼器(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17466)then
+        s = string.format("精良捕鱼器(剩余%d个)",GetCopies(gsid));
+    elseif(gsid == 17467)then
+        s = string.format("普通捕鱼器(剩余%d个)",GetCopies(gsid));
+    end
+    return s;
+end
+function ChangeNet()
+    if(catchfish.autoMode) then
+        _guihelper.MessageBox("你必须停止自动捕鱼才能切换渔网！");
+        return;
+    end
+	local ctl = CommonCtrl.ContextMenu:new{
+		name = "catchfish.ShowPage",
+		width = 220,
+		height = 80, -- add menuitemHeight(30) with each new item
+		DefaultNodeHeight = 26,
+		style = CommonCtrl.ContextMenu.DefaultStyleThick,
+	};
+	local node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "root_node", Type = "Group", NodeHeight = 0 });
+    node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17467), gsid = 17467, Type = "Menuitem", tooltip = "75%抓到鱼，3秒发射1个", onclick = MenuClick , }));
+    node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17466), gsid = 17466, Type = "Menuitem", onclick = MenuClick,tooltip = "85%抓到鱼，2.5秒发射1个", }));
+    node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17465), gsid = 17465, Type = "Menuitem", onclick = MenuClick,tooltip = "100%抓到鱼，2秒发射1个", }));
+	node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17113), gsid = 17113, Type = "Menuitem", onclick = MenuClick, }));
+	node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17346), gsid = 17346, Type = "Menuitem", onclick = MenuClick, }));
+	node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17347), gsid = 17347, Type = "Menuitem", onclick = MenuClick, }));
+	node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17348), gsid = 17348, Type = "Menuitem", onclick = MenuClick, }));
+	node:AddChild(CommonCtrl.TreeNode:new({Text = GetNodeText(17349), gsid = 17349, Type = "Menuitem", onclick = MenuClick, }));
+	local x, y, width, height = _guihelper.GetLastUIObjectPos();
+	if(x and y)then
+		ctl:Show(x, y + height - (ctl.style.fillTop or 0));
+	end
+end
+
+function AutoFish()
+    catchfish.AutoFishing();
+end
+
+]]></script>
+<div style="width:960px;height:560px;">
+<!--    <div>
+        <input type="button" onclick="doClick" name="1" value="1" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="2" value="2" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="3" value="3" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="4" value="4" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="5" value="5" style="width:100px;height:35px;margin-left:5px;float:left;" />
+    </div>
+    <div>
+        <input type="button" onclick="doClick" name="6" value="6" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="7" value="7" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="8" value="8" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="9" value="9" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="doClick" name="10" value="10" style="width:100px;height:35px;margin-left:5px;float:left;" />
+    </div>
+    <div>
+        <input type="button" onclick="DoStart" value="开始" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="DoReStart" value="重新开始" style="width:100px;height:35px;margin-left:5px;float:left;" />
+        <input type="button" onclick="DoQuit" value="退出" style="width:100px;height:35px;margin-left:5px;float:left;" />
+    </div>
+	<pe:textsprite name = "time_text_sprite" style="width:50px;margin-left:105px;margin-top:85px;font-size:40;" />
+	-->
+	<div style="margin-left:800px;margin-top:20px;width:128px;height:128px;background:">
+	    <!--<pe:textsprite name = "time_text_sprite" style="width:50px;height:50px;margin-left:40px;margin-top:40px;font-size:40;color:#18aadf;" />-->
+	</div>
+	<div>
+	    <pe:custom oncreate="ShowDragPane" style="width:512px;height:512px"/>
+	</div>
+	<div style="margin-left:0px;margin-top:-75px;width:960px;height:78px;background:url(Texture/Aries/NPCs/CatchFish/bar_bg_32bits.png# 0 0 1020 78)">
+        <div style="position:relative;margin-left:130px;margin-top:20px;">
+            <input type="button" value="切换渔网" class="button" onclick="ChangeNet"/>
+            <div style="margin-left:0px;margin-top:0px;font-size:12;">
+    	        <pe:label name = "net_type" ></pe:label>
+            </div>
+        </div>
+	    <div style="float:left;width:110px;height:110px;margin-left:290px;margin-top:-20px;background:url(Texture/Aries/NPCs/CatchFish/net_32bits.png# 0 0 110 110)">
+	        <pe:label name = "net_text_sprite" style="width:50px;height:50px;margin-left:55px;margin-top:65px;font-size:14;text-align:center;" />
+	    </div>
+        <div style="float:left;width:140px;height:114px;margin-left:30px;margin-top:-40px;">
+	        <!--<input type="button" onclick="AutoFish" name = "auto_fish" style="width:64px;height:64px;margin-left:47px;margin-top:25px;background:Texture/Aries/NPCs/CatchFish/AutoFishLauncher.png" />-->
+            <pe:label name = "Apparatus_show_1" style="margin-left:30px;text-align:center;margin-top:50px;" ></pe:label>
+            <div>
+                <pe:label name = "Apparatus_show_2" style="margin-left:30px;text-align:center;color:#a00100;font-weight:bold;" ></pe:label>
+            </div>
+            <input type="button" value="自动捕鱼" onclick="AutoFish" name = "auto_fish" class="button" style="width:120px;height:24px;margin-left:27px;" />
+	    </div>
+	    <div style="float:left;width:90px;height:114px;margin-left:70px;margin-top:-40px;background:url(Texture/Aries/NPCs/CatchFish/fishtank_32bits.png# 0 0 90 114)">
+	        <pe:label name = "fish_text_sprite" style="width:50px;height:50px;margin-left:47px;margin-top:85px;font-size:14;text-align:center;" />
+	    </div>
+        <input type="button" tooltip="退出游戏" onclick="DoQuit" value="" style="width:54px;height:54px;margin-left:160px;margin-top:10px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png# 0 0 54 54)" />
+	</div>
+</div>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,121 @@
+﻿<!-- "script/apps/Aries/Combat/UI/MyCards_idle.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+word = pageCtrl:GetRequestParam("word");
+
+
+nRemainingRounds = -1;
+nExecutedRounds = -1;
+
+mode = pageCtrl:GetRequestParam("mode");
+if(mode == "pve") then
+    nExecutedRounds = pageCtrl:GetRequestParam("nRoundTag") or -1;
+    nExecutedRounds = tonumber(nExecutedRounds);
+elseif(mode == "free_pvp") then
+    nRemainingRounds = pageCtrl:GetRequestParam("nRoundTag") or -1;
+    nRemainingRounds = tonumber(nRemainingRounds);
+    nRemainingRounds = math.ceil(nRemainingRounds / 2);
+end
+
+if(not word or word == "") then
+    word = "正在等待其他队友选牌";
+end
+
+--if(word == "正在等待其他队友选牌") then
+--    local MsgHandler = MyCompany.Aries.Combat.MsgHandler;
+--    local bAutoAIMode = MsgHandler.GetIsAutoAIMode()
+--    if(bAutoAIMode) then
+--        word = "正在等待其他队友选牌，重新选牌可以退出自动战斗。";
+--    end
+--end
+
+if(word == "等待对方法阵玩家") then
+    local current_worlddir = ParaWorld.GetWorldDirectory();
+    if(current_worlddir == "worlds/Instances/HaqiTown_RedMushroomArena/" or current_worlddir == "worlds/Instances/HaqiTown_LafeierCastle_PVP/") then
+        word = "倒计时结束后若无人应战则会送你离开。";
+    end
+end
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function OnPass()
+    local MsgHandler = MyCompany.Aries.Combat.MsgHandler;
+	-- first hide card picker
+	MsgHandler.HideCardPicker();
+    -- hide target picker
+    MsgHandler.HideTargetPicker();
+    -- pick pass card
+    MsgHandler.OnPickCard("Pass", 0, false, 0);
+end
+
+function OnFlee()
+	-- check flee world
+	local current_worlddir = ParaWorld.GetWorldDirectory();
+	if(current_worlddir == "worlds/Instances/HaqiTown_RedMushroomArena/" or current_worlddir == "worlds/Instances/HaqiTown_LafeierCastle_PVP/") then
+		_guihelper.MessageBox([[<div style="margin-left:80px;margin-top:32px;">赛场不能逃跑!</div>]]);
+		return;
+	end
+    local MsgHandler = MyCompany.Aries.Combat.MsgHandler;
+	-- first hide card picker
+	MsgHandler.HideCardPicker();
+    -- hide target picker
+    MsgHandler.HideTargetPicker();
+    -- pick pass card
+    MsgHandler.OnTryFlee();
+end
+
+function OnCancel()
+    local MsgHandler = MyCompany.Aries.Combat.MsgHandler;
+	-- Cancel pick card
+	MsgHandler.OnCancelPickCardByPlayer();
+    -- set not auto ai mode
+    MsgHandler.SetAutoAIMode(false);
+end
+
+]]></script>
+<pe:container alignment="_ct" ClickThrough="true" style="position:relative;margin-left:-380px;margin-top:-100px;width:800px;height:340px;background:">
+<pe:if condition='<%=Eval("nRemainingRounds") > 0%>'>
+    <div style="position:relative;">
+        <div style="color:#844202;margin-top:-21px;margin-left:620px;background:url(Texture/Aries/Combat/CombatState/tab_32bits.png#0 0 32 26:11 11 11 11);padding-left:8px;padding-right:5px;height:24px;"><%=format("剩余回合数:%d", Eval("nRemainingRounds"))%></div>
+    </div>
+</pe:if>
+<pe:if condition='<%=Eval("nExecutedRounds") >= 0%>'>
+    <div style="position:relative;">
+        <div style="color:#844202;margin-top:-21px;margin-left:620px;background:url(Texture/Aries/Combat/CombatState/tab_32bits.png#0 0 32 26:11 11 11 11);padding-left:8px;padding-right:5px;height:24px;"><%=format("经历回合数:%d", Eval("nExecutedRounds"))%></div>
+    </div>
+</pe:if>
+<div style="width:762px;height:150px;background:url()">
+    <div style="width:762px;height:150px;background:url(Texture/Aries/Combat/CombatState/CardTransparent_bg_32bits.png:6 6 6 6);"/>
+    <img style="margin-top:-100px;margin-left:200px;width:350px;height:21px;background:;" src="Texture/Aries/Combat/CombatState/textbg_32bits.png;0 0 350 21" />
+    <div style="margin-top:-100px;margin-left:5px;width:752px;height:150px;text-align:center;color:#ffffff;text-shadow:true;">
+        <%=Eval("word")%>
+    </div>
+
+    <pe:if condition='<%=Eval("word") == "正在等待其他队友选牌"%>'>
+        <input type="button" style="margin-left:333px;margin-top:-105px;width:90px;height:32px;background:url(Texture/Aries/Combat/CombatState/Repick_32bits.png#0 0 90 32)" onclick="OnCancel" name='Cancel'/>
+    </pe:if>
+    <pe:if condition='<%=Eval("word") == "正在等待其他队友选牌，重新选牌可以退出自动战斗。"%>'>
+        <input type="button" style="margin-left:333px;margin-top:-105px;width:90px;height:32px;background:url(Texture/Aries/Combat/CombatState/Repick_32bits.png#0 0 90 32)" onclick="OnCancel" name='Cancel'/>
+    </pe:if>
+    <pe:if condition='<%=Eval("word") == "等待对方法阵玩家"%>'>
+        <input type="button" style="margin-left:333px;margin-top:-105px;width:90px;height:32px;background:url(Texture/Aries/Combat/CombatState/LeaveArena_32bits.png#0 0 90 32)" onclick="OnFlee" name='Flee'/>
+    </pe:if>
+    <pe:if condition='<%=Eval("word") == "倒计时结束后若无人应战则会送你离开。"%>'>
+        <input type="button" style="margin-left:346px;margin-top:-105px;width:64px;height:32px;background:url(Texture/Aries/Combat/CombatState/Escape_32bits.png#0 0 64 32)" onclick="OnFlee" name='Flee'/>
+    </pe:if>
+</div>
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

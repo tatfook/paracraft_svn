@@ -1,0 +1,227 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsBagPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCardDeckSubPage, by zrf / spring, 2010/9/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Inventory.Cards.MyCardsManager.Set_MyCardsPageCtrl(page)
+
+local MyCardsPage = commonlib.gettable("MyCompany.Aries.Inventory.MyCardsPage");
+MyCardsPage.TabValue = MyCardsPage.TabValue or "1";
+
+MyCardsPage.card_type = MyCardsPage.card_type or "combat";
+card_type = MyCardsPage.card_type;
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager")
+
+MyCardsManager.CardFilter =  MyCardsManager.CardFilter or "all";
+
+function ShowItemView_internal(cardtype,value, mcmlNode, bRefresh)
+    local frame = page:GetNode("AriesInventoryMountItemView");
+    --local cardtype = cardtype or "combat";
+	local urls = {
+	    ["1"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=all",
+        ["2"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=storm",
+	    ["3"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=life",
+	    ["4"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=ice",
+	    ["5"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=fire",
+	    ["6"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=death",
+        ["7"] = "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class="..cardtype.."&subclass=balance",
+	};
+	
+    if(frame ~= nil) then
+        if(value) then
+            if(MyCardsManager.dsCards) then
+                MyCardsManager.dsCards.status = nil;
+            end
+            MyCardsPage.TabValue = value;
+            page:GetNode("AriesInventoryMountItemView");
+            frame:SetAttribute("src", urls[value]);
+            if(bRefresh)then
+                page:Refresh(0.1);
+            end
+        end 
+    end
+end
+
+function ShowItemView(value, mcmlNode)
+	ShowItemView_internal(MyCardsPage.card_type,value, mcmlNode,true);
+end
+
+function getTabValue()   
+    return tonumber(MyCardsPage.TabValue);
+end
+
+function ChangeCardType(name)
+    local name=string.lower(name);
+    if (name) then
+        MyCardsPage.card_type = name;
+        card_type = MyCardsPage.card_type;
+    end
+    ShowItemView_internal(MyCardsPage.card_type,MyCardsPage.TabValue, nil,true);
+end
+
+function rune_tip()
+    local s=string.format("符文是一种消耗性的卡片，\n装备上之后将固定出现，\n而不像常规卡片那样随机出现。");
+    return s
+end
+
+function card_tip()
+    local s=string.format("战斗时，从背包中随机抽取8张常规卡片，\n之后每打出或丢弃一张，\n随机从剩余卡片中补充一张，\n发招失败的卡片会被放回背包中。");
+    return s
+end
+
+function DoViewEncyclopedia()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+    local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+
+    local zorder=2;
+    CombatSkillLearn.ShowSkillEncyclopedia_kids(zorder);
+end
+
+
+page:SetValue("Level2Tabs", MyCardsPage.TabValue);
+ShowItemView_internal(MyCardsPage.card_type,MyCardsPage.TabValue, nil, nil);
+
+function  BigCardMode()
+   return MyCardsManager.GetBigCardMode();
+end
+
+function OnSelectIcon()
+    MyCardsManager.SetBigCardMode(false);
+    MyCompany.Aries.app:WriteConfig("bBigCardMode", false);
+    page:Refresh(0.1);
+end
+
+function OnSelectCard()
+    MyCardsManager.SetBigCardMode(true);
+    MyCompany.Aries.app:WriteConfig("bBigCardMode", true);
+    page:Refresh(0.1);
+
+end
+
+function cardfilter(ctype)
+    if (MyCardsManager.CardFilter==ctype) then
+        return true
+    else
+        return false
+    end   
+end
+
+function OnFilterCard(ctype)
+    MyCardsManager.CardFilter=ctype;   
+    MyCardsManager.dsCards.status = nil;
+    local cardtype = MyCardsManager.dsCards.cardtype;
+	local subclass = MyCardsManager.dsCards.subclass;
+    MyCardsManager.DS_Func_CardsDeck(MyCardsManager.dsCards, nil, cardtype,subclass)     
+    page:Refresh(0.1);
+end
+
+function SwitchInvalidCardStatus()
+    --MyCardsManager.CardFilter=ctype;
+    MyCardsManager.show_invalid_cards = not MyCardsManager.show_invalid_cards;   
+    MyCardsManager.dsCards.status = nil;
+    local cardtype = MyCardsManager.dsCards.cardtype;
+	local subclass = MyCardsManager.dsCards.subclass;
+    MyCardsManager.DS_Func_CardsDeck(MyCardsManager.dsCards, nil, cardtype,subclass)     
+    page:Refresh(0.1);
+end
+
+]]></script>
+<div style="color:#022a57;margin-left:10px;margin-top:0px;width:309px;height:30px;">
+       <pe:if condition='<%=Eval("card_type") == "combat" %>'>
+            <input type="button" zorder="2" name="combat" value='常规' style="width:56px;height:29px;font-weight:bold;background:url(Texture/Aries/Common/themekid/cards/button_down_32bits.png#0 0 32 25: 10 10 10 10);" tooltip="<%=card_tip()%>"/>
+        </pe:if>
+        <pe:if condition='<%=Eval("card_type") ~= "combat" %>'>
+            <input type="button" name="combat" onclick="ChangeCardType()" zorder="2" value='常规' style="width:56px;height:29px;color:#065700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);" tooltip="<%=card_tip()%>"/>
+        </pe:if>
+
+        <pe:if condition='<%=Eval("card_type") == "rune" %>'>
+            <input type="button" zorder="2" name="rune" value='符文' style="margin-left:20px;width:56px;height:29px;font-weight:bold;background:url(Texture/Aries/Common/themekid/cards/button_down_32bits.png#0 0 32 25: 10 10 10 10);" tooltip="<%=rune_tip()%>"/>
+        </pe:if>
+        <pe:if condition='<%=Eval("card_type") ~= "rune" %>'>
+            <input type="button" onclick="ChangeCardType()" name="rune" zorder="2" value='符文' style="margin-left:20px;width:56px;height:29px;color:#065700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);" tooltip="<%=rune_tip()%>"/>
+        </pe:if>
+        <pe:if condition='<%=BigCardMode()%>'>
+            <input type="button" value="" style="margin-left:35px;margin-top:8px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+            <input type="button" value="卡牌" style="margin-left:-3px;margin-top:7px;width:40px;height:20px;background:" />
+                    
+            <input type="button" value="" style="margin-left:5px;margin-top:8px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectIcon" />
+            <input type="button" value="图标" style="margin-left:-3px;margin-top:7px;width:40px;height:20px;background:" onclick="OnSelectIcon" />
+        </pe:if>
+        <pe:if condition='<%=not BigCardMode()%>'>
+            <input type="button" value="" style="margin-left:35px;margin-top:8px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectCard" />
+            <input type="button" value="卡牌" style="margin-left:-3px;margin-top:7px;width:40px;height:20px;background:" onclick="OnSelectCard" />
+                    
+            <input type="button" value="" style="margin-left:5px;margin-top:8px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+            <input type="button" value="图标" style="margin-left:-3px;margin-top:7px;width:40px;height:20px;background:" />
+        </pe:if>    
+</div>
+<div style="position:relative;margin-left:0px;margin-top:6px;height:345px;background:;">
+    <pe:tabs class="tabs" name="Level2Tabs" onclick="ShowItemView()" ItemSpacing="0" style="width:309px;height:345px;">
+        <pe:tab-item name="1" text="全部" selected="true"></pe:tab-item>
+        <pe:tab-item name="2" text="风暴" ></pe:tab-item>
+        <pe:tab-item name="3" text="生命" ></pe:tab-item>
+        <pe:tab-item name="4" text="寒冰" ></pe:tab-item>
+        <pe:tab-item name="5" text="烈火" ></pe:tab-item>          
+        <pe:tab-item name="6" text="死亡" ></pe:tab-item>     
+        <pe:tab-item name="7" text="平衡" ></pe:tab-item>        
+    </pe:tabs>
+</div>
+
+<div style="margin-left:8px;margin-top:38px;" >
+    <iframe name="AriesInventoryMountItemView" style="width:300px;height:310px;" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html?class=combat&amp;subclass=all"/>
+</div>
+<div style="width:200px;margin-left:5px;margin-top:-32px;">
+    <pe:if condition='<%=cardfilter("all")%>'>
+        <input type="button" value="全部" tooltip="显示全部品质的卡牌"  style="margin-left:5px;margin-top:3px;width:36px;height:20px;color:#095700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);" />
+    </pe:if>
+    <pe:if condition='<%=not cardfilter("all")%>'>
+        <input type="button" value="全部" tooltip="显示全部品质的卡牌" name="all" style="margin-left:5px;margin-top:3px;width:36px;height:20px;color:#095700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);" onclick="OnFilterCard" />
+    </pe:if>
+    <pe:if condition='<%=cardfilter("white")%>'>
+        <input type="button" tooltip="只显示白卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_selected_btn_32bits.png)"  />
+    </pe:if>
+    <pe:if condition='<%=not cardfilter("white")%>'>
+        <input type="button" name="white" tooltip="只显示白卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_btn_32bits.png)" onclick="OnFilterCard" />
+    </pe:if>
+
+    <pe:if condition='<%=cardfilter("green")%>'>
+        <input type="button" tooltip="只显示绿卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_selected_btn_32bits.png)"  />
+    </pe:if>
+    <pe:if condition='<%=not cardfilter("green")%>'>
+        <input type="button" name="green" tooltip="只显示绿卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_btn_32bits.png)" onclick="OnFilterCard" />
+    </pe:if>
+
+    <pe:if condition='<%=cardfilter("blue")%>'>
+        <input type="button" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_selected_btn_32bits.png)"  />
+    </pe:if>
+    <pe:if condition='<%=not cardfilter("blue")%>'>
+        <input type="button" name="blue" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_btn_32bits.png)" onclick="OnFilterCard" />
+    </pe:if>
+
+    <pe:if condition='<%=cardfilter("purple")%>'>
+        <input type="button" tooltip="只显示紫卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_selected_btn_32bits.png)"  />
+    </pe:if>
+    <pe:if condition='<%=not cardfilter("purple")%>'>
+        <input type="button" name="purple" tooltip="只显示紫卡" style="margin-left:5px;margin-top:7px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_btn_32bits.png)" onclick="OnFilterCard" />
+    </pe:if>
+</div>
+<div style="margin-left:130px;margin-top:-35px;width:200px;height:29px;">
+    <input type="checkbox" checked='<%=MyCompany.Aries.Inventory.Cards.MyCardsManager.show_invalid_cards %>'  zorder="0" style="float:left;margin-left:30px;margin-top:9px;width:16px;height:16px;background:url(texture/aries/common/themekid/checkbox_32bits.png)" onclick="SwitchInvalidCardStatus" />
+    <div style="float:left;margin-left:3px;margin-top:7px;">显示不可用</div>
+    <input type="button" zorder="2" name="Encyclopedia"  value="百科" tooltip="卡牌百科 点击查看" onclick="DoViewEncyclopedia" style="float:left;margin-left:0px;width:40px;height:29px;color:#095700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);" />
+</div>
+<!--<div style="float:left;margin-left:10px;margin-top:-46px;">
+    <input type="button" zorder="2" value="清空卡包" tooltip="将战斗卡包所有卡片全部移除" onclick="MyCompany.Aries.Inventory.Cards.MyCardsManager.RemoveAllCardsFromCombatBag" style="width:76px;height:29px;color:#095700;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);"/>
+</div>-->
+</pe:mcml> 
+</body>
+</html>

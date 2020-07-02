@@ -1,0 +1,258 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CardTips.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local bean = MyCompany.Aries.Pet.GetBean();
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");	
+
+gsid = tonumber(pageCtrl:GetRequestParam("gsid"));
+is_showtip=is_showtip or false;
+
+local canUsed=MyCardsManager.IfCardBeUsed(gsid);
+buttontips="";
+tips="";
+if (not canUsed) then
+    buttontips="查看背包"
+    tips="你还没有达到使用条件，不能使用该卡牌"
+else
+    tips="新卡牌已经装备到当前卡包了"
+    buttontips="查看卡包"
+end
+
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+function DS_school_list(index)
+	local school_list = {
+	    [1] = { name="烈火系", schoolid="986", icon="Texture/Aries/Common/ThemeTeen/school_fire_icon_32bits.png;0 0 42 46" },
+	    [2] = { name="寒冰系", schoolid="987", icon="Texture/Aries/Common/ThemeTeen/school_ice_icon_32bits.png;0 0 42 46" },
+	    [3] = { name="风暴系", schoolid="988", icon="Texture/Aries/Common/ThemeTeen/school_storm_icon_32bits.png;0 0 42 46" },
+	    [4] = { name="生命系", schoolid="989", icon="Texture/Aries/Common/ThemeTeen/school_life_icon_32bits.png;0 0 42 46" },
+	    [5] = { name="死亡系", schoolid="990", icon="Texture/Aries/Common/ThemeTeen/school_death_icon_32bits.png;0 0 42 46" },
+	    [6] = { name="大地系", schoolid="992", icon="Texture/Aries/Common/ThemeTeen/school_land_icon_32bits.png;0 0 42 46" },
+	    [7] = { name="通用系", schoolid="991", icon="Texture/Aries/Common/ThemeTeen/school_balance_icon_32bits.png;0 0 42 46" },
+	}
+	if(index == nil) then
+		return #(school_list);
+	else
+		return school_list[index];
+	end  
+end
+
+function DS_quarlity_list(index)
+	local func_list = {
+	    [1] = { name="传奇", icon="Texture/Aries/Common/Teen/control/purple_btn_32bits.png;0 0 16 16"},
+	    [2] = { name="稀有", icon="Texture/Aries/Common/Teen/control/blue_btn_32bits.png;0 0 16 16"},
+        [3] = { name="精良", icon="Texture/Aries/Common/Teen/control/green_btn_32bits.png;0 0 16 16"},
+	    [4] = { name="普通", icon="Texture/Aries/Common/Teen/control/white_btn_32bits.png;0 0 16 16"},
+	}
+	if(index == nil) then
+		return #(func_list);
+	else
+  	return func_list[index];
+  end  
+end
+
+function onClickDisplayCardTip()
+	is_showtip=true;
+  pageCtrl:Refresh(0.01);
+end
+
+function onClickEquipCard()
+    ClosePage()
+	NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+	local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");	
+    if (not canUsed) then
+        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.lua");
+        local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+        CharacterBagPage.ShowPage(nil,"CombatCard");
+    else    
+    	--local state = MyCardsManager.GetPropByTemplateGsid(gsid);
+	    if (gsid>23000 and gsid<24000) then
+		    MyCardsManager.SetRunePage();            
+	    else
+            MyCardsManager.SetCombatCardPage()
+		    MyCardsManager.SetPageState("all");	
+	    end
+	    MyCardsManager.ShowPage(1,gsid)	
+    end
+end
+
+function onclick_guide()
+    local HelpMainList = commonlib.gettable("MyCompany.Aries.Desktop.HelpMainList");
+    HelpMainList.ShowPage("HelpBook","基本战术",1);
+end
+
+]]></script>
+
+<pe:div style="position:relative;width:526px;height:368px;">
+  <pe:div class="title_bg1_css" style="position:relative;margin-left:1px;width:526px;height:26px;">
+    <div style="position:relative;margin-left:10px;margin-top:3px;"> 获得新卡牌 </div>
+    <pe:button class="close_btn_css" style="position:relative;align:right;margin-right:5px;margin-top:4px;" onclick="ClosePage()" value="" />
+  </pe:div>
+  <pe:block class="border_bg9_css" style="position:relative;margin-left:1px;margin-top:25px;width:526px;height:343px;" />
+  <pe:div class="border_bg2_css" style="position:relative;margin-left:5px;margin-top:28px;width:518px;height:335px;">
+  	<div style="position:relative;margin-left:155px;width:180px;margin-top:40px;height:280px;background:;">
+		<pe:item gsid='<%=Eval("gsid")%>' isenabled="false" style="width:151px;height:230px;"/>    
+	</div>
+  	<div zorder="1" style="float:left;margin-left:105px;width:256px;margin-top:20px;height:256px;background:url(Texture/Aries/Common/ThemeTeen/cardtip_outline_32bits.png# 0 0 256 256);"></div>
+    <div zorder="1" style="position:relative;margin-left:150px;margin-top:3px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">
+        <%=Eval("tips") %>
+    </div>
+  <!--  <pe:button class="default_btn_css" style="position:relative;margin-left:12px;margin-top:255px;width:75px;height:26px;" onclick="onclick_guide()" value="技能攻略" />-->
+    <pe:button class="default_btn_css" style="position:relative;margin-left:205px;margin-top:30px;width:75px;height:26px;" onclick="onClickEquipCard()" value='<%=Eval("buttontips") %>'/>
+    <div style="position:relative;margin-left:203px;margin-top:25px;width:82px;height:34px;background:" >
+            <img zorder="1" enabled="false" class="animated_btn_overlay" width="82" height="34"/>
+    </div>
+    <div zorder="1" style="float:left;margin-left:55px;width:100px;margin-top:-265px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">卡牌名称</div> 
+    <div zorder="1" style="float:left;margin-left:210px;width:100px;margin-top:-265px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">系别</div>
+    <div zorder="1" style="float:left;margin-left:-410px;width:100px;margin-top:-235px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">所需魔力</div>          
+    <div zorder="1" style="float:left;margin-left:-100px;width:100px;margin-top:-100px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">冷却回合</div>    
+    <div zorder="1" style="float:left;margin-left:-100px;width:100px;margin-top:-70px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">卡牌说明</div>    
+    <div zorder="1" style="float:left;margin-left:205px;width:100px;margin-top:-100px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">卡牌类型</div>    
+    <div zorder="1" style="float:left;margin-left:360px;width:100px;margin-top:-25px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">品质</div>  
+  
+ 	<div style="float:left;margin-left:410px;width:160px;margin-top:-50px;height:200px;background:;">
+		<pe:gridview name="cardqual_view" DataSource="<%=DS_quarlity_list%>"  ItemsPerLine="1" AllowPaging="false" pagesize="4">
+			<Columns>
+					<img style="width:16px;height:16px;" src="<%=Eval('icon')%>" />
+					<div style="margin-left:25px;margin-top:-20px;font-size:12px;color:#ffffff;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;"><%=Eval("name")%></div>
+			</Columns>
+			<EmptyDataTemplate>
+				<b>空</b>
+			</EmptyDataTemplate>
+			<FetchingDataTemplate>
+				<b>请稍等 ... </b>
+			</FetchingDataTemplate>
+			<PagerSettings Position="Bottom" style="margin-left:155px;margin-top:-130px;width:160px;height:25px;"/>
+			<PagerTemplate>
+				<form>
+				</form>
+			</PagerTemplate>
+		</pe:gridview>				
+	</div>   
+  </pe:div>
+</pe:div>
+
+<!--<div style="width:760px;height:470px;" class="window">
+    <div class="titlebar">
+      <div class="windowicon"><div style="width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/wintitle/wiki_icon_32bits.png)" /></div>
+      <div class="windowiconlabel">卡牌功能说明</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;align:right;margin-right:5px;" />
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div style="position:relative;width:740px;height:440px;background:url(Texture/Aries/Common/ThemeTeen/davidstar_pattern_32bits.png# 0 0 108 64);" >
+
+	        <div style="position:relative;margin-left:280px;width:200px;margin-top:60px;height:280px;background:url(Texture/Aries/Common/ThemeTeen/float_bg_32bits.png#0 0 171 128: 14 14 14 14);">
+		        <pe:item gsid='<%=Eval("gsid")%>' isenabled="false" style="margin-top:20px;margin-left:20px;width:151px;height:230px;"/>    
+	        </div>
+				
+	        <div style="position:relative;margin-left:230px;width:256px;margin-top:360px;height:30px;background:url(Texture/Aries/Common/ThemeTeen/cardtip_prompt_32bits.png#0 0 256 30);" />
+					
+	        <div style="position:relative;margin-left:290px;margin-top:390px;">
+                <input type="button" value="装配卡牌" class="defaultbutton" style="margin-left:50px;width:80px;height:30px;" onclick="onClickEquipCard"/>
+            </div>		           
+        	
+					<div style="float:left;margin-left:40px;width:160px;margin-top:40px;height:360px;background:url(Texture/Aries/Common/ThemeTeen/float_bg_32bits.png#0 0 171 128: 14 14 14 14);">
+						<pe:gridview name="school_view" style="margin-left:25px;margin-top:30px;" DataSource="<%=DS_school_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="7">
+							<Columns>
+									<img style="width:35px;height:37px;margin-left:5px;margin-top:5px;" src="<%=Eval('icon')%>" />
+									<div style="margin-left:53px;margin-top:-32px;color:#52dff4"><%=Eval("name")%></div>
+							</Columns>
+							<EmptyDataTemplate>
+								<b>空</b>
+							</EmptyDataTemplate>
+							<FetchingDataTemplate>
+								<b>请稍等 ... </b>
+							</FetchingDataTemplate>
+							<PagerSettings Position="Bottom" style="margin-left:155px;margin-top:-130px;width:160px;height:25px;"/>
+							<PagerTemplate>
+								<form>
+								</form>
+							</PagerTemplate>
+						</pe:gridview>				
+					</div>
+					<div style="float:left;margin-left:-155px;width:146px;margin-top:25px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/title_bg_32bits.png#0 0 146 32);">
+						<div style="margin-left:50px;margin-top:7px;color:#e2fee1">魔法系别</div>
+					</div>
+	
+					<div style="float:left;margin-left:90px;width:400px;margin-top:60px;height:300px;" >
+							<input type="button" style="margin-left:28px;margin-top:155px;width:126px;height:92px;background:url(Texture/Aries/Common/ThemeTeen/border_line_32bits.png#0 0 126 92);" />
+							<input type="button" style="margin-left:-155px;margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+							<input type="button" style="margin-left:60px;margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+							<input type="button" style="margin-left:-178px;margin-top:110px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+							<input type="button" style="margin-left:40px;margin-top:110px;width:64px;height:64px;background:url(Texture/Aries/Common/ThemeTeen/circle_32bits.png#0 0 64 64);" />
+							
+							<div style="float:left;margin-left:-273px;width:102px;margin-top:30px;height:4px;" >
+									<input type="button" style="margin-left:0px;margin-top:0px;width:102px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4: 31 1 1 1);" />
+							</div>		
+							<div style="float:left;margin-left:167px;width:40px;margin-top:30px;height:4px;" >
+									<input type="button" style="margin-left:0px;margin-top:0px;width:40px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+							</div>				
+							<div style="float:left;margin-left:-235px;width:40px;margin-top:140px;height:4px;" >
+									<input type="button" style="margin-left:0px;margin-top:0px;width:40px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+							</div>						
+							<div style="float:left;margin-left:146px;width:100px;margin-top:140px;height:16px;" >
+									<input type="button" style="margin-left:0px;margin-top:0px;width:110px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#0 0 64 16: 31 1 1 1);" />
+							</div>				
+							<div style="float:left;margin-left:150px;width:40px;margin-top:-50px;height:4px;" >
+									<input type="button" style="margin-left:0px;margin-top:0px;width:60px;height:4px;background:url(Texture/Aries/Common/ThemeTeen/guide_line_32bits.png#30 0 64 4);" />
+							</div>
+	
+							<div style="float:left;margin-left:-240px;width:30px;margin-top:-150px;height:100px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+									<div style="margin-left:10px;width:18px;margin-top:5px;height:80px;color:#e2fee1">冷却回合数</div>
+							</div>
+	
+							<div style="float:left;margin-left:230px;width:30px;margin-top:-280px;height:130px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+									<div style="margin-left:10px;width:18px;margin-top:10px;height:70px;color:#e2fee1">消耗的魔力点</div>
+							</div>
+							<div style="float:left;margin-left:210px;width:30px;margin-top:-80px;height:120px;background:url(Texture/Aries/Common/ThemeTeen/text_bg_32bits.png#0 0 24 16: 5 5 5 5);" >
+									<div style="margin-left:10px;width:18px;margin-top:5px;height:80px;color:#e2fee1">魔法作用描述</div>
+							</div>							
+					</div>	
+													
+					<div style="float:left;margin-left:550px;width:160px;margin-top:-360px;height:360px;background:url(Texture/Aries/Common/ThemeTeen/float_bg_32bits.png#0 0 171 128: 14 14 14 14);">
+						<pe:gridview name="func_view" style="margin-left:35px;margin-top:20px;" DataSource="<%=DS_func_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="8">
+							<Columns>							
+									<img style="float:left;width:32px;height:34px;margin-left:5px;margin-top:5px;" src='<%=Eval("icon")%>' />
+									<div style="margin-left:50px;margin-top:-28px;color:#52dff4"><%=Eval("name")%></div>																			
+							</Columns>
+							<EmptyDataTemplate>
+								<b>空</b>
+							</EmptyDataTemplate>
+							<FetchingDataTemplate>
+								<b>请稍等 ... </b>
+							</FetchingDataTemplate>
+							<PagerSettings Position="Bottom" style="margin-left:155px;margin-top:-130px;width:160px;height:25px;"/>
+							<PagerTemplate>
+								<form>
+								</form>
+							</PagerTemplate>
+						</pe:gridview>
+					</div>			
+				
+
+				<div style="float:left;margin-left:560px;width:146px;margin-top:-376px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/title_bg_32bits.png#0 0 146 32);">
+					<div style="margin-left:50px;margin-top:7px;color:#e2fee1">魔法类型</div>
+				</div>
+	    </div>   
+    </div>
+	
+</div>    	  
+--></pe:mcml>
+</body>
+</html>
+

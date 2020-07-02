@@ -1,0 +1,697 @@
+﻿<!-- "script/apps/Aries/HaqiShop/HaqiShop.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HaqiShop, by zrf, 2010/12/13</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+
+local page = document:GetPageCtrl();
+MyCompany.Aries.HaqiShop.Init();
+function Confirm()
+    page:CloseWindow();
+end
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/CombatHelp/CombatHelpPage.lua");
+    MyCompany.Aries.Help.CombatHelpPage.ShowPage();
+end
+
+function BuyMagicBean()
+    MyCompany.Aries.HaqiShop.BuyMagicBean("guide");
+end
+
+function DataFromNpcshop()
+    return MyCompany.Aries.HaqiShop.data_from_npcshop;
+end
+
+function GetName(gsid, exid)
+    if(not gsid)then return end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		local name = gsItem.template.name;
+    	if(NPCShopPage.is_debug)then
+            local s = string.format("%s(%d)",name,gsid);
+            return s;
+        end
+        if(exid and exid>0) then 
+            local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+            if(exTemplate)then
+                if(exTemplate.tos) then
+                    local node = exTemplate.tos[1];
+                    if(node and node.key == gsid) then
+                        if(node.value and node.value>1) then
+                            name = format("%s x %d", name, node.value);
+                        end
+                    end
+                end
+            end
+        end
+        return name;
+    end
+end
+
+function IsRightSchool(gsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+		local school_id = gsItem.template.stats[137] or gsItem.template.stats[246];
+        if(school_id)then
+            return CommonClientService.IsRightSchool(gsid, nil, nil, school_id);
+        end
+    end
+    return true;
+end
+
+function IncludeSpecialID(exid,gsid)
+    return NPCShopPage.IncludeSpecialID(exid,-1000, gsid);
+end
+
+function GetSingleItemPrice(gsid)
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        local price = gsItem.ebuyprice;
+        local pbuyprice = gsItem.count;
+        if(pbuyprice and pbuyprice > 0) then
+            return format("魔豆:%d", pbuyprice);
+        elseif(price and price>0) then
+            return format("奇豆:%d", price);
+        else
+            return "免费";
+        end
+    end
+end
+
+function IsSelling(gsid, exid)
+    if(not gsid or not exid) then
+        return;
+    end
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate and exTemplate.froms)then
+        local node = exTemplate.froms[1];
+        if(node and node.key == gsid)then
+            return true;
+        end
+    end
+end
+
+function GetLine(exid,index, is_selling)
+    if(not exid or not index)then return end
+    if(exid == 2185)then
+        if(index == 1)then
+           return "集齐所有上古宝藏"
+        end
+        return
+    end
+    if(exid == 1603)then
+        if(index == 1)then
+           return "集齐10块潘多拉碎片"
+        end
+        return
+    end
+    if(exid == 1995)then
+        if(index == 1)then
+           return '集齐"哈""奇""圣""诞""快""乐"6个卡片兑换';
+        end
+        return
+    end
+    if((exid >= 2710 and exid <= 2716) or (exid >= 2718 and exid <= 2724) or (exid >= 2726 and exid <= 2732) or (exid >= 2734 and exid <= 2740) or (exid >= 2742 and exid <= 2748)) then
+        if(index == 2) then
+            return "拥有S3对应部件"
+        end
+        --return;
+    end
+
+    if(exid == 2717 or exid == 2725 or exid == 2733 or exid == 2741 or exid == 2749) then
+        if(index == 3) then
+            return "拥有S3对应部件"
+        end
+    end
+
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate)then
+        local node
+        if(exTemplate.froms and exTemplate.tos) then
+            node  = if_else(is_selling, exTemplate.tos[index], exTemplate.froms[index]);
+        end
+        local viptips;
+        if (index == 1) then
+            local k,v;
+            for k,v in pairs(exTemplate.pres) do
+				if (tonumber(v.key)==-1000) then
+                    viptips = "需要激活码";
+                end
+            end
+            if(not node) then
+                viptips = "Free (有限制)";
+            end
+        end
+        if (index == 2) then
+            local k,v;
+            for k,v in pairs(exTemplate.pres) do
+                local key = tonumber(v.key);
+				if (key==-14) then
+                    if(MyCompany.Aries.Player.GetLevel() < v.value) then
+                        viptips = string.format([[<div style="float:left;color:#a00000;">需要等级:%d</div>]],v.value);
+                    else
+                        viptips = string.format([[<div style="float:left;">需要等级:%d</div>]],v.value);
+                    end
+                elseif (key==-15) then
+                    if(not MyCompany.Aries.VIP.IsVIPAndActivated()) then
+                        viptips = [[<div style="float:left;color:#a00000;">需要魔法星</div>]];
+                    else
+                        viptips = [[<div style="float:left;">需要魔法星</div>]];
+                    end
+                elseif (key==-19) then
+                    if(MyCompany.Aries.Player.GetStamina2() < v.value) then
+                        viptips = string.format([[<div style="float:left;color:#a00000;">消耗精力值:%d</div>]],v.value);
+                    else
+                        viptips = string.format([[<div style="float:left;">消耗精力值:%d</div>]],v.value);
+                    end
+                end
+            end
+        end
+        if(node)then
+            local gsItem;
+            local name = "";
+            local value = node.value or 0;
+            if(node.key == 0)then
+                name = "奇豆";
+            elseif(node.key == -1)then
+                name = "奇豆";
+            else
+                local gsid = node.key;
+                gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+                if(gsItem) then
+		            name = gsItem.template.name;
+                end
+            end
+
+    	    if(NPCShopPage.is_debug)then
+                local s = string.format("(%d)(%d)%s:%d",exid,node.key,name,value);
+                return s;
+            end
+            local s = string.format("%s:%d",name,value);
+            if(gsItem)then
+                local bag = gsItem.template.bagfamily;
+                if(bag and bag == 31401)then
+                    s = "";
+                end
+            end
+            if(viptips) then
+                s = s..viptips;
+            end
+            return s;
+        else
+            if(viptips) then
+                return viptips;
+            end
+        end
+    end
+end
+
+function DoSell(sName,mcmlNode)
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+        return
+    end
+    if(mcmlNode)then
+        local exid = mcmlNode:GetAttribute("param1");
+        local gsid = mcmlNode:GetAttribute("param2");
+        if(exid and gsid)then
+            local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	        if(command and gsid) then
+                command:Call({exid = exid, gsid = gsid, npc_shop = true, do_type = 1});
+	        end
+        end
+    end
+end
+
+function DoBuy(sName,mcmlNode)
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+        return
+    end
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("purchase_any");
+    
+
+   if(mcmlNode)then
+        local exid = mcmlNode:GetAttribute("param1");
+        local gsid = mcmlNode:GetAttribute("param2");
+        if(not exid or not gsid)then
+            return
+        end
+        if(exid~=0)then
+            if(not NPCShopProvider.PreCheckByGsid(gsid, nil, exid))then
+                if(goal_manager.match_param("gsid", gsid)) then
+                    goal_manager.finish("purchase_confirm");
+                end
+                return
+            end
+        end
+        local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+		if(IsRightSchool(gsid)) then
+            command:Call({exid = exid, gsid = gsid, npc_shop = true});
+
+            if(goal_manager.match_param("gsid", gsid)) then
+                goal_manager.finish("purchase_button");
+            end
+        else
+            _guihelper.MessageBox("你所购买的物品，不适合你的系别使用. 是否还要买?", function(result)
+                if(result==_guihelper.DialogResult.Yes) then
+                    command:Call({exid = exid, gsid = gsid, npc_shop = true});
+                end
+            end, _guihelper.MessageBoxButtons.YesNo)
+        end
+    end
+end
+function DoExchange(sName,mcmlNode)
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+        return
+    end
+    if(mcmlNode)then
+        
+        local exid = mcmlNode:GetAttribute("param1");
+        local gsid = mcmlNode:GetNumber("param2");
+        
+        local map =  NPCShopPage.GetExchangeCodeIDs()
+        if(exid == 1709) then
+            local ProfileManager = commonlib.gettable("Map3DSystem.App.profiles.ProfileManager");
+            local myInfo = ProfileManager.GetUserInfoInMemory();
+            local doesGet = ItemManager.IfOwnGSItem(50395);
+            if(myInfo.combatlel < 50) then
+                _guihelper.MessageBox("你还没有达到50级，不能领取该奖励，快去做任务升级吧！");
+                return;
+            else
+                if(doesGet == true) then
+                    _guihelper.MessageBox("每个小哈奇只能领取一次该奖励。");
+                else
+                    ItemManager.ExtendedCost(exid,nil,nil,function(msg) end,function(msg) end,"pick");
+                end 
+                return;
+            end
+            
+        end
+       
+        if(exid and map and map[exid])then
+            local check_gsid = map[exid].check_gsid;
+            if(hasGSItem(check_gsid))then
+                _guihelper.MessageBox("你已经兑换过奖励了！");
+                return
+            end
+            NPCShopPage.ShowExchangeCodePage(exid, gsid)
+        elseif(exid and gsid) then
+            NPCShopPage.ShowExchangeCodePage(exid, gsid)
+        end
+    end
+end
+
+function GetTextContent(name)
+    return MyCompany.Aries.HaqiShop.npc_tabs[name]["text"] or "默认名称";
+end
+
+]]></script>
+<div class="window" style="width:720px;height:440px;" align="center" valign="center">
+
+    <div style="position:relative;width:573px;height:64px;margin-top:-8px;margin-left:59px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:250 21 260 32);">
+        <div style="position:relative;width:128px;height:32px;margin-left:258px;margin-top:13px;background:url(Texture/Aries/HaqiShop/shop_tit.png#0 0 128 32);"/>
+    </div>
+    <!--<input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:33px;background:url(texture/aries/common/themekid/character/help_32bits.png#0 0 28 28);" onclick="ViewHelp()" />-->
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="Confirm()" />
+
+    <div style="position:relative;margin-left:10px;margin-top:42px;width:212px;">
+
+
+        <div style="position:relative;margin-left:0px;margin-top:0px;width:202px;height:91px;background:url(Texture/Aries/HaqiShop/bg3_32bits.png:20 20 20 20)">
+            <div style="position:relative;margin-left:10px;margin-top:5px;width:185px;height:20px;font-weight:bold;color:#104E81;">
+                魔豆余额:<div style="float:left"><pe:slot type="count" gsid="984"></pe:slot></div>
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:20px;width:185px;height:40px;font-size:12;color:#104E81;">
+                <%=format("哈奇商城里，魔豆是通用的货币。记得把%s兑换成魔豆哦!", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+            </div>
+            <div style="position:relative;margin-left:60px;margin-top:63px;width:185px;height:30px;font-size:12;color:#104E81;">
+                <%=format("1%s/10魔豆", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+            </div>
+            <div style="position:relative;margin-left:12px;margin-top:59px;width:150px;height:30px;">
+                <img style="width:35px;height:35px" src='<%=MyCompany.Aries.HaqiShop.GetMoDouIcon() %>' />
+            </div>
+            <div style="position:relative;margin-left:140px;margin-top:59px;width:50px;height:30;">
+                <input type="button" onclick="BuyMagicBean()" zorder="2" value="兑换" style="font-size:11px;width:46px;height:20px;color:#095700;background:url(Texture/Aries/Common/ThemeKid/btn_thick_s_hl_32bits.png:7 7 7 7);"/>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:0px;margin-top:75px;width:202px;height:275px;">
+            <div style="float:left;margin-left:0px;margin-top:15px;width:202px;height:273px;background:url(Texture/Aries/npcs/suit/tile_3_bg_32bits.png#0 0 294 391)">
+                <div style="margin-left:-13px;margin-top:10px;height:256px;width:256px;">
+                    <pe:canvas3d  minZoomDist="5" DefaultRotY="-0.9" DefaultLiftupAngle="0.1" name="HaqiShopAvatar" miniscenegraphname="AvatarMyselfTabCharacter" IsInteractive="true"/>
+                </div>
+                <div style="margin-left:8px;margin-top:-25px;">
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:right;margin-left:0px;margin-top:0px;width:69px;height:32px;background:url(Texture/Aries/inventory/rotate_left_32bits1.png#0 0 69 32)"/>
+                    <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:right;margin-left:75px;margin-top:0px;width:69px;height:32px;background:url(Texture/Aries/inventory/rotate_right_32bits1.png#0 0 69 32)"/>
+                </div>
+            </div>
+        </div>
+        <div style="position:relative;margin-left:10px;margin-top:95px;width:190px;height:200px;font-size:12;color:#104E81;text-align:center">
+            点击装备图标可试穿
+        </div>
+        <div style="position:relative;margin-left:0px;margin-top:360px;width:200px;height:200px;">
+            <input type="button" class="button_thick" onclick="MyCompany.Aries.HaqiShop.GotoTaomeePage()" zorder="2" value='<%=format("%s账户充值", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>' style="float:left;font-size:11px;width:96px;height:26px;"/>
+            <input type="button" class="button_thick" onclick="MyCompany.Aries.HaqiShop.GetMagicStone()" zorder="2" value='魔法星能量石' style="float:left;font-size:11px;width:96px;height:26px;margin-left:6px"/>
+        </div>
+    </div>
+
+    <div style="position:relative;margin-left:215px;margin-top:45px;">
+        <pe:tabs name="tabShop" onclick="MyCompany.Aries.HaqiShop.OnClickTab" style="height:392px;background:;padding-top:27px;padding-left:10px;padding-right:6px" SelectedTextColor="#FF0000" ItemSpacing="1" TextFont="System;14;norm" >
+            <pe:tab-item name="tabTuijian" selected="true" width="52" height="28" text="推荐" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7">
+                <pe:tabs name="tabTuijian2" class="tabs" style="height:362px;" onclick="MyCompany.Aries.HaqiShop.OnClickTab">
+
+                    <pe:tab-item name="1003" text="新品" selected="true" SelectedTextColor="#ff0d00" TextColor="#ff0d00" style="padding-left:0px;width:62px;"></pe:tab-item>
+                    <pe:tab-item name="1001" text="礼包"></pe:tab-item>
+                    <!--<pe:tab-item name="1003" text="促销" ></pe:tab-item>-->
+                    <pe:tab-item name="1002" text="热卖"  ></pe:tab-item>
+                    <!--<pe:tab-item name="1004" text="战斗装备" ></pe:tab-item>-->
+                    <pe:tab-item name="5003" text="宠物" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+
+                </pe:tabs>
+            </pe:tab-item>
+             <%=Map3DSystem.App.MiniMap.NewMiniMap.BuildAnchorCodeFromXML("") %>
+             <pe:tab-item name="tabDragon" width="70" height="28" text="返利专区" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabDragon2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+                    <!--<pe:tab-item name="4001" text="喂养材料" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="4002" text="变身药丸" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <pe:tab-item name="npc_0" selected="true" text='<%=GetTextContent("npc_0") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                    <pe:tab-item name="npc_1" text='<%=GetTextContent("npc_1") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                    <pe:tab-item name="npc_2" text='<%=GetTextContent("npc_2") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                    <pe:tab-item name="npc_3" text='<%=GetTextContent("npc_3") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                    <pe:tab-item name="npc_4" text='<%=GetTextContent("npc_4") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                    <pe:tab-item name="npc_5" text='<%=GetTextContent("npc_5") %>' height="28" style="padding-left:5px" >
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+            <pe:tab-item name="tabInventory" width="70" height="28" text="会员特价" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabInventory2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+
+                    <!--<pe:tab-item name="20" text="全部" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <!--<pe:tab-item name="2008" text="套装" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <!--
+                    <pe:tab-item name="2001" text="10级套装" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2002" text="20级套装" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2003" text="30级套装" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2004" text="40级套装" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    -->
+                    <!--<pe:tab-item name="2005" text="背部" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2006" text="首饰" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <pe:tab-item name="2014" text="特价炫彩" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2015" text="特价捕鱼" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2016" text="特价符文" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2017" text="特价魂印" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <!--<pe:tab-item name="2008" text="装扮" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <!--<pe:tab-item name="2010" text="极品" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                </pe:tabs>
+            </pe:tab-item>
+
+            <pe:tab-item name="tabXC" width="48" height="28" text="炫彩" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabXC2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+                    <pe:tab-item name="2011" selected="true" text="男装" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2012" text="女装" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2013" text="配饰" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="2014" text="魔法星专区" height="28" SelectedTextColor="#ff0d00" TextColor="#ff0d00"  style="padding-left:5px">
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+
+            <pe:tab-item name="tabZJ" width="48" height="28" text="坐骑" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabZJ2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+                    <pe:tab-item name="4003" selected="true" text="长期" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="4004" text="短期" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="4001" text="喂养材料" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+
+            <pe:tab-item name="tabGems" width="48" height="28" text="宝石" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabGems2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+                    <pe:tab-item name="3002" text="1级宝石" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="3003" text="2级宝石" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="3004" text="3级宝石" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="3005" text="4级宝石" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="3001" text="宝石相关" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+    <!--        <pe:tab-item name="40"  width="64" height="37" SelectedMenuItemBG="Texture/Aries/HaqiShop/radio1_4a.png;0 0 64 37" UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radio1_4b.png;0 0 64 37" style="padding-left:5px">
+
+            </pe:tab-item>-->
+
+            <pe:tab-item name="tabTool" width="70" height="28" text="神秘道具" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabTool2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+
+                    <!--<pe:tab-item name="50" text="全部" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>-->
+                    <pe:tab-item name="5006" selected="true" text="PK保险" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="5002" text="战斗药丸" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="5001" text="特殊功能" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="5004" text="捕鱼道具" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="5005" text="魂印专区" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+
+            <pe:tab-item name="tabRune" width="70" height="28" text="卡包卡牌" SelectedTextColor="#651000" SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7" UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/btn_thick_32bits.png:7 7 7 7" style="padding-left:1px">
+                <pe:tabs name="tabRune2" onclick="MyCompany.Aries.HaqiShop.OnClickTab" class="tabs" style="height:362px;">
+                    <pe:tab-item name="2007" text="卡包" selected="true" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7001" text="风暴系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7002" text="烈火系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7003" text="寒冰系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7004" text="生命系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7005" text="死亡系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                    <pe:tab-item name="7006" text="通用系" height="28" style="padding-left:5px">
+                    </pe:tab-item>
+                </pe:tabs>
+            </pe:tab-item>
+
+        </pe:tabs>
+    </div>
+
+
+
+    <div style="position:relative;margin-left:220px;margin-top:108px;">
+        <pe:gridview name="haqishopgrid" DataSource="<%=MyCompany.Aries.HaqiShop.DS_Func %>"
+            CellPadding="2" RememberLastPage="true" ItemsPerLine="3" AllowPaging="true" pagesize="9" >
+            <Columns>
+                <div style="width:160px;height:93px;background:url(Texture/Aries/HaqiShop/bg.png#0 0 16 16:5 5 5 5);">
+                    <pe:if condition='<%=DataFromNpcshop() %>'>
+                        <div style="width:160px;height:93px;background:url(Texture/Aries/HaqiShop/bg.png#0 0 16 16:5 5 5 5);">
+                            <div style="margin-left:3px;margin-top:2px;width:158px;height:20px;font-size:12;font-weight:bold;text-align:center;color:#03285A;"><%=GetName(Eval("gsid"), Eval("exid")) %></div>
+                            <div >
+					            <div style="float:left;margin-left:3px;margin-top:2px;padding:5px;width:64px;height:64px;background:url(Texture/Aries/NewProfile/bg_equip_32bits.png#0 0 32 32:5 5 5 5);">
+                                    <pe:item zorder="2" onclick="MyCompany.Aries.HaqiShop.OnClickItem()" isdragable="false" gsid='<%=Eval("gsid")%>' showdefaulttooltip="true" style="margin-left:0px;width:54px;height:54px;" />
+                                    <pe:if condition='<%=not IsRightSchool(Eval("gsid")) %>'>
+                                        <div zorder="1" style="position:relative;margin-left:-4px;margin-top:-59px;width:62px;height:62px;background:url(Texture/Aries/Desktop/ItemOutline/outline_school_not_match_32bits.png: 7 7 7 7)"/>
+                                    </pe:if>
+                                </div>
+                                <pe:if condition='<%=not IncludeSpecialID(Eval("exid"),Eval("gsid")) and Eval("exid")==0 %>'>
+                                    <div style="float:left;margin-left:5px;padding-left:5px;font-size:12px;">
+                                        <div style="height:18px;"><%=GetSingleItemPrice(Eval("gsid")) %></div>
+                                    </div>
+                                    <div>
+                                        <pe:goalpointer listen="purchase" param_name1="gsid" param_value1='<%=Eval("gsid")%>' style="position:relative;margin-left:120px;margin-top:-25px;width:50px;height:26px"></pe:goalpointer>
+                                        <input type="button" class="button" value="购买" onclick="DoBuy()" name='<%=Eval("exid") %>' param1='<%=Eval("exid") %>' param2='<%=Eval("gsid") %>' style="margin-left:105px;margin-top:-22px;font-size:12px;width:50px;"/>
+                                    </div>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("exid")~=0 or IncludeSpecialID(Eval("exid"),Eval("gsid"))%>'>
+                                    <pe:if condition='<%=IsSelling(Eval("gsid"), Eval("exid")) %>'>
+                                        <div style="float:left;margin-left:0px;padding-left:1px;font-size:12px;">
+                                            <div style="height:18px;"><%=GetLine(Eval("exid"),1, true) %></div>
+                                            <div style="height:18px;"><%=GetLine(Eval("exid"),2, true) %></div>
+                                            <div style="height:18px;"><%=GetLine(Eval("exid"),3, true) %></div>
+                                        </div>
+                                        <div><input type="button" value="出售" class="button" onclick="DoSell()" name='<%=Eval("exid") %>' param1='<%=Eval("exid") %>' param2='<%=Eval("gsid") %>' style="margin-left:105px;margin-top:-22px;font-size:12px;width:50px;"/></div>
+                                    </pe:if>
+                                    <pe:if condition='<%=not IsSelling(Eval("gsid"), Eval("exid")) %>'>
+                                        <div style="float:left;margin-left:0px;padding-left:1px;font-size:12px;">
+                                            <pe:if condition='<%=Eval("exid")~=0 %>'>
+                                                <div style="height:18px;"><%=GetLine(Eval("exid"),1) %></div>
+                                                <div style="height:18px;"><%=GetLine(Eval("exid"),2) %></div>
+                                                <div style="height:18px;"><%=GetLine(Eval("exid"),3) %></div>
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("exid")==0 %>'>
+                                                <%=GetSingleItemPrice(Eval("gsid")) %>
+                                            </pe:if>
+                                        </div>
+                                        <div>
+                                            <pe:if condition='<%=not IncludeSpecialID(Eval("exid"),Eval("gsid")) %>'>
+                                                <pe:goalpointer listen="purchase" param_name1="gsid" param_value1='<%=Eval("gsid")%>' style="position:relative;margin-left:120px;margin-top:-25px;font-size:12px;width:50px;height:26px"></pe:goalpointer>
+                                                <input type="button" class="button" value="购买" onclick="DoBuy()" name='<%=Eval("exid") %>' param1='<%=Eval("exid") %>' param2='<%=Eval("gsid") %>' style="margin-left:105px;margin-top:-22px;font-size:12px;width:50px;"/>
+                                            </pe:if>
+                                            <pe:if condition='<%=IncludeSpecialID(Eval("exid"),Eval("gsid")) %>'>
+                                                <input type="button" class="button" value="领取" onclick="DoExchange()" name='<%=Eval("exid") %>' param1='<%=Eval("exid") %>' param2='<%=Eval("gsid") %>' style="margin-left:105px;margin-top:-22px;font-size:12px;width:50px;"/>
+                                            </pe:if>
+                                        </div>
+                                    </pe:if>
+                                </pe:if>
+                            </div>
+					    </div>
+                    </pe:if>
+                    <pe:if condition='<%=not DataFromNpcshop() %>'>
+                        <div style="position:relative;margin-left:3px;margin-top:24px;padding:5px;width:64px;height:64px;background:url(Texture/Aries/NewProfile/bg_equip_32bits.png#0 0 32 32:5 5 5 5);">
+                            <pe:item onclick="MyCompany.Aries.HaqiShop.OnClickItem()" param1='<%=Eval("index") %>' gsid='<%=Eval("gsid")%>'showdefaulttooltip="true" style="width:54px;height:54px;" />
+                            <pe:if condition='<%=Eval("total_count") > 0 %>'>
+                                <pe:container zorder="1" style="position:relative;background:url(Texture/whitedot.png);background-color:#ffffff80;margin-top:-16px;margin-left:-5px;width:64px;height:20px;" >
+                                    <div style="margin-top:1px;position:relative;shadow-color:#a0952a05;margin-left:3px;color:#fdf486;font-size:11px;width:100px;" class="bordertext">
+                                        <%=format("限量:%d个", Eval("total_count")) %>
+                                    </div>
+                                </pe:container>
+                            </pe:if>
+                        </div>
+                        <div style="position:relative;margin-left:3px;margin-top:2px;width:158px;height:20px;font-size:12;font-weight:bold;text-align:center;color:#03285A;">
+                            <%=Eval("name") %>
+                        </div>
+                
+                        <pe:if condition='<%=Eval("price") ~= nil and tonumber(Eval("price")) > 0 %>'>
+                            <pe:if condition='<%=Eval("orgmodou") == "nil" and Eval("orgqidou") == "nil" %>'>
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("price") %>魔豆
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("orgmodou") ~= "nil" %>'>
+                                <div style="position:relative;margin-left:113px;margin-top:1px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                <div style="position:relative;margin-left:75px;margin-top:39px;width:72px;height:2px;background:url(Texture/Aries/HaqiShop/line1.png#0 0 2 2);background-rotation:0.1;" />
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("orgmodou") %>魔豆<br />
+                                    <%=Eval("price") %>魔豆
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("orgqidou") ~= "nil" %>'>
+                                <div style="position:relative;margin-left:113px;margin-top:1px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                <div style="position:relative;margin-left:75px;margin-top:39px;width:72px;height:2px;background:url(Texture/Aries/HaqiShop/line1.png#0 0 2 2);background-rotation:0.1;" />                        
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("orgqidou") %>奇豆<br />
+                                    <%=Eval("price") %>魔豆
+                                </div>
+                            </pe:if>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("qidouprice") ~= nil and tonumber(Eval("qidouprice")) > 0 %>'>
+                            <pe:if condition='<%=Eval("orgmodou") == "nil" and Eval("orgqidou") == "nil" %>'>
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("qidouprice") %>奇豆
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("orgqidou") ~= "nil" %>'>
+                                <div style="position:relative;margin-left:113px;margin-top:1px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                <div style="position:relative;margin-left:75px;margin-top:39px;width:72px;height:2px;background:url(Texture/Aries/HaqiShop/line1.png#0 0 2 2);background-rotation:0.1;" />                        
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("orgqidou") %>奇豆<br />
+                                    <%=Eval("qidouprice") %>奇豆
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("orgmodou") ~= "nil" %>'>
+                                <div style="position:relative;margin-left:113px;margin-top:1px;width:47px;height:46px;background:url(Texture/Aries/HaqiShop/cuxiao_32bits.png#0 0 47 46);" />
+                                <div style="position:relative;margin-left:75px;margin-top:39px;width:72px;height:2px;background:url(Texture/Aries/HaqiShop/line1.png#0 0 2 2);background-rotation:0.1;" />                        
+                                <div style="position:relative;margin-left:80px;margin-top:30px;width:200px;height:200px;font-size:12;color:#03285A;">
+                                    <%=Eval("orgmodou") %>魔豆<br />
+                                    <%=Eval("qidouprice") %>奇豆
+                                </div>
+                            </pe:if>
+                        </pe:if>
+                        <div style="position:relative;margin-left:96px;margin-top:64px;width:200px;height:100px;">
+                            <pe:if condition='<%=not Eval("disable_buy")%>'>
+                                <input type="button" name='<%=Eval("gsid") %>' class="button" onclick="MyCompany.Aries.HaqiShop.BuyMoDou()" zorder="2" style="font-size:11px;width:46px;height:20px;" value="购买"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("disable_buy")~=false%>'>
+                                <input type="button" name='<%=Eval("gsid") %>' param1='<%=Eval("disable_buy")%>' class="button_lightgrey" onclick="MyCompany.Aries.HaqiShop.OnDisableBuy()" zorder="2" style="font-size:11px;width:46px;height:20px;" value="购买"/>
+                            </pe:if>
+                        </div>
+                    </pe:if>
+                        
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                暂时没有该类商品
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:200px;margin-top:-50px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    
+	                <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:-10px;margin-top:8px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageleft_32bits1.png#0 0 18 21)"/>
+	                <div style="float:right;margin-left:10px;margin-top:4px;width:60px;">
+	                    <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:10px;margin-top:8px;width:18px;height:21px;background:url(Texture/Aries/Quest/pageright_32bits1.png#0 0 18 21)"/>
+
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        <div style="margin-left:3px;margin-top:-41px;font-weight:bold;">
+            <pe:item gsid="17215" isclickable="false" style="width:20px;height:20px;"/><span style="margin-left:2px;">活动兑换石数量：</span><pe:slot type="count" gsid="17215" style="float:left;margin-left:-8px;margin-top:0px;" />
+        </div>         
+    </div>
+
+
+
+
+</div>
+
+</pe:mcml> 
+</body>
+</html>

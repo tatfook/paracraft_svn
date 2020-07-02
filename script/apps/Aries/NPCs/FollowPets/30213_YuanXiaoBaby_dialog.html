@@ -1,0 +1,130 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30213_YuanXiaoBaby_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30213_YuanXiaoBaby_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30213);
+
+IsFirstTalk = function()
+    return MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.IsFirstTalk();
+end
+
+IsTalkToFakeBaby = function()
+    return MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.IsTalkToFakeBaby();
+end
+
+IfOwnYuanXiaoBaby = function()
+    return MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.IfOwnYuanXiaoBaby();
+end
+
+miss_reward_name = nil;
+hit_reward_name = nil;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30213);
+local missRewardCount = memory.missRewardCount;
+local missReward = memory.missReward;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(missReward);
+if(gsItem) then
+    miss_reward_name = missRewardCount.."个"..gsItem.template.name;
+end
+local hitRewardCount = memory.hitRewardCount;
+local hitReward = memory.hitReward;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(hitReward);
+if(gsItem) then
+    hit_reward_name = hitRewardCount.."个"..gsItem.template.name;
+end
+
+ClearFakeBaby = function()
+    MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.ClearFakeBaby();
+    MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.TalkToRealBaby();
+end
+
+GetMissReward = function()
+    MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.GetMissReward();
+end
+
+GetHitReward = function()
+    MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.GetHitReward();
+end
+
+TakeBabyHome = function()
+    MyCompany.Aries.Quest.NPCs.YuanXiaoBaby.TakeBabyHome();
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30213" instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="name" source="{this}" value='元宵宝宝'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("IsFirstTalk")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("IsTalkToFakeBaby")%>' transition = '<%=Eval("ClearFakeBaby")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("IfOwnYuanXiaoBaby")%>' transition = '<%=Eval("ClearFakeBaby")%>' target_state = "3"/>
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("ClearFakeBaby")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是可爱的元宵宝宝，我有分影术哦，现在你面前有3个我，其中有2个是影子，有1个是真的，猜猜哪一个是我！
+		    想好以后轻轻的点一下吧！
+	    </pe:state>
+	    <pe:state id = "2">
+            <%=string.format("嘻嘻，你看走眼啦，那个是我的影子呢，下次可要多留意哦！送你%s吧，记得去下面的大转盘抽奖哦！", Eval("miss_reward_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetMissReward")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+            <%=string.format("你真厉害，能点亮灯谜桥上所有的灯，还能找到我，不过你家已经有元宵宝宝了，我就送你%s吧，记得去下面的大转盘抽奖哦！", Eval("hit_reward_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetHitReward")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你真厉害，能点亮灯谜桥上所有的灯，还能找到我，快带我回家去吧，我能帮你收割所有的植物哦！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("TakeBabyHome")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    TODO: BUG
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

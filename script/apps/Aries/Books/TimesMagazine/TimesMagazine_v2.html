@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazine/TimesMagazine_v2.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazine, by Andy, 2009/9/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function DS_Func_HomeDecoMagazine(index)
+    if(index == nil) then
+        return 6;
+    elseif(index == 1) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/1.png",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 2) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/2.png",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 3) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/3.png",
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 4) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/4.png", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 5) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/5.png", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    elseif(index == 6) then
+        return {background = "Texture/Aries/Books/TimesMagazine_v2/6.png", 
+            bg_Lollipop = "",
+            src_iframe = "",
+        };
+    end
+end
+function Confirm()
+
+	local msg = { aries_type = "OnCloseTimeMagazine", wndName = "main"};
+	CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+	
+    pageCtrl:CloseWindow();
+end
+
+function GoTo(index)
+    if(index) then
+        index = tonumber(index);
+        pageCtrl:CallMethod("HomeDecoMagazine", "GotoPage", index);
+    end
+end
+
+
+]]></script>
+
+<div style="width:1010px;height:755px;padding-left:100px;padding-top:36px;padding-bottom:-10px;background:url(Texture/Aries/Books/Magazine_bg2_32bits.png#0 0 1010 755);">
+    <pe:gridview DataSource="<%=DS_Func_HomeDecoMagazine%>" name="HomeDecoMagazine" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "512" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:1024px;height:512px">
+                <img src='<%=Eval("background")%>' style="margin-left:-102px;margin-top:16px;width:1024px;height:512px;" />
+                <div style="margin-top:-512px;width:848px;height:542px">
+                    <pe:if condition='<%=Eval("index") == 1%>'>
+                        <div style="position:relative;margin-left:694px;margin-top:224px;width:256px;height:128px;background:url()">
+                            <a tooltip="哈奇新鲜事 A2" name="A2" onclick="GoTo" param1='2'><div style="width:104px;height:26px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:694px;margin-top:266px;width:256px;height:128px;background:url()">
+                            <a tooltip="宠物小档案 A3" name="A2" onclick="GoTo" param1='3'><div style="width:104px;height:26px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:694px;margin-top:308px;width:256px;height:128px;background:url()">
+                            <a tooltip="镇里的小秘密 A5" name="A2" onclick="GoTo" param1='5'><div style="width:114px;height:26px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:694px;margin-top:350px;width:256px;height:128px;background:url()">
+                            <a tooltip="精彩预告 A6" name="A2" onclick="GoTo" param1='6'><div style="width:97px;height:26px;"/></a>
+                        </div>
+                        
+                    </pe:if>
+                </div>
+                <input type="button" onclick="Confirm()" style="margin-left:808px;margin-top:-536px;width:32px;height:32px;background:Texture/Aries/Books/close_32bits.png;"/>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="64" style="margin-left:90px;margin-top:-200px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-16px;margin-top:-30px;width:32px;height:32px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:748px;margin-top:30px;width:32px;height:32px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

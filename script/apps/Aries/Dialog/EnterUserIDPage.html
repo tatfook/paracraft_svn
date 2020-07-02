@@ -1,0 +1,42 @@
+﻿<!-- "script/apps/Aries/Dialog/EnterUserIDPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2010/1/5</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="EnterUserIDPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local callbackFunc = MyCompany.Aries.Dialogs.EnterUserIDPage.callbackFunc
+function OnClickOK()
+    local nid = page:GetValue("nid_txt");
+    nid = tonumber(nid);
+    if(nid)then
+        if(type(callbackFunc) == "function") then
+        	callbackFunc("ok", nid)
+        end
+        page:CloseWindow();
+    else
+        local s = string.format("请正确输入%s！",MyCompany.Aries.ExternalUserModule:GetConfig().account_name)
+         _guihelper.MessageBox(s);
+    end
+end
+function closePage()
+    page:CloseWindow();
+    if(type(callbackFunc) == "function") then
+    	callbackFunc("cancel")
+    end	
+end
+]]></script>
+<div style="width:322;height:216px;background:Texture/Aries/Friends/addfriend_bg_32bits.png#0 0 322 216:40 40 40 40">
+    <div style="color:#1b2534;font-size:14px;margin-left:45px;margin-top:40px;font-weight:bold;">    <%=format("请输入对方%s", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div>
+    <input type="text" name="nid_txt" style="width:230px;height:32px;margin-left:45px;margin-top:10px;background:url(Texture/Aries/Friends/addfriend_input_32bits.png:10 10 10 10)" />
+    <br />
+    <input type="button" onclick="OnClickOK()" style="width:108px;height:32px;margin-left:45px;margin-top:20px;background:Texture/Aries/Friends/addfriend_OK_32bits.png#0 0 108 32" />
+    <input type="button" onclick="closePage()" style="width:108px;height:32px;margin-left:10px;margin-top:20px;background:Texture/Aries/Friends/addfriend_Cancel_32bits.png#0 0 108 32" />
+</div>
+</pe:mcml> 
+</body>
+</html>

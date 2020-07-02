@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/VIP/PurChaseEnergyStone.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Purchase EnergyStone, by Spring, 2010/10/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PurChaseEnergyStone.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local PurChaseEnergyStone = MyCompany.Aries.Inventory.PurChaseEnergyStone;
+PurChaseEnergyStone.OnInit();
+
+gsid=998;
+name="能量石";
+
+local ItemManager = System.Item.ItemManager;
+
+function GetBuyDesc()
+    local count = 1;
+    count = pageCtrl:GetValue("count", count);
+    local s = string.format("%d个能量石需要%d%s，你确认要购买吗？",count,count*10,MyCompany.Aries.ExternalUserModule:GetConfig().currency_name);
+    return s;
+end
+defaultDesc = GetBuyDesc();
+
+function OnOK()
+    PurchaseEnergyStone.BuyEnergyStone();
+end
+
+function pageCtrl.OnClose()
+    PurChaseEnergyStone.StopTimer();
+end
+
+PurChaseEnergyStone.StartTimer(pageCtrl.name, gsid);
+
+function OnCancel()
+    PurChaseEnergyStone.StopTimer();
+    pageCtrl:CloseWindow();
+end
+
+function OnDecrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = 3;
+        elseif(count > 99) then
+            count = 99;
+        else
+            count = count - 1;
+        end
+        pageCtrl:SetValue("count", count);
+        pageCtrl:SetValue("buydesc", GetBuyDesc());
+    end
+end
+
+function OnIncrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = 3;
+        elseif(count >= 99) then
+            count = 99;
+        else
+            count = count + 1;
+        end
+        pageCtrl:SetValue("count", count);
+        pageCtrl:SetValue("buydesc", GetBuyDesc());
+    end
+end
+
+-- tricky code to decrease the count actually the min value
+OnDecrease();
+
+]]></script>
+<div style="width:466px;height:355px;">
+    <div style="width:466px;height:332px;padding:23px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:19 159 20 160)">
+        <div style="width:411px;height:240px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+            <div style="width:411px;height:160px;">
+                <div style="float:right;padding-left:24px;padding-top:20px;width:145px;height:135px;margin:21px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)">
+                    <pe:item gsid='<%=Eval("gsid")%>' style="width:96px;height:96px" isclickable="false"/>
+                </div>
+                <div style="float:right;margin-top:28px;">
+                    <div style="margin-left:48px;color:#243b5d">输入购买数量(1-99)</div>
+                    <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+                    <div style="float:right;padding-left:50px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40:12 12 12 12)">
+                        <input type="text" name="count" value="4" style="width:40px;height:26px;background:;"/>
+                    </div>
+                    <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+                    <br/>
+                    <div style="margin-left:28px;color:#243b5d">
+                        <%=format("请输入%s帐户支付密码", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+                    </div>
+                    <div style="float:right;padding-left:0px;padding-top:8px;width:200px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40:12 12 12 12)">
+                        <input type="text" name="passwd" PasswordChar="*" value="" style="width:200px;height:26px;background:;"/>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div style="margin-left:36px;margin-top:22px;color:#011132">
+                <label name="buydesc" value='你确认要购买吗？'/>
+            </div>
+        </div>
+    </div>
+    <div style="width:466px;height:48px;margin-top:-36px;">
+        <input type="button" style="margin-left:70px;width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/buy_btn_32bits.png#0 0 154 48)" onclick="OnOK()"/>
+        <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="OnCancel()"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

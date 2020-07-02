@@ -1,0 +1,63 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/CastMachine_subpage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CastMachine_subpage,add by WD, 2011/11/08</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/CastMachine_subpage.teen.lua");
+local CastMachine_subpage = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.CastMachine_subpage");
+CastMachine_subpage:Init();
+
+function GetDataSource(arg)
+    return CastMachine_subpage:GetDataSource(arg);
+end
+
+function OnClickItem(arg)
+    if(not arg or arg == 0)then return end
+    CastMachine_subpage:OnClickItem(arg);
+end
+function DummyFunc()
+
+end
+]]></script>
+    <div style="padding:1px;width:185px;height:383px;" class="inborder">
+        <pe:gridview VerticalScrollBarStep="20" RememberScrollPos="true" name="pegvwItems" 
+            CellPadding="0" ItemsPerLine="1" AllowPaging="false" 
+            style="width:183px;height:383px;"
+            DataSource='<%=GetDataSource %>'DefaultNodeHeight="32" >
+		<Columns>
+            <div style="height:32px;margin-top:2px;" >
+            <pe:if condition='<%=Eval("is_selected")%>' >
+                <div style="width:183px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png);">
+                    <div style="position:relative;">
+                    <!--<img zorder="3" src='<%=Eval("texture") %>' style="margin-left:1px;margin-top:1px;width:32px;height:32px;"/>-->
+                    <pe:item onclick='<% DummyFunc %>' gsid='<%=Eval("gsid")%>' style="width:32px;height:32px;"/>
+                    </div>
+                    <input zorder="2" type="button"  onclick="OnClickItem"  
+                    style="text-align:left;margin-top:4px;color:#52dff4;margin-left:38px;width:183px;background:;" name='<%=Eval("gsid")%>'
+                    value='<%=Eval("name")%>' />
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not Eval("is_selected")%>' >
+                <!--<input type="button" class="listbutton_unselected" zorder="2" style="position:relative;width:183px;height:32px;background:"
+                        onclick="OnClickItem" name='<%=Eval("gsid")%>'/>-->
+                <div style="position:relative;">
+                    <!--<img zorder="3" src='<%=Eval("texture") %>' style="margin-left:4px;margin-top:1px;width:32px;height:32px;"/>-->
+                    <pe:item onclick='<% DummyFunc %>' gsid='<%=Eval("gsid")%>' style="width:32px;height:32px;"/>
+                </div>
+                        
+                <input zorder="2" type="button"  name='<%=Eval("gsid")%>' onclick="OnClickItem"value='<%=Eval("name")%>'
+                style="background:;color:#52dff4;text-align:left;height:32px;margin-top:0px;margin-left:38px;width:183px"  />
+            </pe:if>
+            </div>
+            <div style="width:165px;height:1px;" class="blue_line"/>
+		</Columns>	
+		</pe:gridview>
+    </div>    
+</pe:mcml> 
+</body>
+</html>

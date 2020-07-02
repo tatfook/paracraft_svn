@@ -1,0 +1,186 @@
+<!-- "script/apps/Aries/Desktop/Functions/RechargeGuide.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+local bean = MyCompany.Aries.Pet.GetBean();
+
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+function RefreshBag0()
+    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+    PurchaseMagicBean.RefreshBag0()
+end
+
+function GetEMoneyByBank()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+	
+	local url0 = string.format("http://pay.61.com/haqi2/processbank&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByPhone()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+	
+	local url0 = string.format("http://pay.61.com/buy/paytype?type=phone&game=haqi&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByMobile()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+	
+	local url0 = string.format("http://pay.61.com/buy/paytype?type=mobile&game=haqi&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByShiti()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+	
+	local url0 = string.format("http://pay.61.com/buy/paytype?type=shiti&game=haqi&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByCard()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+
+	local url0 = string.format("http://pay.61.com/haqi2/processcard&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByAlipay()
+--	_guihelper.MessageBox("封测期间，暂不开放充值！");
+
+	local url0 = string.format("http://pay.61.com/haqi2/processalipay&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+
+function GetEMoneyByMiBi()
+	local url0 = string.format("http://pay.61.com/haqi2&");
+	paraworld.auth.AuthUser({
+		username = System.User.username,
+		password = System.User.Password,
+		}, "login", function (msg)
+		if(msg.issuccess) then	
+			-- successfully recovered from connection. 
+			LOG.std("", "system","Login", "Successfully authenticated for pay");
+			local payurl = string.format("%s&userid=%d&session=%s&gameid=21",url0,msg.nid,msg.sessionid);
+			ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+            RefreshBag0();
+		end
+	end, nil, 20000, function(msg)	end);	
+end
+function ToGoPayURL()
+    local payurl = string.format("http://pay.paraengine.com/index.php");
+    ParaGlobal.ShellExecute("open", payurl, "", "", 1);
+end
+
+function ToGoHelpURL()
+    local helpurl = string.format("http://cc.paraengine.com/twiki/bin/view/HaqiTeen/Haqi2Payhelp");
+    ParaGlobal.ShellExecute("open", helpurl, "", "", 1);
+end
+
+]]></script>
+
+<aries:window title="兑换金币" width="470" height="250" onhelp="" onclose="ClosePage()" mode="lite">
+    <div style="margin-left:50px; margin-top:15px;">
+        <input type="button" style="height:30px;font-size:14px;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;background:" value="金币可在《魔法哈奇2》中购买商城物品与服务。" /><br />
+        <input type="button" style="height: 30px; font-size: 14px; shadow-quality: 8; shadow-color: #802a2e27; text-shadow: true; background:" value="兑换比例：10金币/元" /><br />
+        <input type="button" style="height: 30px; font-size: 14px; shadow-quality: 8; shadow-color: #802a2e27; text-shadow: true; background:" value="角色数字账号: " />
+        <input type="text" style="width:180px;height:30px;" value='<%=tostring(System.User.nid)%>' />
+    </div>
+    <div style="margin-left: 170px; margin-top: 15px; margin-bottom: 15px; width: 95px;">
+        <input type="button" class="defaultbutton" style="width:120px;height:40px;" value="打开充值页面" onclick="ToGoPayURL" />
+    </div>
+	<div style="width:450px;height:38px;margin-left:2px" class="spark_bg">
+	    <div style="color:#ffffff;font-size:14px;margin-left:80px;margin-top:8px;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;">
+            如果您在充值中遇到任何问题，请
+            <input type="button" class="linkbutton" value='[点击查看]' tooltip='[点击查看]' onclick="ToGoHelpURL()" style="float: left; margin-left: 0px; width: 60px; text-align: center; margin-top: 0px; font-size: 11; color: #e0c427; height: 20px; " />
+	    </div>
+	</div>     			  
+  
+  
+<!--  </div>  --> 
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+ 

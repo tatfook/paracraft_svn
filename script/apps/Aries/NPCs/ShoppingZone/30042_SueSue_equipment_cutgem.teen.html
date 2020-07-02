@@ -1,0 +1,346 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_cutgem.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>retrieve gem from equipment for teen version, create by WD, 2011/08/11</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true" ><![CDATA[
+
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_cutgem.teen.lua");
+local Retrieve_gems_from_equipment = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment");
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+Retrieve_gems_from_equipment:Init();
+
+function ClosePage()
+    Retrieve_gems_from_equipment:CloseWindow();
+end
+
+function OnClickItem(arg,node)
+    if(node) then
+        local param1  = node:GetAttribute("param1","none");
+        Retrieve_gems_from_equipment:CancelItem(arg,param1);
+    end
+end
+function FilterItems(arg)
+    return Avatar_equipment_subpage:FilterItems(arg);
+end
+
+function DummyFunc() end
+
+---------- tips
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local npcid = 31012;
+local superclass = "menu2";
+local tKey = npcid.."_"..superclass;
+local key = string.format("npcshoptips_%s_%s",tKey,System.User.nid);
+local pageCtrl = document:GetPageCtrl();
+local npcshoptips = true;
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage(hstate)
+
+    if (not hstate) then
+        local IsEquipInBag;
+        local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+        if (Avatar_equipment_subpage.DisplayItems) then
+	        local firstItem = Avatar_equipment_subpage.DisplayItems[1];
+    --        commonlib.echo(firstItem)
+            if (firstItem) then
+                if (firstItem.gsid~=0) then
+	                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	                if (gsItem.template.class~=1) then -- judge item is equip or not
+                        IsEquipInBag = false;
+                    else
+                        IsEquipInBag = true;
+	                end
+                else
+                    IsEquipInBag = false;
+                end
+            end
+        else
+            IsEquipInBag = false;
+        end
+
+        if (not IsEquipInBag) then
+            _guihelper.MessageBox("你还没有装备，等你拥有了装备再告诉你怎么摘除宝石");
+            return
+        end
+    end
+
+    pageCtrl:SetValue("TooltipsPPT", "inventory1")
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.npcshop_tip[tKey]) then        
+	    system_looptip.npcshop_tip[tKey]=true;
+    end
+    if (not npcshoptips) then
+        npcshoptips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local myCombatLevel = 0;
+if(bean) then
+	myCombatLevel = bean.combatlel or 0;
+end
+        
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+
+if (not system_looptip.npcshop_tip[tKey]) then
+	system_looptip.npcshop_tip[tKey]=true;
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    npcshoptips = Player.LoadLocalData(key, false) or false;
+end
+
+-- 当背包第1格为装备时，才启动 PPT 帮助
+if (myCombatLevel<10 and (not npcshoptips)) then
+    local IsEquipInBag;
+    local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+    if (Avatar_equipment_subpage.DisplayItems) then
+	    local firstItem = Avatar_equipment_subpage.DisplayItems[1];
+        if (firstItem) then
+            if (firstItem.gsid~=0) then
+	            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	            if (gsItem.template.class~=1) then -- judge item is equip or not
+                    IsEquipInBag = false;
+                else
+                    IsEquipInBag = true;
+	            end
+            else
+                IsEquipInBag = false;
+            end
+        end
+    else
+        IsEquipInBag = false;
+    end
+    if (IsEquipInBag) then
+        onGotoStartPage(1);
+    end
+end
+function DoShop()
+    local gsid = MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.CONSUME_ITEM_ID;
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command) then
+		command:Call({gsid = gsid});
+	end
+end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:756px;height:468px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:135px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:320px;margin-top:200px;width:270px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			选取要摘除宝石的装备
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="float:left;width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:340px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:35px;margin-top:160px;width:46px;height:46px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:50px;margin-top:220px;width:300px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			该装备上镶嵌的宝石会出现在这里，选取要摘除的宝石。点击下面的摘除按钮，就可以了。
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="float:left;width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:60px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:678px;margin-top:0px;width:24px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:500px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:670px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+<aries:window width="762" height="470" title="宝石摘除" mode="lite" onhelp="onGotoStartPage()" isdeepbg="true" onclose="ClosePage()">
+    <div style="margin:5px;" class="clientarea">
+        <div style="float:left;margin-top:10px;width:316px;height:425px;">
+            <div style="width:300px;height:300px;margin-left:18px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)">
+
+                <div style="margin-left:81px;margin-top:8px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_equip_32bits.png#0 0 118 118)">    
+                    <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.guid ~= 0 %>' >
+                    <pe:slot onclick='OnClickItem' name="IncomingEquipGuid" param1="equip" showdefaulttooltip="true" style="width:58px;height:58px;margin-top:-2px;" />
+                    </pe:if>
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots ~= 0%>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid1' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots == 0%>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>
+                    </pe:if>
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 2 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid2' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 2 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/> 
+                    </pe:if>
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 3 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid3' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 3 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>    
+                    </pe:if>
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <div style="float:left;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 1%>'>
+                        <input type="button" name="btnGemRetrieve1" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>"/>
+                         </pe:if>    
+                    </div>
+                    <div style="float:left;margin-left:55px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 2%>'>
+                        <input type="button" name="btnGemRetrieve2" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>"/>
+                         </pe:if>    
+                    </div>
+                    <div style="float:left;margin-left:58px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 3%>'>
+                        <input type="button" name="btnGemRetrieve3" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>"/>
+                         </pe:if>    
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag == 0%>'>
+                        <input type="button" zorder="2" visible="false" class="defaultbutton"/>    
+                        </pe:if>
+                    </div>
+                </div>
+
+                <div style="margin-left:16px;margin-top:12px;">
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 4 %>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid4' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 4 %>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>   
+                    </pe:if>
+                    
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 5 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid5' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 5 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>    
+                    </pe:if>                    
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots == 6 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)">
+                        <pe:item onclick='OnClickItem' param1='gem' name='IncomingGemGsid6' showdefaulttooltip="true" style="width:48px;height:48px;"></pe:item>
+                        </div>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 6 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>        
+                    </pe:if>      
+                    
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <div style="float:left;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 4%>'>
+                        <input type="button" name="btnGemRetrieve4" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>"/>
+                         </pe:if>    
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag == 0%>'>
+                        <input type="button" zorder="2" visible="false" class="defaultbutton"/>    
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:55px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 5%>'>
+                        <input type="button" name="btnGemRetrieve5" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>"/>    
+                         </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:58px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.VisibleFlag >= 6%>'>
+                        <input type="button" name="btnGemRetrieve6" zorder="2" class="defaultbutton" text="摘除" style="width:45px;height:25px;"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.DoRetrieveGem %>" />   
+                         </pe:if> 
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="height:27px;">
+                <pe:tabs name="tabsEquipments"  class="default_tabs" >
+                <pe:tab-item name="1" text="需要工具"  selected='true' />
+                </pe:tabs>
+            </div>
+                <div style="padding:6px;width:310px;" class = "border_bg2_css">
+       
+                    <div style="float:left;width:48px;height:48px;" class="block">
+                        <pe:item onclick='DoShop'  
+                            gsid='<%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.CONSUME_ITEM_ID%>' 
+                            showdefaulttooltip="true" style="width:48px;height:48px;"/>
+                    </div>
+                    <div style="float:left;margin-left:8px;">
+                        <div>
+                            <div style="float:left;">需要:</div>
+                            <div style="float:left;width:50px;" name="txtCostSlotRocks"> <%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.CostItems %></div>
+                            <div>
+                                <div style="float:left;">拥有:</div>
+                                <div style="float:left;width:150px;">
+                                    <pe:slot type="count" gsid="17179" ></pe:slot>
+                                </div>
+                                <!--<div style="float:left;width:50px;" class="textfieldbutton" name="txtIncomingGemsCount"> <%=MyCompany.Aries.NPCs.ShoppingZone.Retrieve_gems_from_equipment.HoldItems %></div>-->
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <div style="height:80px;padding:5px;">
+                <div>说明：</div>
+                <div>1、下方列出的是你全部可摘除宝石的装备。</div>
+                <div>2、选中其中一个装备会出现在左侧的格子中，下方会出现【摘除】按钮。</div>
+                <div>3、每摘除一颗宝石需要一把“宝石调羹”（可在游戏中得到，也可直接购买）。</div>
+            </div>
+            <div style="height:27px;">
+                <pe:tabs name="tabsEquipments"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="1" text="所有装备"  selected='true' />
+                <pe:tab-item name="2" text="防具"/>
+                <pe:tab-item name="3" text="饰品"/>
+                <pe:tab-item name="4" text="武器"/>
+                </pe:tabs>
+            </div>
+            <iframe name="equip_subpage" src="script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.html"/>
+        </div>
+    </div>
+</aries:window>
+<script refresh="false" ><![CDATA[
+local ItemManager = Map3DSystem.Item.ItemManager;
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+
+local gsid = tonumber(Page:GetRequestParam("gsid"));
+if(gsid) then
+    local _, guid = ItemManager.IfOwnGSItem(gsid)
+	if(guid)then
+        Avatar_equipment_subpage:OnClickItem(guid,false);
+    end
+end
+]]></script>
+</pe:mcml> 
+</body>
+</html>

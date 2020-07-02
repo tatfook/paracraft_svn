@@ -1,0 +1,199 @@
+﻿<!-- "script/apps/Aries/Inventory/TabCharacter.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TabCharacter, by Andy, 2009/4/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TabCharacter.lua"><![CDATA[
+local page = document:GetPageCtrl();
+
+nid = System.App.profiles.ProfileManager.GetNID();
+mimitext = MyCompany.Aries.ExternalUserModule:GetConfig().account_name .. nid;
+
+local TabCharacterPage = MyCompany.Aries.Inventory.TabCharacterPage
+TabCharacterPage.TabValue = TabCharacterPage.TabValue or "1";
+
+function IsEdit()
+    local isEditing = MyCompany.Aries.Inventory.TabCharacterPage.GetEditState();
+    if(isEditing) then
+        return isEditing;
+    end
+    return false;
+end
+
+function IsNotEdit()
+    return not IsEdit();
+end
+
+function NicknameInMem()
+    local ProfileManager = System.App.profiles.ProfileManager;
+    local profile = ProfileManager.GetUserInfoInMemory(ProfileManager.GetNID());
+    if(profile) then
+        return profile.nickname;
+    end
+    return "";
+end
+
+function ChangeName()
+    MyCompany.Aries.Inventory.TabCharacterPage.SetEditState(true);
+    page:Refresh(0.01);
+    
+    page:SetValue("nickname", tostring(NicknameInMem()));
+end
+
+function SaveName()
+	local nickname = page:GetValue("nickname");
+	NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+	MyCompany.Aries.NewProfileMain.ChangeNickName(nickname, page);
+end
+
+function ShowItemView(value, mcmlNode)
+    --local ctl = CommonCtrl.GetControl("AriesInventoryCharacterItemView");
+	local frame = page:GetNode("AriesInventoryCharacterItemView");
+	local urls = {
+	    ["1"] = "script/apps/Aries/Inventory/ItemView.html?class=character&subclass=makeup",
+	    ["2"] = "script/apps/Aries/Inventory/ItemView.html?class=character&subclass=consumable",
+	    ["3"] = "script/apps/Aries/Inventory/ItemView.html?class=character&subclass=collect",
+	    ["4"] = "script/apps/Aries/Inventory/ItemView.html?class=character&subclass=reading",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            local class = "character";
+            local subclass = "makeup";
+            if(value == "1") then
+                subclass = "makeup";
+            elseif(value == "2") then
+                subclass = "consumable";
+            elseif(value == "3") then
+                subclass = "collect";
+            elseif(value == "4") then
+                subclass = "reading";
+            end
+		    local msg = { aries_type = "OnClickInventoryWndTab", class = class, subclass = subclass, wndName = "main"};
+		    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+		    
+            --mcmlNode:SetValue(value);
+            TabCharacterPage.TabValue = value;
+            page:SetValue("Level2Tabs", value);
+            page:GetNode("AriesInventoryCharacterItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+if(page:GetValue("Level2Tabs") ~= TabCharacterPage.TabValue) then
+    page:SetValue("Level2Tabs", TabCharacterPage.TabValue);
+    ShowItemView(TabCharacterPage.TabValue);
+    page:Refresh(0.1);
+end
+
+function OnClose()
+    MyCompany.Aries.Inventory.HideMainWnd();
+    MyCompany.Aries.Inventory.TabCharacterPage.SetEditState(false);
+end
+
+function ViewAvatarHelp()
+    NPL.load("(gl)script/apps/Aries/Help/RoleHelp/RoleHelpPage.lua");
+    MyCompany.Aries.Help.RoleHelpPage.ShowPage();
+end
+
+]]></script>
+<pe:editor style="margin-left:132px;margin-top:20px;background:;width:800px;height:480px;">
+    <div style="float:right;position:relative;margin-left:270px;margin-top:8px;">
+        <input style="width:44px;height:44px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+    <div style="float:right;width:311px;height:409px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+        <!--<div style="float:right;margin-left:50px;margin-top:15px;width:260px;height:60px;background:Texture/alphadot.png">-->
+        <div style="float:right;margin-left:50px;margin-top:65px;width:260px;height:60px;">
+            <div style="width:300px;height:0px;">
+                <div style="position:relative;margin-left:-30px;margin-top:-45px;width:54px;height:54px;">
+                    <input style="width:32px;height:32px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+                        type="button" name="help" onclick="ViewAvatarHelp()" value="" tooltip="角色帮助"/>
+                </div>
+            </div>
+            <div style="margin-left:150px;margin-top:-60px;font-size:14pt;font-weight:bold;color:#FFFFFF">
+                <pe:if-is-user nid="loggedinuser">
+                    <pe:if condition='<%=IsNotEdit()%>'>
+                        <div style="margin-left:-80px;margin-top:10px;float:right;"><pe:name name="FullProfileUserName" nid='<%=Eval("nid")%>' useyou="false" linked="false" style="font-weight:bold;"/></div>
+                        <input type="button" zorder="3" style="margin-top:6px;width:28px;height:28px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+                            onclick="ChangeName();" tooltip="修改昵称" value=""/>
+                    </pe:if>
+                    <pe:if condition='<%=IsEdit()%>'>
+                        <input type="text" name="nickname" style="margin-left:-120px;margin-top:8px;width:120px;height:22px;"/>
+                        <input type="button" zorder="3" style="margin-top:8px;width:28px;height:28px;margin-left:8px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                            onclick="SaveName();" tooltip="保存" value=""/>
+                    </pe:if>
+                </pe:if-is-user>
+            </div>
+            <br/>
+            <div style="margin-left:-60px;margin-top:-25px;text-align:center;font-size:14pt;font-weight:bold;color:#FFFFFF"><%=Eval("mimitext")%></div>
+        </div>
+
+        <div style="float:right;margin-left:30px;margin-top:-60px;width:250px;height:260px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20)">
+        
+            <!--<div style="float:right;margin-left:22px;margin-top:17px;width:256px;height:256px;background:Texture/alphadot.png">-->
+            <div style="float:right;margin-left:-10px;margin-top:10px;width:320px;height:300px;">
+                <iframe name="AriesInventoryAvatarView" src="script/apps/Aries/Inventory/AvatarView.html"/>
+            </div>
+            <br/>
+        </div>
+        <br/>
+        <div style="float:right;margin-left:110px;margin-top:12px;color:#FFFFFF">
+            <div style="float:left;">奇豆: </div><div style="float:left;"><aries:userinfo nid='<%=Eval("nid")%>' field="emoney"/></div><br/>
+        </div>
+    </div>
+    <div style="float:right;width:440px;height:410px;margin-left:-8px;margin-top:30px;">
+        <div style="float:right;width:272px;height:360px;background:url(Texture/Aries/Inventory/right_panel_32bits.png# 16 0 48 436: 20 64 20 64);">
+            <iframe name="AriesInventoryCharacterItemView" src="script/apps/Aries/Inventory/ItemView.html?class=character&amp;subclass=makeup"/>
+        </div>
+        <div style="float:right;margin-left:-19px;margin-top:20px;width:64px;height:410px;">
+            <input type="radio" name="Level2Tabs" checked="checked" id="Radio1" value="1" style="width:58px;height:64px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Inventory/inv_makeup_tab_on_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_makeup_tab_off_32bits.png;0 0 64 74"
+                onclick="ShowItemView()"/>
+            <!--<input type="radio" name="Level2Tabs" id="Radio2" value="2" style="width:64px;height:74px"
+                CheckedBG="Texture/Aries/Inventory/inv_consumable_tab_on_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_consumable_tab_off_32bits.png;0 0 64 74"
+                onclick="ShowItemView()"/>-->
+            <input type="radio" name="Level2Tabs" id="Radio3" value="3" style="width:58px;height:64px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Inventory/inv_collectable_tab_on_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_collectable_tab_off_32bits.png;0 0 64 74"
+                onclick="ShowItemView()"/>
+            <input type="radio" name="Level2Tabs" id="Radio4" value="4" style="width:58px;height:74px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Inventory/inv_reading_tab_on_32bits.png;0 0 64 90" 
+                UncheckedBG="Texture/Aries/Inventory/inv_reading_tab_off_32bits.png;0 0 64 90"
+                onclick="ShowItemView()"/>
+        </div>
+        <div style="float:right;margin-left:-64px;margin-top:20px;width:64px;height:410px;">
+            <input type="radio" name="Level2Tabs_Over" checked="checked" id="Radio2" value="1" style="width:58px;height:64px"
+                CheckedBG="Texture/Aries/Inventory/inv_makeup_tab_on2_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_makeup_tab_on2_32bits.png;0 0 64 74"
+                animstyle = "22" tooltip="装扮"
+                onclick="ShowItemView()"/>
+            <!--<input type="radio" name="Level2Tabs" id="Radio2" value="2" style="width:64px;height:74px"
+                CheckedBG="Texture/Aries/Inventory/inv_consumable_tab_on_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_consumable_tab_off_32bits.png;0 0 64 74"
+                onclick="ShowItemView()"/>-->
+            <input type="radio" name="Level2Tabs_Over" id="Radio5" value="3" style="width:58px;height:64px"
+                CheckedBG="Texture/Aries/Inventory/inv_collectable_tab_on2_32bits.png;0 0 64 74" 
+                UncheckedBG="Texture/Aries/Inventory/inv_collectable_tab_on2_32bits.png;0 0 64 74"
+                animstyle = "22" tooltip="收集"
+                onclick="ShowItemView()"/>
+            <input type="radio" name="Level2Tabs_Over" id="Radio6" value="4" style="width:58px;height:74px"
+                CheckedBG="Texture/Aries/Inventory/inv_reading_tab_on2_32bits.png;0 0 64 90" 
+                UncheckedBG="Texture/Aries/Inventory/inv_reading_tab_on2_32bits.png;0 0 64 90"
+                animstyle = "22" tooltip="读物"
+                onclick="ShowItemView()"/>
+        </div>
+    </div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

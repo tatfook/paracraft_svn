@@ -1,0 +1,64 @@
+<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local GemHelpPage = commonlib.gettable("MyCompany.Aries.Help.GemHelpPage");
+GemHelpPage.TabValue = GemHelpPage.TabValue or "1";
+
+NPL.load("(gl)script/apps/Aries/Help/GemHelp/GemHelp.lua");
+MyCompany.Aries.Help.GemHelp.GemStat_DS_Init("addPipsHP");
+function DS_Func(index)
+  return MyCompany.Aries.Help.GemHelp.GemStat_DS("addPipsHP",index);
+end
+
+]]></script>
+
+<div style="margin-left:-10px;margin-top:-2px;width:642px;height:342px;background:url(Texture/Aries/Common/left_bg.png#0 0 64 64: 20 20 20 20);">
+    <div style="color:#022a57;font-weight:bold;font-size:14;margin-left:40px;margin-top:10px;">加HP/超级魔力点生成率宝石</div>
+   <div style="color:#022a57;font-size:12;width:240px;height:32px;margin-top:15px;margin-left:15px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:15px;">宝石种类</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:200px;height:32px;margin-top:-32px;margin-left:108px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:35px;">1级</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:200px;height:32px;margin-top:-32px;margin-left:191px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:35px;">2级</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:200px;height:32px;margin-top:-32px;margin-left:264px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:35px;">3级</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:200px;height:32px;margin-top:-32px;margin-left:340px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:35px;">4级</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:200px;height:32px;margin-top:-32px;margin-left:422px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#77 0 256 32# 80 0 0 0);"> 
+        <div style="color:#022a57;font-size:12;font-weight:bold;margin-top:2px;margin-left:35px;">5级</div>
+    </div>
+    <div style="color:#022a57;font-size:12;width:490px;height:256px;margin-top:-8px;margin-left:15px;background:url(Texture/Aries/MapHelp/NormalHelp/table_2row.png#0 0 8 256# 0 0 0 0);">
+    <pe:gridview DataSource="<%=DS_Func%>" name="gemlist" style="margin-left:25px;margin-top:0px;margin-right:0px;margin-bottom:0px;width:490px;height:180px;" 
+        VerticalScrollBarStep="35" CellPadding="1"  DefaultNodeHeight = "48" ItemsPerLine="6" AllowPaging="true" pagesize="30">
+        <Columns>  
+            <div style="margin-left:5px;margin-top:3px;font-size:12;width:70px;" ><%=Eval("stat") %></div>           
+                    </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>
+    <div style="width:64px;height:64px;margin-top:-265px;margin-left:520px;background:url(Texture/Aries/Item/26001_HPGems01.png#0 0 64 64);"></div>
+    <div style="width:64px;height:64px;margin-top:-212px;margin-left:520px;background:url(Texture/Aries/Item/26076_PowerpipPercent01.png#0 0 64 64);"></div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

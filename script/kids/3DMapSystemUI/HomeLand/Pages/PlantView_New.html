@@ -1,0 +1,367 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/PlantView_New.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="PlantView_New.lua"><![CDATA[
+ local page = document:GetPageCtrl();
+ 
+ 
+ 
+ function setProgressBarValue(name,bean)
+    local progress = page:GetNode(name);
+    if(progress and bean)then
+        progress:SetValue(bean.grownvalue or 0);
+        progress:SetAttribute("Maximum", bean.update or 0)
+    end
+end
+
+ local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+ if(bean)then
+    --成长值
+    setProgressBarValue("progressbar_grown_0",bean)
+    setProgressBarValue("progressbar_grown_1",bean)
+    setProgressBarValue("progressbar_grown_2",bean)
+  
+    setProgressBarValue("progressbar_grown_guest_0",bean)
+    setProgressBarValue("progressbar_grown_guest_1",bean)
+    setProgressBarValue("progressbar_grown_guest_2",bean)
+    
+ end
+
+function GetState_master_view()
+    local curState = MyCompany.Aries.Inventory.PlantViewPage_New.curState;
+    if(curState == "master_view")then
+        return true;
+    end
+end
+function GetState_master_edit()
+    local curState = MyCompany.Aries.Inventory.PlantViewPage_New.curState;
+    if(curState == "master_edit")then
+        return true;
+    end
+end
+function GetState_guest_view()
+    local curState = MyCompany.Aries.Inventory.PlantViewPage_New.curState;
+    if(curState == "guest_view")then
+        return true;
+    end
+end
+function CanWater()
+   local r = MyCompany.Aries.Inventory.PlantViewPage_New.CanWater();
+   return r;
+end
+function CanDebug()
+   local r = MyCompany.Aries.Inventory.PlantViewPage_New.CanDebug();
+   return r;
+end
+function CanGainFruits()
+   local r = MyCompany.Aries.Inventory.PlantViewPage_New.CanGainFruits();
+   return r;
+end
+function CanGOGOGO()
+   return IsNotSaturation();
+end
+--获取成长级别
+function GetInfo_Level()
+    local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+    local s = "";
+    if(bean)then
+        s =  string.format("级别：%d/%d",bean.level or 0,bean.totallevel or 0);
+    end
+    return s;
+end
+--获取成长进度
+function GetInfo_GrownValue()
+    local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+    local s = "";
+    if(bean)then
+        s =  string.format("%d/%d",bean.grownvalue or 0,bean.update or 0);
+    end
+    return s;
+end
+--获取果实数量
+function GetInfo_Fruits()
+    local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+    local s = "";
+    if(bean)then
+       local allowgaincnt = bean.allowgaincnt;
+	    local allowgaincnt_str = "";
+	    if(allowgaincnt < 0)then
+		    allowgaincnt_str = "无数";
+	    else
+		    allowgaincnt_str = tostring(allowgaincnt);
+	    end
+        s = string.format("现在可以收获%d个果实，共%d次",bean.feedscnt or 0,allowgaincnt_str);        
+    end
+    return s;
+end
+function GetInfo()
+    local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+    local allowgaincnt = bean.allowgaincnt;
+	local allowgaincnt_str = "";
+	if(allowgaincnt < 0)then
+		allowgaincnt_str = "无数";
+	else
+		allowgaincnt_str = tostring(allowgaincnt);
+	end
+	local tooltip;
+	if(IsNotSaturation())then
+	    tooltip = string.format("级别：%d/%d \n成长进度：%d/%d",bean.level or 0,bean.totallevel or 0,bean.grownvalue or 0,bean.update or 0);
+    else
+        tooltip = string.format("现在可以收获%d个果实，共%d次",bean.feedscnt or 0,allowgaincnt_str);        
+    end
+    return tooltip;
+end
+function GetInfo_Debug()
+    local bean = MyCompany.Aries.Inventory.PlantViewPage_New.bean;
+    local allowgaincnt = bean.allowgaincnt;
+	local allowgaincnt_str = "";
+	if(allowgaincnt < 0)then
+		allowgaincnt_str = "无数";
+	else
+		allowgaincnt_str = tostring(allowgaincnt);
+	end
+	local tooltip = string.format("级别：%d/%d \n成长进度：%d/%d \n果实数量：%d\n浇水：%s,除虫:%s \n还能收获次数:%s",bean.level or 0,bean.totallevel or 0,bean.grownvalue or 0,bean.update or 0,bean.feedscnt or 0,tostring(bean.isdroughted),tostring(bean.isbuged),allowgaincnt_str);
+    return tooltip;
+end
+--是否长满所有的级别
+function IsSaturation()
+   local r = MyCompany.Aries.Inventory.PlantViewPage_New.IsSaturation();
+   return r;
+end
+function IsNotSaturation()
+    local r = MyCompany.Aries.Inventory.PlantViewPage_New.IsNotSaturation();
+    return r;
+end
+function GetParams()
+    local node = MyCompany.Aries.Inventory.PlantViewPage_New.node;
+    if(node)then
+        local objParams = node:GetEntityParams();
+        if(objParams and type(objParams) == "table")then
+            local r = commonlib.serialize(objParams)
+            return r;
+        end
+    end
+end
+function getState()
+    if(bean)then
+        if(bean.gaintime == 0)then --收获状态 两个时间都不显示
+            return 0;
+        elseif(bean.level == bean.totallevel - 1)then    --最后一级 但没有长满 只显示距离收获的时间
+            return 1;
+        else
+            return 2;
+        end
+    end
+end
+function getPlantName()
+    local name = MyCompany.Aries.Inventory.PlantViewPage_New.GetPlantName();
+    local s = string.format("植物名称：%s",name);
+    return s;
+end
+ function getNextLevelTime()
+    local h,m = MyCompany.Aries.Inventory.PlantViewPage_New.GetNextLevelTime();
+    local s = string.format("距离下级：还剩%d小时%d分",h,m);
+    return s;
+ end
+  function GetGainTime()
+    local h,m = MyCompany.Aries.Inventory.PlantViewPage_New.GetGainTime();
+    local s = string.format("距离收获：还剩%d小时%d分",h,m);
+    return s;
+ end
+]]></script>
+
+<pe:if condition='<%=GetState_master_view()%>'>
+     <div style="width:227px;height:85px;margin-left:0px;margin-top:0px;" >
+             <pe:if condition='<%=getState() == 0%>'>
+                <img zorder = -1 style="width:227px;height:50px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-45px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_0"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                </div>
+             </pe:if>
+             <pe:if condition='<%=getState() == 1%>'>
+             <img zorder = -1 style="width:227px;height:70px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-65px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_1"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                    <div style="margin-left:0px;margin-top:-10px;font-size:12;"><%=GetGainTime()%></div>
+                </div>
+             </pe:if>
+             <pe:if condition='<%=getState() == 2%>'>
+             <img zorder = -1 style="width:227px;height:85px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-80px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_2"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                    <div style="margin-left:0px;margin-top:-11px;font-size:12;"><%=getNextLevelTime()%></div>
+                    <div style="margin-left:0px;margin-top:-4px;font-size:12;"><%=GetGainTime()%></div>
+                </div>
+             </pe:if>
+         </div>
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin-top:-85px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div  style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box" >
+               <pe:canvas3d  miniscenegraphname="LeftTopCanvas128" RenderTargetSize="128" autoRotateSpeed="0.12" style="width:128;height:128" value='<%=GetParams()%>' MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.png"/>
+
+                <div style="margin-left:36px;margin-top:-5px;width:128px;">
+                    <pe:if condition='<%=CanWater()%>'>
+                    <div style="margin-bottom:-15px;padding:0px;"  >
+                        <input type="button" name="water" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/water_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="浇水"/>
+                    </div>
+                    </pe:if>
+                    <pe:if condition='<%=CanDebug()%>'>
+                    <div style="margin-bottom:-15px;padding:0px;">
+                        <input type="button" name="debug" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/debug_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="除虫"/>
+                    </div>
+                    </pe:if>
+                     <pe:if condition='<%=CanGainFruits()%>'>
+                    <div style="margin-bottom:-15px;padding:0px;">
+                        <input type="button" name="gain" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Harvest_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip='<%=GetInfo_Fruits()%>'/>
+                    </div>
+                    </pe:if>
+                     <div style="margin-bottom:-15px;padding:0px;">
+                        <input type="button" name="delete" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Eradication_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="铲除"/>
+                    </div>
+                 <!-- <pe:if condition='<%=CanGOGOGO()%>'>
+                     <div style="margin-bottom:-15px;padding:0px;">
+                        <input type="button" name="go" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Left_Rotation_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="加速"/>
+                    </div>
+                    </pe:if>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:if> 
+<pe:if condition='<%=GetState_guest_view()%>'>
+    <div style="width:227px;height:85px;margin-left:0px;margin-top:0px;" >
+             <pe:if condition='<%=getState() == 0%>'>
+                <img zorder = -1 style="width:227px;height:50px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-45px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_guest_0"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                </div>
+             </pe:if>
+             <pe:if condition='<%=getState() == 1%>'>
+             <img zorder = -1 style="width:227px;height:70px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-65px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_guest_1"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                    <div style="margin-left:0px;margin-top:-10px;font-size:12;"><%=GetGainTime()%></div>
+                </div>
+             </pe:if>
+             <pe:if condition='<%=getState() == 2%>'>
+             <img zorder = -1 style="width:227px;height:85px;margin-left:95px;margin-top:20px;background:Texture/Aries/Homeland/v1/outline_32bits.png#0 0 222 90:20 20 20 20" />
+                <div style="padding:2px;margin-left:130px;margin-top:-80px;color:#6b3801">
+                    <div style="font-size:12;"><%=getPlantName()%></div>
+                    <div style="float:left;font-size:12;">生长阶段：</div>
+                     <div style="float:left;margin-top:4px;">
+                                <pe:progressbar name="progressbar_grown_guest_2"  isshowtooltip = "true" 
+                                    background = "Texture/Aries/Homeland/v1/grren2_32bits.png:11 7 11 7" 
+                                    blockimage = "Texture/Aries/Homeland/v1/grren1_32bits.png:11 7 11 7" 
+                                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                                 <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:0px;margin-top:-17px" >
+                                    <%=GetInfo_GrownValue()%>
+                                </div>
+                    </div>
+                    <div style="margin-left:0px;margin-top:-11px;font-size:12;"><%=getNextLevelTime()%></div>
+                    <div style="margin-left:0px;margin-top:-4px;font-size:12;"><%=GetGainTime()%></div>
+                </div>
+             </pe:if>
+    </div>
+         
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div  style="width:128px;height:128px;margin-top:-85px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box" >
+               <pe:canvas3d miniscenegraphname="LeftTopCanvas128" RenderTargetSize="128"  autoRotateSpeed="0.12" style="width:128;height:128" value='<%=GetParams()%>' MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.png"/>
+
+
+                <div style="margin-left:36px;margin-top:-5px;width:64px;">
+                    <pe:if condition='<%=CanWater()%>'>
+                    <div style="margin-bottom:-15px;padding:0px;"  >
+                        <input type="button" name="water" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/water_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="浇水"/>
+                    </div>
+                    </pe:if>
+                    <pe:if condition='<%=CanDebug()%>'>
+                    <div style="margin-bottom:-15px;padding:0px;">
+                        <input type="button" name="debug" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/debug_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.PlantViewPage_New.DoClick"
+                            tooltip="除虫"/>
+                    </div>
+                     </pe:if>
+                </div>
+            </div>
+        </div>
+    </div>
+ </pe:if> 
+</pe:mcml> 
+</body>
+</html>

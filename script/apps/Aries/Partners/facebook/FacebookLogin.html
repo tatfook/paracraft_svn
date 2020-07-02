@@ -1,0 +1,65 @@
+<!-- "script/apps/Aries/Partners/facebook/FacebookLogin.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2012.10.25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="FacebookLogin.lua"><![CDATA[
+local Platforms = commonlib.gettable("MyCompany.Aries.Partners.Platforms");
+FacebookLogin = commonlib.gettable("MyCompany.Aries.Partners.Facebook.FacebookLogin");
+FacebookLogin.OnInit();
+
+function OnClosePage()
+    Page:CloseWindow();
+end
+PageState = "unloaded";
+function OnPageChanged(url)
+    echo({"11111111111111111111", url})
+    local result = url:match("result.htm?(.*)$");
+    if(not result) then
+        PageState = "authenticating";
+        Page:SetValue("tips", PageState);
+    else
+        NPL.load("(gl)script/ide/System/localserver/UrlHelper.lua");
+        local UrlHelper = commonlib.gettable("System.localserver.UrlHelper");
+        FacebookLogin.result = UrlHelper.url_getparams_table(url) or {};
+        OnClosePage();
+    end
+end
+
+function OnClickShare()
+    local SharePhotosPage = commonlib.gettable("MyCompany.Aries.Creator.SharePhotosPage")
+    local image_path = SharePhotosPage.default_image_path or SharePhotosPage.DefaultSnapShot
+    Platforms.CallMethod("postToFeed_window", {title="魔法哈奇我的作品", platform=Platforms.PLATS.Facebook, url="http://haqi.61.com", comment="",  summary="我的3D作品", images=image_path })
+end
+]]></script>
+<div class="window" style="width:960px;height:600px;" valign="center" align="center">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" >魔法哈奇 Facebook登录 </div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClosePage" class="closewindow"/>
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div style="margin-left:-1px;margin-bottom:2px;height:25px;padding-left:10px;padding-top:2px;" width="100%" class="inborder2">
+            <pe:powerpoint name="tips" value="unloaded">
+	            <div name="unloaded">
+                    内置IE浏览器请放心登录, 如果没有页面弹出请点击<a href="#" onclick="OnClickShare">这里</a>
+	            </div>
+                <div name="authenticating">
+                    请用你的Facebook号登录，每个Facebook号只能绑定一个哈奇角色哦~
+	            </div>
+            </pe:powerpoint>
+        </div>
+        <div width="100%" height="100%" class="inborder2" style="margin-top:0px;padding:2px;margin-bottom:3px;">
+            <div style="position:relative;text-align:center;margin-top:50px" >
+                正在打开Facebook官方网页, 请耐心等待...
+            </div>
+            <pe:webbrowser url='<%=FacebookLogin.url or ""%>' onchange="OnPageChanged"></pe:webbrowser>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

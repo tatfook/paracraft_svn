@@ -1,0 +1,54 @@
+﻿<!-- "script/apps/Aries/Animation/SendCard.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2012/9/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/ide/Director/Movie.lua");
+local Movie = commonlib.gettable("Director.Movie");
+local pageCtrl = document:GetPageCtrl();
+local playername = pageCtrl:GetRequestParam("playername") or "";
+local tag = pageCtrl:GetRequestParam("tag") or "";
+local replace_str,card_state_str,data_index_str = string.match(tag,"(.+)_(.+)_(.+)");
+replace_str = replace_str or "";
+card_state_str = card_state_str or "";
+local index = tonumber(data_index_str);
+
+local player = Movie.CreateOrGetPlayer(playername);
+local runtime_datasource = player.runtime_datasource or {};
+local node = runtime_datasource[index] or {};
+function GetURL()
+    if(not node)then return end
+    local gsid = node.gsid;
+    if(gsid)then
+        local url = string.format("script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=5&pips_helper=true",gsid);
+        return url;
+    end
+end
+function GetState()
+    return card_state_str or "";
+end
+]]></script>
+    <div style="color:#ff0000">
+        <%=GetState()%>
+    </div>
+<pe:if condition="<%=GetState() == 'cover'%>">
+    <pe:div style="width:235px;height:255px;background:;">
+    <pe:div style="width:79px;height:121px;background:url(texture/bg_black.png)"/>
+        <!--<iframe name="cards_frame" src="<%=GetURL()%>"/>-->
+    </pe:div>
+</pe:if>
+<pe:if condition="<%=GetState() ~= 'cover'%>">
+    <pe:div style="width:235px;height:255px;background:;">
+    <pe:div style="width:79px;height:121px;"/>
+        <!--<iframe name="cards_frame" src="<%=GetURL()%>"/>-->
+    </pe:div>
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,56 @@
+﻿<!-- "script/apps/Aries/Help/PetHelp/PetHelpPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PetHelpPage.lua" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function ShowPage_Frame(index)
+    index = tonumber(index);
+    commonlib.echo("==index");
+    commonlib.echo(index);
+    MyCompany.Aries.Help.PetHelpPage.ShowPage_Frame(index);
+end
+function HaveLook()
+    local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+			_guihelper.MessageBox("<div style='margin-left:15px;margin-top:35px;text-align:center'>不在当前岛屿，不能过去哦！</div>");
+		return
+	end
+    local position = {19983.80,2.79,19705.10};
+    local camera = {8.86,0.35,-2.93};
+    local msg = { aries_type = "OnMapTeleport", 
+		    position = position, 
+		    camera = camera, 
+		    wndName = "map", 
+	    };
+    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    ClosePage();
+end
+]]></script>
+<div style="width:677px;height:483px;background:url(Texture/Aries/MapHelp/NormalHelp/pet_0_32bits.png#0 0 677 483)">
+    <input style="margin-left:640px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    <div style="margin-left:100px;margin-top:20px;">
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/pet_1_btn_32bits.png#0 0 145 41);" type="button" name="1"  onclick="ShowPage_Frame()" value=""/>
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/pet_2_btn_32bits.png#0 0 145 41);" type="button" name="2"   onclick="ShowPage_Frame()" value=""/>
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/pet_3_btn_32bits.png#0 0 145 41);" type="button" name="3"   onclick="ShowPage_Frame()" value=""/>
+<!--    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/other_32bits.png#0 0 145 41);" type="button" name="4"   onclick="ShowPage_Frame" value=""/>
+-->    </div>
+    <input style="float:left;margin-left:495px;margin-top:90px;width:92px;height:35px;background:url(Texture/Aries/MapHelp/NormalHelp/havelook_32bits.png#0 0 92 35);" type="button"  onclick="HaveLook()" value=""/>
+    <br />
+    <!--<input style="float:left;margin-left:490px;margin-top:140px;width:92px;height:35px;background:url(Texture/Aries/MapHelp/NormalHelp/havelook_32bits.png#0 0 92 35);" type="button"  onclick="HaveLook_2()" value=""/>-->
+    
+</div>
+</pe:mcml> 
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!-- "script/mobile/paracraft/Login/BaiduTestPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>leio 2014.12.3</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" src="BaiduTestPage.html"><![CDATA[
+BaiduTestPage = commonlib.gettable("ParaCraft.Mobile.Login.BaiduTestPage")
+BaiduTestPage.OnInit();
+NPL.load("(gl)script/mobile/API/LocalBridgePBAPI.lua");
+local page = document:GetPageCtrl();
+local remote_dir_name = "/apps/FrontiaDevDemo/pic";
+local remote_file_name = "/apps/FrontiaDevDemo/pic/test.png";
+local local_file_name = "/mnt/sdcard/plasma1.png";
+local local_download_file_name = "/mnt/sdcard/paracraft/test.png";
+function OnBaiduLogin()
+	BaiduAPI.login({ },nil,function(msg)
+		commonlib.echo("==============baiduLogin");
+		commonlib.echo(msg);
+	end);
+end
+function OnBaiduLogout()
+    BaiduAPI.logout({ },nil,function(msg)
+		commonlib.echo("==============baiduLogout");
+		commonlib.echo(msg);
+	end);
+end
+function OnBaiduStatus()
+    BaiduAPI.isLogin({ },nil,function(msg)
+		commonlib.echo("==============baiduStatus");
+		commonlib.echo(msg);
+	end);
+end
+function createDir()
+    BaiduAPI.makeDir({ dirName = remote_dir_name, },nil,function(msg)
+		commonlib.echo("==============createDir");
+		commonlib.echo(msg);
+	end);
+end
+function deleteDir()
+    BaiduAPI.deleteFile({ dirOrFileName = remote_dir_name, },nil,function(msg)
+		commonlib.echo("==============deleteDir");
+		commonlib.echo(msg);
+	end);
+end
+function uploadFile()
+    BaiduAPI.uploadFile({ fromFileName = local_file_name, toFileName = remote_file_name, },nil,function(msg)
+		commonlib.echo("==============uploadFile");
+		commonlib.echo(msg);
+	end);
+end
+function stopUploadFile()
+    BaiduAPI.stopTransferring({ fromFileName = local_file_name, toFileName = remote_file_name, },nil,function(msg)
+		commonlib.echo("==============stopUploadFile");
+		commonlib.echo(msg);
+	end);
+end
+function downloadFile()
+    BaiduAPI.downloadFile({ fromFileName = remote_file_name, toFileName = local_download_file_name, },nil,function(msg)
+		commonlib.echo("==============downloadFile");
+		commonlib.echo(msg);
+	end);
+end
+function downloadStreamFile()
+    BaiduAPI.downloadFileFromStream({ fromFileName = remote_file_name, toFileName = local_download_file_name, },nil,function(msg)
+		commonlib.echo("==============downloadStreamFile");
+		commonlib.echo(msg);
+	end);
+end
+function stopDownloadFile()
+    BaiduAPI.stopTransferring({ fromFileName = remote_file_name, toFileName = local_download_file_name, },nil,function(msg)
+		commonlib.echo("==============stopDownloadFile");
+		commonlib.echo(msg);
+	end);
+end
+function deleteFile()
+    BaiduAPI.deleteFile({ dirOrFileName = remote_file_name },nil,function(msg)
+		commonlib.echo("==============deleteFile");
+		commonlib.echo(msg);
+	end);
+end
+function list()
+    BaiduAPI.list({ dirName = remote_dir_name },nil,function(msg)
+		commonlib.echo("==============list");
+		commonlib.echo(msg);
+	end);
+end
+function imageList()
+    BaiduAPI.imageStream({ },nil,function(msg)
+		commonlib.echo("==============imageList");
+		commonlib.echo(msg);
+	end);
+end
+function videoList()
+    BaiduAPI.videoStream({ },nil,function(msg)
+		commonlib.echo("==============videoList");
+		commonlib.echo(msg);
+	end);
+end
+function audioList()
+    BaiduAPI.audioStream({ },nil,function(msg)
+		commonlib.echo("==============audioList");
+		commonlib.echo(msg);
+	end);
+end
+function docList()
+    BaiduAPI.docStream({ },nil,function(msg)
+		commonlib.echo("==============docList");
+		commonlib.echo(msg);
+	end);
+end
+function quota()
+    BaiduAPI.quota({ },nil,function(msg)
+		commonlib.echo("==============quota");
+		commonlib.echo(msg);
+	end);
+end
+function thumbnail()
+    BaiduAPI.thumbnail({ fileName = remote_file_name,},nil,function(msg)
+		commonlib.echo("==============thumbnail");
+		commonlib.echo(msg);
+	end);
+end
+function vibrate()
+	commonlib.echo("==============MobileDevice.vibrate");
+    MobileDevice.vibrate({ time = 100, },nil,function(msg)
+		commonlib.echo("==============MobileDevice.vibrate msg");
+		commonlib.echo(msg);
+    end);
+end
+function vibrateWithPattern()
+    MobileDevice.vibrateWithPattern({ pattern = {0,100,1000}, repeatTime = 2,});
+end
+function cancelVibrate()
+    MobileDevice.cancelVibrate();
+end
+local streamType = 3;
+function AudioManager_getStreamVolume()
+    MobileDevice.AudioManager_getStreamVolume({ streamType = streamType, },nil,function(msg)
+		commonlib.echo("==============AudioManager_getStreamVolume");
+		commonlib.echo(msg);
+	end);
+end
+function AudioManager_getStreamMaxVolume()
+    MobileDevice.AudioManager_getStreamMaxVolume({ streamType = streamType, },nil,function(msg)
+		commonlib.echo("==============AudioManager_getStreamMaxVolume");
+		commonlib.echo(msg);
+	end);
+end
+function AudioManager_setStreamVolume()
+    MobileDevice.AudioManager_setStreamVolume({  streamType = streamType, value = 10, },nil,function(msg)
+		commonlib.echo("==============AudioManager_setStreamVolume");
+		commonlib.echo(msg);
+	end);
+end
+function AudioManager_setStreamMute_true()
+    MobileDevice.AudioManager_setStreamMute({  streamType = streamType, value = 1},nil,function(msg)
+		commonlib.echo("==============AudioManager_setStreamMute_true");
+		commonlib.echo(msg);
+	end);
+end
+function AudioManager_setStreamMute_false()
+    MobileDevice.AudioManager_setStreamMute({  streamType = streamType, value = 0},nil,function(msg)
+		commonlib.echo("==============AudioManager_setStreamMute_false");
+		commonlib.echo(msg);
+	end);
+end
+function openURL()
+    MobileDevice.openURL({url = "http://www.paracraft.cn"})
+end
+function getMemoryInfo()
+    MobileDevice.getMemoryInfo({ },nil,function(msg)
+		commonlib.echo("==============getMemoryInfo");
+		commonlib.echo(msg);
+	end);
+end
+]]></script>
+    <div style="position:relative;width:160px;height:40px;margin-top:10px;" align="right">
+        <input type="button" class="mobile_button_white" onclick="BaiduTestPage.ReturnLastStep()" value='<%=L"返回" %>' style="float:left;margin-left:26px;margin-top:11px;width:108px;height:40px;font-size:15px;font-weight:bold;"/>
+    </div>
+    <!--<div>
+        <input type="button" value='<%=L"百度登录"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="OnBaiduLogin" />
+        <input type="button" value='<%=L"百度退出"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="OnBaiduLogout" />
+        <input type="button" value='<%=L"百度状态"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="OnBaiduStatus" />
+    </div>
+    <div>
+        <input type="button" value='<%=L"创建目录"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="createDir" />
+        <input type="button" value='<%=L"删除目录"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="deleteDir" />
+    </div>
+    <div>
+        <input type="button" value='<%=L"上传文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="uploadFile" />
+        <input type="button" value='<%=L"停止上传文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="stopUploadFile" />
+    </div>
+    <div>
+        <input type="button" value='<%=L"下载文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="downloadFile" />
+        <input type="button" value='<%=L"下载流文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="downloadStreamFile" />
+        <input type="button" value='<%=L"获取缩略图"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="thumbnail" />
+        <input type="button" value='<%=L"停止下载文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="stopDownloadFile" />
+    </div>
+    <div>
+        <input type="button" value='<%=L"删除文件"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="deleteFile" />
+        <input type="button" value='<%=L"获取文件列表"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="list" />
+        <input type="button" value='<%=L"获取图像文件列表"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="imageList" />
+        <input type="button" value='<%=L"获取视频文件列表"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="videoList" />
+        <input type="button" value='<%=L"获取音频文件列表"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="audioList" />
+        <input type="button" value='<%=L"获取doc文件列表"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="docList" />
+    </div>
+    <div>
+        <input type="button" value='<%=L"获取空间配额信息"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="quota" />
+        <input type="button" value='<%=L"open url"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="openURL" />
+        <input type="button" value='<%=L"系统内存"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="getMemoryInfo" />
+    </div>-->
+    <div>
+        <input type="button" value='<%=L"震动 vibrate"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="vibrate" />
+        <input type="button" value='<%=L"震动 vibrateWithPattern"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="vibrateWithPattern" />
+        <input type="button" value='<%=L"取消震动 cancelVibrate"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="cancelVibrate" />
+        <input type="button" value='<%=L"当前音量 AudioManager_getStreamVolume"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="AudioManager_getStreamVolume" />
+        <input type="button" value='<%=L"最大音量 AudioManager_getStreamMaxVolume"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="AudioManager_getStreamMaxVolume" />
+        <input type="button" value='<%=L"设置音量"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="AudioManager_setStreamVolume" />
+        <input type="button" value='<%=L"静音 true"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="AudioManager_setStreamMute_true" />
+        <input type="button" value='<%=L"静音 false"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:120px;height:80px;" onclick="AudioManager_setStreamMute_false" />
+    </div>
+     <div>
+        <input type="button" value='<%=L"open url"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="openURL" />
+        <input type="button" value='<%=L"系统内存"%>' class="mobile_button" style="float:left;margin-left:10px;color:#ffffff;width:150px;height:80px;" onclick="getMemoryInfo" />
+    </div>
+</pe:mcml>
+</body>
+</html>

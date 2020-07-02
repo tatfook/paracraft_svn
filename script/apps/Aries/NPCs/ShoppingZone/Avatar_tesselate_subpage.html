@@ -1,0 +1,70 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_tesselate_subpage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_tesselate_subpage,add by WD, 2011/08/03</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_tesselate_subpage.lua");
+local Avatar_tesselate_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_tesselate_subpage");
+
+Avatar_tesselate_subpage:Init();
+
+function GetDataSource(arg)
+    return Avatar_tesselate_subpage:GetDataSource(arg);
+end
+
+function FilterItems(arg)
+    return Avatar_tesselate_subpage:FilterItems(arg);
+end
+
+function OnClickItem(arg)
+    Avatar_tesselate_subpage:OnClickItem(arg);
+end
+]]></script>
+    <div style="width:304px;height:310px;" class="defaultcolor">
+        <div style="height:27px;">
+            <pe:tabs name="tabsTesselate"  onclick="FilterItems" class="default_tabs" >
+            <pe:tab-item name="1" text="所有镶嵌符"  selected='true' />
+            <!--<pe:tab-item name="2" text="低级"/>
+            <pe:tab-item name="3" text="高级"/>
+            <pe:tab-item name="4" text="顶级"/>-->
+            </pe:tabs>
+        </div>
+        
+        <div style="padding:1px;width:304px;height:283px;" class="inborder">
+        <pe:gridview DataSource="<%=GetDataSource %>" 
+            CellPadding="1" ItemsPerLine="7" AllowPaging="true" pagesize="14" >
+            <Columns>
+                <div style="margin-left:1px;margin-top:2px;padding:2px;width:58px;height:58px;" class="block">
+                    <pe:if condition='<%=#MyCompany.Aries.Desktop.Avatar_tesselate_subpage.DisplayItems ~= 0 %>'>
+                    <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>'showdefaulttooltip="true" style="width:54px;height:54px;"/>
+                    <pe:if condition='<%=copies > 0 %>'>
+                    <div style="margin-top:-15px;text-align:right;"><%= Eval("copies")%></div>
+                    </pe:if>
+                    </pe:if>
+                </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:100px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+                    <input type="button" name="page" class="pagertext" />
+                    <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        </div>   
+    </div>
+</pe:mcml> 
+</body>
+</html>

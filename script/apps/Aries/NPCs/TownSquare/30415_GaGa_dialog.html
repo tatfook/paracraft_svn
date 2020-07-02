@@ -1,0 +1,87 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30415_GaGa_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30415_GaGa_dialog, by Leio, 2010/12/13</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+function HasItem()
+    local __,__,__,copies_1 = hasGSItem(17143);
+    copies_1 = copies_1 or 0;
+     local __,__,__,copies_2 = hasGSItem(17116);
+    copies_2 = copies_2 or 0;
+     local __,__,__,copies_3 = hasGSItem(17115);
+    copies_3 = copies_3 or 0;
+
+    return (copies_1 >=2) and (copies_2 >=2) and (copies_3 >=2)
+end
+function HasGaGa()
+    return hasGSItem(10134);
+end
+function DoExchange()
+    ItemManager.ExtendedCost(606, nil, nil, function(msg)end, function(msg) 
+		end);
+end
+]]></script>
+
+    <pe:dialog NPC_id ="30415">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30415"/>
+            <pe:placeholder id="name" source="{this}" value='嘎嘎'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "<%=HasGaGa() %>" target_state = "1"/>
+			    <pe:answer-if condition = "true" target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你已经拥有一个嘎嘎了，我就不跟你回去了！
+            <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "2">
+		    嗨，我是嘎嘎，我是圣诞老人的得意宠物，特意被派来协助哈奇战斗的，你想带我回家吗？
+            <pe:answer template_id = "yes">
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+            <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "3">
+		   嘎嘎，听说小镇上有不少好玩的东东呀，火玉、水晶漏斗、生命之声是什么？你能都找来2个给我看看吗？
+            <pe:answer template_id = "giveyou">
+			    <pe:answer-if condition = "<%=not HasItem() %>" target_state = "4"/>
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+             <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "4">
+		    呜呜，你还没找到吗？火玉在宝库里有，水晶沙漏和森林之声要去密林深处找找哦！
+            <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "5">
+		   呼呼，你真是个善良的哈奇！以后我就跟定你咯，记得战斗的时候把我带上哦！
+            <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" transition="<%=DoExchange() %>" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,112 @@
+﻿<!-- "script/apps/Aries/NPCs/TriumphSquare/30261_RiddleLamp_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30261_RiddleLamp_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30261);
+memory[instance] = memory[instance] or {};
+memory = memory[instance];
+
+NotAllLampsLightup = function()
+    return (not MyCompany.Aries.Quest.NPCs.RiddleLamp.IsAllLampsLightup());
+end
+
+NotHoldTorch = function()
+	-- 1156_YuanXiaoTorch
+	if(not equipGSItem(1156)) then
+	    return true;
+	end
+	return false;
+end
+
+OnFireworkLuncher_CorrectAllRiddle = function()
+    MyCompany.Aries.Quest.NPCs.RiddleLamp.OnFireworkLuncher_CorrectAllRiddle();
+end
+
+LaunchFireworkAndSummonYuanXiaoBaby = function()
+    MyCompany.Aries.Quest.NPCs.RiddleLamp.LaunchFireworkAndSummonYuanXiaoBaby();
+end
+
+hour, minute, second = 0, 0, 0;
+hour, minute, second = MyCompany.Aries.Quest.NPCs.RiddleLamp.GetCompleteTime();
+
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+ <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='焰火发射台'/>
+            <pe:placeholder id="ok" />
+            <pe:placeholder id="later" />
+            <pe:placeholder id="iknow" />
+        </pe:template>
+        <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+		<pe:state id = "1">
+		    我是灯谜桥最顶端的烟花发射台，元宵宝宝就藏在我的烟花里，你想要我燃放烟花吗？
+		        <pe:answer template_id="ok">
+		            <pe:answer-if condition = '<%=Eval("NotAllLampsLightup")%>' target_state = "2"/>
+		            <pe:answer-if condition = '<%=Eval("NotHoldTorch")%>' target_state = "3"/>
+		            <pe:answer-if condition = 'true' transition = '<%=Eval("OnFireworkLuncher_CorrectAllRiddle")%>' target_state = "4"/>
+		        </pe:answer>
+		        <br/>
+		        <pe:answer template_id="later">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>         
+       	<pe:state id = "2">
+		    灯谜桥上还有灯没有点亮，我不能为你燃放烟花，先把等全部点亮了再来找我吧！
+		        <pe:answer template_id="iknow">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    你没有把智者火把拿在手上，又怎么能让我燃放烟花呢！先把智者火把拿出来再说吧！
+                <pe:answer template_id = "iknow">
+			        <pe:answer-if condition = "true" target_state = "-1"/>
+		        </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你太厉害了，成功挑战了灯谜桥，本次用时为:<%=Eval("hour")%>小时<%=Eval("minute")%>分<%=Eval("second")%>秒；让我燃放起烟花为你庆贺吧！
+            <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("LaunchFireworkAndSummonYuanXiaoBaby")%>' target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = "true">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "11">
+		    <pe:answer autoexec = "true">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

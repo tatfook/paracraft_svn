@@ -1,0 +1,227 @@
+﻿<!-- "script/apps/Aries/CrazyTower/CrazyTowerPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="CrazyTowerPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/CrazyTower/CrazyTowerProvider.lua");
+local CrazyTowerProvider = commonlib.gettable("MyCompany.Aries.CrazyTower.CrazyTowerProvider")
+NPL.load("(gl)script/apps/Aries/Instance/main.lua");
+local Instance = commonlib.gettable("MyCompany.Aries.Instance");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/CrazyTower/CrazyTowerPage.lua");
+local CrazyTowerPage = commonlib.gettable("MyCompany.Aries.CrazyTower.CrazyTowerPage");
+CrazyTowerPage.OnInit();
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function Games_func(index)
+    return CrazyTowerPage.Games_func(index);
+end
+function Loots_func(index)
+    return CrazyTowerPage.Loots_func(index);
+end
+function GetPic(worldname)
+    if(worldname)then
+        return string.format("Texture/Aries/CrazyTower/Worlds/%s.png",worldname);
+    end
+end
+function IsSelected(index)
+    if(CrazyTowerPage.selected_index == index)then
+        return true;
+    end
+end
+function GetSelectedPic()
+    if(CrazyTowerPage.games and CrazyTowerPage.games[CrazyTowerPage.selected_index])then
+        local game = CrazyTowerPage.games[CrazyTowerPage.selected_index];
+        return GetPic(game.worldname);
+    end
+end
+function GetSelectedDesc()
+    if(CrazyTowerPage.games and CrazyTowerPage.games[CrazyTowerPage.selected_index])then
+        local game = CrazyTowerPage.games[CrazyTowerPage.selected_index];
+        return game.desc;
+    end
+end
+function OnSelectGame(index)
+    local cur_time = ParaGlobal.timeGetTime();
+    CrazyTowerPage.OnSelectGame(index);
+    
+    if(CrazyTowerPage.temp_index and CrazyTowerPage.last_click_time and CrazyTowerPage.temp_index == index and CrazyTowerPage.last_click_time and (cur_time - CrazyTowerPage.last_click_time) < 500) then
+        OnStart();
+    else
+        CrazyTowerPage.temp_index = index;
+    end
+    CrazyTowerPage.last_click_time = cur_time;
+
+end
+function IsLocked(worldname)
+    return CrazyTowerProvider.IsLocked(worldname);
+end
+function OnStart()
+    if(CrazyTowerPage.games and CrazyTowerPage.games[CrazyTowerPage.selected_index])then
+        local game = CrazyTowerPage.games[CrazyTowerPage.selected_index];
+        local name = game.name or "";    
+        local worldname = game.worldname;    
+        if(IsLocked(worldname))then
+            local opened_game = CrazyTowerProvider.LastOpendWorldTempate();
+            if(opened_game)then
+                _guihelper.MessageBox(string.format("%s还处于锁定状态，不能开启！请先挑战%s。",name,opened_game.name));
+            else
+                _guihelper.MessageBox(string.format("%s还处于锁定状态，不能开启！",name));
+            end
+            return
+        end
+        
+        if(not worldname)then
+            return
+        end
+        Instance.EnterInstancePortal(game.worldname);
+    end
+end
+local max_star = 5;
+function GetStar(index)
+    index = index or 1;
+    index = index - 1;
+    local __,__,__,copies = hasGSItem(50350);
+    copies = copies or 0;
+    index = index * 5;
+
+    local result = {};
+    local k = 1;
+    for k = 1,5 do
+        local path;
+        if(copies >= (index + k))then
+            path = "Texture/Aries/CrazyTower/star_32bits.png;0 0 22 21";
+        else
+            path = "Texture/Aries/CrazyTower/star_empty_32bits.png;0 0 22 21";
+        end
+        table.insert(result,{path = path});
+    end
+    return result;
+end
+function CheckBtn()
+    if(CrazyTowerPage.games and CrazyTowerPage.games[CrazyTowerPage.selected_index])then
+        local game = CrazyTowerPage.games[CrazyTowerPage.selected_index];
+        local locked = IsLocked(game.worldname);
+        local start_btn = page:FindControl("start_btn");
+        if(start_btn) then
+	        start_btn.enabled= not locked;
+        end
+    end
+end
+]]></script>
+<div class="window" style="width:950px;height:540px;">
+<div class="titlebar" width="100%">
+    <div class="windowlabel" >试炼秘境</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="clientarea" style="margin-left:5px;margin-top:5px;">
+    <div style="float:left;">
+        <input type="button" zorder="2" style="position:relative;width:80px;height:25px;margin-left:590px;margin-top:470px;background:url(Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7)" onclick="OnStart()" enabled="false" name="start_btn" value="开始挑战"/>
+        <div style="margin-left:5px;margin-top:-3px;width:670px;height:470px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+            <div style="height:800px;margin-left:40px;margin-top:10px;">
+                 <pe:gridview name="gameTemplates" DataSource="<%=Games_func%>"  ItemsPerLine="2" AllowPaging="true" pagesize="10" DefaultNodeHeight = "90">
+                <Columns>
+                    
+                    <div style="width:295px;height:79px;" tooltip='<%=Eval("name") %>'  onclick="OnSelectGame" name='<%=Eval("world_index")%>'>
+                        <pe:div style="float:left;width:80px;height:79px;background:;">
+                            <img src='<%=GetPic(Eval("worldname")) %>'  style="position:relative;width:79px;height:79px;"/>
+                            <pe:div style="float:left;width:80px;height:79px;background:url(Texture/Aries/CrazyTower/title_32bits.png#0 0 80 79)" />
+                        </pe:div>
+                        <pe:if condition='<%=IsLocked(Eval("worldname")) %>' >
+                            <img src="Texture/Aries/CrazyTower/lock_32bits.png;0 0 36 41" style="position:relative;margin-left:-60px;margin-top:15px;width:36px;height:41px;"/>
+                        </pe:if>
+                        <div style="float:left;margin-left:-10px;margin-top:0px;width:215px;height:79px;background:url(Texture/Aries/CrazyTower/title_bg_32bits.png#0 0 34 79:14 14 14 14)">
+                             <pe:if condition='<%=not IsSelected(Eval("world_index")) %>' >
+                                <div style="margin-left:-10px;text-align:center;padding-top:10px;color:#ffffff" class="windowlabel" >
+                                    <%=Eval("name") %>
+                                </div>
+                            </pe:if>
+                             <pe:if condition='<%=IsSelected(Eval("world_index")) %>' >
+                                 
+                                <div style="margin-left:-10px;text-align:center;padding-top:10px;font-weight:bold;" class="windowlabel"  >
+                                    <%=Eval("name") %>
+                                </div>
+                            </pe:if>
+                            <div style="margin-left:40px;margin-top:40px;">
+                                <pe:repeat DataSource='<%=GetStar(Eval("world_index"))%>'>
+                                    <pe:repeatitem>
+                                        <div style="float:left;margin-left:2px;">
+                                            <img src='<%=Eval("path")%>' style="width:22px;height:21px;"/>
+                                        </div>
+                                    </pe:repeatitem>
+                                </pe:repeat>
+                            </div>
+                        </div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b class="defaultcolor">目前没有适合你等级的副本</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b class="defaultcolor">请稍等 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" />
+                <PagerTemplate>
+                     <form>
+                        <div style="margin-left:-80px;margin-top:-310px;">
+                        <input type="button" name="pre" style="margin-left:260px;width:92px;" class="default_btn_css" zorder=2 value="上一页"/>
+                        <label name="page"  class="pagerbuttontext"/>
+                        <input type="button" name="next" zorder=2 style="width:92px;" class="default_btn_css" value="下一页"/>
+                        </div>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+
+        </div>
+    </div>
+    <div style="float:left;">
+        <div style="padding-left:10px;padding-top:2px;margin-left:5px;width:63px;height:22px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">副本介绍</div>
+        <div style="margin-left:5px;margin-top:-1px;padding:6px;width:256;height:470px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+            <img src='<%=GetSelectedPic() %>'  style="margin-left:-5px;margin-top:-5px;width:254px;height:254px;"/>
+            <div style="height:110px;padding:4px;">
+                <%=GetSelectedDesc() %>
+            </div>
+            <div><b>可能掉落:</b></div>
+            <div style="height:300px;">
+             <pe:gridview name="loots_view" DataSource="<%=Loots_func%>"  ItemsPerLine="6" AllowPaging="true" pagesize="12">
+                    <Columns>
+                    <div style="margin-left:2px;margin-top:2px;padding:4px;width:36px;height:36px;background:url(Texture/Aries/NewProfile/bg1_32bits.png:10 10 10 10);">
+                            <pe:item gsid='<%=Eval("gsid") %>' isclickable="false" showdefaulttooltip="true" style="width:30px;height:30px;"/>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" style="width:280px;height:1px;"/>
+                    <PagerTemplate AutoHidePager="true">
+                        <form>
+                           <div style="margin-left:150px;margin-top:-295px;">
+                                    <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                                <div style="float:right;margin-top:-2px;width:40px;">
+	                                    <label name="page" style="text-align:center;width:40px;height:18px;margin:4px"/>
+	                                </div>
+	                                <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                                </div>
+                        </form>
+                    </PagerTemplate>
+                </pe:gridview>
+                </div>
+        </div>
+    </div>
+</div>
+</div>
+    <%=CheckBtn()%>
+</pe:mcml> 
+</body>
+</html>

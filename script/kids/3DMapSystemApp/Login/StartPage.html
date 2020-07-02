@@ -1,0 +1,55 @@
+﻿<!-- "script/kids/3DMapSystemApp/Login/StartPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>ParaWorld Startup Page by LiXizhi 2008.5.1</title>
+</head>
+<body>
+
+<pe:mcml style="max-width: 640px" align="center" trans="ParaworldMCML">
+<!--user is not logged in, show some news-->
+<pe:if-is-user uid="notloggedinuser">
+<div style="margin-top:10px;margin-bottom:5px;padding:0px;">
+    <img style="margin-right:10px;background:url(Texture/3DMapSystem/common/information.png);width:16px;height:16px;" /><span style="font-weight:bold;">
+    <script type="text/npl"><![CDATA[
+        local releaseYear, releaseMonth, releaseDay = 2008, 6, 19;
+        local _,_, year, month, day = string.find(ParaGlobal.GetDateFormat("yyyy M d"), "(%d+)%s+(%d+)%s+(%d+)")
+        if(year and month and day) then
+            year = tonumber(year)
+            month = tonumber(month)
+            day = tonumber(day)
+            local daysLeft = (releaseYear-year)*365+(releaseMonth-month)*30+(releaseDay-day);
+            if(daysLeft>=0) then
+                document:write(string.format(CommonCtrl.Locale("ParaworldMCML")"距离帕拉巫预览版的发行还有 %d 天", tostring(daysLeft)));
+            else
+                document:write(CommonCtrl.Locale("ParaworldMCML")"请关注www.pala5.com, 我们即将推出正式发行版");
+            end
+        end 
+    ]]></script>
+    </span>
+    <span style="color:#662222">您使用的是预览版,它包含了虚拟世界创作和社交平台等少量社区功能演示.更多创造,社交,游戏应用请见PEDN开发网</span><br />
+    <span style="color:#662222"><b>[注意]:</b>预览版的目的是帕拉巫平台技术演示与测评; 其中的用户体验和界面同即将发行的Alpha-1版有极大的不同</span>
+    <hr />
+</div>
+<div style="margin-top:5px;padding:5px;float:left;" class="box">
+    <div style="font-weight:bold;">了解更多</div>
+    <div style="margin-left:10px">
+        <div><a href="%WIKI%/main/ParaWorld">什么是帕拉巫?</a></div>
+        <div><a href="%WIKI%/main/NPL">了解NPL脚本语言</a></div>
+        <div><a href="%WIKI%/main/SocialCreativePortal">创造你的3D互联网产业</a></div>
+        <div><a href="%WIKI%/Support/WebHome">客服与技术支持</a></div>
+    </div>
+</div>
+<div style="float:left;">
+    <iframe cachepolicy="access plus 3 days" name="contentFrame" src="%WIKI%/Main/ParaWorldFrontPageMCML?skin=text" style="margin:5px;padding:5px" />
+</div>
+</pe:if-is-user> 
+<!--user is online, show home page-->
+<pe:if-is-user uid="loggedinuser">
+    <div style="margin:10;font-weight:bold">请稍候 ...</div>
+    <% Page:Redirect("FrontPageV1.html", nil, nil, 0.5);%>
+</pe:if-is-user> 
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,312 @@
+%META:TOPICINFO{author="LiXizhi" date="1204269972" format="1.1" reprev="1.1" version="1.1"}%
+%META:TOPICPARENT{name="NPL"}%
+---++!! !commonlib.NPLDocGen
+%TOC{title="Contents:"}%
+%STARTINCLUDE%
+
+---++ Generating NPL wiki page documentation from source code. 
+| *Title* | Generating NPL wiki page documentation from source code.  |
+| *Author(s)* | LiXizhi |
+| *Date* | 2008/3/12, 2008/10/23 gen change log added |
+| *File* | script/ide/NPLDocGen.lua |
+---+++ Description
+This class is usually used with the unit test framework, to automatically generate 
+a group of source code documentation from a configuration file
+
+%T% __Sample Code__
+<verbatim>
+NPL.load("(gl)script/ide/NPLDocGen.lua");
+commonlib.NPLDocGen.GenerateTWikiTopic({
+	WikiWord = "NPLDocGen",
+	ClassName = "commonlib.NPLDocGen",
+	input = {"script/ide/NPLDocGen.lua", 
+		"script/ide/UnitTest/readme.lua",
+	},
+})
+
+commonlib.NPLDocGen.GenerateChangeLogWiki({WikiWord = "ParaEngineChangeLog", TopicParent="ParaEngineDoc", HeaderText="---+++ ParaEngine Change History\r\n", input = {"changes.txt"},})
+
+-- When can use the unit test framework, and put lots of below blocks in a single file to batch generate output for many files. 
+%TESTCASE{"NPLDocGen", func="commonlib.NPLDocGen.GenerateTWikiTopic", input={WikiWord = "NPLDocGen", ClassName = "commonlib.NPLDocGen", input = {"script/ide/NPLDocGen.lua", "script/ide/mathlib.lua"},}}%
+</verbatim>
+
+---+++ Member Functions
+
+---++++ !NPLDocGen.WikiInput:new
+
+<verbatim> default wiki generation input template
+NPLDocGen.WikiInput = {
+	-- the wiki word for documentation. 
+	WikiWord = "NPLDocGen",
+	-- array of input files or string script path. 
+	-- if file is "*.lua" class and member functions are extracted
+	-- if file is "readme.lua" all comment blocks are extracted.  
+	-- if file is ".txt" all text are extracted. 
+	input = {"script/ide/NPLDocGen.lua", "script/ide/mathlib.lua"},
+	-- the output directory. If nil, it will default to script/doc/
+	output = "script/doc/",
+	-- string or nil, if nil or "", it will be same as WikiWord. Or it can be a fully qualified name, such as "commonlib.NPLDocGen"
+	ClassName = nil,
+	-- if nil, it defaults to "NPL"
+	TopicParent = "NPL",
+	-- if the file does not contain an author, use this one. 
+	author = "LiXizhi",
+	-- a short string description before table of content, this is usually nil.
+	desc = nil,
+	-- a post processing function string. it applies to "*.txt" and "readme.lua" files in the input. 
+	-- such as "NPLDocGen.MakeValidMCMLWikiWords"
+	PostProcessor = nil,
+	-- a pre processing function string. it applies to all files in the input. 
+	-- such as "NPLDocGen.PreProcRPCWrapperToFunction"
+	PreProcessor = nil,
+	-- if header is ignored, only the context body will be output, and no table of content is generated. 
+	IgnoreHeader = nil;
+}</verbatim>
+
+ create an instance. 
+
+
+__syntax__
+<verbatim>function NPLDocGen.WikiInput:new(o)</verbatim>
+
+
+__parameters__
+
+| *o* |  |
+
+---++++ !NPLDocGen.GenerateChangeLogWiki
+
+----------------------------------------------
+ public methods
+----------------------------------------------
+
+ generate the change log
+   * _param_ __input__ : {WikiWord = "ParaEngineChangeLog", TopicParent="ParaEngineDoc", HeaderText="---+++ ParaEngine Change History\r\n", input = {"changes.txt"},}
+
+
+__syntax__
+<verbatim>function NPLDocGen.GenerateChangeLogWiki(input)</verbatim>
+
+
+__parameters__
+
+| *input* | {WikiWord = "ParaEngineChangeLog", TopicParent="ParaEngineDoc", HeaderText="---+++ ParaEngine Change History\r\n", input = {"changes.txt"},} |
+
+---++++ !NPLDocGen.GenerateTWikiTopic
+
+[[ generate a wiki page for the given set of input source files
+twiki requires the following header file, where the second line is optional. 
+	%META:TOPICINFO{author="LiXizhi" date="1204269972" format="1.1" reprev="1.1" version="1.1"}%
+	%META:TOPICPARENT{name="TestConvert"}%
+   * _param_ __input__ : is a partial pure table of NPLDocGen.WikiInput
+   * _see_ ____ : "script/NPL_twiki_doc.lua" for more information. 
+]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.GenerateTWikiTopic(input)</verbatim>
+
+
+__parameters__
+
+| *input* | is a partial pure table of NPLDocGen.WikiInput |
+
+---++++ !NPLDocGen.GenerateTWikiPortalTopic
+
+[[
+generate a portal page with groups and items. 
+   * _see_ ____ : "script/NPL_twiki_doc.lua" for more information. 
+]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.GenerateTWikiPortalTopic(input)</verbatim>
+
+
+__parameters__
+
+| *input* |  |
+
+---++++ !NPLDocGen.ProcessNPLFile
+
+--------------------------------
+ private functions
+--------------------------------
+
+ process NPL source file.
+   * _param_ __filename__ : input file name
+   * _param_ __text__ : input file text
+   * _param_ __out__ : output file object
+
+
+__syntax__
+<verbatim>function NPLDocGen.ProcessNPLFile(input, filename, text, out)</verbatim>
+
+
+__parameters__
+
+| *input* |  |
+| *filename* | input file name |
+| *text* |  |
+| *out* | output file object |
+
+---++++ !NPLDocGen.NormalizeReturnString
+
+ if the text line seperator "\n" is replaced by "\r\n"
+
+
+__syntax__
+<verbatim>function NPLDocGen.NormalizeReturnString(text)</verbatim>
+
+
+__parameters__
+
+| *text* |  |
+
+---++++ !NPLDocGen.GetHeaderInfo
+
+[[
+extract header information from the headerText
+   * _param_ __headerText__ : a common header looks like below. 
+Title: Title Text
+Author(s): LiXizhi
+Date: 2008/3/12
+Desc: description text
+may be multiple lines
+Use Lib:
+-------------------------------------------------------
+sample code here
+   * _return_ ____ : it will return a table {Title, Author, Date, Desc, SampleCode}
+]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.GetHeaderInfo(headerText)</verbatim>
+
+
+__parameters__
+
+| *headerText* | a common header looks like below. 
+Title: Title Text
+Author(s): LiXizhi
+Date: 2008/3/12
+Desc: description text
+may be multiple lines
+Use Lib:
+-------------------------------------------------------
+sample code here
+------------------------------------------------------- |
+
+---++++ !NPLDocGen.ExtractWikiText
+
+ body text is assumed to be wiki page, then all comments blocks are extracted and concartinated to a single string. 
+
+
+__syntax__
+<verbatim>function NPLDocGen.ExtractWikiText(bodyText)</verbatim>
+
+
+__parameters__
+
+| *bodyText* |  |
+
+---++++ !NPLDocGen.GetMemberFunctions
+
+[[
+extract array of member functions from string
+   * _param_ __bodyText__ : a common function looks like below. 
+   * _return_ ____ : it will return a table {{name="", desc="", syntax="", codes={}, params = {""}, paramsDoc = {a mapping from params name to its description, "return" and "see" are two special param key }, }}
+]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.GetMemberFunctions(bodyText)</verbatim>
+
+
+__parameters__
+
+| *bodyText* | a common function looks like below. |
+
+---++++ !NPLDocGen.DoTableDefVerbatim
+
+---------------------------------
+ common replacer
+---------------------------------
+
+ if text contains a table definition like 
+ table1 = {
+ }
+ it will be encapsulated with verbatim block
+
+
+__syntax__
+<verbatim>function NPLDocGen.DoTableDefVerbatim(text)</verbatim>
+
+
+__parameters__
+
+| *text* |  |
+
+---++++ !NPLDocGen.RemoveCommentHeader
+
+ if text contains "\r\n--" and other comment styles, it will be removed. 
+
+
+__syntax__
+<verbatim>function NPLDocGen.RemoveCommentHeader(text)</verbatim>
+
+
+__parameters__
+
+| *text* |  |
+
+---++++ !NPLDocGen.PreProcRPCWrapperToFunction
+
+---------------------------------
+ pre processor 
+---------------------------------
+
+ add a fake function in front of paraworld.CreateRPCWrapper() for documentation generation purposes. 
+
+
+__syntax__
+<verbatim>function NPLDocGen.PreProcRPCWrapperToFunction(input)</verbatim>
+
+
+__parameters__
+
+| *input* |  |
+
+---++++ !NPLDocGen.MakeValidMCMLWikiWords
+
+---------------------------------
+ post processor 
+---------------------------------
+
+ This is a post processing function. To convert MCML tag in pe namespace to valid wiki words
+   * _param_ __input__ : such as [[pe:map-mark2d]]
+   * _return_ ____ :[[Pe_mapmark2d][pe:map-mark2d]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.MakeValidMCMLWikiWords(input)</verbatim>
+
+
+__parameters__
+
+| *input* | such as [[pe:map-mark2d]] |
+
+---++++ !NPLDocGen.MakeValidParaWorldAPIWikiWords
+
+   * _param_ __input__ : such as [[paraworld.auth.AuthUser]]
+   * _return_ ____ :[[Paraworld_auth_AuthUser][paraworld.auth.AuthUser]]
+
+
+__syntax__
+<verbatim>function NPLDocGen.MakeValidParaWorldAPIWikiWords(input)</verbatim>
+
+
+__parameters__
+
+| *input* | such as [[paraworld.auth.AuthUser]] |
+%STOPINCLUDE%

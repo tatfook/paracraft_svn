@@ -1,0 +1,99 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30206_BigeyeBee_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30206_BigeyeBee_dialog, by Andy, 2009/8/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 10102: FollowPetMFBB
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 1 and to == -1) then
+        local bee = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30206);
+        if(bee and bee:IsValid() == true) then
+            local beeChar = bee:ToCharacter();
+            beeChar:Stop();
+            MyCompany.Aries.Quest.NPCs.BigeyeBee.DeleteBeeFromScene();
+        end
+    elseif(from == 2 and to == -1) then
+	    ItemManager.PurchaseItem(10102, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 10102_FollowPetMFBB return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+                    local bee = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30206);
+                    if(bee and bee:IsValid() == true) then
+	                    local beeChar = bee:ToCharacter();
+	                    beeChar:Stop();
+	                    MyCompany.Aries.Quest.NPCs.BigeyeBee.DeleteBeeFromScene();
+                    end
+			    end
+		    end
+	    end);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30206" />
+            <pe:placeholder id="name" source="{this}" value='掉队的小蜜蜂'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是一只掉队的小蜜蜂，你刚才惊动了我们的蜂窝，我的伙伴们全跑了，就剩我一个在这儿了，呜呜呜～我好怕，我要赖着你了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你真是一个好心的小哈奇，以后你就是我的小主人了，我一定会乖乖的。我先回家等你了喔。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

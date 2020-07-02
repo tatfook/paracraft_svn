@@ -1,0 +1,39 @@
+﻿<!-- "script/kids/3DMapSystemUI/MiniMap/MapPosLogPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>MapPosLogPage Page 2008.9.2</title>
+</head>
+<body>
+<pe:mcml style="max-width: 260px" align="center" >
+<script type="text/npl" src="MapPosLogPage.lua">
+    Map3DSystem.App.MiniMap.MapPosLogPage.OnInit();
+</script>
+<div style="padding:5px;" class="box">
+<form name="mapPosForm">
+    <b>瞬移到世界坐标</b><br />
+    x: <input type="text" name="pos_x" style="width:70px;margin-right:10px"/>
+    y: <input type="text" name="pos_y" style="width:70px"/>
+    <input type="submit" class="defaultbutton" name="btnTeleport" value="瞬移" onclick="Map3DSystem.App.MiniMap.MapPosLogPage.OnClickGotoPos"/><br />
+    <hr />
+    在当前位置新建一个坐标<br/>
+    坐标名字: <input name="pos_name" style="width:120px"/><input type="submit" name="btnCreatePos" value="新建坐标"onclick="Map3DSystem.App.MiniMap.MapPosLogPage.OnClickCreatePos"/><br />
+    <hr />
+</form>
+<pe:gridview name="gvwWorldPos" DefaultNodeHeight = "22">
+    <Columns>
+        <a onclick="Map3DSystem.App.MiniMap.MapPosLogPage.GotoPos" param1='<%=Eval("x")%>' param2='<%=Eval("y")%>'>
+            <b><%=Eval("name")%></b><span><%=Eval("x")%>, <%=Eval("y")%></span>
+        </a>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>没有保存过这个世界的位置</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>正在搜索, 请稍候 ... </b>
+    </FetchingDataTemplate>
+</pe:gridview>
+</div>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!-- "script/apps/Aries/Login/UserLoginPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>UserLoginPage for teen version,add by wd,2011/09/02</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="UserLoginPage.teen.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+MyCompany.Aries.UserLoginPage_teen.OnInit();
+NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+
+function News_DS_Func(index)
+    return MyCompany.Aries.LocalUserSelectPage.News_DS_Func(index, pageCtrl)
+end
+
+function GetOfficialWebSiteUrl()
+    local officialurl = MyCompany.Aries.ExternalUserModule:GetConfig().official_site_url;
+    return officialurl;
+end
+
+function VisitOperatorWebSite()
+    ParaGlobal.ShellExecute("open", MyCompany.Aries.ExternalUserModule:GetConfig().operator_company_url, "", "", 1);
+end
+
+function VisitOfficialWebSite()
+	ParaGlobal.ShellExecute("open", GetOfficialWebSiteUrl(), "", "", 1);
+end
+
+function ViewDevelopTeam()
+    local developer_site_url = MyCompany.Aries.ExternalUserModule:GetConfig().developer_site_url or MyCompany.Aries.ExternalUserModule:GetConfig().official_site_url;
+    ParaGlobal.ShellExecute("open", developer_site_url, "", "", 1);
+end
+
+function VisitOfficialBlog()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local blogurl=MyCompany.Aries.ExternalUserModule:GetConfig().official_blog_url;
+	ParaGlobal.ShellExecute("open", blogurl, "", "", 1);
+end
+
+function getRegion_id()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local region_id=ExternalUserModule:GetRegionID();
+    return region_id;
+end
+
+function VisitParaEngineWebSite()
+    ParaGlobal.ShellExecute("open", "http://www.paraengine.com/", "", "", 1);
+end
+
+function LatestUpdateDesc()
+    ParaGlobal.ShellExecute("open", "http://www.paraengine.com/Download/Haqi2UpdaterPage?skin=text", "", "", 1);
+end
+
+function ViewAgreement()
+    ParaGlobal.ShellExecute("open", "http://www.61.com/about/green.html", "", "", 1);
+end
+
+function Exit()
+    ParaGlobal.ExitApp();
+end
+
+function getAccountName()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local s;
+    local region_id=ExternalUserModule:GetRegionID();
+    if (region_id==0) then
+        s = string.format("%s/Email", MyCompany.Aries.ExternalUserModule:GetConfig().account_name);
+    else
+        s = string.format("%s", MyCompany.Aries.ExternalUserModule:GetConfig().account_name);
+    end
+    return s;    
+end
+
+function accountTips()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local s;
+    local region_id=ExternalUserModule:GetRegionID();
+    local cfg=ExternalUserModule:GetConfig();
+
+    local nm= getAccountName();
+    if (region_id==0) then
+        s = string.format('<div>%s:</div>',nm);
+    else
+        local logo;
+        if (cfg.logoicon) then
+            logo=string.format('<img style="width:18px;height:18px;margin-top:2px;" src="%s" />',cfg.logoicon);
+        end        
+        s = string.format('<div>%s <div style="margin-left:22px;margin-top:-20px;">%s:</div></div>',logo,nm);
+    end
+
+    return s;    
+end
+
+function passwdTips()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local s,nm;
+    local region_id=ExternalUserModule:GetRegionID();
+    local cfg=ExternalUserModule:GetConfig();
+
+    if (region_id==0) then
+        nm = string.format("%s", MyCompany.Aries.ExternalUserModule:GetConfig().passwd_name);
+        s = string.format('<div>%s:</div>',nm);
+    else
+        nm = string.format("%s", MyCompany.Aries.ExternalUserModule:GetConfig().passwd_name);
+        local logo;
+        if (cfg.logoicon) then
+            logo=string.format('<img style="width:18px;height:18px;margin-top:5px;" src="%s" />',cfg.logoicon);
+        end        
+        s = string.format('<div>%s <div style="margin-left:22px;margin-top:-20px;">%s:</div></div>',logo,nm);
+    end
+
+    return s;    
+end
+
+System_Billing = {
+{ name="header",attr={text="电信一区开放",},
+  { name="detail",attr={text="区域：华南，华东",}},},
+{ name="header",attr={text="电信一区开放",},
+  { name="detail",attr={text="区域：华南，华东",}},},
+};
+
+function SystemConfig()
+    System.App.Commands.Call("File.Aries.Settings");
+end
+
+function OnClickLogin(btnName, forms)
+    if(Page:GetValue("server_region", "1")  == "2") then
+        System.options.force_ipfrom = "联通";
+    end
+    MyCompany.Aries.UserLoginPage_teen.OnClickLogin(btnName, forms);
+end
+if(System.options.whereipfrom == "联通") then 
+    Page:SetValue("server_region", "2");
+end
+
+]]></script>
+<!-- system billboard -->
+<!--
+<div style="position:relative;width:220px;height:120px;padding:5px;margin-top:14px;background:url(Texture/Aries/Common/ThemeTeen/bg_system_billboard_32bits.png#0 0 180 2:7 7 7 7);">
+    <div style="text-align:center; font-weight:bold; font-size:12px;color:#52dff4;" width="100%">系统公告</div>
+    <pe:treeview name="sysbilling" class="defaulttreeview" ShowIcon="false" DataSource='<%=System_Billing%>' >
+        <NodeTemplates>
+            <NodeTemplate DataType="header">
+            <div class="defaultstyle"><%=XPath("this|text")%></div>
+            </NodeTemplate>
+            <NodeTemplate DataType="detail">
+            <div class="defaultstyle" style="margin-left:10px;"><%=XPath("this|text")%></div>
+            </NodeTemplate>
+        </NodeTemplates>
+    </pe:treeview>
+</div>-->
+<pe:container alignment="_ctt" ClickThrough="true" zorder="10" style="position:relative;width:960px;height:64px;background:url()">
+    <iframe ClickThrough="true" src="script/apps/Aries/Creator/Game/Login/ParaWorldLoginDocker.html"></iframe>
+</pe:container>
+<pe:container alignment="_ct" style="position:relative;width:960px;height:400px;margin-left:-480px;margin-top:-200px;background:">
+<form name="AriesUserLogin">
+    <pe:if condition='<%=System.options.login_tokens==nil%>'>
+        <div style="color:#72fff4;width:335px;padding:28px;margin-top:70px;background:url(Texture/Aries/Login/Login/teen/login_bg_32bits.png#0 0 256 192:12 12 12 20)" align="center" valign="center">
+    <div style="margin-left:10px;width:305px;">
+        <div style="float:left;margin-left:-25px;width:65px;text-align:right;"><%=format("%s:",MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div>
+        <input type="text" class="defaulttextfield" name="user_name" style="float:left;width:140x;height:23px;" />
+        <input type="checkbox" style="margin-left:8px;" name="checkbox_remember_username"  checked="true" 
+        onclick="MyCompany.Aries.UserLoginPage_teen.OnCheckRememberUsername" />
+        <div style="float:left;width:90px;" for="checkbox_remember_username"><%=format("记住%s",MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div>
+    </div>
+
+    <div style="margin-left:16px;margin-top:15px;">
+        <div style="float:left;">密码:</div>
+        <input type="text" class="defaulttextfield" name="password" PasswordChar="*" style="float:left;width:108px;height:23px;" />
+        <div style="float:left;" class="minikeyboard" for="minikeyboard"></div>
+        <div style="float:left;">
+            <input type="checkbox" style="margin-top:2px;" name="checkbox_remember_password" checked="false" onclick="MyCompany.Aries.UserLoginPage.OnCheckRememberPassword"/>
+            <div style="float:left;" for="checkbox_remember_password">记住密码</div>
+        </div>
+        <pe:minikeyboard name="minikeyboard" for="password" style="margin-left:10px;"/>
+        <div style="float:left;margin-left:-14px;margin-bottom:5px;">
+            <div style="float:left;">
+                <input type="button" value="修改密码" tooltip="修改密码" onclick="MyCompany.Aries.UserLoginPage.OnClickChangePassword" style="width:50px;height:20px;font-size:12px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#52dff4;background-color:#52dff4;background:url(Texture/Aries/Common/underline_white_32bits.png:3 3 3 3)"/>
+            </div>
+            <div style="float:left;margin-left:16px">
+                <input type="button" value="找回密码" tooltip="找回密码" onclick="MyCompany.Aries.UserLoginPage.OnClickForgetPassword" style="width:50px;height:20px;font-size:12px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#52dff4;background-color:#52dff4;background:url(Texture/Aries/Common/underline_white_32bits.png:3 3 3 3)"/>
+            </div>
+            <div style="float:left;margin-left:16px">
+                <input type="button" value="密码保护" tooltip="密码保护" onclick="MyCompany.Aries.UserLoginPage.OnClickProtectPassword" style="width:50px;height:20px;font-size:12px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#52dff4;background-color:#52dff4;background:url(Texture/Aries/Common/underline_white_32bits.png:3 3 3 3)"/>
+            </div>
+            <div style="float:left;margin-left:12px;margin-top:-5px">
+                <input type="button" style="width:80px;margin-left:3px;margin-top:5px;" value='<%=format("注册%s",MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%>' name="btnCreateRole" onclick="MyCompany.Aries.UserLoginPage_teen.OnClickRegister" />
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <input type="submit" style="font-size:16px;font-weight:bold;width:127px;height:35px;margin-left:77px;" class="highlightboldbutton" 
+            text="进入游戏" onclick="OnClickLogin"/>
+    </div>
+    <input type="button" style="position:relative;margin-left:276px;margin-top:-5px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/prepage_arrow_32bits.png);"
+            tooltip='返回上一页' name="btnGotoLoginPage"
+            onclick="MyCompany.Aries.UserLoginPage_teen.OnClickBackToLocalUserSelect()"/>
+</div>
+    </pe:if>
+    <pe:if condition='<%=System.options.login_tokens~=nil%>'>
+        <div style="color:#72fff4;width:335px;padding:28px;margin-top:70px;background:url(Texture/Aries/Login/Login/teen/login_bg_32bits.png#0 0 256 192:12 12 12 20)" align="center" valign="center">
+            <div style="margin-top:10px;font-size:13px;font-weight:bold;text-align:center;"><%=format("欢迎进入%s", MyCompany.Aries.ExternalUserModule:GetConfig().product_name or "") %></div>
+            <div style="margin-top:5px;">
+                <input type="submit" style="font-size:16px;font-weight:bold;width:127px;height:35px;margin-left:77px;" class="highlightboldbutton" 
+                    text="进入游戏" onclick="OnClickLogin"/>
+            </div>
+            <div style="margin-top:10px;text-align:center;margin-bottom:10px;">如果验证失败请退出游戏重新登录</div>
+        </div>
+    </pe:if>
+</form>
+</pe:container>
+<pe:if condition='<%= System.options.locale=="zhCN" %>'>
+    <pe:container alignment="_ct" style="position:relative;padding:10px;padding-top:8px;width:262px;height:100px;margin-left:-131px;margin-top:80px;" class="pane_grey">
+        <div style="color:#cccccc;font-size:14px">
+            <pe:if condition='<%=System.options.whereipfrom~=nil %>'>
+                <div style="">
+                    <div>
+                        检测到您的网络是:<div style="float:left;"><%=System.options.whereipfrom%></div>
+                    </div>
+                    <div style="font-weight:bold">
+                        推荐使用<div style="float:left;color:#3030ff;" ><%=if_else(System.options.whereipfrom~="联通", "电信", "联通")%></div>服务器登录
+                    </div>
+                </div>
+            </pe:if>
+            <div style="margin-left:0px;">
+                <div style="float:left;">登录服务器:</div>
+                <div style="float:left" class="default">
+                    <input type="radio" id="server1" name="server_region" style="margin-top:3px;" checked="true" value="1" /><div for="server1" style="float:left;margin-left:3px;">电信</div>
+                    <input type="radio" id="server2" name="server_region" style="margin-top:3px;" value="2" /><div for="server2" style="float:left;margin-left:3px;">联通</div>
+                </div>
+            </div>
+            <div style="margin-left:0px;">
+                服务器间是互通的
+            </div>
+        </div>
+    </pe:container>
+</pe:if>
+<!--<pe:container alignment="_lb" style="position:relative;width:128px;height:120px;margin-left:10px;margin-top:90px;background:">
+    <input type="button" style="width:111px;" text="注册帐号" onclick="MyCompany.Aries.UserLoginPage_teen.OnClickRegister"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="用户协议" onclick="ViewAgreement()"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="更新说明" onclick="LatestUpdateDesc()"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="官方网站" onclick="VisitOfficialWebSite()"/><br />
+</pe:container>-->
+<pe:container alignment="_rb" style="position:relative;width:125px;height:120px;margin-top:90px;background:">
+    <input type="button" style="width:111px;" text="注册帐号" onclick="MyCompany.Aries.UserLoginPage_teen.OnClickRegister"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="系统设置" onclick="SystemConfig()"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="官方网站" onclick="VisitOfficialWebSite()"/><br />
+    <!--<input type="button" style="width:111px;margin-top:5px;" text="开场动画" onclick="ViewTrailer()"/><br />
+    <input type="button" style="width:111px;margin-top:5px;" text="制作团队" onclick="ViewDevelopTeam()"/><br />-->
+    <pe:if condition="<%=not System.options.IsWebBrowser%>">
+        <input type="button" style="width:111px;margin-top:5px;" text="退出游戏" onclick="Exit()"/><br />
+    </pe:if>
+</pe:container>
+</pe:mcml>
+</body>
+</html>
+

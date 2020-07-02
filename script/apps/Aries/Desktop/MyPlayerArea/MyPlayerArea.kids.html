@@ -1,0 +1,170 @@
+﻿<!-- "script/apps/Aries/Desktop/MyPlayerArea/MyPlayerArea.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Team/TeamClientLogics.lua");
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+function IsTeamLeader()
+    if(TeamClientLogics.GetJC)then
+        local isleader = TeamClientLogics:GetJC():IsTeamLeader();
+		return isleader;
+	end
+end
+function OnClickMagicStar()
+    MyCompany.Aries.Desktop.MagicStarArea.DoClick();
+end
+
+function OnClickFillHealth()
+    MyCompany.Aries.Desktop.HPMyPlayerArea.ShowHpPotionPage()
+    -- MyCompany.Aries.Combat.MsgHandler.RechargeHealthPoint();
+end
+function OnClickFillStamina()
+    local s = "";
+	local staminaList = {17393,17344,17345};
+	local hasStaminaPill = false;
+	local k,v;
+	local gsid,exid;
+	for k,v in pairs(staminaList) do
+		gsid = tonumber(v);
+		gsItem = Map3DSystem.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+		exid = gsItem.template.stats[51];
+		hasStaminaPill = Map3DSystem.Item.ItemManager.IfOwnGSItem(gsid,12,nil);	
+		if(hasStaminaPill == true) then
+			if(gsid == 17393) then
+				if(MyCompany.Aries.VIP.IsVIP()) then
+					s = format("发现你的包裹有<pe:item gsid='%d' style='width:32px;height:32px;' isclickable='false'/>,马上使用补充精力值！<br/>(魔法星可以提升精力值上限, 精力值明天会自动补满",gsid);
+					break;
+				end
+			else
+				s = format("发现你的包裹有<pe:item gsid='%d' style='width:32px;height:32px;' isclickable='false'/>,马上使用补充精力值！<br/>(魔法星可以提升精力值上限, 精力值明天会自动补满",gsid);
+				break;
+			end
+		end
+	end
+    if(s ~= "") then
+        _guihelper.MessageBox(s,function(result) 
+			if(result == _guihelper.DialogResult.Yes) then
+                local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+                local hasGSItem = ItemManager.IfOwnGSItem;
+                local _,guid = hasGSItem(gsid); -- 精力药剂
+                if(guid) then
+                    local item  = ItemManager.GetItemByGUID(guid)
+                    if(item and item.OnClick) then
+                        item:OnClick("left");
+                    end
+                end
+            end
+        end,_guihelper.MessageBoxButtons.YesNo);
+    end
+    --_guihelper.MessageBox("目前没有精力药剂出售～ 精力值明天会自动补满。" );
+    _guihelper.MessageBox("是否使用一个精力药剂补充精力值？<br/>(魔法星可以提升精力值上限, 精力值明天会自动补满)" , function(result)
+        if(result == _guihelper.DialogResult.Yes)then
+            local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+            local hasGSItem = ItemManager.IfOwnGSItem;
+            local _,guid,_,copies = hasGSItem(17344); -- 精力药剂
+            if(not copies or copies <= 0)then
+                local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+				if(command) then
+					command:Call({gsid = 17344});-- 精力药剂
+				end
+            end
+            if(guid) then
+                local item  = ItemManager.GetItemByGUID(guid)
+                if(item and item.OnClick) then
+                    item:OnClick("left");
+                end
+            end
+        end
+    end, _guihelper.MessageBoxButtons.YesNo);
+end
+
+function OnClickBecomeVIP()
+    local ctl = Page:FindControl("vip_anim");
+    if(ctl) then
+        ctl.visible = false;
+    end
+    MyCompany.Aries.Desktop.MagicStarArea.OnClickBecomeVIP();
+end
+
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    local x, y = _guihelper.GetLastUIObjectPos()
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(System.User.nid, x, y+20);
+end
+]]></script>
+<div style="position:relative;margin-left:56px;margin-top:72px;">
+    <div zorder="-1" style="position:relative;background:url(Texture/Aries/Common/ThemeKid/character/team_bg.png#0 0 16 15:7 7 7 7);width:105px;height:15px;">
+        <div style="width:200px;font-size:11px;color:#ffffff;">
+            <div style="float:left;width:58px;">
+                <pe:item gsid="17213" is_container="true" isclickable="false" style="float:left;width:130px;height:19px;">
+                    <img src="Texture/Aries/Common/ThemeKid/character/xiandou_32bits.png;0 0 16 13" style="margin-left:3px;margin-top:2px;width:16px;height:13px;"/>
+                    <pe:slot type="count" gsid="17213" style="float:left;margin-left:0px;margin-top:-2px;" />
+                </pe:item>
+            </div>
+            <div style="float:left;width:55px;">
+                <pe:item gsid="984" tooltip_headerline="点击可以充值" onclick="MyCompany.Aries.HaqiShop.BuyMagicBean" is_container="true" style="float:left;width:130px;height:19px;">
+                    <img src="Texture/Aries/Common/ThemeKid/character/modou_32bits.png;0 0 16 14" style="margin-left:0px;margin-top:2px;width:16px;height:14px;"/>
+                    <pe:slot type="count" gsid="984" style="float:left;margin-left:0px;margin-top:-2px;" />
+                </pe:item>
+            </div>
+        </div>
+    </div>
+    <input type="button" onclick="MyCompany.Aries.HaqiShop.GotoTaomeePage" tooltip="为帐号充值" style="position:relative;background-color:#ffffff;margin-left:105px;margin-top:-6px;width:27px;height:22px;background:url(Texture/Aries/Common/ThemeKid/character/pay_32bits.png#0 0 27 22);"/>
+</div>
+<div style="background:url(Texture/Aries/Team/kids/player_border_bg2_32bits.png#0 0 192 82);width:192px;height:82px;">
+    <pe:if condition='<%=IsTeamLeader() %>'>
+        <div style="float:left;position:relative;margin-left:30px;margin-top:0px;">
+            <input type="button" tooltip="队长" style="background:url(Texture/Aries/Team/kids/captain_32bits.png#0 0 22 12);background-color:#ffffff;width:22px;height:12px;" />
+        </div>
+    </pe:if>
+    <div style="position:relative;margin-left:55px;margin-top:0px;">
+        <div style="position:relative;background:url(Texture/Aries/Team/kids/icon_frame_32bits.png#0 0 29 29);width:29px;height:29px">
+            <input type="button" tooltip="魔法系别" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:20px;height:20px;margin-left:4px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool())%>' />
+        </div>
+    </div>
+    <div style="position:relative;margin-left:74px;margin-top:6px;background:url(Texture/Aries/Team/kids/level_bg_32bits.png#0 0 32 20);width:32px;height:20px">
+        <input type="button" tooltip="战斗等级" name="levelBtn" value='<%=tostring(MyCompany.Aries.Player.GetLevel())%>' style="margin-left:5px;color:#a2ffff;width:27px;margin-top:3px;height:16px;font-size:11px;background:;"/>
+    </div>
+    <div style="float:left;position:relative;margin-left:76px;margin-top:28px">
+        <div style="width:116px;margin-left:-5px;text-align:center" tooltip="点击查看个人信息" onclick="OnClickShowMenu">
+            <pe:name name="name" style="height:16px;font-size:12px;" uid='loggedinuser' linked="false" />
+        </div>
+    </div>
+    <div style="position:relative;background:url(Texture/Aries/Team/kids/icon_frame_32bits.png#0 0 29 29);width:24px;height:24px;margin-left:162px;margin-top:8px;">
+        <pe:if condition='<%=MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+            <input type="button" zorder="1" value='<%=tostring(MyCompany.Aries.Player.GetVipLevel())%>' textscale="1.05" shadow="true" enabled="false" style="position:relative;text-align:left;font-size:11px;font-weight:bold;color:#a2ffff;width:20px;margin-left:18px;margin-top:6px;background:;"/>
+            <input type="button" tooltip='<%=format("%d级魔法星(点击查看魔法星)", MyCompany.Aries.Player.GetVipLevel())%>' onclick="OnClickMagicStar" style="background:url(Texture/Aries/Dock/teen/magicstar_32bits.png);background-color:#ffffff;width:20px;height:20px;margin-left:2px;margin-top:2px;" />
+        </pe:if>
+        <pe:if condition='<%=not MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+            <img name="vip_anim" enabled="false" class="animated_btn_overlay" zorder="1" style="position:relative;width:34px;height:24px;margin-left:-34px;margin-top:-2px;"/>
+            <input type="button" value="会员" class="button" onclick="OnClickBecomeVIP" style="position:relative;font-size:12px;width:32px;height:20px;margin-left:-32px;margin-top:0px;background:url(Texture/Aries/Common/ThemeKid/tab_selected_32bits.png#0 0 32 19: 6 6 6 6);" />
+            <input type="button" tooltip="魔法星(点击查看魔法星)" onclick="OnClickBecomeVIP" style="background:url(Texture/Aries/Dock/teen/magicstart_grey_32bits.png);background-color:#ffffff;width:20px;height:20px;margin-left:2px;margin-top:2px;" />
+        </pe:if>
+    </div>
+    <div style="float:left;position:relative;margin-left:70px;margin-top:55px">
+        <div style="">
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="margin-left:-2px;width:115px;height:10px;" miniblockwidth="15"
+                    blockimage="Texture/Aries/Team/kids/red_progressbar2.png;0 0 16 10: 7 4 7 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" type="button" onclick="OnClickFillHealth" tooltip="【点击吃红枣】&#10;小镇中心可以自动回血" style="position:relative;margin-top:-13px;width:110px;height:16px;color:#ffffff;font-size:11px;background:;" value="100/100" />
+        <div style="margin-left:-9px;margin-top:2px;" >
+            <div style="position:relative;"><pe:progressbar name="stamina_bar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:100px;height:6px;" miniblockwidth="5"
+                    blockimage="Texture/Aries/Team/kids/physical_progressbar.png;0 0 8 6: 3 1 3 2"
+                    background=""
+                /></div>
+            <input name="stamina_text" type="button" tooltip="精力值:挑战Boss会消耗, 每天会自动补满&#10;(点击补充精力值)" onclick="OnClickFillStamina" style="position:relative;margin-top:-3px;margin-left:-2px;width:100px;height:12px;color:#ffffff00;color2:#ffffff;font-size:11px;background:;" value="100/100" />
+            <!--<input name="stamina_refill" type="button" tooltip="点击补充精力值" onclick="OnClickFillStamina" style="position:relative;margin-top:-4px;margin-left:115px;width:16px;height:16px;background:url(Texture/Aries/Team/teen/quick_addhp_32bits.png);"/>-->
+        </div>
+    </div>
+    <input type="button" name="onClickMenuBtn" value="" onclick="OnClickShowMenu" style="position:relative;margin-left:3px;margin-top:60px;width:16px;height:16px;background:url(Texture/Aries/Team/kids/down_btn_32bits.png);"/>
+</div>
+<%MyCompany.Aries.Desktop.HPMyPlayerArea.UpdateUI();%>
+</pe:mcml> 
+</body>
+</html>

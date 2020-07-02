@@ -1,0 +1,54 @@
+﻿<!-- "script/apps/Aries/Help/RoleHelp/RoleHelpPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="RoleHelpPage.lua" ><![CDATA[
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function ShowPage_Frame(index)
+    index = tonumber(index);
+    MyCompany.Aries.Help.RoleHelpPage.ShowPage_Frame(index);
+end
+function HaveLook(key)
+    NPL.load("(gl)script/apps/Aries/Help/MapHelp.lua");
+    local place = MyCompany.Aries.Help.MapHelp.place[key];
+    if(not place) then return end
+    local position = place.AvatarPosition;
+    local camera = place.CameraPosition;
+    local msg = { aries_type = "OnMapTeleport", 
+		    position = position, 
+		    camera = camera, 
+		    wndName = "map", 
+	    };
+    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    ClosePage();
+end
+function HaveLook_1()
+   HaveLook("shoppingzone");
+end
+function HaveLook_2()
+   HaveLook("shoppingzone");
+end
+]]></script>
+<div style="width:677px;height:483px;background:url(Texture/Aries/MapHelp/NormalHelp/role_0_32bits.png#0 0 677 483)">
+    <input style="margin-left:640px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    <div style="margin-left:100px;margin-top:20px;">
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/role_1_btn_32bits.png#0 0 141 41);" type="button" name="1" onclick="ShowPage_Frame()" value=""/>
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/role_2_btn_32bits.png#0 0 141 41);" type="button" name="2"  onclick="ShowPage_Frame()" value=""/>
+    <input style="float:left;margin-left:10px;margin-top:0px;width:144px;height:41px;background:url(Texture/Aries/MapHelp/NormalHelp/other_32bits.png#0 0 141 41);" type="button"  name="3" onclick="ShowPage_Frame()" value=""/>
+    </div>
+      <input style="float:left;margin-left:530px;margin-top:100px;width:92px;height:35px;background:url(Texture/Aries/MapHelp/NormalHelp/havelook_32bits.png#0 0 92 35);" type="button"  onclick="HaveLook_1()" value=""/>
+    <br />
+    <input style="float:left;margin-left:530px;margin-top:140px;width:92px;height:35px;background:url(Texture/Aries/MapHelp/NormalHelp/havelook_32bits.png#0 0 92 35);" type="button"  onclick="HaveLook_2()" value=""/>
+</div>
+</pe:mcml> 
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+﻿<!-- "script/apps/Aries/Inventory/MountPetView1.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MountPetView, by Andy, 2009/4/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MountPetView.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local health = 0;
+local level = 0;
+local nid;
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+
+local ItemManager = Map3DSystem.Item.ItemManager;
+
+nid = tonumber(nid);
+
+health = page:GetRequestParam("health");
+health = tonumber(health) or 0;
+
+level = page:GetRequestParam("level");
+level = tonumber(level) or 0;
+
+local bean = {
+    health = health,
+    level = level,
+}
+function GetNID()
+    return nid;
+end
+
+name2 = "mountpetview"..tostring(nid);
+
+local isSick = false;
+local isDead = false;
+
+health_icon = "";
+tooltip = "";
+if(bean)then
+    if(bean.health == 0) then
+        isSick = false;
+        isDead = false;
+	    health_icon = "Texture/Aries/Inventory/healthy_icon_32bits.png";
+        tooltip = "健康";
+    end
+end
+
+
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+
+function HasTransformRemaining_Days()
+    if(Player.transform_remaining_days) then
+        return true;
+    end
+end
+
+GetTransformRemaining_Days_Text = function()
+    return "剩余时间:"..(Player.transform_remaining_days or 0).."天";
+end
+
+if(nid == System.App.profiles.ProfileManager.GetNID()) then
+    transform_gsid = Player.transform_gsid;
+
+    if(transform_gsid) then
+        transform_gsid_pill = Player.GetPillGSIDFromTransformMarkerGSID(transform_gsid);
+    end
+end
+
+function OnClickTransformMarker()
+	local item_marker = ItemManager.GetItemByBagAndPosition(0, 33);
+	if(item_marker and item_marker.guid > 0) then
+		item_marker:OnClick("left");
+	end
+end
+
+function OnClickDragonShop()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabZJ", "4001");
+end
+
+function OnClickIWantToFly()
+    _guihelper.MessageBox("成为魔法星，你的抱抱龙将进化为超级抱抱龙, 并立即可以飞翔哦～<br/>是否要马上成为魔法星用户?", function(res)
+        if(res and res == _guihelper.DialogResult.Yes) then
+            MyCompany.Aries.Inventory.TabMountExPage.ClosePage();
+            MyCompany.Aries.Desktop.Dock.ShowCharPage(5);
+        end
+    end, _guihelper.MessageBoxButtons.YesNo);
+end
+]]></script>
+    <div style="float:left;margin-left:0px;margin-top:0px;width:307px;height:208px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20)">
+        <div style="float:left;margin-left:7px;margin-top:6px;width:293px;height:192px;background:url(Texture/Aries/Inventory/inner_bg_32bits.png#0 0 310 192)"/>
+        <div style="float:left;margin-left:-293px;margin-top:0px;width:293px;height:192px;">
+        <div style="float:left;margin-left:12px;margin-top:8px;width:48px;height:130px;">
+            <div style="margin-left:-42px;margin-top:-30px;width:128px;height:128px;">
+                <pe:slot bag="0" position="50" nid='<%=GetNID()%>' zorder = "2" style = "margin-left:32px;margin-top:32px;width:64px;height:64px;"/>
+            </div>
+        </div>
+        <div style="float:left;margin-top:30px;margin-left:16px;margin-right:16px;width:150px;height:150px;">
+            <div style="margin-top:-38px;margin-left:-56px;width:256px;height:256px;">
+                <aries:mountpet nid='<%=GetNID()%>' object="mount" name='<%=Eval("name2")%>' miniscenegraphname='<%=Eval("name2")%>' RenderTargetSize="256" style="width:256px;height:256px;" background="" IsPortrait=true IsInteractive="true"/>
+            </div>
+            <div style="position:relative;margin-top:10px;margin-left:-50px;width:400px;">
+                <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateleft" zorder="2" style="float:left;margin-left:0px;margin-top:-90px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_left_32bits1.png#0 0 36 36)"/>
+                <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateright" zorder="2" style="float:left;margin-left:160px;margin-top:-90px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_right_32bits1.png#0 0 36 36)"/>
+            </div>
+            <div style="width:64px;height:64px;margin-left:36px;margin-top:-40px;">
+                <div style="position:relative;margin-top:0px;margin-left:-100px;">
+                    <pe:if condition='<%=MyCompany.Aries.Player.GetDragonLevel()<9 and not MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+                        <div onclick="OnClickIWantToFly" tooltip="你的抱抱龙还不能飞翔, 点击了解情况" >
+                            <div style="color:#ffffff;margin-left:-10px;margin-top:2px;">魔法星可以飞翔</div>
+                            <input type="button" name="1" style="background-color:#ffffff;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_grey_32bis.png);"/>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+                        <div tooltip="连续按空格键可以飞翔&#10;在空中按F键进入飞行模式&#10;同时按住鼠标左键和右键可以自由飞行" >
+                            <div style="color:#ffffff;margin-left:-10px;margin-top:2px;">可以飞翔</div>
+                            <input type="button" name="1" style="background-color:#ffffff;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Quest/Props/HeartOfFlyingDragon_32bis.png);"/>
+                        </div>
+                    </pe:if>
+                </div>
+                <div style="position:relative;color:#ffffff;margin-left:95px;width:200px" >
+                    <pe:if condition='<%=MyCompany.Aries.Player.GetDragonLevel()<9 and not MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+                        <div tooltip="抱抱龙升级后将解锁新功能" style="position:relative;margin-top:2px;" >9级可以飞翔</div>
+                    </pe:if>
+                    <input type="button" class="button" onclick="OnClickDragonShop" value="龙龙商店" style="margin-top:26px;height:26px;width:80px" />
+                </div>
+                <aries:mountpet-level nid='<%=GetNID()%>' style="position:relative;width:64px;height:64px;background:Texture/Aries/Inventory/dragon_level_bg_32bits.png" allowtooltip="true"/>
+            </div>
+        </div>
+        <div style="float:left;margin-left:0px;margin-top:8px;width:48px;height:130px;">
+            <div style="width:64px;height:64px;margin-left:8px;margin-top:0px;">
+                <!--<aries:mountpet-health width="64" height = "64" nid='<%=GetNID()%>' allowtooltip="true"/>-->
+                <pe:if condition='<%=Eval("transform_gsid_pill") and Eval("transform_gsid_pill") > 0%>'>
+                    <div style="width:0px;height:0px;padding-left:-22px;">
+                        <img zorder="2" src="Texture/Aries/Combat/BagPack/DragonBag/is_marker_32bits.png" style="padding-top:8px;padding-left:8px;width:64px;height:16px;"/>
+                    </div>
+                    <pe:item onclick="OnClickTransformMarker" gsid='<%=Eval("transform_gsid_pill")%>' showdefaulttooltip="true" zorder = "2" style = "margin-left:-22px;margin-top:0px;width:64px;height:64px;"/>
+                </pe:if>
+            </div>
+            <div style="width:300px;height:64px;margin-left:-60px;margin-top:100px;color:#FF0000;font-weight:bold;">
+                <pe:if condition='<%=HasTransformRemaining_Days() == true%>'>
+                    <%=GetTransformRemaining_Days_Text()%>
+                </pe:if>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div style="margin-left:6px;margin-top:58px;width:400px;height:130px;">
+        <div style="position:relative;margin-left:200px;width:128px;height:128px;background:url(Texture/Aries/Inventory/stats_bg_32bits.png);">
+        </div>
+        <form>
+        <div style="float:left;margin:6px;margin-bottom:0px;color:#FFFFFF">亲密度: </div>
+        <div style="float:left;">
+            <aries:mountpet-status nid='<%=GetNID()%>' type="friendliness" isshowtooltip = "true" 
+                style="float:left;margin:4px;margin-left:-2px;margin-bottom:0px;width:130px;height:26px;"/>
+            <div style="float:left;margin:6px;margin-left:8px;margin-bottom:0px;color:#003366">爱心值: 
+                <aries:mountpet-status2 nid='<%=GetNID()%>' type="kindness" name="kindness"
+                    style="float:left;margin:0px;margin-left:-2px;margin-bottom:0px;width:90px;height:20px;color:#003366"/>
+                <div style="position:relative;margin-top:-32px;width:90px;height:32px;">
+                <input type="button" zorder="4" tooltip="爱心值获得方式：
+- 玩小游戏；
+- 神奇微波炉做出的特殊食品；
+- 抱抱龙的心愿；
+" style="width:90px;height:32px;background:;"/>
+                </div>
+            </div>
+        </div><br/>
+        <div style="float:left;margin:6px;margin-bottom:0px;color:#FFFFFF">饥饿值: </div>
+        <div style="float:left;">
+            <aries:mountpet-status nid='<%=GetNID()%>' type="strong" isshowtooltip = "true" 
+                style="float:left;margin:4px;margin-left:-2px;margin-bottom:0px;width:130px;height:26px;"/>
+            <div style="float:left;margin:6px;margin-left:8px;margin-bottom:0px;color:#003366">智慧值: 
+                <aries:mountpet-status2 nid='<%=GetNID()%>' type="intelligence" name="intelligence"
+                    style="float:left;margin:0px;margin-left:-2px;margin-bottom:0px;width:90px;height:20px;color:#003366"/>
+                <div style="position:relative;margin-top:-32px;width:90px;height:32px;">
+                <input type="button" zorder="4" tooltip="智慧值获得方式：
+- 玩小游戏；
+- 神奇微波炉做出的特殊食品；
+- 抱抱龙的心愿；
+" style="width:90px;height:32px;background:;"/>
+                </div>
+            </div>
+        </div><br/>
+        <div style="float:left;margin:6px;margin-bottom:0px;color:#FFFFFF">清洁值: </div>
+        <div style="float:left;">
+            <aries:mountpet-status nid='<%=GetNID()%>' type="cleanness" isshowtooltip = "true" 
+                style="float:left;margin:4px;margin-left:-2px;margin-bottom:0px;width:130px;height:26px;"/>
+            <div style="float:left;margin:6px;margin-left:8px;margin-bottom:0px;color:#003366">敏捷值: 
+                <aries:mountpet-status2 nid='<%=GetNID()%>' type="agility" name="agility"
+                    style="float:left;margin:0px;margin-left:-2px;margin-bottom:0px;width:90px;height:20px;color:#003366"/>
+                <div style="position:relative;margin-top:-32px;width:90px;height:32px;">
+                <input type="button" zorder="4" tooltip="敏捷值获得方式：
+- 玩小游戏；
+- 神奇微波炉做出的特殊食品；
+- 抱抱龙的心愿；
+" style="width:90px;height:32px;background:;"/>
+                </div>
+            </div>
+        </div><br/>
+        <div style="float:left;margin:6px;margin-bottom:0px;color:#FFFFFF">心情值: </div>
+        <div style="float:left;">
+            <aries:mountpet-status nid='<%=GetNID()%>' type="mood" isshowtooltip = "true" 
+                style="float:left;margin:4px;margin-left:-2px;margin-bottom:0px;width:130px;height:26px;"/>
+            <div style="float:left;margin:6px;margin-left:8px;margin-bottom:0px;color:#003366">力量值: 
+                <aries:mountpet-status2 nid='<%=GetNID()%>' type="strength" name="strength"
+                    style="float:left;margin:0px;margin-left:-2px;margin-bottom:0px;width:90px;height:20px;color:#003366"/>
+                <div style="position:relative;margin-top:-32px;width:90px;height:32px;">
+                <input type="button" zorder="4" tooltip="力量值获得方式：
+- 玩小游戏；
+- 神奇微波炉做出的特殊食品；
+- 抱抱龙的心愿；
+" style="width:90px;height:32px;background:;"/>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</pe:mcml> 
+</body>
+</html>

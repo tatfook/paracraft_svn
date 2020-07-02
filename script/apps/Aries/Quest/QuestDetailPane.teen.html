@@ -1,0 +1,242 @@
+﻿<!-- "script/apps/Aries/Quest/QuestDetailPane.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/8/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestDetailPane.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+local QuestDetailPane = commonlib.gettable("MyCompany.Aries.Quest.QuestDetailPane");
+local nid = System.User.nid;
+
+local pageCtrl = document:GetPageCtrl();
+QuestDetailPane.OnInit();
+
+function ClosePage()
+    QuestDetailPane.ClosePage();
+end
+function GetQuestID()
+    return QuestDetailPane.id;
+end
+function GetExtraReword()
+    return QuestDetailPane.GetExtraReword();
+end
+
+function extra_reward_func(index)
+	if(not QuestDetailPane.extra_reward_list)then return 0 end
+	if(index == nil) then
+		return #(QuestDetailPane.extra_reward_list);
+	else
+		return QuestDetailPane.extra_reward_list[index];
+	end
+end
+function Has_Extra_Reward()
+    local extra_reward_list,req_num = GetExtraReword();
+    if(extra_reward_list)then
+        local len = #extra_reward_list;
+        if(len > 0)then
+            return true;
+        end
+    end
+end
+function Get_Extra_Reward_Title()
+    local extra_reward_list,req_num = GetExtraReword();
+    if(extra_reward_list)then
+        local len = #extra_reward_list;
+        if(len > 0)then
+            local s;
+            if(req_num >= len)then
+                s = string.format("你还可以得到:");
+            else
+                s = string.format("你还可以选择其中%d项:",req_num);
+            end
+            return s;
+        end
+    end
+end
+--mcml显示
+function Get_Extra_Reward_Num(num)
+    num = tonumber(num)
+    if(num and num > 1)then
+        return num;
+    end
+end
+--获取选择的长度
+function GetSelectedList()
+    return QuestDetailPane.GetSelectedList();
+end
+--选择奖励
+function DoClick_Extra_Reward(gsid)
+    if(QuestDetailPane.state == "do_accepted")then
+        return;
+    end
+    local extra_reward_list,req_num,need_select = GetExtraReword();
+    if(not need_select)then
+        return;
+    end
+    local selected_list = GetSelectedList();
+    local n = 0;
+    if(selected_list)then
+        n = #selected_list;
+    end
+    if(gsid and extra_reward_list)then
+        local k,v;
+        for k,v in ipairs(extra_reward_list) do
+            if(v.gsid == gsid)then
+                if(v.checked)then
+                    v.checked = false;
+                else
+                    if(n >= req_num)then
+                        return
+                    end
+                    v.checked = true;
+                end
+            end
+        end
+        pageCtrl:Refresh(0);
+    end
+end
+--接受任务
+function DoAccepted()
+    return QuestDetailPane.DoAccepted()
+end
+--检查是否有需要选择的奖励
+function Check_CanFinished()
+    return QuestDetailPane.Check_CanFinished();
+end
+--完成任务
+function DoFinished()
+    return QuestDetailPane.DoFinished()
+end
+function HasGsid(gsid)
+    if(gsid and gsid > 0)then
+        return true;
+    end
+end
+function IsRightSchool(gsid)
+    if(HasGsid(gsid))then
+        return CommonClientService.IsRightSchool(gsid);
+    end    
+end
+function GetTooltip(gsid)
+    if(HasGsid(gsid))then
+        local s = string.format("script/apps/Aries/Desktop/ApparelTooltip.html?gsid=%d",gsid);
+        return s;
+    end
+end
+function onGotoStartPage()
+    if(not CommonClientService.IsEnabled_HelpTooltip(0,7))then
+		return
+	end
+    if(MyCompany.Aries.Quest.QuestDetailPane.state == 'do_accepted')then
+        pageCtrl:SetValue("TooltipsPPT", "howtouse_do_accepted")
+    elseif(MyCompany.Aries.Quest.QuestDetailPane.state == 'do_finished')then
+        pageCtrl:SetValue("TooltipsPPT", "howtouse_do_finished")
+    end
+end
+function HasRequestAttr_and_RequestQuest(questid)
+    return QuestHelp.HasRequestAttr_and_RequestQuest(questid)
+end
+function HasGoal(questid)
+    return QuestHelp.HasGoal(questid);
+end
+onGotoStartPage();
+]]></script>
+<aries:window width="395" title="任务" onclose="ClosePage" onhelp="onGotoStartPage" mode="lite" isdeepbg="true">
+<div style="margin-left:4px;margin-bottom:5px;">
+        <div class="subpane" style="color:#ffffff;width:373px;min-height:180px;margin-top:5px;padding:10px;font-size:14;">
+            <aries:quest questid="<%=GetQuestID()%>" >
+                <div style="font-weight:bold;"><div style="float:left;font-weight:normal;">任务名称:</div><aries:quest_item class="defaultcolor" property="Title" style="float:left;font-size:14;"/></div>
+                <div style="font-weight:bold;"><div style="float:left;font-weight:normal;">任务描述:</div><aries:quest_item property="Detail" class="defaultcolor" style="float:left;font-size:14;"/></div>
+                <!--<pe:if condition='<%=HasRequestAttr_and_RequestQuest(GetQuestID()) %>'>
+                    <div><b>领取条件:</b><aries:quest_item property="RequestAttr" class="defaultcolor" style="float:left;font-size:14;"/></div>                     
+                </pe:if>-->                    
+                <pe:if condition='<%=HasGoal(GetQuestID()) %>'>
+                    <div>
+                       <div >任务目标:</div>                    
+                        <div style="margin-left:20px">
+                            <aries:quest_item property="Goal" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="GoalItem" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientGoalItem" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientExchangeItem" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="FlashGame" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="ClientDialogNPC" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                                    <br />
+                                    <aries:quest_item property="CustomGoal" class="defaultcolor" ongoto="ongoto()" style="float:left;font-size:14;"/>
+                        </div>
+                    </div>
+                </pe:if>                    
+            </aries:quest>
+        </div>
+        <div class="subpane" style="color:#ffffff;width:373px;margin-top:3px;min-height:40px;padding-bottom:5px;">
+            <aries:quest questid="<%=GetQuestID()%>" >
+                <div style="margin-left:5px;margin-top:5px;"><aries:quest_item property="Reward_0" class="defaultcolor" style="float:left;font-size:14;"/></div>  
+                <div>
+                <div style="margin-left:5px;font-size:14;float:left;"><%=Get_Extra_Reward_Title() %></div>
+                <div style="margin-left:20px;">
+                    <pe:gridview DefaultNodeHeight="36"  name="extra_reward_view" FitHeight="true" DataSource="<%=extra_reward_func%>" ItemsPerLine="5" AllowPaging="false" pagesize="20">
+				        <Columns>
+                            <div>
+					            <div style="margin-left:2px;width:36px;height:36px;">
+                                    <pe:if condition="<%=not MyCompany.Aries.Quest.QuestDetailPane.need_select%>">
+                                        <div style="width:32px;height:32px;" class="block">
+                                            <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="width:32px;height:32px;"/>
+                                        </div>
+                                        <div class="defaultcolor" style="width:150px;margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+                                        <pe:if condition='<%=not IsRightSchool(Eval("gsid")) %>' >
+                                            <img class="invalid_mask" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" style="position:relative;margin-left:2px;margin-top:-32px;width:32px;height:32px;" bindtooltip='<%=GetTooltip(Eval("gsid")) %>'/>
+                                        </pe:if>
+                                    </pe:if>
+                                    <pe:if condition="<%=MyCompany.Aries.Quest.QuestDetailPane.need_select%>">
+                                        <pe:if condition="<%=Eval('checked') %>">
+                                            <div style="width:36px;height:36px;" class="quest_reward_item_selected">
+                                                <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="margin-left:2px;margin-top:2px;width:32px;height:32px;"/>
+                                            </div>
+                                        </pe:if>
+                                        <pe:if condition="<%=not Eval('checked') %>">
+                                            <div style="width:32px;height:32px;" class="block">
+                                                <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="width:32px;height:32px;"/>
+                                            </div>
+                                        </pe:if>
+                                        <div class="defaultcolor" style="width:150px;margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+                                        <pe:if condition='<%=not IsRightSchool(Eval("gsid")) %>' >
+                                            <img class="invalid_mask" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" style="position:relative;margin-left:2px;margin-top:-32px;width:32px;height:32px;" bindtooltip='<%=GetTooltip(Eval("gsid")) %>'/>
+                                        </pe:if>
+                                    </pe:if>
+					            </div>
+					        </div>
+				        </Columns>
+			        </pe:gridview>                
+                </div>         
+                </div>
+                
+            </aries:quest>
+        </div>
+        <div style="margin-left:270px;margin-top:5px;">
+            <pe:goalpointer listen="do_quest_button" style="position:relative;width:70px;height:30px;margin-left:px;margin-top:0px;"></pe:goalpointer>
+            <pe:if condition="<%=MyCompany.Aries.Quest.QuestDetailPane.state == 'do_accepted' %>">
+                <input type="button" hotkey="DIK_X" value="接受任务" style="height:30px;min-width:70px;font-weight:bold;font-size:15px;" class="defaultbutton" onclick="DoAccepted()"/>
+            </pe:if>
+            <pe:if condition="<%=MyCompany.Aries.Quest.QuestDetailPane.state == 'do_finished' %>">
+                <input type="button" hotkey="DIK_X" value="完成任务" style="height:30px;min-width:70px;font-weight:bold;font-size:15px;" class="defaultbutton" onclick="DoFinished()"/>
+            </pe:if>
+        </div>
+</div>
+</aries:window>
+</pe:mcml> 
+
+</body>
+</html>

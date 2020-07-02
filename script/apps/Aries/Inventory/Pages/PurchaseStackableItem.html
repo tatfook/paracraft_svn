@@ -1,0 +1,722 @@
+﻿<!-- "script/apps/Aries/Inventory/Pages/PurchaseStackableItem.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PurchaseStackableItem, by Andy, 2009/8/5</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PurchaseStackableItem.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemPage = MyCompany.Aries.Inventory.PurchaseStackableItemPage;
+local ItemManager = Map3DSystem.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+
+local haqi_RMB_Currency = System.options.haqi_RMB_Currency
+local haqi_GameCurrency = System.options.haqi_GameCurrency
+
+ItemPage.OnInit();
+gsid = pageCtrl:GetRequestParam("gsid");
+gsid = tonumber(gsid);
+local default_count = pageCtrl:GetRequestParam("count");
+default_count = tonumber(default_count) or 1;
+local price = 0;
+local pbuyprice = 0;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+local max_count = 99; 
+if(gsItem) then
+    local bhas,_,_,count = hasGSItem(gsid);
+    if(not gsItem.template.maxcount or gsItem.template.maxcount<=0) then
+        max_count = 99;
+    else
+        max_count = math.min(math.max(gsItem.template.maxcount - (count or 0),0), 9999999);
+    end
+end
+
+function GetCountDesc()
+    return format("输入购买数量(1-%d)", max_count);
+end
+
+local last_bean = System.App.profiles.ProfileManager.GetUserInfoInMemory();
+
+if(gsItem) then
+	name = gsItem.template.name;
+	price = gsItem.ebuyprice;
+    pbuyprice = gsItem.count;
+else
+    name = "unknown";
+    price = 0;
+    pbuyprice = 0;
+end
+
+local mymoney = 0;
+local my_p_money = 0;
+local bhas,_,_,count = hasGSItem(984);
+if (bhas and count) then
+    my_p_money = count;
+end
+
+local ProfileManager = System.App.profiles.ProfileManager;
+local myInfo = ProfileManager.GetUserInfoInMemory(ProfileManager.GetNID());
+
+if(myInfo) then
+    mymoney = myInfo.emoney;
+end
+
+function IsKids()
+    if (System.options.version=="kids")then
+        return true
+    else
+        return false
+    end
+end
+
+function GetBuyDesc1()
+    local count = 1;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count", count);
+    else
+        count = pageCtrl:GetValue("countTeen", count);
+    end
+    local single_price = 0;
+    count = tonumber(count) or 1;
+    if(pbuyprice>0) then
+	    -- this cost real money
+        local s=string.format("%d个%s需要%d%s，你现在有%d%s",count,name,count * pbuyprice,haqi_RMB_Currency,my_p_money,haqi_RMB_Currency);
+        -- return count.."个"..name.."需要"..count * pbuyprice.."魔豆，你现在有"..my_p_money.."魔豆。";
+        return s
+    else
+        -- check for discount value
+        local isHalfPriceDay = false;
+        local discount = MyCompany.Aries.Scene.GetServerObjectValue("EMoneyDiscount");
+        if(discount and tonumber(discount) == 0.5) then
+            isHalfPriceDay = true;
+            single_price = price * tonumber(discount);
+        else
+            single_price = price;
+        end
+        local discountPrefix = "";
+        if(isHalfPriceDay) then
+            return "今天是半价日，"..count.."个"..name.."需要"..count * single_price..haqi_GameCurrency.."，";
+        else
+            return count.."个"..name.."需要"..count * single_price..haqi_GameCurrency.."，你现在有"..mymoney..haqi_GameCurrency.."。";
+        end
+    end
+end
+
+function GetBuyDesc2()
+    local count = 1;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count", count);
+    else
+        count = pageCtrl:GetValue("countTeen", count);
+    end
+    count = tonumber(count) or 1;
+
+    local bVIP=VIP.IsVIP();
+        
+    local desc_str;
+    if(pbuyprice and pbuyprice>=0) then
+	    -- this cost real money
+        desc_str="你确认要购买吗？";
+    else
+	    -- check for discount value
+        local isHalfPriceDay = false;
+        local discount = MyCompany.Aries.Scene.GetServerObjectValue("EMoneyDiscount");
+        if(discount and tonumber(discount) == 0.5) then
+            desc_str="你现在有"..mymoney..haqi_GameCurrency.."。你确认要购买吗？";
+        else
+            desc_str="你确认要购买吗？";
+        end
+    end
+
+    if (gsid==998) then
+        local vipname="";
+        if (System.options.version=="kids") then
+	        vipname = "魔法星";
+        else
+	        vipname = "VIP";
+        end
+        if (bVIP) then
+            desc_str="获得能量石给魔法星补充能量, 你确认要购买吗？";
+        else
+            desc_str=string.format("能量石可以激活%s, 你确认要购买吗？",vipname);
+        end   
+    end
+
+    return desc_str;    
+end
+
+defaultDesc1 = GetBuyDesc1();
+defaultDesc2 = GetBuyDesc2();
+
+function OnOK()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    if(goal_manager.match_param("gsid", gsid)) then
+        goal_manager.finish("purchase_confirm");
+    end
+
+    local count;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count");
+    else
+        count = pageCtrl:GetValue("countTeen");
+    end
+    local callback_params=Page:GetRequestParam("seq");
+    count = tonumber(count);
+    if(count and count >= 1 and count <= max_count) then
+        
+        local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+        -- 47 ExtendedCost_ID_Store(C) 商城中对应物品的extendedcost id
+        local exid;
+
+        if(gsItem) then
+            exid = gsItem.template.stats[47];
+            if(gsItem.maxweeklycount > 0) then
+	            local obtain = System.Item.ItemManager.GetGSObtainCntInTimeSpanInMemory(gsid);
+	            if((obtain.inweek + count) > gsItem.maxweeklycount) then
+                    _guihelper.MessageBox(gsItem.template.name.." 每周只能购买"..gsItem.maxweeklycount.."个哦");
+                    return;
+                end
+            end
+        end
+
+        local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+        local gotBypurchase = false;
+        if(exTemplate) then
+            local _,t;
+            for _,t in pairs(exTemplate.froms) do
+                if(tonumber(t.key)== 984) then
+                    gotBypurchase = true;
+                end
+            end
+        end
+
+        
+        if(exid and IsKids() and gotBypurchase) then
+            -- local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+		    if(exTemplate) then
+                local _, v;
+			    for _, v in ipairs(exTemplate.pres) do
+                    if (tonumber(v.key)==-15) then
+                        if( (tonumber(v.value) or 0) >= 1) then
+                            if(not MyCompany.Aries.VIP.IsVIPAndActivated()) then
+                                pageCtrl:CloseWindow();
+                                _guihelper.Custom_MessageBox("你现在还没有魔法星哦，" .. gsItem.template.name .. "需要魔法的力量才能使用购买哦，你确定要购买能量石加入魔法星吗？",function(result)
+					                if(result == _guihelper.DialogResult.Yes)then
+						                Map3DSystem.mcml_controls.pe_item.OnClickGSItem(998,true);
+					                end
+				                end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/PurchaseImmediately_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                                return;
+                            end
+                        end
+                    end
+                end
+
+			    local i, from;
+			    for i, from in ipairs(exTemplate.froms) do
+    				if(from.key == 984) then -- magic bean
+					    local bHas, guid, bag, copies = ItemManager.IfOwnGSItem(984);
+					    if(bHas == false or (bHas == true and from.value*count > copies)) then
+                            NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+                            local s=string.format("很抱歉，你的%s数量不足，先多兑换点%s再来买吧！",haqi_RMB_Currency,haqi_RMB_Currency);
+                            _guihelper.Custom_MessageBox(s,function(result)
+    	                        if(result == _guihelper.DialogResult.Yes)then
+                                    if(System.options.version=="kids") then
+    		                            NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+                                    else
+                                        NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+                                    end
+		                            MyCompany.Aries.Inventory.PurChaseMagicBean.Show();
+	                            end
+                            end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/PurchaseMagicBean_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+                            return;
+                        end
+                    end
+                end
+            end    
+    
+	        System.Item.ItemManager.ExtendedCost2(exid, count, nil, nil, function(msg)
+    		    if(msg) then
+			        log("+++++++Purchase item with ExtendedCost return: #"..tostring(gsid).." #"..tostring(exid).." +++++++\n")
+			        commonlib.echo(msg);
+    		    end 
+                MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"), msg)
+	        end, function(msg) end, "purchase");
+        else
+
+	        System.Item.ItemManager.PurchaseItem(gsid, count, function(msg)
+		        if(msg) then
+                    if (msg.issuccess==true) then
+                        local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");               
+			        --    log("+++++++Purchase item return: #"..tostring(gsid).." count: "..tostring(count).." +++++++\n")
+                        local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+                        if(not gsItem) then
+                            return
+                        end
+                        local ItemName = gsItem.template.name;
+	                    local ItemClass = gsItem.template.class;
+                        local ItemSubclass = gsItem.template.subclass;
+                        if (ItemClass==2 and ItemSubclass==6)then
+                            local s;
+                            if(MyCompany.Aries.Player.IsInCombat()) then
+		                        return;
+	                        end
+                            if(IsKids()) then
+                                s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%s坐骑药丸，快打开背包看看吧！</div>",ItemName);
+                            else
+                                s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%s坐骑召唤石，快打开背包看看吧！</div>",ItemName);
+                            end
+                            _guihelper.Custom_MessageBox(s,function(result)
+                                if(result == _guihelper.DialogResult.Yes)then
+                                    if(IsKids()) then
+                                     -- 儿童版
+                             	        NPL.load("(gl)script/apps/Aries/Inventory/MainWnd.lua");
+	                                    MyCompany.Aries.Inventory.ShowMainWnd(true, 2);
+	                                    NPL.load("(gl)script/apps/Aries/Inventory/TabMountExPage.lua");
+	                                    MyCompany.Aries.Inventory.TabMountExPage.ShowItemView1("1","1");                                
+                                    else
+                                    -- 青年版
+                                        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.lua");
+                                        local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+                                        CharacterBagPage.ShowPage(nil,"Pet")
+                                    end
+                                end
+                            end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OpenBag_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+
+                        elseif (gsid>23313 and gsid<24000) then
+                            local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%s符文卡片，快打开背包看看吧！</div>",ItemName);
+                            _guihelper.Custom_MessageBox(s,function(result)
+   					            if(result == _guihelper.DialogResult.Yes)then
+					                if(IsKids()) then
+						                -- 儿童版
+							                local CombatCharacterFrame = commonlib.gettable("MyCompany.Aries.Desktop.CombatCharacterFrame");
+							                if (CombatCharacterFrame) then
+								                CombatCharacterFrame.ShowMainWnd(2);
+								                --显示学会技能的卡片背包
+        						                local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+								                MyCardsManager.SetRunePage();
+							                end
+					                else
+						                -- 青年版
+						                local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+                                        MyCardsManager.SetRunePage();
+						                MyCardsManager.ShowPage(2);
+					                end
+                                end
+                            end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OpenBag_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                
+                        elseif (gsid==998) then
+                            if ((not VIP.IsVIP() and  IsKids()) or (not IsKids())) then
+                	            local hasItem,guid, __, copies = hasGSItem(gsid);
+				                if(hasItem)then
+                                    local s = "";
+                                    if (IsKids()) then
+                                        s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你还不是魔法星用户，无法享受VIP特权，<br/>你获得了%d个能量石，要立刻使用1颗能量石开通魔法星吗？</div>",count);
+                                    else
+                                        s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你获得了%d个能量石，要立刻全部使用提升魔法星 %d 点能量值吗？</div>",count,count*100);
+                                    end
+                                    _guihelper.Custom_MessageBox(s,function(result)
+                                        if(result == _guihelper.DialogResult.Yes)then
+                                            if (IsKids()) then
+	                                            ItemManager.UseEnergyStone( function(msg)
+		                                            System.App.profiles.ProfileManager.GetUserInfo(System.User.nid, "UpdateUserInfo", function(msg)
+                                                        commonlib.echo("===========purchase stone getItems")
+                                                        local lastmlel;
+                                                        if (last_bean) then 
+                                                            lastmlel=tonumber(last_bean.mlel);
+                                                        else
+                                                            lastmlel=0;
+                                                        end
+                                                        local bean = msg.users[1];
+                                                        local _s="";
+		                                                if( lastmlel < tonumber(bean.mlel) )then
+                                                            commonlib.echo("=============add mlel")  
+				                                            _guihelper.MessageBox([[<div style="float:left;color:#000000">哇，真是好棒啊，这颗能量石让你的魔法星增加了：<div style="float:left;color:#ff0000;">能量值：31点   M值：100点</div>你的魔法星升到]]..bean.mlel..[[级啦！</div>]]);
+                                                            _s = string.format("你获得了魔法星: 31点能量值,100点M值，魔法星升到%d级",bean.mlel);
+                                                        else
+                                                            commonlib.echo("==========add energy")  
+				                                            _guihelper.MessageBox([[<div style="float:left;color:#000000">太棒了，你使用了一颗能量石，为你的魔法星增加了: <div style="float:left;color:#ff0000;">能量值：31点   M值：100点</div></div>]]);	
+                                                            _s="你获得了：魔法星31点能量值,100点M值"
+		                                                end
+
+                                                        local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+		                                                local ChatChannel = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatChannel");
+		                                                ChatChannel.AppendChat({
+					                                                ChannelIndex = ChatChannel.EnumChannels.ItemObtain, 
+					                                                fromname = "", 
+					                                                fromschool = Combat.GetSchool(), 
+					                                                fromisvip = false, 
+					                                                words = _s,
+					                                                is_direct_mcml = true,
+					                                                bHideSubject = true,
+					                                                bHideTooltip = true,
+					                                                bHideColon = true,
+				                                                });
+                                                    
+                                                        local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+                                                        Pet.SetBean(nil,bean);
+		                                            end, "access plus 0 day");                                            
+	                                            end, function()  end);
+                                            else -- 青年版
+                                                local ExtendedCost2 = ItemManager.ExtendedCost2;
+                                                local exid = 3001;
+                                                ExtendedCost2(exid,count,nil,nil,function(msg)
+		                                            System.App.profiles.ProfileManager.GetUserInfo(System.User.nid, "UpdateUserInfo", function(msg)
+                                                        commonlib.echo("===========purchase stone getItems")
+                                                    
+                                                        local lastmlel;
+                                                        if (last_bean) then 
+                                                            lastmlel=tonumber(last_bean.mlel);
+                                                        else
+                                                            lastmlel=0;
+                                                        end
+                                                        local bean = msg.users[1];                                                    
+                                                        local _s="";
+		                                                if( lastmlel < tonumber(bean.mlel) )then
+                                                            commonlib.echo("=============add mlel")  
+                                                            local s = string.format([[<div style="float:left;">哇，真是好棒啊，使用能量石让你的魔法星增加了：能量值 %d 点，你的魔法星升到 %d 级啦！</div>]],count*100,bean.mlel);
+                                                            _guihelper.MessageBox(s);
+                                                             _s = string.format("你获得了：%d 点魔法星能量值，魔法星升到%d级",count*100,bean.mlel);
+                                                        else
+                                                            commonlib.echo("==========add energy")  
+                                                            local s = string.format([[<div style="float:left;">太棒了，你使用了%d颗能量石，为你的魔法星增加了: 能量值 %d 点</div>]],count,count*100);
+                                                             _guihelper.MessageBox(s);	
+                                                             _s=string.format("你获得了：%d 点魔法星能量值",count*100);
+		                                                end
+
+                                                        local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+		                                                local ChatChannel = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatChannel");
+		                                                ChatChannel.AppendChat({
+					                                                ChannelIndex = ChatChannel.EnumChannels.ItemObtain, 
+					                                                fromname = "", 
+					                                                fromschool = Combat.GetSchool(), 
+					                                                fromisvip = false, 
+					                                                words = _s,
+					                                                is_direct_mcml = true,
+					                                                bHideSubject = true,
+					                                                bHideTooltip = true,
+					                                                bHideColon = true,
+				                                                });
+                                                    
+                                                        local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+                                                        Pet.SetBean(nil,bean);
+                                                        NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.lua");
+                                                        local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+                                                        MagicStarPage.ReloadData();
+                                                        MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(callback_params,msg);
+		                                            end, "access plus 0 day");   
+                                                    end,function(msg) end,nil,true,nil,3000,function(msg)
+                                                        local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，需要你点击他们为魔法星补充能量！</div>",count,ItemName); 
+                                                        _guihelper.Custom_MessageBox(s,function(result)			
+	                                                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);
+                                                    end); 
+                                            end
+                                        end
+                                    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+                                end
+                            end
+                        elseif (gsid==17213 and (not IsKids())) then
+				            local hasItem,guid, __, copies = hasGSItem(gsid);
+				            if(hasItem)then
+					            local item = ItemManager.GetItemByGUID(guid);
+					            if(item and item.guid > 0)then
+                                    local ExtendedCost2 = ItemManager.ExtendedCost2;
+                                    local exid = 1163;
+                                    ExtendedCost2(exid,count,nil,nil,function(msg)
+                                        if(msg) then
+	                                        if(msg.issuccess ) then
+                                                local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，并已经全部兑换成%s，现在可以继续购物了！</div>",count,ItemName,haqi_GameCurrency);
+                                                _guihelper.MessageBox(s);		
+                                                MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"));    
+	                                        end
+	                                        self.ExchangeId = nil;
+                                        else
+                                            local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，需要你点击他们兑换成%s！</div>",count,ItemName,haqi_GameCurrency); 
+                                            _guihelper.Custom_MessageBox(s,function(result)			
+	                                            end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);
+                                        end
+                                    end,function(msg) end,nil,true,nil,3000,function(msg)
+                                        local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，需要你点击他们兑换成%s！</div>",count,ItemName,haqi_GameCurrency); 
+                                        _guihelper.Custom_MessageBox(s,function(result)			
+	                                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);
+                                    end);                            
+					            end
+				            end                    
+                        elseif (gsid==17253 and (not IsKids())) then
+				            local hasItem,guid, __, copies = hasGSItem(gsid);
+				            if(hasItem)then
+					            local item = ItemManager.GetItemByGUID(guid);
+					            if(item and item.guid > 0)then
+                                    local ExtendedCost2 = ItemManager.ExtendedCost2;
+                                    local exid = 1269;
+                                    ExtendedCost2(exid,count,nil,nil,function(msg)
+                                        if(msg) then
+	                                        if(msg.issuccess ) then
+                                                local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，并已经全部兑换成%s，现在可以继续购物了！</div>",count,ItemName,haqi_GameCurrency);
+                                                _guihelper.MessageBox(s);	
+                                                MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"));    	    
+                                            else
+                                                local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，需要你点击他们兑换成%s！</div>",count,ItemName,haqi_GameCurrency); 
+                                                _guihelper.Custom_MessageBox(s,function(result)			
+	                                                end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);
+	                                        end
+	                                        self.ExchangeId = nil;
+                                        end
+                                    end,function(msg) end,nil,true,nil,3000,function(msg)
+                                        local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经购买了%d个%s，需要你点击他们兑换成%s！</div>",count,ItemName,haqi_GameCurrency); 
+                                        _guihelper.Custom_MessageBox(s,function(result)			
+	                                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"},12);
+                                    end);                                         
+					            end
+				            end                   
+                        elseif((gsid==17344 or gsid == 17345) and IsKids()) then
+                            NPL.load("(gl)script/kids/3DMapSystemApp/profiles/ProfileManager.lua");
+			                local cur_stamina, max_value = MyCompany.Aries.Player.GetStamina();
+                            local recStamina ,exid;
+                            if(gsid ==17344) then
+                                if(cur_stamina + 100 >= max_value) then
+                                    recStamina = max_value - cur_stamina;
+                                else
+                                    recStamina =100;
+                                end
+                                exid = 21130;
+                            elseif(gsid ==17345) then
+                                if(cur_stamina + 200 >= max_value) then
+                                    recStamina = max_value - cur_stamina;   
+                                else
+                                    recStamina =200;
+                                end
+                                exid = 21131;
+                            end
+                            local s = string.format("你成功购买了%d个%s,是否立即使用补充精力值",count,ItemName);
+                            local str = string.format("你使用了1个%s,恢复了%d点精力值",ItemName,recStamina);
+                            LOG.std(cur_stamina, max_value,recStamina ,gsid,exid,s,str);
+                            if(cur_stamina < 20) then
+                                _guihelper.MessageBox(s,function(result) 
+					                if(result == _guihelper.DialogResult.Yes) then
+						                ItemManager.ExtendedCost(exid, nil, nil, function(msg) 
+							                MyCompany.Aries.Desktop.HPMyPlayerArea.UpdateUI();
+							                _guihelper.MessageBox(str);
+						                end);
+					                end
+				                end,_guihelper.MessageBoxButtons.YesNo);
+                            end
+                        else
+                            local s = string.format("<div style='margin-left:15px;margin-top:20px;text-align:center'>你已经成功购买了%s %d个！</div>",ItemName,count);
+                            _guihelper.MessageBox(s);
+                        end
+                    end -- if (msg.issuccess)
+		        end -- if (msg)
+                if (gsid~=998 and gsid~=17213 and gsid~=17253) then
+                    MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"), msg)
+                end
+	        end, function(msg) end, nil, "purchase");
+        end -- if (count and count >= 1 and count <= max_count)
+    end
+    ItemPage.StopTimer();
+    pageCtrl:CloseWindow();
+end
+
+function pageCtrl.OnClose()
+    ItemPage.StopTimer();
+end
+
+ItemPage.StartTimer(pageCtrl.name, gsid);
+
+function OnCancel()
+    ItemPage.StopTimer();
+    pageCtrl:CloseWindow();
+end
+
+function OnInitValue()
+    local count = default_count;
+    if(count <= 1) then
+        count = 1;
+    elseif(count > max_count) then
+        count = max_count;
+    end
+    if (IsKids()) then
+        pageCtrl:SetValue("count", count);
+        pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+        pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+    else
+        pageCtrl:SetValue("countTeen", count);
+        pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+        pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());
+    end
+end
+function OnDecrease()
+    local count;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count");
+    else
+        count = pageCtrl:GetValue("countTeen");
+    end
+    count = tonumber(count);
+    if(count) then
+        if(count <= 1) then
+            count = 1;
+        elseif(count > max_count) then
+            count = max_count;
+        else
+            count = count - 1;
+        end
+        if (IsKids()) then
+            pageCtrl:SetValue("count", count);
+            pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+        else
+            pageCtrl:SetValue("countTeen", count);
+            pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());
+        end
+    end
+end
+
+function OnIncrease()
+    local count;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count");
+    else
+        count = pageCtrl:GetValue("countTeen");
+    end
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = 1;
+        elseif(count >= max_count) then
+            count = max_count;
+        else
+            count = count + 1;
+        end
+        if (IsKids()) then
+            pageCtrl:SetValue("count", count);
+            pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+        else
+            pageCtrl:SetValue("countTeen", count);
+            pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());    
+        end
+    end
+end
+function OnKeyUp()
+    local count;
+    if (IsKids()) then
+        count = pageCtrl:GetValue("count");
+    else
+        count = pageCtrl:GetValue("countTeen");
+    end
+    count = tonumber(count) or 1;
+    if(count < 1)then
+        count = 1;
+        if (IsKids()) then
+            pageCtrl:SetValue("count", count);
+            pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+        else
+            pageCtrl:SetValue("countTeen", count);
+            pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());    
+        end
+    elseif(count > max_count)then
+        count = max_count;
+        if (IsKids()) then
+            pageCtrl:SetValue("count", count);
+            pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+        else
+            pageCtrl:SetValue("countTeen", count);
+            pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());    
+        end
+    else
+        if (IsKids()) then
+            pageCtrl:SetValue("buydesc1", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2", GetBuyDesc2());
+        else
+            pageCtrl:SetValue("buydesc1Teen", GetBuyDesc1());
+            pageCtrl:SetValue("buydesc2Teen", GetBuyDesc2());    
+        end
+    end
+end
+
+-- tricky code to decrease the count actually the min value
+--OnDecrease();
+
+OnInitValue()
+]]></script>
+
+<div style="width:466px;height:355px;">
+    <pe:if condition='<%=IsKids() %>'>
+        <div style="width:466px;height:332px;padding:23px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:23 159 23 173)">
+            <div style="width:411px;height:240px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+                <div style="width:411px;height:160px;">
+                    <div style="float:right;padding-left:24px;padding-top:20px;width:145px;height:135px;margin:21px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)">
+                        <pe:item gsid='<%=Eval("gsid")%>' style="width:96px;height:96px" isclickable="false"/>
+                    </div>
+                    <div style="float:right;margin-top:48px;">
+                        <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+                        <div style="float:right;padding-left:50px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)">
+                            <input type="text" name="count" value="1" onkeyup="OnKeyUp()" style="width:40px;height:25px;background:;"/>
+                        </div>
+                        <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+                        <div style="margin-left:48px;color:#243b5d"><%=GetCountDesc() %></div>
+                    </div>
+                </div>
+                <br/>
+                <div style="margin-left:36px;margin-top:10px;color:#011132">
+                    <label name="buydesc1" style="height:20px;" value='<%=Eval("defaultDesc1")%>'/>
+                    <br/>
+                    <label name="buydesc2" style="height:20px;" value='<%=Eval("defaultDesc2")%>'/>
+                </div>
+            </div>
+        </div>
+        <div style="width:466px;height:48px;margin-top:-36px;">
+            <pe:goalpointer listen="purchase_confirm" style="position:relative;margin-left:70px;width:154px;height:48px;"></pe:goalpointer>
+            <input type="button" style="margin-left:70px;width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/buy_btn_32bits.png#0 0 154 48)" onclick="OnOK()"/>
+            <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="OnCancel()"/>
+        </div>
+    </pe:if>
+    <pe:if condition='<%=not IsKids() %>'>
+
+        <aries:window  width="466" height="220" mode="lite" isdeepbg="true" onclose="OnCancel" title='<%=Eval("name")%>' >
+            
+            <div style="width:411px;height:120px;color:#52dff4;">
+                <div style="float:left;padding-left:5px;padding-top:5px;width:80px;height:100px;margin:21px;">
+                    <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px" isclickable="false"/>
+                </div>
+                <div style="float:left;margin-left:30px;margin-top:28px;">
+                    <input type="button" style="width:23px;height:25px;" onclick="OnDecrease()" class="pagerleft"/>
+                    <div style="float:right;padding-left:50px;padding-top:2px;width:116px;height:30px;" class="inborder">
+                        <input type="text" name="countTeen" value="1" onkeyup="OnKeyUp()"  style="width:60px;height:25px;background:;" />
+                    </div>
+                    <input type="button" style="margin-left:5px;width:23px;height:25px;" onclick="OnIncrease()" class="pagerright"/>
+                    <div style="margin-left:30px;"><%=GetCountDesc() %></div>
+                </div>
+            </div>
+            <br/>
+            <div style="margin-left:120px;margin-top:-30px;color:#52dff4;">
+                <label name="buydesc1Teen" value='<%=Eval("defaultDesc1")%>'/>
+                <br/>
+                <label name="buydesc2Teen" value='<%=Eval("defaultDesc2")%>'/>
+            </div>
+            
+        </aries:window>
+        <div style="width:466px;height:48px;margin-top:-46px;">
+            <pe:goalpointer listen="purchase_confirm" style="position:relative;margin-left:140px;width:80px;height:30px;"></pe:goalpointer>
+            <input type="button" style="margin-left:140px;width:80px;height:30px;" onclick="OnOK()" class="defaultbutton" value="马上购买"/>
+            <input type="button" style="margin-left:30px;width:80px;height:30px;" onclick="OnCancel()" value="下次再说"/>
+        </div>
+    </pe:if>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

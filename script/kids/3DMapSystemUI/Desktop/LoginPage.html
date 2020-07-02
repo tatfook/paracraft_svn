@@ -1,0 +1,75 @@
+﻿<!-- "script/kids/3DMapSystemUI/Desktop/LoginPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Login Page</title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+  <script type="text/npl">
+    <![CDATA[
+    function OnInit()
+	    local self = document:GetPageCtrl();
+	    local bRememberPassword = Map3DSystem.App.Login.app:ReadConfig("rememberpassword", false);
+	    self:SetNodeValue("rememberpassword", bRememberPassword);
+	    if(bRememberPassword) then
+	        self:SetNodeValue("username", Map3DSystem.User.Name);
+	        self:SetNodeValue("password", Map3DSystem.User.Password);
+	    end 
+    end
+    OnInit()
+    ]]>
+  </script>
+  <!--<hr style="margin-top:0px;margin-bottom:0px;margin-left:0px;margin-bottom:0px;height:3px;background-color:#FFFFFF;background:url(Texture/3DMapSystem/Desktop/divider.png)"/>-->
+  <!--<div style="margin-top:0px;margin-left:0px;height:90px;background:url(Texture/3DMapSystem/Desktop/LoginPageBottom.png: 15 55 15 8)" width="100%"></div>-->
+
+  <pe:editor style="height:90px;background:url(Texture/3DMapSystem/Desktop/LoginPageBottom.png:15 55 15 8);" width="100%" alignment="_fi">
+    <div style="width:20px;float:left;">
+    </div>
+    <!--<div style="float:left;color:#C8E3F1;width:100px;margin-right:20px">-->
+    <div style="float:left;width:100px;margin-right:20px">
+        用户名:<br/>
+        <input type="text" name="username" style="background:url(Texture/3DMapSystem/Desktop/LoginPageTextbox.png: 7 7 7 7)"/>
+    </div>
+    <!--<div style="float:left;color:#C8E3F1;width:100px;margin-right:20px">-->
+    <div style="float:left;width:100px;margin-right:20px">
+        密码:<br/>
+        <input type="password" name="password" style="background:url(Texture/3DMapSystem/Desktop/LoginPageTextbox.png: 7 7 7 7)"/>
+    </div>
+    <!--<div style="float:left;color:#C8E3F1;margin-right:20px">-->
+    <div style="float:left;margin-right:20px">
+        域名:<br/>
+          <select name="domain">
+<option selected="selected" value="pala5.com">pala5.com</option>
+<option value="test.pala5.cn">test.pala5.cn</option>
+            </select>
+        <div><input type="checkbox" name="rememberpassword"/><span style="color:#C8E3F1;">记住密码</span></div>
+    </div>
+    <div style="float:left;margin-left:20px;">
+        <div style="height:4px"></div>
+        <input style="margin-right:10px;width:110px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton3.png:15 15 15 16);" type="button" name="register" value="新建用户" onclick="Map3DSystem.UI.Desktop.OnClickNewAccount"/>
+        <input style="margin-right:10px;width:110px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton3.png:15 15 15 16)" type="button" name="online" value="单机模式" onclick="Map3DSystem.UI.Desktop.OnLoginOfflineMode"/>
+        <pe:if-not condition='<%=ReleaseBuild%>'>
+            <input style="margin-right:10px;width:70px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton3.png:15 15 15 16)" type="button" name="testscene" value="测试场景" onclick="Map3DSystem.UI.Desktop.LoadEmptyScene"/>
+        </pe:if-not>
+        <div style="height:1px"></div>
+        <input DefaultButton="true" style="margin-right:10px;width:110px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton_HL3.png:15 15 15 16)" type="submit" name="login" value="登录" onclick="Map3DSystem.UI.Desktop.OnClickConnect"/>
+        <input style="margin-right:10px;width:110px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton3.png:15 15 15 16)" type="button" name="exit" value="退出" onclick="Map3DSystem.UI.Desktop.OnClickCallback_ExitApp"/>
+        <!--<input style="margin-right:10px;width:70px;height:32px;font-weight:bold;color:#043759;background:url(Texture/3DMapSystem/Desktop/LoginPageButton3.png:15 15 15 16)" type="button" name="showcase" value="演示场景" onclick="Map3DSystem.UI.Desktop.LoadDemoScene"/>-->
+    </div>
+  </pe:editor>
+    <pe:container style="float:right;vertical-align:bottom;background:;">
+        <div style="width:230px">
+        <div style="margin-left:25px">
+        <a tooltip="打开PEDN开发网: http://pedn.paraengine.com" class="a_inverse" href="%WIKI%/Main/WebHome"><div style="float:left;width:100px;margin-top:15px;"><span style="color:#C8E3F1;text-align:right">帕拉巫开发网</span></div>
+        <div style="float:left;background:url(Texture/3DMapSystem/brand/pedn_white_alpha.png);width:100px;height:50px"></div>
+        </a>
+        </div><br />
+        <div style="padding-left:20px;color:#C8E3F1;text-align:right">Release v1.0.0(c) 2008 ParaEngine</div>
+        </div>
+    </pe:container>
+</pe:mcml>
+</body>
+</html>
+

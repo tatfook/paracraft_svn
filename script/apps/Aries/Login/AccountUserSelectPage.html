@@ -1,0 +1,261 @@
+<!-- "script/apps/Aries/Login/AccountUserSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Server Select Page. 2009.8.1</title>
+</head>
+<body>
+<style type="text/css">
+<html>
+
+</html>
+</style>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="AccountUserSelectPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Partners/keepwork/KeepWorkBindingPage.lua");
+local KeepWorkBindingPage = commonlib.gettable("MyCompany.Aries.Partners.keepwork.KeepWorkBindingPage");
+local pageCtrl = document:GetPageCtrl();
+local AccountUserSelectPage = commonlib.gettable("MyCompany.Aries.AccountUserSelectPage");
+AccountUserSelectPage.OnInit(); 
+AccountUserSelectPage:LoadFromFile();
+
+local selection_id = nil;
+local user_list = AccountUserSelectPage.displayUsers;
+local MSG = _guihelper.MessageBox;
+local last_login_nid = nil;
+
+function GetAllRoles(index)    
+    return user_list; 
+end
+
+-- @return: {asset_table} or nil
+function GetSelectedUser() 
+    return GetUserByID(selection_id);
+end
+
+-- @return: {asset_table} or nil
+function GetUserByID(id) 
+    if(not id) then
+        if(#user_list>0) then
+            id = if_else(VerfyLastLoginID() == false,user_list[1].user_nid,user_list.last_login_nid)
+        end
+        if(not selection_id) then
+            selection_id = id;
+        end
+    end
+    local index,role,current_role;
+    for index,role in ipairs( user_list) do
+        if(role.user_nid == id) then 
+            role.is_selected = true;
+            current_role = role;
+        else
+            role.is_selected = false;
+        end
+    end
+
+    pageCtrl:CallMethod("pegvwRoles", "SetDataSource", GetAllRoles());
+    pageCtrl:CallMethod("pegvwRoles", "DataBind"); 
+    return current_role;  
+end
+function IsBinding(user_nid)
+    return AccountUserSelectPage:IsBinding(user_nid);
+end
+local last_click_time = nil;
+function OnClickRoleView(id) 
+    
+    local cur_time = ParaGlobal.timeGetTime();
+    if(selection_id == id and last_click_time and (cur_time - last_click_time) < 500) then
+        -- double click to enter game
+        EnterGame();
+    else
+        if(selection_id ~= id) then
+            selection_id = id; 
+            pageCtrl:Refresh(0);
+        end
+    end
+    last_click_time = cur_time;
+end
+
+function GetCurrentUserDataString()
+    local user_data = GetSelectedUser()
+    if(user_data and user_data.asset_table) then
+        return commonlib.serialize(user_data.asset_table);
+    end
+end
+
+function CreateRole() 
+    AccountUserSelectPage.OnClickRegAccount();
+end
+
+function UseOtherAccountLogin() 
+    AccountUserSelectPage.OnClickUseOtherAccount();
+end
+
+function EnterGame() 
+    if(user_list == nil or not user_list[1]) then
+        MSG("请先注册一个用户！");--if not any register user,use a hint.
+        return;
+    end
+
+    last_login_nid = (selection_id == nil) and user_list[1].user_nid or selection_id;
+
+    if(not IsBinding(last_login_nid))then
+        KeepWorkBindingPage.ShowPage(last_login_nid);
+        return
+    end
+    NPL.load("(gl)script/apps/Aries/Login/LocalUserSelectPage.lua");
+    local LocalUserSelectPage = commonlib.gettable("MyCompany.Aries.LocalUserSelectPage");
+    LocalUserSelectPage:SaveLastLoginNID(last_login_nid);
+
+    AccountUserSelectPage.OnSelectUser(last_login_nid); 
+end
+
+function GetSchool(phase)
+    local school = "";
+    if(phase == "烈火系") then
+        school = "fire"
+    elseif phase == "寒冰系" then
+        school = "ice"
+    elseif phase == "死亡系" then
+        school = "death"
+    elseif phase == "生命系" then
+        school = "life"
+    elseif phase == "风暴系" then
+        school = "storm"
+    end
+    return school;
+end
+
+function GetRoleInfo(index)
+    if(user_list)then
+        local node = user_list[index];
+        if(node)then
+            local s = string.format("[%d级]%s(%s)",node.combatlvl or 0,node.user_name or "",tostring(node.user_nid))
+            return s;
+        end
+    end
+end
+
+function VerfyLastLoginID()
+    if(last_login_nid == nil or "") then
+        last_login_nid = if_else(#user_list > 0 and user_list.last_login_nid ~= nil or "", user_list.last_login_nid,"");
+        if(last_login_nid == "") then
+            return false;
+        end
+    end
+
+    local index,child,result = nil,nil,false;
+    for index,child in ipairs(user_list) do
+        if(child.user_nid == last_login_nid) then
+            result = true;
+            break;
+        end
+    end
+
+    return result;
+end
+function OnUserBinding()
+    KeepWorkBindingPage.ShowPage(selection_id);
+end
+function DeleteRole() 
+    NPL.load("(gl)script/apps/Aries/Login/LocalUserSelectPage.lua");
+    local LocalUserSelectPage = commonlib.gettable("MyCompany.Aries.LocalUserSelectPage");
+    if(selection_id == nil) then
+        MSG("请选择要删除本机登录信息的角色！");
+        return;
+    else
+        local index,role = nil,nil;
+        for index,role in ipairs(user_list) do
+            if(role.user_nid == selection_id) then
+                AccountUserSelectPage.OnClickDelete(index);
+
+                if(last_login_nid == selection_id) then
+                    last_login_nid = "";
+                    LocalUserSelectPage:SaveLastLoginNID(last_login_nid);
+                end
+                
+                if(index == 1) then
+                    if(#user_list > 1) then
+                        selection_id = user_list[2].user_nid;
+                    else
+                        selection_id = "";
+                    end
+                else
+                    selection_id = user_list[1].user_nid;
+                end
+                break;
+            end
+        end
+
+        pageCtrl:CallMethod("pegvwRoles", "SetDataSource", GetAllRoles());
+        pageCtrl:CallMethod("pegvwRoles", "DataBind");    
+    end
+end
+
+]]></script>
+<pe:container alignment="_ctt" ClickThrough="true" zorder="10" style="position:relative;width:960px;height:64px;background:url()">
+    <iframe ClickThrough="true" src="script/apps/Aries/Creator/Game/Login/ParaWorldLoginDocker.html"></iframe>
+</pe:container>
+<pe:container alignment="_ct" style="position:relative;width:960px;height:560px;margin-left:-480px;margin-top:-280px;background:" >
+	<div style="width:462px;margin-top:180px;padding:16px;padding-right:10px;padding-bottom:8px;background:url(Texture/Aries/Common/MainRoleSlect_BG.png#0 0 32 372:15 20 15 20)" align="center">
+        <div>
+            <div style="float:left;height:240px;padding:3px;padding-top:5px;background:url(Texture/Aries/Common/RoleSelect_BG.png#0 0 32 32:11 12 11 12)">
+                <pe:gridview name="pegvwRoles" CellPadding="0" ItemsPerLine="1" AllowPaging="True" pagesize="8" style="margin-left:3px;width:190px;height:200px;margin-right:1px;"DataSource='<%=GetAllRoles() %>'DefaultNodeHeight="20" >
+				<Columns>
+                    <pe:if condition='<%=Eval("is_selected")%>' >
+                        <div style="background:url(Texture/Aries/Common/RowMouseDown.png#0 0 2 22);padding-left:2px;width:185px;height:20px;">
+                            <img src='<%=format("Texture/Aries/Combat/HPSlots/%s_32bits.png; 0 0 24 24",GetSchool(Eval("school"))) %>' style="width:16px;height:16px;margin-top:2px;"/>
+                            <pe:if condition='<%=IsBinding(Eval("user_nid"))%>'>
+                                <input type="button" onclick="OnClickRoleView" name='<%=Eval("user_nid")%>' tooltip='<%=GetRoleInfo(Eval("index")).."\n双击进入"%>' style="font-weight:bold;background:url();color:#012d53;font-size:12px;text-align:left;margin-left:2px;height:16px;width:160px" value='<%=GetRoleInfo(Eval("index"))%>' />
+                            </pe:if>
+                            <pe:if condition='<%=not IsBinding(Eval("user_nid"))%>'>
+                                <input type="button" onclick="OnClickRoleView" name='<%=Eval("user_nid")%>' tooltip='<%=GetRoleInfo(Eval("index")).."\n双击进入"%>' style="font-weight:bold;background:url();color:#808080;font-size:12px;text-align:left;margin-left:2px;height:16px;width:160px" value='<%=GetRoleInfo(Eval("index"))%>' />
+                            </pe:if>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=not Eval("is_selected")%>' >
+                        <input type="button" Normal_BG="" MouseOver_BG = "Texture/Aries/Common/RowMouseHover.png;0 0 2 22" style="position:relative;width:185px;height:20px;background:"
+                                onclick="OnClickRoleView" name='<%=Eval("user_nid")%>' tooltip='<%=GetRoleInfo(Eval("index")).."\n双击进入"%>'/>
+                        <img src='<%=format("Texture/Aries/Combat/HPSlots/%s_32bits.png; 0 0 24 24",GetSchool(Eval("school"))) %>' style="margin-left:2px;width:16px;height:16px;margin-top:2px;"/>
+                            <pe:if condition='<%=IsBinding(Eval("user_nid"))%>'>
+                                <input type="button" enabled="false" style="background:;color:#012d53;font-size:12px;text-align:left;margin-left:2px;height:16px;width:160px" value='<%=GetRoleInfo(Eval("index"))%>' />
+                            </pe:if>
+                            <pe:if condition='<%=not IsBinding(Eval("user_nid"))%>'>
+                                <input type="button" enabled="false" style="background:;color:#808080;font-size:12px;text-align:left;margin-left:2px;height:16px;width:160px" value='<%=GetRoleInfo(Eval("index"))%>' />
+                            </pe:if>
+                    </pe:if>
+				</Columns>	
+                <EmptyDataTemplate>
+		            <div style="margin:10px;font-weight:bold;text-align:center;"> 您还没有创建角色 <br />请先创建角色</div>
+	            </EmptyDataTemplate>
+	            <PagerSettings Position="Bottom"  style="position:relative;margin-top:0px;margin-left:70px;width:74px;height:0px;" PreviousPageText="previous page" NextPageText="next page"/>
+	            <PagerTemplate AutoHidePager="true" >
+	                <form>	        	        
+	                    <input type="button" name="pre" style="width:20px;margin-left:0px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                    <input type="button" name="next" style="margin-left:8px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+   	                </form>
+	            </PagerTemplate>
+				</pe:gridview>
+                <div style="margin-top:2px;margin-left:5px;">
+					<input type="button" style="width:90px;font-size:12px;color:#701401;height:23px;background:url(Texture/Aries/Common/ThemeKid/button_highlight_32bits.png#0 0 32 20:10 8 10 8)" value="创建角色" tooltip="创建角色" name="btnCreateRole" onclick="CreateRole" />
+					<input type="button" style="margin-left:2px;width:90px;font-size:12px;color:#701401;height:23px;background:url(Texture/Aries/Common/ThemeKid/button_highlight_32bits.png#0 0 32 20:10 8 10 8)" value="清除登录信息" tooltip="删除当前角色的本机登录信息" name="btnDelRole" onclick="DeleteRole" />
+				</div>
+            </div>
+            <div style="float:left;margin-left:9px;height:240px;width:220px;background:url(Texture/Aries/Common/UserRoleView_BG.png#0 0 64 300:20 20 20 20)">
+                <pe:canvas3d style="position:relative;margin-top:10px;height:220px;width:220px;" name="userCanvas" miniscenegraphname="AvatarMyselfTabCharacter" maxZoomDist="6" minZoomDist="5"  DefaultCameraObjectDist="5" DefaultLiftupAngle=".12" IsInteractive ="true" DefaultRotY ="-1.3" value='<%=GetCurrentUserDataString()%>'/>
+            </div>
+        </div>
+        <div>
+            <div style="float:left;width:143px;">
+                <pe:if condition="<%=not System.options.isFromQQHall %>">
+                    <input type="button" style="margin-left:5px;margin-top:15px;font-size:13px;color:#ffff00;font-weight:bold;height:19px;background-color:#ffff00;background:url(Texture/Aries/Common/underline_white_32bits.png:3 3 3 3)" value='绑定米米号' name="btnGotoLoginPage" onclick="OnUserBinding" />
+                </pe:if>
+            </div>
+            <input type="button" style="margin-top:6px;margin-left:115px;text-shadow:true;shadow-quality:8;shadow-color:#80ffffff;font-size:14px;color:#701401;font-weight:bold;width:107px;height:38px;background:url(Texture/Aries/Login/Login/login_button_32bits.png#0 0 32 29:10 10 10 10)" value="进入游戏" tooltip="进入游戏" name="btnEnterGame" onclick="EnterGame" />
+        </div>
+	</div>
+</pe:container>
+</pe:mcml>
+</body>
+</html>
+

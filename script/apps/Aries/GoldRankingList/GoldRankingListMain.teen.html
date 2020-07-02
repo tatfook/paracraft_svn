@@ -1,0 +1,99 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListMain.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListMain, by zrf, 2011/1/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GoldRankingListMain.teen.lua"><![CDATA[
+local page = document:GetPageCtrl();
+GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+
+GoldRankingListMain.Init();
+function onclose()
+    page:CloseWindow();
+end
+
+function ChangeRkList(name)
+	local listnm = string.lower(name);
+    GoldRankingListMain.ChangeList(listnm);
+end
+
+page:SetValue("mainlist", GoldRankingListMain.curlist);
+
+function GetListViewDS()
+    return GoldRankingListMain.listall_ds[GoldRankingListMain.curlist];
+end
+
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+end
+]]></script>
+
+<aries:window title="排行榜" width="760" height="470" onhelp="" onclose="onclose" icon="Texture/Aries/Common/ThemeTeen/wintitle/ranking_icon_32bits.png">
+	<div style="margin-top:27px;margin-left:4px;" class="clientarea">      
+	<div style="position:relative;margin-left:25px;margin-top:5px;">
+		<pe:tabs name="mainlist" onclick="ChangeRkList" ItemSpacing="0" class="default_tabs" >
+			<pe:tab-item name="pk" text="赛场" selected="true"></pe:tab-item>
+            <pe:tab-item name="explore" text="挑战"></pe:tab-item>
+            <pe:tab-item name="combat" text="综合"></pe:tab-item>
+		</pe:tabs>    	
+    </div>
+    
+    <div style="position:relative;margin-left:10px;margin-top:35px;width:165px;">	
+		<pe:treeview RememberScrollPos="true" DataSource="<%=GetListViewDS()%>" indent="0" name="GoldRankingListMain"  style="background:" class="defaulttreeview" DefaultNodeHeight = "22" VerticalScrollBarStep="22" >
+            <NodeTemplates>
+		        <NodeTemplate DataType="folder">
+                    <pe:treenode text='<%=XPath("this|name")%>' expanded='<%=XPath("this|expanded")%>' 
+                        MouseOverBG="" style="color:#52dff4;font-size:12px;height:22px;"
+                        can_select = "true" 
+                        OnClick="OnClickFolder()" />
+                </NodeTemplate>
+                <NodeTemplate DataType="rank">
+                    <div style="height:22px;">
+                        <pe:if condition='<%=XPath("this|isnew")==1 %>'>
+                            <div style="position:relative;margin-top:3px;width:28px;" align="right">
+                                <img zorder="1" style="width:28px;height:16px" src="Texture/Aries/Common/ThemeTeen/new_rank_32bits.png;0 0 32 16" />
+                            </div> 
+                        </pe:if>
+                        <pe:if condition='<%=GoldRankingListMain.GetCurPage() == XPath("this|listname")%>'>
+                            <div style="margin-top:0px;width:155px;height:22px;font-size:14;color:#f0f000;text-align:left;" class="listbutton_selected" >
+                                <%=XPath("this|name") %>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=GoldRankingListMain.GetCurPage() ~= XPath("this|listname")%>'>
+                            <div style="height:22px;">
+                                <input type="button" style="float:left;text-align:left;margin-top:-1px;width:155px;height:22;color:#98fffc;font-size:12;" class="listbutton_unselected"
+                                    name='<%=XPath("this|index") %>'
+                                    value='<%=XPath("this|name") %>'
+                                    onclick = "GoldRankingListMain.ChangePage()" />
+                            </div>   
+                        </pe:if>
+                    </div>
+                </NodeTemplate>
+	        </NodeTemplates>
+		</pe:treeview>
+	</div>
+	
+  <div style="position:relative;width:185px;height:405px;margin-left:3px;margin-top:32px;"  class="border_bg2_css">
+  </div>
+
+  <div style="margin-left:190px;margin-top:6px;">
+      <%=GoldRankingListMain.GetFrame() %>
+  </div>
+  <div style="position:relative;width:558px;height:433px;margin-left:189px;margin-top:-428px;"  class="border_bg2_css">
+  </div>  
+</aries:window>
+
+</pe:mcml> 
+</body>
+</html>

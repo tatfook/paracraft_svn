@@ -1,0 +1,123 @@
+﻿<!-- "script/kids/3DMapSystemApp/profiles/FriendsFinder.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Friends Finder Page by LiXizhi, 2008.4.30</title>
+</head>
+<body>
+<pe:mcml style="max-width: 640px" trans="ParaworldMCML">
+<script refresh="false" type="text/npl" src="FriendsFinder.lua">
+    local tabpage = document:GetPageCtrl():GetRequestParam("tab");
+    if(tabpage and tabpage~="") then
+        document:GetPageCtrl():SetNodeValue("FriendsFinderTabs", tabpage);
+    end
+</script>
+<pe:tabs name="FriendsFinderTabs">
+  <pe:tab-item text="找朋友" selected="true" name="findfriend" style="padding-left:3px">
+    <div>
+        <div style="font-weight:bold;">在帕拉巫中搜索你认识的朋友</div>
+        <div style="margin-left:15px;"><font style="color:#808080;">试试你在现实中的真实朋友、同学、同事、熟人、家庭成员...</font></div>
+        <hr />
+    </div>
+    <div>
+        <div style="float:left"><img style="margin-right:3px;margin-left:5px;background:url(Texture/3DMapSystem/common/search.png);width:16px;height:16px;" /></div>
+        <div style="float:left">
+            <div style="font-weight:bold;">搜索你的朋友<label name="SearchResultTitle" style="margin-top:2px;margin-left:10px;height:20px;color:#808080;font-weight:bold">输入你朋友的名字或Email</label></div>
+        </div><br />
+        <div style="margin-left:5px"><form name="findByNameEmail">
+            <input type="text" name="name_email" style="width:250px;"/><input type="submit" DefaultButton="true" style="margin-top:0px" class="defaultbutton" name="searchpeople" value="搜索" onclick="Map3DSystem.App.profiles.FriendsFinder.OnSearchPeople"/><br />
+            <pe:gridview name="gvwFindFriends" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "70" pagesize="10">
+	            <Columns>
+	               <div style="float:left; margin-right:10px">
+                    <pe:profile-photo uid='<%=Eval("uid")%>'/>
+		            </div>
+		            <div style="float:left; margin-right:10px">
+		                <pe:name uid='<%=Eval("uid")%>'/><br />
+		                <a onclick="Map3DSystem.App.profiles.ProfileManager.AddAsFriend" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/user_add.png);width:16px;height:16px;margin:3px" />加为好友</a>
+		                <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+		                <br />
+		                <div>
+		                创建日期: <%=Eval("createDate")%><br />
+		                </div>
+		                <hr/>
+		            </div>
+	            </Columns>
+	            <EmptyDataTemplate>
+		            <b>没有找到符合要求的用户</b>
+	            </EmptyDataTemplate>
+	            <FetchingDataTemplate>
+		            <b>正在搜索, 请稍候 ... </b>
+	            </FetchingDataTemplate>
+	            <PagerSettings Position="Bottom"/>
+            </pe:gridview>
+            <pe:mqldatasource name="FindByUserNameDataSource" DataSourceMode="DataReader" SelectCommand="select uid,createDate from users where uname like @username" cachepolicy="access plus 0 hour">
+                <SelectParameters>
+                    <pe:parameter name="username" type="string" defaultvalue="" />
+                </SelectParameters>
+            </pe:mqldatasource>
+            <pe:mqldatasource name="FindByEmailDataSource" DataSourceMode="DataReader" SelectCommand="select uid,createDate from users where email=@email" cachepolicy="access plus 0 hour">
+                <SelectParameters>
+                    <pe:parameter name="email" type="string" defaultvalue="" />
+                </SelectParameters>
+            </pe:mqldatasource>
+        </form></div>
+    </div>
+  </pe:tab-item>  
+  <pe:tab-item text="朋友的朋友" name="friendoffriend">
+    <div style="margin:5px;margin-top:10px;margin-bottom:5px">
+        <div style="font-weight:bold;">你可能已经认识下面的朋友</div>
+        <div style="margin-left:15px;margin-bottom:5px"><font style="color:#808080;">如果你认识他们, 就加他们为好友吧</font></div>
+        <hr />
+    </div>
+    <div style="margin:10px;color:#808080;">此功能稍后可用</div>
+    <iframe name="FriendsFriendsFrame" src="" style="margin:5px;padding:5px" />
+  </pe:tab-item>
+  <pe:tab-item text="交友" name="makefriends">
+    <div style="margin:10px;margin-top:10px;margin-bottom:5px">
+        <div style="font-weight:bold;">同城、同楼、同学校、公司交友</div>
+        <div style="margin-left:15px;margin-bottom:5px"><font style="color:#808080;">通过地理位置找朋友</font></div>
+        <hr />
+    </div>
+    <div style="margin:10px;color:#808080;">此功能稍后可用</div>
+    <iframe name="RecommendedprofilesFrame" src="" style="margin:5px;padding:5px" />
+  </pe:tab-item>
+  <pe:tab-item text="热心居民" name="support">
+    <div style="margin:5px;">
+        <div style="font-weight:bold;">帕拉巫热心居民</div>
+        <div style="margin-left:15px;margin-bottom:5px"><font style="color:#808080;">寻求帮助? 让我们来帮你. 请先加我们为好友.</font></div>
+        <hr />
+    </div>
+     <div style="margin-left:5px">
+        <pe:mqldatasource name="SupportDataSource" DataSourceMode="DataReader" SelectCommand="select uid,createDate,uname from users where uname='LiXizhi' or uname='Andy' or uname='ParaEngine' or uname='Leio' or uname='LiXizhi2' or uname='lorne'" cachepolicy="access plus 1 day">
+        </pe:mqldatasource>
+        <pe:gridview DataSourceID="SupportDataSource" name="gvwFriendsFinder" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "70" pagesize="10">
+            <Columns>
+                <div style="float:left; margin-right:10px">
+                    <pe:profile-photo uid='<%=Eval("uid")%>'/>
+		        </div>
+		        <div style="float:left; margin-right:10px">
+		            <pe:name uid='<%=Eval("uid")%>'/><br />
+	                <a onclick="Map3DSystem.App.profiles.ProfileManager.AddAsFriend" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/user_add.png);width:16px;height:16px;margin:3px" />加为好友</a>
+	                <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+	                <br />
+	                <div>
+	                创建日期: <%=Eval("createDate")%><br />
+	                </div>
+		            <hr/>
+		        </div>
+            </Columns>
+            <EmptyDataTemplate>
+		            <b>没有找到符合要求的用户</b>
+	        </EmptyDataTemplate>
+            <FetchingDataTemplate>
+	            <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </div>
+  </pe:tab-item>
+</pe:tabs>
+
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,51 @@
+﻿<!-- "script/mobile/paracraft/GUI/DefaultMessageBox.html" -->
+<html>
+<body>
+<pe:mcml>
+<script type="text/npl" src="script/ide/MessageBox.lua" refresh="false"><![CDATA[
+function ClosePage()
+	_guihelper.CloseMessageBox();
+end
+]]></script>
+<div style="width:590px;" class="mobile_button">
+  <div style="padding:5px;width:580px;max-height:220px;color:#cccccc">
+        <div style="float:left;padding:20px;base-font-size:28px;font-size:28px;font-weight:bold;" >
+            <!-- tricky: always reference content like below. It allows MCML code that needs page:Refresh to work inside content.-->
+            <script refresh="false" IsInitialized='<%=_guihelper.values.IsInitialized%>'>
+                document.write(_guihelper.values.content);
+            </script>
+        </div>
+  </div>
+  <pe:if condition='<%=_guihelper.values.buttons~=_guihelper.MessageBoxButtons.Nothing%>'>
+    <div style="padding:5px;padding-bottom:0px;height:90px;">
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.OKCancel%>'>
+          <input type="button" class="mobile_button_white" hotkey="DIK_RETURN" name="OK" value='<%=L"确定"%>' style="margin-left:62px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;"  onclick="_guihelper.OnMessageBoxClick()"/>
+          <input type="button" class="mobile_button_white" name="Cancel" value='<%=L"取消"%>' style="margin-left:145px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.OK%>'>
+          <input type="button" class="mobile_button_white" hotkey="DIK_RETURN" name="OK" value='<%=L"确定"%>' style="margin-left:185px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.YesNo%>'>
+          <input type="button" class="mobile_button_white" hotkey="DIK_RETURN" name="Yes" value='<%=L"是"%>' style="margin-left:62px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+          <input type="button" class="mobile_button_white" name="No" value='<%=L"否"%>' style="margin-left:145px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.YesNoCancel%>'>
+            <input type="button" class="mobile_button_white" hotkey="DIK_RETURN" name="Yes" value='<%=L"是"%>' style="margin-left:30px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+            <input type="button" class="mobile_button_white" name="No" value='<%=L"否"%>' style="margin-left:20px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+            <input type="button" class="mobile_button_white" name="Cancel" value='<%=L"取消"%>' style="margin-left:20px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.AbortRetryIgnore%>'>
+        <input type="button" class="mobile_button_white" name="Abort" value='<%=L"终止"%>' style="margin-left:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+        <input type="button" class="mobile_button_white" name="Retry" value='<%=L"重试"%>' style="margin-left:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+        <input type="button" class="mobile_button_white" name="Ignore" value='<%=L"忽略"%>' style="margin-left:25px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+      <pe:if condition='<%=_guihelper.values.buttons==_guihelper.MessageBoxButtons.RetryCancel%>'>
+        <input type="button" class="mobile_button_white" name="Retry" value='<%=L"重试"%>' style="margin-left:52px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+        <input type="button" class="mobile_button_white" name="Cancel" value='<%=L"取消"%>' style="margin-left:45px;margin-top:5px;width:160px;height:60px;font-size:15px;font-weight:bold;" onclick="_guihelper.OnMessageBoxClick()"/>
+      </pe:if>
+    </div>
+  </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

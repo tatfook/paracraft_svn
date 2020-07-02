@@ -1,0 +1,306 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/GemMerge_teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GemMerge_teen teen version, create by WD, 2011/07/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/GemMerge_teen.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.lua");
+local GemMerge_teen = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen");
+local Avatar_gems_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage");
+
+GemMerge_teen:Init();
+
+function ClosePage()
+    GemMerge_teen:CloseWindow();
+end
+
+function GenRecipe()
+    return Avatar_gems_subpage:GenRecipe();
+end
+
+function FilterItems(arg)
+    return Avatar_gems_subpage:FilterItems(arg);
+end
+
+merge_effect = {
+    name = "gememergeeffect",
+    AssetFile="character/v5/09effect/common/GemMergeProcess_effect.x",
+    IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+function OnClickItem(arg)
+    GemMerge_teen:CancelItem(arg);
+end
+
+function DummyFunc()
+
+end
+
+---------- tips
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local npcid = 31012;
+local superclass = "menu1";
+local tKey = npcid.."_"..superclass;
+local key = string.format("npcshoptips_%s_%s",tKey,System.User.nid);
+local pageCtrl = document:GetPageCtrl();
+local npcshoptips = true;
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage(hstate)
+    if (not hstate) then
+        local IsGemInBag;
+        local Avatar_gems_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage");
+        if (Avatar_gems_subpage.DisplayItems) then
+	        local firstItem = Avatar_gems_subpage.DisplayItems[1];
+            if (firstItem) then
+                if (firstItem.gsid~=0) then
+	                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	                if (gsItem.template.class==3 and gsItem.template.subclass==6) then -- judge item is gem or not
+                        IsGemInBag = true;
+                    else
+                        IsGemInBag = false;
+	                end
+                else
+                    IsGemInBag = false;
+                end
+            end
+        else
+            IsGemInBag = false;
+        end
+
+        if (not IsGemInBag) then
+            _guihelper.MessageBox("你还没有宝石，等你拥有了宝石再告诉你怎么合成高级宝石吧");
+            return
+        end
+    end
+    pageCtrl:SetValue("TooltipsPPT", "inventory1")
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.npcshop_tip[tKey]) then        
+	    system_looptip.npcshop_tip[tKey]=true;
+    end
+    if (not npcshoptips) then
+        npcshoptips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+function GetTips()    
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+    local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+    return NPCShopProvider.FindNPCshopTip(npcid,superclass);
+end
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local myCombatLevel = 0;
+if(bean) then
+	myCombatLevel = bean.combatlel or 0;
+end
+        
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+
+if (not system_looptip.npcshop_tip[tKey]) then
+	system_looptip.npcshop_tip[tKey]=true;
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    npcshoptips = Player.LoadLocalData(key, false) or false;
+end
+
+if (myCombatLevel<10 and (not npcshoptips)) then
+    local IsGemInBag;
+    local Avatar_gems_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage");
+    if (Avatar_gems_subpage.DisplayItems) then
+	    local firstItem = Avatar_gems_subpage.DisplayItems[1];
+        if (firstItem) then
+            if (firstItem.gsid~=0) then
+	            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	            if (gsItem.template.class==3 and gsItem.template.subclass==6) then -- judge item is gem or not
+                    IsGemInBag = true;
+                else
+                    IsGemInBag = false;
+	            end
+            else
+                IsGemInBag = false;
+            end
+        end
+    else
+        IsGemInBag = false;
+    end
+    if (IsGemInBag) then
+        onGotoStartPage(1);
+    end
+end
+
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:756px;height:468px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:55px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:320px;margin-top:120px;width:270px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			<%=GetTips() %>
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="float:left;width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:340px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:185px;margin-top:25px;width:140px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:190px;margin-top:60px;width:270px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			时运：表示你今天合成宝石的运气，星星越多，运气越好！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="float:left;width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:220px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:678px;margin-top:0px;width:24px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:500px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:670px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+<div style="width:758px;height:470px;" class="pane">
+    <pe:powerpoint name="AlphaPPT" value="0">
+		<pe:maskarea method="add" name="1" style="position:relative;background-color:#ff000000"  width="100%" height="100%"/>
+    </pe:powerpoint>
+    <div style="height:19px;">
+      <div class="windowlabel">宝石合成</div>
+      <input type="button" onclick="onGotoStartPage()" class="helpbutton" align="right" style="position:relative;margin-right:48px;" />
+      <input type="button" onclick="ClosePage()" class="closebutton" align="right" style="position:relative;margin-left:711px;" />
+    </div>
+
+    <div style="width:748px;height:443px;margin-top:3px;" class="border">
+        <div style="float:left;margin-top:20px;width:316px;height:425px;">
+            <div style="position:relative;margin-top:-13px;width:130px;height:16px;" align="right">
+                <div style="float:left;margin-top:-2px;" tooltip="你当前的运气！">时运:</div>
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.starCount >= 0 %>'>
+                    <div style="float:left;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.starCount >= 1 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.starCount >= 2 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.starCount >= 3 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.starCount >= 4 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+            </div>
+            <div style="position:relative;width:300px;height:300px;margin-left:18px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)">
+                
+                <!-- incoming gems -->
+                <div style="position:relative;margin-left:117px;margin-top:10px;float:left;width:48px;height:48px;" class="block">
+                    <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.copies >= 1 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid1"  style="width:48px;height:48px;" />
+                    </pe:if>
+                </div>
+                
+                <div style="position:relative;margin-top:90px;">
+                    <div style="position:relative;float:left;margin-left:5px;width:48px;height:48px;" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.copies >= 2 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid2"  style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+
+                    <div style="position:relative;margin-left:226px;float:left;width:48px;height:48px;" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.copies >= 3 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid3"   style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                </div>             
+                    <div style="margin-top:203px;">
+                    <div style="position:relative;float:left;margin-left:37px;width:48px;height:48px;" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.copies >= 4 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid4"   style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                    <div style="position:relative;float:left;margin-left:195px;width:48px;height:48px;" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.copies == 5 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid5"  style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                    </div>
+
+                <!-- refined gem -->
+                <div style="position:relative;margin-left:81px;float:left;margin-top:89px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_refined_gem_32bits.png#0 0 118 118)">    
+                    <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.IncomingGem.high_level_gsid ~= 0 %>' >
+                    <pe:item onclick='DummyFunc' name="RefinedGemGsid"  style="width:58px;height:58px;margin-top:-1px;" />
+                    </pe:if>
+                </div>
+            </div>
+            
+            <div style="position:relative;">
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.PlayAnimation == true%>'>
+                    <pe:canvas3d name="gemMergeAnimation" style="width:290px;height:290px;margin-left:12px;" DefaultRotY="0" zorder = "0" DefaultCameraObjectDist = "7" 
+                    LookAtHeight="11.0" DefaultLiftupAngle="1.57" miniscenegraphname='gemMergeAnimation' IsInteractive ="false"
+                    value='<%=commonlib.serialize(Eval("merge_effect"))%>'/>
+                </pe:if>               
+            </div>
+     
+            <div style="margin-top:320px;padding:8px;" class = "inborder">
+                <div style="float:left;">
+                    <div style="float:left;">
+                        <div style="float:left;width:55px;">需要花费:</div>
+                        <div style="float:left;width:80px;" class="textfieldbutton" name="txtCostQidou"> <%=MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.CostQidou %></div>
+                    </div>
+                <div style="float:left;">
+                    <div style="float:left; text-align:right;width:80px;">拥有:</div>
+                    <div style="float:left;width:80px;" class="textfieldbutton" name="txtHoldQidou"> <%=MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.HoldQidou %></div>
+                    
+                </div>
+                <div>
+                <div style="float:left;width:70px;">合成成功率:</div>
+                    <div style="float:left;margin-top:2px;">
+                        <pe:progressbar name="pgbGemMergeOdds" Minimum = "1" Maximum = "100" Value = '0' Step = "1" style="width:200px;"  />
+                    </div>
+                    <div style="float:left;text-align:center;color:#ffffff;margin-left:-130px;width:50px;">
+                        <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.mergeOdd ~= 0 %>'>
+                        <%=MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.mergeOdd%>%
+                        </pe:if>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <div style="margin-top:5px;">
+                <input type="button" name="btnGemRefine" zorder="2" class="default_button" text="合成"
+                 onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.GemMerge_teen.GemRefine %>" 
+                style="margin-left:115px;" />
+                <!--<input type="button" name="btnPurchase" zorder="2" enabled="false" class="default_button" text="购买材料"
+                style="margin-left:5px;" />-->
+            </div>
+        </div>
+
+
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <div style="height:27px;">
+                <pe:tabs name="tabsLevelGems"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="0" text="所有宝石"  selected='true' />
+                <pe:tab-item name="1" text="一级"/>
+                <pe:tab-item name="2" text="二级"/>
+                <pe:tab-item name="3" text="三级"/>
+                <pe:tab-item name="4" text="四级"/>
+                </pe:tabs>
+            </div>
+            <iframe name="gems_subpage" style="margin-top:1px;" src="script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.html"/>
+        </div>
+    </div>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,117 @@
+﻿<!-- "script/apps/Aries/Inventory/Skills/Architecture_Skill_Progress.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Architecture_Skill_Progress, by Andy, 2010/1/22</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+
+local page = document:GetPageCtrl();
+
+-- 21101_Architecture_Skill_Level1
+-- 21102_Architecture_Skill_Level2
+-- 21103_Architecture_Skill_Level3
+-- 21104_Architecture_Skill_Level4
+
+function GetNID()
+    return System.App.profiles.ProfileManager.GetNID();
+end
+
+function OnGotoLearnSkill()
+
+    local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+			_guihelper.MessageBox("<div style='margin-left:15px;margin-top:35px;text-align:center'>不在当前岛屿，无法传送！</div>");
+		return
+	end
+	local pos = {19981.08,3.26,19695.69};
+	local camera = {8.86,0.47,-2.31};
+	if(pos and camera)then
+		if(pos and camera and pos[1] ~= 0 and pos[3] ~= 0)then
+			local msg = { aries_type = "OnMapTeleport", 
+					position = pos, 
+					camera = camera, 
+					wndName = "map", 
+				};
+			CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+            -- hide window
+		    MyCompany.Aries.Inventory.HideMainWnd();
+		end
+	end
+end
+
+]]></script>
+    <div style="width:400px;height:300px;margin-left:0px;margin-top:70px;">
+        
+        <div style="position:relative;margin-left:160px;margin-top:-72px;width:120px;height:30px;background:Texture/Aries/Inventory/Skill/Archi_Skill_Title_32bits.png">
+        </div>
+        <div style="position:relative;margin-left:120px;margin-top:-52px;width:400px;height:100px;color:#FFFFFF">
+            当前建造熟练度：
+            <div style="float:left;margin-left:-6px;margin-top:0px;width:150px;height:20px;color:#FFFFFF">
+                <aries:mountpet-status2 nid='<%=GetNID()%>' type="archskillpts" name="archskillpts"
+                    style="float:right;margin:0px;margin-left:-2px;margin-bottom:0px;width:90px;height:20px;color:#FFFFFF"/>
+            </div>
+        </div>
+        <div style="position:relative;margin-left:20px;margin-top:-30px;width:360px;height:280px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png: 30 30 30 30)">
+            <input type="button" zorder = "3" value="去工业广场学习建造技能 >>>" tooltip="去工业广场学习建造技能" onclick="OnGotoLearnSkill()" style="width:192px;height:20px;margin-left:140px;margin-top:230px;padding-left:3px;padding-right:-5px;padding-bottom:-4px;color:#003399;background:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3)"/>
+        </div>
+      <div style="margin-left:90px;margin-top:-5px;">
+        <aries:questobjectivestatus gsids="21101,21102,21103,21104"
+            conjunction = "or"
+            on_bg = "Texture/Aries/Inventory/Skill/ArchiLevel1_on_32bits.png; 0 0 150 37"
+            off_bg = "Texture/Aries/Inventory/Skill/ArchiLevel1_off_32bits.png; 0 0 150 37"
+            tooltip = "1级建造技能"
+            animstyle = "20"
+            style="left:36px;top:-10px;position:relative;width:130px;height:30px;"/>
+            
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            off_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            animstyle = "20"
+            style="left:92px;top:23px;position:relative;width:25px;height:25px;"/>
+            
+        <aries:questobjectivestatus gsids="21102,21103,21104"
+            on_bg = "Texture/Aries/Inventory/Skill/ArchiLevel2_on_32bits.png; 0 0 150 37"
+            off_bg = "Texture/Aries/Inventory/Skill/ArchiLevel2_off_32bits.png; 0 0 150 37"
+            tooltip = "2级建造技能"
+            animstyle = "20"
+            style="left:36px;top:48px;position:relative;width:130px;height:30px;"/>
+            
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            off_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            animstyle = "20"
+            style="left:92px;top:82px;position:relative;width:25px;height:25px;"/>
+            
+        <aries:questobjectivestatus gsids="21103,21104"
+            on_bg = "Texture/Aries/Inventory/Skill/ArchiLevel3_on_32bits.png; 0 0 150 37"
+            off_bg = "Texture/Aries/Inventory/Skill/ArchiLevel3_off_32bits.png; 0 0 150 37"
+            tooltip = "3级建造技能"
+            animstyle = "20"
+            style="left:36px;top:109px;position:relative;width:130px;height:30px;"/>
+            
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            off_bg = "Texture/Aries/Inventory/skill_penal_arrow_32bits.png"
+            animstyle = "20"
+            style="left:92px;top:144px;position:relative;width:25px;height:25px;"/>
+            
+        <aries:questobjectivestatus gsids="21104"
+            on_bg = "Texture/Aries/Inventory/Skill/ArchiLevel4_on_32bits.png; 0 0 150 37"
+            off_bg = "Texture/Aries/Inventory/Skill/ArchiLevel4_off_32bits.png; 0 0 150 37"
+            tooltip = "4级建造技能"
+            animstyle = "20"
+            style="left:36px;top:171px;position:relative;width:130px;height:30px;"/>
+            </div>
+    </div>
+</pe:mcml> 
+</body>
+</html>

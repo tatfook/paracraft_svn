@@ -1,0 +1,257 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn_panel.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CombatSkillLearn.lua">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local npc_id = pageCtrl:GetRequestParam("npc_id") or 0;
+local poptip = pageCtrl:GetRequestParam("poptip") or 0;
+
+npc_id = tonumber(npc_id);
+poptip = tonumber(poptip);
+
+MyCompany.Aries.Quest.NPCs.CombatSkillLearn.OnInit(npc_id);
+
+local tclass, tdesc;
+function GetConfig()
+    local xmlRoot = ParaXML.LuaXML_ParseFile("config/Aries/Mentor/7Mentor.teen.xml");
+    xmlnode="/Mentors/NPC_"..npc_id;
+    local each_mentor;
+    for each_mentor in commonlib.XPath.eachNode(xmlRoot, xmlnode) do
+	    tdesc  = each_mentor.attr.desc;
+	    tclass = tonumber(each_mentor.attr.class);
+    end    
+end
+
+GetConfig();
+
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+function GetDesc()
+	return tdesc;
+end
+
+function hasStoneCopies()
+    local _,_,_,magicstone_copies=hasGSItem(22000);
+    magicstone_copies = magicstone_copies or 0;
+    if(magicstone_copies > 0)then
+        return true;
+    end
+end
+
+function getStoneCopies()
+    local _,_,_,magicstone_copies=hasGSItem(22000);
+    magicstone_copies = magicstone_copies or 0;
+    return string.format("<font color='#ddee00'>潜力点:</font> %d",magicstone_copies);
+end
+
+function DS_Func_skill(index)
+  return MyCompany.Aries.Quest.NPCs.CombatSkillLearn.DS_Func_CombatSkillLearn(index);
+end
+
+
+function getTitle()
+    local s;
+    if (tclass == 986) then
+        s="烈火系";    
+    elseif (tclass == 987) then
+        s="寒冰系";    
+    elseif (tclass == 988) then 
+        s="风暴系";    
+    elseif (tclass == 990) then
+        s="生命系";    
+    elseif (tclass == 991) then
+        s="死亡系";
+    elseif (tclass == 992) then
+        s="平衡系";
+    else
+        s=""
+    end
+    return s
+end
+
+function getCardTip(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then return end
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=6",gsid);
+    return s;    
+end
+
+function getClassIcon(class_gsid)
+    local classicon={
+        [986]="Texture/Aries/Desktop/CombatCharacterFrame/card/fire.png", 
+        [987]="Texture/Aries/Desktop/CombatCharacterFrame/card/ice.png", 
+        [988]="Texture/Aries/Desktop/CombatCharacterFrame/card/storm.png", 
+        [989]="Texture/Aries/Desktop/CombatCharacterFrame/card/myth.png", 
+        [990]="Texture/Aries/Desktop/CombatCharacterFrame/card/life.png", 
+        [991]="Texture/Aries/Desktop/CombatCharacterFrame/card/death.png", 
+        [992]="Texture/Aries/Desktop/CombatCharacterFrame/card/balance.png",
+    }
+    local s = string.format("%s;0 0 30 30",classicon[class_gsid]);
+    return s
+end
+
+function getIcon(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid) or (gsid == 0)then 
+        local s = string.format("%s;0 0 44 44","Texture/Aries/Item/0_unkonwnMagic_Thumb_32bits.png");
+        return s
+    end
+
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s",gsItem.descfile or "");
+        return s;
+    end
+end
+
+function getButtonDesc(skilltype)
+    skilltype=tonumber(skilltype)
+    if (skilltype==0) then
+        local s="学习"
+        return s
+    end
+
+    if (skilltype==1) then
+        local s="选修"
+        return s
+    end
+
+    if (skilltype==2) then
+        local s="传送"
+        return s
+    end
+end
+
+function GetLearnDIVname(sGsid)
+    local s = string.format("Learned%d",sGsid)
+    return s
+end
+
+function IsPopupTips(lvl)
+	local bean = MyCompany.Aries.Pet.GetBean();
+	local mylevel;
+	if(bean) then
+		mylevel = bean.combatlel or 0;
+	end    
+
+    mylvl_1=mylevel-1;
+    lvl = tonumber(lvl)
+
+    if ((lvl==mylevel or lvl==mylvl_1) and poptip==1) then
+        return true;
+    else
+        return false;
+    end
+end
+
+]]>
+</script>
+  <div style="width:630px;height:460px;" class="pane">
+    <div style="height:19px;">
+      <div class="windowlabel"><%=getTitle()%></div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:583px;" />
+    </div>
+
+    <div style="margin-left:5px;margin-top:5px;width:620px;height:430px;" class="border">
+
+    		<div class="button" style="margin-left:10px;margin-top:15px;width:110px;height:30px;" >
+      	  	<div style="margin-left:10px;margin-top:5px;width:128px;height:42px;font-weight:bold;font-size:14;" class="defaultcolor"><%=getStoneCopies()%></div>      	  	
+    		</div>
+    		<div style="margin-left:145px;margin-top:-35px;width:460px;height:15px;" class="defaultcolor" ><%=GetDesc()%></div>
+            <div class="inborder" style="width:610px;height:370px;margin-left:5px;margin-top:12px;" >
+            <input type="button" value="技能名称" class="titlebutton" style="float:left;margin-top:5px;margin-left:45px;width:100px;font-size:14px;" enabled="false"/>
+            <input type="button" value="学习条件" class="titlebutton" style="float:left;margin-top:5px;margin-left:5px;width:250px;font-size:14px;" enabled="false"/>
+            <input type="button" value="所需等级" class="titlebutton" style="float:left;margin-top:5px;margin-left:15px;width:100px;font-size:14px;" enabled="false"/>						
+            <div style="width:685px;height:350px;margin-left:7px;margin-top:3px;" >                     		            		
+                <pe:gridview name="skillpane" DataSource="<%=DS_Func_skill%>"  ItemsPerLine="1" AllowPaging="true" pagesize="7">
+				        <Columns>			        		                
+						    <div style="margin-left:80px;margin-left:0px;width:550px;height:42px;">              
+                                <div class="block" >
+								    <!--<img style="width:36px;height:36px;margin-left:1px;margin-top:1px;" src="<%=getIcon(Eval('gsid')) %>" />-->
+                                    <pe:item  gsid='<%=Eval("gsid")%>' style="width:36px;height:36px;margin-left:1px;margin-top:1px;" />
+								    <input type="button" zorder="3" style="margin-top:-38px;width:38px;height:38px;background:;" tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="10" tooltip_offset_y="-60"/>
+							    </div>
+                                            
+							    <div class="border" style="float:left;margin-left:45px;margin-top:-35px;width:360px;height:38px;font-size:14px;">
+								    <div style="float:left;margin-left:20px;margin-top:7px;width:120px;" ><%=Eval("name") %></div>
+								    <div style="float:left;margin-top:7px;width:175px;" ><%=Eval("tips") %></div>
+								    <img style="float:left;width:30px;height:30px;margin-left:5px;margin-top:5px;" src="<%=getClassIcon(Eval('classtype')) %>" />
+							    </div>		
+										    								
+							    <div class="border" style="float:left;margin-left:10px;margin-top:-35px;width:85px;height:38px;">
+                                    <pe:if condition='<%=not Eval("skillHas")  and  Eval("skillCanStudy") %>'>    
+								    <div style="margin-left:20px;margin-top:7px;font-weight:bold;font-size:14px;"><%=Eval("needlevel")%>级</div>
+                                    </pe:if>
+
+                                    <pe:if condition='<%=( not Eval("skillHas")  and  not Eval("skillCanStudy") ) %>'>  
+								    <div style="margin-left:20px;margin-top:7px;font-weight:bold;font-size:14px;color:#7f7e89;"><%=Eval("needlevel")%>级</div>
+                                    </pe:if>
+
+                                    <pe:if condition='<%=Eval("skillHas")%>'>
+                                    <div style="margin-left:20px;margin-top:7px;font-weight:bold;font-size:14px;color:#facd75"><%=Eval("needlevel")%>级</div>
+                                    </pe:if>
+							    </div>
+											
+							    <div style="float:left;margin-left:15px;margin-top:-35px;">
+								    <pe:if condition='<%=not Eval("skillHas")  and  Eval("skillCanStudy") %>'>                            
+									    <input type="button" style="width:60px;height:36px;font-weight:bold;font-size:14px;margin-left:10px;" onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.DoStudy" name='<%=Eval("index")%>' value="<%=getButtonDesc(Eval('skilltype')) %>" />												    
+								    </pe:if>
+								    <pe:if condition='<%=( not Eval("skillHas")  and  not Eval("skillCanStudy") ) %>'>                                
+									    <input type="button" class="greybutton" style="width:60px;height:36px;font-weight:bold;font-size:14px;margin-left:10px;" onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.CanNotStudy" name='<%=Eval("index")%>' value="<%=getButtonDesc(Eval('skilltype')) %>" />
+								    </pe:if>
+								    <pe:if condition='<%=Eval("skillHas")%>'>
+									    <input type="button" style="width:60px;height:36px;font-weight:bold;font-size:14px;margin-left:10px;color:#facd75" onclick="MyCompany.Aries.Quest.NPCs.CombatSkillLearn.HasStudy" name='<%=Eval("index")%>' value="已有" />
+								    </pe:if>                    
+							    </div>
+
+                                <pe:if condition='<%=IsPopupTips(Eval("needlevel")) %>'>
+	                                <div name='<%=GetLearnDIVname(Eval("gsid")) %>' style="float:left;margin-top:-115px;margin-left:270px;width:150px;height:60px;">
+                                        <div class="anchor_tooltip_bg" style="margin-left:10px;margin-top:0px;">
+			                                你刚刚领悟到的技能
+		                                </div>
+                                        <div style="position:relative;margin-left:167px;margin-top:5px;width:64px;height:39px;" class="anchor_tooltip_highlight"/>
+                                        <input type="button" class="anchor_tooltip_downarrow" style="float:left;margin-top:-7px;margin-left:137px;" />
+	                                </div>
+                                </pe:if>
+						    </div>		                
+		                
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:245px;margin-top:-20px;width:160px;height:25px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							        <input type="button" name="page" class="pagertext" />
+						        <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                        </form>
+				        </PagerTemplate>
+			    </pe:gridview>
+            </div>
+
+        </div>      
+
+    </div>  
+
+</div>
+</pe:mcml>
+</body>
+</html>
+

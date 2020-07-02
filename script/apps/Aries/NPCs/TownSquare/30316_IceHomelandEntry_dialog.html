@@ -1,0 +1,121 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30316_IceHomelandEntry_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30316_IceHomelandEntry_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 39101_SnowHomelandTemplate
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30316);
+
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+
+Condition4 = function()
+    if(memory.dialog_state == 4) then
+        return true;
+    end
+    return false;
+end;
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 1 and to == 10) then
+        MyCompany.Aries.Quest.NPCs.IceHomelandEntry.TryExchange();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='冰雪之家'/>
+        </pe:template>
+                
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    这是美丽的冰雪之家，如果你有“哈”“奇”“小”“镇”“欢”“迎”“你”七种卡片各2张，就可以搬去那里住哦，现在就要搬吗？
+		    <pe:answer template_id = "ok">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+		    
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    很抱歉，你的卡片不足，去泡泡机的礼盒里多去找找再来吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    恭喜你已经成功搬到冰雪之家了，赶紧回家看看去吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你已经住在冰雪之家啦，去换点别的吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

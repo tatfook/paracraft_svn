@@ -1,0 +1,31 @@
+<!-- "script/apps/PayServer/test/test_payserver.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2010/9/8</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src=""><![CDATA[
+function TestPayAPI_test()
+    -- run code in the game thread
+    NPL.activate("(rest)script/apps/GameServer/rest_local.lua", {dostring=[[
+        local msg = {
+            nid = "14861822",
+		    bag = 91,
+	    };
+        paraworld.PowerAPI.payment.test(msg, nil, function(msg)
+            commonlib.echo(msg);
+        end)
+    ]]})
+end
+
+]]></script>
+<form name="test_payAPI_form">
+Add other test cases here:<br />
+<input type="button" name="" value="test pay api " onclick="TestPayAPI_test"/>
+</form>
+</pe:mcml> 
+</body>
+</html>

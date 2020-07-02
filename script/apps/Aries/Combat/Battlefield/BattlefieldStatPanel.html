@@ -1,0 +1,213 @@
+<!-- "script/apps/Aries/Combat/Battlefield/BattlefieldStatPanel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="" refresh="false"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Combat/Battlefield/BattleMiniMap.lua");
+local BattleProgressBar = commonlib.gettable("MyCompany.Aries.Battle.BattleProgressBar");
+
+NPL.load("(gl)script/apps/GameServer/BattlefieldService/GSL_BattleClient.lua");
+local client = Map3DSystem.GSL.Battle.GSL_BattleClient.GetSingleton();
+local bf = client.bf;
+local nid = tostring(System.User.nid);
+local my_side = bf:get_player_side(nid);
+
+function GetPlayerPhase(nid)
+    local user_nid = tonumber(nid);
+    if(user_nid) then
+        local user_info = System.App.profiles.ProfileManager.GetUserInfoInMemory(user_nid);
+        return user_info and user_info.combatschool;
+    end
+end
+
+local my_combat_school = GetPlayerPhase(nid);
+
+function OnClose()
+    Page:CloseWindow();
+    if(bf and bf.is_finished) then
+        _guihelper.MessageBox("战斗结束了, 请点击地图离开战场");
+    end
+end
+
+echo("BattlefieldStatPanel.html inited");
+
+
+function GetDataSource(index)
+    local fighting_spirit_stat;
+    if(bf.is_finished) then
+        fighting_spirit_stat = bf.finished_fighting_spirit_stat;
+    else
+        fighting_spirit_stat = bf.battle_fighting_spirit_stat;
+    end
+
+    if(fighting_spirit_stat) then
+        local stats = NPL.LoadTableFromString(fighting_spirit_stat);
+        if(stats) then
+            local _, stat;
+            for _, stat in ipairs(stats) do 
+                local nid = stat[1];
+                local fighting_spirit_value = stat[3];
+                local score = stat[2];
+                if(fighting_spirit_value) then
+                    local base_value = math.floor(fighting_spirit_value/90);
+                    local extra_value = if_else(fighting_spirit_value%90 > 45, 1, 0); 
+                    fighting_spirit_value = base_value + extra_value;
+                end
+                local player = bf.players[tostring(nid)];
+                if(player) then
+                    player.fighting_spirit_value = fighting_spirit_value or player.fighting_spirit_value;
+                    player.score = score or player.score;
+                    if(bf.is_finished) then
+                        local init_fighting_spirit_value = stat[4];
+                        player.fighting_spirit_value = tostring(fighting_spirit_value).."(+"..tostring(init_fighting_spirit_value).."初始战魂值)";
+                    end
+                
+                end
+            end
+        end
+    end
+
+    --local only_show_same_combat_shcool = false;
+    local each_nid, player;
+    local players_ds = {};
+    for each_nid, player in pairs(bf.players) do
+    
+        if(BattleProgressBar.only_show_same_combat_shcool) then
+        
+            local user_combat_shool = GetPlayerPhase(player.nid);
+            if(user_combat_shool == my_combat_school) then
+                players_ds[#players_ds+1] = {nid = player.nid, fighting_spirit_value=player.fighting_spirit_value,score = player.score, side=player.side, is_myside=(player.side==my_side)};
+            end
+        else
+            players_ds[#players_ds+1] = {nid = player.nid, fighting_spirit_value=player.fighting_spirit_value,score = player.score, side=player.side, is_myside=(player.side==my_side)};
+        end
+        --players_ds[#players_ds+1] = {nid = player.nid, fighting_spirit_value=player.fighting_spirit_value, side=player.side, is_myside=(player.side==my_side)};
+    end
+    table.sort(players_ds, function(a,b)
+        return tostring(a.fighting_spirit_value) > tostring(b.fighting_spirit_value)
+    end)
+    if(index == nil) then
+		return #(players_ds);
+	else
+		return players_ds[index];
+	end
+end
+
+function GetTitle()
+    if(bf.is_finished) then
+        local our_score = if_else(my_side == 0, bf.score_side0, bf.score_side1)
+		local other_score = if_else(my_side == 0, bf.score_side1, bf.score_side0)
+		if(our_score > other_score) then
+            return "恭喜! 我方获胜!"
+        else
+            return "很遗憾! 我们输掉了比赛"
+        end
+    else
+        return "战斗尚未结束"
+    end
+end
+
+function fighting_spirit_value()
+    
+end
+
+function RefreshPage()
+    page:Refresh(0.01);
+end
+
+function OnlyShowSameSchool()
+    BattleProgressBar.only_show_same_combat_shcool = not BattleProgressBar.only_show_same_combat_shcool;
+    page:Refresh(0.01);
+end
+
+function GetBtn_ShowSameSchool_Value()
+    local s = "";
+    if(BattleProgressBar.only_show_same_combat_shcool) then
+        s = "显示所有玩家";
+    else
+        s = "显示本系玩家";
+    end
+    return s;
+end
+function GetSide(isInMySide)
+    local s = "";
+    if(isInMySide) then
+        s = "我方"; 
+    else
+        s = "对方";
+    end
+    return s;
+end
+]]></script>
+<div style="padding:10px;padding-left:15px;padding-right:15px;font-size:12px;width:480px;height:330px;background:url(Texture/Aries/common/bluebg32_32bits.png#0 0 32 32: 8 8 8 8)">
+<input type="button" onclick="OnClose" style="position:relative;margin-left:415px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+<input type="button" onclick="OnlyShowSameSchool" value = '<%=GetBtn_ShowSameSchool_Value() %>'  style="position:relative;margin-left:25px;margin-top:20px;width:100px;height:30px;" class= "button"/>
+<input type="button" onclick="RefreshPage" value = "刷新" style="position:relative;margin-left:315px;margin-top:20px;width:100px;height:30px;" class= "button"/>
+<div style="margin-left:145px;width:200px;height:32px;background:url(Texture/Aries/Combat/Battle/title_32bits.png#0 0 200 32)"></div>
+<div style="font-weight:bold;color:#ffff00;font-size:14px;width:440px;text-align:center;"><%=GetTitle()%></div>
+<div style="margin-top:3px;background:url(Texture/Aries/Common/bg_blue_2_32bits.png#0 0 64 51:20 20 20 20)">
+<div style="margin:2px;margin-top:12px;margin-left:12px;font-weight:bold">
+    <div style="float:left;text-align:center;width:120px;">名字</div>
+    <div style="float:left;text-align:center;width:90px;" tooltip="造成对方伤害或己方治疗会平分给法阵上所有玩家" >伤害+治疗</div>
+    <div style="float:left;text-align:center;width:40px;">阵营</div>
+    <div style="float:left;text-align:center;width:160px;">战魂值</div>
+</div>
+<div style="margin:2px;margin-left:12px;height:190px;">
+<pe:gridview DataSource="<%=GetDataSource %>" name="pegvwGemsView" 
+    CellPadding="0" ItemsPerLine="1" AllowPaging="true" RememberScrollPos="true" RememberLastPage="true" DefaultNodeHeight="26" VerticalScrollBarStep="26" pagesize="7" >
+    <Columns>
+        <div style="position:relative;background-color:#197DB4;background:url(Texture/whitedot.png);width:420px;height:1px;"></div>
+        <pe:if condition='<%=Eval("is_myside")%>'>
+            <div style="color:#006600;height:25px;font-size:12px;">
+                <div style="float:left;width:120px;">
+                    <%=Eval("index")%>
+                    <pe:name nid='<%=Eval("nid")%>' a_style="color:#006600"></pe:name>
+                </div>
+                <div style="float:left;text-align:center;width:90px;">
+                    <%=Eval("score")%>
+                </div>
+                <div style="float:left;text-align:center;width:40px;">
+                    <%=GetSide(Eval("is_myside")) %><!--<%=if_else(Eval("is_myside"), "我方", "对方")%>-->
+                </div>
+                <div style="float:left;text-align:center;width:160px;">
+                    <%=Eval("fighting_spirit_value")%>
+                </div>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=not Eval("is_myside")%>'>
+            <div style="color:#cc0000;height:25px;font-size:12px;">
+                <div style="float:left;width:120px;">
+                    <%=Eval("index")%>
+                    <pe:name nid='<%=Eval("nid")%>' a_style="color:#cc0000"></pe:name>
+                </div>
+                <div style="float:left;text-align:center;width:90px;">
+                    <%=Eval("score")%>
+                </div>
+                <div style="float:left;text-align:center;width:40px;">
+                    <%=if_else(Eval("is_myside"), "我方", "对方")%>
+                </div>
+                <div style="float:left;text-align:center;width:160px;">
+                    <%=Eval("fighting_spirit_value")%>
+                </div>
+            </div>
+        </pe:if>
+    </Columns>
+    <PagerSettings Position="Bottom" style="position:relative;margin-left:140px;margin-top:5px;" height="0" PreviousPageText="" NextPageText="" />
+    <PagerTemplate>
+	    <form>
+        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	    <div style="float:left;margin-top:-2px;width:64px;">
+	        <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	    </div>
+	    <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+        </form>
+    </PagerTemplate>
+</pe:gridview>
+</div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

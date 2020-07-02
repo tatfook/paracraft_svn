@@ -1,0 +1,294 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_upgrade.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_equip_upgrade,add by WD, 2011/09/24</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_upgrade.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.lua");
+
+Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+Avatar_equipment_subpage:Init();
+
+Avatar_equip_upgrade = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_upgrade");
+Avatar_equip_upgrade:Init();
+
+function equip_GetDataSource(arg)
+    return Avatar_equipment_subpage:GetDataSource(arg);
+end
+
+
+function equip_OnClickItem(arg)
+    Avatar_equipment_subpage:OnClickItem(arg,false);
+end
+
+function OnClickItem(arg,mcmlNode)
+    if(mcmlNode)then
+        arg = mcmlNode:GetAttribute("param1")
+    end
+    Avatar_equip_upgrade:OnClickItem(arg);
+end
+
+function ClosePage()
+    Avatar_equip_upgrade:CloseWindow();
+end
+
+function FilterItems(arg)
+    return Avatar_equipment_subpage:FilterItems(arg);
+end
+
+
+function DummyFunc()
+
+end
+
+--------------------------
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local key = string.format("equipupgrade_tips_%s",System.User.nid);
+local equipupgrade_tips = true;
+local pageCtrl = document:GetPageCtrl();
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoPage()
+    pageCtrl:SetValue("TooltipsPPT", "page")
+end
+
+function onGotoStartPage(hstate)
+    if (not hstate) then
+        local IsEquipInBag;
+        local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+        if (Avatar_equipment_subpage.DisplayItems) then
+	        local firstItem = Avatar_equipment_subpage.DisplayItems[1];
+            commonlib.echo(firstItem);
+
+            if (firstItem) then
+                if (firstItem.gsid>0) then
+	                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	                if (gsItem.template.class~=1) then -- judge item is equip or not
+                        IsEquipInBag = false;
+                    else
+                        IsEquipInBag = true;
+	                end
+                else
+                    IsEquipInBag = false;
+                end
+            end
+        else
+            IsEquipInBag = false;
+        end
+
+        if (not IsEquipInBag) then
+            _guihelper.MessageBox("你背包里还没有可以强化的装备，等你拥有了这种装备再告诉你怎么用吧");
+            return
+        elseif (MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.guid<=0) then
+            pageCtrl:SetValue("TooltipsPPT", "page1")
+        else
+            pageCtrl:SetValue("TooltipsPPT", "inventory1")
+        end
+    else
+        pageCtrl:SetValue("TooltipsPPT", "inventory1")
+    end
+    
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+    if (hstate) then
+        local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+        if (not system_looptip.equipupgrade_tip) then
+	        system_looptip.equipupgrade_tip=true;
+        end
+        if (not equipupgrade_tips) then
+            equipupgrade_tips = true;
+            Player.SaveLocalData(key, true);
+        end
+    end
+end
+--[[
+local bean = MyCompany.Aries.Pet.GetBean();
+local myCombatLevel = 0;
+if(bean) then
+	myCombatLevel = bean.combatlel or 0;
+end      
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+if (not system_looptip.equipupgrade_tip) then
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    equipupgrade_tips = Player.LoadLocalData(key, false);
+end
+if (myCombatLevel<10 and (not equipupgrade_tips)) then
+    if (MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.guid>0) then
+        onGotoStartPage(1);
+    else
+        onGotoStartPage();
+    end
+end]]
+function IsUpgradeSuccessFul()
+    return Avatar_equip_upgrade.upgrage_successful;
+end
+function GoGemAttachPage()
+    NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemAttachPage.lua");
+    local GemAttachPage = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemAttachPage");
+    GemAttachPage.ShowPage();
+    ClosePage();
+end
+
+function HasSelectedEquipment()
+    return (Avatar_equipment_subpage.IncomingEquip.guid and Avatar_equipment_subpage.IncomingEquip.guid>0);
+end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:750px;height:455px;">
+	<div name="page1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:175px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:360px;margin-top:235px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			鼠标左键选择你要强化的装备（只有脱下来的绿色装备才能强化）！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoPage" name="page1" style="width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:370px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:175px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:360px;margin-top:235px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			鼠标左键选择你要强化的装备（只有脱下来的绿色装备才能强化）！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:10px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:370px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:80px;margin-top:215px;width:160px;height:77px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:160px;margin-top:300px;width:160px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			查看强化后的装备属性
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:60px;margin-top:7px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:170px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:5px;margin-top:330px;width:160px;height:80px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:110px;margin-top:275px;width:160px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			查看消耗的奇豆
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:70px;margin-top:7px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-7px;margin-left:140px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftdown_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory4">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:120px;margin-top:420px;width:85px;height:30px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:110px;margin-top:335px;width:160px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			点击这里，进行强化
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:70px;margin-top:7px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-7px;margin-left:140px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftdown_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory5">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:678px;margin-top:0px;width:24px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:500px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:670px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+
+<aries:window width="758" height="470" title="装备强化" mode="lite" isdeepbg="true" onhelp="onGotoStartPage()" onclose="ClosePage()">
+    <pe:goalpointer listen="close" class="closewindow_lite_tip"></pe:goalpointer>
+    <div style="margin:3px;margin-top:-5px;" class="clientarea">
+        <div style="float:left;margin-top:5px;width:316px;height:425px;">
+            <div style="width:316px;height:300px;">
+            <div style="position:relative;width:316px;height:50px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_two_star_32bits.png#0 0 282 50)"/>
+            <div style="position:relative;margin-top:250px;width:316px;height:50px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_two_star_32bits.png#0 0 282 50)"/>
+            <div style="text-align:center;margin-top:16px;">请放入你要强化的装备</div>
+            <div style="width:64px;height:64px;margin-top:10px;" align="center" class="block">
+                <pe:if condition='<%= HasSelectedEquipment() %>' >
+                    <pe:slot onclick='OnClickItem' param1="from" name="IncomingEquipGuid" showdefaulttooltip="true" style="width:64px;height:64px;" />
+                        <pe:if condition='<%=IsUpgradeSuccessFul()%>'>
+                            <img style="position:relative;margin-top:-64px;width:64px;height:64px;" enabled="false" class="animated_upgrade_overlay" />
+                        </pe:if>
+                </pe:if>
+            </div>
+            <div align="center" style="width:32px;margin-top:15px;height:45px;background:url(Texture/Aries/Common/ThemeTeen/bg_exchange_arrow_32bits.png#0 0 32 45)"/>
+            <div align="center" style="width:64px;height:64px;margin-top:12px;" >
+                <div align="center" style="width:158px;height:75px;margin-top:8px;padding:6px;"class="block" >
+                    <div style="position:relative;width:260px;">
+                    <%=Avatar_equip_upgrade.GetProps() %>
+                    </div>
+                </div>
+            </div>
+
+
+            </div>
+            <div style="height:27px;">
+                <pe:tabs name="tabMaterials"  class="default_tabs" >
+                <pe:tab-item name="1" text="强化材料"  selected='true' />
+                </pe:tabs>
+            </div>
+
+                <div style="padding:6px;margin-left:5px;width:305px;" class="border_bg5_css">
+
+                    <div style="float:left;width:48px;height:48px;margin-top:1px;padding:2px;" class="block">
+                        <pe:item onclick='DummyFunc' name='material_item'  gsid='<%=Avatar_equip_upgrade.material.gsid %>' showdefaulttooltip="true" style="width:44px;height:44px;" />
+                    </div>
+                    <div style="float:left;margin-left:5px;margin-top:2px;">
+                    <div>
+                        <div style="float:left;">需要</div>
+                        <div style="float:left;width:150px;" class="property_bg_css" name="txtCostSlotRocks"> <%=Avatar_equip_upgrade.material.number %></div>
+                        <div style="margin-top:2px;">
+                            <div style="float:left;">拥有</div>
+                            <div style="float:left;width:150px;" class="property_bg_css" name="txtIncomingGemsCount"><pe:slot type="count" gsid='<%=Avatar_equip_upgrade.material.gsid %>'/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:8px;">
+                <pe:if condition='<%= HasSelectedEquipment() %>' >
+                    <pe:goalpointer listen="do_addonlevel" style="position:relative;margin-left:120px;width:85px;height:25px;"></pe:goalpointer>
+                </pe:if>
+                <input type="button" name="btnAllEquipSlotting" zorder="2" text="强 化"
+                 onclick="<%=Avatar_equip_upgrade.EquipUpgrade %>" 
+                style="margin-left:120px;width:85px;height:25px;" />
+            </div>
+        </div>
+
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <div style="padding:5px;height:115px;">
+            <div>说明：</div>
+<div>1、下方显示你拥有的能够强化的全部装备。</div>
+<div>2、选中你想强化的一件之后，会在左侧上方格子中出现。</div>
+<div>3、查看左下方要求的费用或材料，若足够，则可点击【强化】。</div>
+            </div>
+            <div style="height:27px;">
+                <pe:tabs name="tabsEquipments"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="1" text="所有装备" tooltip="所有装备" style="max-width:60px;" selected='true' />
+                <pe:tab-item name="2" text="防具" tooltip="防具" style="max-width:60px;" />
+                <pe:tab-item name="3" text="饰品" tooltip="饰品" style="max-width:60px;" />
+                <pe:tab-item name="4" text="武器" tooltip="武器" style="max-width:60px;" />
+                </pe:tabs>
+            </div>
+            <pe:if condition='<%= not HasSelectedEquipment() %>' >
+                <pe:goalpointer listen="select_one_addon_equipment" style="position:relative;width:120px;height:52px;"></pe:goalpointer>
+            </pe:if>
+            <iframe name="equip_subpage" src="script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.html"/>
+            <div style="position:relative;margin-left:270px;margin-top:-310px;"><a onclick="GoGemAttachPage">【宝石镶嵌】</a></div>
+        </div>
+    </div>
+</aries:window>
+<script refresh="false" ><![CDATA[
+local ItemManager = Map3DSystem.Item.ItemManager;
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+
+local gsid = tonumber(Page:GetRequestParam("gsid"));
+if(gsid) then
+    local _, guid = ItemManager.IfOwnGSItem(gsid)
+	if(guid)then
+        Avatar_equipment_subpage:OnClickItem(guid,false);
+    end
+end
+]]></script>
+</pe:mcml> 
+</body>
+</html>

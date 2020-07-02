@@ -1,0 +1,159 @@
+<!-- "script/apps/Aries/Desktop/function/HelpMainList.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+NPL.load("(gl)script/apps/Aries/Desktop/HelpMainList.teen.lua");
+local HelpMainList = commonlib.gettable("MyCompany.Aries.Desktop.HelpMainList");
+HelpMainList.OnInit();
+local pageCtrl = document:GetPageCtrl();
+detailurl=HelpMainList.detailurl;
+
+function ClosePage()
+    HelpMainList.ClosePage();
+end
+
+function GetSource()
+    local type = HelpMainList.selected_type;
+    if(not type)then return end
+    if(HelpMainList.datasource_map[type])then
+			return HelpMainList.datasource_map[type];
+		end
+end
+
+function DoClick(sName)
+	HelpMainList.FindDataSource(sName);	
+    pageCtrl:Refresh(0.1);
+end
+
+function DoClickTimeMag()
+	HelpMainList.OpenTimgMag();	
+end
+
+function ongoto(sName,mcmlNode,worldname,position,camera)
+    if(not position)then
+        return
+    end
+    WorldManager:GotoWorldPosition(worldname,position,camera,function()
+        ClosePage();
+    end)
+end
+
+function OnClickTreeNode(name,mcmlNode)
+	if(mcmlNode and HelpMainList.datasource)then
+		local attr = mcmlNode:GetAttribute("param1","none");
+		local node;
+	
+		for node in commonlib.XPath.eachNode(HelpMainList.datasource, "//item") do
+			node.attr.checked = false;
+			if(attr == node.attr)then
+				node.attr.checked = true;
+				HelpMainList.detailurl = attr.url;
+			end
+		end
+--		commonlib.echo(detailurl);
+		pageCtrl:Refresh(0.1);
+	end
+end
+
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+end
+
+function DS_Func_Guide(index)
+    if (index==nil)   then
+        return 1
+    else
+        return {_gsid=0;}
+    end
+end
+]]>
+</script>
+<aries:window width="760" height="470" title="信息与帮助" mode="lite" isdeepbg="true" onclose="ClosePage()">
+<div style="margin-left:5px;margin-top:5px;width:750px;height:440px;" >
+    <div style="margin-left:10px;margin-top:5px;" >
+        <input type="button"  class="defaultbutton" style="width:100px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;" onclick="DoClick" name="HelpBook" value="帮助手册" />
+        <pe:if condition='<%= System.options.locale=="zhCN"%>'>
+            <input type="button"  class="defaultbutton" style="width:100px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;" onclick="DoClick" name="TimeMag" value="更新日志" />
+<!--            <input type="button"  class="defaultbutton" style="width:100px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;" onclick="DoClickTimeMag" name="TimeMag" value="更新日志" />-->
+        </pe:if>
+        <!--
+        <input type="button"  class="defaultbutton" style="width:80px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;color:#7f7e89" name="CombatGuide" value="推荐攻略" />
+        <input type="button"  class="defaultbutton" style="width:80px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;color:#7f7e89" name="OfficialBBS" value="官方论坛" />
+        <input type="button"  class="defaultbutton" style="width:80px;height:26px;font-weight:bold;font-size:14px;margin-left:10px;color:#7f7e89" name="AskGM" value="求助 GM" />
+        -->
+    </div>
+    
+    <div style="position:relative;margin-left:0px;margin-top:0px;">
+        <div class="border_bg2_css" style="float:left;width:200px;height:392px;">
+            <div style="margin-left:5px;margin-top:5px;width:190px;height:387px;" >
+                    <pe:treeview name="view_help" VerticalScrollBarStep="25" DataSource='<%=GetSource()%>' class="defaulttreeview">
+                        <NodeTemplates>
+                            <NodeTemplate DataType="folder">
+                                <pe:treenode  text='<%=XPath("this|label")%>' 
+                                expanded='<%=XPath("this|expanded")%>'
+                                MouseOverBG=""
+                                OnClick="OnClickFolder()" 
+                                can_select = "true" 
+                                style="font-weight:bold;color:#52dff4;font-size:14;"
+                                />
+                            </NodeTemplate>
+                            <NodeTemplate DataType="item">
+                                <div style="width:358px;">
+                                        <div>
+	                                        <pe:if condition='<%=XPath("this|checked") %>' >
+		                                        <input type="button" class="listbutton_selected" onclick="OnClickTreeNode" enabled="false"  param1='<%=XPath("this") %>'
+			                                        style="margin-left:-20px;margin-top:0px;width:185px;height:25px;text-align:left;" />
+	                                        </pe:if>
+	                                        <pe:if condition='<%=not XPath("this|checked") %>' >
+		                                        <input type="button" class="listbutton_unselected" onclick="OnClickTreeNode"  param1='<%=XPath("this") %>'
+			                                        style="margin-left:-20px;margin-top:0px;width:185px;height:25px;text-align:left;" />
+	                                        </pe:if>
+                                            
+	                                      </div>
+                                        <div style="margin-top:-22px;">       
+                                                <div style="float:left;margin-left:0px;width:185px;text-align:left;" class="list_color" >
+                                                 <pe:if condition='<%= MyCompany.Aries.Desktop.HelpMainList.selected_type=="TimeMag" %>'>
+                                                    Ver<%=XPath("this|label") %>
+                                                 </pe:if>
+                                                 <pe:if condition='<%= MyCompany.Aries.Desktop.HelpMainList.selected_type~="TimeMag" %>'>
+                                                    <%=XPath("this|label") %>
+                                                 </pe:if>
+
+                                                </div>
+                                        </div>
+                                        <div style="margin-left:-20px;width:185px;height:1px;" class="black_line"/>
+                                </div>
+                            </NodeTemplate>
+                        </NodeTemplates>
+                    </pe:treeview>
+            </div>
+        </div>
+        <div style="float:left;margin-left:2px;">
+            <div class="border_bg2_css" style="width:535px;height:392px;margin-top:0px;padding:10px;">
+                <%=MyCompany.Aries.Desktop.HelpMainList.GetFrame(Eval("detailurl")) %>
+            </div>
+        </div>
+    </div>
+</div>
+</aries:window>   
+    
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,176 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListSub_pve_boss.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListSub_2, by zrf, 2011/1/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GoldRankingListMain.lua" ><![CDATA[
+
+local GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+
+local page = document:GetPageCtrl();
+
+listname = string.lower(page:GetRequestParam("listname"));
+
+function BuyEnergyStone()
+    GoldRankingListMain.PurchaseEnergyStone();
+end
+
+function IsAllBOSSRank(listname)
+	local listname=string.lower(listname);
+	local isboss=string.find(listname,"_all_boss");
+	return isboss;
+end
+
+function BottomTips()
+    local explorerank = GoldRankingListMain.listall["explore"];
+    local k,v;
+    local tips="";
+    for k,v in pairs(explorerank) do
+        local chklist=string.lower(v.listname);
+        local curlist=string.lower(listname);
+        if (chklist==curlist) then
+            tips= v.tips;
+            break;
+        end
+    end
+    local s;
+
+    if (IsAllBOSSRank(listname)) then
+        s="温馨提示: ".. tips.."。优胜者赛季末有神秘大奖！";
+    else
+        s="温馨提示: ".. tips.."。如果没有打败本BOSS，则按100回合计算！";
+    end
+    return s;
+end
+
+function ShowMLevel(mlvl)
+	mlvl = tonumber(mlvl);
+	if(mlvl >= 0 )then
+		return "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/" .. mlvl .. "_32bits.png;0 0 16 10";
+	end
+	return "";
+end
+
+function ToCombatBoss()
+    NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+    local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+    LobbyClientServicePage.selected_game_type = "PvE";
+    LobbyClientServicePage.__ShowPage();
+    page:CloseWindow();
+end
+
+function GetListTitle()
+    local s="";
+    if (IsAllBOSSRank(listname)) then
+        s="挑战总积分"
+    else
+        s="所用回合数"
+    end
+    return s;
+end
+
+]]></script>
+
+<div style="position:relative;margin-left:20px;margin-top:0px;color:#FCEA98;">
+名次
+</div>
+
+<div style="position:relative;margin-left:100px;margin-top:0px;color:#FCEA98;">
+昵称
+</div>
+
+<div style="position:relative;margin-left:225px;margin-top:0px;color:#FCEA98;">
+<%=GetListTitle() %>
+</div>
+
+<div style="position:relative;margin-left:325px;margin-top:0px;color:#FCEA98;">
+战斗等级
+</div>
+
+<div style="position:relative;margin-left:465px;margin-top:0px;color:#FCEA98;">
+所在家族
+</div>
+
+<div style="position:relative;margin-top:28px;width:580px;height:272px;">
+    <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.DS_Func_Sub%>" 
+    name="GoldRankingListSub" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="8">
+    <Columns>
+        <div style="margin-top:0px;width:572px;height:33px;background:;">
+
+        <pe:if condition='<%=Eval("index") <= 4 %>'>
+            <div style="position:relative;margin-left:10px;margin-top:2px;width:41px;height:30px;color:#6601FF;text-align:center;">
+            <%=Eval("index") %>
+            </div>
+            <div style="position:relative;margin-left:18px;margin-top:2px;width:196px;height:30px;">
+                    <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:190px;color:#6601FF;text-align:center;"/>    
+            </div>
+
+            <div style="position:relative;margin-left:228px;margin-top:2px;width:80px;height:30px;color:#6601FF;text-align:center;">
+            <%=Eval("field1") %>
+            </div>
+            <div style="position:relative;margin-left:315px;margin-top:2px;width:98px;height:30px;color:#6601FF;text-align:center;">
+            <%=Eval("field2") %>
+            </div>
+            <div style="position:relative;margin-left:427px;margin-top:2px;width:139px;height:30px;color:#6601FF;text-align:center;">
+            <%=Eval("familyname") %>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=Eval("index") > 4 %>'>
+            <div style="position:relative;margin-left:10px;margin-top:2px;width:41px;height:30px;color:#983201;text-align:center;">
+            <%=Eval("index") %>
+            </div>
+            <div style="position:relative;margin-left:18px;margin-top:2px;width:196px;height:30px;">
+                    <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:190px;color:#983201;text-align:center;"/>
+
+            </div>
+            <div style="position:relative;margin-left:228px;margin-top:2px;width:80px;height:30px;color:#983201;text-align:center;">
+            <%=Eval("field1") %>
+            </div>
+            <div style="position:relative;margin-left:315px;margin-top:2px;width:98px;height:30px;color:#983201;text-align:center;">
+            <%=Eval("field2") %>
+            </div>
+            <div style="position:relative;margin-left:427px;margin-top:2px;width:139px;height:30px;color:#983201;text-align:center;">
+            <%=Eval("familyname") %>
+            </div>
+        </pe:if>
+        <pe:if condition = '<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMS(Eval("index")) %>'>
+            <div style="position:relative;float:left;margin-left:180px;margin-top:0px;width:20px;height:15px;">
+                <input type="button" tooltip="魔法星" name='<%=Eval("index") %>' onclick="MyCompany.Aries.GoldRankingList.GoldRankingListMain.OnClickMagicStar()" style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png#0 0 21 21);"/>
+                <img src='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMLevel(Eval("index")) %>' style="margin-top:-21px;margin-left:11px;width:16px;height:10px;"/>
+            </div>
+        </pe:if>  
+
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+            
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+            
+    </FetchingDataTemplate>
+	<PagerSettings Position="Bottom" height="0" style="margin-left:235px;margin-top:-15px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+	        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	        <div style="float:left;margin-top:-2px;width:64px;">
+	            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+    	
+        </form>
+	</PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="position:relative;font-size:12;margin-left:0px;margin-top:310px;width:485px;height:50px;color:#FCEA98;">
+    <%=BottomTips() %>
+</div>
+<div style="position:relative;margin-left:500px;margin-top:300px;">
+    <input type="button" onclick="ToCombatBoss()" zorder="2" value='去挑战' style="float:left;width:78px;height:30px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+</div>
+</pe:mcml> 
+</body>
+</html>

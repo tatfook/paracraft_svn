@@ -1,0 +1,56 @@
+<!-- "script/apps/Aries/Pipeline/ItemAttributeViewer/ItemAttributeViewerPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dock Page, by WangTian, 2009/4/29</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PowerItemViewerPage.lua">
+Map3DSystem.App.CCS.PowerItemViewerPage.OnInit();
+
+asset_table = {
+    name = "PowerItemViewerAvatar",
+    AssetFile="character/v3/Elf/Female/ElfFemale.xml",
+    scaling = 1,
+	CCSInfoStr="0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+function DS_Func_Items(index)
+    return Map3DSystem.App.CCS.PowerItemViewerPage.DS_Func_Items(index)
+end
+
+</script>
+    <div style="margin-left:10px">
+    <form name="itemviewerform">
+        <div style="float:left;">
+            <pe:gridview DataSource="<%=DS_Func_Items%>" name="Items" style="width:350px;height:426px;" 
+                VerticalScrollBarStep="96" CellPadding="0"  DefaultNodeHeight = "40" 
+                ItemsPerLine="4" AllowPaging="false" pagesize="250">
+                <Columns>
+                    <a style="width:48px;height:48px;margin:0px;" tooltip='<%=Eval("tooltip")%>' 
+                        onclick="Map3DSystem.App.CCS.PowerItemViewerPage.TestItem" param1='<%=Eval("gsid")%>' >
+                        <img style="width:40px;height:40px;margin:3px;" src='<%=Eval("img")%>'/>
+                    </a>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>Empty Items</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>Data Fetching, Please wait ... </b>
+                </FetchingDataTemplate>
+            </pe:gridview>
+        </div>
+        <div style="float:left;width:384px;height:384px;">
+            <pe:canvas3d DefaultRotY="-2.0" DefaultCameraObjectDist = "4" LookAtHeight="0.6" DefaultLiftupAngle="0.1" name="PowerItemViewerAvatar" RenderTargetSize="512" miniscenegraphname="Taurus_PowerItemViewer" value='<%=commonlib.serialize(Eval("asset_table"))%>'
+                            ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="true"/>
+        </div>
+    </form>    
+    </div>
+    
+</pe:mcml> 
+</body>
+</html>

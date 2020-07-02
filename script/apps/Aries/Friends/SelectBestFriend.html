@@ -1,0 +1,77 @@
+﻿<!-- "script/apps/Aries/Friends/SelectBestFriend.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>BestFriendList, by leio, 2011/10/11</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="BestFriendList.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+NPL.load("(gl)script/apps/Aries/Friends/BestFriendList.lua");
+local BestFriendListPage = commonlib.gettable("MyCompany.Aries.Friends.BestFriendListPage");
+BestFriendListPage.OnInit_SelectFriends();
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30";
+function DS_Func(index)
+    return BestFriendListPage.DS_Func_SelectFriends(index);
+end
+function DoAddBestFriend(nid)
+    BestFriendListPage.DoAddBestFriend(nid);
+end
+]]></script>
+<div style="width:270px;height:385spx;background:url(Texture/Aries/Friends/addfriend_bg_32bits.png#0 0 322 216:40 40 40 40)">
+    <div style="width:255px;height:50px;">
+        <div style="font-size:12px;margin-left:30px;margin-top:30px;">
+            <div style="float:left;">点击</div>
+            <div style="float:left;margin-left:-5px;width:16px;height:16px;background:Texture/Aries/Friends/FriendsWnd_AllowAddAsFriend_32bits.png"></div>
+            <div style="float:left;">加好友到赛场好友名单</div>
+        </div>
+    </div>
+    <div style="width:255px;">
+       <pe:gridview RememberScrollPos="true" DataSource="<%=DS_Func%>" name="BuddyList" style="margin-left:20px;margin-right:13px;margin-bottom:25px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="250">
+        <Columns>
+            <div style="width:196px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+               <pe:if condition='<%=Eval("bshow")%>'>
+                    <a style="width:196px;height:30px;margin:0px;padding:0px;background:;"
+                        onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:196px;height:30px;background:;"/>
+                        <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:210px;height:30px;">
+                            <a width="32" height="26" style="padding-left:0px;padding-top:2px;background:;"
+                                onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                                <aries:onlinestatus width="32" height="26" nid='<%=Eval("nid")%>'/>
+                            </a>
+                            <div style="float:right;margin-left:0px;margin-top:3px;width:108px;font-size:12pt;color:#000000">
+                                <div style="width:170px;">
+                                    <pe:name nid='<%=Eval("nid")%>' linked=false useyou=false/>
+                                </div>
+                            </div>
+                          
+                            <input type="button" zorder="1" style="float:right;margin-left:15px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/FriendsWnd_AllowAddAsFriend_32bits.png" onclick="DoAddBestFriend()" name='<%=Eval("nid")%>'/>
+                        </div>
+                    </a>
+               </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>
+    </div>
+   
+
+
+</pe:mcml>
+</body>
+</html>

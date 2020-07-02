@@ -1,0 +1,62 @@
+----[[
+--Title: YoYoDeer_Entity
+--Author(s): Leio
+--Date: 2010/01/18
+--
+--use the lib:
+--
+--------------------------------------------------------------
+--script/apps/Aries/NPCs/FollowPets/30211_YoYoDeer_Entity.lua
+--------------------------------------------------------------
+--]]
+--
+---- create class
+--local libName = "YoYoDeer_Entity";
+--local YoYoDeer_Entity = {};
+--commonlib.setfield("MyCompany.Aries.Quest.NPCs.YoYoDeer_Entity", YoYoDeer_Entity);
+--
+--local GameObject = MyCompany.Aries.Quest.GameObject;
+--local NPC = MyCompany.Aries.Quest.NPC;
+--
+--local ItemManager = System.Item.ItemManager;
+--local hasGSItem = ItemManager.IfOwnGSItem;
+--local equipGSItem = ItemManager.IfEquipGSItem;
+--
+---- YoYoDeer_Entity.main
+--function YoYoDeer_Entity.main()
+	--
+--end
+--
+--function YoYoDeer_Entity.PreDialog(npc_id, instance)
+	----_guihelper.MessageBox("hello~~~");
+	--
+	--ItemManager.PurchaseItem(50262, 1, function(msg) end, function(msg) 
+		--log("+++++++Purchase 50262_FoundYoyoDeer return: +++++++\n")
+		--commonlib.echo(msg);
+		----捡取一只小鹿
+		--if(msg.issuccess == true) then
+			--NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+			--local s = "";
+			--
+			--local bHas,__,__,copies = hasGSItem(50262);
+			--copies = copies or 0;
+			----如果拥有的小鹿数量>=6
+			--if(copies >=6 )then
+				--s = "<div style='margin-left:15px;margin-top:35px;text-align:center'>你找齐了所有的小鹿，快去告诉鹿妈妈吧！</div>";
+			--else
+				--s = "<div style='margin-left:15px;margin-top:35px;text-align:center'>你成功找到了1只小鹿！赶紧再去找找其他的！</div>";
+			--end
+			--_guihelper.Custom_MessageBox(s,function(result)
+				--if(result == _guihelper.DialogResult.OK)then
+					--
+				--end
+			--end,_guihelper.MessageBoxButtons.OK);
+			--
+			--NPC.DeleteNPCCharacter(npc_id, instance);
+			--
+		--end
+	--end, nil, "none");	
+	--
+	--return false;
+--end
+--

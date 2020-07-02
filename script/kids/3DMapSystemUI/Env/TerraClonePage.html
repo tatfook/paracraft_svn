@@ -1,0 +1,50 @@
+<!-- "script/kids/3DMapSystemUI/Env/TerraClonePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="TerraGenPage.lua"><![CDATA[
+-- Map3DSystem.App.Env.TerrainInfoPage.OnInit()
+local TerraGenPage = commonlib.gettable("Map3DSystem.App.Env.TerraGenPage")
+
+function GetTilePos()
+    local x, y, z = ParaScene.GetPlayer():GetPosition();
+	local attr = ParaTerrain.GetAttributeObjectAt(x,z);
+    local region_width = attr:GetField("size", 533.3333); 
+    return math.floor(x/region_width), math.floor(z/region_width);
+end
+
+function OnSetSrc()
+    local tile_x, tile_y = GetTilePos();
+    Page:SetValue("txtSrcCoordinates", format("%d_%d", tile_x, tile_y))
+end
+
+function OnSetDest()
+    local tile_x, tile_y = GetTilePos();
+    Page:SetValue("txtDestCoordinates", format("%d_%d", tile_x, tile_y))
+end
+
+function OnClone()
+   local txtSrcCoordinates = Page:GetUIValue("txtSrcCoordinates", "")
+   local txtDestCoordinates = Page:GetUIValue("txtDestCoordinates", "")
+   -- TerraGenPage.OnCloneTerrainTile(txtSrcCoordinates, txtDestCoordinates)
+end
+]]></script>
+
+<div><span style="color:#808080;">移动/复制地形</span></div>
+    <div >
+        源坐标：<input type="text" style="width:80px" name="txtSrcCoordinates" value="0_0"/><input type="button" name="srcBtn"  style="margin-top:0px" value="当前" onclick="OnSetSrc" />
+    </div>  
+    <div>
+        目标坐标：<input type="text" style="width:80px" name="txtDestCoordinates" value="37_37"/><input type="button" name="destBtn"  style="margin-top:0px" value="当前" onclick="OnSetDest" />
+    </div>
+    <div style="margin-top:10px">
+        <input type="checkbox" name="Mesh" checked="true"/>模型
+        <br />
+        <input type="checkbox" name="Terrain" checked="true"/>地形
+        <br />
+        <input type="button" value="开始复制" style="margin-top:10px" onclick="OnClone" name="cloneBtn" />
+    </div>
+</pe:mcml>
+</body>
+</html>

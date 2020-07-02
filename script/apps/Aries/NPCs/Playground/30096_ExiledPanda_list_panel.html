@@ -1,0 +1,50 @@
+<!-- "script/apps/Aries/NPCs/Playground/30096_ExiledPanda_list_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30096_ExiledPanda_list_panel, by LiXizhi, 2010/1/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30096_ExiledPanda_list_panel.lua" ><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.NPCs.ExiledPanda_list_panel.OnInit();
+
+]]></script>
+<div>
+名贵熊猫领养中心--今日领养表
+</div>
+<div>
+熊猫原主人 <input type="button" name="btnSearch" value="搜索" onclick="MyCompany.Aries.Quest.NPCs.ExiledPanda_list_panel.SearchPetOwner"/>  目前领养情况
+</div>
+<pe:gridview name="exiled_panda_gvw" style="margin-left:40px;margin-top:25px;width:460;height:250px" DataSource="<%=MyCompany.Aries.Quest.NPCs.ExiledPanda_list_panel.DS_Func%>"  ItemsPerLine="1" AllowPaging="true" pagesize="6">
+    <Columns>
+    <a onclick="MyCompany.Aries.Quest.NPCs.ExiledPanda_list_panel.ShowInfo" param1='<%=Eval("nid")%>' tooltip="点击查看个人资料" style="background:;">
+       <pe:name nid='<%=Eval("nid")%>' linked="false"/>
+    </a>
+    <a onclick="MyCompany.Aries.Quest.NPCs.ExiledPanda_list_panel.AdoptPet" param1='<%=Eval("nid")%>' tooltip="点击领养" style="background:;">可领养</a>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>空</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>好心的小哈奇，今天暂时没有需要领养的熊猫了，明天再来看看吧！</b>
+    </FetchingDataTemplate>
+    <PagerSettings Position="Bottom" height="30" style="margin-left:170px;margin-top:0px;" PreviousPageText="" NextPageText=""/>
+    <PagerTemplate>
+        <form>
+            <input type="button" name="pre" style="width:64px;height:24px;background:Texture/Aries/NPCs/OneHundredHitBoard/pre_page_btn.png;"/>
+            <div style="float:left;width:100px;">
+                <label name="page" style="text-align:center;color:#a0aae7;width:100px;height:24px;"/>
+            </div>
+            <input type="button" name="next" style="width:64px;height:24px;background:Texture/Aries/NPCs/OneHundredHitBoard/next_page_btn.png;"/>
+        </form>
+    </PagerTemplate>
+</pe:gridview>
+<div>
+<a href="30096_ExiledPanda_adopted_panel.html" target="_self">已被领养的熊猫</a>
+</div> 
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!-- "script/apps/Aries/Mail/ReadMailPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Mail/MailPage.lua");
+local MailPage = commonlib.gettable("MyCompany.Aries.Mail.MailPage");
+NPL.load("(gl)script/apps/Aries/Mail/ReadMailPage.lua");
+local ReadMailPage = commonlib.gettable("MyCompany.Aries.Mail.ReadMailPage");
+ReadMailPage.OnInit();
+
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function GetValue(key)
+    if(ReadMailPage.mail_info)then
+        return ReadMailPage.mail_info[key];
+    end
+end
+function HasAttachContent()
+    local attach_content = GetValue("attaches");
+    local isgetattach = GetValue("isgetattach");
+    if(attach_content and #attach_content > 0 and isgetattach and isgetattach == 0)then
+        return true;
+    end
+end
+ReadMailPage.attaches_list = GetValue("attaches");
+if(not HasAttachContent())then
+    ReadMailPage.attaches_list = nil;
+end
+function DS_Func(index)
+    return ReadMailPage.DS_Func(index);
+end
+function DeleteMail()
+    MailPage.DeleteMail(ReadMailPage.eid,function(msg)
+        ClosePage();
+        MailPage.LoadMail(nil,nil,nil,function(msg)
+            MailPage.selected_index = 1;
+        end);
+    end)
+end
+function GetAttachContentByID()
+    MailPage.GetAttachContentByID(ReadMailPage.eid,function(msg)
+        ReadMailPage.ReadMail(ReadMailPage.eid);
+    end);
+end
+function GetAttachContentByGsid(gsid)
+    MailPage.GetAttachContentByGsid(ReadMailPage.eid,gsid,function(msg)
+        ReadMailPage.ReadMail(ReadMailPage.eid);
+    end);
+end
+function DoReply()
+    local nid = GetValue("from");
+    NPL.load("(gl)script/apps/Aries/Mail/WriteMailPage.lua");
+    local WriteMailPage = commonlib.gettable("MyCompany.Aries.Mail.WriteMailPage");
+    WriteMailPage.ShowPage(nid);
+    ClosePage();
+end
+function IsGM(nid)
+    local nid = GetValue("from");
+    if(not nid or nid <= 1000)then
+        return true;
+    end
+end
+]]></script>
+<aries:window width="760" height="470" title="邮件" onclose="ClosePage" mode="lite" isdeepbg="true">
+    <div style="color:#ffffff;padding:10px;">
+        <div style="height:380px;">
+            <div>
+                <div style="float:left;">发件人:</div>
+                <div style="float:left;">
+                    <pe:if condition='<%=IsGM()%>' >
+                        系统管理员
+                    </pe:if>
+                    <pe:if condition='<%=not IsGM()%>' >
+                        <pe:name nid='<%=GetValue("from")%>' />
+                    </pe:if>
+
+                </div>
+            </div>
+            <div>账号:<%=GetValue("from")%></div>
+            <div>日期:<%=GetValue("cdate")%></div>
+            <div>主题:<%=GetValue("title")%></div>
+            <div style="margin-left:-8px;padding:10px;width:742px;height:300px;" class="border_bg1_css" >
+                <div style="margin-left:-8px;margin-top:-8px;width:740px;height:200px;" >
+                    <pe:if condition='<%=IsGM()%>' >
+                        <div style="padding:5px;">
+                            <%=GetValue("content")%>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=not IsGM()%>' >
+                        <textarea name="content" value='<%=GetValue("content")%>' ReadOnly="true" style="width:740px;height:200px;textcolor:#ffffff;" rows = "10" SingleLineEdit ="false" WordWrap="true" />
+                    </pe:if>
+                    
+                </div>
+                <pe:if condition='<%=HasAttachContent()%>'>
+                    <div>附件:</div>
+                    <div style="position:relative;margin-top:5px;width:700px;height:150px;">
+                        <pe:gridview name="attach_view" DataSource="<%=DS_Func%>"  ItemsPerLine="10" AllowPaging="false" pagesize="10">
+                            <Columns>
+                                <div style="margin-left:2px;margin-top:0px;width:60px;height:60px;padding:4px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="width:52px;height:52px;" ShowCount='<%=Eval("cnt") %>'  showdefaulttooltip="true" onclick="GetAttachContentByGsid"/>
+                                </div>
+                            </Columns>
+	                        <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				                    <PagerTemplate>
+					                    <form>
+						                    <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							                    <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						                    <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                                    </form>
+				                    </PagerTemplate>
+                        </pe:gridview>
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+        <div style="margin-top:5px;">
+            <input type="button" style="margin-left:5px;width:80px;" value="删除邮件" onclick="DeleteMail"/>
+            <input type="button" style="margin-left:450px;width:80px;" value="回复" onclick="DoReply"/>
+            <pe:if condition='<%=HasAttachContent()%>'>
+                <input type="button" style="margin-left:5px;width:80px;" value="收取附件" onclick="GetAttachContentByID"/>
+            </pe:if>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+
+`

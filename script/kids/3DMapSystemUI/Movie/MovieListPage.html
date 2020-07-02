@@ -1,0 +1,49 @@
+﻿<!-- "script/kids/3DMapSystemUI/Movie/MovieListPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>movie app by LiXizhi, 2008.8.19</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MovieListPage.lua">
+    Map3DSystem.Movie.MovieListPage.OnInit();
+</script>
+<div style="padding:5px" width="100%">
+<img style="background:url(Texture/3DMapSystem/AppIcons/VideoRecorder_64.dds);width:48px;height:48px;margin:3px" />
+<div style="float:left;margin:5px;">
+    <div style="font-size:14px;font-weight:bold">电影列表</div>
+    <div style="margin-top:5px">这里列出了这个世界中的所有电影</div>
+</div>
+<hr/>
+<div style="margin-left:5px;margin-right:5px" height="82%">
+<pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Movie.MovieListPage.DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+    <Columns>
+        <div style="float:left;font-weight:bold;width:160px;margin-top:2px"><%=Eval("Title")%></div>
+        <a onclick="Map3DSystem.Movie.MovieListPage.OnClickPlayMovie" param1='<%=Eval("filename")%>'>
+            <img style="background:url(Texture/3DMapSystem/common/control_play_blue.png);width:16px;height:16px;margin-right:2px" />播放
+        </a>
+        <a onclick="Map3DSystem.Movie.MovieListPage.OnClickEditMovie" param1='<%=Eval("filename")%>'>
+            <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />编辑
+        </a>
+        <a onclick="Map3DSystem.Movie.MovieListPage.OnClickDeleteMovie" param1='<%=Eval("filename")%>'>
+            <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:2px" />删除
+        </a>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>当前世界中没有电影, 你可以创建新的电影</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>正在搜索, 请稍候 ... </b>
+    </FetchingDataTemplate>
+</pe:gridview>
+</div>
+<hr/>
+<form name="newmovie">
+<input type="submit" name="NewMovie" style="margin-left:5px" class="defaultbutton" onclick = "Map3DSystem.Movie.MovieListPage.OnClickNewMovie" value="新建电影"/>
+<input type="submit" name="Close" style="margin-left:5px" onclick = "Map3DSystem.Movie.MovieListPage.OnClickClose" value="取消"/>
+<input type="submit" name="Close" style="margin-left:5px" onclick = "Map3DSystem.Movie.MovieListPage.OnClickLogout" value="注销"/>
+</form></div>
+</pe:mcml>
+</body>
+</html>

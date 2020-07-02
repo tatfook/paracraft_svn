@@ -1,0 +1,96 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30202_FleaChick_Feed_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30202_FleaChick_Feed_status, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50048_FleaChick_Feed
+
+local count = 0;
+local bHas, guid = hasGSItem(50048);
+if(bHas == true) then
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item and item.guid > 0) then
+        count = item.copies;
+    end
+end
+
+local step1 = (count >= 1);
+local step2 = (count >= 2);
+local step3 = (count >= 3);
+
+local arrow_norm = "Texture/Aries/Quest/arrow_right_32bits.png";
+local arrow_grey = "Texture/Aries/Quest/arrow_right_grey_32bits.png";
+local slot_norm = "Texture/Aries/Quest/object_slot_32bits.png";
+local slot_grey = "Texture/Aries/Quest/object_slot_grey_32bits.png";
+
+-- 17009_BeehiveWorm
+
+function DS_Func_30202_FleaChick_Feed_status(index)
+    if(index == nil) then
+        return 4;
+    elseif(index == 1) then
+        if(step1) then
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_norm, tooltip = "蜂窝树"};
+        else
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_grey, tooltip = "蜂窝树"};
+        end
+    elseif(index == 2) then
+        if(step2) then
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_norm, tooltip = "蜂窝树"};
+        else
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_grey, tooltip = "蜂窝树"};
+        end
+    elseif(index == 3) then
+        if(step3) then
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_norm, tooltip = "蜂窝树"};
+        else
+            return {gsid = 17009, arrow_bg = "", slot_bg = slot_grey, tooltip = "蜂窝树"};
+        end
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:453px;height:449px;background:url(texture/Aries/Quest/QuestStatusDragon_32bits.png#0 0 453 449)">
+    <div style="margin-left:160px;margin-top:40px;font-size:14;font-weight:bold;color:#FFFFFF">收养小鸡</div>
+    <div style="float:right;margin-left:407px;margin-top:-39px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin:40px;margin-top:20px">
+        小鸡最爱吃这个小虫子，如果给小鸡喂三次虫子，就可以领一只小鸡回家去当宠物了。每天只能喂一次哦。
+    </div>
+    <div style="margin-left:100px;margin:20px;height:100px;">
+        <pe:gridview DataSource="<%=DS_Func_30202_FleaChick_Feed_status%>" name="FleaChick_Feed_status" CellPadding="6"  DefaultNodeHeight = "65" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+            <Columns>
+                <div style="float:right;width:80px;height:64px;">
+                    <img style="width:64px;height:64px" src='<%=Eval("slot_bg")%>'/>
+                    <pe:item gsid='<%=Eval("gsid")%>' isclickable=false tooltip='<%=Eval("tooltip")%>' style="margin-left:-56px;margin-top:8px;width:48px;height:48px;"/>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>Data Fetching, Please wait ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div>
+        <input style="margin-left:140px;margin-top:60px;width:160px;height:48px;background:url(Texture/Aries/Profile/Profession_Empty.png# 0 0 48 48:23 23 23 23);" type="button" name="close" 
+                onclick="OnClose();" value="知道了"/>
+  </div>
+</pe:mcml>
+</body>
+</html>

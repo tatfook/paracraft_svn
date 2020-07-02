@@ -1,0 +1,300 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCardDeckSubPage, by zrf / spring, 2010/9/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local page = document:GetPageCtrl();
+MyCompany.Aries.Inventory.Cards.MyCardsManager.Set_MyCardsBagPageCtrl(page)
+
+local CardsSelectionPage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.CardsSelectionPage");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/SetCardBagName.lua");
+local SetCardBagName = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName");
+SetCardBagName.OnInit();
+
+local scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");
+local MyCardsPage = commonlib.gettable("MyCompany.Aries.Inventory.MyCardsPage");
+MyCardsPage.TabValue = MyCardsPage.TabValue or "1";
+
+local bImmediateUpdate = true;
+MyCardsManager.GetCombatDeckItems(nil, function()
+    if(not bImmediateUpdate) then
+        page:Refresh(0.01);
+    end
+end);
+bImmediateUpdate = nil;
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+MyCompany.Aries.Inventory.Cards.MyCardsManager.Init();
+
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.Cards.MyCardsManager.Bag_DS_Func_Items(index);
+end
+
+function DS_Func_Aries_Equip(index)
+    return MyCompany.Aries.Inventory.Cards.MyCardsManager.Equip_DS_Func_Items(index);
+end
+
+function DS_Func_Aries_Rune(index)
+    return MyCompany.Aries.Inventory.Cards.MyCardsManager.Rune_DS_Func_Items(index);
+end
+
+function doRemoveClick(name)
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("deck_removecard");
+
+    gsid,index=string.match(name,"(%d+)_(%d+)$");
+    gsid = tonumber(gsid)
+    MyCompany.Aries.Inventory.Cards.MyCardsManager.DoRemove(gsid,index)
+end
+
+function getCardTip(templategsid,bg)
+    templategsid = tonumber(templategsid);
+    if (bg) then
+        bg = tonumber(bg);
+    else
+        bg = 0;
+    end 
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",templategsid,bg);
+end
+
+function isOpenedBag(index)
+    index = tonumber(index);
+    if(index and index <= MyCompany.Aries.Inventory.Cards.MyCardsManager.canEquipNum)then
+        return true;
+    end
+end
+
+function getIcon(gsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s",gsItem.descfile or "");
+        return s;
+    end
+end
+function GetTooltip(name)
+	local str = string.format("当前战斗背包:\n %s",name);
+    return str;
+end
+
+function getName(gsid,index) 
+    local s=string.format("%d_%d",gsid,index);
+    return s;
+end
+
+function OnClickItem(guid, mcmlNode, mouse_button)
+    if(mouse_button == "left") then
+        NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+        local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+        goal_manager.finish("select_carddeck");
+
+        local item = Map3DSystem.Item.ItemManager.GetItemByGUID(guid);
+	    if(item and item.guid > 0) then
+            local _preGsid  = MyCardsManager.combatbag_gsid;
+            local _curGsid = item.gsid;
+		    item:OnClick(mouse_button);
+            MyCardsManager.AutoCopyCardsFrmPreDeck(_preGsid,_curGsid,true);
+            if(MyCardsManager.CardsViewPageCtrl)then
+                MyCardsManager.dsCards.status = nil;
+                MyCardsManager.CardsViewPageCtrl:Refresh(0.01);
+            end
+	    end
+    else
+        return true;
+    end
+end
+
+function SetBagName(name)
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("select_carddeck");
+
+    local baggsid=tonumber(name);
+    local SetCardBagName = MyCompany.Aries.Inventory.Cards.SetCardBagName;
+    SetCardBagName.Show(baggsid,page);    
+end
+
+function GetCurrBagName(gsid)
+    local baggsid=tonumber(gsid);    
+    scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");    
+    local _label="";
+    if (scardbag_info) then
+        _label=scardbag_info[baggsid] or "";
+    end
+    if (_label=="") then 
+        _label="??"
+    end
+    local s= string.format('%s卡包\r\n双击设置自定义卡包名称',_label);
+    return s;
+end
+
+function HasCustBagName(gsid)
+    local baggsid=tonumber(gsid);    
+    scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");    
+    local _label="";
+    if (scardbag_info) then
+        _label=scardbag_info[baggsid] or "";
+    end
+    if (_label=="") then 
+        return false
+    else
+        return true
+    end
+end
+
+function ShowAllRune()
+    MyCardsManager.ShowRuneListPage(0)
+end
+
+function ForgetCards()
+    MyCompany.Aries.Quest.NPCs.CyanDragon.doResetTrainingPoint(function (msg)
+        MyCardsManager.dsCards.status = nil;
+        MyCardsManager.RefreshPage()
+        NPL.load("(gl)script/apps/Aries/Desktop/HPMyPlayerArea.lua");
+        local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+        HPMyPlayerArea.UpdateUI(true);
+    end);
+end
+]]></script>
+<div style="margin-left:0px;margin-top:0px;width:250px;height:33px;">
+    <div style="position:relative;margin-left:203px;margin-top:0px;width:200px;">
+        <input type="button" zorder="2" style="width:63px;height:25px;" value = "重置选修" onclick = "ForgetCards" class="button"/>
+        <input type="button" zorder="2" value="清空卡包" tooltip="将战斗卡包所有卡片全部移除" onclick="MyCompany.Aries.Inventory.Cards.MyCardsManager.RemoveAllCardsFromCombatBag" style="float:left;margin-left:2px;width:63px;height:25px;color:#095700;" class="button"/>
+    </div>
+    <pe:goalpointer listen="select_carddeck" style="position:relative;margin-left:7px;width:32px;height:32px;"></pe:goalpointer>
+    <pe:gridview DataSource="<%=MyCompany.Aries.Inventory.Cards.MyCardsManager.CombatDeckDS_Func%>" 
+        name="CombatDeckInventory" style="margin-left:0px;margin-top:0px;width:250px;heigth:30px;" CellPadding="1" ItemsPerLine="6" AllowPaging="false" pagesize="6" >
+        <Columns>
+            <pe:if condition='<%=Eval("isCombatDeck")==1%>'>
+                <div style="padding-top:5px;padding-left:7px;width:32px;height:28px;background:url(Texture/Aries/Common/ThemeKid/tab_btn_selected_32bits.png#0 0 41 26:12 14 12 14);">                            
+                <div style="margin-top:-5px;margin-left:-7px;width:33px;height:29px;background:url(Texture/Aries/Common/ThemeKid/tab_outline_selected_32bits.png#0 0 32 30: 5 5 5 5);">                
+                    <pe:item gsid='<%=Eval("gsid")%>'  tooltip='<%=GetTooltip(Eval("name"))%>'  isclickable="false" style="width:20px;height:20px;margin-top:5px;margin-left:7px;"/>
+                    <input type="button" zorder="2" style="margin-left:0px;margin-top:-30px;width:30px;height:28px;background:;" name= '<%=Eval("gsid")%>'  onclick="SetBagName"  tooltip='<%=GetCurrBagName(Eval("gsid")) %>'/>
+                </div>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=Eval("isCombatDeck")~=1%>'>
+                <div style="padding-top:5px;padding-left:7px;width:32px;height:28px;background:url(Texture/Aries/Common/ThemeKid/tab_btn_unselected_32bits.png#0 0 41 26:12 14 12 14);">                    
+                    <pe:if condition='<%=HasCustBagName(Eval("gsid")) %>'>
+                        <pe:slot guid='<%=Eval("guid")%>'  IsRightClickDisable="true" onclick="OnClickItem" style="width:20px;height:20px;" tooltip='<%=GetCurrBagName(Eval("gsid")) %>'/>
+                    </pe:if>
+                    <pe:if condition='<%=not HasCustBagName(Eval("gsid")) %>'>
+                        <pe:slot guid='<%=Eval("guid")%>'  IsRightClickDisable="true" onclick="OnClickItem" style="width:20px;height:20px;" />
+                    </pe:if>
+                </div>
+            </pe:if>
+        </Columns>
+        <EmptyDataTemplate/>
+    </pe:gridview>
+</div>
+<div style="position:relative;margin-left:1px;margin-top:-4px;width:330px;height:258px;" class="inborder_golden">
+</div>
+<div style="margin-left:0px;margin-top:-4px;height:261px;width:333px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8)" >
+    <pe:goalpointer listen="deck_removecard" style="position:relative;margin-left:10px;margin-top:4px;width:32px;height:32px;"></pe:goalpointer>
+    <img src="Texture/Aries/common/themekid/cards/bg_frame_32bits.png:5 5 5 5" style="position:relative;margin-left:5px;margin-top:5px;width:320px;height:204px;" />
+    <div style="position:relative;margin-left:5px;padding:2px;margin-top:0px;width:330px;height:210px;">
+        <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="margin-top:5px;" CellPadding="0"  DefaultNodeHeight = "33" ItemsPerLine="10" AllowPaging="false" pagesize="70">
+             <Columns>
+                    <div  style="width:31px;height:31px;background:url(Texture/Aries/common/themekid/cards/bg_slot_32bits.png)">
+                        <pe:if condition='<%=Eval("gsid") ~= 0%>'>
+                            <pe:item isenabled="false" gsid='<%=Eval("gsid")%>' style="position:relative;margin-left:2px;margin-top:2px;width:27px;height:27px;" />
+				            <input animstyle="14" type="button" zorder="2" Normal_BG="" MouseOver_BG="Texture/Aries/Common/ThemeTeen/candel_32bits.png" style="margin-left:1px;margin-top:0px;width:31px;height:31px;background:;" name='<%=getName(Eval("gsid"),Eval("index")) %>' onclick="doRemoveClick"   tooltip="<%=getCardTip(Eval('gsid')) %>" tooltip_offset_x="31" tooltip_offset_y="-55"/>
+                        </pe:if>
+                        <pe:if condition='<%=not isOpenedBag(Eval("index"))%>'>
+                            <img zorder="2" style="margin-left:0px;margin-top:0px;width:32px;height:32px;background:url(Texture/Aries/common/themekid/cards/bg_slot_32bits.png)"/>
+                        </pe:if>
+                    </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:70px;margin-top:30px;">正在更新卡牌...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:95px;margin-top:-90px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" zorder=2 style="width:22px;height:22px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 21 21);"/>
+	                <div style="float:right;margin-top:4px;width:64px;">
+	                    <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" zorder=2 style="width:22px;height:22px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+</div>
+   
+<img src="Texture/Aries/common/themekid/cards/bg_frame_32bits.png:5 5 5 5" style="position:relative;margin-left:5px;margin-top:-48px;width:320px;height:40px;" />
+<img src="Texture/Aries/common/themekid/cards/cn_fuwen_32bits.png" style="position:relative;margin-left:9px;margin-top:-38px;width:60px;height:32px;" />
+
+<div  style="margin-left:7px;padding:0px;margin-top:-44px;width:320px;height:40px;">
+    <pe:gridview DataSource="<%=DS_Func_Aries_Rune%>" name="RuneView" CellPadding="0"  zorder="2" style="margin-left:58px;margin-top:0px;width:320px;" DefaultNodeHeight = "32" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+        <Columns>
+            <div  style="width:32px;height:32px;background:url(Texture/Aries/common/themekid/cards/bg_slot_32bits.png)">
+                <div>
+                    <pe:if condition='<%=Eval("index") < 8%>'>
+                        <pe:if condition='<%=Eval("gsid") ~= 0%>'>
+                            <img src='<%=getIcon(Eval("gsid")) %>' style="position:relative;width:30px;height:30px;margin-top:0px;" />
+                            <input type="button" zorder="1" value='<%=string.format("%d",Eval("copies")) %>' style="position:relative;margin-left:12px;margin-top:12x;width:30px;height:30px;background:url;" />
+				            <input type="button" zorder="1" animstyle="14" Normal_BG="" MouseOver_BG="Texture/Aries/Common/ThemeTeen/candel_32bits.png" style="margin-left:0px;margin-top:1px;width:30px;height:30px;background:;" name= '<%=getName(Eval("gsid"),Eval("index")) %>'  onclick="doRemoveClick"  tooltip="<%=getCardTip(Eval('gsid'),1) %>" tooltip_offset_x="31" tooltip_offset_y="-150"/>
+                        </pe:if>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 8%>'>
+                        <input type="button" value="所有&#10;符文" animstyle="14" zorder="1"   Normal_BG="" MouseOver_BG="" style="margin-left:0px;margin-top:0x;width:30px;height:30px;background:url;text-singleline:false;font-size:11px;" name= 'allRuneBtn'  onclick="ShowAllRune"  tooltip='查看所有符文' />
+                    </pe:if>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:70px;margin-top:30px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>   	    
+    </pe:gridview>
+</div>
+
+
+
+<img src="Texture/Aries/common/themekid/cards/bg_frame_32bits.png:5 5 5 5" style="position:relative;margin-left:7px;margin-top:10px;width:320px;height:72px;" />
+<img src="Texture/Aries/common/themekid/cards/cn_equiped_cards_32bits.png" style="position:relative;margin-left:9px;margin-top:35px;width:60px;height:32px;" />
+<div class="tabs" style="width:333px;height:87px;margin-top:5px;">
+    <pe:gridview DataSource="<%=DS_Func_Aries_Equip%>" name="EquipView" CellPadding="0" style="margin-left:62px;margin-top:-19px;width:259px;height:96px;" DefaultNodeHeight = "32" ItemsPerLine="8" AllowPaging="false" pagesize="16">
+    <Columns>
+        <div style="width:32px;height:32px;" class="equip_bg">
+                <pe:if condition='<%=Eval("gsid") ~= 0%>'>
+                    <img src='<%=getIcon(Eval("gsid")) %>' style="width:30px;height:30px;margin-top:0px;" />
+				    <input type="button" zorder="1" style="margin-left:0px;margin-top:-30px;width:30px;height:30px;background:;" name= '<%=Eval("gsid") %>'  tooltip="<%=getCardTip(Eval('gsid'),1) %>" tooltip_offset_x="31" tooltip_offset_y="-150"/>
+                </pe:if>
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>Empty Items</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <div style="margin-left:70px;margin-top:30px;">数据加载中，请稍等</div>
+    </FetchingDataTemplate>   	    
+</pe:gridview>
+
+</div>
+
+
+
+</pe:mcml> 
+</body>
+</html>

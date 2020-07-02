@@ -1,0 +1,64 @@
+<!-- "script/apps/Aries/NPCs/SnowArea/30361_LifeBottle_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function OnClose()
+    page:CloseWindow();
+end
+function foundSpringWater()
+
+end
+function foundSpringMud()
+
+end
+function isFinished()
+
+end
+function getBg_SpringWater()
+    local r = hasGSItem(17086);
+    if(r)then
+        return "Texture/Aries/NPCs/Swallow/springwater_32bits.png;0 0 170 121";
+    else
+        return "Texture/Aries/NPCs/Swallow/springwater_disabled_32bits.png;0 0 170 121";
+    end
+end
+function getBg_Mud()
+    local r = hasGSItem(17087);
+    if(r)then
+        return "Texture/Aries/NPCs/Swallow/mud_32bits.png;0 0 190 115";
+    else
+        return "Texture/Aries/NPCs/Swallow/mud_disabled_32bits.png;0 0 190 115";
+    end
+end
+function getBg_Bottle()
+    return "Texture/Aries/NPCs/Swallow/bottle_32bits.png;0 0 155 151";
+end
+]]></script>
+<div style="margin-left:100px;margin-top:84px;width:820px;height:512px;background:url(Texture/Aries/NPCs/Swallow/spring_bg_32bits.png#0 0 820 512)">
+<input style="margin-left:725px;margin-top:50px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+<div style="margin-left:120px;margin-top:80px;">
+      <img tooltip="春江水暖鸭先知，线索：
+无助的丑小鸭---生命之泉
+古奇的凿子---雪山顶" style="float:left;margin-left:10px;margin-top:20px;width:170px;height:121px;" src='<%=getBg_SpringWater() %>' />
+      <img tooltip="谁家新燕啄春泥，线索：
+燕子妈妈紧急救助---农场鸟窝
+蜂窝树上小青虫---龙龙乐园" style="float:left;margin-left:30px;margin-top:20px;width:190px;height:115px;" src='<%=getBg_Mud() %>' />
+      <img tooltip="找到春天的气息
+记得来小镇广场放进我的瓶子里！" style="float:left;margin-left:25px;margin-top:0px;width:155px;height:151px;" src='<%=getBg_Bottle() %>' />
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

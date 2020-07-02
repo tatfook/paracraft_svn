@@ -1,0 +1,127 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/30345_CastMachine_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30345_CastMachine_panel.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.CastMachine_panel.OnInit();
+function getLevel()
+    local page_state = MyCompany.Aries.Quest.NPCs.CastMachine_panel.page_state or 0;
+    if(page_state == 0)then
+        return "基础家装";
+    end
+    local s = string.format("%d级家装",page_state);
+    return s;
+end
+function getSkill()
+    local state = MyCompany.Aries.Quest.NPCs.CastMachine_panel.page_state;
+    if(state == 0)then
+        return 1;
+    elseif(state == 1)then
+        return 2;
+    elseif(state == 2)then
+        return 6;
+    elseif(state == 3)then
+        return 12;
+    elseif(state == 4)then
+        return 20;
+    end
+    return 1
+end
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_188_30_32bits.png;0 0 188 30";
+function DS_Func_CastMachine_panel(index)
+    return MyCompany.Aries.Quest.NPCs.CastMachine_panel.DS_Func_CastMachine_panel(index);
+end
+
+function getButtonState(index)
+   local s = string.format([[<input name = '%d' style="float:left;margin-left:5px;margin-top:0px;width:74px;height:18px;background:url(Texture/Aries/Quest/CastMachine/level_%d_32bits.png#0 0 74 18);" type="button"  onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.ChangeState()" value=""/>]],index,index);
+   local s2 = string.format([[<input name = '%d' style="float:left;margin-left:5px;margin-top:0px;width:74px;height:18px;background:url(Texture/Aries/Quest/CastMachine/level_%d_selected_32bits.png#0 0 74 18);" type="button"  onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.ChangeState()" value=""/>]],index,index);
+   if(MyCompany.Aries.Quest.NPCs.CastMachine_panel.page_state == index)then
+    return s2;
+   else
+    return s;
+   end
+end
+]]></script>
+<div style="width:686px;height:507px;background:url(Texture/Aries/Quest/DrDoctor/AlmightyComposer/full_bg_32bits.png#0 0 686 507)">
+    <div style="position:relative;margin-left:640px;margin-top:-4px;">
+        <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.ClosePage()" value=""/>
+    </div>
+    <div style="width:134px;height:25px;margin-left:290px;margin-top:10px;background:url(Texture/Aries/Quest/CastMachine/title_32bits.png#0 0 134 25)"/>
+    <div style="position:relative">
+    <div style="margin-left:20px;margin-top:13px;float:left;">
+        <%=getButtonState(0)%>
+        <%=getButtonState(1)%>
+        <%=getButtonState(2)%>
+        <%=getButtonState(3)%>
+        <%=getButtonState(4)%>
+    <div style="margin-left:5px;margin-top:10px;font-size:12;">
+        <div><div style="float:left;font-weight:bold;">家装等级：</div><%=getLevel() %></div>
+        <br />
+        <div><div style="float:left;">每次制造成功，可获得</div><div style="float:left;color:#ff0000"><%=getSkill() %></div><div style="float:left;">点熟练度</div></div>
+    </div>
+    <div style="margin-left:5px;margin-top:0px;width:220px;height:400px;background:;">
+        <pe:gridview DataSource="<%=DS_Func_CastMachine_panel%>" name="cast_machine_gridview" style="margin-left:0px;margin-top:0px;margin-right:30px;margin-bottom:0px;" 
+            VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="true" pagesize="9">
+            <Columns>
+                <div style="width:188px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                        <a style="width:188px;height:30px;margin:0px;padding:0px;background:;"
+                            onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.DoClick" param1='<%=Eval("index")%>'>
+                            <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:188px;height:30px;background:;"/>
+                            <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:188px;height:30px;">
+                                <a width="30" height="26" style="padding:0px;background:;"
+                                    onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.DoClick" param1='<%=Eval("index")%>'>
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="margin-top:-3px;width:32px;height:32px" isclickable="false"/>
+                                </a>
+                                <div style="float:left;margin-left:35px;margin-top:-25px;width:150px;font-size:12pt;color:#000000">
+                                    <div style="float:left;width:110px;">
+                                        <%=Eval("name")%>
+                                    </div>
+                                    <div style="float:left;width:40px;">
+                                        <pe:if condition='<%=Eval("isNew")%>'>
+                                        <img zorder = 1 style="float:left;width:45px;height:23px;margin-left:-10px;margin-top:-1px;background:url(Texture/Aries/Dock/NEW_magazine_32bits.png#0 0 45 23)" />
+                                        </pe:if>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </a>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:40px;margin-top:-50px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	            <div style="float:right;margin-top:4px;width:40px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+	             </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+    </div>
+    <div style="float:left;">
+        <iframe style ="width:420px;margin-left:-145px;margin-top:40px;"name="contentframe" src='script/apps/Aries/NPCs/SnowArea/30345_CastMachine_compose_frame.html'/>
+    </div>
+</div>
+    <div style="position:relative;margin-left:255px;margin-top:400px;">
+        <div style="position:relative;font-size:12px;color:#114d81;width:450px;">
+            <div style="float:left;font-weight:bold;">温馨提示：</div>抱抱龙的建造技能等级越高，建造物品的成功率也越高；<br />
+            如果建造失败，用于建造的材料也会损坏哦！
+        </div>
+        <input tooltip="开始建造" style="margin-left:265px;margin-top:20px;width:110px;height:34px;background:url(Texture/Aries/Quest/CastMachine/start_build_btn_32bits.png#0 0 110 34);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.CastMachine_panel.DoBuild()" value=""/>
+    </div>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,116 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30338_GreenHomelandEntry_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30338_GreenHomelandEntry_dialog, by Leio, 2010/01/04</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30338);
+
+Condition1 = function()
+    return MyCompany.Aries.Quest.NPCs.GreenHomelandEntry.HasGreenHome();
+end;
+Condition2 = function()
+    return not MyCompany.Aries.Quest.NPCs.GreenHomelandEntry.HasGreenHome();
+end;
+Condition3 = function()
+    return not MyCompany.Aries.Quest.NPCs.GreenHomelandEntry.HasEnoughMoney();
+end;
+Condition4 = function()
+    return MyCompany.Aries.Quest.NPCs.GreenHomelandEntry.HasEnoughMoney();
+end;
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 10 and to == -1) then
+        MyCompany.Aries.Quest.NPCs.GreenHomelandEntry.TryExchange();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='青青草原家园'/>
+        </pe:template>        
+
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		   这里是青青草原的家园挪移处，你想把整个家园都搬到青青草原去吗？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "3"/>
+		    </pe:answer>
+
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你的家园现在已经是美丽的青青草原背景了，不用再搬一次了。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    搬到青青草原，你的整个家园背景都会变成绿油油的青青草原模样，你还需要给我2000奇豆作为搬运费呢，你想现在就搬吗？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "5"/>
+		    </pe:answer>
+
+		        <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你的奇豆还不够，还不能搬到青青草原，快去赚够2000奇豆再来吧。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "5">
+		    好了，我已经成功的将你的家园挪移到了青青草原，你现在就可以回家看看家园的新样子了。
+		    <pe:answer template_id = "thanks">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>   
+    
+</pe:mcml>
+</body>
+</html>

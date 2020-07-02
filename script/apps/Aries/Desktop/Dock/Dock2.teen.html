@@ -1,0 +1,357 @@
+<!-- "script/apps/Aries/Desktop/Dock/Dock2.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="Dock.teen.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+local page = document:GetPageCtrl();
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+NPL.load("(gl)script/apps/Aries/Combat/MsgHandler.lua");
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/HaqiShop/AuctionHouse.lua");
+local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");        
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+function OpenPetBag()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.lua");
+    local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+    CharacterBagPage.ShowPage(nil,"Pet")
+end
+function ToggleAutoAIMode()
+    MsgHandler.ToggleAutoAIMode();
+    page:CallMethod("extBtnsBar","DataBind");
+end
+function IsAutoAIMode()
+    return MsgHandler.GetIsAutoAIMode();
+end
+function OpenBearShop()
+   QuestHelp.OpenBearShop();
+end
+
+Dock.LoadExtbarCfg();
+
+local ext_btn_nodes = {
+    {name="bear_shop", tooltip="外卖商人巴巴多", goalpointer="open_encyclopedia",icon="Texture/Aries/Common/Teen/mainbar/bear_shop_32bits.png", onclick = OpenBearShop},
+    {name="toggle_pet", tooltip="坐骑", icon="Texture/Aries/Common/Teen/mainbar/togglepet_btn_32bits.png", onclick = OpenPetBag},
+    {name="firstaid", tooltip="药箱", goalpointer="open_pillbox", icon="Texture/Aries/Common/Teen/mainbar/firstaid_btn_32bits.png", onclick = "MyCompany.Aries.Desktop.Dock.OnClickQuickDockButton();"},
+    {name="action", tooltip="动作", goalpointer="open_action", icon="Texture/Aries/Common/Teen/mainbar/action_btn_32bits.png", onclick = "MyCompany.Aries.Desktop.Dock.OnClickAction();"},
+    {name="screenshot", tooltip="截图分享", goalpointer="open_screenshot", icon="Texture/Aries/Common/Teen/mainbar/screenshot_btn_32bits.png", onclick="MyCompany.Aries.Desktop.Dock.DoSharePhotos()"},
+    {name="AutoAIMode", tooltip="开始自动战斗", tooltip2="在自动中", icon="Texture/Aries/Common/Teen/mainbar/autoai_off_32bits.png", icon2="Texture/Aries/Common/Teen/mainbar/autoai_on_32bits.png", onclick = ToggleAutoAIMode},
+};
+
+function GetTips_AutoAIMode()
+    local s;
+    local __,__,__,copies = hasGSItem(12007);
+    copies = copies or 0
+    if(IsAutoAIMode())then
+        s = string.format([[在自动中 自动战斗药丸剩余:%d个]],copies);
+    else
+        s = string.format([[开始自动战斗 自动战斗药丸剩余:%d个]],copies);
+    end
+    return s;
+end
+function ds_ExtBtns(index)
+    if(not index) then
+        return #Dock.ExtbarDS;
+    else
+        return Dock.ExtbarDS[index];
+    end
+end
+
+Dock.staticbtn_nodes = {
+	{label = "人物(C)", name = "ProfilePane.ShowPage", goalpointer="open_character", uiname="instancebtn_ProfilePane.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/character_btn_32bits.png;0 0 50 60"},
+    {label = "背包(B)", name = "CharacterBagPage.ShowPage", goalpointer="open_inventory", uiname="instancebtn_CharacterBagPage.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/bag_btn_32bits.png;0 0 50 60"},
+	{label = "宠物(P)", name = "CombatFollowPetPane.ShowPage", goalpointer="open_pet", uiname="instancebtn_CombatFollowPetPane.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/pet_btn_32bits.png;0 0 50 60"},
+	{label = "卡牌(V)", name = "CombatCardTeen", goalpointer="open_carddeck", uiname="instancebtn_CombatCardTeen", icon="Texture/Aries/Common/Teen/mainbar/skill_btn_32bits.png;0 0 50 60"},
+	{label = "组队(T)", name = "LobbyClientServicePage.ShowMenu", goalpointer="open_lobbypage",uiname="instancebtn_LobbyClientServicePage.ShowMenu", icon="Texture/Aries/Common/Teen/mainbar/team_btn_32bits.png;0 0 50 60"},
+	{label = "任务(L)", name = "QuestPane.ShowPage", goalpointer="", uiname="instancebtn_QuestPane.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/quest_btn_32bits.png;0 0 50 60"},
+	--{label = "竞技场(PvP)", name = "LobbyClientServicePage.ShowMenuPvP", goalpointer="open_pvppage", uiname="instancebtn_LobbyClientServicePage.ShowMenuPvP", icon="Texture/Aries/Common/Teen/mainbar/arena_btn_32bits.png;0 0 50 60"},
+	{label = "好友(O)", name = "FriendsPage.ShowPage", goalpointer="open_friend_list", uiname="instancebtn_FriendsPage.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/friends_btn_32bits.png;0 0 50 60"},
+	{label = "家族(J)", name = "FamilyMembersPage.ShowPage", goalpointer="open_family", uiname="instancebtn_FamilyMembersPage.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/family_btn_32bits.png;0 0 50 60"},
+	{label = "生活", name = "MinorSkillPage.ShowPage", goalpointer="open_skillpage", uiname="instancebtn_MinorSkillPage.ShowPage", icon="Texture/Aries/Common/Teen/mainbar/minor_btn_32bits.png;0 0 52 60"},
+	{label = "系统", name = "systemBtn", goalpointer="open_system", uiname="instancebtn_systemBtn", icon="Texture/Aries/Common/Teen/mainbar/system_btn_32bits.png;0 0 50 60"},
+}
+
+local static_btn_nodes = Dock.staticbtn_nodes;
+function ds_StaticBtn(index)
+ if(not index) then
+        return #static_btn_nodes;
+    else
+        return static_btn_nodes[index];
+    end
+end
+function GetStaticBtnTooltip(index)
+    if(static_btn_nodes)then
+        local node = static_btn_nodes[index];
+        if(node)then
+            local s = string.format("%s",node.label or "");
+            return s;
+        end
+    end
+end
+function FindNodeByName(table_obj, name)
+    local _, item
+    for _, item in ipairs(table_obj) do
+        if(item.name == name) then
+            return item;
+        end
+    end
+end
+function DoShowPage_ExBtn(name)
+    local  node = FindNodeByName(Dock.ExtbarDS,name)
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:TrackAndGotoPos(node.pos,node.facing,node.camera,node.world,node.tooltip)
+end
+function DoShowPage_StaticBtn(name)
+    if(name == "systemBtn")then
+        Dock.OnClickSettings();
+    else
+        local bean = MyCompany.Aries.Pet.GetBean();
+        local myCombatLevel = 0;
+        if(bean) then
+	        myCombatLevel = bean.combatlel or 0;
+        end
+        if (name=="LobbyClientServicePage.ShowMenu") then
+	        goal_manager.finish("open_lobbypage");
+        end
+        Dock.FireCmd(name);        
+    end
+end
+function GetKeyNum(index)
+    if(not index)then return end
+    local n = math.mod(index,Dock.static_view_len);
+    if(n == 0)then n = Dock.static_view_len end;
+    return n;
+end
+function PageIndexChanged(ctrlName, nPageIndex)
+    Dock.static_view_page_index = nPageIndex;
+end
+
+
+
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+function OnclickDealButton()
+    MyCompany.Aries.Desktop.Dock.OnClickDealPage();
+end
+
+--已经发送过重置申请
+function HasResetTime()
+    return DealDefend.HasResetPassword();
+end
+
+function GetResetTime()
+    local date1,date2 = DealDefend.GetTime();
+    local a_1 = commonlib.GetMillisecond_Date(date1);
+	local a_2 = commonlib.GetMillisecond_Date(date2);
+    local s;
+    if(DealDefend.ResetPassword_Successful_InMemory())then
+        s = "你的交易密码已经清空,请重新登录设置新的密码";
+    else
+        local day,hours,minutes,seconds,time_str,total_mill = commonlib.GetTimeStr_BetweenToDate(date1,date2)
+        s = string.format("重置交易密码时间:%s<br/>生效剩余时间:%d天%d小时",date1,day or 0,hours or 0);
+    end
+    return s;
+end
+
+function oncreate_tip_btn(name, mcmlNode)
+    if(name == "lobby_service") then
+        local parent = ParaUI.GetUIObject(mcmlNode.uiobject_id);
+	    if(parent:IsValid())then
+		    local _btntips = ParaUI.CreateUIObject("text", "EXPArea_instancebtntips_lobbyservice", "_lt", 0, 0, 22, 22);
+	        _btntips.background = "Texture/Aries/Common/ThemeTeen/others/waiting_bg_32bits.png;0 0 16 24:5 5 5 5";
+	        _btntips.tooltip = "组队大厅";
+	        _guihelper.SetFontColor(_btntips, "#682f04");
+	        _btntips.visible = false;
+            _btntips.spacing = 3;
+            _guihelper.SetUIFontFormat(_btntips, 36)
+	        parent:AddChild(_btntips);
+	    end
+    end
+end
+function oncreate_quest_tip_btn(name, mcmlNode)
+    if(name == "quest_service") then
+        local parent = ParaUI.GetUIObject(mcmlNode.uiobject_id);
+	    if(parent:IsValid())then
+		    local _btntips = ParaUI.CreateUIObject("text", "dock_quest_cnt_tips", "_rt", -30, 0, 22, 22);
+	        _btntips.background = "Texture/Aries/Dock/UnreadNum_32bits.png";
+	        _btntips.tooltip = "可接任务";
+	        _guihelper.SetFontColor(_btntips, "#682f04");
+	        --_btntips.visible = false;
+            _btntips.spacing = 3;
+            _btntips.text = tostring(QuestTrackerPane.GetQuestCnt());
+            _guihelper.SetUIFontFormat(_btntips, 36)
+	        parent:AddChild(_btntips);
+	    end
+    end
+end
+function OnCloseDealTip()
+    local dealtip = Page:FindControl("dealtip")
+    if (dealtip) then
+        dealtip.visible = false;
+    end
+end
+function OnClickExtentionBar()
+	local bShow = Dock.IsShowExtensionBar();
+	if(bShow)then
+		Dock.extends_bar_state = "closed";
+	else
+		Dock.extends_bar_state = "opened";
+	end
+    Page:SetValue("extended_bar", not bShow)
+    Page:Refresh(0);
+    Dock.UpdateDealButtonState();
+end
+function IsShowExtensionBar()
+    return Dock.IsShowExtensionBar();
+end
+
+function CanGetSilver()
+    local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+    local ItemManager = System.Item.ItemManager;
+    local DailyJoybean_gsid = 50316;
+    local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(DailyJoybean_gsid);
+    if(VIP.IsVIP() and gsObtain.inday==0) then
+        return true
+    end
+    return false
+end
+]]></script>
+
+<div style="height:111px;">
+    <pe:if condition='<%= HasResetTime() %>'>
+        <pe:container name="dealtip" ClickThrough="true" class="anchor_tooltip_bg" style="padding:4px;font-size:12px;position:relative;margin-top:0px;margin-left:-50px;width:270px;height:46px;">
+            <input type="button" onclick="OnCloseDealTip" style="align:right;margin-top:-1px;position:relative" class="anchor_tooltip_close"/>
+            <div type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:35px;margin-left:81px;" />
+            <div style="margin-left:2px;margin-top:-2px;">
+                <%= GetResetTime() %>
+            </div>
+        </pe:container>
+    </pe:if>
+    <pe:if condition='<%=IsShowExtensionBar()%>'> 
+        <div style="position:relative;margin-left:680px;margin-top:3px;height:50px;width:394px;background:">
+            <div style="position:relative;height:32px;margin-top:29px;margin-right:35px;width:256x;background:url(Texture/Aries/Common/Teen/mainbar/ext_bar_bg_32bits.png);"></div>
+            <pe:gridview style="margin-left:-5px;margin-top:13px;width:270px;height:45px;" name="extBtnsBar" AllowPaging="false" ItemsPerLine="7" DefaultNodeHeight = "32" pagesize="7"
+                OnPageIndexChanged="PageIndexChanged()"
+                DataSource='<%=ds_ExtBtns%>'>
+	            <Columns>
+                    <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:32px;height:32px;"></pe:goalpointer>
+                    <div style="margin-left:5px;width:32px;">
+                    <div align="center" style="width:43px;position:relative;">
+                        <pe:if condition='<%=Eval("name") == "AutoAIMode"%>'>
+                            <pe:if condition='<%=IsAutoAIMode()%>'>
+                                <input type="button" name='<%=Eval("name")%>' tooltip='<%=GetTips_AutoAIMode()%>' 
+                                    onclick="DoShowPage_ExBtn" background='<%=Eval("icon2") or ""%>' style="position:relative;width:32px;height:32px;" />
+                            </pe:if>
+                            <pe:if condition='<%=not IsAutoAIMode()%>'>
+                                <input type="button" name='<%=Eval("name")%>' tooltip='<%=GetTips_AutoAIMode()%>' 
+                                    onclick="DoShowPage_ExBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:32px;height:32px;" />
+                            </pe:if>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("name") ~= "AutoAIMode"%>'>
+                            <input type="button" name='<%=Eval("name")%>' tooltip='<%=Eval("tooltip")%>' 
+                                onclick="DoShowPage_ExBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:32px;height:32px;" />
+                        </pe:if>
+                        
+                    </div>
+                    </div>
+	            </Columns>
+	            <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+            </pe:gridview>
+        </div>
+    </pe:if>
+    <div style="margin-top:47px;background:url(Texture/Aries/Common/Teen/mainbar/dock_bg2_32bits.png#0 0 936 64);width:934px;height:64px;padding-top:2px;">
+        <div style="float:left;width:165px;">
+            <div style="float:left;position:relative;margin-top:14px;margin-left:59px;">
+                <pe:goalpointer listen='DealButton' style="position:relative;width:16px;height:19px;"></pe:goalpointer>
+                <input name="DealButton" tooltip="交易密码保护" type="button" onclick="OnclickDealButton" style="width:16px;height:19px;background:url(Texture/Aries/Common/Teen/mainbar/unlock2_32bits.png# 0 0 16 19)"/>
+            </div>
+            <div style="float:left;position:relative;margin-top:15px;margin-left:844px;">
+                <pe:goalpointer listen='extended_bar' style="position:relative;width:32px;height:32px;"></pe:goalpointer>
+                <input type="checkbox" name='extended_bar' tooltip='扩展条' iconsize="32" checked='false'
+                    onclick="OnClickExtentionBar"
+                    CheckedBG="Texture/Aries/Common/Teen/mainbar/arrow_down2_32bits.png" UncheckedBG="Texture/Aries/Common/Teen/mainbar/arrow_up2_32bits.png"
+                    style="width:32px;height:32px;" />
+            </div>
+        </div>
+        <div style="float:left;">
+            <div style="position:relative;margin-left:210px;margin-top:-2px;">    
+                <pe:container zorder = "1" ClickThrough="true" name="lobby_service" oncreate="oncreate_tip_btn" style="float:left;width:120px;height:22px;background:;" >
+                </pe:container>
+            </div>
+            <div style="position:relative;margin-left:260px;margin-top:-10px;">    
+                <pe:container zorder = "1" ClickThrough="true" name="quest_service" oncreate="oncreate_quest_tip_btn" style="float:left;width:60px;height:60px;background:;" >
+                </pe:container>
+            </div>
+            <pe:gridview style="margin-left:2px;margin-top:-8px;width:573px;height:60px;" name="staticBtnBar" ItemsPerLine="12" AllowPaging="false" DefaultNodeHeight = "60" pagesize="12"
+                DataSource='<%=ds_StaticBtn%>'>
+	            <Columns>
+                    <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:52px;height:60px;"></pe:goalpointer>
+                    <div style="width:52px;">
+                            <pe:if condition='<%=Eval("index") == 1%>'>
+                                <input type="button" style="width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 2%>'>
+                                <input type="button" style="margin-left:4px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 3%>'>
+                                <input type="button" style="margin-left:5px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 4%>'>
+                                <input type="button" style="margin-left:3px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 5%>'>
+                                <input type="button" style="margin-left:3px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 6%>'>
+                                <input type="button" style="margin-left:3px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 7%>'>
+                                <input type="button" style="margin-left:3px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 8%>'>
+                                <input type="button" style="margin-left:8px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 9%>'>
+                                <input type="button" style="margin-left:5px;width:52px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        <pe:if condition='<%=Eval("index") == 10%>'>
+                                <input type="button" style="margin-left:2px;width:50px;height:60px;" name='<%=Eval("name")%>' uiname='<%=Eval("uiname")%>'  tooltip='<%=GetStaticBtnTooltip(Eval("index"))%>' onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' />
+                            </pe:if>
+                        
+                            <pe:if condition='<%=Eval("is_locked")%>' >
+                            <img style="position:relative;margin-left:-12px;margin-top:-12px;width:12px;height:14px;background:url(Texture/Aries/Dock/teen/lock_32bits.png#0 0 12 14)" />
+                            </pe:if>
+                    </div>
+	            </Columns>
+	            <EmptyDataTemplate>
+	            </EmptyDataTemplate>
+	            <FetchingDataTemplate>
+	            </FetchingDataTemplate>
+	            <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+            </pe:gridview>
+        </div>
+        <div style="float:left;margin-left:-8px;margin-top:2px;">
+            <!--<input type="button" value="充值" enabled="false" zorder="1" style="position:relative;margin-left:2px;width:50px;height:20px;margin-top:35px;" class="bordertext" />-->
+            <input type="button" tooltip="VIP魔法星" name="MagicStarPage.ShowPage" onclick="DoShowPage_StaticBtn" value="" style="width:50px;height:50px;background:url(Texture/Aries/Common/Teen/mainbar/magicstar_vip_32bits.png#0 0 50 50)" />
+            <pe:if condition='<%=CanGetSilver()%>'>
+                <div style="float:left;position:relative;margin-left:-50px;margin-top:0px;width:55px;height:50px;background:" >
+                    <img zorder="1" enabled="false" class="animated_btn_overlay" width="55" height="50"/>
+                </div>                                                 
+            </pe:if>  
+            <!--<input type="button" value="导购" enabled="false" zorder="1" style="position:relative;margin-left:10px;width:50px;height:20px;margin-top:35px;" class="bordertext" />-->
+            <input type="button" tooltip="商城" name="AuctionHouse.ShowPage" onclick="DoShowPage_StaticBtn" value="" style="margin-left:14px;margin-top:5px;width:46px;height:46px;background:url(Texture/Aries/Common/Teen/mainbar/shop_32bits.png#10 6 46 46)" />
+            <!--<input type="button" tooltip="外卖商人巴巴多" onclick="OpenBearShop" value="" style="margin-left:13px;margin-top:8px;width:41px;height:41px;background:url(Texture/Aries/Common/Teen/mainbar/bear_show2_32bits.png#0 0 41 41)" />-->
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

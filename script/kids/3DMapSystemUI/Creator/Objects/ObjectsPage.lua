@@ -1,0 +1,198 @@
+--[[
+Title: Objects editor page
+Author(s): LiXizhi
+Date: 2009/2/8
+Desc: 
+use the lib:
+------------------------------------------------------------
+NPL.load("(gl)script/kids/3DMapSystemUI/Creator/Objects/ObjectsPage.lua");
+------------------------------------------------------------
+]]
+NPL.load("(gl)script/kids/3DMapSystemUI/Inventor/Util/SeniorEditor.lua");
+local ObjectsPage = {
+	name = "ObjectsPage_instance"
+};
+commonlib.setfield("Map3DSystem.App.Creator.ObjectsPage", ObjectsPage)
+
+-- singleton page instance. 
+local page;
+
+-- called to init page
+function ObjectsPage.OnInit()
+	page = document:GetPageCtrl();
+end
+
+------------------------
+-- page events
+------------------------
+--function ObjectsPage._OpenDialogControl()
+	--local self = ObjectsPage;
+	--NPL.load("(gl)script/ide/OpenFileDialog.lua");	
+	--local name = self.name.."open";
+	--local path = "";
+	--local ctl = CommonCtrl.GetControl(name)
+	--if(not ctl)then
+		--ctl = CommonCtrl.OpenFileDialog:new{
+		--name = name,
+		--alignment = "_ct",
+		--left=-256, top=-150,
+		--width = 512,
+		--height = 380,
+		--parent = nil,
+		---- initial file name to be displayed, usually "" 
+		--FileName = "",
+		--fileextensions = {"xml(*.xml)", },
+		--folderlinks = {
+			--{path = path, text = "Root"},
+		--},
+		--onopen = function(ctrlName, filepath)
+			--NPL.load("(gl)script/ide/Document/LocalSingleDocument.lua");
+			--local doc = CommonCtrl.LocalSingleDocument:new();
+			--doc:SetFilePath(filepath);
+			--doc:Load();
+			--local xmlRoot = ParaXML.LuaXML_ParseString(doc:GetData());
+			--ObjectsPage.lite3DCanvas = Map3DSystem.App.Inventor.GlobalInventor.__DoParse(xmlRoot);
+			--page:SetValue("loadTemplateFilepath",filepath or "");
+		--end
+	--};
+	--end
+	--ctl:Show(true);
+--
+	--CommonCtrl.AddControl(name,ctl)
+--end
+--function ObjectsPage._SaveDialogControl(result)
+	--if(not result or result == "")then return end
+	--local self = ObjectsPage;
+	--NPL.load("(gl)script/ide/SaveFileDialog.lua");		
+	--local path = "";
+	--local name = self.name.."save";
+	--local ctl = CommonCtrl.GetControl(name)
+	--if(not ctl)then
+		--ctl = CommonCtrl.SaveFileDialog:new{
+		--name = name,
+		--alignment = "_ct",
+		--left=-256, top=-150,
+		--width = 512,
+		--height = 380,
+		--parent = nil,
+		---- initial file name to be displayed, usually "" 
+		--FileName = "",
+		--fileextensions = {"xml(*.xml)", },
+		--folderlinks = {
+			--{path = path, text = "Root"},
+		--},
+		--onopen = function(ctrlName, filepath)	
+			--local file = ParaIO.open(filepath, "w");
+			--if(file:IsValid()) then
+				--file:WriteString(result);
+				--file:close();
+				--_guihelper.MessageBox("合成成功！")
+			--end	
+			--file:close();	
+		--end
+	--};
+	--end
+	--ctl:Show(true);
+	--CommonCtrl.AddControl(name,ctl)
+--end
+---- load a template which can't edit by SeniorEditor
+--function ObjectsPage.OnLoad()
+	--ObjectsPage._OpenDialogControl()
+--end
+--function ObjectsPage.OnUnLoad()
+	--if(ObjectsPage.lite3DCanvas)then
+		--ObjectsPage.lite3DCanvas:Clear();
+		--page:SetValue("loadTemplateFilepath","");
+	--end
+--end
+--function ObjectsPage.OnCompose()
+	--local tempate_str = "";
+	--if(ObjectsPage.lite3DCanvas)then
+		--tempate_str = ObjectsPage.lite3DCanvas:ToMcml();
+	--end
+	--local __,__,__,tempate_str = string.find(tempate_str,"<Room(.-)>(.-)</Room>")
+	--tempate_str = tempate_str or "";
+	--local s = "";
+	--local docFrame = Map3DSystem.App.Inventor.SeniorEditor.GetDocumentFrame();
+	--if(docFrame)then
+		--local curDoc = docFrame:GetCurrentDocument();
+		--if(curDoc)then
+			--if(curDoc.canvas)then
+				--s =  curDoc.canvas:ToMcml();
+			--end
+		--end
+	--end
+	--local __,__,__,s = string.find(s,"<Room(.-)>(.-)</Room>")
+	--s = s or "";
+	--local result = string.format("<Room><StaticValue>%s</StaticValue><CustomValue>%s</CustomValue></Room>",tempate_str,s);
+	--ObjectsPage._SaveDialogControl(result)
+--end
+--function ObjectsPage.OnClose()
+--end
+--function ObjectsPage.onNewDocFunc(SeniorEditor)
+	--ObjectsPage.SetPathTxt()
+--end
+--function ObjectsPage.onOpenDocFunc(SeniorEditor)
+	--ObjectsPage.SetPathTxt()
+--end
+--function ObjectsPage.onSaveDocFunc(SeniorEditor)
+	--ObjectsPage.SetPathTxt()
+--end
+--function ObjectsPage.onSaveAsDocFunc(SeniorEditor)
+	--ObjectsPage.SetPathTxt()
+--end
+--function ObjectsPage.SetPathTxt()
+	--local docFrame = Map3DSystem.App.Inventor.SeniorEditor.GetDocumentFrame();
+	--local curDoc = docFrame:GetCurrentDocument();
+	--if(curDoc)then
+		--local filepath = curDoc:GetFilePath();
+		--page:SetValue("filepath",filepath or "");
+	--end
+--end
+--function ObjectsPage.OnStart()
+	--Map3DSystem.App.Inventor.SeniorEditor.Start()
+	--ObjectsPage.OnNew()
+	--_guihelper.MessageBox("已经启动！")
+	--Map3DSystem.App.Inventor.SeniorEditor.onNewDocFunc = ObjectsPage.onNewDocFunc
+	--Map3DSystem.App.Inventor.SeniorEditor.onOpenDocFunc = ObjectsPage.onOpenDocFunc
+	--Map3DSystem.App.Inventor.SeniorEditor.onSaveDocFunc = ObjectsPage.onSaveDocFunc
+	--Map3DSystem.App.Inventor.SeniorEditor.onSaveAsDocFunc = ObjectsPage.onSaveAsDocFunc
+--end
+--function ObjectsPage.OnEnd()	
+	--_guihelper.MessageBox("是否保存刚才编辑的文件？",
+					--function (result)
+						--if(_guihelper.DialogResult.Yes == result or _guihelper.DialogResult.OK == result) then
+							--ObjectsPage.OnSave()
+						--else
+							--Map3DSystem.App.Inventor.SeniorEditor.End()
+						--end
+					--end,_guihelper.MessageBoxButtons.YesNo
+					--);		
+--end
+--function ObjectsPage.OnNew()
+	--if(Map3DSystem.App.Inventor.SeniorEditor.isStart)then
+		--Map3DSystem.App.Commands.Call("Profile.Inventor.NewDocument");
+	--else
+		--_guihelper.MessageBox("请先启动！")
+	--end
+--end
+--function ObjectsPage.OnOpen()
+	--Map3DSystem.App.Commands.Call("Profile.Inventor.OpenDocument");
+--end
+--function ObjectsPage.OnSave()
+	--Map3DSystem.App.Commands.Call("Profile.Inventor.SaveDocument");
+--end
+--function ObjectsPage.OnSaveAs()
+	--Map3DSystem.App.Commands.Call("Profile.Inventor.SaveDocumentAs");
+--end
+--function ObjectsPage.OnRefresh()
+	--page:Refresh(0);
+--end
+--function ObjectsPage.OnSelectTool(name)
+	--if(name == "add")then
+		--Map3DSystem.App.Inventor.SeniorEditor.SetTool("EntityTool")
+	--else
+		--Map3DSystem.App.Inventor.SeniorEditor.SetTool("SelectorTool")
+	--end
+	--
+--end

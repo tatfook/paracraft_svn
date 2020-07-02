@@ -1,0 +1,42 @@
+<!-- "script/apps/Aries/Quest/CommonQuestDialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CommonQuestDialog.html, by Andy, 2009/8/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+local page = document:GetPageCtrl();
+
+npc_id = page:GetRequestParam("npc_id") or 0;
+instance = page:GetRequestParam("instance") or nil;
+name = "NPCSelection"..npc_id..(instance or "");
+
+content = page:GetRequestParam("content") or "";
+
+commonlib.echo(npc_id)
+commonlib.echo(content)
+name = "CommonDialog_"..npc_id;
+
+local frame = page:GetNode("AriesCommonQuestDialog");
+if(frame ~= nil) then
+    frame:SetAttribute("src", content);
+    -- NOTE: this refresh will cause the iframe page inited twice
+    --page:Refresh(0.1);
+end
+
+]]></script>
+    <!--<div style="width:468px;height:317px;background:texture/alphadot.png">-->
+    <div style="width:468px;height:317px;background:url(Texture/Aries/Quest/Dialog_BG2_32bits.png: 88 45 31 31)">
+        <div style="width:468px;height:317px;">
+            <iframe name="AriesCommonQuestDialog" src="" />
+        </div>
+        <div style="margin-top:-317px;margin-left:36px;width:128px;height:256px;">
+            <pe:player nid='<%=Eval("npc_id")%>' object="npc" name='<%=Eval("npc_id")%>' miniscenegraphname="NPCDialog_miniscene" style="margin-top:64px;width:128px;height:128px;" background="" IsPortrait=false IsInteractive=true/>
+        </div>
+    </div>
+</pe:mcml> 
+</body>
+</html>

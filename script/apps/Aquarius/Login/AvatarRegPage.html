@@ -1,0 +1,42 @@
+<!-- "script/apps/Aquarius/Login/AvatarRegPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Avatar select Page 2009.1.5 modified WangTian</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="AvatarRegPage.lua" trans="ParaworldMCML"/>
+<form name="avatarTab">
+  <div style="margin:10px;width:150px;float:left;">
+    <h3>欢迎来到帕拉巫世界！</h3>
+    <p>您还没有选择你的3D形像</p>
+    <p>请在这些不同的人物中选择一个你的形象。请记住，在帕拉巫世界中你有非常多的方法来改变你的形象。你可以改变皮肤、发型、头发颜色、衣服，甚至你还可以创造属于你自己的五官面孔！</p>
+    <p>在右面的列表中，我们仅给出了一些你可以迅速上手的外型。在帕拉巫世界中，你还可以有更多的选择来让你的化身丰富多采。</p>
+  </div>
+  <div style="margin:10px;float:left;">
+      <h2>点击下面头像</h2>
+      <pe:gridview ItemsPerLine="2" style="width:160px;height:300px" name="gvwAvatars" DataSource='<%=MyCompany.Aquarius.Login.AvatarRegPage.DS_Avatar_Func%>' DefaultNodeHeight="70">
+        <Columns>
+            <a type="button" tooltip='<%=Eval("desc")%>' onclick="MyCompany.Aquarius.Login.AvatarRegPage.UpdateAvatar" param1='<%=Eval("index")%>'>
+                <img src='<%=Eval("bg")%>'width="64" height="64"/>
+            </a>
+        </Columns>
+       </pe:gridview>
+  </div>
+
+  <div style="margin:10px;float:left;">
+    <div><font style="font-weight:bold">3D 预览:</font><font style="color:#808080;">用鼠标拖拽可以改变视角</font></div>
+    <label name="desc" style="font-weight:bold;height:20px">尚未选择</label>
+    <div>
+      <pe:avatar uid = "loggedinuser" name="avatar" style="width:256px;height:256px;">
+	   </pe:avatar>
+    </div>
+    <div style="margin-left:70px;margin-top:20px;" >
+        <input type="submit" style="height:26px" class="defaultbutton" name="Accept" value="确定选择" onclick="MyCompany.Aquarius.Login.AvatarRegPage.OnAccept"/>
+    </div>
+  </div>
+  </form>
+</pe:mcml>
+</body>
+</html>

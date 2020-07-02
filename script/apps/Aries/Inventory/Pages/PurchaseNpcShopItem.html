@@ -1,0 +1,271 @@
+﻿<!-- "script/apps/Aries/Inventory/Pages/PurchaseNpcShopItem.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PurchaseNpcShopItem, by leio, 2011/10/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PurchaseNpcShopItem.lua" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = Map3DSystem.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+local gsid = pageCtrl:GetRequestParam("gsid");
+gsid = tonumber(gsid);
+
+local do_type = pageCtrl:GetRequestParam("do_type");
+do_type = tonumber(do_type);
+
+local exid = pageCtrl:GetRequestParam("exid");
+exid = tonumber(exid);
+
+local count = pageCtrl:GetRequestParam("count");
+count = tonumber(count);
+count = count or 1;
+local name = "";
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+local max_count = 99; 
+if(gsItem) then
+	name = gsItem.template.name;
+
+    if(exid and exid>0) then 
+        local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+        if(exTemplate)then
+            if(exTemplate.tos) then
+                local node = exTemplate.tos[1];
+                if(node and node.key == gsid) then
+                    if(node.value and node.value>1) then
+                        name = format("%s x %d", name, node.value);
+                    end
+                end
+            end
+        end
+    end
+
+    local bhas,_,_,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    if(do_type == 1) then
+        max_count = copies;
+    else
+        if(not gsItem.template.maxcount or gsItem.template.maxcount<=0) then
+            max_count = 99;
+        else
+            max_count = math.min(math.max(gsItem.template.maxcount - copies,0), 9999999);
+        end
+    end
+    
+end
+count = math.min(count,max_count);
+pageCtrl:SetValue("countText",count);
+
+function CheckState(cnt)
+    if(exid)then
+	    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+        if(not exTemplate)then
+		    return
+	    end
+        cnt = cnt or 1;
+        local can_pass,key,__,need_value = NPCShopProvider.PreCheckByExid_internal(exTemplate.froms,exid,cnt);
+        if(do_type == 1) then
+            local _,item,unitPrice;
+            for _,item in ipairs(exTemplate.tos) do 
+                if(item.key == 17213) then 
+                    unitPrice = item.value;
+                end
+            end
+            unitPrice = unitPrice or 0;
+            local totalPrice = unitPrice*cnt;
+            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(key);
+            if(gsItem)then
+                local __,__,__,copies = hasGSItem(key);
+                copies = copies or 0;
+                if(can_pass)then
+                    local s = string.format("出售%d个%s可获得%d个仙豆，你现在有%d个%s，你确定要出售吗？",cnt,name,totalPrice,copies,gsItem.template.name);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "马上出售");
+                else
+                    local s = string.format("出售%d个%s可获得%d个仙豆，你现在只有%d个%s，数量不够，无法出售！",cnt,name,totalPrice,copies,gsItem.template.name);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "补充再来");
+                end
+            end 
+        else
+            if(key == 0)then
+                local __,__,__,copies = hasGSItem(key);
+                copies = copies or 0;
+                if(can_pass)then
+                    local s = string.format("%d个%s需要%d%s，你现在有%d%s，确认要购买吗？",cnt,name,need_value,System.options.haqi_GameCurrency,copies,System.options.haqi_GameCurrency);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "马上购买");
+                else
+                    local s = string.format("%d个%s需要%d%s，你现在有%d%s，数量不够，请立即补充！",cnt,name,need_value,System.options.haqi_GameCurrency,copies,System.options.haqi_GameCurrency);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "立即补充");
+                end
+            else
+                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(key);
+                if(gsItem)then
+                    local __,__,__,copies = hasGSItem(key);
+                    copies = copies or 0;
+                    if(can_pass)then
+                        local s = string.format("%d个%s需要%d%s，你现在有%d%s，确认要购买吗？",cnt,name,need_value,gsItem.template.name,copies,gsItem.template.name);
+                        pageCtrl:SetValue("buydesc", s);
+                        pageCtrl:SetValue("action_btn", "马上购买");
+                    else
+                        local s = string.format("%d个%s需要%d%s，你现在有%d%s，数量不够，请立即补充！",cnt,name,need_value,gsItem.template.name,copies,gsItem.template.name);
+                        pageCtrl:SetValue("buydesc", s);
+                        pageCtrl:SetValue("action_btn", "立即补充");
+                    end
+                end    
+            end
+        end
+        if(exid == 2161) then
+            pageCtrl:SetValue("buydesc", "仅限2012年以前注册玩家领取");
+        end
+    end
+end
+function GetCountDesc()
+    local s;
+    if(do_type == 1) then
+        s = string.format("输入出售数量(1-%d)", max_count);
+    else
+        s = string.format("输入购买数量(1-%d)", max_count);
+    end
+    return s;
+end
+function OnOK()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    if(goal_manager.match_param("gsid", gsid)) then
+        goal_manager.finish("purchase_confirm");
+    end
+
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count) or 0;
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(not exTemplate)then
+		return
+	end
+    local can_pass,key,__,need_value = NPCShopProvider.PreCheckByExid_internal(exTemplate.froms,exid,count);
+    if(can_pass)then
+         local daychoice = NPCShopProvider.LoadDaychoice(gsid);
+         System.Item.ItemManager.ExtendedCost2(exid, count, nil, nil, function(msg)
+            if(msg and msg.issuccess)then
+		        NPCShopPage.LoadData_Bag(NPCShopPage.bag_type,true);
+                NPCShopProvider.SaveDaychoice(gsid,daychoice + count);
+
+                
+                --local info = NPCShopProvider.BuildExtendedInfo(exid,count);
+                --local req_froms = info.req_froms;
+
+                paraworld.PostLog({action = "npcshop", gsid = gsid, req_froms = req_froms, count = count,}, 
+							"npcshop_log", function(msg)
+						end);
+                
+            else
+                NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+                MyCompany.Aries.NPCShopPage.OnProcessPurchaseErrorMsg(msg);
+            end
+            MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"), msg)
+	    end, function(msg) end, "purchase");
+        pageCtrl:CloseWindow();
+    else
+        NPCShopProvider.ShowHelpFunc(key,count)    
+        pageCtrl:CloseWindow();
+    end
+end
+
+function OnCancel()
+    pageCtrl:CloseWindow();
+end
+function OnDecrease()
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count);
+    if(count) then
+        if(count <= 1) then
+            count = max_count;
+        elseif(count > max_count) then
+            count = 1;
+        else
+            count = count - 1;
+        end
+        pageCtrl:SetValue("countText", count);
+        CheckState(count);
+    end
+end
+function OnIncrease()
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = max_count;
+        elseif(count >= max_count) then
+            count = 1;
+        else
+            count = count + 1;
+        end
+        pageCtrl:SetValue("countText", count);
+        CheckState(count);
+    end
+end
+function OnKeyUp()
+    local count = pageCtrl:GetValue("countText");
+    count = tonumber(count) or 1;
+    if(count < 1)then
+        count = 1;
+        
+    elseif(count > max_count)then
+        count = max_count;
+    end
+    CheckState(count);
+end
+function GetTitle()
+    return name or "";
+end
+function GetGsid()
+    return gsid;
+end
+CheckState(count);
+]]></script>
+
+<div style="width:466px;height:355px;" >
+        <div style="width:466px;height:220px;padding:23px;" class="pane">
+            <div style="height:19px;margin-top:-22px;margin-left:20px;">
+             <!-- <div class="windowlabel"><%=Eval("name")%></div>-->
+            </div>            
+            <div style="width:411px;height:140px;" class="inborder">
+                <div style="float:right;padding-left:10px;padding-top:10px;width:100px;height:100px;margin:21px;" class="block">
+                    <pe:item gsid='<%=GetGsid()%>' isdragable="false" style="width:80px;height:80px" isclickable="false" showdefaulttooltip="true"/>
+                </div>
+                <div style="float:right;margin-top:28px;">
+                    <input type="button" style="width:23px;height:25px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()" />
+                    <div style="float:right;padding-left:50px;padding-top:2px;width:116px;height:30px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)" >
+                        <input type="text" name="countText" onkeyup="OnKeyUp"  value="1" style="width:60px;height:25px;background:;" />
+                    </div>
+                    <input type="button" style="margin-left:5px;width:23px;height:25px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()" />
+                    <div style="margin-left:48px;"><%=GetCountDesc()%></div>
+                </div>
+            </div>
+            <br/>
+            <div style="margin-left:136px;margin-top:-50px;">
+                <label name="buydesc" style="width:400px;height:300px;" />
+            </div>
+            
+        </div>
+        <div style="width:466px;height:48px;margin-top:-46px;">
+            <pe:goalpointer listen="purchase_confirm" style="position:relative;margin-left:150px;width:80px;height:30px;"></pe:goalpointer>
+            <input type="button" style="margin-left:150px;width:80px;height:30px;" onclick="OnOK()"  name="action_btn" class="button_highlight" value="马上购买"/>
+            <input type="button" style="margin-left:30px;width:80px;height:30px;" onclick="OnCancel()" class="button_thick" value="下次再说"/>
+        </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

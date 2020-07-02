@@ -1,0 +1,99 @@
+﻿<!-- "script/apps/Aries/NPCs/DrDoctor/30107_KingKongSnail_Fixer_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2009/12/20</title>
+</head>
+<body> 
+    <pe:mcml>
+<script type="text/npl" src="30107_KingKongSnail_Fixer.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+name = "NPCDialog_"..tostring(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local gs_id_kingkongsnail = 10112;
+local gs_id_iceblock = 17040;
+
+function IfUserHasKongKongSnail()
+    --return false;
+     return hasGSItem(gs_id_kingkongsnail);
+end
+
+function IfUserHasEnoughIceBlocks()
+    local hasItem,__,__,count = hasGSItem(gs_id_iceblock);
+    if(hasItem and count and count >= 3)then
+        return true;
+    end
+    return false;
+end
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+    if(from == 5) then
+        MyCompany.Aries.Quest.NPCs.KingKongSnail_Fixer.GiveKingKongSnail()
+    end
+end
+]]></script>
+ <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30107" />
+            <pe:placeholder id="name" source="{this}" value="多多" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=not IfUserHasKongKongSnail()%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=IfUserHasKongKongSnail()%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    金刚蜗牛真可怜，和乌龟相撞的事故让它吓破了胆。壳也破了，博士正在尽力修补，不过还缺少3个<span color="#8080ff">冰块</span>你也是送冰块过来帮忙的么？
+		    <pe:answer text="给你" template_id="giveyou">
+			    <pe:answer-if condition = '<%=IfUserHasEnoughIceBlocks()%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=not IfUserHasEnoughIceBlocks()%>' target_state = "4"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    金刚蜗牛在你家过得还好么？你们家的泥巴全被它吃完了吧？对了， 让它注意安全，没事可别乱窜，和谁撞不好呀，偏要和乌龟，人家壳那么硬...
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "3">
+		    你真是个好心的哈奇，博士很快把金刚蜗牛的壳修复好了；你愿意带它回家吗？它会帮你把别人投在家园的泥巴吃干净哦！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "4">
+		    你还没有足够的冰块呢，去雪山脚下砸雪人吧，雪人可以吐出一些冰块，这只可怜的蜗牛啊！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "5">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!-- "script/kids/3DMapSystemUI/MiniGames/GameRankPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="GameRankPage.lua"><![CDATA[
+Map3DSystem.App.MiniGames.GameRankPage.OnInit()
+function getGameName()
+    return Map3DSystem.App.MiniGames.GameRankPage.gametitle;
+end
+function DS_Func_GameRankPage(index)  
+    return Map3DSystem.App.MiniGames.GameRankPage.DS_Func_Items(index)
+end
+function getMouseOverBG()
+    return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28";
+end
+]]></script>
+<div style="width:640px;height:520px;background:url(Texture/Aries/MiniGame/messagebox_blue_32bits.png# 0 0 445 495:50 50 50 50)">
+<div style="margin-top:30px;margin-left:160px;width:323px;height:43px;background:url(Texture/Aries/MiniGame/rank_title_32bits.png# 0 0 323 42)" />
+
+<div style="float:left;margin-left:35px;margin-top:5px;">
+    <div style="float:left;margin-top:0px;margin-left:92px;width:68px;height:34px;background:url(Texture/Aries/MiniGame/rank_label_32bits.png# 0 0 68 34)" />
+    <div style="float:left;margin-top:0px;margin-left:92px;width:68px;height:34px;background:url(Texture/Aries/MiniGame/rank_label_32bits.png# 0 34 68 34)" />
+    <div style="float:left;margin-top:0px;margin-left:92px;width:68px;height:34px;background:url(Texture/Aries/MiniGame/rank_label_32bits.png# 0 68 68 34)" />
+</div>
+<pe:gridview style="margin-left:42px;margin-top:10px;width:540;height:340px" DataSource="<%=DS_Func_GameRankPage%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+<!--                <Columns>
+                <div style="width:540px;margin-top:2px;">
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px;"><%=Eval("index")%></div>
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px;background2:url(Texture/3DMapSystem/common/href.png:2 2 2 2)" onclick="Map3DSystem.App.MiniGames.GameRankPage.ShowInfo" name='<%=Eval("nid")%>'><%=Eval("nickname")%></div>
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px" ><%=Eval("game_score")%></div>
+                </div>
+                </Columns>-->
+                <Columns>
+                <div style="margin:0px;width:540px;height:28px;background:url(Texture/Aries/MiniGame/rank_line.png)">
+                    <a onclick="Map3DSystem.App.MiniGames.GameRankPage.ShowInfo" param1='<%=Eval("nid")%>' 
+                        tooltip='点击查看个人资料'
+                        style="width:220px;height:28px;background:">
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=getMouseOverBG()%>' alwaysmouseover="true" style="float:right;margin-top:-2px;margin-left:-5px;width:545px;height:28px;background:;"/>
+                       <div style="margin-top:-25px;margin-left:43px;width:540px;height:28px;font-size:12;color:#000000;">
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px;"><%=Eval("index")%></div>
+                                
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px"><pe:name nid='<%=Eval("nid")%>' linked="false" /></div>
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px" ><%=Eval("score")%></div>
+                        </div>
+                    </a>
+                </div>
+<!--                <div style="width:540px;margin-top:2px;background2:url(Texture/3DMapSystem/common/href.png:2 2 2 2)" tooltip="点击查看个人资料" onclick="Map3DSystem.App.MiniGames.GameRankPage.ShowInfo" name='<%=Eval("nid")%>'>
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px;"><%=Eval("index")%></div>
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px"><%=Eval("nickname")%></div>
+                    <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:160px" ><%=Eval("game_score")%></div>
+                </div>-->
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>请稍等 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:440px;margin-top:30px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+                        <div style="float:right;margin-top:4px;width:0px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+                    </form>
+                </PagerTemplate>
+</pe:gridview>
+<div style="margin-left:0px;margin-top:-50px;font-size:12;width:560px;">
+<div style="float:left;margin-left:0px;margin-top:0px;text-align:right;width:360px;">为了让更多的哈奇不断挑战排行榜，</div>
+<div style="color:#FFFC03;font-weight:bold;float:right;width:200px">每周四晚上24点</div>
+</div>
+<div style="margin-left:40px;margin-top:-30px;font-size:12;text-align:center;width:560">会对上一周的排行清空重新开始，实力强劲的小哈奇可以多多努力，争取榜上有名！</div>
+<input style="margin-left:244px;margin-top:15px;width:153px;height:49px;background:url(Texture/Aries/MiniGame/rank_ok_32bits.png#0 0 153 49)" type="submit" name="ok" value="" onclick="Map3DSystem.App.MiniGames.GameRankPage.ClosePage()"/> 
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,375 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/SettingsPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Env settings page by LiXizhi 2008.7.24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+function OnInit()
+    local att = ParaScene.GetAttributeObject();
+	
+	Page:SetNodeValue("FullScreenGlow", att:GetField("FullScreenGlow", false));
+	Page:SetNodeValue("GlowFactor", att:GetField("GlowFactor", 1));
+	Page:SetNodeValue("GlowIntensity", att:GetField("GlowIntensity", 0.8));
+
+    local glowParams = att:GetField("Glowness", {1, 1, 1, 1});
+    Page:SetNodeValue("GlowSaturate", glowParams[1]);
+	Page:SetNodeValue("GlowBrightness", glowParams[2]);
+	Page:SetNodeValue("SceneSaturate", glowParams[3]);
+    Page:SetNodeValue("SceneBrightness", glowParams[4]);
+
+	local fog_start = att:GetField("FogStart", 50);
+	local fog_end = att:GetField("FogEnd", 120);
+	local far_plane = ParaCamera.GetAttributeObject():GetField("FarPlane", 120);
+	Page:SetNodeValue("FogStart", fog_start);
+	Page:SetNodeValue("FogRange", fog_end-fog_start);
+	Page:SetNodeValue("FarPlane", far_plane);
+	Page:SetNodeValue("FogDensity", att:GetField("FogDensity", 0.69));
+	
+	local color = att:GetField("FogColor", {1, 1, 1});
+	Page:SetNodeValue("FogColor", string.format("%d %d %d", color[1]*255, color[2]*255, color[3]*255));
+	
+	local att = ParaCamera.GetAttributeObject();
+	Page:SetNodeValue("MovementDrag", att:GetField("MovementDrag", false));
+	Page:SetNodeValue("InvertPitch", att:GetField("InvertPitch", false));
+	Page:SetNodeValue("TotalDragTime", att:GetField("TotalDragTime", 0));
+	Page:SetNodeValue("SmoothFramesNum", att:GetField("SmoothFramesNum", 0));
+	Page:SetNodeValue("FieldOfView", att:GetField("FieldOfView", 1.0472)*180/3.1415926);
+	
+	Page:SetNodeValue("SkyFogAngleFrom", ParaScene.GetAttributeObjectSky():GetField("SkyFogAngleFrom", -0.2));
+	Page:SetNodeValue("SkyFogAngleTo", ParaScene.GetAttributeObjectSky():GetField("SkyFogAngleTo", 0.6));
+	
+	local att = ParaScene.GetAttributeObjectSunLight();
+	Page:SetNodeValue("TimeOfDaySTD", att:GetField("TimeOfDaySTD", 0));
+	Page:SetNodeValue("MaximumAngle", att:GetField("MaximumAngle", 1.5));
+	Page:SetNodeValue("AutoSunColor", att:GetField("AutoSunColor", true));
+	local color = att:GetField("Ambient", {0.3, 0.3, 0.3});
+	Page:SetNodeValue("Ambient", string.format("%d %d %d", color[1]*255, color[2]*255, color[3]*255));
+	local color = att:GetField("Diffuse", {1, 1, 1});
+	Page:SetNodeValue("Diffuse", string.format("%d %d %d", color[1]*255, color[2]*255, color[3]*255));
+    Page:SetNodeValue("ShadowFactor", att:GetField("ShadowFactor", 0.35));
+end
+OnInit();
+
+function GlowSaturate(value)
+    local att = ParaScene.GetAttributeObject();
+    local glowParams = att:GetField("Glowness", {1, 1, 1, 1});
+    att:SetField("Glowness",{value,glowParams[2],glowParams[3],glowParams[4]});
+end
+
+function GlowBrightness(value)
+    local att = ParaScene.GetAttributeObject();
+    local glowParams = att:GetField("Glowness", {1, 1, 1, 1});
+    att:SetField("Glowness",{glowParams[1],value,glowParams[3],glowParams[4]});
+end
+
+function SceneSatruate(value)
+    local att = ParaScene.GetAttributeObject();
+    local glowParams = att:GetField("Glowness", {1, 1, 1, 1});
+    att:SetField("Glowness",{glowParams[1],glowParams[2],value,glowParams[4]});
+end
+
+function SceneBrightness(value)
+    local att = ParaScene.GetAttributeObject();
+    local glowParams = att:GetField("Glowness", {1, 1, 1, 1});
+    att:SetField("Glowness",{glowParams[1],glowParams[2],glowParams[3],value});
+end
+    
+
+function FullScreenGlow(bChecked)
+    if(bChecked) then
+        if(ParaEngine.GetAttributeObject():GetField("Effect Level", 0)<1) then
+            ParaEngine.GetAttributeObject():SetField("Effect Level", 1)
+        end
+    end
+    ParaScene.GetAttributeObject():SetField("FullScreenGlow", bChecked)
+end
+
+function GlowIntensity(value)
+    ParaScene.GetAttributeObject():SetField("GlowIntensity", value)
+end
+function GlowFactor(value)
+    ParaScene.GetAttributeObject():SetField("GlowFactor", value)
+end
+
+function ShaodowFactor(value)
+    local att = ParaScene.GetAttributeObjectSunLight();
+    att:SetField("ShadowFactor",value);
+end
+
+function MovementDrag(bChecked)
+    ParaCamera.GetAttributeObject():SetField("MovementDrag", bChecked)
+end
+
+function InvertPitch(bChecked)
+    ParaCamera.GetAttributeObject():SetField("InvertPitch", bChecked)
+end
+
+function TotalDragTime(value)
+    ParaCamera.GetAttributeObject():SetField("TotalDragTime", value)
+end
+
+function SmoothFramesNum(value)
+    ParaCamera.GetAttributeObject():SetField("SmoothFramesNum", math.floor(value))
+end
+
+function FogStart(value)
+    local fog_start = value;
+    local fog_range = Page:GetValue("FogRange", 30);
+    local far_plane = Page:GetValue("FarPlane", 100);
+	local att = ParaScene.GetAttributeObject();
+	att:SetField("FogStart", fog_start);
+	att:SetField("FogEnd", fog_start+fog_range);
+	if((fog_start+fog_range) > far_plane) then
+        far_plane = fog_start+fog_range
+        Page:SetValue("FarPlane", far_plane);
+        ParaCamera.GetAttributeObject():SetField("FarPlane", far_plane);
+    end
+end
+
+function FogRange(value)
+    local fog_start = Page:GetValue("FogStart", 50);
+    local fog_range = value;
+    local far_plane = Page:GetValue("FarPlane", 100);
+	local att = ParaScene.GetAttributeObject();
+	att:SetField("FogEnd", fog_start+fog_range);
+	if((fog_start+fog_range) > far_plane) then
+        far_plane = fog_start+fog_range
+        Page:SetValue("FarPlane", far_plane);
+        ParaCamera.GetAttributeObject():SetField("FarPlane", far_plane);
+    end
+end
+
+function FarPlane(value)
+    local fog_start = Page:GetValue("FogStart", 50);
+    local fog_range = Page:GetValue("FogRange", 30);
+    local far_plane = value;
+	local att = ParaScene.GetAttributeObject();
+	att:SetField("FogStart", fog_start);
+	att:SetField("FogEnd", fog_start+fog_range);
+	ParaCamera.GetAttributeObject():SetField("FarPlane", far_plane);
+	if((fog_start+fog_range) > far_plane) then
+	    fog_start = far_plane - fog_range;
+	    if(fog_start<0)then
+	        fog_start = 0
+	    end
+	    Page:SetValue("FogStart", fog_start);
+	    att:SetField("FogStart", fog_start);
+	end
+end
+
+function FogDensity(value)
+    ParaScene.GetAttributeObject():SetField("FogDensity", value);
+end
+
+function SkyFogAngleTo(value)
+    ParaScene.GetAttributeObjectSky():SetField("SkyFogAngleTo", value);
+end
+function SkyFogAngleFrom(value)
+    ParaScene.GetAttributeObjectSky():SetField("SkyFogAngleFrom", value);
+end
+
+function FogColor(r,g,b)
+    ParaScene.GetAttributeObject():SetField("FogColor", {r/255, g/255, b/255})
+end
+
+function FieldOfView(value)
+    ParaCamera.GetAttributeObject():SetField("FieldOfView", value/180*3.1415926)
+end
+
+function TimeOfDaySTD(value)
+    ParaScene.GetAttributeObjectSunLight():SetField("TimeOfDaySTD", value);
+end
+
+function MaximumAngle(value)
+    ParaScene.GetAttributeObjectSunLight():SetField("MaximumAngle", value);
+end
+function DayLength(value)
+    ParaScene.GetAttributeObjectSunLight():SetField("DayLength", value);
+end
+function AutoSunColor(bChecked)
+    ParaScene.GetAttributeObjectSunLight():SetField("AutoSunColor", bChecked);
+end
+function Ambient(r,g,b)
+    ParaScene.GetAttributeObjectSunLight():SetField("Ambient", {r/255, g/255, b/255})
+end
+function Diffuse(r,g,b)
+    ParaScene.GetAttributeObjectSunLight():SetField("Diffuse", {r/255, g/255, b/255})
+end
+
+function SetAriesNoon()
+	-- mid noon
+	local att = ParaScene.GetAttributeObjectSunLight();
+	att:SetField("TimeOfDaySTD", 0);
+	att:SetField("MaximumAngle", 1.5);
+	att:SetField("AutoSunColor", true)
+	att:SetField("Ambient", {107/255, 107/255, 107/255});
+	att:SetField("Diffuse", {188/255, 188/255, 188/255});
+end
+
+function SetAriesDusk()
+	-- dusk
+	local att = ParaScene.GetAttributeObjectSunLight();
+	att:SetField("TimeOfDaySTD", 0.9);
+	att:SetField("MaximumAngle", 1.57);
+	att:SetField("AutoSunColor", true)
+	att:SetField("Ambient", {184/255, 153/255, 100/255});
+	att:SetField("Diffuse", {255/255, 173/255, 0/255});
+end
+
+function SetAries_2009_8_25()
+	-- set the fog parameters
+	local att = ParaScene.GetAttributeObject();
+	local fog_start = att:SetField("FogStart", 80);
+	local fog_end = att:SetField("FogRange", 42);
+	local far_plane = att:SetField("FarPlane", 420);
+	att:SetField("FogDensity", 1.0);
+	att:SetField("FogColor", {187/255, 230/255, 255/255});
+	
+	-- set sky parameters
+	local att = ParaScene.GetAttributeObjectSky()
+	att:SetField("SkyFogAngleFrom", -1)
+	att:SetField("SkyFogAngleTo", 0.2)
+	
+	local att = ParaScene.GetAttributeObjectSunLight();
+	att:SetField("TimeOfDaySTD", 0.25);
+	att:SetField("MaximumAngle", 1.5);
+	att:SetField("DayLength", 10000);
+	att:SetField("AutoSunColor", false)
+	att:SetField("Ambient", {130/255, 130/255, 130/255});
+	att:SetField("Diffuse", {188/255, 188/255, 188/255});
+end
+
+
+function haqitown()
+		---- NOTE: haqitown env param setting 2011/3/24
+		--ambient = {r = 149, g = 149, b = 149},
+		--diffuse = {r = 255, g = 255, b = 255},
+		--fog_color = {r = 186, g = 230, b = 255},
+		--fog_volume = {_start = -0.03, _end = 0.2, _density = 1.0},
+		----ocean_color = {r = 156, g = 241, b = 159},
+		--TimeOfDaySTD = 0.35, 
+		--skybox_sunny = "model/skybox/skybox15/skybox15.x",
+		--skybox_sunny_name = "skybox15",
+		--skybox_cloudy = "model/skybox/skybox7/skybox7.x",
+		--skybox_cloudy_name = "skybox7",
+		--fog = {fog_start = 80, fog_range = 42, fog_plane = 420, },
+
+		-- set the fog range and far plane from the current ViewDistance
+		local att = ParaScene.GetAttributeObject();
+		local FarPlane = tonumber(ParaEngine.GetAttributeObject():GetDynamicField("ViewDistance", 200));
+		local FogStart, FogRange;
+		local FarPlane_range = {from=100,to=420}
+		local FogStart_range = {from=50,to=80}
+		local FogEnd_range	 = {from=70,to=130}
+		local value = (FarPlane-FarPlane_range.from) / (FarPlane_range.to- FarPlane_range.from);
+		att:SetField("FogEnd", 42 + 80);
+		att:SetField("FogStart", 80);
+		ParaCamera.GetAttributeObject():SetField("FarPlane", 420);
+		
+		att:SetField("FogDensity", 1.0);
+		att:SetField("FogColor", {186/255, 230/255, 255/255});
+		
+		att:SetField("GlowIntensity", 0.8)
+		att:SetField("GlowFactor", 2)
+		att:SetField("Glowness", {1,1,1,1})
+
+		att:SetField("FieldOfView", 60/180*3.1415926)
+		
+		-- set sky parameters
+		local att = ParaScene.GetAttributeObjectSky()
+		att:SetField("SkyFogAngleFrom", -0.03);
+		att:SetField("SkyFogAngleTo", 0.2);
+		att:SetField("SkyColor", {255/255, 255/255, 255/255});
+		
+		-- mid noon
+		local att = ParaScene.GetAttributeObjectSunLight();
+		att:SetField("DayLength", 10000);
+		att:SetField("TimeOfDaySTD", 0.35);
+		att:SetField("MaximumAngle", 1.5);
+		att:SetField("AutoSunColor", false)
+		att:SetField("Ambient", {149/255, 149/255, 149/255});
+		att:SetField("Diffuse", {255/255, 255/255, 255/255});
+end
+]]></script>
+<pe:tabs name="Welcome">
+  <pe:tab-item text="场景属性" selected="true">
+    <div style="margin-left:5px">
+        近雾(Fog Start): <div style="float:left"><pe:sliderbar name="FogStart" IsShowEditor="true" EditorFormat="%.0f" value="50" min="0" max="1000" onchange="FogStart"/></div><br />
+        雾的厚度(Fog Range): <div style="float:left"><pe:sliderbar name="FogRange" IsShowEditor="true" EditorFormat="%.0f" value="20" min="0" max="800" onchange="FogRange"/></div><br />
+        雾的尽头(Far Plane): <div style="float:left"><pe:sliderbar name="FarPlane" IsShowEditor="true" EditorFormat="%.0f" value="250" min="100" max="2000" onchange="FarPlane"/></div><br />
+        <hr />
+        <div style="float:left;width:250px">
+        雾的高度(start): <div style="float:left"><pe:sliderbar name="SkyFogAngleFrom" IsShowEditor="true" EditorFormat="%.3f" value="-0.2" min="-1" max="1" onchange="SkyFogAngleFrom"/></div><br />
+        雾的高度(end): <div style="float:left"><pe:sliderbar name="SkyFogAngleTo" IsShowEditor="true" EditorFormat="%.3f" value="0.6" min="0" max="1.57" onchange="SkyFogAngleTo"/></div><br />
+        <div style="margin-top:10px">
+            雾的密度(density): <div style="float:left"><pe:sliderbar name="FogDensity" IsShowEditor="true" EditorFormat="%.3f" value="0.69" min="0" max="1" onchange="FogDensity"/></div>
+        </div>
+        </div>
+        <div style="float:left;margin-left:10px">
+            雾的颜色:<br />
+            <pe:colorpicker name="FogColor" onchange="FogColor"/>
+        </div>
+        <hr />
+        <div style="float:left;width:250px">
+            <input style="margin-bottom:10px" type="checkbox" name="FullScreenGlow" onclick="FullScreenGlow"/>启动全屏泛光<br />
+            泛光区域: <div style="float:left"><pe:sliderbar name="GlowIntensity" IsShowEditor="true" EditorFormat="%.3f" min="0" max="1" onchange="GlowIntensity"/></div><div style="float:left">GlowIntensity</div><br />
+            泛光比例: <div style="float:left"><pe:sliderbar name="GlowFactor" IsShowEditor="true" EditorFormat="%.3f" min="0" max="10" onchange="GlowFactor"/></div><div style="float:left">GlowFactor</div><br />
+
+            泛光饱和: <div style="float:left"><pe:sliderbar name="GlowSaturate" IsShowEditor="true" EditorFormat="%.3f" min="0" max="4" onchange="GlowSaturate"/></div><div style="float:left">GlowSaturate</div><br />
+            泛光亮度: <div style="float:left"><pe:sliderbar name="GlowBrightness" IsShowEditor="true" EditorFormat="%.3f" min="0" max="4" onchange="GlowBrightness"/></div><div style="float:left">GlowBrightness</div><br />
+            场景饱和: <div style="float:left"><pe:sliderbar name="SceneSaturate" IsShowEditor="true" EditorFormat="%.3f" min="0" max="4" onchange="SceneSatruate"/></div><div style="float:left">SceneSatruate</div><br />
+            场景亮度: <div style="float:left"><pe:sliderbar name="SceneBrightness" IsShowEditor="true" EditorFormat="%.3f" min="0" max="4" onchange="SceneBrightness" /></div><div style="float:left">SceneBrightness</div><br />
+        </div>
+        <hr />
+        <div style="width:250px">
+            视角(FOV): <div style="float:left"><pe:sliderbar name="FieldOfView" IsShowEditor="true" EditorFormat="%.1f" value="60" min="30" max="150" onchange="FieldOfView"/><div style="float:left">FieldOfView</div></div>
+        </div>
+        <hr />
+         <hr />
+        <div style="width:250px">
+            阴影深度: <div style="float:left"><pe:sliderbar name="ShadowFactor" IsShowEditor="true" EditorFormat="%.1f" value="0.3" min="0" max="1" onchange="ShaodowFactor"/><div style="float:left">ShadowFactor</div></div>
+        </div>
+        <hr />
+    </div>
+  </pe:tab-item>
+  <pe:tab-item text="太阳光与时间">
+    <div style="margin-left:5px">
+        <input type="checkbox" name="AutoSunColor" onclick="AutoSunColor"/>是否根据当前时间自动设置太阳光参数<br /><hr />
+        当前时间: <div style="float:left"><pe:sliderbar name="TimeOfDaySTD" IsShowEditor="true" EditorFormat="%.3f" value="0" min="-1" max="1" onchange="TimeOfDaySTD"/></div><br />
+        最大太阳角度: <div style="float:left"><pe:sliderbar name="MaximumAngle" IsShowEditor="true" EditorFormat="%.3f" value="1.5" min="0" max="1.57" onchange="MaximumAngle"/></div><br />
+        一天有多少分钟: <div style="float:left"><pe:sliderbar name="DayLength" IsShowEditor="true" EditorFormat="%.0f" value="20" min="1" max="1440" onchange="DayLength"/></div><br />
+        <hr />以下参数一旦设置, 将禁止自动设置太阳光<br />
+        <div style="color:#008000">vertex_color = max(0,dot( sun_vec, vertex_normal )) * diffuse + ambient;</div>
+        <div style="float:left;margin-top:10px">
+            太阳的颜色(Diffuse): <pe:colorpicker name="Diffuse" onchange="Diffuse"/>
+        </div>
+        <div style="float:left;margin-top:10px;margin-left:10px">
+            环境的颜色(Ambient): <pe:colorpicker name="Ambient" onchange="Ambient"/>
+        </div>
+        <hr />
+    </div>
+  </pe:tab-item>
+  <pe:tab-item text="摄影机">
+    <div style="margin-left:5px">
+        <input type="checkbox" name="MovementDrag" onclick="MovementDrag"/>是否启动移动拖拽<br />
+        <input type="checkbox" name="InvertPitch" onclick="InvertPitch"/>是否反转鼠标<br />
+        拖拽总时间: <div style="float:left"><pe:sliderbar name="TotalDragTime" min="0" max="5" onchange="TotalDragTime"/></div><br />
+        摄影机运动平滑帧数: <div style="float:left"><pe:sliderbar name="SmoothFramesNum" min="0" max="20" onchange="SmoothFramesNum"/></div><br />
+		<hr />
+    </div>   
+  </pe:tab-item>
+  <pe:tab-item text="Aries典型设置">
+        <input type="button" name="AriesNoon" value="白天正午" onclick="SetAriesNoon"/><br/>
+        <input type="button" name="AriesDusk" value="傍晚时分" onclick="SetAriesDusk"/><br/>
+        <input type="button" name="Aries_2009_8_25" value="2009-8-25" onclick="SetAries_2009_8_25"/><br/>
+        <input type="button" name="Aries_haqitown" value="哈奇岛2011-3-24" onclick="haqitown"/>
+        
+  </pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>
+

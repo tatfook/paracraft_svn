@@ -1,0 +1,74 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/OtherPlayer.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi, 2011/5/26</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="OtherPlayer.lua"><![CDATA[
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+name = "PlayerSelection"..nid;
+
+local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+local max_hp = MyCompany.Aries.OPC.GetMaxHP(nid, function(max_hp)
+    HPMyPlayerArea.UpdateUIByPage(page, max_hp or 100, max_hp or 100);
+end);
+HPMyPlayerArea.UpdateUIByPage(page, max_hp or 100, max_hp or 100);
+
+if(not MyCompany.Aries.OPC.GetLevel(nid)) then
+    MyCompany.Aries.OPC.GetLevel(nid, function() page:Refresh(0.1) end);
+end
+
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    local x, y = _guihelper.GetLastUIObjectPos()
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(nid, x, y+20);
+end
+function OnClickShowProfile()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.ShowPage(nid);
+end
+
+]]></script>
+<div style="background:url(Texture/Aries/Common/Teen/Team/otherplayer_bg_32bits.png#0 0 255 88);width:255px;height:88px;">
+    <input type="button" name="levelBtn" class="defaultcolor" value='<%=tostring(MyCompany.Aries.OPC.GetLevel(Eval("nid")) or "?")%>'  style="position:relative;margin-left:87px;margin-top:17px;width:29px;height:16px;color:#93fafe;font-size:11px;font-weight:bold;background:;"/>
+    <div style="float:left;margin-left:10px;margin-top:10px;">
+        <!--<pe:player nid='<%=Eval("nid")%>' object="self" name='<%=Eval("name")%>' miniscenegraphname="Aries_SelectedArea_miniscene" RenderTargetSize="64" style="width:64px;height:64px;"
+            MaskTexture = "Texture/Aries/Common/circular_mask_head.png"   IsFacePortrait="true" CameraName="ElfFemaleHead"/>-->
+        <div style="width:64px;heigth:64px;">
+            <aries:userhead nid='<%=Eval("nid")%>' style="margin-left:2px;margin-top:6px;width:64px;height:64px;"/>
+        </div>
+    </div>
+    <div style="float:left;position:relative;margin-left:-16px;margin-top:0px;">
+        <div style="float:left;position:relative;margin-top:8px;">
+            <input type="button" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:4px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool(Eval("nid")))%>' />
+        </div>
+        <pe:if condition='<%=MyCompany.Aries.OPC.IsVIP(Eval("nid"))%>'>
+            <div style="float:left;margin-left:170px;margin-top:12px;width:25px;height:25px;">
+                <input type="button" style="background:url(Texture/Aries/Common/Teen/Team/magicstar_32bits.png#0 0 25 25);background-color:#ffffff;width:25px;height:25px;margin-left:2px;margin-top:2px;" />
+            </div>
+        </pe:if>
+      
+    </div>
+    <div style="float:left;position:relative;margin-left:30px;margin-top:18px" name="name_div" tooltip="点击查看资料" onclick="OnClickShowMenu">
+        <div style="width:130px;text-align:center">
+            <pe:name style="color:#ffffff;height:20px;margin-left:3px;" uid='<%=Eval("nid")%>' linked="false" />
+        </div>
+        <div style="margin-left:-20px;margin-top:3px;">
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:164px;height:11px;" miniblockwidth="15"
+                    blockimage="Texture/Aries/Common/Teen/Team/blood_32bits.png;0 0 16 10: 7 4 7 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" enabled="false" type="button" style="position:relative;margin-top:-14px;margin-left:5px;width:120px;height:16px;color:#ffffff;font-size:11px;background:;" value="???" />
+    </div>
+    <input type="button" name="onClickMenuBtn" zorder="3" value="" onclick="OnClickShowMenu" style="position:relative;margin-left:-10px;margin-top:55px;width:20px;height:22px;background:url(Texture/Aries/Common/Teen/Team/arrow_down_32bits.png#0 0 20 22);"/>
+</div>
+</pe:mcml> 
+</body>
+</html>

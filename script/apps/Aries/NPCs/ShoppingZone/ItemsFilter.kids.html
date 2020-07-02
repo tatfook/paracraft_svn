@@ -1,0 +1,74 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/ItemsFilter.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemsFilter teen version, create by WD, 2011/12/21</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/ItemsFilter.lua");
+local ItemsFilter = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.ItemsFilter");
+
+ItemsFilter:Init();
+
+function OnClickNode(treenode)
+    ItemsFilter:OnClickItem(treenode)
+end
+
+function OnClickItem(arg,mcmlNode)
+    if(mcmlNode)then
+        local arg2 = mcmlNode:GetAttribute("param1")
+        ItemsFilter:OnClickItem(arg2)
+    end
+    
+end
+
+function GetDataSource(arg)
+    return ItemsFilter:GetDataSource(arg);
+end
+
+]]></script>
+
+    <div style="padding:1px;margin-left:0px;margin-top:5px;width:175px;height:345px;" >
+        <pe:treeview name="tvwXMLTest" DataSource='<%=GetDataSource()%>' RememberScrollPos="true" RememberLastPage="true"
+		    DefaultNodeHeight="27" VerticalScrollBarStep="27" OnClick="OnClickNode()" background="" >
+	        <NodeTemplates>
+		        <NodeTemplate DataType="typ">
+                
+                    <!--<pe:if condition='<%=XPath("this|checked") %>' >
+                    <pe:treenode text='<%=XPath("this|text")%>' MouseOverBG="" style="font-size:12px;background:(Texture/Aries/Common/RowMouseDown.png;0 0 2 22);"  expanded='<%=XPath("this|is_expanded")%>' can_select="true"></pe:treenode>
+                    </pe:if>
+                    <pe:if condition='<%=not XPath("this|checked") %>' >-->
+                    <pe:treenode text='<%=XPath("this|text")%>' MouseOverBG="" style="font-size:12px;"  expanded='<%=XPath("this|is_expanded")%>' can_select="true"></pe:treenode>
+                    <!--</pe:if>-->
+                </NodeTemplate>
+                <NodeTemplate DataType="item">
+                    <div style="width:170px;">
+                    <div>
+	                    <pe:if condition='<%=XPath("this|checked") %>' >
+		                    <input type="button"  onclick="OnClickItem()" value='<%=XPath("this|text")%>' 
+                            MouseOver_BG = "Texture/Aries/Common/RowMouseDown.png;0 0 2 22"
+                            Normal_BG="Texture/Aries/Common/RowMouseDown.png;0 0 2 22" name= '<%=XPath("this|text")%>' 
+                            param1='<%=XPath("this") %>'
+			                    style="margin-left:-10px;margin-top:0px;width:155px;height:25px;text-align:left;font-size:12px;background:;" />
+	                    </pe:if>
+	                    <pe:if condition='<%=not XPath("this|checked") %>' >
+		                    <input type="button" onclick="OnClickItem()"  value='<%=XPath("this|text")%>' name= '<%=XPath("this|text")%>' param1='<%=XPath("this") %>' 
+                            Normal_BG="Texture/Aries/Common/RowMouseHover.png;0 0 2 22" 
+                            MouseOver_BG = "Texture/Aries/Common/RowMouseDown.png;0 0 2 22"
+			                    style="margin-left:-10px;margin-top:0px;width:155px;height:25px;font-size:12px;text-align:left;background:;" />
+	                    </pe:if>
+                                            
+                    </div>
+                    </div>
+                </NodeTemplate>
+                
+	        </NodeTemplates>
+            <DataNodePlaceholder xpath="*"/>
+        </pe:treeview>
+    </div>
+</pe:mcml> 
+</body>
+</html>

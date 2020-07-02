@@ -1,0 +1,247 @@
+<!-- "script/apps/Aries/FamilyServer/FamilyServerSet.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>FamilyServerSet. zrf  2011.1.12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FamilyServerSet.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+if(allworld == "true") then
+    allworld = true;
+end
+
+MyCompany.Aries.FamilyServer.FamilyServerSet.OnInit();
+
+function OnClose()
+    pageCtrl:CloseWindow(); 
+    MyCompany.Aries.FamilyServer.FamilyServerSet.familyworldindex = nil;
+end
+
+]]></script>
+
+<div style="position:relative;width:726px;height:438px;background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 456 187:50 60 50 86)">
+    <div style="position:relative;margin-left:160px;margin-top:44px;width:500px;height:500px;color:#104E81">
+    请为你的家族选择一个服务器：<%=MyCompany.Aries.FamilyServer.FamilyServerSet.GetSelectText() %>
+    </div>
+    <div style="position:relative;margin-left:42px;margin-top:65px;width:710px;">
+        <pe:gridview name="gvwServerList" style="width:650px;height:304px" DataSource="<%=MyCompany.Aries.FamilyServer.FamilyServerSet.DS_Func%>" 
+            ItemsPerLine="2" CellPadding="0"  AllowPaging='false'  RememberScrollPos="true">
+
+            <Columns>
+                <div style="float:left;margin-left:8px;padding-top:1px;padding-bottom:1px;" >
+                    <div style="float:left;display:block;margin-top:20px;font-size:14px;width:32px;text-align:right;color:#2c65a8"><%=Eval("id")%></div>
+                    <div style="float:left;padding-top:4px;width:268px;height:56px;background:url()">
+                    </div>
+                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSet.GetFamilyWorldIndex()==Eval("index")%>'>
+
+                        <div style="float:left;padding-top:3px;margin-left:-273px;width:268px;height:56px;background:url()">
+                            <pe:if condition='<%=Eval("people")==-1%>'>
+                                        <input type="button" enabled="false"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_grey_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==0%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_5_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_5_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==1%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_4_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_4_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==2%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_3_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_3_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==3%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_2_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_2_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==4%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_1_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_1_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==5%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_0_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_0_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                />
+                            </pe:if>
+                                                                                                                                                                            <div style="float:left;padding-top:0px;margin-left:14px;margin-top:-41spx;width:264px;height:51px;background:url()">
+                            <pe:if condition='<%=Eval("people")>=0%>'>
+                                <pe:if condition='<%=Eval("type")=="last"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/lastlogin_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")=="friend"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/friendonline_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")=="full"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/full_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")==""%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/onlinecount_32bits.png);width:64px;height:64px;" /></pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")<0%>'>
+                                <img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />
+                            </pe:if>
+                            <div style="float:left;margin-left:-20px;margin-top:7px;font-size:14px;width:80px;color:#044074">
+                                <input type="button" zorder = "3" enabled="false" style="margin-left:-4px;color:#044074;background:;" value='<%=Eval("text")%>'/>
+                            </div>
+                            <div style="float:left;margin-left:-5px;margin-top:-9px;width:116px">
+                                <div style="margin-left:-14px;margin-top:17px;width:180px;height:32px;">
+                                    <pe:if condition='<%=Eval("people")>=0%>'>
+                                        <pe:if condition='<%=Eval("people")<1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                    </pe:if>
+                                </div>
+                                <div style="margin-left:-17px;margin-top:-39px;width:180px;height:32px;">
+                                    <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:-1px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:-3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                </div>
+                            </div>
+                        </div>
+                        </div>      
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.FamilyServer.FamilyServerSet.GetFamilyWorldIndex()~=Eval("index")%>'>
+
+                        <div style="float:left;padding-top:3px;margin-left:-273px;width:278px;height:56px;background:url()">
+                            <pe:if condition='<%=Eval("people")==-1%>'>
+                                        <input type="button" enabled="false"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_grey_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==0%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_5_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_5_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==1%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_4_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_4_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==2%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_3_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_3_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==3%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_2_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_2_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==4%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_1_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_1_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")==5%>'>
+                                                <input type="button" 
+                                Normal_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_0_32bits.png;0 0 264 51"
+                                MouseOver_BG = "Texture/Aries/Login/ServerSelect/status_bg_full_choose_0_32bits.png;0 0 264 51"
+                                style="width:264px;height:51px;background:url(Texture/Aries/Login/ServerSelect/status_bg_full_choose_32bits.png#0 0 264 51)"
+                                onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickServer" name='<%=Eval("index")%>'/>
+                            </pe:if>
+                                                                                                                                                                            <div style="float:left;padding-top:0px;margin-left:14px;margin-top:-41spx;width:264px;height:51px;background:url()">
+                            <pe:if condition='<%=Eval("people")>=0%>'>
+                                <pe:if condition='<%=Eval("type")=="last"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/lastlogin_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")=="friend"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/friendonline_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")=="full"%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/full_32bits.png);width:64px;height:64px;" /></pe:if>
+                                <pe:if condition='<%=Eval("type")==""%>'><img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/onlinecount_32bits.png);width:64px;height:64px;" /></pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("people")<0%>'>
+                                <img zorder = "3" enabled="false" style="margin-left:-5px;margin-top:-10px;background:url(Texture/Aries/Login/ServerSelect/offline_32bits.png);width:64px;height:64px;" />
+                            </pe:if>
+                            <div style="float:left;margin-left:-20px;margin-top:7px;font-size:14px;width:80px;color:#044074">
+                                <input type="button" zorder = "3" enabled="false" style="margin-left:-4px;color:#044074;background:;" value='<%=Eval("text")%>'/>
+                            </div>
+                            <div style="float:left;margin-left:-5px;margin-top:-9px;width:116px">
+                                <div style="margin-left:-14px;margin-top:17px;width:180px;height:32px;">
+                                    <pe:if condition='<%=Eval("people")>=0%>'>
+                                        <pe:if condition='<%=Eval("people")<1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:2px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")<5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url(Texture/Aries/Login/ServerSelect/slot_32bits.png# 0 0 25 25);width:25px;height:25px;" /></pe:if>
+                                        <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:4px;background:url();width:25px;height:25px;" /></pe:if>
+                                    </pe:if>
+                                </div>
+                                <div style="margin-left:-17px;margin-top:-39px;width:180px;height:32px;">
+                                    <pe:if condition='<%=Eval("people")>=1%>'><img zorder = "3" enabled="false" style="margin-left:3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=2%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=3%>'><img zorder = "3" enabled="false" style="margin-left:-1px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=4%>'><img zorder = "3" enabled="false" style="margin-left:-2px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                    <pe:if condition='<%=Eval("people")>=5%>'><img zorder = "3" enabled="false" style="margin-left:-3px;background:url(Texture/Aries/Login/ServerSelect/onlinecountsmall_32bits.png#0 0 32 32);width:32px;height:32px;" /></pe:if>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </pe:if>
+
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <div style="margin-top:70px;">
+                    <b>正在获取服务器列表, 您也可以查看全部服务器</b>
+                </div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-top:70px;">
+                    <b>正在获取服务器列表, 请稍候 ... </b>
+                </div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:440px;margin-top:-230px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+    <div style="position:relative;margin-left:180px;margin-top:385px;width:48px;height:48px;">
+        <input type="button" onclick="MyCompany.Aries.FamilyServer.FamilyServerSet.OnClickOK()" zorder="2" style="width:148px;height:42px;background:url(Texture/Aries/common/OK_32bits.png#0 0 148 42);"/>
+    </div>
+    <div style="position:relative;margin-left:380px;margin-top:385px;width:48px;height:48px;">
+        <input type="button" onclick="OnClose()" zorder="2" style="width:148px;height:42px;background:url(Texture/Aries/common/Cancel_32bits.png#0 0 148 42);"/>
+    </div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+

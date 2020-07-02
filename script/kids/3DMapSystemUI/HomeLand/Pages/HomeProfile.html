@@ -1,0 +1,169 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/HomeProfile.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="HomeProfile.lua"><![CDATA[
+function GetState_master_view()
+    local curState = MyCompany.Aries.Inventory.HomeProfilePage.curState;
+    if(curState == "master_view")then
+        return true;
+    end
+end
+function GetState_master_edit()
+    local curState = MyCompany.Aries.Inventory.HomeProfilePage.curState;
+    if(curState == "master_edit")then
+        return true;
+    end
+end
+function GetState_guest_view()
+    local curState = MyCompany.Aries.Inventory.HomeProfilePage.curState;
+    if(curState == "guest_view")then
+        return true;
+    end
+end
+function GetVisitInfo()
+    local visitcnt = MyCompany.Aries.Inventory.HomeProfilePage.visitcnt or 0;
+    return tostring(visitcnt);
+end
+function GetGiftInfo()
+    local giftcnt = MyCompany.Aries.Inventory.HomeProfilePage.giftcnt or 0;
+    local boxcnt = MyCompany.Aries.Inventory.HomeProfilePage.boxcnt or 0;
+    return giftcnt.."/"..boxcnt;
+end
+]]></script>
+
+<pe:if condition='<%=GetState_master_view()%>'>
+    <div style="width:128px;height:365px;margin:0px;padding:0px;">
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="visitors" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/home_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="家园热度"/>
+                  <!--  <input type="button" value = "10000000" enabled="false" style="margin-left:-256px;margin-top:-32px;width:256;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" />-->
+                     <div style="margin-left:-35px;margin-top:-30px;width:128px;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetVisitInfo() %></div>
+                    </div>
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="petmanager" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/PetManager_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="宠物管理"/>
+                  <!--  <input type="button" value = "10000000" enabled="false" style="margin-left:-256px;margin-top:-32px;width:256;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" />-->
+                     <div style="margin-left:0px;margin-top:-40px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" ></div>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="gifts" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Present_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="礼物盒"/>
+                          <!--<input type="button" value = "1000000" enabled="false" style="margin-left:-32px;margin-top:32px;width:32px;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;background:url(Texture/Aries/Temp/UnreadNum.png);" />-->
+                        <div style="margin-left:-35px;margin-top:-15px;width:128px;height:32px;font-family:Tahoma;font-size:12px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetGiftInfo() %></div>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <pe:if condition="<%=MyCompany.Aries.Inventory.HomeProfilePage.placeState == 'outside'%>">
+                            <input type="button" name="shop" animstyle="22" 
+                                style="margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/shop_32bits.png);" 
+                                onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                                tooltip="爱家杂志"/>
+                        </pe:if>
+                        <pe:if condition="<%=MyCompany.Aries.Inventory.HomeProfilePage.placeState == 'inside'%>">
+                            <input type="button" name="shop_inside" animstyle="22" 
+                                style="margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/shop_inside_32bits.png);" 
+                                onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                                tooltip="家居精选"/>
+                        </pe:if>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="edit" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Warehouse_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="家园仓库"/>
+                    </div>
+    </div>
+</pe:if> 
+<pe:if condition='<%=GetState_master_edit()%>'>
+    <div style="width:128px;height:365px;margin:0px;padding:0px;">
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="visitors" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/home_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="家园热度"/>
+                         <div style="margin-left:-35px;margin-top:-30px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetVisitInfo() %></div>
+                    </div>
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="petmanager" animstyle="22" enabled = "false"
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/PetManager_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="宠物管理"/>
+                  <!--  <input type="button" value = "10000000" enabled="false" style="margin-left:-256px;margin-top:-32px;width:256;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" />-->
+                     <div style="margin-left:0px;margin-top:-40px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" ></div>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="gifts" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Present_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="礼物盒"/>
+                        <div style="margin-left:-35px;margin-top:-15px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetGiftInfo() %></div>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <pe:if condition="<%=MyCompany.Aries.Inventory.HomeProfilePage.placeState == 'outside'%>">
+                            <input type="button" name="shop" animstyle="22" 
+                                style="margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/shop_32bits.png);" 
+                                onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                                tooltip="爱家杂志"/>
+                        </pe:if>
+                        <pe:if condition="<%=MyCompany.Aries.Inventory.HomeProfilePage.placeState == 'inside'%>">
+                            <input type="button" name="shop_inside" animstyle="22" 
+                                style="margin-top:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/shop_inside_32bits.png);" 
+                                onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                                tooltip="家居精选"/>
+                        </pe:if>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="edit" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Warehouse_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="家园仓库"/>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="save" animstyle="22" 
+                            style="margin-top:-5px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Save_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            zorder="20"
+                            tooltip="保存"/>
+                    </div>
+    </div>
+</pe:if> 
+<pe:if condition='<%=GetState_guest_view()%>'>
+      <div style="width:128px;height:365px;margin:0px;padding:0px;">
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="visitors" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/home_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="家园热度"/>
+                          <div style="margin-left:-35px;margin-top:-30px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetVisitInfo() %></div>
+                    </div>
+                    <div style="margin-bottom:0px;padding:0px;"  >
+                        <input type="button" name="petmanager" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/PetManager_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="宠物管理"/>
+                  <!--  <input type="button" value = "10000000" enabled="false" style="margin-left:-256px;margin-top:-32px;width:256;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" />-->
+                     <div style="margin-left:0px;margin-top:-40px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;" ></div>
+                    </div>
+                     <div style="margin-bottom:0px;padding:0px;">
+                        <input type="button" name="gifts" animstyle="22" 
+                            style="margin:0px;width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/Present_32bits.png);" 
+                            onclick="MyCompany.Aries.Inventory.HomeProfilePage.DoClick"
+                            tooltip="礼物盒"/>
+                        <div style="margin-left:-35px;margin-top:-15px;width:128;height:32px;font-family:Tahoma;font-size:14px;font-weight:bold;color:#ffffff;text-align:center" ><%=GetGiftInfo() %></div>
+                    </div>
+    </div>
+ </pe:if> 
+</pe:mcml> 
+</body>
+</html>

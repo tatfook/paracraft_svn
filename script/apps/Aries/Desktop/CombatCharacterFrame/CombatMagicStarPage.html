@@ -1,0 +1,301 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatMagicStarPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatMagicStarPage, by zrf, 2010/9/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CombatMagicStarPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+
+MyCompany.Aries.Desktop.CombatMagicStarPage.Init();
+
+function OnRadioClick(value,mcmlNode)
+    MyCompany.Aries.Desktop.CombatMagicStarPage.CurTab = tonumber(value);
+end
+
+function GotoTree()
+    page:CloseWindow();
+	local cpos = {15.00,0.49,2.07};
+	local pos = { 20198.21,5.67,20092.39};
+
+	local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+		_guihelper.MessageBox("<div style='margin-left:15px;margin-top:35px;text-align:center'>不在当前岛屿，无法传送！</div>");
+		return;
+	end
+
+	local msg = { aries_type = "OnMapTeleport", 
+			position = pos, 
+			camera = cpos, 
+			wndName = "map", 
+		};
+	CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg); 
+end
+
+function DrawVLine(left,top,height)
+    return string.format([[<div style="position:relative;margin-left:%spx;margin-top:%spx;width:2px;height:%spx;background:url(texture/aries/common/themekid/character/VLine_32bits.png);"/> ]],left,top,height);
+end
+function DrawHLine(n,top,level)
+    local i;
+    local s = ""
+    for i = 1,n do
+        s = s .. string.format([[<div style="margin-left:4px;margin-top:%spx;width:320px;height:2px;background:url(texture/aries/common/themekid/character/HLine_32bits.png);"/> ]],
+        top
+        );
+    end
+    if(level and level == 10)then return "" end
+    return string.format([[<div style="position:relative;">%s</div>]],s);
+end
+
+function GetRow(LEVEL,HP,ATTACK,GUARD,CURE,BECURED,HIT,EXP)
+   return string.format([[<div style="float:left;width:50px;text-align:center;">%s级</div><div style="float:left;width:37px;text-align:center;">%s%%</div><div style="float:left;width:37px;text-align:center;">%s%%</div>
+   <div style="float:left;width:37px;text-align:center;">%s%%</div><div style="float:left;width:37px;text-align:center;">%s%%</div>
+   <div style="float:left;width:50px;text-align:center;">%s%%</div><div style="float:left;width:37px;text-align:center;">%s%%</div>
+    <div style="float:left;width:45px;text-align:center;">%s%%</div>]],LEVEL,HP,ATTACK,GUARD,CURE,BECURED,HIT,EXP) ;   
+end
+
+function getCurrBtn()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local s;
+    local region_id=ExternalUserModule:GetRegionID();
+    s = string.format("%s充值", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name);
+    return s;    
+end
+
+function BuyMagicBean()
+    MyCompany.Aries.HaqiShop.BuyMagicBean("guide");
+end
+]]></script>
+<div style="margin-top:5px;width:645px;height:375px;color:#022a57;" >
+    <div style="margin-left:0px;float:left;margin-top:0px;width:300px;height:375px;" >
+        <div style="position:relative;margin-left:12px;margin-top:10px;padding:5px;width:85px;height:85px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_bg.png# 0 0 109 111);">
+            <img style="margin-left:4px;margin-top:1px;width:64px;height:64px" src='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetLogo() %>'/>
+        </div>
+        <div style="margin-left:64px;position:relative;width:192px;height:53px;margin-top:28px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_M_bg_32bits.png# 0 0 172 64: 10 10 10 10);">
+        
+        <div tooltip='每天涨5点,使用能量石涨100点' style="position:relative;margin-left:50px;padding-top:1px;margin-top:0px;width:135px;height:26px;color:#fdfe40;font-size:12px;">
+            <%=MyCompany.Aries.Desktop.CombatMagicStarPage.ShowMLine() %>
+            <div style="position:relative;color:#000000;font-weight:bold;font-size:12px;">
+                <%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetM() %>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:40px;margin-top:28px;width:172px;height:26px;color:#fdfe40;font-weight:bold;font-size:12px;">
+            <div style="float:left;position:relative;margin-left:0px;color:#fdfe40;font-size:12px;" tooltip="每天降低1点" >
+            <%=format("能量值: %d天", MyCompany.Aries.Desktop.CombatMagicStarPage.GetEnergy() or 0) %>
+            </div>
+        </div>
+        </div>
+
+        <img src="Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/number_bg_32bits.png" style="position:relative;margin-left:80px;margin-top:10px;width:42px;height:42px;" />
+        <div zorder="2" style="position:relative;margin-left:75px;margin-top:10px;width:42px;height:42px;font-weight:bold;text-align:center;padding:3px;">
+            <%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetMLevel() %>
+        </div>
+
+        <div style="position:relative;margin-left:200px;margin-top:56px;">
+            <pe:if condition='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.ShowEquipBtn() %>'>
+                <input type="button" value="▶ 携带魔法星" zorder="11" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickEquip()" style="font-size:12px;height:24px;background:;" 
+                Normal_BG = ""
+                MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />
+            </pe:if>
+            <pe:if condition='<%=not MyCompany.Aries.Desktop.CombatMagicStarPage.ShowEquipBtn() %>'>
+                <input type="button" value="▶ 不携带魔法星" zorder="11" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickUnEquip()" style="font-size:12px;height:24px;background:;" 
+                Normal_BG = ""
+                MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />
+            </pe:if>
+        </div>
+
+        <div style="position:relative;margin-left:0px;margin-top:100px;width:329px;height:340px;">
+            <div style="margin-left:5px;margin-top:0px;width:275px;height:132px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8)" >
+                <div style="padding-left:10px;padding-top:3px;font-size:12px;margin-left:3px;margin-top:2px;width:268px;height:28px;background:url(texture/aries/common/themekid/magic_star/title_bg_32bits.png:5 5 5 5)">
+                    魔法星专属左手法杖
+                </div>
+                <div style="margin-left:35px;margin-top:2px;width:268px;height:130px;" >
+                    <pe:gridview DataSource="<%=MyCompany.Aries.Desktop.CombatMagicStarPage.DS_Func2%>" 
+                        name="CombatMagicStarPage2" style="margin-left:0px;margin-top:0px;width:268px;" CellPadding="5"  
+                        ItemsPerLine="3" AllowPaging="true" pagesize="3">
+                        <Columns>
+                                <!--<div style="width:60px;">-->
+                                <div style="padding:5px;width:60px;height:60px;background:url(Texture/Aries/NewProfile/bg_equip_32bits.png:10 10 10 10);">
+                                    <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" tooltip='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetTooltip(Eval("gsid")) %>' style="width:50px;height:50px;"/>
+                                </div>
+                               <div style="margin-left:3px;width:55px;height:23px;margin-top:0px;" >
+                                    <pe:if condition='<%=Eval("has")%>'>
+                                        <input type="button" name='<%=Eval("index") %>' tooltip='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetNeedTooltip(Eval("index")) %>'value="已有" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickHad()" zorder="20" style="width:51px;height:23px;color:#065700;font-size:12px;background:url(Texture/Aries/Common/themekid/cards/button_default_32bits.png#0 0 32 25: 10 10 10 10);"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not Eval("has")%>'>
+                                        <input type="button" value="领取" name='<%=Eval("index") %>' tooltip='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetNeedTooltip(Eval("index")) %>' zorder="20" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickGetFaZhang()" style="width:51px;height:23px;color:#065700;font-size:12px;background:url(Texture/Aries/Common/themekid/cards/button_down_32bits.png#0 0 32 25: 10 10 10 10);"/>
+                                    </pe:if>
+                                </div>
+                            <!--</div>-->
+                        </Columns>
+                        <EmptyDataTemplate>
+                        </EmptyDataTemplate>
+	                    <PagerSettings Position="Bottom" height="32" style="margin-left:-20px;margin-top:-70px;width:268px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+	                            <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 21 21);"/>
+	                            <input type="button" name="next" zorder="2" style="margin-left:208px;width:22px;height:19px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)"/>
+	                        </form>
+	                    </PagerTemplate>
+                    </pe:gridview>
+                </div>
+            </div>
+
+            <div style="margin-left:5px;margin-top:10px;width:275px;height:132px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8)" >
+                <div style="padding-left:10px;padding-top:3px;font-size:12px;margin-left:3px;margin-top:2px;width:268px;height:28px;background:url(texture/aries/common/themekid/magic_star/title_bg_32bits.png:5 5 5 5)">
+                    能量石可以激活魔法星
+                </div>
+                <pe:gridview DataSource="<%=MyCompany.Aries.Desktop.CombatMagicStarPage.DS_Func%>" 
+                    name="CombatMagicStarPage" style="margin-left:7px;margin-top:0px;" CellPadding="4"  
+                    ItemsPerLine="4" AllowPaging="false" pagesize="4">
+                    <Columns>
+                        <div style="padding:5px;width:60px;height:60px;background:url(Texture/Aries/NewProfile/bg_equip_32bits.png:10 10 10 10);">
+                            <div style="position:relative;">
+                                <pe:if condition='<%=Eval("is_pe_item") or Eval("gsid") == 998 %>'>
+                                    <pe:item isshortcut="true" gsid='<%=Eval("gsid") %>' style="width:50px;height:50px;" on_use_item="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickEnergyStone"/>
+                                </pe:if>
+                                <pe:if condition='<%=not Eval("is_shard") and not Eval("is_shard2") and Eval("guid") ~= 0 and Eval("gsid") ~= 998%>'>
+                                    <pe:slot onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickEnergyStone()" guid='<%=Eval("guid")%>' style="width:50px;height:50px;"/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("is_shard")%>'>
+                                    <pe:slot onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickEnergyStoneShard()" guid='<%=Eval("guid")%>' style="width:50px;height:50px;"/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("is_shard2")%>'>
+                                    <pe:slot onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickEnergyStoneShard2()" guid='<%=Eval("guid")%>' style="width:50px;height:50px;"/>
+                                </pe:if>
+                            </div>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-top:-35px;margin-left:15px;">
+                <input type="button" zorder="1" value="获得能量石" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickGetMagicStone()"  class="button_highlight" style="width:108px;"/>
+                <input type="button" onclick="BuyMagicBean" zorder="1" value='<%=getCurrBtn() %>' style="margin-left:10px;width:100px;" class="button_highlight"/>
+            </div>
+        </div>
+    </div>
+    <div style="float:left;width:345px;height:374px;">
+        <pe:tabs class="tabs" name="tab2" onclick="OnRadioClick()" style="position:relative;width:345px;height:374px;">
+            <pe:tab-item name="1" text="属性增强" selected="true">
+                <div style="color:#8d2c94;font-weight:bold;text-align:center;margin-top:8px;width:330px;position:relative">
+                    魔法星能够提升战斗属性，大大提高战斗力!
+                </div>
+                <div style="position:relative;margin-top:28px;margin-left:2px;padding:5px;">
+                    <%=DrawVLine(45,5,28) %>
+                    <%=DrawVLine(82,5,28) %>
+                    <%=DrawVLine(119,5,28) %>
+                    <%=DrawVLine(156,5,28) %>
+                    <%=DrawVLine(193,5,28) %>
+                    <%=DrawVLine(243,5,28) %>
+                    <%=DrawVLine(280,5,28) %>
+                    <%=DrawHLine(1,35) %>
+                    <div style="width:330px;height:302px;font-size:12px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                        <div style="float:left;width:50px;text-align:center;">魔法星<br />等级</div>
+                        <div style="float:left;width:37px;text-align:center;">HP<br />提升</div>
+                        <div style="float:left;width:37px;text-align:center;">攻击<br />提升</div>
+                        <div style="float:left;width:37px;text-align:center;">防御<br />提升</div>
+                        <div style="float:left;width:37px;text-align:center;">治疗<br />提升</div>
+                        <div style="float:left;width:50px;text-align:center;">被治疗<br />提升</div>
+                        <div style="float:left;width:37px;text-align:center;">命中<br />提升</div>
+                        <div style="float:left;width:37px;text-align:center;">经验<br />加成</div>
+                    <div>
+                        <pe:gridview DataSource="<%=MyCompany.Aries.Desktop.CombatMagicStarPage.DS_TAB1%>" 
+                            name="CombatMagicStarPage2" style="margin-left:0px;margin-top:0px;width:330px;" CellPadding="0"  DefaultNodeHeight="24"
+                            ItemsPerLine="1" AllowPaging="false" pagesize="11">
+                            <Columns>
+                                <div style="width:330px;height:24px;font-size:12px;">
+                                    <%=DrawVLine(45,2,18) %>
+                                    <%=DrawVLine(82,2,18) %>
+                                    <%=DrawVLine(119,2,18) %>
+                                    <%=DrawVLine(156,2,18) %>
+                                    <%=DrawVLine(193,2,18) %>
+                                    <%=DrawVLine(243,2,18) %>
+                                    <%=DrawVLine(280,2,18) %>
+                                    <%=DrawHLine(1,22,Eval("level")) %>
+
+                                    <%=GetRow(Eval("level"),Eval("HP"),Eval("attack"),Eval("guard"),Eval("cure"),Eval("becured"),Eval("hit"),Eval("exp")) %>
+                                    
+                                </div>
+                            </Columns>
+                        </pe:gridview>
+                    </div>
+                </div>
+                
+            </div>
+            </pe:tab-item>
+            <pe:tab-item name="2" text="成长秘籍" >
+                <div style="color:#8d2c94;font-weight:bold;text-align:center;margin-top:8px;width:330px;position:relative">
+                    魔法星如何成长
+                </div>
+                    <div style="position:relative;margin-top:28px;margin-left:2px;padding:5px;">
+                        <div style="width:330px;height:302px;line-height:22px;font-size:12px;padding:20px;padding-top:10px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                            1. 当M值大于0时，你便拥有了魔法星，使用能量石可以直接增加100的M值。<br />
+                            2. 当M值满时，魔法星等级提升。<br />
+                            3. 当能量值大于0时，M值每天会增加5点，能量值每天会减少1点，使用能量石可以直接增加31的能量值。<br />
+                            4. 当能量值小于0时，M值每天会降低5点，同时你会失去魔法星的陪伴哦！<br />
+                            5. 让魔法星快速达到10级的方法就是一直保持能量石大于0。<br />
+                        </div>
+                </div>
+            </pe:tab-item>
+            <pe:tab-item name="3" text="独有功能">
+                <div style="color:#8d2c94;font-weight:bold;text-align:center;margin-top:8px;width:330px;position:relative">
+                    魔法星独有功能
+                </div>
+                    <div style="position:relative;margin-top:28px;margin-left:2px;padding:5px;">
+                        <div style="width:330px;height:302px;font-size:12px;padding:20px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                            <div style="float:left;">
+                                <div style="position:relative;width:64px;height:64px;margin-top:5px;margin-left:20px;background:url(texture/aries/common/themekid/magic_star/attribs_32bits.png);"/>
+                                <div style="position:relative;width:28px;height:28px;margin-left:15px;margin-top:44px;background:url(Texture/Aries/HaqiShop/shop2_32bits.png#0 0 55 55);"/>
+                                <div style="position:relative;width:64px;height:64px;margin-left:10px;margin-top:78px;background:url(texture/aries/common/themekid/magic_star/weapon_32bits.png);"/>
+                                <div style="position:relative;width:64px;height:64px;margin-left:5px;margin-top:118px;background:url(texture/aries/common/themekid/magic_star/magicstar_32bits.png);"/>
+                                <div style="position:relative;width:64px;height:64px;margin-left:20px;margin-top:171px;background:url(texture/aries/common/themekid/magic_star/full_32bits.png);"/>
+                                <div style="position:relative;width:64px;height:64px;margin-left:8px;margin-top:210px;background:url(texture/aries/common/themekid/magic_star/bag_32bits.png);"/>
+                            </div>
+                            <div style="float:left;margin-top:10px;margin-left:64px;">
+                                1，魔法星拥有强大的属性加成。<div style="height:25px;background:;"/> 
+                                2，商城购物可尊享部分优惠折扣！<div style="height:25px;background:;"/> 
+                                3，魔法星拥有特殊的左手法杖。<div style="height:25px;background:;"/> 
+                                4，魔法星拥有超炫的围绕表现。<div style="height:25px;background:;"/> 
+                                5，魔法星可以进入满员服务器。<div style="height:25px;background:;"/> 
+                                6，魔法星可以从魔法口袋获得大量礼物。
+                            </div>                        
+                        </div>
+                </div>
+            </pe:tab-item>
+            <pe:tab-item name="4" text="免费领取">
+            <div style="position:relative;margin-top:-2px;margin-left:2px;padding:5px;">
+                    <div style="width:330px;height:332px;font-size:12px;padding:15px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+                            <div style="float:left;width:150px;">
+                                <div style="float:left;">1，魔法储物罐</div>
+                                <div style="float:left;width:32px;height:32px;margin-top:-10px;margin-left:0px;background:url(texture/aries/common/themekid/magic_star/storage_32bits.png:5 5 5 5);"/>
+                                <div>每周可以领取仙豆</div>
+                                <div style="margin-left:0px;margin-top:0px;width:250px;height:260px;background:url(Texture/Aries/common/themekid/magic_star/list_32bits.png)" ></div>     
+                            </div>
+                            <div style="margin-left:5px;float:left;width:145px;margin-top:0px;">
+                                <div style="float:left;">1，魔法口袋</div>
+                                <div style="float:left;width:32px;height:32px;margin-top:-10px;margin-left:0px;background:url(texture/aries/common/themekid/magic_star/cards_32bits.png:5 5 5 5);"/>
+                                <div>神奇的魔法口袋里有宝石等好多宝贝，赶紧去试试手气吧！</div>
+                                <div style="margin-left:-12px;margin-top:-35px;width:250px;height:240px;background:url(Texture/Aries/common/themekid/magic_star/bg_gems_32bits.png)" ></div>     
+                                <input type="button" zorder="1" text="去看看" onclick="GotoTree()"  
+                                style="color:#065700;width:108px;height:28px;margin-top:-15px;font-size:12px;text-align:center;margin-left:23px;background:url(Texture/Aries/common/themekid/magic_star/btn_32bits.png#0 0 64 25:5 5 5 5)"/>
+                            </div>     
+                    </div>
+            </div>
+            </pe:tab-item>
+        </pe:tabs>
+    </div>
+</div>  
+
+</pe:mcml> 
+</body>
+</html> 

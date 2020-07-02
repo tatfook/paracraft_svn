@@ -1,0 +1,145 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30416_WoodenEntrance_Panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30416_WoodenEntrance_Panel, by zrf, 2010/12/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/NPCs/TownSquare/30416_WoodenEntrance.lua");
+MyCompany.Aries.Quest.NPCs.WoodenEntrance.Init();
+function getSendInfo()
+    local s = string.format([[<div style="float:left;color:#339900;font-weight:bold;font-size:14;margin-left:20px;margin-top:10px;">你已经赠送他人礼物<div style="float:left;text-align:center;color:#ff0000;width:50px">%d</div>次了！</div>]], MyCompany.Aries.Quest.NPCs.FriendshipMedal_panel.sendNum or 0);
+    return s;
+end
+
+
+function Confirm()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:655px;height:512px;background:url(texture/Aries/Quest/MedalStatus_panel_bg_32bits.png: 60 60 60 60)">
+    <input type="button" style="width:54px;height:54px;margin-left:615px;margin-top:-10px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" onclick="Confirm()" />
+    <div style="width:148px;height:29px;margin-left:245px;margin-top:-30px;background:Texture/Aries/NPCs/WoodenEntrancePanel/title1_32bits.png#0 0 148 29"/>
+    <div style="width:409px;height:32px;margin-left:115px;margin-top:0px;background:Texture/Aries/NPCs/WoodenEntrancePanel/title2_32bits.png#0 0 409 32"/>
+    
+    <!--木徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:35px;margin-top:40px;float:left;">
+        <div style="width:120px;height:18px;margin-left:10px;margin-top:0px;background:Texture/Aries/NPCs/WoodenEntrancePanel/font1_32bits.png#0 0 120 18"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%= MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(1)%>'>
+                <!--木徽章已经获得 -->
+                <div>
+                     <img tooltip = "获得条件：完成第7层" animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/muhuizhang_32bits.png#0 0 74 97"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:33px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(1)%>'>
+                <!--木徽章没有获得 -->
+                 <div>
+                     <img tooltip = "获得条件：完成第7层" animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/muhuizhang2_32bits.png#0 0 74 97"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.ShowMedal() == 1 %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/FirstObtain_32bits.png#0 0 81 35"
+                 value=""  name="1" onclick="MyCompany.Aries.Quest.NPCs.WoodenEntrance.OnClickGetMedal()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--铜徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:121px;height:18px;margin-left:10px;margin-top:0px;background:Texture/Aries/NPCs/WoodenEntrancePanel/font2_32bits.png#0 0 121 18"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(2)%>'>
+                <!--铜徽章已经获得 -->
+                <div>
+                     <img tooltip = "获得条件：完成第25层" animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/tonghuizhang_32bits.png#0 0 74 97"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:33px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(2)%>'>
+                <!--铜徽章没有获得 -->
+                 <div>
+                     <img tooltip = "获得条件：完成第25层" animstyle = "21" style="width:74px;height:97px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/tonghuizhang2_32bits.png#0 0 74 97"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.ShowMedal() == 2 %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  name="2" onclick="MyCompany.Aries.Quest.NPCs.WoodenEntrance.OnClickGetMedal()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--银徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:121px;height:18px;margin-left:10px;margin-top:0px;background:Texture/Aries/NPCs/WoodenEntrancePanel/font3_32bits.png#0 0 121 18"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(3)%>'>
+                <!--银徽章已经获得 -->
+                <div>
+                     <img tooltip = "获得条件：完成第60层" animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/yinhuizhang_32bits.png#0 0 74 104"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:25px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(3) %>'>
+                <!--银徽章没有获得 -->
+                 <div>
+                     <img tooltip = "获得条件：完成第60层" animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/yinhuizhang2_32bits.png#0 0 74 104"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.ShowMedal() == 3 %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  name="3" onclick="MyCompany.Aries.Quest.NPCs.WoodenEntrance.OnClickGetMedal()" />
+        </pe:if>
+        </div>
+    </div>
+    <!--金徽章----------------------------------------------------------------------------------->
+    <div style="width:140px;height:250px;margin-left:5px;margin-top:40px;float:left;">
+        <div style="width:121px;height:18px;margin-left:10px;margin-top:0px;background:Texture/Aries/NPCs/WoodenEntrancePanel/font4_32bits.png#0 0 121 18"/>
+        <div style="width:128px;height:128px;margin-left:6px;margin-top:15px;background:texture/Aries/Quest/Doctor/Medal_bg_32bits.png">
+            <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(4)%>'>
+                <!--金徽章已经获得 -->
+                <div>
+                     <img tooltip = "获得条件：完成第100层" animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/jinhuizhang_32bits.png#0 0 74 104"/>
+                </div>
+                <input type="button" style="width:81px;height:35px;margin-left:25px;margin-top:25px;background:Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 81 35"
+                            enabled="false"  />
+            </pe:if>
+            <pe:if condition='<%= not MyCompany.Aries.Quest.NPCs.WoodenEntrance.HasMedal(4)%>'>
+                <!--金徽章没有获得 -->
+                 <div>
+                     <img tooltip = "获得条件：完成第100层" animstyle = "21" style="width:74px;height:104px;margin-left:27px;margin-top:10px;background:Texture/Aries/NPCs/WoodenEntrancePanel/jinhuizhang2_32bits.png#0 0 74 104"/>
+                </div>
+            </pe:if>
+        </div>
+        <div style="width:81px;height:35px;margin-left:30px;margin-top:10px;">
+        <pe:if condition='<%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.ShowMedal() == 4 %>'>
+            <input type="button" style="width:81px;height:35px;margin-left:0px;margin-top:0px;background:Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 81 35"
+                            value=""  name="4" onclick="MyCompany.Aries.Quest.NPCs.WoodenEntrance.OnClickGetMedal()" />
+        </pe:if>
+        </div>
+    </div>
+    <div style="margin-left:160px;margin-top:-30px;width:330px;height:64px;background:url(texture/Aries/Quest/Doctor/YellowShowBox_32bits.png: 40 30 40 30)">
+        <div style="position:relative;margin-left:50px;margin-top:10px;width:500px;height:300px;font-weight:bold;font-size:14px;color:#349700;">
+        你英勇闯塔的最高层数为:<div style="position:relative;float:left;width:40px;height:30px;color:#ff0000;"><%=MyCompany.Aries.Quest.NPCs.WoodenEntrance.GetFloor() %></div><div style="float:left;margin-left:30px;margin-top:0px;">层</div>
+        </div>
+    </div>
+    <div style="position:relative;margin-left:58px;margin-top:0px;width:540px;height:200px;color:#022E5B;">
+    魔牛哞哞被困在试炼之塔的顶层，等待着你去营救。真的勇士是不会害怕塔里的层层艰险的，而魔塔奇兵徽章证明了你的勇敢和强大。
+    </div>
+    <input type="button" style="margin-left:210px;margin-top:75px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" onclick="Confirm();" value=""/>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

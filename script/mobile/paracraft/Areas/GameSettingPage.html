@@ -1,0 +1,125 @@
+﻿<!-- "script/mobile/paracraft/Areas/GameSettingPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl" src="SettingPage.lua"><![CDATA[
+SettingPage = commonlib.gettable("ParaCraft.Mobile.Desktop.SettingPage");
+--SettingPage.OnInit();
+GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic");
+
+]]></script>
+<div style="height:570px;color:#ffffff;font-size:40px;base-font-size:40;font-weight:bold;">
+    <div class="mobile_panel_black" style="margin-left:0px;margin-top:0px;height:572px;background-color:#ffffff60" >
+        <pe:treeview DefaultNodeHeight="70" VerticalScrollBarStep="35" style="margin-top:10px;background:;">
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"鼠标反转" %>
+                </div>
+                <pe:checkbox_button name="btn_MouseInverse" checked='<%=GameLogic.options:GetInvertMouse()%>' onclick='SettingPage.OnClickEnableMouseInverse' style="float:left;margin-top:5px;width:180px;height:47px;font-size:20px;font-weight:bold;"/>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"时间设置" %>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="mcTimeSlider" min="0" max="1000" value="<%=SettingPage.GetTimeOfDayStd() %>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnTimeSliderChanged"></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"视觉摇晃" %>
+                </div>
+                <pe:checkbox_button name="btn_ViewBobbing" checked='<%=GameLogic.options:GetViewBobbing()%>' onclick='SettingPage.OnToggleViewBobbing' style="float:left;margin-top:5px;width:80px;height:47px;font-size:20px;font-weight:bold;"/>
+                <div class="mobile_bigtext" style="float:left;margin-left:20px;">
+                    <%=L"重力感应" %>
+                </div>
+                <pe:checkbox_button name="stereocontroller" checked="<%= GameLogic.options:IsStereoControllerEnabled()%>" onclick='SettingPage.OnClickStereoController' style="float:left;margin-top:5px;margin-left:10px;width:80px;height:47px;font-size:20px;font-weight:bold;"/>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"左右眼立体"%>
+                </div>
+                <pe:checkbox_button name="stereomode" checked="<%= GameLogic.options:IsStereoMode()%>" onclick='SettingPage.OnClickStereoMode' style="float:left;margin-top:5px;width:80px;height:47px;font-size:20px;font-weight:bold;"/>
+                <div style="float:left;margin-top:6px;margin-left:20px;">
+                    <pe:sliderbar name="stereo_eye_dist" min="0.0" max="0.12" min_step="0.001" value="<%=GameLogic.options:GetStereoEyeSeparationDist() %>" style="float:left;width:260px;height:49px;" onchange="SettingPage.OnStereoEyeDistChanged" ></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"UI放缩" %>
+                </div>
+                <input type="button" name="orignalScaling" class="mobile_button_white" value='<%=L"重置"%>' onclick='SettingPage.OnClickResetUIScaling' style="float:left;margin-top:5px;width:80px;height:47px;font-size:14px;"/>
+                <div style="float:left;margin-top:6px;margin-left:20px;">
+                    <pe:sliderbar name="UI_Scaling" min="1" max="2" min_step="0.1" value="<%=GameLogic.options:GetUIScaling() %>" style="float:left;width:260px;height:49px;" onchange="SettingPage.OnChangeUIScaling" />
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"敏感度" %>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="mouse_sensitivity" min="0.0" max="1" min_step="0.01" value="<%=GameLogic.options:GetSensitivity() %>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnChangeSensitivity" />
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"可视距离" %>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="GetMaxViewDist" min="32" max="256" min_step="16" value="<%=GameLogic.options:GetMaxViewDist() %>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnMaxViewDistChanged" ></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"超级远景" %>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="superRenderDist" min="0" max="2000" min_step="50" value="<%=GameLogic.options:GetSuperRenderDist() %>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnSuperRenderDistChanged"></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"声音大小"%>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="mcVolumeSlider" min="0" max="1" min_step="0.05" value="<%= GameLogic.options:GetVolume()%>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnVolumeSliderChanged"></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"屏幕震动"%>
+                </div>
+                <pe:checkbox_button name="btn_Vibration" checked="<%= GameLogic.options:IsVibrationEnabled()%>" onclick='SettingPage.OnClickEnableVibration' style="float:left;margin-top:5px;width:180px;height:47px;font-size:20px;font-weight:bold;"/>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"隐藏角色" %>
+                </div>
+                <pe:checkbox_button name="btn_HidePlayer" checked='<%=not GameLogic.options:IsShowMainPlayer()%>' onclick='SettingPage.OnClickEnableHideMainPlayer' style="float:left;margin-top:5px;margin-top:5px;width:180px;height:47px;font-size:20px;font-weight:bold;" />
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"镜头距离" %>
+                </div>
+                <div style="float:left;margin-top:6px;">
+                    <pe:sliderbar name="mcCameraSlider" min="2" max="20" value="<%= GameLogic.options:GetCameraObjectDistance() %>" style="float:left;width:360px;height:49px;" onchange="SettingPage.OnCameraSliderChanged"></pe:sliderbar>
+                </div>
+            </div>
+            <div style="margin-left:20px;margin-top:10px;height:70px;">
+                <div class="mobile_bigtext" style="float:left;min-width:250px;">
+                    <%=L"Debug Info" %>
+                </div>
+                <pe:checkbox_button name="btnDebugInfo" checked='<%=GameLogic.options:IsShowInfoWindow()%>' onclick='SettingPage.OnClickShowInfoWindow' style="float:left;margin-top:5px;width:180px;height:47px;font-size:20px;font-weight:bold;"/>
+            </div>
+        </pe:treeview>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

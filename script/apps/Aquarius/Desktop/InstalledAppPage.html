@@ -1,0 +1,36 @@
+﻿<!-- "script/apps/Aquarius/Desktop/InstalledAppPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>InstalledAppPage file</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="InstalledAppPage.lua"><![CDATA[
+MyCompany.Aquarius.InstalledAppPage.OnInit();
+]]></script>
+<pe:gridview DataSource="<%=MyCompany.Aquarius.InstalledAppPage.DS_InstalledApp_Func%>" name="gvwInstalledApp" CellPadding="0"  DefaultNodeHeight = "26">
+    <Columns>
+        <pe:custom oncreate="MyCompany.Aquarius.InstalledAppPage.CreateAppDragger" style="margin:3px;width:16px;height:16px" app_key='<%=Eval("app_key")%>'/>
+        <div style="float:left;background2:url(Texture/alphadot.png)">
+            <img style="margin-left:3px;width:24px;height:24px;margin-right:5px" src='<%=Eval("icon")%>'/>
+            <div style="float:left; margin-top:3px;width:160px;font-weight:bold;" tooltip='<%=Eval("about")%>' onclick="MyCompany.Aquarius.InstalledAppPage.OnSwitchApp" param1='<%=Eval("app_key")%>'>
+                <%=Eval("Title")%>
+            </div>
+            <div style="float:left; margin-top:3px;">
+                删除
+            </div>
+        </div>
+        <hr />
+    </Columns>
+    <EmptyDataTemplate>
+        <b>没有安装任何APP组件</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>正在搜索, 请稍候 ... </b>
+    </FetchingDataTemplate>
+</pe:gridview>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,780 @@
+---+ Design doc of NPL Game Server Lite(GSL)
+| Author(s) | LiXizhi |
+| Date: | 2009.7.29 |
+| revisions | 2009.10.7: added GSL_homegrids, GSL_proxy. |
+
+GSL code is based on JGSL, which is the previous game server architecture developed by ParaEngine. For historical doc, please see JGSL_doc.txt. 
+The GSL is mainly developed for Kids Virtual World project in year 2009. It uses the native persistent TCP based NPL network layer. 
+
+In GSL, a PC can be both a client and a server at the same time. However, it is usually either of them. 
+
+---++ Roles
+<verbatim>
+   - client: there is only one type of client called GSL_client. It is a singleton instance of GSL_client. Each instance of GSL_client can be connected to only one game server. 
+   - game server: it contains:
+		- a unique nid
+		- a unique (rest) thread for:
+				- authentication 
+				- Web API query 
+				- world server selection: it contains a list of all world servers on all game server arrays. 
+		- 1-20 world server threads. Each world server contains:
+				- a globally unique world server id(also the rts_name): this is what the user picks during world server selection.  If a user select a world on a different game server. The client will need to switch connection.
+				- a world server gateway to provide local grid nodes for the user's current world path. 
+				- a very simple BBS chat server
+				- a dynamic array of grid nodes (may be hundreds of them): each grid node service client agents inside the entire or a portion of a virtual world 
+</verbatim>
+---++ High Level Login Procedure
+<verbatim>
+	- client grabs ServerList via a web interface  
+	- download any critical patches and restart client if necessary
+	- automatically connect to the closest game server. 
+	- AuthUser via game server (rest)
+	- connect to ejabberded server
+	- a number of REST api calls to get player info. 
+	- Display world server selection page, and let the user select a world server. 
+	- Connect to the game server hosting the selected world server, if it is not the currently connected game server. 
+	- Enter the main game world: pre-sync data during loading. 
+	- Login to the world server gateway with the current world path and position: GSL_client.LoginServer(ws_id)
+	- Connect to the grid node. 
+</verbatim>
+
+---+++ Reset server sessions. 
+<verbatim>
+	-- note: we will logout currently connected server if any. 
+	Map3DSystem.GSL.Reset()
+</verbatim>
+
+---+++ Login/Logout to a world gateway server
+Login/Logout is done by just two simple calls. 
+<verbatim>
+	-- It will log out from previous world server and then log in to the new one. 
+	Map3DSystem.GSL_client.LoginServer(ws_id, callbackFunc)
+	-- log out either by sending the logout message to server or not. 
+	Map3DSystem.GSL_client.LogoutServer(bSilent)
+</verbatim>
+
+---+++ Getting Server Status
+a client can get server status table by calling 
+<verbatim>
+	-- serverInfo is nil if not connected to any server now. 
+	-- more information, see Map3DSystem.GSL_client.server
+	local serverInfo = Map3DSystem.GSL_client.GetServerInfo();
+</verbatim>
+
+---+++ GSL_client
+one can create multiple clients on the same NPL runtime. or use the default singleton class GSL_client. 
+<verbatim>
+	-- for multiple user emulation, create multiple gameserver nids mapping to the same game server. and create a client for each server nid. 
+	local client = Map3DSystem.GSL.client:new({IsEmulated=true});
+	client:LoginServer(nid, ws_id, worldpath, homeworld_nid)
+</verbatim>	
+
+---++++ client events 
+One can add event listeners to client, by calling AddEventListener/RemoveEventListener  
+<verbatim>
+	-- a table mapping from handler name to function. Known handlers are below 
+	-- OnLoginNode: callback whenever a new grid node is found. function(client, proxy) end
+	-- OnLoginNodeRecover: callback whenever a server grid node recovered a client. this only happens when the client stops sending any messages for a good period of time and then start sending normal update once again. function(client, msg) end
+	-- OnLogoutNode: callback whenever we log out a grid node. function(client, proxy) end
+	-- OnAgentLeave: callback function whenever an agent leaves the world. function(client, agent) end, where client is this GSL_client and agent is the GSL_agent table. 
+	-- OnAgentJoin: callback function whenever an agent joins the world. function(client, agent) end, where client is this GSL_client and agent is the GSL_agent table. 
+	--		this function may be called many times on the first normal update receive, since all agents will join on start up.
+	Map3DSystem.GSL_client:AddEventListener("OnLoginNode", function(client, proxy)
+		log("we have logged in to grid node")
+	end)
+</verbatim>	
+
+---++++ client handlers
+The client class also provides a plugin handler architecture so that we can provide our own network message handler. 
+To register a handler, one can call RegisterHandler/UnRegisterHandler. An example of this is the multi user chat room implementation. see GSL_muc_client.lua for example. 
+
+When client send/receive a message, it will first iterate over all installed handlers before passing to the default one. If any handler returns true, it will prevent the message to be passed to next handler (including the default one)
+How does a handler knows which message to process? GSL provides msg.cid which is forwarded in each message between client and server. It can be assigned in the first login message, and handlers can use it to identify which messages belongs to which handler. 
+	
+---+++ client/server communications 
+There are two types of communications for different purposes:
+	1. normal update: normal update is a low frequency RPC-style (two-way) communication. It begins with the client sending a normal update and wait for the server's reply. 
+		normal update is used to sync all shared agents information on a grid node. it is very much like SVN client/server. In each normal update, 
+		the client commit some data to server, the server auto-increase its repository revision number, and updates the clients from the client's last revision to the latest revision on the server. 
+		Normal update may need to send quite a bit information in a single packet(especially the first update), so its frequency is usually as low as one message every 3 seconds.
+	2. real time update: real time updates are one-way communication that may be initiated by either client or server. 
+		whenever the client's avatar moves or performs an action, it may send a real-time update message to server. The server will update its revision, but does not reply. 
+		whenever the server has received some critical real-time revisions (such as user login/logout, user movement, action), it will broadcast selectively to connected clients proactively in short intervals. 
+		For example, it may only send real-time position revisions to avatars that are very close to each other. Upon receive, the client can update its world state, but does not increase its revision number.
+
+Please note that normal update contains all necessary avatar information in order to render properly, except that it does not send login/logout message. 
+It is possible to switch off all real-time updates, and the game should still look ok, except that it is less responsive and the client needs to logout agents via a local timeout mechanism. 
+
+When a client receives a server message, it will extract sub messages for each GSL_agent date on the server. 
+For each agent, it will create an avatar if it has not been done before. 
+
+Both client and server utilizes the creation and env message history. And they will try to broadcast every history from the moment the server or client is started. 
+however, we can change this behavior to broadcast history from the time the world is loaded. see variable below. 
+<verbatim>
+	Map3DSystem.GSL_client.LastCreationHistoryTime
+	Map3DSystem.GSL_client.LastEnvHistoryTime
+</verbatim>
+
+Enable following macro to allow debugging. 
+<verbatim>
+	Map3DSystem.GSL.dump_[server|client]_msg for debugging. 
+</verbatim>
+
+---+++ Class overview
+the main file for world server is GSL_grid, the supporting files 
+    * GSL_gateway [public], which manages users and their sessions for a given world server instance. 
+    * GSL_grid [public], which represent a single grid node of a given region of a given world. 
+	* GSL_client [public]: the client connecting to a world server instance. 
+
+Other classes:
+   * GSL_history, which contains server creation and env history. 
+   * GSL_servermode, initial the game server to run as a daemon in the background. 
+   * GSL_agent, which is the agent class used by both the client and the server. 
+   * GSL_opcode, operation code to encode/decode agent stream data.
+   * GSL_stringmap, used to encode/decode commonly used strings during transmission. 
+
+---+++ Messages 
+Basically, all communications are done via established NPL TCP persistent connection; and all NPL communication is by design one-way asynchronous call. 
+However, some helper class are used to provide a epoll (event polling) style communication programming interface, where the client will wait for server response before sending the next message, unless a long time out is seen;
+and the server response to a client as fast as it could. 
+
+We identify the all client/server messages by A,B,C,D category and listed below. 
+
+   * Each game server contains several world servers (identified by ws_id, which matches to a physical thread and NPL runtime state on the game server). 
+   * Each world server contains one GSL_gateway and hundreds of GSL_grid. 
+   * GSL_client is a singleton instance of GSL.client. It is usually running on one client computer.
+   * EmuUsers or GSL_client(_emu) can have multiple instances of GSL.client with IsEmulated set to true. This type of client is only used for performance testing. 
+
+Please note, before we connect to a local world server gateway, we must authenticate the connecion with the game server, and let the user choose the world server. 
+The following are only messags after the user has selected a client and connected to the game server and passed authentication. 
+So client to server messages below will have the same prefix of NPL.activate("(ws_id)game_server_nid:...")
+and all server script will reject if client is not authenticated.
+
+|  GSL_client(_emu) |   <================>    |         GSL_gateway          |         GSL_grid   or GSL_homegrid     |
+
+(B.1) Client login to gateway using a given world path and a default character position.
+					CS_Login(worldpath, x,y,z,cid)---->GSL_gateway
+											gateway find a best grid server address and forward the login request
+																				GSL_grid or GSL_homegrid find a best grid node and return grid node id(gid), and grid region info(gx,gy,gsize). cid is an optional client id to be remembered on the grid node and send with each reply, it can be used for client to identify different client handler. 
+																				the best grid node is defined as: the smallest sized grid node that contains the user location.
+																			<--  SC_Login_Reply(Role, worldpath, gid, gx,gy,gsize, cid)
+
+(B.2) the client checks if it has connection to grid nodes that contains the 4 corners(7,9,1,3 on numeric pad) around the current player position, 
+if not, the client will ask the gate way for it, like in (B.1).
+
+<verbatim>
+Term: st: server time, is an auto increase revision number whenever server state changes, much like SVN server revision number. It ensures that the client has the latest version of the server states. 
+Term: ct: client time, is an auto increase revision number whenever client state changes. It ensures that the server has the latest version of the client states.
+</verbatim>
+
+(C.1) Client send normal update to grid node that it belongs to (with grid id, and forwarded st(server time, first time is nil)), send ct(client time)
+					CS_NormalUpdate(id, st, agent, recover, ct)---->GSL_grid
+					                        the grid node add the agent if not before, and send back all other agents (and/or ping) in the grid node. it will send the st(server time), and forward ct(client time). If we find intact agent, we will set the client time to nil, so that the client is expected to sent full update to us in the next update. 
+					<-SC_NormalUpdate(id, st, agents, ping, ct, cid)
+											id is the grid node id on the world server. 
+(C.2) When client agent is no longer in the region of the grid node, it leave the server by sending IsLeaving=true message.
+					CS_Logout(id)---->GSL_grid
+					                        the grid node mark the agent as left (it will permanently remove it during the next slow timer recycle)
+(C.3) Client send real time update to grid node that it belongs to (with grid id, and forwarded st(server time, first time is nil)), send ct(client time)
+					CS_RealTimeUpdate(id, st, agent={rt=stream})---->GSL_grid
+					                        the grid node will not reply to the agent, this is one way invocation.
+(C.4) Server send real time update to client, but without any ping.
+					SC_RealTimeUpdate(id, st, agents={nid=stream, ...}, cid)--->GSL_client
+					
+(D.1) Client send observer update request to neighbouring grid nodes that it is currently connected to.
+					CS_ObserverUpdate(id, recover, st)---->GSL_grid
+											the grid node add the observer if not added before, and send back all other agents (and/or ping) in the grid node, like in (C.1)
+					SC_ObserverUpdate(st, agents, ping, cid)
+
+(D.2) When client agent is no long observing the region of the grid node, it leave the grid node server by sending CS_Logout message.
+					CS_Logout(id, cid)---->GSL_grid
+
+(E.1) Please note that: the difference between GSL_client and emulated GSL.client is that 
+		- the later never send CS_ObserverUpdate to server.thus it makes the server less busy. However, the server does NOT distinguish between these two different kinds of GSL clients.
+		- the later never update from or to real avatar character. 
+  
+(F.1) query a gateway or grid node
+					CS_QUERY(fields, forward, cid)---->GSL_gateway                  
+								  result table containing the result of the query fields, cid and forward are forwarded in the reply. 
+					<-SC_QUERY_REPLY(forward, result, cid)
+					
+---++++ structure explanations
+
+- GSL.gateway: keeps all connected GridUsers. Also a mapping from user_nid to GridUser structure. 
+	- gateway config file: rules about which world this server can serve, and how to allocate grid node resources for a given world. 
+	- GSL.gateway.GridUser: keeps the grid node that the user is currently in. 
+- GSL_grid.GridNode: a grid node server for simulating a given region of a given world. It keeps track of all agents and observers in its region.
+	- gridnode config file: rules about which GSL.gateway.nid to trust. it always trust the local gateway (i.e. gateway with the same nid as gridnode).
+- GSL.client: keeps the current player agent stream, all network agent streams, and info about all gridnodes that it has visited. 
+- GSL_client: a singleton instance of GSL.client.
+
+---+++ agent stream serialization
+
+---+++ keeping date exchange minimum
+We use three rules to send normal update to client
+- the grid node must boardcast the nid of all active agents in the region to all connected agents and observers on each normal update request. This is an exemption from the minimum rule, it will prevent client agents to time out on the client side.
+- in addition, the grid node server only send back changed data fields of agents since the last send call. To make this work, the grid server inject a frameid, which the client must forward in its next update message. 
+	gridserver.frameid is increased by one each time it processes a message, and it is also used as time key(like a revision number in SVN) for keeping historical record of all agent data fields. Thus, the frameid from client can be used to detect whether data on the server has changed since last send call. A new client has a 0 frameid, thus all data fields are sent back.
+	NOTE1: The first message for client, always needs to send all info of all agents, which could be a peek in bandwidth, but the throughput is still minimum. I used to think other ways to distribute the first packet in the subsequent frames. but the above design is simple and easy, plus TCP is good for larger packet. 
+	NOTE2: when any agent field is changed. all connected agents are immediately informed of it, this could mostly be position and facing. I used to think other ways to distribute the peek to subsequent frames, but the current keeps the client more accurate. And if most characters are static, its throughput is minimum.
+- agent data are compressed with opcode and data; and known strings are replaced by their ids. 
+
+such logics can be found in GSL_opcode and GSL_agent file. GSL_agent:UpdateFromStream() and GSL_agent:GenerateUpdateStream() are the function to deal with it. 
+
+---++++ grid node rules
+the server grid node keeps track of each agent by keeping its most recent state as well as a short history of its past states. 
+The server also keeps tracks of the number of times that it has received update from each agent. see below
+server.agent {
+	rec_count, -- number of times it has recevied update from the client.
+	lastSendTime, -- the last time (by server timer) that it has sent update back to the client.
+	history { valuetracker }, -- agent position, facing, asset, etc and a short history of them. 
+}
+when the grid node receives a new normal update request, it uses the above info, to deduce how much data to sent back to the client. 
+As a rule, if agent.rec_count%FieldRefreshRate==1, then the field of all agents are sent back to the client. for example, FieldRefreshRate can be 5 or 50, for different field like position, AssetFile, etc. 
+on all other frames, we should only update other changed agents' fields since the incoming agent's lastSendTime. 
+
+---++++ client rules
+on the client side, it also keeps an agent structure for the current player.
+client.agent {
+	send_count, -- number of times it has sent update to server.
+	lastSendTime, -- the last time (by client timer) that it has sent update to the server.
+	history{ valuetracker}, -- agent position, facing, asset, etc and a short history of them. 
+}
+As a rule, if agent.send_count%FieldRefreshRate==1, then the field of all agents are sent to the server. for example, FieldRefreshRate can be 5 or 50, for different field like position, AssetFile, etc. 
+
+---++++ recovery rules
+in some rare situations, something goes wrong, and either server or client is not receiving enough information (such as server drops messages when overloaded). 
+Such information may be the minimum character info, such as agent.AssetInfo or agent's position.
+In such case, both client and server can send normal updates with recovery requests. 
+   * If client keeps getting server pings that it does not recognize:
+      * the client can include a recover field {recover="nid,nid,nid"} in its (C.1) or (D.1) update. Please note that, the server can only recover a limited amount (such as 3) of users at a time. 
+      * the server will then send full agent info for all agents in the recover field in reply in its msg.agents fields. 
+   * [Not implemented] If the server receive a normal agent update that it does not have previous history:	
+      * the server will include a recover field {recover=true} in its (C.1) or (D.1) reply. 
+      * the client should then send full agent info of itself to the server in its next agent update to the serve. 
+      
+---++ Debugging
+client side debugging scripts. 
+<verbatim>
+	-- dump everything on the current client 
+	Map3DSystem.GSL_client:Dump();
+	-- get gateway server round trip time
+	Map3DSystem.GSL_client:QueryGateway();
+</verbatim>
+
+---++ real time messages
+we can send a real time message to server on behalf of the current avatar using following function.
+The message will be sent almost at real time to the server. The server will forward it to other connected player almost at real time too. 
+the most common use of real time message is BBS chat room. 
+<verbatim>
+	Map3DSystem.GSL_client:AddRealtimeMessage({name="chat", value="hello world"})
+</verbatim>
+its input a table of {name, value}, name and value should be encoded with opcodes during transmission. 
+
+---+++ Real Time Message Examples
+
+CS_NormalUpdate:
+	{ agent={  }, ct=5, st=4, type=7 }
+SC_NormalUpdate:
+	{ agents={  }, ct=5, id=1, nid="gs1", ping="91874", st=4, type=8 }
+CS_NormalUpdate:	
+	{ agent={ data="4:-0.00,3:256.80,5:245.50" }, ct=4, st=3, type=7 }
+SC_NormalUpdate:	
+	{ agents={ ["87584"]="4:-0.00,3:256.80,5:245.50" },
+	  ct=6,
+	  id=1,
+	  nid="gs1",
+	  st=4,
+	  type=8 
+	}
+
+CS_RealtimeUpdate:
+	{ agent={ rt="9:hello world" }, ct=20, id=1, st=2, type=5 }	
+SC_RealtimeUpdate:	
+	{ agents={ ["90497"]="9:hello world" }, id=1, st=2, type=6 }
+	
+	
+---+++ GSL Proxy Architecture
+GSL_proxy: forward everything it receives to another destination (dest can be nested tables) 
+{ 
+	dest={addr="", dest={addr="", dest={...},}}, file="", msg={...}
+}
+A GSL_proxy message contain 3 fields namely {dest, file, msg}, where the dest field is optional.
+Whenever the GSL_proxy receives a message, it first checks if its dest field has an inner dest field. if it has inner dest field, it will unbox one level of the dest field, 
+and forward the message(with the same file and msg fields) to the next GSL_proxy by nid. If it does not contains the inner dest field, 
+it will deliver the message(==msg==) to the ==file== directly.
+
+---++++ Example: Grid Node with Proxy 
+The following shows grid node with proxy. The client maintains a single connection to the gateway server, and the gateway returns grid nodes to the client on demand. 
+the grid node returned may be on the NPL runtime as the gateway server or it may be not. In the latter case, a grid node proxy address is returned and 
+the following dataflow occurs whenever the client communicates with a proxied grid node via gateway connection. 
+
+This allows us to distribute different grid nodes to serveral different computers, where the clients only needs a single connection to the gateway server. 
+
+GSL_client(client) --> 	GSL_gridnode(server1) ---> GSL_proxy(server1) ---> GSL_gridnode(server2) 
+GSL_client(client) <---	GSL_proxy(server1) <--- GSL_proxy(server2) <--- GSL_gridnode(server2) 
+
+
+GSL_client(client) ---> GSL_gridnode(server1): {nid=client_nid, content}
+GSL_gridnode(server1) ---> GSL_proxy(server1): {dest={addr="server2"},file="GSL_gridnode", msg={nid=client_nid, content,proxy={addr=server1_nid}}}
+GSL_proxy(server1) ---> GSL_gridnode(server2) : {nid=client_nid, content,proxy={dest=server1_nid}}
+
+GSL_proxy(server2) <--- GSL_gridnode(server2): {dest={addr="server1", dest={nid=client_nid}},file="GSL_client",msg={content}}
+GSL_proxy(server1) <--- GSL_proxy(server2): {dest={addr=client_nid}, file="GSL_client", msg={content}}
+GSL_client(client) <---	GSL_proxy(server1): {content}
+
+---+++ GSL_homegrid
+Home grid is similar to GSL_grid, except that it support world path with instance name, such as 
+"myworld/myhomeworld?nid=client_nid"
+
+---++++ Homegrid with proxy Message Examples
+The following shows client connect to game server1 (gateway) which in turn connect to homegrid on server2.  The gateway acts as a proxy in the middle.
+
+<verbatim>
+================================================== 
+GSL_client(client)->GSL_gateway(game server1) { 
+	type=1(CS_Login),  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",  x=247,  y=0, z=250
+}
+
+GSL_proxy(game server1) SendMessage{
+  { addr="(world2)1001" },
+  "script/apps/GameServer/GSL_homegrid.lua",
+  {
+	nid="123",
+	proxy={ addr="(world1)1001", src="123" },
+	type=1,
+	worldpath="worlds/MyWorlds/flatgrassland/?nid=123",
+	x=247,	y=0, z=250 
+  }}
+
+GSL_homegrid(game server2) received {
+  nid="123",
+  proxy={ addr="(world1)1001", src="123" },
+  tid="~3",
+  type=1,
+  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",
+  x=247,  y=0,  z=250 
+}
+
+GSL_proxy(game server2) Send{
+  { addr="(world1)1001", dest={ addr="123" } },
+  "script/apps/GameServer/GSL_client.lua",
+  {
+    ClientVersion=1,   Role="guest",   ServerVersion=1,
+    VisitsSinceStart=0, gid=1,    id=1,    
+    proxy={ addr="(world2)1001" },
+    st=1,   type=2,  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",   x=247, y=0, z=250
+  } 
+}
+
+GSL_proxy (game server1) Received{
+  dest={ addr="123" },
+  file="script/apps/GameServer/GSL_client.lua",
+  msg={
+    ClientVersion=1,   Role="guest",   ServerVersion=1,
+    VisitsSinceStart=0, gid=1,    id=1,    
+    proxy={ addr="(world2)1001" },
+    st=1,   type=2,  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",   x=247, y=0, z=250
+  },
+  tid="~3" 
+}
+
+GSL_proxy (game server1) SendMessage {
+  { addr="123" },
+  "script/apps/GameServer/GSL_client.lua",
+  {
+    ClientVersion=1,   Role="guest",   ServerVersion=1,
+    VisitsSinceStart=0, gid=1,    id=1,    
+    proxy={ addr="(world2)1001" },
+    st=1,   type=2,  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",   x=247, y=0, z=250
+  } 
+}
+
+GSL_client(client) received {
+  ClientVersion=1,   Role="guest",   ServerVersion=1,
+    VisitsSinceStart=0, gid=1,    id=1,    
+    proxy={ addr="(world2)1001" },
+    st=1,   type=2,  worldpath="worlds/MyWorlds/flatgrassland/?nid=123",   x=247, y=0, z=250
+}
+===============================
+Client->Server
+echo:return {
+  agent={
+    data="4:0.00\
+3:247.31\
+6:17a\
+2:1\
+7:0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#\
+5:250.99" 
+  },
+  ct=3,
+  id=1,
+  proxy={ addr="(world2)1001" },
+  type=7 
+}
+
+GSL_grid received
+echo:return {
+  agent={
+    data="4:0.00\
+3:247.31\
+6:17a\
+2:1\
+7:0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#\
+5:250.99" 
+  },
+  ct=3,
+  id=1,
+  nid="123",
+  proxy={ addr="(world2)1001" },
+  type=7 
+}
+GSL_proxy SendMessage
+echo:return {
+  { addr="(world2)1001" },
+  "script/apps/GameServer/GSL_homegrid.lua",
+  {
+    agent={
+      data="4:0.00\
+3:247.31\
+6:17a\
+2:1\
+7:0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#\
+5:250.99" 
+    },
+    ct=3,
+    id=1,
+    nid="123",
+    proxy={ addr="(world1)1001", src="123" },
+    type=7 
+  } 
+}
+
+GSL_homegrid received
+echo:return {
+  agent={
+    data="4:0.00\
+3:247.31\
+6:17a\
+2:1\
+7:0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#\
+5:250.99" 
+  },
+  ct=3,
+  id=1,
+  nid="123",
+  proxy={ addr="(world1)1001", src="123" },
+  tid="~3",
+  type=7 
+}
+{
+["type"]=8,
+["ct"]=3,
+["agents"]={
+},}
+
+GSL_proxy SendMessage
+echo:return {
+  { addr="(world1)1001", dest={ addr="123" } },
+  "script/apps/GameServer/GSL_client.lua",
+  { agents={  }, ct=3, id=1, st=2, type=8 } 
+}
+2009-10-07 16:29:31|0|GSL_proxy received|script/apps/GameServer/GSL_proxy.lua:74:|
+echo:return {
+  dest={ addr="123" },
+  file="script/apps/GameServer/GSL_client.lua",
+  msg={ agents={  }, ct=3, id=1, st=2, type=8 },
+  tid="~3" 
+}
+
+GSL_proxy SendMessage
+echo:return {
+  { addr="123" },
+  "script/apps/GameServer/GSL_client.lua",
+  { agents={  }, ct=3, id=1, st=2, type=8 } 
+}
+
+GSL_client received
+echo:return { agents={  }, ct=3, id=1, nid="gs1", st=2, type=8 }
+=========================================================
+</verbatim>
+
+---++ GSL_cells
+GSL_cells is an addon feature to GSL_gridnode. GSL_cells can be used with a GSL_gridnode instance to more effectively manage real time updates. 
+It subdevides a gridnode region into evenly sized cells. When an agent's location changes, the agent's home cell is updated automatically. 
+By using cells to manage mobile agents within a GSL_gridnode, we can send real time updates only to an agent's nearby entities. 
+
+when GSL_cells are used on the server side. All agent instances on the gridnode contains the cell table field (i.e. agent.cell points to its home cell). 
+
+We can configure a GSL_gridnode to use cell manager for a given world path by adding use_cell property in "config/GSL.config.xml", such as:
+<verbatim>
+	<rule worldfilter="^worlds/MyWorlds/.*test/$" use_cell="true" fromx="20000" fromy="20000"/>
+</verbatim>
+
+When a GSL_gridnode is spawned with cell support, it will also create an instance of cellManager for that gridnode. 
+Please note that GSL_cells only optmize real time messages, it does not affect how normal update are sent on the gridnode. 
+   - Whenever a GSL_gridnode receives an agent update message(both normal or real time), it will update the agent's home cell by calling cellManager:RelocateAgent() method.
+   - Whenever a gridnode receives an real time update, it will add the message to the agent's home cell's real time message pool, by calling cell:AddRealtimeMessage().
+   - Whenever a game server needs to broadcast real time updates to the clients, it will calls cellManager:BroadcastRealtimeMessage(). The function, instead of sending all cached real time messages in the world, only sends those that are in the agent's nearby cells. 
+
+---+++ Message Protocol with cells
+
+|  GSL_client     |   <================>    |         GSL_gridnode          |         GSL_cells(cellManager)    |
+
+(F.1) Client send normal update to server with zx,zy
+					    GSL_client(zx,zy) ----> GSL_gridnode
+											GSL_gridnode relocate the agent's cell tile position
+																		  ----> cellManager:RelocateAgent(agent, zx, zy)
+											
+(F.1) Client send real time update to server 
+						GSL_client(agent_data) -->GSL_gridnode
+											GSL_gridnode locate the agent's home cell and add message to the cell. 
+																		--->agent:GetHomecell():AddRealtimeMessage(agent.nid, agentData)
+
+																				
+
+(F.3)											The time stamp has reached to broadcast real time updates to all agents in the gridnode
+													GSL_gridnode:BroadcastRealtimeMessage()-->cellManager:BroadcastRealtimeMessage()
+
+
+---++ GSL_serveragent
+
+It is similar to GSL_agent, except that it represents various game objects on the server side, such as server NPC, special game objects in a grid node, etc. 
+Unlike GSL_agent (which represents real players), server agent does not time out, therefore no ping messages are sent to client during normal update. 
+Everything else behaves much the same like GSL_agent. For example, each server agent has a unique id, and persistent data fields with revision numbers. 
+
+During normal update, all server agents in a gridnode will be patch-send to the clients. Patch-send means that only changed data are sent; 
+because server agents are all persistent on the server, both client and server does not needs to implement timeout. 
+The client usually renders server agents according to its persistent data fields as well as real time messages received. 
+Client and server can communicate by sending real time messages using server agent id. 
+
+---+++ Server side
+All server-side server agent template class must implement following virtual functions. 
+
+<verbatim>
+-- when a gridnode is spawned, it will create all server agents in it by calling this function using its template class. 
+-- this function will only be called once. For reused gridnode server agents, please use OnActivate().
+function serverAgent.CreateInstance(self, revision)
+end 
+
+-- [optional] 
+-- this function is called whenever the parent gridnode is made from unactive to active mode or vice versa. 
+-- A gridnode is made inactive by its gridnode manager whenever all client agents are left, so it calls this 
+-- function and put the gridnode to cache pool for reuse later on. 
+-- Whenever a gridnode is first loaded or activated again, this function will also be called. 
+-- Tips: try to make OnActivate as light-weighted as possible, and put one time init in CreateInstance
+-- @param bActivate: true if gridnode is active or false if unactive. 
+function serveragent:OnActivate(bActivate)
+end
+
+-- whenever an instance of this server agent has received a real time message from client (from_nid) in gridnode, this function will be called.  
+function serverAgent:OnNetReceive(from_nid, msg, revision)
+end
+
+-- This function is called by gridnode at normal update interval. One can update persistent data fields in this functions. 
+function serverAgent:OnFrameMove(curTime, revision)
+end
+
+-- send a real time message on behalf of this server agent. All clients will receive OnNetReceive() event
+function serverAgent:AddRealtimeMessage(msg)
+end
+</verbatim>
+
+---+++ Client side
+All client-side server agent template class must implement following virtual functions. 
+
+<verbatim>
+-- when a new server side agent is synchronized, it will call this function to create a new instance of the server agent on the client side for event handling.  
+function serverAgent.CreateInstance(self)
+end
+
+-- whenever an instance of this server agent calls AddRealtimeMessage() on the server side(from_nid), the client will receive it via this event callback. 
+-- if msg is nil, it means that client has received a normal update of this agent from server and some data fields of the agent have been updated. 
+function serverAgent:OnNetReceive(from_nid, msg)
+end
+
+-- send a real time message to this server agent on the server side. The server will receive OnNetReceive()
+function serverAgent:AddRealtimeMessage(msg)
+end
+</verbatim>
+
+---+++ Example code
+
+<verbatim>
+NPL.load("(gl)script/apps/GameServer/GSL_serveragent.lua");
+
+local MyEchoNPC_server = {}
+
+-- register class with the GSL server 
+Map3DSystem.GSL.config:RegisterNPCTemplate("EchoNPC", MyEchoNPC_server)
+
+function MyEchoNPC_server.CreateInstance(self, revision)
+	-- overwrite virtual functions
+	self.OnNetReceive = MyEchoNPC_server.OnNetReceive;
+	self.OnFrameMove = MyEchoNPC_server.OnFrameMove;
+	-- uncomment to overwrite default AddRealtimeMessage implementation, such as adding a message compression layer.
+	-- self.AddRealtimeMessage = MyEchoNPC_server.AddRealtimeMessage;
+	
+	commonlib.log("MyEchoNPC_server.CreateInstance %s\n", tostring(self.id));
+	
+	-- TODO: add your private per instance data here
+	self:SetValue("versioned_data", {nCount=1}, revision)
+end
+
+-- whenever an instance of this server agent has received a real time message from client (from_nid) in gridnode, this function will be called.  
+function MyEchoNPC_server:OnNetReceive(from_nid, msg, revision)
+	-- echo real time message to client
+	-- self:AddRealtimeMessage(msg)
+	commonlib.log("MyEchoNPC_server (%s):OnNetReceive \n", self.id);commonlib.log("msg is \n");commonlib.echo(msg);
+end
+
+-- This function is called by gridnode at normal update interval. One can update persistent data fields in this functions. 
+function MyEchoNPC_server:OnFrameMove(curTime, revision)
+	-- update persistent data and let normal update to broadcast to all agents. 
+	local old_value = self:GetValue("versioned_data");
+	old_value.nCount = old_value.nCount + 1;
+	self:SetValue("versioned_data", old_value, revision);
+	
+	commonlib.echo("server on frame moved")
+	self:AddRealtimeMessage({body="server to client hello!"})
+end
+</verbatim>
+
+<verbatim>
+local MyEchoNPC_client = {}
+
+-- register class with the GSL client
+Map3DSystem.GSL.client.config:RegisterNPCTemplate("EchoNPC", MyEchoNPC_client)
+
+function MyEchoNPC_client.CreateInstance(self)
+	self.OnNetReceive = MyEchoNPC_client.OnNetReceive;
+	-- uncomment to overwrite default AddRealtimeMessage implementation, such as adding a message compression layer.
+	-- self.AddRealtimeMessage = MyEchoNPC_client.AddRealtimeMessage;
+	commonlib.log("MyEchoNPC_client.CreateInstance %s\n", tostring(self.id));
+	-- TODO: add init code and private data structures
+	self.private_data = {};
+end
+
+-- whenever an instance of this server agent calls AddRealtimeMessage() on the server side(from_nid), the client will receive it via this event callback. 
+-- if msg is nil, it means that client has received a normal update of this agent from server and some data fields of the agent have been updated. 
+function MyEchoNPC_client:OnNetReceive(client, msg)
+	-- self.id
+	commonlib.log("MyEchoNPC_client (%s):OnNetReceive \n", self.id);
+	commonlib.log("msg is \n");	commonlib.echo(msg);
+	commonlib.log("public data is \n");	commonlib.echo(self:ConvertDataToTable());	commonlib.log("\n\n");
+	
+	-- renders whatever is received in message box 
+	_guihelper.MessageBox(msg)
+	
+	client:SendRealtimeMessage(self.id, {body="client to server hello!"});
+	
+	-- one can send real time message to self.id on the server side. 
+	-- self:GetValue();
+end
+
+</verbatim>
+
+---+++ Server Objects Message Examples
+
+CS_NormalUpdate:
+	{ agent={  }, ct=5, st=4, type=7 }
+SC_NormalUpdate:
+	{ agents={  }, so={id=patch_msg, ...} ct=5, id=1, nid="gs1", ping="91874", st=4, type=8 }
+
+CS_RealtimeUpdate:
+	{ agent={}, so={id=msg, ...}, ct=20, id=1, st=2, type=5 }	
+SC_RealtimeUpdate:	
+	{ agents={}, so={id=msg, ...}, id=1, st=2, type=6 }
+
+---++ GSL_system and server modules
+---+++ Extending GSL with external modules
+The GSL game server can be extended with custom server modules via GSL.config.xml file. 
+The server module is like a service, which is loaded in a per world thread. One important feature is that 
+services can have async initialization dependencies.
+
+See the example code below. 
+<verbatim>
+<GSL>
+	<!--game server modules that should be loaded in per game world thread. Dependency and async loading is supported, so that 
+	some modules can call other system or module functions asynchrounously and use the result for initialization.
+	-->
+	<modules>
+	  <module src="script/apps/GameServer/Modules/SampleServerModule.lua"></module>
+	</modules>
+</GSL>
+</verbatim>
+
+In the module file, one should provide a Init() method which may be called by a timer until it returned true. 
+One can use system:GetService("module_name") to load the module until some other modules have been successfully loaded. 
+
+<verbatim>
+local SampleServerModule = {};
+Map3DSystem.GSL.system:AddService("SampleServerModule", SampleServerModule)
+
+-- virtual: this function must be provided. This function will be called every frame move until it returns true. 
+-- @param system: one can call system:GetService("module_name") to get other service for init dependency.
+-- @return: true if loaded, otherwise this function will be called every tick until it returns true. 
+function SampleServerModule:Init(system)
+	-- One can wait until some other modules have been loaded. 
+	-- local dependent_module = system:GetService("module_name");
+	-- if(not dependent_module or not dependent_module:IsLoaded() ) then return end
+
+	-- TODO: put your async init code here
+
+	-- One can register system events or events of other modules like this
+	system:AddEventListener("OnUserDisconnect", self.OnUserDisconnect, self);
+	system:AddEventListener("OnUserLoginWorld", self.OnUserLoginWorld, self);
+	
+	SampleServerModule.state = "loaded";
+	LOG.std(nil, "system", "SampleServerModule", "SampleServerModule is loaded");
+
+	return self:IsLoaded();
+end
+
+-- virtual: this function must be provided. 
+function SampleServerModule:IsLoaded()
+	return SampleServerModule.state == "loaded";
+end
+
+-- event callback: only called when TCP connection is closed
+function SampleServerModule:OnUserDisconnect(msg)
+	LOG.std(nil, "system", "SampleServerModule", "we see a user %s left us", msg.nid);	
+end
+
+-- event callback: This will be called when user logins or switches different worlds during game play, hence it maybe called multiple times. 
+function SampleServerModule:OnUserLoginWorld(msg)
+	LOG.std(nil, "system", "SampleServerModule", "we see a user %s login a GSL world %s", msg.nid, tostring(msg.worldpath));
+end
+
+</verbatim>
+
+---+++ System and Module events
+GSL modules can register events fired by the system or other external modules 
+See above code for example of registering the OnUserLoginWorld and OnUserDisconnect messages. 
+Any system or custom modules can also fire events like below
+
+<verbatim>
+local system = commonlib.gettable("Map3DSystem.GSL.system");
+local msg_OnUserLoginWorld = {type="OnUserLoginWorld", nid, worldpath}
+
+function activate()
+	-- fire a system message 
+	msg_OnUserLoginWorld.nid = nid;
+	msg_OnUserLoginWorld.worldpath= msg.worldpath;
+	system:FireEvent(msg_OnUserLoginWorld);
+end
+</verbatim>
+
+---+++ GSL memory usage
+The following is taken from windows. 
+No User: 9699 KB
+1 user: 10467 KB
+1 user signed out: 10061KB
+1 user signed in again: 10477 KB
+2 users: 10930 KB
+the second user signed out: 10556 KB
+all users signed out: 10131KB
+
+10930-10477=453KB (minimum mem cost per concurrent user)
+
+the 2 users are both barely new account without much items

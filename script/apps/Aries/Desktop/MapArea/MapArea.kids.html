@@ -1,0 +1,128 @@
+﻿<!-- "script/apps/Aries/Desktop/MapArea/MapArea.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="MapArea.kids.lua"><![CDATA[
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+MapArea = commonlib.gettable("MyCompany.Aries.Desktop.MapArea");
+MapArea.OnInit();
+function OnToggleCameraMode(bChecked, mcmlNode)
+    local value = if_else(bChecked, "3d", "2d");
+    MyCompany.Aries.AutoCameraController:ApplyStyle(value);
+    MyCompany.Aries.Player.SaveLocalData("CameraMode", value);
+end
+function GetMode()
+    if(LobbyClientServicePage.mode_cur_worldinstance)then
+        local mode = LobbyClientServicePage.mode_cur_worldinstance;
+        local label="";
+        if(mode == 1)then
+            label="简单";
+        elseif(mode == 2)then
+            label="普通";
+        elseif(mode == 3)then
+            label="精英";
+        end
+        local s = string.format("难度:%s\r\n离开副本",label);
+        return s;
+    else
+        return "离开副本";
+    end
+end
+
+function IsInInstanceWorld()
+    return WorldManager:IsInInstanceWorld()
+end
+
+function GetWorldTitle()
+    return format("%s%s", MyCompany.Aries.WorldServerSeqId or "", MyCompany.Aries.WorldManager:GetCurrentWorld().world_title or "地图");
+end
+
+function on_btn_switchserver()
+    MyCompany.Aries.Desktop.Dock.OnSwitchServer();
+end
+
+function OnQuit()
+    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+    local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local world_info = WorldManager:GetCurrentWorld()
+    local s = string.format("确认要离开【%s】吗？",world_info.world_title or "");
+    if(HomeLandGateway.IsInHomeland())then
+        s = string.format("确认要离开家园吗？");
+    end
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+             if(HomeLandGateway.IsInHomeland())then
+                HomeLandGateway.Away();
+             else
+    		    WorldManager:TeleportBack();
+            end
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+end
+
+function GetServerName()
+    return format("(%s%s)", MyCompany.Aries.WorldServerSeqId or "", MyCompany.Aries.WorldServerName or "")
+end
+
+function IsRealName()
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    return Player.IsRealName();
+end
+
+function AntiIndulgenceTips()
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    local tips = "剩余战斗时间(点击参与实名验证)";
+    local _adult = Player.IsAdult();
+    if (_adult == 2) then
+        tips = "剩余战斗时间（你还未满18岁，请注意游戏时间）"
+    end    
+    return tips;
+end
+
+function DoClick()
+--    local official_site_url = MyCompany.Aries.ExternalUserModule:GetConfig().account_realname_url;
+--	if(official_site_url) then
+--		ParaGlobal.ShellExecute("open", official_site_url, "", "", 1);
+--	end
+    MyCompany.Aries.ExternalUserModule:SetRealname()
+end
+
+function OnClickHaqiShop()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabXC");
+end
+]]></script>
+<div>
+    <pe:if condition='<%=IsInInstanceWorld() %>'>
+        <div align="center" style="position:relative;margin-top:25px;text-align:center;width:70px;">
+            <input name="btnQuit" zorder="1" type="button" value="返回主城" tooltip="<%=GetMode() %>" style="position:relative;font-size:12px;width:70px;height:24px;color:#095700;background:url(Texture/Aries/Common/ThemeKid/btn_thick_hl_32bits.png:7 7 7 7);" onclick="OnQuit"/>
+        </div>
+    </pe:if>
+    <input type="button" name="shop" value="" onclick="OnClickHaqiShop" style="position:relative;margin-left:25px;margin-top:-16px;width:64px;height:64px;background:url(Texture/Aries/HaqiShop/shop_btn_32bits.png);" />
+    <div style="position:relative;margin-top:50px;width:101px;height:32px;background:url(Texture/Aries/Dock/kids/timer_bg_32bits.png:6 6 6 6);">
+        <div style="float:left;margin-left:4px;margin-top:6px;" >
+            <input name="EnableSound" type="checkbox" checked="true" style="width:20px;height:20px;" iconsize="20" CheckedBG="Texture/Aries/Dock/kids/music_enabled_32bits.png;0 0 20 20" UncheckedBG="Texture/Aries/Dock/kids/music_disabled_32bits.png;0 0 20 20" tooltip="打开|关闭声音" onclick="MapArea.OnClickToggleMusic"/>
+        </div>
+        <div style="float:left;margin-top:2px;">
+            <pe:if condition='<%=IsRealName() %>'>
+                <input type="button" value="实名" style="font-size:12px;width:46px;height:24px;background-color:#ffffff;color:#33d82c;background:url(Texture/Aries/Dock/kids/timer_bg_inner_32bits.png#0 0 43 24:12 12 12 12);" />
+            </pe:if>
+            <pe:if condition='<%=not IsRealName() %>'>
+                <input name="timeBtn" tooltip='<%=AntiIndulgenceTips() %>' onclick="DoClick" type="button" value="5:00" style="font-size:12px;width:46px;height:24px;background-color:#ffffff;color:#caffff;background:url(Texture/Aries/Dock/kids/timer_bg_inner_32bits.png#0 0 43 24:12 12 12 12);" />
+            </pe:if>
+        </div>
+        <div style="float:left;margin-top:8px;margin-left:2px;" >
+            <pe:if condition='<%=MapArea.IsShowCameraTip %>'>
+                <pe:arrowpointer name="tip" direction="2" style="margin-left:-5px;margin-top:-48px;position:relative;width:32px;height:32px;" />
+            </pe:if>
+            <input name="btnCameraMode" type="checkbox" iconsize="24" CheckedBG="Texture/Aries/Dock/kids/camera_3d_32bits.png;0 0 24 20" UncheckedBG="Texture/Aries/Dock/kids/camera_2d_32bits.png;0 0 24 20" tooltip="切换2D/3D操作模式" style="position:relative;width:24px;height:20px;" onclick="OnToggleCameraMode"/>
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

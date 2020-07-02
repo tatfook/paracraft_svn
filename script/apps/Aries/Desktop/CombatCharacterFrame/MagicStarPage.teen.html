@@ -1,0 +1,522 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatMagicStarPage.lua");
+local CombatMagicStarPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatMagicStarPage");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.lua");
+local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+MagicStarPage.OnInit();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+
+MagicStarPage.bean = MyCompany.Aries.Pet.GetBean();
+MagicStarPage.mlvl = MagicStarPage.GetMlvl() or 0;
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+
+
+function GetNid()
+    return MagicStarPage.nid;
+end
+
+function IsMyself()
+    if(GetNid() == System.User.nid)then
+        return true;
+    end
+end
+
+function DoChangeType(sName)
+    MagicStarPage.show_type = sName;
+    local s = string.format("script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarTab_%s.teen.html",sName);
+    pageCtrl:SetValue("porpaddFrame",s);
+    pageCtrl:Refresh(0.01);
+end
+
+function DS_Func_Items_staff_list(index)
+    return MagicStarPage.DS_Func_Items_staff_list(index);
+end
+
+function DS_Func_Items_stone_list(index)
+    return MagicStarPage.DS_Func_Items_stone_list(index);
+end
+
+-- 青年版法杖gsid变化，需要修改
+local staff = {
+    [1290] = { tooltip="魔法星有能量", exid = 599,},
+    [1291] = { tooltip="魔法星有能量,21级以上",exid = 600,},
+    [1292] = { tooltip="魔法星有能量,31级以上",exid = 601,},
+    [1296] = { tooltip="魔法星6级以上",exid = 602,},
+    [1297] = { tooltip="魔法星10级",exid = 603,},
+}
+
+function GetTooltip(gsid)
+    if(gsid)then
+        local node = staff[gsid];
+        if(node)then
+            local s = string.format("领取条件:%s",node.tooltip);
+            return s;
+        end
+    end
+end
+function IsTopMlvl()
+    local TopLvl = #(CombatMagicStarPage.Teen_SpecialList);
+    if (MagicStarPage.mlvl==TopLvl) then
+        return true
+    else
+        return false
+    end
+end
+function DoGetStaff(gsid)
+    if(gsid)then
+        local bHas = hasGSItem(gsid);
+        if(bHas)then
+            _guihelper.MessageBox("你已经拥有这件装备了！");
+        end
+        local node = staff[gsid];
+        if(node)then
+            local exid = node.exid;
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	        ItemManager.ExtendedCost(exid, nil, nil, function(msg)
+		        if(msg.issuccess == true)then
+			        _guihelper.Custom_MessageBox("恭喜你成功领取了" .. gsItem.template.name .. "，记得打开背包装备上去哦！",function(result)
+				        CombatMagicStarPage.page:Refresh(0.01);
+			        end,_guihelper.MessageBoxButtons.OK);
+		        else
+			        _guihelper.Custom_MessageBox("很遗憾，你还不符合领取条件呢，仔细看看条件哦！",function(result)
+			        end,_guihelper.MessageBoxButtons.OK);			
+		        end
+                MagicStarPage.ReloadData();
+	        end);
+        end
+    end
+end
+
+function OnClickEnergyStone(gsid)
+    if(IsTopMlvl())then
+        _guihelper.MessageBox("你的魔法星已经满级了，不需要再补充能量石了！");
+        return
+    end
+    local bHas = hasGSItem(gsid)
+    local result = false;
+    if (bHas) then
+        local result = CommonClientService.OnClick_Item_Special(gsid,function(msg)
+            local bean = MyCompany.Aries.Pet.GetBean();
+            local _s;
+            if  (gsid==998) then
+                _s="你获得了：100点魔法星能量值"
+            elseif (gsid==977) then            
+                _s="你获得了：5点魔法星能量值"
+            end       
+            local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+		    local ChatChannel = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatChannel");
+		    ChatChannel.AppendChat({
+					    ChannelIndex = ChatChannel.EnumChannels.ItemObtain, 
+					    fromname = "", 
+					    fromschool = Combat.GetSchool(), 
+					    fromisvip = false, 
+					    words = _s,
+					    is_direct_mcml = true,
+					    bHideSubject = true,
+					    bHideTooltip = true,
+					    bHideColon = true,
+				    });
+
+            MagicStarPage.bean = bean;
+            MagicStarPage.ReloadData();
+            MagicStarPage.mlvl = MagicStarPage.GetMlvl();       
+            pageCtrl:Refresh(0.01);
+									         
+        end);
+    end
+    return result;
+end
+
+function EnergyStoneTooltip(gsid)
+    local gsid = tonumber(gsid);
+    if (gsid==998) then
+        return "page://script/apps/Aries/Desktop/ApparelTooltip.html?gsid=998";
+    elseif (gsid==977) then 
+	    return "page://script/apps/Aries/Desktop/ApparelTooltip.html?gsid=977";
+    end
+end
+
+function OnClickGetMagicStone()   
+    if(IsTopMlvl())then
+        _guihelper.MessageBox("你的魔法星已经满级了，不需要再补充能量石了！");
+        return
+    end
+    local bHas = hasGSItem(998)
+    if (bHas) then
+        OnClickEnergyStone(998);        
+    else
+        Map3DSystem.mcml_controls.pe_item.OnClickGSItem(998,true,function(msg,msg2)
+            MagicStarPage.ReloadData();
+            MagicStarPage.bean = msg2.users[1];
+            MagicStarPage.mlvl = MagicStarPage.bean.mlel;   
+            pageCtrl:Refresh(0.01);    
+        end); 	        
+    end
+end
+
+function BuyMagicBean() 
+    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+    PurchaseMagicBean.Show()
+end
+
+function OnClickHowtoGetWarmHeart()
+    NPL.load("(gl)script/apps/Aries/NPCs/TeenAction/WarmHeartPage.lua");
+    local WarmHeartPage = commonlib.gettable("MyCompany.Aries.Quest.NPCs.TeenAction.WarmHeartPage");
+    WarmHeartPage.ShowPage();
+end
+
+function GetEMoney() 
+	NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+	local PurchaseMagicBean = MyCompany.Aries.Inventory.PurChaseMagicBean;
+	PurchaseMagicBean.Pay("recharge"); 
+end
+
+function IsMagicStarEquipped()
+    return MyCompany.Aries.VIP.IsMagicStarEquipped();
+end
+
+function HasStoneShard()
+    local hasShard = hasGSItem(977);
+    return hasShard;
+end
+
+function GetM() 
+    local TopLvl = #(CombatMagicStarPage.Teen_SpecialList);
+    if (MagicStarPage.mlvl==TopLvl) then
+        local s;
+        if (CombatMagicStarPage.bean.m>0) then
+            s=string.format("达到满级,超%d",CombatMagicStarPage.bean.m);
+        else
+            s=string.format("达到满级");
+        end
+        return s
+    else
+        return MagicStarPage.GetM();
+    end
+end
+
+function DS_Func_PropAdd(index)
+    if(index == nil) then
+        return 1;
+	else
+		return CombatMagicStarPage.Teen_SpecialList[index];
+	end	
+end
+
+function ShowValue(v)
+    if(not v)then return end
+    local s = string.format("%s%%",v);
+    return s;
+end
+
+function IsLvl(v)
+    local nid=MagicStarPage.nid;
+    local lvl = -1;
+    if (MagicStarPage.mlvl) then
+        lvl = tonumber(MagicStarPage.mlvl);
+    end
+
+    if (lvl >= v) then
+        return true
+    else
+        return false
+    end
+end
+
+function IsCurLvl(v)
+    local nid=MagicStarPage.nid;
+    local lvl = -1;
+    if (MagicStarPage.mlvl) then
+        lvl = tonumber(MagicStarPage.mlvl);
+    end
+    if (lvl == v) then
+        return true
+    else
+        return false
+    end
+end
+
+function IsVIP()    
+    if (MagicStarPage.mlvl) then
+        local mlvl = tonumber(MagicStarPage.mlvl);
+        if (mlvl>0) then
+            return true
+        end        
+    end
+    return false
+end
+
+function NextVIPRight() 
+    local s="";
+    local lvl = -1;
+
+    if (MagicStarPage.mlvl) then
+        lvl = tonumber(MagicStarPage.mlvl);
+    end
+    local TopLvl = #(CombatMagicStarPage.Teen_SpecialList);
+    if (lvl>=TopLvl) then
+        return "你已是顶级VIP, 尊享全部特权！";
+    else
+        local lvl_tips;
+        if (lvl==-1) then
+            lvl_tips=1;
+        else
+            lvl_tips=lvl+1;
+        end
+        s = string.format("VIP <font color='#ffff00'>%d</font> 级尊享特权: <font color='#ffff00'>%s</font>",lvl_tips,CombatMagicStarPage.Teen_SpecialList[lvl_tips].vipright);
+        return s;
+    end
+end
+
+function VipRightDesc(v)
+    local s=string.format("LV%d 专享",v);
+    return s;
+end
+
+function HasStaff(index)
+    local index=tonumber(index);
+    local _list = commonlib.deepcopy(CombatMagicStarPage.Teen_SpecialList[index]) or {};
+    if (_list.gsid) then
+        return true
+    else
+        return false
+    end
+end
+
+function OnClickGetBank()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/MagicMoneyBox.teen.lua");
+    local MagicMoneyBox = commonlib.gettable("MyCompany.Aries.Quest.NPCs.MagicMoneyBox");
+    MagicMoneyBox.GetEmoney();
+end
+
+function HasGetStaff(index)
+	index = tonumber(index);
+    local index=tonumber(index);
+    local _list = commonlib.deepcopy(CombatMagicStarPage.Teen_SpecialList[index]) or {};
+    if (_list.taggsid) then
+        local bHas = hasGSItem(_list.taggsid);
+        if (bHas) then
+            return true
+        end
+    end
+    return false
+end
+
+function GetStaff(index)
+	index = tonumber(index);
+    local index=tonumber(index);
+    local _list = commonlib.deepcopy(CombatMagicStarPage.Teen_SpecialList[index]) or {};
+    if (_list.gsid) then
+        local bHas = hasGSItem(_list.taggsid);
+        local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(_list.gsid);
+        if (bHas) then	        
+            _guihelper.Custom_MessageBox("你已经领取了" .. gsItem.template.name .. "，不能重复领取哦!",function(result)
+		        end,_guihelper.MessageBoxButtons.OK);	
+        else
+	        ItemManager.ExtendedCost(_list.exid, nil, nil, function(msg)                
+		        if(msg.issuccess == true)then
+			        _guihelper.Custom_MessageBox("恭喜你成功领取了" .. gsItem.template.name .. "，记得打开背包装备上去哦！",function(result)	
+                        pageCtrl:Refresh(0.01);    			        
+			        end,_guihelper.MessageBoxButtons.OK);
+		        else
+			        _guihelper.Custom_MessageBox("很遗憾，你还不符合领取条件呢，仔细看看条件哦！",function(result)
+			        end,_guihelper.MessageBoxButtons.OK);			
+		        end
+	        end);            
+        end
+    end
+end
+
+function OpenVIPSaleshop()
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/HaqiShop/AuctionHouse.lua");
+    local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+    AuctionHouse.ShopShowPage(81033, "推荐商品", "Vip专属优惠");
+end
+
+function CanGetSilver()
+    local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+    local ItemManager = System.Item.ItemManager;
+    local DailyJoybean_gsid = 50316;
+    local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(DailyJoybean_gsid);
+    if(VIP.IsVIP() and gsObtain.inday==0) then
+        return true
+    end
+    return false
+end
+
+function Get_Salary(index)
+    return index*5000;    
+end
+]]></script>
+<aries:window width="760" height="470" title="VIP魔法星" onhelp="" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/vip_icon_32bits.png" >
+    <div style="margin-top:25px;" class="clientarea">
+        <div class="border_bg1_css" style="float:left;margin-left:-5px;margin-top:5px;width:320px;height:435px;">
+           
+            <div style="margin-left:40px;width:256px;margin-top:15px;height:114px;background:url(Texture/Aries/Common/ThemeTeen/magicStar_M_teen_32bits.png#0 0 256 114);">
+                <aries:mountpet-status2 name="mlel" nid='<%=GetNid()%>' type="mlel" showzero="true" style="margin-left:78px;margin-top:10px;width:40px;height:24px;font-weight:bold;text-align:center;"/>
+                <div style="margin-left:120px;margin-top:28px;width:170px;height:64px;">
+                    <%=MyCompany.Aries.Desktop.CombatMagicStarPage.ShowMLineTeen(140) %>
+                </div>
+                <div style="margin-left:100px;margin-top:-82px;">
+                    <input type="button" zorder="1" value='<%=GetM() %>' name="m_expvalue" style="margin-top:14px;margin-left:20px;color:#e4fcfc;background:" tooltip="升级所需能量值"/>
+                </div>
+                <div style="margin-left:230px;margin-top:-78px;">
+                    <pe:if condition='<%=not IsTopMlvl() %>'>
+                        <input type="button" zorder="1" onclick="OnClickGetMagicStone" style="margin-top:12px;margin-left:23px;width:24px;height:24px;background:url(Texture/Aries/Common/ThemeTeen/addicon_32bits.png#0 0 32 32);" tooltip="购买能量石提升魔法星"/>
+                    </pe:if>
+                </div>
+                <div style="margin-left:100px;margin-top:-42px;">
+                    注：魔法星的能量值不会衰减
+                </div>
+            </div>
+            <pe:if condition='<%=IsVIP() %>'>
+                <img src="Texture/Aries/Common/ThemeTeen/vip_enable_32bits.png; 0 0 64 55" zorder="2" style="width:64px;height:55px;margin-left:20px;margin-top:-115px;"/>
+             </pe:if>
+            <pe:if condition='<%=not IsVIP() %>'>
+                <img src="Texture/Aries/Common/ThemeTeen/magicstar_disable_32bits.png; 0 0 98 100" zorder="2" style="width:96px;height:98px;margin-left:47px;margin-top:-108px;"/>
+                 <img src="Texture/Aries/Common/ThemeTeen/vip_disable_32bits.png; 0 0 64 55" zorder="2" style="width:64px;height:55px;margin-left:-125px;margin-top:-115px;"/>
+            </pe:if>
+
+            <div style="position:relative;width:312px;height:250px;margin-left:5px;margin-top:8px;padding:5px;" class="border_bg5_css">
+                <div style="margin-left:2px;margin-top:20px;width:300px;">
+                    <img src="Texture/Aries/Common/energyStone_ico.png; 0 0 32 54" style="float;left;width:32px;height:54px;" />
+                    <div style="color:#52dff4;margin-left:50px;margin-top:-40px;width:180px;"> 购买能量石为魔法星增加能量</div>
+                </div>
+                <div style="float:left;margin-left:225px;margin-top:-75px;width:130px;height:70px;" >
+                    拥有能量石：
+                    <pe:if condition='<%=IsMyself() %>'>
+                        <pe:item isshortcut="true" animstyle="0" gsid="998" on_use_item='OnClickEnergyStone()' style="width:64px;height:64px;"/>
+                    </pe:if>
+                </div>
+
+                <div style="margin-left:2px;margin-top:40px;width:300px;height:150px;">
+                    <img src="Texture/Aries/Common/ThemeTeen/magicStar_ico.png; 0 0 64 64" style="float;left;width:64px;height:64px;" />
+                    <div style="color:#52dff4;margin-left:40px;margin-top:-60px;width:150px;height:150px;"> VIP 会员除了众多加成与奖励外，每天还可领取魔法学会提供的银币薪水。<br/>
+                        VIP 精品店每日专享折扣</div>
+                    <input type="button" value="打开精品店" class="defaultbutton" style="margin-left:40px;margin-top:-65px;width:80px;" onclick="OpenVIPSaleshop" />
+                </div>
+                <div style="float:left;margin-left:185px;margin-top:-180px;width:130px;height:60px;" >
+                    <img src="Texture/Aries/Common/ThemeTeen/magic/piggy_bank_32bits.png; 0 0 128 128" style="width:128px;height:128px;margin-left:10px;margin-top:10px;" />
+                    <pe:if condition='<%=IsMyself() %>'>
+                        <input type="button" class="defaultbutton" style="margin-left:30px;margin-top:-30px;width:80px;height:25px;" onclick="OnClickGetBank" value="马上领取"/>                   
+                        <pe:if condition='<%=CanGetSilver()%>'>
+                            <div style="position:relative;margin-left:25px;margin-top:-35px;width:90px;height:40px;background:" >
+                                <img zorder="1" enabled="false" class="animated_btn_overlay" width="90" height="30"/>
+                            </div>                                                 
+                        </pe:if>  
+                    </pe:if>
+                </div>
+
+
+            </div>
+
+            <div style="position:relative;margin-left:7px;margin-top:250px;width:310px;">
+                <!--<input type="button" value='<%=format("账户充值%s",MyCompany.Aries.ExternalUserModule:GetConfig().currency_name) %>' class="defaultbutton" style="margin-left:10px;width:100px;" onclick="GetEMoney"/>-->
+                <div style="float:left;margin-top:7px;">
+                    <pe:item gsid="984" tooltip_headerline="点击可以充值" onclick="BuyMagicBean" is_container="true" style="float:left;width:190px;height:19px;">
+                        <div><div style="float:left;font-size:14px;font-weight:bold;">金币余额:</div><pe:slot type="count" gsid="984" style="float:left;margin-left:0px;margin-top:2px;" /></div>
+                        <div>金币是充值获得的通用货币.</div>
+                    </pe:item>
+                </div>
+                <!--<input type="button" value='<%=format("%s充值金币",MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>' class="defaultbutton" style="margin-left:5px;margin-top:17px;width:110px;height:30px;font-size:15px;font-weight:bold" onclick="BuyMagicBean"/>-->
+                <input type="button" value='<%=format("兑换金币",MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>' class="defaultbutton" style="margin-left:5px;margin-top:17px;width:110px;height:30px;font-size:15px;font-weight:bold" onclick="BuyMagicBean"/>
+            </div>
+        </div>
+        <div style="float:left;">
+            <div style="position:relative;width:430px;height:435px;margin-left:1px;margin-top:5px;"  class="border_bg1_css">
+
+    <div style="color:#ffffff;font-size:12;margin-left:70px;margin-top:6px;" >魔法星加成，高级魔法星同时享有低级魔法星特权！</div>
+    <div style="color:#52dff4;font-size:12;width:423px;height:405px;margin-top:5px;margin-left:3px;" class="border_bg8_css">
+        <div style="color:#52dff4;font-size:12;width:409px;height:40px;margin-top:6px;margin-left:7px;" class="border_bg3_css">
+        <div style="float:left;margin-left:5px;width:35px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >魔法星<br/>等级</div>
+        <div style="float:left;margin-left:5px;width:40px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >速度<br/>提升</div>
+        <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >经验<br/>提升</div>
+        <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >精力<br/>提升</div>
+        <div style="float:left;margin-left:1px;width:60px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >每日薪水<br/>(银币)</div>
+        <div style="float:left;margin-left:10px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >等级<br/>特权</div>
+        <div style="float:left;margin-left:10px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#52dff4;" >奖励<br/>物品</div>
+        </div>        
+        <pe:gridview DataSource="<%=DS_Func_PropAdd%>" name="propAdd" style="margin-left:5px;margin-top:0px;margin-right:0px;margin-bottom:0px;width:410px;height:345px;" 
+            VerticalScrollBarStep="35" CellPadding="0"  DefaultNodeHeight = "6" ItemsPerLine="1" AllowPaging="true" pagesize="11">
+            <Columns>  
+            <div style="margin-left:5px;margin-top:-1px;width:403px;height:30px;" class="static_block_2">
+                <pe:if condition='<%= not IsLvl(Eval("index")) %>'>
+                    <div style="float:left;margin-left:5px;width:35px;text-align:left;margin-top:5px;font-size:12;color:#bbbbbb;" ><%=Eval("index") %> 级</div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("speed")) %></div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("exp")) %></div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#bbbbbb;" ><%=ShowValue(Eval("hp")) %></div>
+                    <div style="float:left;margin-left:1px;width:60px;text-align:center;margin-top:5px;font-size:12;color:#bbbbbb;" ><%=Get_Salary(Eval("index")) %></div>
+                    <input type="button" class="linkbutton" value='<%=VipRightDesc(Eval("index"))%>' tooltip='<%=Eval("vipright") %>' style="float:left;margin-left:5px;width:60px;text-align:center;margin-top:5px;font-size:11;color:#bbbbbb;height:20px;"/>
+                </pe:if>
+
+                <pe:if condition='<%=IsLvl(Eval("index")) %>'>
+                    <div style="float:left;margin-left:5px;width:35px;text-align:left;margin-top:5px;font-size:12;color:#98fffc;" ><%=Eval("index") %> 级</div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("speed")) %></div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("exp")) %></div>
+                    <div style="float:left;margin-left:1px;width:40px;text-align:center;margin-top:5px;font-size:12;color:#98fffc;" ><%=ShowValue(Eval("hp")) %></div>
+                    <div style="float:left;margin-left:1px;width:60px;text-align:center;margin-top:5px;font-size:12;color:#98fffc;" ><%=Get_Salary(Eval("index")) %></div>
+                    <input type="button" class="linkbutton" value='<%=VipRightDesc(Eval("index"))%>' tooltip='<%=Eval("vipright") %>' style="float:left;margin-left:5px;width:60px;text-align:center;margin-top:5px;font-size:12;color:#e0c427;height:20px;"/>
+                </pe:if>
+
+                <div style="float:left;margin-left:15px;width:50px;text-align:center;margin-top:0px;font-size:12;color:#bbbbbb;" >
+                    <pe:if condition='<%=HasStaff(Eval("index")) %>'>
+                        <pe:item zorder="1" gsid='<%=Eval("gsid")%>' isclickable="false" style="width:26px;height:26px;" /> 
+                        <input type="button" enabled="false" zorder="2" style="float:left;margin-left:-12px;margin-top:13px;width:15px;height:15px;font-size:12;color:#ffffff;background:" value='<%=Eval("giftnum")%>' />
+                        <pe:if condition='<%=IsLvl(Eval("index")) and (not HasGetStaff(Eval("index"))) %>'>
+                            <input type="button" class="defaultbutton" style="margin-left:36px;margin-top:-27px;width:40px;height:26px;" name='<%=Eval("index")%>' value="领取"  onclick="GetStaff"  />
+                        </pe:if>
+                    </pe:if>
+                </div>
+
+                <pe:if condition='<%=IsCurLvl(Eval("index")) %>'>
+                    <div style="position:relative;margin-left:1px;margin-top:-28px;width:396px;height:28px;" class="inborder_golden"></div>
+                </pe:if>
+
+            </div>    
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+
+        <div style="margin-left:20px;margin-top:-40px;width:380px;height:60px;"><%=NextVIPRight() %></div>
+    </div>
+    
+
+            </div>
+        </div>
+    </div>   
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

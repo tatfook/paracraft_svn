@@ -1,0 +1,286 @@
+<!-- "script/apps/Aries/Gift/RechargeActivityPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Gift/RechargeActivityPage.lua");
+local RechargeActivityPage = commonlib.gettable("MyCompany.Aries.Gift.RechargeActivityPage");
+RechargeActivityPage.OnInit();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+
+function DS_Func_gifts(index)
+    return RechargeActivityPage.DS_Func_gifts(index)
+end
+
+function GetLoots()
+    local node = RechargeActivityPage.GetSelectedNode();
+    if(node and node.sum_rewards)then
+        local loots = {};
+        local _rewards = "";
+        if (node.sum_rewards~="") then
+            _rewards = node.sum_rewards;
+        end
+        local arr = commonlib.split(_rewards,";")
+        local k,v;
+        for k,v in ipairs(arr) do
+            local temp = commonlib.split(v,",")
+            local gsid = tonumber(temp[1]);
+            local cnt = temp[2];
+            table.insert(loots,{gsid = gsid,cnt = cnt});
+        end
+        return loots;
+    end
+end
+
+RechargeActivityPage.loots = GetLoots();
+CommonClientService.Fill_List(RechargeActivityPage.loots,18);
+function DS_Func_loots(index)
+    if(not RechargeActivityPage.loots)then return 0 end
+	if(index == nil) then
+		return #(RechargeActivityPage.loots);
+	else
+		return RechargeActivityPage.loots[index];
+	end
+end
+
+function DoSelected(index)
+    RechargeActivityPage.DoSelected(index);
+end
+
+function IsSelected(index)
+    if(RechargeActivityPage.selected_index == index)then
+        return true;
+    end
+end
+
+function DoOpen()
+    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+    PurchaseMagicBean.Show()    
+end
+
+function GetGiftTips(index)
+    local node = RechargeActivityPage.gifts[index];
+    local _money = 0;
+    if (node) then     
+        _money = node["pre_cnt"] or 0;                
+    end
+    local s = string.format("充值%d金币",_money);
+    return s
+end
+
+function GetValue(key)
+    local node = RechargeActivityPage.GetSelectedNode();
+    if(node)then
+        return node[key];
+    end
+end
+
+function GetIcon(index)
+    local node = RechargeActivityPage.gifts[index];
+    if(node)then        
+        local s = string.format("float:left;width:48px;height:48px;margin-left:5px;margin-top:10px;background:url(%s)",node["ico"])
+        return s;
+    end
+end
+
+function GetTips()
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local node = RechargeActivityPage.GetSelectedNode();
+    local accummodou = bean.accummodou;
+    local _money = 0;
+    local need_money = 0;
+    local gift_value = 0
+    if(node)then        
+        _money = node["pre_cnt"] or 0;        
+        gift_value = node["gift_value"] or 0;
+    end
+    local s = "";
+    if (accummodou < _money) then
+        need_money = _money - accummodou;
+        s = string.format([[<div style="color:#ffffff;">还需要充值<font color='#ecc72a'> %d </font>金币，您就能领取价值<font color='#ecc72a'> %d </font>金币的礼包</div><div style="color:#ffffff;">活动期间充值达到对应的额度可获得对应礼包一次</div><div style="color:#ffffff;">充值可<font color='#ff0000'>累计</font>叠加</div>]],need_money,gift_value);
+    else
+        s = string.format([[<div style="color:#ffffff;">您已充值<font color='#ecc72a'> %d </font>金币，现在就能领取价值<font color='#ecc72a'> %d </font>金币的礼包</div><div style="color:#ffffff;">活动期间充值达到对应的额度可获得对应礼包一次</div><div style="color:#ffffff;">充值可<font color='#ff0000'>累计</font>叠加</div>]],accummodou,gift_value);
+    end
+    return s
+end
+
+function GetGiftValueTips()
+    local node = RechargeActivityPage.GetSelectedNode();
+    local gift_value = 0;
+    if(node)then        
+        gift_value = node["gift_value"] or 0;     
+    end
+    local s = string.format("%d",gift_value);
+    return s
+end
+
+function canGet(index)
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local node = RechargeActivityPage.gifts[index];
+    local accummodou = bean.accummodou;
+    local _money = 0;
+    local need_money = 0;
+    local gift_value = 0;
+    local _has = false;
+    if(node)then        
+        _money = node["pre_cnt"] or 0;        
+        gift_value = node["gift_value"] or 0;
+        local mark_gsid = node["mark_gsid"];
+        _has = hasGSItem(mark_gsid)
+        if (_has) then
+            return 2
+        end
+    end
+    if ((accummodou >= _money) and (not _has)) then
+        return 1
+    end      
+    return 0
+end
+
+function DoTakeGift(btnname)
+    local _index = tonumber(string.match(btnname,"giftbtn_(%d+)"));
+    RechargeActivityPage.DoSelected(_index);
+    local node = RechargeActivityPage.gifts[_index];
+    local exID = node["exid"];
+	ItemManager.ExtendedCost(exID, nil, nil, function(msg)
+            if (msg.issuccess) then 
+				NPL.load("(gl)script/apps/Aries/Desktop/Dock.lua");		
+				local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+				Dock.OnExtendedCostNotification(msg);
+            else
+                if (msg.errorcode == 424) then
+				    local s = string.format("<div style='margin-left:10px;margin-top:10px;text-align:left'>您已经领取过了该礼包！</div>");
+				    _guihelper.MessageBox(s);			    
+                end
+		    end
+	    end,function(msg) end,"none",nil,nil, 10000, function()
+		    _guihelper.MessageBox("网络有故障，你等一会再来吧\n");
+	    end);
+end
+
+function rechargeTakeGift(btnname)
+    local _index = tonumber(string.match(btnname,"giftbtn_(%d+)"));
+    RechargeActivityPage.DoSelected(_index);
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local node = RechargeActivityPage.gifts[_index];
+    local accummodou = bean.accummodou;
+    local _money = 0;
+    local need_money = 0;
+    local gift_value = 0
+    if(node)then        
+        _money = node["pre_cnt"] or 0;        
+        gift_value = node["gift_value"] or 0;
+    end
+    if (accummodou < _money) then
+        need_money = _money - accummodou;
+    end
+    local s = string.format([[<div style="color:#ffffff;">还需要充值<font color='#ecc72a'> %d </font>金币，您就能领取价值<font color='#ecc72a'> %d </font>金币的礼包 ! 活动期间充值达到对应的额度可获得对应礼包一次</div><div style="color:#ffffff;">充值可<font color='#ff0000'>累计</font>叠加</div>]],need_money,gift_value);
+    _guihelper.Custom_MessageBox(s,function(result)
+        if(result == _guihelper.DialogResult.Yes)then
+            NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+            local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+            PurchaseMagicBean.Show()
+        end
+    end,_guihelper.MessageBoxButtons.YesNo,{show_label = true, yes = "立即充值", no = "以后再说"});        
+
+end
+]]>
+</script>
+<aries:window width="690" height="400" title="充值大回馈" icon="Texture/Aries/Common/ThemeTeen/ElfGift/elf_ico_32bits.png" isdeepbg="true" onclose="ClosePage()">
+   <div class="border_bg1_css" style="float:left;width:670px;height:260px;margin-left:10px;margin-top:50px;">
+        <pe:gridview name="grid_view_gifts" style="margin-top:15px;height:150px;" DataSource="<%=DS_Func_gifts%>" ItemsPerLine="7" AllowPaging="false" pagesize="7">
+	        <Columns>
+                <input zorder=2 type="button" style="float:left;margin-left:5px;width:90px;height:20px;text-align:center;color:#ffffff;background:" value='<%=GetGiftTips(Eval("index"))%>'/>
+                <div style="margin-left:5px;margin-top:-25px;">                    
+                    <pe:if condition='<%=IsSelected(Eval("index"))%>'>
+                        <input type="button" value='' class="highlight_btn_css" style="width:90px;height:140px;text-align:center;"/>
+                    </pe:if>
+                    <pe:if condition='<%=not IsSelected(Eval("index"))%>'>
+                        <input type="button" name='<%=Eval("index")%>' value='' onclick="DoSelected" class="quest_btn2_css" style="width:90px;height:140px;text-align:center;"/>
+                    </pe:if>                    
+                </div>
+                <div zorder=1 style="float:left;margin-top:-100px;margin-left:17px;width:64px;height:64px;" class="block">
+                    <div zorder=1 style='<%=GetIcon(Eval("index"))%>'/> 
+                    <pe:if condition='<%=canGet(Eval("index"))==1%>'>
+                        <input zorder=1 type="button" name='<%=string.format("giftbtn_%d",Eval("index"))%>' style="float:left;width:60px;margin-top:10px;" class="highlight_btn_css" value="领取" onclick="DoTakeGift"/>
+                    </pe:if>
+                    <pe:if condition='<%=canGet(Eval("index"))==0%>'>
+                        <input zorder=1 name='<%=string.format("giftbtn_%d",Eval("index"))%>' type="button" style="float:left;width:60px;margin-top:10px;" class="gift_not_button_cn" value="领取" onclick="rechargeTakeGift" />
+                    </pe:if>
+                    <pe:if condition='<%=canGet(Eval("index"))==2%>'>
+                        <input zorder=1 type="button" style="float:left;width:60px;margin-top:10px;" class="gift_not_button_cn" value="已领取" enabled="false"/>
+                    </pe:if>
+                </div>                
+	        </Columns>
+
+            
+        </pe:gridview>  
+   
+        <div style="margin-top:10px;height:140px;">
+            <div style="margin-left:5px;font-weight:bold;color:#ffffff"><%=GetValue("gift_value") %>金币礼包内容:</div>
+            <div style="float:left;margin-left:15px;">
+                <div style="position:relative;width:660px;height:60px;">
+                    <pe:gridview name="grid_view_loots" style="margin-top:5px;" DataSource="<%=DS_Func_loots%>" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+	                    <Columns>
+                            <div style="margin-left:0px;">
+                                <div style="width:52px;height:52px;padding:4px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid") %>' ShowCount='<%=Eval("cnt") %>'  isclickable="false" showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                                </div>
+                            </div>
+	                    </Columns>
+	                    <EmptyDataTemplate>
+                            <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	                    </EmptyDataTemplate>
+	                    <FetchingDataTemplate>
+	                    </FetchingDataTemplate>
+                                <PagerSettings Position="Bottom" style="margin-left:5px;margin-top:-205px;width:260px;height:25px;"/>
+				                <PagerTemplate AutoHidePager="true">
+					                <form>
+						                <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							                <input type="button" name="page" class="pagerbuttontext" /> 
+						                <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                                </form>
+				                </PagerTemplate>
+                    </pe:gridview>  
+                </div>
+                <div zorder=1 style="margin-left:410px;margin-top:-20px;width:150px;height:66px;background:url(Texture/Aries/Common/Teen/gifts/gift_bg_32bits.png#0 0 218 96)">
+                    <input zorder=1 type="button" name="gift_tips" value='<%=GetGiftValueTips() %>' textscale="1.1" enabled="false" style="margin-left:35px;margin-top:19px;width:80px;color:#ecc72a;text-align:center;font-weight:bold;font-size:18;background:url;background-rotation:-0.17;" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border_bg1_css" style="float:left;width:670px;height:75px;margin-left:10px;margin-top:5px;padding:10px;color:#ffffff">
+       <div style="margin-top:2px;height:70px;">           
+           <div style="float:left"><%=GetTips()%></div>
+       </div>
+        <div style="margin-left:430px;margin-top:-70px;">
+            <pe:item is_container="true" isclickable="false" gsid="984" style="float:left;width:250px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid="984" isenabled="false" style="width:20px;height:20px;"/>
+                <div style="float:left;margin-left:5px;">当前金币余额:</div><pe:slot type="count" gsid="984" style="float:left;" />
+            </pe:item>
+        </div>
+       <div style="margin-left:430px;margin-top:-40px;">
+           <input type="button" style="font-size:14px;width:120px;" class="highlight_btn_css" value="立即充值" onclick="DoOpen"/>
+       </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

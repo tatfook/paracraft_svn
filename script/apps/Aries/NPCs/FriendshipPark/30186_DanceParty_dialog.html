@@ -1,0 +1,191 @@
+﻿<!-- "script/apps/Aries/NPCs/FriendshipPark/30186_DanceParty_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30186_DanceParty_dialog, by Andy, 2009/7/30</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(301861);
+
+local arena_id = MyCompany.Aries.Quest.NPCs.DanceParty.ToArena_ID(npc_id);
+if(arena_id) then
+	-- each arena memory
+	memory[arena_id] = memory[arena_id] or {};
+	memory = memory[arena_id];
+end
+
+function Condition1()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end
+function Condition2()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end
+function Condition3()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end
+function Condition6()
+    if(memory.dialog_state == 6) then
+        return true;
+    end
+    return false;
+end
+
+function Condition4()
+    local ItemManager = System.Item.ItemManager;
+    local item = ItemManager.GetMyMountPetItem();
+    if(item and item.guid > 0) then
+		if(item.clientdata == "mount") then
+		    return true;
+		end
+	end
+	return false;
+end
+
+function Condition5()
+    if(MyCompany.Aries.Player.GetFreezed() == true) then
+        return true;
+    end
+	return false;
+end
+
+
+dance_name = "";
+
+if(arena_id >= 1 and arena_id <= 5) then
+	-- robot dance
+	dance_name = "机械舞";
+elseif(arena_id >= 6 and arena_id <= 9) then
+	-- twist dance
+	dance_name = "旋转舞";
+elseif(arena_id >= 10 and arena_id <= 13) then
+	-- thomas dance
+	dance_name = "托马斯";
+end
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 2 and to == 10) then
+        -- try dance
+        MyCompany.Aries.Quest.NPCs.DanceParty.TryDance(npc_id);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="301861" />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("dance_name")%>达人'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+        <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+	            <pe:answer-if condition = '<%=Condition1()%>' target_state = "1"/>
+	            <pe:answer-if condition = '<%=Condition2()%>' target_state = "2"/>
+	            <pe:answer-if condition = '<%=Condition3()%>' target_state = "3"/>
+	            <pe:answer-if condition = '<%=Condition6()%>' target_state = "6"/>
+	            <pe:answer-if condition = 'true' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+        
+        <pe:state id = "1">
+            <!--already has gift-->
+	           现在表演台上有哈奇正在表演呢，你先好好欣赏下，等他表演完了，你再来吧！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+	    <pe:state id = "2">
+	           <%=string.format([[登台演出时间需要持续1分钟，开始表演以后中途不能退场哦！你现在要开始表演%s吗？]], Eval("dance_name"))%>
+		    <pe:answer text="开始吧" template_id="start">
+	            <pe:answer-if condition = '<%=Condition4()%>' target_state = "4"/>
+	            <pe:answer-if condition = '<%=Condition5()%>' target_state = "5"/>
+	            <pe:answer-if condition = 'true' target_state = "10"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="以后再说" template_id="later">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "3">
+            <!--already has gift-->
+	           <%=string.format([[很遗憾，你没有学会%s，不能在这里表演哦，先去友谊公园找丹瑟学会%s再来表演吧！]], Eval("dance_name"), Eval("dance_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "4">
+            <!--already has gift-->
+	           <%=string.format([[骑着抱抱龙不能上去跳舞的哦，先从抱抱龙身上下来再说吧！]], Eval("dance_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "5">
+            <!--already has gift-->
+	           你现在是个大冰块，不能跳舞哦，过会再来吧！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+        <pe:state id = "6">
+            <!--already has gift-->
+	           你已经在跳舞了呢，别乱动哦！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        
+
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!-- "script/apps/Aquarius/Inventory/GlobalStore.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Inventory Page 2009.3.24 by WangTian</title>
+</head>
+<body>
+
+<pe:mcml>
+
+<script refresh="false" type="text/npl" src="GlobalStore.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+function DS_Func_Head(index)
+    return MyCompany.Aquarius.GlobalStorePage.DS_Func_Head(index);
+end
+
+]]></script>
+    GlobalStorePage
+    
+    <pe:tabs name="GlobalStore" style="margin:10px;width:600px;height:400px">
+        <pe:tab-item name="Head" text="头部" selected="true" style="padding:5px">
+            <pe:gridview DataSource="<%=DS_Func_Head%>" name="DS_Func_Head" CellPadding="0" ItemsPerLine="4" VerticalScrollBarStep = "64">
+                <Columns>
+                    <div style="width:144px;height:40px">
+                        <!--<img style="width:64px;height:64px" src='<%=Eval("icon")%>' />-->
+                        <pe:item id='<%=Eval("GSID")%>'/>
+                        <div style="width:80px;float:left;padding:4px">
+                            <%=Eval("itemname")%>
+                            <a onclick="MyCompany.Aquarius.GlobalStorePage.PurchaseItem" param1='<%=Eval("GSID")%>' > 购买 </a>
+                            <!--click on the purchase button to buy the item in E cash-->
+                        </div>
+                        <!--<pe:item bag='<%=Eval("bag")%>' slot='<%=Eval("slot")%>' size="small"/>-->
+                        <!--<pe:slot bag='<%=Eval("bag")%>' slot='<%=Eval("slot")%>' width="40" height="40" size="small"/>-->
+                        <!--<pe:slot link='<%=Eval("slot")%>' width="40" height="40" size="small"/>-->
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    Empty
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    Searching...
+                </FetchingDataTemplate>
+            </pe:gridview>
+        </pe:tab-item>
+        <pe:tab-item name="Head" text="包" selected="false" style="padding:5px">
+        </pe:tab-item>
+        <pe:tab-item name="Head" text="食物" selected="false" style="padding:5px">
+        </pe:tab-item>
+        <pe:tab-item name="Head" text="药水" selected="false" style="padding:5px">
+        </pe:tab-item>
+    </pe:tabs>
+</pe:mcml>
+</body>
+</html>

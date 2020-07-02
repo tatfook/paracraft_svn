@@ -1,0 +1,57 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationTemplate/CostSingleItem.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SingleItem notification, by Andy, 2009/10/28</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+gsid = page:GetRequestParam("gsid");
+gsid = tonumber(gsid);
+count = page:GetRequestParam("count");
+count = tonumber(count);
+
+name = "";
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid)
+if(gsItem) then
+	background = gsItem.icon;
+	name = gsItem.template.name;
+elseif(gsid == 0) then
+    background = "Texture/Aries/Item/0_JoyBean.png";
+    name = "奇豆";
+end
+
+notify_word_line1 = "你消耗了";
+notify_word_line2 = name.."x"..count;
+
+iscombatcard = false;
+if(gsid > 23000 and gsid < 23999) then
+    iscombatcard = true;
+end
+
+]]></script>
+<div style="margin-top:-50px;height:200px;background:url(Texture/Aries/Common/Notification_bg_32bits.png: 30 30 30 30)">
+    <pe:if condition='<%=Eval("iscombatcard") == false%>'>
+        <img src='<%=Eval("background")%>' style="width:64px;height:64px;margin-left:30px;margin-top:35px;"/>
+    </pe:if>
+    <pe:if condition='<%=Eval("iscombatcard") == true%>'>
+        <img src='<%=Eval("background")%>' style="width:48px;height:64px;margin-left:42px;margin-top:35px;"/>
+    </pe:if>
+    <div style="height:64px;margin-left:110px;margin-top:-54px;margin-right:30px;">
+        <div style="width:64px;height:26px;margin-left:0px;margin-top:0px;margin-right:20px;">
+            你消耗了:
+        </div>
+        <br/>
+        <%=Eval("notify_word_line2")%>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

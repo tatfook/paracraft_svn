@@ -1,0 +1,188 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/ObjModifyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Object modify Page by LiXizhi 2008.6.11</title>
+</head>
+<body>
+<pe:mcml>
+<%
+function map3dsystem_modify_translate_btn_2(params)
+    local _this = ParaUI.CreateUIObject("container", "map3dsystem_modify_translate_btn_2", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/object_move.png";
+	_this.onmousedown = ";Map3DSystem.App.Creator.ObjModifyPage.OnTranslationMouseDown2();"
+    _this.onmouseup = ";Map3DSystem.App.Creator.ObjModifyPage.EndMouseHoldTimer();"
+end
+
+function map3dsystem_modify_rotate_btn_2(params)
+    local _this = ParaUI.CreateUIObject("container", "map3dsystem_modify_rotate_btn_2", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/object_rotate.png";
+	_this.onmousedown = ";Map3DSystem.App.Creator.ObjModifyPage.OnRotationMouseDown2();"
+    _this.onmouseup = ";Map3DSystem.App.Creator.ObjModifyPage.EndMouseHoldTimer();"
+end
+
+function map3dsystem_modify_translate_btn(params)
+    local _this = ParaUI.CreateUIObject("container", "map3dsystem_modify_translate_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/object_move.png";
+	_this.onmousedown = ";Map3DSystem.App.Creator.ObjModifyPage.OnTranslationMouseDown();"
+    _this.onmouseup = ";Map3DSystem.App.Creator.ObjModifyPage.EndMouseHoldTimer();"
+end
+
+function map3dsystem_modify_rotate_btn(params)
+    local _this = ParaUI.CreateUIObject("container", "map3dsystem_modify_rotate_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/object_rotate.png";
+	_this.onmousedown = ";Map3DSystem.App.Creator.ObjModifyPage.OnRotationMouseDown();"
+    _this.onmouseup = ";Map3DSystem.App.Creator.ObjModifyPage.EndMouseHoldTimer();"
+end
+
+function map3dsystem_modify_magnify_btn(params)
+   local  _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_magnify_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/magnify.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnMagnifyClick();";
+end
+
+function map3dsystem_modify_minify_btn(params)
+    local _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_minify_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/minify.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnMinifyClick();";
+end
+
+function map3dsystem_modify_here_btn(params)
+    local _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_here_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "Texture/3DMapSystem/modify/btn_here.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnMoveHereClick();";
+end
+
+function map3dsystem_modify_reset_btn(params)
+    local _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_reset_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "Texture/3DMapSystem/modify/btn_reset.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnResetClick();";
+end
+
+function map3dsystem_modify_obj_canvas(params)
+    NPL.load("(gl)script/ide/Canvas3D.lua");
+	local ctl = CommonCtrl.Canvas3D:new{
+		name = "Map3dsystem_Modify_Obj_Canvas3D",
+		alignment = params.alignment,
+		left = params.left,
+		top = params.top,
+		width = params.width,
+		height = params.height,
+		parent = params.parent,
+		autoRotateSpeed = 0.12,
+		IsActiveRendering = true,
+		miniscenegraphname = "ObjPropertyView",
+	};
+	ctl:Show();
+end
+
+local DefaultHoverBG = "Texture/3DMapSystem/common/href.png:2 2 2 2"
+
+function map3dsystem_modify_property_btn(params)
+    _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_property_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_guihelper.SetVistaStyleButton(_this, nil, DefaultHoverBG);
+	_this.background = "Texture/3DMapSystem/common/color_swatch.png";
+	_this.tooltip = "log 属性";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnLogObject();";
+end
+
+function map3dsystem_modify_possession_btn(params)
+    _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_possession_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "Texture/3DMapSystem/common/findcontacts.png";
+	_this.tooltip = "附身";
+	_guihelper.SetVistaStyleButton(_this, nil, DefaultHoverBG);
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnSwitchToObject();";
+end
+
+function map3dsystem_modify_delete_btn(params)
+    _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_delete_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "Texture/3DMapSystem/common/delete.png";
+	_guihelper.SetVistaStyleButton(_this, nil, DefaultHoverBG);
+	_this.tooltip = "删除";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnDeleteClick();";
+end
+
+function map3dsystem_modify_copyandshowasset_btn(params)
+    _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_copyandshowasset_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background = "Texture/3DMapSystem/common/findcontacts.png";
+	_this.tooltip = "显示复制路径";
+	_guihelper.SetVistaStyleButton(_this, nil, DefaultHoverBG);
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnShowAndCopyAssetBtn();";
+end
+
+%>
+<script type="text/npl" src="ObjModifyPage.lua"><![CDATA[
+Map3DSystem.App.Creator.ObjModifyPage.OnInit();
+]]></script>
+<div >
+    <div>
+        <pe:custom oncreate="map3dsystem_modify_obj_canvas" style="width:128px;height:128px"/>
+        <div style="float:left">
+            <div style="margin-top:5px;"><pe:custom oncreate="map3dsystem_modify_property_btn" style="margin-right:3px;width:16px;height:16px;"/>属性</div>
+            <div style="margin-top:5px;"><pe:custom oncreate="map3dsystem_modify_possession_btn" style="margin-right:3px;width:16px;height:16px;"/>附身</div>
+            <div style="margin-top:5px;"><pe:custom oncreate="map3dsystem_modify_delete_btn" style="margin-right:3px;width:16px;height:16px;"/>删除</div>
+            <div style="margin-top:5px;margin-left:-30px;"><pe:custom oncreate="map3dsystem_modify_copyandshowasset_btn" style="margin-right:3px;width:16px;height:16px;"/>显示复制路径</div>
+        </div>
+    </div>
+<pe:tabs name="AnimsTabs" style="height:155px;background:;"> 
+ <pe:tab-item text="简单移动" name="simple" selected="true">
+    <div>
+        <pe:custom oncreate="map3dsystem_modify_translate_btn" style="width:70px;height:70px; margin:5px;"/>
+        <pe:custom oncreate="map3dsystem_modify_rotate_btn" style="width:70px;height:70px; margin:5px;"/>
+    </div>
+    <div style="margin:5px">
+        <pe:custom oncreate="map3dsystem_modify_magnify_btn" style="margin:3px;width:32px;height:32px"/><div style="float:left;margin-top:7px;">放大</div>
+        <pe:custom oncreate="map3dsystem_modify_minify_btn" style="margin:3px;width:32px;height:32px"/><div style="float:left;margin-top:7px;">缩小</div>
+    </div>
+ </pe:tab-item>    
+ <pe:tab-item text="高级" name="advanced">
+    <div style="float:left;width:90px;margin-left:5px;">
+    旋转:<br />
+    <div style="margin-top:3px">
+         X: <div style="float:left"><pe:sliderbar name="trans_x" value="0" min="-3.1415926" max="3.1415926"/></div>
+         Y: <div style="float:left"><pe:sliderbar name="trans_y" value="0" min="-3.1415926" max="3.1415926"/></div>
+         Z: <div style="float:left"><pe:sliderbar name="trans_z" value="0" min="-3.1415926" max="3.1415926"/></div>
+    </div>
+    </div>
+    <div style="float:left;">
+    放缩:<br />
+    <pe:sliderbar style="margin-left:10px;width:10px;height:70px" name="scale" direction="vertical" value="0" min="-3" max="3"/>
+    </div>
+    <div><span style="color:#808080">高级形变功能, 稍后可用</span></div>
+ </pe:tab-item>
+ <pe:tab-item text="位移" name="simple" selected="true">
+    <div>
+        <pe:custom oncreate="map3dsystem_modify_translate_btn_2" style="width:70px;height:70px; margin:5px;"/>
+        <pe:custom oncreate="map3dsystem_modify_rotate_btn_2" style="width:70px;height:70px; margin:5px;"/>
+    </div>
+    
+ </pe:tab-item>   
+</pe:tabs>    
+    <div style="margin-left:5px">
+        <pe:custom oncreate="map3dsystem_modify_here_btn" style="margin-left:3px;width:48px;height:48px"/>
+        <pe:custom oncreate="map3dsystem_modify_reset_btn" style="margin-left:20px;width:48px;height:48px"/>
+    </div>
+<hr />
+<div style="margin-left:5px">
+    <div>名字:<input style="width:200px" name="newasset"/><input type="button" name="changeasset" value="改资源" onclick="Map3DSystem.App.Creator.ObjModifyPage.OnChangeModelAsset"/></div>
+</div>
+<div style="margin-left:5px">
+    <input type="button" value="关闭" onclick="Map3DSystem.App.Creator.ObjModifyPage.OnClose()"/>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

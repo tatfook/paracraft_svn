@@ -1,0 +1,46 @@
+﻿<!-- "script/apps/Aries/ThemeView/TeenThemePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/ThemeView/TeenThemePage.lua");
+local TeenThemePage = commonlib.gettable("Map3DSystem.App.UISamples.TeenThemePage");
+TeenThemePage.Load(pageCtrl)
+function DS_Func_Items(index)
+    return TeenThemePage.DS_Func_Items(index);
+end
+
+]]></script>
+<div style="width:800px;">
+    <div style="float:left;">
+        <pe:gridview name="allpages"  style="float:left;margin-left:0px;margin-top:10px;width:400px;height:550px" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="1" AllowPaging="true" pagesize="20">
+            <Columns>
+                <div>
+                    <a style="color:#000000" onclick="Map3DSystem.App.UISamples.TeenThemePage.DoClick()" param1="<%=Eval('index') %>">
+                        <%=Eval('label') %>
+                        <%=Eval('width') %>*<%=Eval('height') %>
+                    </a>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>请稍等 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" />
+        </pe:gridview>
+    </div>
+   
+    </div>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

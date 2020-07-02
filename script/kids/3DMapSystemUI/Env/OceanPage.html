@@ -1,0 +1,59 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/OceanPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Ocean Editing Page by LiXizhi 2008.6.8</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="OceanPage.lua"><![CDATA[
+Map3DSystem.App.Env.OceanPage.OnInit();
+]]></script>
+<div style="margin:10px">
+<div>水面高度: <br/>
+    <div style="float:left">
+        <a onclick="Map3DSystem.App.Env.OceanPage.WaterLevel" param1="1" param2="true">
+            <img style="background:url(Texture/3DMapSystem/Env/waterup.png);width:32px;height:32px"/><div style="float:left;margin-top:7px">增高1米</div>
+        </a><br />
+        <a onclick="Map3DSystem.App.Env.OceanPage.WaterLevel" param1="0" param2="true">
+            <img style="background:url(Texture/3DMapSystem/Env/waterfeet.png);width:32px;height:32px"/><div style="float:left;margin-top:7px">当前人物高度</div>
+        </a><br />
+        <a onclick="Map3DSystem.App.Env.OceanPage.WaterLevel" param1="-1" param2="true">
+            <img style="background:url(Texture/3DMapSystem/Env/waterlower.png);width:32px;height:32px"/><div style="float:left;margin-top:7px">降低1米</div>
+        </a><br />
+    </div>
+    <div style="float:left">
+        <pe:sliderbar style="width:10px;height:100px" name="OceanLevel" value="0" min="-3.1415926" max="3.1415926" min_step="3.1415926/18" direction="vertical" onchange="Map3DSystem.App.Env.OceanPage.OnOceanLevelSlider()" />
+    </div>
+    <div style="background:url(Texture/3DMapSystem/Env/water_bg.png);width:128px;height:64px">
+        <a onclick="Map3DSystem.App.Env.OceanPage.WaterLevel" param1="0" param2="false">
+            <img style="background:url(Texture/3DMapSystem/Env/nowater.png);width:32px;height:32px"/><div style="float:left;margin-top:7px">取消水面</div>
+        </a><br />
+    </div>    
+</div>
+<div>水体颜色:
+    <pe:colorpicker name="OceanColorpicker" onchange="Map3DSystem.App.Env.OceanPage.OnOceanColorChanged()"/>
+</div>
+<div>水的种类:
+<select name="RenderTechnique" onselect="Map3DSystem.App.Env.OceanPage.OnChangeRenderTechnique()">
+    <option value="3" selected="true">江河湖泊</option>
+    <option value="4">汪洋大海</option>
+    <option value="5">云海</option>
+</select>
+</div>
+<div>水下波纹效果:
+<br/>
+<a onclick="Map3DSystem.App.Env.OceanPage.EnableScreenWaveEffect" param1="true">
+    打开水纹效果
+</a>
+<br/>
+<a onclick="Map3DSystem.App.Env.OceanPage.EnableScreenWaveEffect" param1="false">
+    关闭水纹效果
+</a>
+</div>
+
+
+</pe:mcml>
+</body>
+</html>
+

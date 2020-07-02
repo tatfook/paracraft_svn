@@ -1,0 +1,359 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_suit_extend_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30042_SueSue_suit_extend_panel.lua"><![CDATA[
+local SueSue_suit_extend_panel = MyCompany.Aries.Quest.NPCs.SueSue_suit_extend_panel;
+local pageCtrl = document:GetPageCtrl();
+SueSue_suit_extend_panel.OnInit();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local LOG = LOG;
+
+function GetJadeGsid()
+    if(SueSue_suit_extend_panel.selected_parent_item)then
+        local jade_gsid = SueSue_suit_extend_panel.selected_parent_item["jade_gsid"];
+        jade_gsid = tonumber(jade_gsid) or 0;
+        return jade_gsid;
+    end
+end
+function GetPlaceInfo()
+    if(SueSue_suit_extend_panel.selected_parent_item)then
+        local jade_level = SueSue_suit_extend_panel.selected_parent_item["jade_level"];
+        jade_level = tonumber(jade_level) or 0;
+         local jade_gsid = SueSue_suit_extend_panel.selected_parent_item["jade_gsid"];
+        jade_gsid = tonumber(jade_gsid) or 0;
+        local s;
+        local __,__,__,copies = hasGSItem(jade_gsid);
+        copies = copies or 0;
+        if(jade_level == 1)then
+            s = string.format([[
+            <div >已有1级玄玉:<b>%d</b>个</div>
+            <div >1级玄玉分布在以下怪物身上,打败它们就有可能获得:</div>
+<div style="margin-top:-5px;">金苍蝇(哈奇小镇-岩浆沙漠)</div>
+<div style="margin-top:-5px;">火毛怪,火毛怪首领(哈奇小镇-火焰山洞)</div>
+            ]],copies);
+            return s;
+         elseif(jade_level == 2)then
+            s = string.format([[
+            <div>已有2级玄玉:<b>%d</b>个</div>
+            <div>2级玄玉分布在以下怪物身上,打败它们就有可能获得:</div>
+<div style="margin-top:-5px;">邪恶雪人(火鸟岛-沸腾湖)</div>
+<div style="margin-top:-5px;">风暴飞蝇,噬灵鼠BOSS(火鸟岛-焚香丛林)</div>
+            ]],copies);
+            return s;
+         elseif(jade_level == 3)then
+            s = string.format([[
+            <div>已有3级玄玉:<b>%d</b>个</div>
+            <div>3级玄玉分布在以下怪物身上,打败它们就有可能获得:</div>
+<div style="margin-top:-5px;">亡灵猴,亡灵猴首领（寒冰岛-雪狼湖）</div>
+<div style="margin-top:-5px;">风鹰(寒冰岛-怒风峡谷)</div>
+            ]],copies);
+            return s;
+        elseif(jade_level == 4)then
+            s = string.format([[
+            <div>已有4级玄玉:<b>%d</b>个</div>
+            <div>4级玄玉分布在以下怪物身上,打败它们就有可能获得:</div>
+<div style="margin-top:-5px;">亡灵蛇首领,火岩甲虫统帅,巨蜥族长巴托（沙漠岛）</div>
+            ]],copies);
+            return s;
+         elseif(jade_level == 5)then
+            s = string.format([[
+            <div>已有5级玄玉:<b>%d</b>个</div>
+            <div>5级玄玉分布在以下怪物身上,打败它们就有可能获得:</div>
+<div style="margin-top:-5px;">试炼~火鬃怪宝库,梦魇火鸟岛</div>
+            ]],copies);
+            return s;
+        end
+    end
+end
+function GetDesc()
+    if(SueSue_suit_extend_panel.selected_item and SueSue_suit_extend_panel.selected_item.desc)then
+        return SueSue_suit_extend_panel.selected_item.desc;
+    end
+end
+function GetTooltip(key)
+    if(key and SueSue_suit_extend_panel.selected_parent_item and SueSue_suit_extend_panel.selected_item)then
+        local gsid = SueSue_suit_extend_panel.selected_item[key.."_gsid"];
+        gsid = tonumber(gsid) or 0;
+        local name = "";
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+        if(gsItem)then
+            name = gsItem.template.name;
+        end
+        local need_jade = SueSue_suit_extend_panel.selected_parent_item[key];
+        need_jade = tonumber(need_jade) or 0;
+        local jade_level = SueSue_suit_extend_panel.selected_parent_item["jade_level"];
+        jade_level = tonumber(jade_level) or 0;
+        local jade_gsid = SueSue_suit_extend_panel.selected_parent_item["jade_gsid"];
+        jade_gsid = tonumber(jade_gsid) or 0;
+
+        local s = string.format([[<div style="margin-top:-10px;"><pe:item gsid='%d' isclickable="false" showdefaulttooltip="true" style="float:left;width:40px;height:40px;"/><div style="float:left;margin-top:10px;">:%d个</div>]],jade_gsid,need_jade);
+        return s;
+    end
+end
+function GetCssInfo()
+    if(SueSue_suit_extend_panel.selected_item)then
+        local head_gsid = SueSue_suit_extend_panel.selected_item["head_gsid"];
+        head_gsid = tonumber(head_gsid) or 0;
+
+        local body_gsid = SueSue_suit_extend_panel.selected_item["body_gsid"];
+        body_gsid = tonumber(body_gsid) or 0;
+
+        local shoe_gsid = SueSue_suit_extend_panel.selected_item["shoe_gsid"];
+        shoe_gsid = tonumber(shoe_gsid) or 0;
+
+        local backside_gsid = SueSue_suit_extend_panel.selected_item["backside_gsid"];
+        backside_gsid = tonumber(backside_gsid) or 0;
+
+        local s = string.format("0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#%d#0#0#%d#%d#%d#%d#%d#0#0#0#0#0#",
+        head_gsid,body_gsid,0,shoe_gsid,backside_gsid,0);
+        return s;
+    end
+end
+asset_table = {
+    name = "user_createnewavatar",
+    AssetFile="character/v3/Elf/Female/ElfFemale.xml",
+	CCSInfoStr = "0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#0#0#0#0#0#0#0#1027#1029#1031#0#1032#0#0#0#0#0#",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+function RefreshPage()
+    pageCtrl:Refresh(0);
+end
+function ClosePage()
+    pageCtrl:CloseWindow();
+    SueSue_suit_extend_panel.selected_item = nil;
+end
+--获取某级玉的数量
+function GetJadeNum(level)
+    level = tonumber(level);
+    local gsids = {17144,17145,17146,17147,17148,};
+    local gsid = gsids[level];
+    if(gsid)then
+        local bHas,__,__,copies = hasGSItem(gsid);
+        copies = copies or 0;
+        return copies;
+    end
+end
+function DoExchange(gsid,mcmlNode)
+    gsid = tonumber(gsid);
+    if(gsid and gsid ~= 0 and mcmlNode)then
+        local need_num = mcmlNode:GetAttribute("param1","");
+        local exid = mcmlNode:GetAttribute("param2","");
+
+        if(SueSue_suit_extend_panel.selected_parent_item and SueSue_suit_extend_panel.selected_item)then
+            need_num = tonumber(need_num);
+            exid = tonumber(exid);
+            local jade_level = SueSue_suit_extend_panel.selected_parent_item["jade_level"];
+            jade_level = tonumber(jade_level);
+            
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+            if(need_num and jade_level and gsItem)then
+                local bHas = hasGSItem(gsid);
+                local copies = GetJadeNum(jade_level) or 0;
+                local name = gsItem.template.name or "";
+
+                local school = MyCompany.Aries.Combat.GetSchool();
+                local ex_school = SueSue_suit_extend_panel.selected_item.school;
+                if(school and ex_school and school ~= ex_school)then
+                    local s = string.format("系别不对，不能兑换%s！",name);
+                    _guihelper.MessageBox(s);
+                    return
+                end
+                if(bHas)then
+                    local s = string.format("你已经拥有%s了！",name);
+                    _guihelper.MessageBox(s);
+                    return
+                end
+                if(copies < need_num)then
+                    local s = string.format("很抱歉，你没有足够的%d级玄玉，不能兑换%s！",jade_level,name);
+                    _guihelper.MessageBox(s);
+                    return
+                end
+                local s = string.format("你确定要用%d个%d级玄玉来兑换%s吗？",need_num,jade_level,name);
+                _guihelper.Custom_MessageBox(s,function(result)
+	                if(result == _guihelper.DialogResult.Yes)then
+                        --如果成功
+                        LOG.std("", "info","before SueSue_suit_extend_panel.DoExchange",{gsid = gsid});
+
+                        --如果是兑换
+                        if(exid)then
+                             ItemManager.ExtendedCost( exid, nil, nil, function(msg)end, function(msg)
+                                LOG.std("", "info","after SueSue_suit_extend_panel.DoExchange",msg);
+                                if(msg)then
+                                    if(msg.issuccess)then
+                                        RefreshPage()
+                                        local s = string.format("恭喜你成功兑换了%s，快穿上试试吧！",name);
+                                        _guihelper.Custom_MessageBox(s,function(result)
+	                                        if(result == _guihelper.DialogResult.OK)then
+	                                        end
+                                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                                    else
+                                        ClosePage();
+                                    end
+                                end
+                            end)
+                        else
+                            ItemManager.ItemSetExtendedCost(gsid,function(msg)
+                                LOG.std("", "info","after SueSue_suit_extend_panel.DoExchange",msg);
+                                if(msg)then
+                                   if(msg.issuccess)then
+                                        local s = string.format("恭喜你成功兑换了%s，快穿上试试吧！",name);
+                                        _guihelper.Custom_MessageBox(s,function(result)
+	                                        if(result == _guihelper.DialogResult.OK)then
+                                               RefreshPage()
+	                                        end
+                                        end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                                   else
+                                    ClosePage();
+                                   end
+                                end
+                            end)
+                        end
+	                end
+                end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+            end
+        end
+    end
+end
+function GetGsid(key)
+   if(SueSue_suit_extend_panel.selected_item)then
+       local gsid = SueSue_suit_extend_panel.selected_item[key];
+       gsid = tonumber(gsid);
+       return gsid or 0;
+   end
+   return 0;
+end
+function GetDataSource()
+    return SueSue_suit_extend_panel.menu_datasource;
+end
+function OnClickFolder(treenode)
+    local item = treenode.mcmlNode:GetPreValue("this");
+    if(item)then
+        item.is_opened = not item.is_opened;
+        pageCtrl:Refresh(0);
+    end
+end
+function OnClickNode(treenode)
+    if(not treenode or not treenode.parent)then return end
+    local parent = treenode.parent;
+    local parent_item = parent.mcmlNode:GetPreValue("this");
+    local item = treenode.mcmlNode:GetPreValue("this");
+    SueSue_suit_extend_panel.DoSelectedNode(parent_item.menu_level,item.menu_level)
+end
+function CanExchage(key)
+    gsid = GetGsid(key);
+    if(not gsid or gsid == 0 )then return end
+    local bHas = hasGSItem(gsid);
+    return not bHas;
+end
+function IsSelected(item)
+    if(SueSue_suit_extend_panel.selected_item and SueSue_suit_extend_panel.selected_item == item)then
+        return true;
+    end
+end
+function DS_Func(index)
+    return SueSue_suit_extend_panel.DS_Func(index)
+end
+]]></script>
+<div style="width:870px;height:512px;background:url(Texture/Aries/npcs/suit/tile_1_bg_32bits.png#0 0 64 507:30 30 30 30)">
+    <div style="position:relative;margin-left:830px;margin-top:-5px;">
+        <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    </div>
+    <div style="margin-left:369px;margin-top:13px;width:133px;height:22px;background:url(Texture/Aries/npcs/suit/title_32bits.png#0 0 133 22)"/>
+    <div style="margin-left:56px;margin-top:0px;width:758px;height:23px;background:url(Texture/Aries/npcs/suit/title2_32bits.png#0 0 758 23)"/>
+    <div style="float:left;margin-left:15px;margin-top:5px;width:180px;height:420px;background:url(Texture/Aries/npcs/suit/tile_2_bg_32bits.png#0 0 64 420:25 200 25 200)">
+         <pe:treeview name="menus" DataSource='<%=GetDataSource()%>'
+		         ItemOpenBG="Texture/aries/npcs/suit/close_32bits.png;0 0 13 13"
+                ItemCloseBG="Texture/aries/npcs/suit/open_32bits.png;0 0 13 13"
+                style="margin-left:10px;margin-top:15px;width:160px;height:390px;background:"
+                RememberScrollPos="true"
+                ItemToggleSize="13"
+                OnClick="OnClickNode"
+		        DefaultNodeHeight="20">
+	        <NodeTemplates>
+		        <NodeTemplate DataType="folder">
+                    <pe:treenode text='<%=XPath("this|label")%>' 
+                    style="color:#114c84;font-size:14;font-weight:bold;"
+                    expanded='<%=XPath("this|is_opened")%>'
+                OnClick="OnClickFolder"
+            MouseOverBG=""
+                    can_select = "true" 
+                    ></pe:treenode>
+                </NodeTemplate>
+                <NodeTemplate DataType="items">
+                    <pe:treenode text='<%=XPath("this|label")%>' 
+                    style="color:#114c84;font-size:12;"
+                    selected='<%=IsSelected(XPath("this"))%>'
+                    can_select = "true" 
+                    ></pe:treenode>
+                </NodeTemplate>
+	        </NodeTemplates>
+        </pe:treeview>
+    </div>
+    <div style="float:left;margin-left:10px;margin-top:5px;width:640px;height:420px;background:url(Texture/Aries/npcs/suit/tile_2_bg_32bits.png#0 0 64 420:25 200 25 200)">
+        <div style="float:left;margin-left:15px;margin-top:15px;width:294px;height:391px;background:url(Texture/Aries/npcs/suit/tile_3_bg_32bits.png#0 0 294 391)">
+            <div style="margin-left:20px;margin-top:20px;height:256px;width:256px;">
+                <pe:canvas3d DefaultRotY="-1.57" DefaultCameraObjectDist = "5" LookAtHeight="1.2" DefaultLiftupAngle="0.1" name="SuitAvatar" RenderTargetSize="256" miniscenegraphname="AvatarMyselfTabCharacter" 
+                    ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="false"/>
+            </div>
+            <div style="margin-left:20px;margin-top:50px;">
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:right;margin-left:0px;margin-top:0px;width:69px;height:32px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_left.png#0 0 69 32)"/>
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:right;margin-left:170px;margin-top:-32px;width:69px;height:32px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/arrow_right.png#0 0 69 32)"/>
+            </div>
+        </div>
+        <div style="float:left;margin-top:15px;font-size:12;color:#114c84">
+            <pe:gridview name="gvRooms" style="width:700px;height:800px" DataSource="<%=DS_Func%>"  ItemsPerLine="3" AllowPaging="false" pagesize="6">
+                    <Columns>
+                     <div style="float:left;margin-left:10px;font-size:12;color:#114c84">
+                        <div style="margin-left:0px;margin-top:0px;width:90px;height:90px;background:url(Texture/Aries/npcs/suit/slot_bg_32bits.png#0 0 95 95: 30 30 30 30)">
+                            <pe:item gsid="<%=Eval('gsid') %>" isclickable = "false" showdefaulttooltip="true" style="margin-left:10px;margin-top:12px;width:70px;height:70px;"/>
+                        </div>
+                        <div style="margin-top:-10px;">
+                            <pe:item gsid="<%=GetJadeGsid() %>" isclickable = "false" showdefaulttooltip="true" style="float:left;margin-left:0px;margin-top:0px;width:40px;height:40px;"/>
+                            <div style="float:left;margin-left:5px;margin-top:10px;"><%=Eval('jade_num') %>个</div>
+                        </div>
+                        <input type="button" name="<%=Eval('gsid') %>" onclick="DoExchange" param1="<%=Eval('jade_num') %>" param2="<%=Eval('exid') %>" value="兑换" style="margin-left:4px;margin-top:0px;width:87px;height:32px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+                    </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>空</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>请稍等 ... </b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" height="1"/>
+                    <PagerTemplate>
+                        <form>
+                            <div style="margin-left:190px;margin-top:-110px;">
+                                <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                            <div style="float:right;margin-top:-2px;width:64px;">
+	                                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                            </div>
+	                            <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                            </div>
+                        </form>
+                    </PagerTemplate>
+                </pe:gridview>
+
+         
+            <div style="font-size:12;margin-top:-110px;color:#114c84;padding:10px;">
+                <%=GetPlaceInfo() %>
+            </div>
+            <div style="position:relative;font-size:12;margin-top:-70px;color:#ff0000;padding:10px;">
+                <%=GetDesc() %>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

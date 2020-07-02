@@ -1,0 +1,156 @@
+﻿<!-- "script/apps/Aries/CombatRoom/Teen/PvEModeSelectPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatRoom/CreateRoomPage.lua");
+local CreateRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.CreateRoomPage");
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+local pagestate = page:GetRequestParam("pagestate");
+local mode = page:GetRequestParam("mode");
+local gameid = page:GetRequestParam("gameid");
+local game_type = page:GetRequestParam("game_type");
+local keyname = page:GetRequestParam("keyname");
+mode = tonumber(mode) or 1;
+gameid = tonumber(gameid);
+function IsResetState()
+    if(pagestate and pagestate == "reset")then
+        return true;
+    end
+end
+function ClosePage()
+    page:CloseWindow();
+end
+function DS_Func_Items_Mode(index)
+    if(not CreateRoomPage.mode_list)then return nil end
+	if(index == nil) then
+		return #(CreateRoomPage.mode_list);
+	else
+		return CreateRoomPage.mode_list[index];
+	end
+end
+
+function DoResetGameMode(index)
+    local k,v;
+    for k,v in ipairs(CreateRoomPage.mode_list) do
+    	v.is_checked = false;
+        if(index == k)then
+    	    v.is_checked = true;
+        end
+    end
+    page:Refresh(0);
+end
+function DoCreate()
+    if(IsResetState())then
+        _DoResetMode();
+    else
+        _DoCreate();
+    end
+end
+function _DoCreate()
+    if(CreateRoomPage.temp_game_setting)then
+        local mode;
+        local k,v;
+        for k,v in ipairs(CreateRoomPage.mode_list) do
+            if(v.is_checked)then
+                mode = v.mode;
+            end
+        end
+        CreateRoomPage.temp_game_setting.mode = mode;
+        LobbyClientServicePage.DoCreateGame(CreateRoomPage.temp_game_setting);
+        CreateRoomPage.temp_game_setting = nil;
+        ClosePage();
+        CreateRoomPage.ClosePage();
+    end
+end
+function _DoResetMode()
+    local _mode = mode;
+    local k,v;
+    for k,v in ipairs(CreateRoomPage.mode_list) do
+        if(v.is_checked)then
+            _mode = v.mode;
+        end
+    end
+    if(_mode == mode)then
+        LobbyClientServicePage.DoStartGame(gameid,game_type)
+    else
+        LobbyClientServicePage.DoResetMode_InAutoStart(gameid,_mode,game_type)
+    end
+    ClosePage();
+end
+function CancelResetMode()
+    LobbyClientServicePage.DoStartGame(gameid,game_type)
+    ClosePage();
+end
+function GetTitle()
+    local worldinfo = LobbyClientServicePage.GetWorldInfoByKeyname(keyname)
+    if(not worldinfo)then
+        return
+    end
+    local title = worldinfo.world_title;
+    if(IsResetState())then
+        title = "你的队员到齐了，请确定副本难度，并开启副本。(10秒自动开启)";
+    else
+        title = string.format("%s(难度选择)",title or "")
+    end
+    return title;
+end
+]]></script>
+<div style="width:400px;height:220px;" class="window_none_icon">
+<pe:block style="position:relative;width:400px;height:32px;padding-top:2px;background:;" class="title_txt_css">
+    <pe:button class="close_btn_css" style="position:relative;margin-left:376px;margin-top:3px;width:20px;height:20px;" onclick="ClosePage"/>
+    <%=GetTitle()%>
+</pe:block>
+<div style="height:25px;">
+      
+    </div>
+    <div >
+        <div style="margin-left:10px;margin-top:10px;width:380px;height:30px;" class="border_bg3_css">
+            <input type="button" value="难度" class="titlebutton" style="float:left;width:120px;text-align:center;color:#ffffff;" enabled="false"/>
+            <input type="button" value="适合人数" class="titlebutton" style="float:left;width:120px;text-align:center;color:#ffffff;" enabled="false"/>
+            <input type="button" value="战利品" class="titlebutton" style="float:left;width:120px;text-align:center;color:#ffffff;" enabled="false"/>
+        </div>
+        <pe:gridview name="mode_list_view" DataSource="<%=DS_Func_Items_Mode%>" style="margin-left:4px;margin-top:-1px;height:180px;" ItemsPerLine="1" AllowPaging="false" pagesize="10">
+	    <Columns>
+            <div>
+                <div style="position:relative;">
+				    <pe:if condition='<%=Eval("is_checked")%>' >
+					    <input type="button" class="listbutton_selected" enabled="false" name='<%=Eval("index")%>'
+						    style="margin-left:6px;margin-top:0px;width:380px;height:25px;color:#ffffff;" />
+				    </pe:if>
+				    <pe:if condition='<%=not Eval("is_checked")%>' >
+					    <input type="button" class="listbutton_unselected" onclick="DoResetGameMode"  name='<%=Eval("index")%>'
+						    style="margin-left:6px;margin-top:0px;width:380px;height:25px;color:#ffffff;" />
+				    </pe:if>
+                    
+			    </div>
+                <div style="margin-left:9px;height:27px;">
+                    <div style="float:left;width:120px;margin-top:2px;text-align:center;color:#ffffff;" class="list_color"><%=Eval("lable_1")%></div>
+                    <div style="float:left;width:120px;margin-top:2px;text-align:center;color:#ffffff;" class="list_color"><%=Eval("lable_2")%></div>
+                    <div style="float:left;width:120px;margin-top:2px;text-align:center;color:#ffffff;" class="list_color"><%=Eval("lable_3")%></div>
+                </div>
+		    </div>
+	    </Columns>
+    </pe:gridview> 
+    </div>
+    <div style="margin-left:135px;margin-top:-50px;">
+       <pe:if condition='<%=not IsResetState() %>'>
+            <input type="button" value="确定" style="width:60px;" onclick="DoCreate()" class="default_btn_css"/>
+            <input type="button" value="返回" style="width:60px;margin-left:10px;" onclick="ClosePage()" class="default_btn_css"/>
+        </pe:if>
+        <pe:if condition='<%=IsResetState() %>'>
+            <input type="button" value="确定" style="width:60px;" onclick="DoCreate()" class="default_btn_css"/>
+            <input type="button" value="取消" style="width:60px;margin-left:10px;" onclick="ClosePage()" class="default_btn_css"/>
+        </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

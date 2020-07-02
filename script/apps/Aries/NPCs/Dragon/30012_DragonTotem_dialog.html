@@ -1,0 +1,160 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30012_DragonTotem_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30012_DragonTotem_dialog, by Andy, 2009/8/1</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50050_WishLevel9_Acquire
+-- 50051_WishLevel9_Complete
+-- 50052_WishLevel9_RewardFriendliness
+-- 50040_WishLevel9_TalkedWithDragonTotem
+-- 50041_WishLevel9_FireBallShard
+-- 15001_SpitFire
+
+shardCount = 0;
+local bHas, guid = hasGSItem(50041);
+if(bHas == true) then
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+	    shardCount = item.copies;
+    end
+end
+
+Condition1 = function()
+    -- doesn't accept the quest yet, or completed
+    return (not hasGSItem(50050) or (hasGSItem(50050) and hasGSItem(50051)));
+end;
+Condition2 = function()
+    -- accept the quest, but with less than 20 shard
+    return (hasGSItem(50050) and not hasGSItem(50051) and shardCount < 20);
+end;
+Condition3 = function()
+    -- accept the quest, and with 20 shard
+    return (hasGSItem(50050) and not hasGSItem(50051) and shardCount == 20);
+end;
+
+-- 50040_WishLevel9_TalkedWithDragonTotem
+
+function EntryAction(from, to)
+    if(from == 0 and (to == 2 or to == 3)) then
+        if(hasGSItem(50050) and not hasGSItem(50040)) then
+            ItemManager.PurchaseItem(50040, 1, function(msg) end, function(msg)
+	            if(msg) then
+		            log("+++++++ Purchase 50040_WishLevel9_TalkedWithDragonTotem return: +++++++\n")
+		            commonlib.echo(msg);
+                    NPL.load("(gl)script/apps/Aries/NPCs/Dragon/30011_WishLevel9.lua");
+		            MyCompany.Aries.Quest.NPCs.WishLevel9.RefreshStatus();
+	            end
+            end);
+        end
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 3 and to == -1) then
+        -- accept the quest
+        local bHas, guid = hasGSItem(50041);
+        local copies = 0;
+        if(bHas == true) then
+	        local item = ItemManager.GetItemByGUID(guid);
+	        if(item and item.guid > 0) then
+	            copies = item.copies;
+            end
+        end
+        if(hasGSItem(50050) and bHas and copies == 20) then
+            -- finish the quest
+            -- exid 92: DragonQuestGrow_Level9
+            ItemManager.ExtendedCost(92, nil, nil, function(msg)end, function(msg)
+		        log("+++++++ExtendedCost 92: DragonQuestGrow_Level9 return: +++++++\n")
+		        commonlib.echo(msg);
+			    --50052_WishLevel9_RewardFriendliness
+			    if(msg.issuccess == true) then
+				    -- use the item 50052 to increase pet friendliness
+                    local bHas, guid = hasGSItem(50052);
+                    if(bHas and guid) then
+                        local item = ItemManager.GetItemByGUID(guid);
+                        if(item and item.guid > 0) then
+                            item:OnClick("left");
+                        end
+                    end
+				    --WishLevel0.RefreshStatus();
+			    end
+            end);
+            
+        end
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30012" />
+            <pe:placeholder id="name" source="{this}" value="龙图腾" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    龙图腾是龙族的守护神！
+		    <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    什么？你想让你的抱抱龙学会喷火？这可不是容易的事情啊！
+            你需要在抱抱龙魔法学院那里完成火毛怪任务的试练，收集到20个火龙珠碎片！任务很艰难，我看你还是放弃吧！
+		    <pe:answer template_id="haveatry">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+	        你真的收集了20个火龙珠碎片！你可真是一个了不起的小哈奇！<br/>
+            抱抱龙学会喷火之后，你可以在动作栏中使用这个了不起的动作了！
+		    <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

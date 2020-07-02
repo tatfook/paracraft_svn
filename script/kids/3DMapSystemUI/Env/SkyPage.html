@@ -1,0 +1,64 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/SkyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Sky Editing Page by LiXizhi 2008.6.8</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="SkyPage.lua"><![CDATA[
+Map3DSystem.App.Env.SkyPage.OnInit();
+]]></script>
+<pe:tabs name="SkyPage" > 
+<pe:tab-item text="常用设置" name="simple" selected="true" style="padding-left:10px;">
+<div>
+光照: 
+<div style="float:left" width="128px">
+    <img src="Texture/3DMapSystem/Env/skytime.png" width="128" height="32"/><br />
+    <pe:sliderbar name="TimeSlider" min="0" max="100" value="30" onchange="Map3DSystem.App.Env.SkyPage.OnTimeSliderChanged()"></pe:sliderbar>
+</div>
+</div>
+<div>
+天空背景:
+<pe:gridview ItemsPerLine="2" style="height:143px;width:170px" name="gvwSkyboxes" DataSource='<%=Map3DSystem.App.Env.SkyPage.DS_SkyBox_Func%>' CellPadding="0" DefaultNodeHeight="68">
+    <Columns>
+	    <a onclick="Map3DSystem.App.Env.SkyPage.OnChangeSkybox" param1='<%=Eval("index")%>'>
+	        <img src='<%=Eval("bg")%>'width="48" height="48"/><br/><%=Eval("text")%>
+	    </a>
+    </Columns>
+</pe:gridview>
+<div>
+天空颜色:
+<pe:colorpicker name="SkyColorpicker" onchange="Map3DSystem.App.Env.SkyPage.OnSkyColorChanged()"/>
+</div>
+<div>
+雾的颜色:
+<pe:colorpicker name="FogColorpicker" onchange="Map3DSystem.App.Env.SkyPage.OnFogColorChanged()"/>
+</div>
+</div>
+</pe:tab-item>
+<pe:tab-item text="仿真天空" name="adv" style="padding-left:10px;padding-top:10px" onclick="Map3DSystem.App.Env.SkyPage.OnClickSimSkyTab">
+<form name="SimSky">
+<input type="checkbox"  name="SimulatedSky" onclick="Map3DSystem.App.Env.SkyPage.OnClickUseSimulatedSky"/>使用全仿真天空<br />
+<hr />
+<input type="checkbox" checked="true" name="IsAutoDayTime"/>是否采用自动仿真<br />
+日照图: <input type="text" name="SunGlowTexture"/><br />
+星云图: <input type="text" name="CloudTexture"/><br />
+太阳颜色: <input type="text" name="SunColor"/><br />
+天空最亮色: <input type="text" name="LightSkyColor"/><br />
+天空最暗色: <input type="text" name="DarkSkyColor"/><br />
+太阳强度: <input type="text" name="SunIntensity"/><br />
+太阳光晕大小: <input type="text" name="SunHaloSize"/><br />
+云的颜色: <input type="text" name="CloudColor"/><br />
+云的速度: <input type="text" name="CloudVelocity"/><br />
+云贴图位移: <input type="text" name="CloudOffset"/><br />
+<hr />
+<input type="submit" class="defaultbutton" name="btnUpdate" value="更新" onclick="Map3DSystem.App.Env.SkyPage.OnUpdateSimSky"/>
+</form>
+
+</pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>
+

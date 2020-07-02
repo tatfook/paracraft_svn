@@ -1,0 +1,75 @@
+﻿<!-- "script/apps/Aries/Books/IllustratedPetBook.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="IllustratedPetBook.lua"><![CDATA[
+MyCompany.Aries.Books.IllustratedPetBook.OnInit();
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function DS_Func_Items(index)
+   return MyCompany.Aries.Books.IllustratedPetBook.DS_Func_Items(index);
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<input type="button" onclick="Confirm()" style="margin-left:700px;margin-top:50px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-40px;margin-left:40px;padding-left:110px;padding-top:40px;padding-bottom:-10px;background:url(Texture/Aries/Books/Green_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_Items%>" name="IllustratedPetBook" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("bg")%>' style="width:550px;height:430px;" />
+                <div style="position:relative;margin-left:-40px;margin-top:-465px;width:128px;height:148px;">
+                    <pe:if condition='<%=Eval("limited")== true%>'>
+                        <img style="width:128px;height:148px;background:url(Texture/Aries/Books/IllustratedPetBook/limited_32bits.png#0 0 128 148)" />
+                    </pe:if>
+                     <pe:if condition='<%=Eval("limited")== false%>'>
+                        <img style="width:128px;height:148px;background:" />
+                    </pe:if>
+                </div>
+                <pe:if condition='<%=Eval("had")== true%>'>
+                    <img style="width:115;height:84px;margin-left:400px;margin-top:-80px;background:url(Texture/Aries/Books/IllustratedPetBook/had_true_32bits.png#0 0 115 84)" />
+                </pe:if>
+                <pe:if condition='<%=Eval("had")== false%>'>
+                    <img style="width:115;height:84px;margin-left:400px;margin-top:-80px;background:url(Texture/Aries/Books/IllustratedPetBook/had_false_32bits.png#0 0 115 84)" />
+                </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-38px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+
+<div style="float:left;margin-left:115px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----宠物图鉴----
+</div>
+<div style="float:left;margin-left:415px;margin-top:-510px;width:300px;text-align:center;color:#9a6f32;" >
+----宠物图鉴----
+</div>
+
+</pe:mcml> 
+</body>
+</html>

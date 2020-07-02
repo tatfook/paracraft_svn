@@ -1,0 +1,339 @@
+<!-- "script/apps/Aries/Login/DailyCheckin.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2012.8.2</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="DailyCheckin.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+DailyCheckin = commonlib.gettable("MyCompany.Aries.DailyCheckin");
+DailyCheckin.OnInit();
+
+function DS_Func(index)
+end
+
+local daily_ds = MyCompany.Aries.DailyCheckin.GetDailyAwards();
+local sumdaily_ds = MyCompany.Aries.DailyCheckin.GetSumDailyAwards();
+
+function GetDailyCheckinStatus()
+    return daily_ds;
+end
+
+function OnClosePage()
+    System.User.pop_daily_checkedin = true;
+    Page:CloseWindow();
+end
+
+function GetSumDailyCheckinStatus()
+    return sumdaily_ds;
+end
+
+function hasSumCheckin(v)
+    local day = sumdaily_ds[v].logindays;
+    if(DailyCheckin.HasSumCheckedin()==day) then
+        return true
+    else
+        return false;
+    end
+end
+
+function CanSumCheckedIn(v)
+    local day = sumdaily_ds[v].logindays;
+    local needlvl = sumdaily_ds[v].needlvl;
+    local mylvl = MyCompany.Aries.Player.GetLevel();
+
+    if ((day<=DailyCheckin.GetSumCheckedinTimes(v)) and (not hasSumCheckin(v)) and (mylvl>=needlvl)) then
+        return true
+    else
+        return false
+    end
+end 
+
+function GetSumDayText(v)
+    return format("(%d / %d) 天", DailyCheckin.GetSumCheckedinTimes(v),sumdaily_ds[v].logindays);   
+end
+
+
+function hasCheckin(day)
+
+    if(DailyCheckin.HasCheckedin()) then
+        return day <= DailyCheckin.GetCheckedinTimes()
+    else
+        return day < DailyCheckin.GetCheckedinTimes();
+    end
+end
+
+function GetDayTextImage(day)
+    return format("Texture/Aries/Advertisement/DailyCheckin/day%d.png;0 0 45 16", day or 1);
+end
+
+function GetDayText(day)
+    return format("第%d天", day or 1);
+end
+
+function OnClickMuch3G()
+    ParaGlobal.ShellExecute("open", "http://shop.much3g.com/goods.php?id=13", "", "", 1);
+    MyCompany.Aries.WorldManager:GotoWorldPosition("61HaqiTown",{20309.44,1.76,19730.80},{14.26,0.33,1.87},nil,nil,true);
+    paraworld.PostLog({action = "much_view_by_daily_checkin",}, 
+							"much_view_by_daily_checkin_log", function(msg)
+						end);
+end
+
+function OnClickMuch3GTicket()
+    ParaGlobal.ShellExecute("open", "http://shop.much3g.com/goods.php?id=13", "", "", 1);
+    MyCompany.Aries.WorldManager:GotoWorldPosition("61HaqiTown",{20065.48,2.91,19897.85},{9.63,0.22,-1.57},nil,nil,true);
+    paraworld.PostLog({action = "much_view_by_daily_checkin",}, 
+							"much_view_by_daily_checkin_log", function(msg)
+						end);
+end
+
+function OnClickAds1()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemLuckyPage.lua");
+    local ItemLuckyPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemLuckyPage");
+    if(ItemLuckyPage.menus) then
+        local i;
+        for i = 1,#ItemLuckyPage.menus do
+            if(ItemLuckyPage.menus[i]["keyname"] == "lottery_diamond_free") then
+                ItemLuckyPage.menus[i]["selected"] = true;
+            else
+                ItemLuckyPage.menus[i]["selected"] = nil;
+            end
+        end
+    end
+    ItemLuckyPage.ShowPage();
+end
+
+function OnClickAds2()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabTuijian2","1001");
+end
+
+NPL.load("(gl)script/apps/Aries/Partners/baidu/tieba_checkin.lua");
+local tieba_checkin = commonlib.gettable("MyCompany.Aries.Partners.baidu.tieba_checkin");
+function OnClickTiebaCheckin()
+    tieba_checkin.ShowPage();
+end
+
+function IsTieBaCheckin()
+   return tieba_checkin.IsRewardReceived();
+end
+
+function OnClickAds3()
+    --MyCompany.Aries.Desktop.NotificationArea.OnClickMagazine();
+    OnClosePage();
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/InternetLoadWorld.lua");
+    local InternetLoadWorld = commonlib.gettable("MyCompany.Aries.Creator.Game.Login.InternetLoadWorld");
+    InternetLoadWorld.ShowPage(true)
+end
+
+function OnClickAds4()
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(30531);
+end
+function OnClickAds5()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabXC","2013");
+end
+function OnClickAds6()
+    Map3DSystem.mcml_controls.pe_item.OnClickGSItem(998,true);
+end
+
+local vote_date = "20121119";
+NPL.load("(gl)script/apps/Aries/Desktop/NotificationArea/vote.lua");
+local vote = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.vote");
+function HasVote()
+    return vote.HasAnyVote(vote_date) == true;
+end
+
+function OnClickVote()
+    vote.ShowPage(vote_date, true, function()
+        Page:Refresh();
+        NPL.load("(gl)script/apps/Aries/Partners/PartnerPlatforms.lua");
+        local Platforms = commonlib.gettable("MyCompany.Aries.Partners.Platforms");
+        Platforms.TryGiveShareAward();
+    end);
+end
+
+function GotoAipai()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/game_gameid-47617.html", "", "", 1);
+end
+function GotoAipaiUrl1()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/c11/ND87OyQhJ28maSc.html", "", "", 1);
+end
+function GotoAipaiUrl2()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/c12/NTY4IiggIWgnaiYo.html", "", "", 1);
+end
+function GotoAipaiUrl3()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/c12/NTc4IigrIGgnai8h.html", "", "", 1);
+end
+function GotoAipaiUrl4()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/c12/NTk_JikqIWgnaiIo.html", "", "", 1);
+end
+function GotoAipaiUrl5()
+    ParaGlobal.ShellExecute("open", "http://www.aipai.com/c11/Ojg4IyklIWgnaiAh.html", "", "", 1);
+end
+
+function GetSumCheckinText()
+    local bhas, _, _,_login_days = Map3DSystem.Item.ItemManager.IfOwnGSItem(50394);
+    return format("%d天",  _login_days or 0);
+end
+
+function IsRewardReceived()
+    local ItemManager = Map3DSystem.Item.ItemManager;
+    local _id = ItemManager.GetGSObtainCntInTimeSpanInMemory(50348);
+	if(_id and _id.inday>0) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function OpenBBS()
+    local receive_reward = IsRewardReceived();
+    if(not receive_reward) then
+        local ItemManager = Map3DSystem.Item.ItemManager;
+        ItemManager.ExtendedCost( 1815, nil, nil, function(msg)end, function(msg)
+		    if(msg and msg.issuccess == true)then
+			    _guihelper.MessageBox("恭喜! 你的奖励已发，明天记得再来哦~");
+                Page:Refresh(0.1);
+		    end
+	    end);
+    end
+    NPL.load("(gl)script/apps/Aries/Creator/Game/game_options.lua");
+    local options = commonlib.gettable("MyCompany.Aries.Game.GameLogic.options")
+    local url = options.bbs_home_url;
+    ParaGlobal.ShellExecute("open", url, "", "", 1);
+end
+
+]]></script>
+<div class="window" style="width:820px;height:430px;">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" ><img style="margin-left:310px;margin-top:-2px;width:100px;height:28px;" src="Texture/Aries/Advertisement/DailyCheckin/CheckinTitle.png;0 0 100 28"/></div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClosePage" class="closewindow"/>
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div>
+            <div style="float:left;width:540px;">
+                <div style="text-align:center;">
+                    只要保证每天来小镇一趟, 就会有用不完的奖励哦！
+                </div>
+                <div style="margin-left:105px;">
+                    <span style="color:#a00100;font-weight:bold;">魔法星VIP</span>用户在登陆到达第5天后，不用重头累计签到天数. 
+                </div>
+            </div>
+            <div style="float:left;margin-top:16px;text-align:center;">
+                累计签到天数:<font color="#a00100"><b><%=GetSumCheckinText() %></b></font>
+            </div>
+        </div>
+        
+        <div style="text-align:center">
+        <div style="width:1000px;">
+        <div class="panel" style="float:left;margin-top:3px;width:540px;height:158px;padding:12px" >
+            <pe:repeat DataSource="<%=GetDailyCheckinStatus()%>">
+                <pe:repeatitem style="float:left;">
+                    <div style="float:left;">
+                        <div style="padding-left:6px;padding-top:3px;width:76px;height:76px;" class='block'>
+                            <pe:item tooltip_headerline='<%=format("连续登录%d天可领取", Eval("index")) %>' isclickable="false" gsid='<%=Eval("gsid")%>' style="background-color:#ffffff;width:64px;height:64px;"></pe:item>
+                        </div>
+                        <div style="position:relative;margin-top:-19px;margin-left:40px;width:34px;text-align:right">
+                            <%="x"..tostring(Eval("cnt") or 1)%>
+                        </div>
+                        <pe:if condition='<%=hasCheckin(Eval("index"))%>'>
+                            <div zorder = "2" style="position:relative;margin-top:-76px;width:76px;height:76px;background:url(Texture/Aries/Advertisement/DailyCheckin/grey_bg.png:6 6 6 6)" >
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("index") == DailyCheckin.GetCheckedinTimes()%>'>
+                            <div style="position:relative;margin-top:-79px;margin-left:-3px;width:82px;height:82px;background:url(Texture/Aries/Common/ThemeKid/tip/tip_bg_32bits.png:6 6 6 6)" >
+                            </div>
+                        </pe:if>
+                        <div style="margin-top:3px;font-size:12px;width:76px;text-align:center">
+                            <pe:if condition='<%=Eval("index") == DailyCheckin.GetCheckedinTimes()%>'>
+                                <span style="color:#f0f000;font-weight:bold"><%=GetDayText(Eval("index")) %></span>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") ~= DailyCheckin.GetCheckedinTimes()%>'>
+                                <%=GetDayText(Eval("index")) %>
+                            </pe:if>
+                        </div>
+                    </div>
+                    <pe:if condition='<%=Eval("index")~=5 %>'>
+                        <div style="float:left;background:url(Texture/Aries/Advertisement/DailyCheckin/right_arrow_32bits.png);margin-top:20px;margin-left:2px;width:32px;height:32px;"></div>
+                    </pe:if>
+                </pe:repeatitem>
+            </pe:repeat>
+            <div>
+                <pe:if condition='<%=not DailyCheckin.HasCheckedin()%>'>
+                    <input type="button" class="defaultbutton" onclick="DailyCheckin.DoCheckin" style="margin-top:7px;width:80px;margin-left:220px;" value="签到"/>
+                </pe:if>
+                <pe:if condition='<%=DailyCheckin.HasCheckedin()%>'>
+                    <div style="margin-top:2px;margin-left:20px;color:#a0f100;width:480px;height:20px"><font color="#a00100"><b>已签到！</b></font>明天再来奖励会更好哦!普通用户如果明天不来签到，
+                    下次签到时会重新开始累积。魔法星VIP用户如果明天不来签到，下次签到时间会从第二天开始累积。</div>
+                </pe:if>
+            </div>
+        </div>
+        <div class="panel" style="float:left;position:relative;margin-top:3px;height:158px;padding:12px" >
+            <pe:repeat DataSource="<%=GetSumDailyCheckinStatus()%>">
+                <pe:repeatitem >
+                    <div style="float:left;width:80px;">
+                        <div style="padding-left:6px;padding-top:3px;width:76px;height:76px;" class='block'>
+                            <pe:item isclickable="false" gsid='<%=Eval("gsid")%>' style="background-color:#ffffff;width:64px;height:64px;"></pe:item>
+                        </div>
+                        <div style="position:relative;margin-top:-19px;margin-left:40px;width:34px;text-align:right">
+                            <%="x"..tostring(Eval("cnt") or 1)%>
+                        </div>
+                        <pe:if condition='<%=CanSumCheckedIn(Eval("index"))%>'>
+                            <input zorder="1" type="button" value='马上领取' name='<%=string.format("sumChkIn_%d",Eval("index")) %>' onclick="DailyCheckin.DoSumCheckin" style="margin-left:2px;margin-top:3px;font-size:12px;width:72px;" class="button" />
+                        </pe:if>    
+                        <pe:if condition='<%=not CanSumCheckedIn(Eval("index"))%>'>
+                            <div style="margin-top:3px;color:#f0f000;font-size:12px;width:80px;text-align:center"><%=GetSumDayText(Eval("index"))%></div>
+                        </pe:if>
+                        <div>
+                            <%=format("%d天累计",  Eval("logindays")) %>
+                            <div>签到礼包</div>
+                        </div>
+                    </div>
+                </pe:repeatitem>
+            </pe:repeat>
+        </div>
+        </div>
+        <div class="panel" style="margin-top:3px;padding:5px;padding-right:7px" >
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement01.png#0 0 128 173)" onclick="OnClickAds1"></div>
+            <!--<pe:if condition='<%=not IsTieBaCheckin() and DailyCheckin.HasCheckedin() and MyCompany.Aries.Player.GetLevel()>15%>'>-->
+            <pe:if condition='<%=not IsRewardReceived() %>'>
+                <pe:arrowpointer name="checkin_tip" direction="BounceLower" animfile="script/UIAnimation/CommonIcon.lua.table"  style="float:left;position:relative;margin-left:0px;margin-top:-50px;width:140px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_bg_32bits.png:7 7 7 7)" >
+                    <div style="position:relative;margin-left:45px;margin-top:29px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_arrow_down_32bits.png)" />
+	                <div style="margin-top:4px;margin-left:3px;line-height:20px;text-align:center;font-size:13px;font-weight:bold;text-shadow:true;shadow-quality:8;shadow-color:#60ffffff">今天你还没有登录</div>
+                </pe:arrowpointer>
+            </pe:if>
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement02.png#0 0 128 173)" onclick="OpenBBS"></div>
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement03.png#0 0 128 173)" tooltip="点击查看" onclick="OnClickAds3"></div>
+            <pe:if condition='<%=HasVote()%>'>
+                <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/vote.png#0 0 128 173)" class="block" tooltip="点击查看" onclick="OnClickVote">
+                    <pe:arrowpointer name="vote_tip" direction="BounceLower" animfile="script/UIAnimation/CommonIcon.lua.table" style="float:left;position:relative;margin-left:0px;margin-top:-50px;width:130px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_bg_32bits.png:7 7 7 7)" >
+                        <div style="position:relative;margin-left:45px;margin-top:29px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_arrow_down_32bits.png)" />
+	                    <div style="margin-top:4px;margin-left:3px;line-height:20px;text-align:center;font-size:13px;font-weight:bold;text-shadow:true;shadow-quality:8;shadow-color:#60ffffff">快来投票呀</div>
+                    </pe:arrowpointer>
+                    <!--<input type="button" style="margin-top:110px;color:#a000a0;font-weight:bold;font-size:14px;background:" enabled="false" zorder="2" class="bordertext" value="哈奇有奖投票！"/>-->
+                </div>
+            </pe:if>
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement04.png#0 0 128 173)" tooltip="点击查看" onclick="OnClickAds4"></div>
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement05.png#0 0 128 173)" tooltip="点击查看" onclick="OnClickAds5"></div>
+            <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement06.png#0 0 128 173)" tooltip="点击查看" onclick="OnClickAds6"></div>
+            <!--<pe:if condition='<%=not HasVote()%>'>
+                <div style="float:left;margin:2px;width:128px;height:173px;background:url(Texture/Aries/Advertisement/20120802/Advertisement04.png#0 0 128 173)" >
+                    <input onclick="GotoAipaiUrl1()" type="button" class="link" value="" style="margin-left:0px;margin-top:5px;width:128px;height:22px;" />
+                    <input onclick="GotoAipaiUrl2()" type="button" class="link" value="" style="margin-left:0px;margin-top:0px;width:128px;height:20px;" />
+                    <input onclick="GotoAipaiUrl3()" type="button" class="link" value="" style="margin-left:0px;margin-top:0px;width:128px;height:20px;" />
+                    <input onclick="GotoAipaiUrl4()" type="button" class="link" value="" style="margin-left:0px;margin-top:0px;width:128px;height:20px;" />
+                    <input onclick="GotoAipaiUrl5()" type="button" class="link" value="" style="margin-left:0px;margin-top:0px;width:128px;height:20px;" />
+                    <input onclick="GotoAipai()"    type="button" value="" tooltip="《魔法哈奇》爱拍社区" style="background:;margin-left:0px;margin-top:0px;width:128px;height:50px;" />
+                </div>
+            </pe:if>-->
+        </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

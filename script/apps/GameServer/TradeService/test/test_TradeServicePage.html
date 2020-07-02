@@ -1,0 +1,170 @@
+﻿<!-- "script/apps/GameServer/TradeService/test/test_TradeServicePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi, 2011/10/17</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="test_TradeServicePage.lua"><![CDATA[
+NPL.load("(gl)script/apps/GameServer/TradeService/GSL_TradeClient.lua");
+local tradeclient = Map3DSystem.GSL.Trade.GSL_TradeClient.GetSingleton();
+local trade_container = commonlib.gettable("Map3DSystem.GSL.Trade.trade_container");
+
+
+tradeclient:AddEventListener("on_trade_update", function(self, msg)
+    if(msg.trad_trans) then
+		-- this is the trade_transaction class instance, one can call its methods. 
+        Page:Refresh(0.1);
+	elseif(msg.is_cancel) then
+		-- trade canceled
+        _guihelper.MessageBox("trade is canceled!")
+        Page:Refresh(0.01);
+	elseif(msg.is_complete) then
+		-- trade completed
+        _guihelper.MessageBox("Congratulations! trade is completed!")
+        Page:Refresh(0.01);
+    elseif(msg.is_started) then
+		-- trade started
+	elseif(msg.is_failed) then
+		-- trade failed
+        _guihelper.MessageBox("Sorry trade failed! please try again")
+        Page:Refresh(0.01);
+	end
+
+end);
+
+tradeclient:AddEventListener("on_trade_request", function(self, msg)
+    if(msg.from_nid) then
+        _guihelper.MessageBox("Do you want to accept trade with nid"..msg.from_nid, function(res)
+	        if(res and res == _guihelper.DialogResult.Yes) then
+		        tradeclient:AcceptTrade(); 
+            else
+                tradeclient:RejectTrade();
+	        end
+        end, _guihelper.MessageBoxButtons.YesNo);
+	end
+end);
+
+local function make_treeview_ds_from_cont(cont)
+    if(cont) then
+        local tvw_ds = {};
+        tvw_ds[#tvw_ds + 1] = {name="item", attr = {guid="money", count = cont.money }};
+        tvw_ds[#tvw_ds + 1] = {name="item", attr = {guid="is_confirmed", count = if_else(cont.is_confirmed, 1, 0) }};
+        tvw_ds[#tvw_ds + 1] = {name="item", attr = {guid="is_ok", count = if_else(cont.is_ok, 1, 0) }};
+        if(cont.items) then
+            local i, item;
+            for i, item in ipairs(cont.items) do
+                tvw_ds[#tvw_ds + 1] = {name="item", attr = {guid=item[1], count = item[2], gsid= item[3]}};
+            end
+        end
+        return tvw_ds;
+    else
+        return {};
+    end
+end
+
+function ds_tvw_items()
+    local cont, _ = tradeclient:get_containers();
+    return make_treeview_ds_from_cont(cont);
+end
+
+function ds_tvw_items_other()
+    local _, cont = tradeclient:get_containers();
+    return make_treeview_ds_from_cont(cont);
+end
+
+function onclick_add_item()
+    local gsid = Page:GetValue("add_gsid");
+    if (gsid and gsid~="" ) then
+        local cont = tradeclient:get_containers();
+        if(cont) then
+            local guid = gsid;
+            cont:add_item(guid, 1, gsid);
+            tradeclient:SendItemsUpdate(cont);
+            Page:Refresh(0.01);
+        end
+    end
+end
+
+function request_trade()
+    local target_nid = Page:GetValue("target_nid");
+    if (target_nid and target_nid~="" ) then
+        tradeclient:RequestTradeWith(target_nid , function(bSucceed)
+            if(bSucceed) then
+                _guihelper.MessageBox("trade accepted by nid"..target_nid)
+            else
+                _guihelper.MessageBox("trade rejected by nid"..target_nid)
+            end
+        end)
+    end
+end
+
+function onclick_is_ok(bChecked)
+    local trans = tradeclient:get_trad_trans();
+    if(trans) then
+        trans:update_items(tostring(System.User.nid), {is_ok = bChecked});
+        tradeclient:SendItemsUpdate(cont);
+    end
+end
+
+function onclick_is_confirmed(bChecked)
+    local trans = tradeclient:get_trad_trans();
+    if(trans) then
+        trans:update_items(tostring(System.User.nid), {is_confirmed = bChecked});
+        tradeclient:SendItemsUpdate(cont);
+    end
+end
+
+]]></script>
+<div style="margin:10px;">
+<div style="float:left;width:300px;" >
+    <div>My side:<%=tostring(System.User.nid)%> </div>
+    <div>
+        <div>
+            money: <input type="text" name="p_money" value="1" style="width:100px" />
+        </div>
+        <div>
+            添加物品：<br />
+            <input type="text" name="add_gsid" style="width:100px" /><input type="button" name="add" value="add" onclick="onclick_add_item"/>
+        </div>
+    </div>
+    <div>
+        <input type="checkbox" name="is_confirmed" onclick="onclick_is_confirmed"/><div style="float:left" for="is_confirmed">is_confirmed</div>
+        <input type="checkbox" name="is_ok" onclick="onclick_is_ok"/><div style="float:left" for="is_ok">is_ok</div>
+    </div>
+    <pe:treeview name="my_tvw" style="height:300px;width:250px;" DataSource='<%=ds_tvw_items()%>'>
+        <NodeTemplates>
+		    <NodeTemplate DataType="item">
+                <div style="height:20px;">
+                    guid: <%=XPath("this|guid")%> 
+                    count: <%=XPath("this|count")%> 
+                    gsid: <%=XPath("this|gsid") or "none"%> 
+                </div>
+            </NodeTemplate>
+	    </NodeTemplates>
+	    <DataNodePlaceholder xpath="*"/>
+    </pe:treeview>
+</div>
+<div style="float:left;width:300px;" >
+    <div>Other nid: <input type="text" value="14861822" name="target_nid" style="width:100px" /> 
+        <input type="button" name="request_trade" value="request" onclick="request_trade"/>
+    </div>
+    <pe:treeview name="other_tvw" style="height:300px;width:250px;" DataSource='<%=ds_tvw_items_other()%>' >
+        <NodeTemplates>
+		    <NodeTemplate DataType="item">
+                <div style="height:20px;">
+                    guid: <%=XPath("this|guid")%> 
+                    count: <%=XPath("this|count")%> 
+                    gsid: <%=XPath("this|gsid") or "none"%> 
+                </div>
+            </NodeTemplate>
+	    </NodeTemplates>
+	    <DataNodePlaceholder xpath="*"/>
+    </pe:treeview>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

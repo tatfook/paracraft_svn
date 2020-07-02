@@ -1,0 +1,95 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicMoneyBox/MagicMoneyBox.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MagicMoneyBox, by Spring, 2010/10/18</title>
+</head>
+<body>
+<pe:mcml>
+
+<script type="text/npl" src="MagicMoneyBox.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local rEmoney={};
+
+local bean_count = {2000, 2500, 3000, 3500, 4000, 4200, 4400, 4600, 4800, 5000}; 
+
+for i = 1, 10 do
+    rEmoney[i] = {mlel = i, emoney = bean_count[i] or 0,};
+end
+
+
+function getmlel()
+    local cur_mlel=0;
+    local s;
+    local bean = MyCompany.Aries.Pet.GetBean();
+    if(bean) then
+        if (bean.mlel) then
+            cur_mlel=bean.mlel;
+        end
+    end    
+    commonlib.echo("==========cur_mlel:"..cur_mlel);
+    s =string.format("你的魔法星现在是 <font color='#ff0000'>%d</font> 级",cur_mlel);
+    return s;
+end
+
+function DS_Func_RewardsEmoney(index)
+    if(index == nil) then
+        return 11;
+	else
+		return rEmoney[index];
+	end	
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+
+]]></script>
+<div style="width:410px;height:489px;background:url(texture/Aries/Desktop/CombatCharacterFrame/MagicStar/bg.png#0 0 410 489)">
+    <div style="margin-left:0px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <input style="margin-left:358px;margin-top:35px;width:49px;height:59px;background:url(Texture/Aries/Common/Close_48_32bits.png#0 0 49 59);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin-left:140px;margin-top:-85px;width:114px;height:82px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MoneyBox_title.png#0 0 114 82)" ></div>
+    <div style="margin-left:10px;margin-top:-35px;width:30px;height:31px;background:url(Texture/Aries/MapHelp/MagicStarHelp/magicMoneybox_ico.png#0 0 30 31)" ></div>     
+    <div style="margin-left:15px;margin-top:5px;width:375px;height:60px;">              
+    魔法星每周都会在我这里存上仙豆，根据魔法星等级不同，存入的仙豆也不同。<%=getmlel()%>，你要领取你的魔法星存下的仙豆吗？
+    </div>
+
+    <div style="color:#022a57;font-size:12;margin-top:10px;margin-left:15px;width:364px;height:280px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_bg.png#0 0 364 283);">
+    <pe:gridview DataSource="<%=DS_Func_RewardsEmoney%>" name="reward_emoney" style="margin-left:80px;margin-top:34px;margin-right:0px;margin-bottom:0px;width:364px;height:279px;" 
+       VerticalScrollBarStep="35"  CellPadding="1"  DefaultNodeHeight = "23" ItemsPerLine="1" AllowPaging="true" pagesize="10">
+        <Columns>  
+                <div style="margin-left:110px;margin-top:1px;font-size:12;" ><%=Eval("emoney") %></div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>
+
+    <div style="margin-left:30px;margin-top:10px;width:412px;height:65px;">
+        <div style="margin-top:0px;width:152px;height:47px;">
+            <input type="button" onclick="MyCompany.Aries.Quest.NPCs.MagicMoneyBox.GetEmoney" style="width:152px;height:47px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/getGodBean.png#0 0 152 47);" />
+        </div>
+    
+        <div style="margin-left:180px; margin-top:-47px;width:152px;height:47px;">
+            <input type="button" onclick="OnClose();" style="width:152px;height:47px;background:url(Texture/Aries/Common/Later_32bits.png# 0 0 152 47);" />
+        </div>
+    </div>
+
+</div>
+
+</pe:mcml> 
+</body>
+</html>

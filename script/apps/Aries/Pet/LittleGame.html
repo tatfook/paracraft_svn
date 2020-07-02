@@ -1,0 +1,309 @@
+<!--script/apps/Aries/Pet/LittleGame.html-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by lipeng, 2013/7/16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="LittleGame.lua" refresh="true"><![CDATA[
+
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local LittleGame = commonlib.gettable("MyCompany.Aries.Pet.LittleGame");
+
+LittleGame.init();
+
+function GetPetGSID(index)
+    return LittleGame.PetList[index]["gsid"];
+end
+
+function GoToPetNearby(name, mcmlNode)
+    local npcid = LittleGame.PetList[tonumber(name)]["npcid"];
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(npcid,function()
+        page:CloseWindow();
+    end)
+end
+
+function GoToNPC()
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(30101,function()
+        page:CloseWindow();
+    end)
+end
+
+
+function OpenNpcShopPage()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+    NPCShopPage.ShowPage(30101,nil,nil,11);
+end
+
+function DS_Func(petID,sub)
+    return LittleGame.PetList[petID].goods[sub];
+end
+
+function GetTooltip(petID)
+    return LittleGame.PetList[petID].tooltip;
+end
+
+function GetCounts()
+    local hasBe,_,_,num = ItemManager.IfOwnGSItem(50404);
+    if(not hasBe) then
+        num = 0;
+    end
+    return num;
+end
+
+function CanGetReward()
+    local hasBe,_,_,num = System.Item.ItemManager.IfOwnGSItem(50404);
+    return hasBe;
+end
+
+function BuyRewardTag()
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+    local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+	    return
+    end
+    _guihelper.MessageBox("你正在购买10次小游戏获奖次数，该操作需要花费<font color='#ff0000'>18</font>魔豆。现在购买？",function(result) 
+		if(result == _guihelper.DialogResult.Yes) then
+			ItemManager.ExtendedCost(1910, nil, nil, function(msg)
+				if(msg.issuccess == true) then
+					_guihelper.MessageBox("你的小游戏获奖次数已刷新，你可以继续去和小伙伴们玩耍了！");
+                    MyCompany.Aries.Desktop.HPMyPlayerArea.UpdateUI();
+                    page:Refresh(0.5);
+				end
+			end);
+		end
+	end,_guihelper.MessageBoxButtons.YesNo);
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+]]></script>
+ <div style="width:605px;height:500px;font-size:12;" class="window" >
+    <div style="position:relative;width:580px;height:64px;margin-top:-8px;margin-left:10px;background:url(texture/aries/Pet/blue_bg_caption_wide.png#0 0 512 64:190 22 310 29)">
+        <div style="position:relative;width:215px;height:32px;margin-left:187px;margin-top:15px;background:url(texture/aries/Pet/littlegame_title.png#0 0 225 32);"/>
+    </div>  
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage" />
+   <!-- <div style="position:relative;margin-top:45px;margin-left:10px;font-size:14px;base-font-size:14;font-weight:bold;font-color:#a00100;height:50px;width:578px" class="panel">
+        使用<pe:item is_container="true" gsid="9506" isclickable="false" style="float:left;margin-left:-6px;margin-top:0px;height:30px;width:65px;color:#a00100">超大水球</pe:item>、<pe:item is_container="true" gsid="9508" isclickable="false" style="float:left;margin-left:-10px;margin-top:0px;height:30px;width:65px;color:#a00100">超大果冻</pe:item>，小蓝马、蘑菇噜就是这么简单！
+        使用超大水球<pe:item gsid="9506" isclickable="false" style="float:left;margin-left:-6px;margin-top:0px;height:24px;width:24px;color:#a00100" />、超大果冻<pe:item gsid="9508" isclickable="false" style="float:left;margin-left:-10px;margin-top:0px;height:24px;width:24px;color:#a00100" />，小蓝马、蘑菇噜就是这么简单！<br/>
+        小蓝马王子、蘑菇噜王子来了,能连续喂养他们6次，必得出锤子哦！
+        <div style="float:left;margin-top:1px;margin-left:30px;">
+            必中道具<br/>
+            (砸一次必中)
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:10px;color:#ffffff;">
+            超大水球<br/>
+            超大果冻
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:40px;">
+            皇室道具<br/>
+            (砸恶魔锤专用)
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:10px;color:#ffff00;">
+            魔力水球<br/>
+            魔力果冻
+        </div>
+    </div>
+    <input type="button" value = "马上购买" style = "position:relative;margin-top:52px;margin-left:495px;width:80px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;" onclick = "OpenNpcShopPage" class = "button_highlight"/>-->
+    <div style = "margin-top:-5px;">
+        <div style="float:left;margin-top:55px;margin-left:10px;width:208px;height:306px;" class="panel">
+        <div style = "float:left;width:208px;height:306px;">
+            <div style = "margin-left:13px;margin-top:10px;width:180px;height:210px;background:url(texture/aries/Pet/littlegame_pic.png# 0 0 180 210);">
+            </div>
+            <div style = "margin-left:40px;margin-top:6px;font-size:16px;base-font-size:16;font-weight:bold;font-color:#000000;">
+                你今天还可以<br/>获取奖励:<span style = "color:#a00100;"><%=GetCounts()%>次</span>             
+            </div>
+            <pe:if condition = "<%= not CanGetReward() %>" >
+                <input type="button" value = "再来10次" style = "float:left;margin-top:2px;margin-left:60px;width:75px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "BuyRewardTag" />
+            </pe:if>
+        </div>
+    </div>
+    <div style = "float:left;margin-top:55px;margin-left:-1px;width:365px;height:310px;" >
+        <div style = "margin-left:5px;width:365px;height:100px;" class="panel">
+            <div style = "width:365px;height:75px;">
+                <div style = "float:left;margin-left:15px;margin-top:15px;width:64px;height:64px;" >
+                    <pe:item gsid = "<%=GetPetGSID(1)%>" isclickable = "false" style = "width:64px;height:64px;" tooltip = "<%=GetTooltip(1)%>" class="highbluecolor" tooltip_offset_x="40" tooltip_offset_y="-45" tooltip_is_lock_position="true"/>
+                </div>
+                <div style = "float:left;margin-left:5px;margin-top:15px;">
+                    <div style = "float:left;margin-top:-8px;base-font-size:14;font-weight:bold;font-size:14px;">
+                    有概率获得以下物品：
+                    </div>
+                    <input name = "1" type="button" value = "和它玩耍" style = "float:left;margin-top:-12px;margin-left:25px;width:85px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "GoToPetNearby" />
+                    <div style = "width:300px;height:64px;">
+                        <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                            <div style = "margin-top:0px;text-align:center;color:#ffffff;font-weight:bold;">
+                                必出道具
+                            </div>
+                            <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(1,"must")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                            <Columns>
+                                    <div style="padding:1px;width:38px;height:38px;" class="block">
+                                        <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                    </div>            
+	                            </Columns>
+	                            <EmptyDataTemplate>
+	                            </EmptyDataTemplate>
+	                            <FetchingDataTemplate>
+	                            </FetchingDataTemplate>
+                            </pe:gridview>      
+                        </div>
+                        <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                            <div style = "margin-top:0px;text-align:center;color:#ffff00;font-weight:bold;">
+                                稀有道具
+                            </div>
+                            <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(1,"may")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                            <Columns>
+                                    <div style="padding:1px;width:38px;height:38px;" class="block">
+                                        <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                    </div>            
+	                            </Columns>
+	                            <EmptyDataTemplate>
+	                            </EmptyDataTemplate>
+	                            <FetchingDataTemplate>
+	                            </FetchingDataTemplate>
+                            </pe:gridview>      
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        <div style = "margin-top:3px;margin-left:5px;width:365px;height:100px;" class="panel">
+            <div style = "float:left;margin-left:15px;margin-top:15px;width:64px;height:64px;" >
+                <pe:item gsid = "<%=GetPetGSID(2)%>" isclickable = "false" style = "width:64px;height:64px;" tooltip = "<%=GetTooltip(2)%>" class="highbluecolor" tooltip_offset_x="40" tooltip_offset_y="-45" tooltip_is_lock_position="true"/>
+            </div>
+            <div style = "float:left;margin-left:5px;margin-top:15px;">
+                <div style = "float:left;margin-top:-8px;base-font-size:14;font-weight:bold;font-size:14px;">
+                    有概率获得以下物品：
+                </div>
+                <input name = "2" type="button" value = "和它玩耍" style = "float:left;margin-top:-12px;margin-left:25px;width:85px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "GoToPetNearby" />
+                <div style = "width:300px;height:64px;">
+                    <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                        <div style = "margin-top:0px;text-align:center;color:#ffffff;font-weight:bold;">
+                            必出道具
+                        </div>
+                        <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(2,"must")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                        <Columns>
+                                <div style="padding:1px;width:38px;height:38px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                </div>            
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                        </pe:gridview>      
+                    </div>
+                    <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                        <div style = "margin-top:0px;text-align:center;color:#ffff00;font-weight:bold;">
+                            稀有道具
+                        </div>
+                        <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(2,"may")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                        <Columns>
+                                <div style="padding:1px;width:38px;height:38px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                </div>            
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style = "margin-top:3px;margin-left:5px;width:365px;height:100px;" class="panel">
+            <div style = "float:left;margin-left:15px;margin-top:15px;width:64px;height:64px;" >
+                <pe:item gsid = "<%=GetPetGSID(3)%>" isclickable = "false" style = "width:64px;height:64px;" tooltip = "<%=GetTooltip(3)%>" class="highbluecolor" tooltip_offset_x="40" tooltip_offset_y="-45" tooltip_is_lock_position="true"/>
+            </div>
+             <div style = "float:left;margin-left:5px;margin-top:15px;">
+                <div style = "float:left;margin-top:-8px;base-font-size:14;font-weight:bold;font-size:14px;">
+                    有概率获得以下物品：
+                </div>
+                <input name = "3" type="button" value = "和它玩耍" style = "float:left;margin-top:-12px;margin-left:25px;width:85px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "GoToPetNearby" />
+                <div style = "width:300px;height:64px;">
+                    <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                        <div style = "margin-top:0px;text-align:center;color:#ffffff;font-weight:bold;">
+                            必出道具
+                        </div>
+                        <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(3,"must")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                        <Columns>
+                                <div style="padding:1px;width:38px;height:38px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                </div>            
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                        </pe:gridview>      
+                    </div>
+                    <div style="float:left;margin-left:5px;margin-top:0px;height:60px;width:130px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)">
+                        <div style = "margin-top:0px;text-align:center;color:#ffff00;font-weight:bold;">
+                            稀有道具
+                        </div>
+                        <pe:gridview name="itemInGiftBag" DataSource='<%=DS_Func(3,"may")%>' ItemsPerLine="8" AllowPaging="false" pagesize="8" style = "margin-left:3px;margin-top:-1px;">
+	                        <Columns>
+                                <div style="padding:1px;width:38px;height:38px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>'  style="width:38px;height:38px;" isclickable="false"/>
+                                </div>            
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div style = "margin-top:3px;margin-left:5px;width:365px;height:75px;" class="panel_red">
+            
+        </div>-->
+        </div>
+    </div>
+    <div style="position:relative;margin-top:-4px;margin-left:10px;font-size:14px;base-font-size:14;font-color:#a00100;height:50px;width:578px" class="panel">
+        <!--使用<pe:item is_container="true" gsid="9506" isclickable="false" style="float:left;margin-left:-6px;margin-top:0px;height:30px;width:65px;color:#a00100">超大水球</pe:item>、<pe:item is_container="true" gsid="9508" isclickable="false" style="float:left;margin-left:-10px;margin-top:0px;height:30px;width:65px;color:#a00100">超大果冻</pe:item>，小蓝马、蘑菇噜就是这么简单！-->
+       <!-- 使用超大水球<pe:item gsid="9506" isclickable="false" style="float:left;margin-left:-6px;margin-top:0px;height:24px;width:24px;color:#a00100" />、超大果冻<pe:item gsid="9508" isclickable="false" style="float:left;margin-left:-10px;margin-top:0px;height:24px;width:24px;color:#a00100" />，小蓝马、蘑菇噜就是这么简单！<br/>
+        小蓝马王子、蘑菇噜王子来了,能连续喂养他们6次，必得出锤子哦！-->
+        <div style="float:left;margin-top:1px;margin-left:40px;font-weight:bold;">
+            必中道具<br/>
+            (砸一次必中)
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:10px;color:#ffffff;">
+            超大水球<br/>
+            超大果冻
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:40px;font-weight:bold;">
+            皇室道具<br/>
+            (砸恶魔锤专用)
+        </div>
+        <div style="float:left;margin-top:1px;margin-left:10px;color:#ffff00;">
+            魔力水球<br/>
+            魔力果冻
+        </div>
+        <input type="button" value = "马上购买" style = "float:left;margin-top:9px;margin-left:46px;width:80px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;" onclick = "OpenNpcShopPage" class = "button_highlight"/>
+    </div>
+    <div style = "margin-left:10px;margin-top:43px;color:#000000;">
+        <div style = "base-font-size:14;font-weight:bold;font-size:14px;">
+            小游戏玩法说明：
+        </div>
+        1、玩家每天参与游戏都有10次免费获得奖励的机会，用完后可以点击【再来10次】按钮购买。<br/>
+        2、小蓝马需要向它投掷果冻，当它吃饱变的最大后就会给你奖励。<br/>
+        3、蘑菇噜需要用水球投掷它，当击中让它变的最大后就会给你奖励。<br/>
+        4、皇冠蛇需要你用鼠标点击敲打它，敲中多次后就会给你奖励。<br/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,387 @@
+--
+--
+--
+--*****this file is deprecated******
+--
+--
+--
+--NPL.load("(gl)script/ide/common_control.lua");
+--
+--local mapSearchWnd = {
+	--name = "mapSearchWnd";
+	--parent = nil;
+	--left = 0;
+	--top = 0;
+	--right = 0;
+	--bottom = 0;
+	--mediator = nil;
+	--isShowStartUpWnd = true;
+	--adFilePath = "Texture/worldMap/PlayerLogo/ad1.swf"
+--}
+--CommonCtrl.mapSearchWnd = mapSearchWnd;
+--
+--function mapSearchWnd:new(o)
+	--o = o or {}   -- create object if user does not provide one
+	--setmetatable(o, self)
+	--self.__index = self
+	--return o
+--end
+--
+--function mapSearchWnd:Show(bshow)
+	--local _this,_parent;
+	--if( self.name == nil)then
+		--log("mapSearchWnd instance name can not be nil -_-b \r\n");
+		--return;
+	--end
+	 --
+	--_this = ParaUI.GetUIObject(self.name);
+	--if(_this:IsValid() == false)then
+		----create control container
+		--_this = ParaUI.CreateUIObject("container",self.name,"_fi",self.left,self.top,self.right,self.bottom);
+		--_this.background = "Texture/worldMap/UI/darkBlue.png";
+		--if(self.parent == nil)then
+			--_this:AttachToRoot();
+		--else
+			--self.parent:AddChild(_this);
+		--end
+		--CommonCtrl.AddControl(self.name,self);
+		--_parent = _this;
+		--local __,__,width = _parent:GetAbsPosition();
+		--
+		--_this = ParaUI.CreateUIObject("imeeditbox",self.name.."edtKeyword","_lt",10,10,width - 45,25);
+		--_this.onkeyup = string.format( [[;CommonCtrl.mapSearchWnd.OnText("%s");]],self.name);
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."btnSearch","_lt",width - 35,10,25,25);
+		--_this.text = "Go";
+		--_this.background = "Texture/worldMap/UI/blueBtn.png";
+		--_this.onclick = string.format( [[;CommonCtrl.mapSearchWnd.OnSearchClick("%s");]],self.name);
+		--_parent:AddChild(_this); 
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,40,width,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("listbox",self.name.."searchResult","_fi",0,45,0,110);
+		--_this.scrollable=true;
+		--_this.font = "System;12;norm";
+		--_this.visible = false;
+		--_this.background = "Texture/worldMap/UI/lightBlue.png";
+		--_this.onselect = string.format( [[;CommonCtrl.mapSearchWnd.OnItemClick("%s")]],self.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = CommonCtrl.startUpWnd:new{
+			--name = self.name.."startWnd",
+			--parent = _parent,
+			--alignment = "_fi",
+			--left = 0,
+			--top = 45,
+			--width = 0,
+			--height = 110
+		--}
+		--_this:Show();
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lb",0,-(width-8)/16*9-10,width,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("container",self.name.."ad","_lb",4,-(width-8)/16*9-4,width-8,(width-8)/16*9);
+		--_this.background = "Texture/productcover_exit_cn.png";
+		--_parent:AddChild(_this);
+		 --
+		--NPL.load("(gl)script/ide/FlashPlayerControl.lua");
+		--local ctl = CommonCtrl.FlashPlayerControl:new{
+			--name = self.name.."ad",
+			--FlashPlayerIndex = 0,
+			--alignment = "_lt",
+			--left=4, top=-(width-8)/16*9-4,
+			--width = width-8,
+			--height = (width-8)/16*9,
+			--parent = _parent,
+		--};
+		--ctl:Show();
+	--
+		--ctl:LoadMovie(self.adFilePath);
+		--
+	--else
+		--if(bshow == nil)then
+			--if(_this.visible == true) then
+				--_this.visible = false;
+			--else
+				--_this.visible = true;
+			--end
+		--else
+			--_this.visible = bshow;
+		--end
+	--end			
+--end
+--
+--function mapSearchWnd:Destroy()
+	--ParaUI.Destory(self.name);
+--end
+--
+--function mapSearchWnd:SetMediator(_mediator)
+	--self.mediator = _mediator;
+--end
+--
+--function mapSearchWnd.OnSearchClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("err getting mapSearchWnd instance -_- \r\n");
+		--return;
+	--end
+--
+	--self:ShowStartUpWnd(false);
+--
+	--if( self.mediator ~= nil)then
+		--self.mediator:Search(ctrName);
+	--end
+--end
+--
+--function mapSearchWnd.OnText(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if(self==nil)then
+		--log("error getting mapSearchWnd instance "..ctrName.."\r\n");
+		--return;
+	--end
+	--
+	--if(virtual_key == Event_Mapping.EM_KEY_RETURN or virtual_key == Event_Mapping.EM_KEY_NUMPADENTER)then
+		--self:ShowStartUpWnd(false);	
+		--if( self.mediator ~= nil)then
+			--self.mediator:Search();
+		--end	
+	--end
+--end
+ --
+--function mapSearchWnd:OnResize()
+	--local _this = CommonCtrl.GetControl( self.name.."startWnd");
+	--if( _this == nil)then
+		--return;
+	--end
+	--
+	--_this:OnResize();
+	--self:ShowStartUpWnd(self.isShowStartUpWnd);
+--end
+--
+--function mapSearchWnd:ShowStartUpWnd(bshow)
+	--self.isShowStartUpWnd = bshow;
+	--local _this = ParaUI.GetUIObject(self.name.."searchResult");
+	--if( _this:IsValid() == false)then
+		--log("error getting search result listbox -_-#\r\n");
+		--return;
+	--end
+	--_this.visible = not bshow;
+	--
+	--local stWnd = CommonCtrl.GetControl(self.name.."startWnd");
+	--if(stWnd == nil)then
+		--log("err getting sidebar start window -_-#\r\n");
+		--return;
+	--end
+	--stWnd:Show(bshow);
+--end
+--
+--function mapSearchWnd.OnItemClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("error getting world map window instance -_-#\r\n");
+		--return;
+	--end
+	--
+	--local _this = ParaUI.GetUIObject(self.name.."searchResult");
+	--if( _this:IsValid() == false)then
+		--log("err getting my world window UI element searchResult -_-\r\n");
+		--return;
+	--end	
+	--if(self.mediator ~= nil)then
+		--self.mediator:OnItemClick(_this.text)
+	--end	
+--end
+--
+--------------------------------------------------
+--local startUpWnd = {
+	--name = "startUpWnd",
+	--parent = nil,
+	--alignment = "_lt",
+	--left = 0,
+	--top = 0,
+	--width = 0,
+	--height = 0,
+	--scrollbarwidth = 25;
+--}
+--CommonCtrl.startUpWnd = startUpWnd;
+--
+--function startUpWnd:new(o)
+	--o = o or {}   -- create object if user does not provide one
+	--setmetatable(o, self)
+	--self.__index = self
+	--return o
+--end
+--
+--function startUpWnd:Destroy()
+	--ParaUI.Destroy(self.name);
+--end
+--
+--function startUpWnd:Show(bshow)
+	--local _this;
+	--if( self.name == nil)then
+		--log("startUpWnd instance name can not be nil -_-b \r\n");
+		--return;
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name);
+	--if(_this:IsValid() == false)then
+		--self:InitUI();
+	--else
+		--if(bshow == nil)then
+			--if(_this.visible == true) then
+				--_this.visible = false;
+			--else
+				--_this.visible = true;
+			--end
+		--else
+			--_this.visible = bshow;
+		--end
+	--end
+--end 
+--
+--function startUpWnd:InitUI()
+	--local _this,_parent;
+	--_this = ParaUI.GetUIObject(self.name);
+	--if(_this:IsValid())then
+		--return;
+	--end
+	--
+	--_this = ParaUI.CreateUIObject("container",self.name,self.alignment,self.left,self.top,self.width,self.height);
+	--_this.background = "Texture/worldMap/UI/lightBlue.png";
+	--_this.scrollable = true;
+	--if(self.parent == nil)then
+		--_this:AttachToRoot();
+	--else
+		--self.parent:AddChild(_this);
+	--end
+	--CommonCtrl.AddControl(self.name,self);
+	--_parent = _this;
+	--
+	--local __,__,_width = _parent:GetAbsPosition();
+	--local top = 5;
+	--_this = ParaUI.CreateUIObject("text","s","_lt",5,top,100,25);
+	--_this.text = "近期活动";
+	--_this:GetFont("text").color = "20 60 80";
+	--_parent:AddChild(_this);
+	--top = top + 25;
+	--
+	--_this = ParaUI.CreateUIObject("container","s","_lt",0,25,_width - self.scrollbarwidth,1);
+	--_this.background = "Texture/worldMap/splitline.png";
+	--_parent:AddChild(_this);
+	--top = top + 26;
+	--
+	--_this = ParaUI.CreateUIObject("text",self.name.."placard","_lt",5,30,_width - self.scrollbarwidth,0);
+	--_this.font = "System;12;norm";
+	----_this.text = "\"赏金猎人\"——寻找游戏中最优秀的猎手，详情请见ParaEngine官方网站";
+	--_this.text = [["KM online 公网演示" --点击左边地图上的点, 找到网通1区1或电信1区1, 点击并进入联网的世界]];
+	--_parent:AddChild(_this);
+	--top = top + 50;
+--
+	--_this = ParaUI.CreateUIObject("text","s","_lt",5,top,100,25);
+	--_this.text = "推荐世界";
+	--_this:GetFont("text").color = "20 60 80";
+	--_parent:AddChild(_this);
+	--top = top + 20;
+	--
+	--_this = ParaUI.CreateUIObject("container","s","_lt",0,top,_width - self.scrollbarwidth,1);
+	--_this.background = "Texture/worldMap/splitline.png";
+	--_parent:AddChild(_this);
+	--top = top + 5;
+	--
+	--_this = ParaUI.CreateUIObject("button",self.name.."recmdWorld1","_lt",10,top,60,60);
+	--_this.background = "Texture/worldMap/UI/world1.png"
+	--_this.tooltip = "游乐场（尚未开放）"
+	--_parent:AddChild(_this);
+	--
+	--_this = ParaUI.CreateUIObject("button",self.name.."recmdWorld2","_lt",80,top,60,60);
+	--_this.background = "Texture/worldMap/UI/world2.png"
+	--_this.tooltip = "商城（尚未开放）"
+	--_parent:AddChild(_this);
+	--
+	--top = top + 70
+	--_this = ParaUI.CreateUIObject("button",self.name.."recmdWorld3","_lt",10,top,60,60);
+	--_this.background = "Texture/worldMap/UI/world3.png"
+	--_this.tooltip = "图书馆（尚未开放）"
+	--_parent:AddChild(_this);
+--
+	--_this = ParaUI.CreateUIObject("button",self.name.."recmdWorld4","_lt",80,top,60,60);
+	--_this.background = "Texture/worldMap/UI/world4.png"
+	--_this.tooltip = "电影院（尚未开放）"
+	--_parent:AddChild(_this);
+	--top = top + 80;
+	--
+	--_this = ParaUI.CreateUIObject("text","s","_lt",5,top,100,25);
+	--_this.text = "最近浏览";
+	--_this:GetFont("text").color = "20 60 80";
+	--_parent:AddChild(_this);
+	--top = top + 20;
+	--
+	--_this = ParaUI.CreateUIObject("container","s","_lt",0,top,_width - self.scrollbarwidth,1);
+	--_this.background = "Texture/worldMap/splitline.png";
+	--_parent:AddChild(_this);
+	--top = top + 5;
+	--
+	--_this = ParaUI.CreateUIObject("listbox",self.name.."recentView","_lt",5,top,_width - self.scrollbarwidth,80);
+	--_this.background = "Texture/worldMap/UI/lightBlue.png";
+	--_this.font = "System;12;norm";
+	--_this:AddTextItem("网通1区1");
+	--_this:AddTextItem("电信1区1");
+	--_this:AddTextItem("LiXizhi");
+	--_this:AddTextItem("ParaEngine");
+	--_this.onselect=string.format(";CommonCtrl.startUpWnd.recentView_onselect(%q);", self.name);
+	--_parent:AddChild(_this);
+--end
+--
+--function startUpWnd:OnResize()
+	--self:Destroy();
+	--self:InitUI();
+--end
+--
+--function startUpWnd.recentView_onselect(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("error getting startUpWnd instance -_-#\r\n");
+		--return;
+	--end
+	--
+	--local _this = ParaUI.GetUIObject(self.name.."recentView");
+	--if( _this:IsValid() == false)then
+		--log("err recentView element on startUpWnd -_-\r\n");
+		--return;
+	--end	
+	--
+	----if(CommonCtrl.MapExplorerWnd~=nil and CommonCtrl.MapExplorerWnd.mediator ~= nil)then
+		----CommonCtrl.MapExplorerWnd.mediator:OnItemClick(_this.text)
+	----end
+	--if( self.parent.name ~= nil)then
+		--local parent = CommonCtrl.GetControl( self.parent.name);
+		--if(CommonCtrl.MapExplorerWnd~=nil and parent.mediator ~= nil)then
+			--parent.mediator:OnItemClick(_this.text);
+		--end
+	--end
+--end
+--
+--function startUpWnd:SetPlacard(newPlacard)
+	--local _this = ParaUI.GetUIObject( self.name.."placard");
+	--if( _this:IsValid() == false)then
+		--log( "placard not fount -_-#\r\n");
+		--return;
+	--end
+	--
+	--_this.text = newPlacard;
+--end
+--
+--function startUpWnd:SetRecommendWorld( )
+	----TODO
+--end
+--
+--function startUpWnd:SetRecentRecord()
+--
+--end
+--

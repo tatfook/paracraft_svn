@@ -1,0 +1,89 @@
+﻿<!--script/apps/Aries/Desktop/Functions/Christmas_lottery.html-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by lipeng, 2013/7/16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+function DS_Func()
+    local icon = "Texture/Aries/Item/17351_SignInGiftBag.png";
+    local exid = 2091;
+    local t ={
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+        {exid = exid,icon = icon},
+    }
+    return t;
+end
+
+function OnClickItem(name, mcmlNode)
+    local item = mcmlNode:GetPreValue("this", true);
+    local exid = item.exid;
+    NPL.load("(gl)script/apps/Aries/ServerObjects/Gatherer/GathererBarPage.lua");
+    local GathererBarPage = commonlib.gettable("MyCompany.Aries.ServerObjects.GathererBarPage");
+    local title = string.format("圣诞老人礼物拿来！");
+	GathererBarPage.Start({ duration = 1000, title = title, disable_shortkey = true, align="_ct", x=-80, y=-100,},nil,function()
+        if(hasGSItem(17559)) then
+            ItemManager.ExtendedCost(exid,nil,nil,function(msg)
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+				    page:Refresh();
+			    end
+		    end,function(msg) end,"pick");   
+        else
+            _guihelper.MessageBox("你没有魔法圣诞袜，不能参与抽奖。充值200魔豆即可获得魔法圣诞袜参与抽奖，100%有奖哦！现在就去充值？",function(result)
+                if(result == _guihelper.DialogResult.Yes) then
+                    MyCompany.Aries.HaqiShop.GotoTaomeePage();
+                end
+            end,_guihelper.MessageBoxButtons.YesNo);
+		end
+	end);
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="margin-left:20px;width:330px;height:495px;font-size:12;" class="window" >
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:10px;margin-right:10px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage" />
+    <div style="width:128px;height:22px;margin-top:15px;margin-left:90px;background:url(texture/aries/desktop/christmas_lottery_title.png#0 0 128 22)"/>   
+    <div style="width:310px;height:310px;margin-left:10px;margin-top:10px;background:url(texture/aries/common/themekid/fatecard/fruit_panel.png#0 0 60 62:16 16 32 32);">
+        <pe:gridview name="christmas_lottery"  DataSource='<%=DS_Func()%>' ItemsPerLine="3" AllowPaging="false" pagesize="9" RememberLastPage="true" >
+            <Columns>
+                <div style="margin-left:10px;margin-top:10px;width:90px;height:90px;background:url(texture/aries/common/themekid/fatecard/fruit_bg.png#4 4 60 60:24 24 24 24);">
+                    <img src='<%=Eval("icon") %>' style="margin-left:5px;margin-top:1px;width:80px;height:80px;" onclick="OnClickItem" tooltip="点击就有惊喜大奖"/>
+                </div>
+            </Columns>
+        </pe:gridview>
+    </div>
+    <div style = "margin-top:5px;margin-left:10px;width:315px;">
+        <!--<div style = "base-font-size:14;font-weight:bold;font-size:14px;">
+        温馨提示：
+        </div>
+        <div>-->
+            活动时间：2013年12月10日-2014年01月09日<br/>
+            活动规则：<br/>
+            1、每单笔充值200魔豆即可获得1个“魔法圣诞袜”，用“魔法圣诞袜”参与“圣诞大抽奖”。<br/>
+            2、点击抽奖界面中任意一个礼包，即可开始抽奖，随机获得各种奖品。本次抽奖活动100%中奖，还有更多惊喜在等着你，快快参与吧！
+        <!--</div>-->
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

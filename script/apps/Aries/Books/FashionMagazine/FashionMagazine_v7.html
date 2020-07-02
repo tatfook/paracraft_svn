@@ -1,0 +1,463 @@
+﻿<!-- "script/apps/Aries/Books/FashionMagazine/FashionMagazine_v7.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FashionMagazine, by Andy, 2009/9/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- check for discount value
+isHalfPriceDay = false;
+
+if(MyCompany.Aries.Scene) then
+    local discount = MyCompany.Aries.Scene.GetServerObjectValue("EMoneyDiscount") or false;
+
+    if(discount and tonumber(discount) == 0.5) then
+        isHalfPriceDay = true;
+    end
+end
+
+function DS_Func_FashionMagazine(index)
+    if(index == nil) then
+        return 37;
+    else
+        index = index - 1;
+
+
+        if( index == 0 ) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/1.png; 0 0 550 430", 
+            };
+
+        elseif(index==1)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/38.png; 0 0 550 430", 
+            };
+        elseif(index==2)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/39.png; 0 0 550 430", 
+            };
+        elseif(index==3)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/40.png; 0 0 550 430", 
+            };
+        elseif(index==4)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/41.png; 0 0 550 430", 
+            };
+
+
+        elseif(index==5)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/36.png; 0 0 550 430", 
+            };
+        elseif(index==6)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/37.png; 0 0 550 430", 
+            };
+        elseif(index==7)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/34.png; 0 0 550 430", 
+            };
+        elseif(index==8)then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/35.png; 0 0 550 430", 
+            };
+
+
+        elseif(index == 9) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/30.png; 0 0 550 430", 
+            };
+        elseif(index == 10) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/31.png; 0 0 550 430", 
+            };
+        elseif(index == 11) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/32.png; 0 0 550 430", 
+            };
+        elseif(index == 12) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/33.png; 0 0 550 430", 
+            };
+
+
+        elseif(index == 13) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/25.png; 0 0 550 430", 
+            };
+        elseif(index == 14) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/26.png; 0 0 550 430", 
+            };
+        elseif(index == 15) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/27.png; 0 0 550 430", 
+            };
+        elseif(index == 16) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/28.png; 0 0 550 430", 
+            };
+        elseif(index == 17) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/29.png; 0 0 550 430", 
+            };
+
+        elseif(index == 18) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/20.png; 0 0 550 430", 
+            };
+        elseif(index == 19) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/21.png; 0 0 550 430", 
+            };
+        elseif(index == 20) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/22.png; 0 0 550 430", 
+            };
+        elseif(index == 21) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/23.png; 0 0 550 430", 
+            };
+        elseif(index == 22) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/24.png; 0 0 550 430", 
+            };
+
+        elseif(index == 23) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/18.png; 0 0 550 430", 
+            };
+        elseif(index == 24) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/19.png; 0 0 550 430", 
+            };
+
+        elseif(index == 25) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/12.png; 0 0 550 430", 
+            };
+        elseif(index == 26) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/13.png; 0 0 550 430", 
+            };
+        elseif(index == 27) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/14.png; 0 0 550 430", 
+            };
+        elseif(index == 28) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/15.png; 0 0 550 430", 
+            };
+        elseif(index == 29) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/16.png; 0 0 550 430", 
+            };
+        elseif(index == 30) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/17.png; 0 0 550 430", 
+            };
+
+        elseif(index == 31) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/7.png; 0 0 550 430", 
+            };
+        elseif(index == 32) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/8.png; 0 0 550 430", 
+            };
+        elseif(index == 33) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/9.png; 0 0 550 430", 
+            };
+        elseif(index == 34) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/10.png; 0 0 550 430", 
+            };
+        elseif(index == 35) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/11.png; 0 0 550 430", 
+            };
+
+        elseif(index == 36) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/2.png; 0 0 550 430", 
+            };
+        elseif(index == 37) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/3.png; 0 0 550 430", 
+            };
+        elseif(index == 38) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/4.png; 0 0 550 430", 
+            };
+        elseif(index == 39) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/5.png; 0 0 550 430", 
+            };
+        elseif(index == 40) then
+            return {background = "Texture/Aries/Books/FashionMagazineWeb/6.png; 0 0 550 430", 
+            };
+
+        end
+    end
+end
+
+--function DS_Func_FashionMagazine(index)
+--    local s;
+--    if(index == nil) then
+--        return 33;
+--    elseif(index < 1) then
+--    elseif(index > 33 ) then
+--    else
+--        s = string.format("Texture/Aries/Books/FashionMagazineWeb/%d.png; 0 0 550 430",index);
+--        return {background = s, };
+--    end
+--end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<input type="button" onclick="Confirm()" style="margin-left:700px;margin-top:10px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-50px;margin-left:40px;padding-left:110px;padding-top:56px;padding-bottom:-10px;background:url(Texture/Aries/Books/Purple_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_FashionMagazine%>" name="FashionMagazine" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("background")%>' style="width:550px;height:430px;" />
+                <div style="margin-top:-512px;width:848px;height:542px">
+                    <pe:if condition='<%=Eval("index") == 2%>'>
+                        <pe:item gsid='1476' style="left:50px;top:258px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1478' style="left:118px;top:455px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1477' style="left:190px;top:414px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 3%>'>
+                        <pe:item gsid='1473' style="left:50px;top:258px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1475' style="left:118px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1474' style="left:190px;top:414px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 4%>'>
+                        <pe:item gsid='1483' style="left:50px;top:278px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1484' style="left:118px;top:455px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1485' style="left:450px;top:224px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1486' style="left:430px;top:464px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 5%>'>
+                        <pe:item gsid='1479' style="left:110px;top:245px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1480' style="left:118px;top:455px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1481' style="left:450px;top:224px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1482' style="left:430px;top:464px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+
+
+                    <pe:if condition='<%=Eval("index") == 8%>'>
+                        <pe:item gsid='1279' style="left:50px;top:278px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1280' style="left:58px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1278' style="left:200px;top:354px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 9%>'>
+                        <pe:item gsid='1282' style="left:50px;top:278px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1283' style="left:58px;top:453px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1281' style="left:200px;top:354px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 6%>'>
+                        <pe:item gsid='1284' style="left:50px;top:278px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1286' style="left:53px;top:475px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1285' style="left:245px;top:360px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 7%>'>
+                        <pe:item gsid='1287' style="left:50px;top:278px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1289' style="left:53px;top:475px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1288' style="left:255px;top:355px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                   <pe:if condition='<%=Eval("index") == 37%>'>
+                        <pe:item gsid='1037' style="left:50px;top:218px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1038' style="left:58px;top:445px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1040' style="left:485px;top:436px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1039' style="left:460px;top:264px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 38%>'>
+                        <pe:item gsid='1034' style="left:34px;top:228px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1035' style="left:48px;top:442px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1036' style="left:501px;top:360px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1033' style="left:373px;top:469px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 39%>'>
+                        <pe:item gsid='1023' style="left:40px;top:270px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1025' style="left:453px;top:220px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1026' style="left:85px;top:425px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1024' style="left:476px;top:445px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 40%>'>
+                        <pe:item gsid='1006' style="left:90px;top:350px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1005' style="left:434px;top:217px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>                        
+                        <pe:item gsid='1007' style="left:435px;top:445px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 41%>'>
+                        <pe:item gsid='1027' style="left:154px;top:154px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1029' style="left:50px;top:342px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1031' style="left:130px;top:472px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>                        
+                        <pe:item gsid='1028' style="left:503px;top:184px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1030' style="left:475px;top:402px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1032' style="left:354px;top:473px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 32%>'>
+                        <pe:item gsid='1091' style="left:45px;top:280px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1093' style="left:190px;top:406px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>                        
+                        <pe:item gsid='1095' style="left:120px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 33%>'>
+                        <pe:item gsid='1092' style="left:43px;top:281px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1100' style="left:128px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1094' style="left:203px;top:401px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 34%>'>
+                        <pe:item gsid='1096' style="left:40px;top:265px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1097' style="left:120px;top:448px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1102' style="left:443px;top:181px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1098' style="left:465px;top:326px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1099' style="left:450px;top:466px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>                    
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 35%>'>
+                        <pe:item gsid='1066' style="left:105px;top:253px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1068' style="left:120px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1067' style="left:200px;top:400px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 36%>'>
+                        <pe:item gsid='1069' style="left:108px;top:253px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1070' style="left:195px;top:370px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1071' style="left:117px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+
+                    <pe:if condition='<%=Eval("index") == 26%>'>
+                        <pe:item gsid='1141' style="left:47px;top:248px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1142' style="left:120px;top:442px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1149' style="left:444px;top:170px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1137' style="left:480px;top:323px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1143' style="left:452px;top:458px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 27%>'>
+                        <pe:item gsid='1144' style="left:108px;top:254px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1145' style="left:185px;top:415px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1146' style="left:110px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 28%>'>
+                        <pe:item gsid='1047' style="left:102px;top:255px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1049' style="left:187px;top:385px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1048' style="left:107px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 29%>'>
+                        <pe:item gsid='1148' style="left:108px;top:205px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1138' style="left:130px;top:440px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1140' style="left:460px;top:187px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1139' style="left:473px;top:410px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 30%>'>
+                        <pe:item gsid='1082' style="left:114px;top:211px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1083' style="left:130px;top:447px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1084' style="left:465px;top:265px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1134' style="left:455px;top:422px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 31%>'>
+                        <pe:item gsid='1080' style="left:101px;top:253px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1081' style="left:200px;top:380px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1133' style="left:120px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+
+                    <pe:if condition='<%=Eval("index") == 24%>'>
+                        <pe:item gsid='1151' style="left:103px;top:254px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1152' style="left:195px;top:380px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1153' style="left:122px;top:453px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 25%>'>
+                        <pe:item gsid='1154' style="left:159px;top:243px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1155' style="left:177px;top:453px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+
+                    <pe:if condition='<%=Eval("index") == 19%>'>
+                        <pe:item gsid='1162' style="left:75px;top:258px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1161' style="left:209px;top:383px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1163' style="left:129px;top:448px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 20%>'>
+                        <pe:item gsid='1186' style="left:50px;top:237px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1183' style="left:115px;top:447px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1182' style="left:470px;top:257px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1184' style="left:453px;top:447px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 21%>'>
+                        <pe:item gsid='1176' style="left:140px;top:235px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1177' style="left:210px;top:427px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1185' style="left:120px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 22%>'>
+                        <pe:item gsid='1173' style="left:141px;top:238px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1174' style="left:207px;top:436px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1175' style="left:110px;top:453px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 23%>'>
+                        <pe:item gsid='1167' style="left:143px;top:236px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1168' style="left:206px;top:420px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1169' style="left:119px;top:456px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 14%>'>
+                        <pe:item gsid='1211' style="left:68px;top:223px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1212' style="left:110px;top:430px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1214' style="left:450px;top:183px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1213' style="left:458px;top:363px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1215' style="left:435px;top:463px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 15%>'>
+                        <pe:item gsid='1204' style="left:122px;top:196px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1202' style="left:128px;top:433px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1201' style="left:462px;top:181px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1203' style="left:456px;top:330px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1205' style="left:432px;top:453px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 16%>'>
+                        <pe:item gsid='1194' style="left:115px;top:198px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1192' style="left:130px;top:433px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1193' style="left:445px;top:230px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1195' style="left:445px;top:433px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 17%>'>
+                        <pe:item gsid='1199' style="left:117px;top:196px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1197' style="left:60px;top:458px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1198' style="left:445px;top:228px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1200' style="left:445px;top:432px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 18%>'>
+                        <pe:item gsid='1209' style="left:120px;top:196px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1207' style="left:130px;top:455px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1208' style="left:461px;top:233px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1210' style="left:441px;top:448px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 10%>'>
+                        <pe:item gsid='1216' style="left:116px;top:220px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1217' style="left:110px;top:448px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1219' style="left:455px;top:215px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1218' style="left:457px;top:450px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 11%>'>
+                        <pe:item gsid='1220' style="left:107px;top:236px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1221' style="left:119px;top:452px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1222' style="left:452px;top:238px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1223' style="left:442px;top:438px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 12%>'>
+                        <pe:item gsid='1224' style="left:140px;top:265px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1225' style="left:205px;top:452px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 13%>'>
+                        <pe:item gsid='1226' style="left:56px;top:231px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1227' style="left:110px;top:447px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1230' style="left:450px;top:210px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='1229' style="left:452px;top:446px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>-->
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:156px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-30px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<pe:if condition='<%=Eval("isHalfPriceDay") == true%>'>
+    <div style="margin-left:110px;margin-top:-527px;width:128px;height:140px;">
+        <img zorder="3" style="width:128px;height:140px;background:url(Texture/Aries/Books/halfprice_32bits.png# 0 0 128 140)">
+    </div>
+</pe:if>
+
+</pe:mcml> 
+</body>
+</html>
+

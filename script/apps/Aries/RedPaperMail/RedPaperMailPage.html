@@ -1,0 +1,72 @@
+<!-- "script/apps/Aries/RedPaperMail/RedPaperMailPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="RedPaperMailPage.lua"><![CDATA[
+MyCompany.Aries.RedPaperMailPage.OnInit();
+local page = document:GetPageCtrl();
+function getToName()
+    local s = string.format("亲爱的%s",MyCompany.Aries.RedPaperMailPage.nickname);
+    return s;
+end
+function getContent()
+    local text = MyCompany.Aries.RedPaperMailPage.paper.text;
+    return text;
+end
+function getFromName()
+    return MyCompany.Aries.RedPaperMailPage.paper.npc_label;
+end
+function getDate()
+    return MyCompany.Aries.RedPaperMailPage.date;
+end
+function getTitle()
+    return MyCompany.Aries.RedPaperMailPage.question.label;
+end
+function getIcon()
+    return MyCompany.Aries.RedPaperMailPage.paper.icon;
+end
+]]></script>
+    <form name="basicinfoform">
+    <div width = "1018" height = "666" style="background:url(Texture/Aries/PENote/penote_bg_32bits.png# 0 0 1018 666)">
+	    <div style="padding-left:230px;padding-top:180px;padding-right:310px;padding-bottom:25px;margin-top:100px;width:920px;height:512px;background:url(Texture/Aries/PENote/redpaper_bg_32bits.png# 0 0 920 512)">
+            <%=getToName() %>
+            <br/>
+             <%=getContent() %>
+            <br/>
+            <%=getTitle() %>
+            <br/>
+            <pe:if condition = "<%=MyCompany.Aries.RedPaperMailPage.HasQuestion(1) %>" >
+                <input type="radio" name="answer" value="1" /><%=MyCompany.Aries.RedPaperMailPage.GetLabel(1) %>
+            </pe:if>
+            <pe:if condition = "<%=MyCompany.Aries.RedPaperMailPage.HasQuestion(2) %>" >
+                <input type="radio" name="answer" value="2" /><%=MyCompany.Aries.RedPaperMailPage.GetLabel(2) %>
+            </pe:if>
+             <pe:if condition = "<%=MyCompany.Aries.RedPaperMailPage.HasQuestion(3) %>" >
+                <input type="radio" name="answer" value="3" /><%=MyCompany.Aries.RedPaperMailPage.GetLabel(3) %>
+            </pe:if>
+             <pe:if condition = "<%=MyCompany.Aries.RedPaperMailPage.HasQuestion(4) %>" >
+                <input type="radio" name="answer" value="4" /><%=MyCompany.Aries.RedPaperMailPage.GetLabel(4) %>
+            </pe:if>
+            <div style="text-align:left;margin-left:300px;margin-top:80px;width:280px;float:left;"><%=getFromName() %></div><br/>
+            <div style="text-align:left;margin-left:300px;width:280px;float:left;"><%=getDate()%></div>
+        </div>
+        <div style="margin-left:760px;margin-top:-570px;">
+            <input type="button" style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/Quest/MailPaper_close_32bits.png;" 
+                    onclick="MyCompany.Aries.RedPaperMailPage.ClosePage()" tooltip="以后再说"/>
+        </div>
+        <div style="margin-left:380px;margin-top:-180px;">
+            <input type="button" style="width:84px;height:37px;margin-left:70px;background:Texture/Aries/PENote/submit_32bits.png# 0 0 84 37;" 
+                    onclick="MyCompany.Aries.RedPaperMailPage.CheckAnswer()" tooltip="提交"/>
+        </div>
+        <img src='<%=getIcon()%>'  style="margin-left:700px;margin-top:-420px;width:256px;height:512px"/>
+    </div>
+    </form>
+</pe:mcml>
+</body>
+</html>
+

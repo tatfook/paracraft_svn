@@ -1,0 +1,42 @@
+﻿<!-- "script/kids/3DMapSystemApp/API/AriesPowerAPI/test_paraworld.PowerAPI.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2010/8/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src=""><![CDATA[
+function TestPowerAPI()
+    -- run code in the game thread
+    NPL.activate("(1)script/apps/GameServer/rest_local.lua", {dostring=[[
+        local msg = {
+            nid = "14861822",
+		    bag = 91,
+	    };
+        paraworld.PowerAPI.common.test(msg, nil, function(msg)
+            commonlib.echo(msg);
+        end)
+
+    ]]})
+end
+
+function TestGetUserAndDragonInfo()
+    NPL.activate("(1)script/apps/GameServer/rest_local.lua", {dostring=[[
+        local msg = {
+            nid = "14861822",
+	    };
+        paraworld.PowerAPI.users.GetUserAndDragonInfo(msg, nil, function(msg)
+            commonlib.echo(msg);
+        end)
+    ]]})
+end
+]]></script>
+<form name="test_powerAPI_form">
+<input type="button" name="" value="test power api" onclick="TestPowerAPI"/>
+<input type="button" name="" value="test GetUserAndDragonInfo" onclick="TestGetUserAndDragonInfo"/>
+</form>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,72 @@
+﻿<!-- "script/apps/Aries/Help/ShopHelp/ShopHelp.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PetHelpPage.lua" ><![CDATA[
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+
+function GetMagicBean()
+    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+    MyCompany.Aries.Inventory.PurChaseMagicBean.Show();
+end
+
+function GetMibi()
+	NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+	local PurchaseMagicBean = MyCompany.Aries.Inventory.PurChaseMagicBean;
+	PurchaseMagicBean.Pay("recharge");
+--    ParaGlobal.ShellExecute("open", "http://pay.61.com/buy/paytype?type=cardpay", "", "", 1);
+end
+
+]]></script>
+<div style="width:697px;height:433px;background:url(Texture/Aries/MapHelp/help_bg.png#0 0 682 368: 62 80 73 72)">
+    <input style="margin-left:650px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    <div style="margin-left:200px;margin-top:-25px;width:28px;height:32px;background:url(Texture/Aries/MapHelp/MagicStarHelp/title.png# 0 0 28 32)" ></div>
+    <div style="position:relative;margin-left:260px;margin-top:-30px;width:131px;height:25px;;background:url(Texture/Aries/MapHelp/shop_title.png#0 0 131 25)"></div>
+    <div style="margin-left:420px;margin-top:-32px;width:28px;height:32px;background:url(Texture/Aries/MapHelp/MagicStarHelp/title.png# 0 0 28 32)" ></div>
+    <div style="margin-left:45px;margin-top:15px;">
+    <div style="position:relative;margin-left:0px;margin-top:10px;width:605px;height:32px;color:#4497db;font-weight:bold;font-size:14">
+    1.	在哪里进入商城呢？
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:35px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">
+    答：在游戏界面右下角有个商城图标，点击进入就可以啦！</div>
+    <div style="position:relative;margin-left:0px;margin-top:60px;width:605px;height:32px;color:#4497db;font-weight:bold;font-size:14">
+    2.	商城里面都有什么东西卖呢？</div>
+    <div style="position:relative;margin-left:0px;margin-top:85px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">
+    <%=format("答：商城会出售稀有装备、高级宝石及镶嵌符、特殊法杖等等物品，商城物品都是通过魔豆或%s购买的哦！", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:135px;width:605px;height:32px;color:#4497db;font-weight:bold;font-size:14">
+    3.	什么是魔豆？</div>
+    <div style="position:relative;margin-left:0px;margin-top:160px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">
+    <%=format("答：魔豆是通过%s直接购买的，1%s=10魔豆", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name,MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:185px;width:605px;height:32px;color:#4497db;font-weight:bold;font-size:14">
+    <%=format("4.	我有%s在哪里兑换魔豆呢？", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:210px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">
+    答：进入商城，在这里可以直接兑换哦！
+        <div style="margin-left:250px;margin-top:-5px;width:220px;height:41px;background:url(Texture/Aries/MapHelp/arrow30.png# 0 0 256 83)" ></div>
+        <div style="margin-left:350px;margin-top:-135px;width:220px;height:163px;background:url(Texture/Aries/MapHelp/magicbean_shop.png#0 0 243 181)">
+            <input style="margin-left:120px;margin-top:125px;padding-left:16px;width:55px;height:25px;color:#640033;background:url(Texture/Aries/Common/btn_bg.png#0 0 108 30);" type="button" name="buy" onclick="GetMagicBean()" value="购买"/>
+        </div>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:260px;width:605px;height:32px;color:#4497db;font-weight:bold;font-size:14">
+    <%=format("5.	我还没有%s，需要在哪里充值呢？", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+    </div>
+    <div style="position:relative;margin-left:0px;margin-top:285px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">
+    答：<input style="margin-left:-10px;margin-top:0px;padding-left:16px;width:108px;height:30px;color:#640033;background:url(Texture/Aries/Common/btn_bg.png#0 0 108 30);" type="button" name="buy" onclick="GetMibi()" value="点击这里"/>    
+        <div style="margin-left:150px;margin-top:-30px;width:605px;height:32px;color:#ff66cc;font-weight:bold;font-size:14">可直接进入充值页面哦！</div>
+    </div>
+    </div>
+</div>
+</pe:mcml> 
+
+</body>
+</html>

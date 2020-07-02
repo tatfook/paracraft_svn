@@ -1,0 +1,286 @@
+﻿<!-- "script/apps/Aries/Login/Tutorial/CombatTutorial_movement.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by Andy,Xizhi 2011/3/23</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = tonumber(page:GetRequestParam("npc_id")) or 39002;
+name = "梅林";
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- hide all existing arrows
+local Desktop = MyCompany.Aries.Desktop;
+Desktop.GUIHelper.ArrowPointer.HideAllArrows();
+
+cur_state = cur_state or 0;
+local audio_state_mapping = {
+	[21] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_1.ogg",
+	[22] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_2.ogg",
+	[23] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_3.ogg",
+	[24] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_4.ogg",
+	[25] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_5.ogg",
+	[26] = nil,
+	[27] = "Audio/Haqi/CombatTutorialTeen/BasicInstructions_6.ogg",
+};
+
+function PlayMouseTutorialAudio(state)
+
+	local asset_file = audio_state_mapping[state];
+	if(asset_file) then
+		local audio_src = AudioEngine.CreateGet(asset_file)
+		audio_src.file = asset_file;
+		audio_src:play(); -- then play with default. 
+	end
+end
+
+function StopMouseTutorialAudio(state)
+
+	local asset_file = audio_state_mapping[state];
+	if(asset_file) then
+		local audio_src = AudioEngine.CreateGet(asset_file)
+		audio_src.file = asset_file;
+		audio_src:stop(); -- then play with default. 
+		audio_src:release();
+	end
+end
+
+next_state = next_state;
+
+function GotoState(state, delay_time)
+    if(next_state ~= state) then
+        -- skip the state 26 test
+        if(state == 26) then
+            state = 27;
+        end
+        next_state = state;
+        if(not delay_time) then
+            local _dialogNode = page:GetNode("BlueDragon_MouseTutorial");
+            Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, state, true);
+        else
+            local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+	            local _dialogNode = page:GetNode("BlueDragon_MouseTutorial");
+                Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, state, true);
+            end})
+            mytimer:Change(delay_time, nil)
+        end
+    end
+end
+
+function NextState(delay_time)
+    if(cur_state <=30) then
+        GotoState(cur_state+1, delay_time);
+    end
+end
+
+function OnClickNextState()
+    NextState(delay_time)
+end
+
+local state_26_drag_dist = 0;
+local event_map = Event_Mapping;
+-- this is the most inportant function to goto next state
+function OnUserInputHook(nCode, appName, msg, value)
+    if(msg.wndName == "key_down") then
+        -- _guihelper.MessageBox(msg);
+        if(msg.virtual_key == event_map.EM_KEY_W) then
+            if(cur_state == 21) then
+                NextState(2000);
+            elseif(cur_state == 26 and state_26_drag_dist>50) then
+                NextState(1000);
+            end
+        elseif(msg.virtual_key == event_map.EM_KEY_S) then
+            if(cur_state == 22) then
+                NextState(1000);
+            end
+        elseif(msg.virtual_key == event_map.EM_KEY_SPACE) then
+            if(cur_state == 23) then
+                NextState(1000);
+            end
+        end
+    elseif(msg.wndName == "mouse_move") then
+        if(cur_state == 24) then
+            if(msg.move_dragDist and  msg.move_dragDist> 50 and msg.mouse_button=="right") then
+                NextState(1000);
+            end
+        elseif(cur_state == 26) then
+            if(msg.move_dragDist and  msg.move_dragDist> 5 and msg.mouse_button=="right") then
+                if(state_26_drag_dist<msg.move_dragDist) then
+                    state_26_drag_dist = msg.move_dragDist;
+                end
+                -- if(ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_W)) then NextState(1000); end
+            end
+        end
+	end
+
+    return nCode;
+end
+
+function EntryAction(from, to)
+    cur_state = to;
+    PlayMouseTutorialAudio(to);
+    if(to == 0) then
+        drag_dist = 0;
+        -- keep track of all mouse and keyboard input
+        CommonCtrl.os.hook.SetWindowsHook({hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROC, 
+		    callback = OnUserInputHook, hookName = "MouseTutorial.OnKeyHook", appName = "input", wndName = nil});    
+    elseif(to == 25) then
+        local lastCameraObjectDistance = nil;
+	    local hasCameraZoomIn = false;
+	    local hasCameraZoomOut = false;
+        local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+	        -- detect camera mouse move
+	        local att = ParaCamera.GetAttributeObject();
+	        local CameraObjectDistance = att:GetField("CameraObjectDistance", 0);
+	        if(lastCameraObjectDistance == nil) then
+	            lastCameraObjectDistance = CameraObjectDistance;
+	        else
+	            if(lastCameraObjectDistance < CameraObjectDistance) then
+	                hasCameraZoomIn = true;
+	            elseif(lastCameraObjectDistance > CameraObjectDistance) then
+	                hasCameraZoomOut = true;
+	            end
+	            if(hasCameraZoomIn or hasCameraZoomOut) then
+                    NextState(1000);
+	                timer:Change();
+	            end
+	        end     
+        end})
+        mytimer:Change(30, 30);
+    elseif(to == 27) then
+        MyCompany.Aries.Quest.NPCs.CombatTutorial.StartTalkToDragonHook()
+        ParaScene.GetAttributeObject():SetField("BlockInput", false);
+	    ParaCamera.GetAttributeObject():SetField("BlockInput", false);
+    end
+end
+
+function ExitAction(from, to)
+    StopMouseTutorialAudio(from);
+    local Desktop = MyCompany.Aries.Desktop;
+    Desktop.GUIHelper.ArrowPointer.HideAllArrows();
+
+    if(to == 30) then
+        -- clear hook on exit
+        CommonCtrl.os.hook.UnhookWindowsHook({hookName = "MouseTutorial.OnKeyHook", hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET});
+    end
+end
+
+function LeaveTutorial()
+    StopMouseTutorialAudio(cur_state);
+    MyCompany.Aries.Quest.NPCs.CombatTutorial.SkipTutorial();
+end
+
+
+]]></script>
+    <div style="position:relative;width:120px;" align="right">
+            <input name="skip_intro" type="button" onclick="LeaveTutorial" value="跳过教程" zorder="2" class="defaultbutton" style="margin-top:100px;width:60px;" />
+    </div>
+    <pe:dialog name="BlueDragon_MouseTutorial" NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_CombatTutorial_teen.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("name")%>'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="later" />
+            <pe:placeholder id="ok" />
+            <pe:placeholder id="thanks" />
+            <pe:placeholder id="giveyoustuff" />
+        </pe:template>
+        <pe:state id = "0">
+	        <pe:answer autoexec="true" style="">
+                <!-- should be 21. modify this for initial state for testing -->
+		        <pe:answer-if condition = "true" target_state = "21"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "21">
+            <!--<div style="position:relative;margin-left:300px;margin-top:85px;">
+                <input type="button" onclick="OnClickNextState" value="▶ 我知道了（跳过这一步）" style="text-align:left;width:200px;height:18px;background:;" class="questbutton_selected"/>
+    		</div>-->
+	        <div style="float:left;font-weight:bold;font-size:13px;color:#000000;">
+                <pe:arrowpointer name="tip" direction="2" style="margin-left:64px;position:relative;margin-top:-48px;width:32px;height:32px;" />
+                <div style="color:#CC0000;margin-left:64px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+                <div style="margin-left:32px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div><br />
+            </div>
+            <div style="margin-top:5px;">
+                按住<div style="float:left;color:#CC0000;">W</div>键，可以向前移动，你试试看。
+            </div>
+        </pe:state>
+        <pe:state id = "22">
+	        <div style="margin-bottom:5px;">
+                按住<div style="float:left;color:#CC0000;">S</div>键, 向后退.
+            </div>
+		    <div style="float:left;font-weight:bold;font-size:13px;color:#000000;">
+                <div style="margin-left:64px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+                <div style="margin-left:32px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+                <div style="color:#CC0000;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div><br />
+                <pe:arrowpointer name="tip" direction="8" style="margin-left:64px;position:relative;margin-top:12px;width:32px;height:32px;" />
+            </div>
+        </pe:state>
+        <pe:state id = "23">
+	        敲击<span style="float:left;margin-left:-6px;color:#FF0000">空格键</span>，可以跳跃哦！
+            <pe:arrowpointer name="tip" direction="2" style="float:left;position:relative;margin-left:64px;margin-top:-48px;width:32px;height:32px;" />
+            <div style="float:left;width:128px;height:32px;color:#000000;font-size:12px;margin-left:16px;background:url(Texture/Aries/Common/keyboard_32bits.png: 13 13 13 13);text-align:center;padding-top:4px;">空格键</div>
+        </pe:state>
+        <pe:state id = "24">
+	        <div style="float:left;width:256px;">
+	            按住<span style="float:left;color:#FF0000">鼠标右键</span>不要松手，同时<span style="float:left;color:#FF0000">移动</span>鼠标，可以环视周围
+            </div>
+            <div style="float:left;margin-left:20px;">
+                <div style="position:relative;margin-left:32px;margin-top:-32px;width:64px;height:32px;background:url(Texture/Aries/Quest/TutorialMouse_LeftRight_32bits.png)" />
+                <div style="width:128px;height:128px;background:url(Texture/Aries/Quest/TutorialMouse_RightClick_32bits.png);background-animation:url(script/UIAnimation/CommonBounce.lua.table#ShakeLR)" />
+            </div>
+        </pe:state>
+        <pe:state id = "25">
+            <div style="float:left;width:280px;">
+	            滚动<span style="float:left;color:#FF0000;margin-left:-5px">鼠标中键</span>,可以放大或者缩小视角
+                <div style="margin-top:15px">
+                    或使用<input type="button" value="insert" style="margin-top:-5px;margin-right:3px;background-color:#ffffff;background:url(Texture/Aries/Common/keyboard_32bits.png);width:36px;height:36px;float:left;padding-left:2px;color:#000000;padding-top:4px;font-size:8px"/>和
+                    <input type="button" value="delete" style="margin-top:-5px;margin-right:3px;background-color:#ffffff;background:url(Texture/Aries/Common/keyboard_32bits.png);width:36px;height:36px;float:left;padding-left:2px;color:#000000;padding-top:4px;font-size:8px" />键调整视角。
+                </div>
+            </div>
+            <div style="float:left;margin-left:5px;">
+                <div style="position:relative;margin-left:16px;margin-top:0px;width:32px;height:64px;background:url(Texture/Aries/Quest/TutorialMouse_UpDown_32bits.png);background-animation:url(script/UIAnimation/CommonBounce.lua.table#ShakeUD)" />
+                <div style="width:128px;height:128px;background:url(Texture/Aries/Quest/TutorialMouse_MiddleClick_32bits.png);" />
+            </div>
+        </pe:state>
+        <pe:state id = "26">
+            <div style="margin-left:0px;float:left;font-weight:bold;font-size:13px;color:#000000;">
+                <pe:arrowpointer name="tip" direction="2" style="margin-left:32px;position:relative;margin-top:-48px;width:32px;height:32px;" />
+                <div style="color:#CC0000;margin-left:32px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div><br />
+            </div>
+            <div style="float:left;margin-left:5px;width:10px;margin-top:24px;">+</div>
+            <div style="float:left;margin-left:20px;background:url(Texture/Aries/Quest/TutorialMouse_RightClick_32bits.png);width:64px;height:64px;background-animation:url(script/UIAnimation/CommonBounce.lua.table#ShakeLR)">
+            </div>
+		    <div >
+            按住<div style="float:left;color:#FF0000">W</div>键，同时按住<div style="float:left;color:#FF0000">鼠标右键</div>
+            并移动鼠标，可以改变前进方向。
+            </div>
+        </pe:state>
+        <pe:state id = "27">
+            <div style="float:left;width:300px;">
+	            很不错！你很快就学会了！现在沿着箭头走到我这里来！<br />
+                然后用<div style="float:left;color:#FF0000">鼠标左键</div>点击我！
+            </div>
+            <div style="float:left;margin-left:20px;">
+                <pe:arrowpointer name="tip" direction="2" style="float:left;position:relative;margin-left:16px;margin-top:-48px;width:32px;height:32px;" />
+                <div style="width:96px;height:96px;background:url(Texture/Aries/Quest/TutorialMouse_LeftClick_32bits.png);" />
+            </div>
+        </pe:state>
+        <pe:state id = "30">
+        </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

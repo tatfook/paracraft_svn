@@ -1,0 +1,265 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/ItemCheckPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemCheckPage, by leio, 2013/1/21</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemItem/PowerExtendedCost.lua");
+local PowerExtendedCost = commonlib.gettable("Map3DSystem.Item.PowerExtendedCost");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemCheckPage.lua");
+local ItemCheckPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemCheckPage");
+ItemCheckPage.OnInit();
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        ItemCheckPage.OnClickFolder(node.keyname,nil,true);
+    end
+end
+function GetFolderDataSource()
+    return ItemCheckPage.menus;
+end
+function DS_Func_Items(index)
+    return ItemCheckPage.DS_Func_Items(index);
+end
+
+function DoSelectedItem(guid)
+    if(not guid)then
+        return
+    end
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item)then
+	    ItemCheckPage.DoSelectedItemByGsid(item.gsid)
+    end
+end
+
+function UpdateExTemplate()
+    ItemCheckPage.UpdateExTemplate();
+end
+function GetSelectedGsid()
+    return ItemCheckPage.selected_gsid;
+end
+function GetRateGsid()
+    return ItemCheckPage.rate_gsid;
+end
+function GetMaterialGsid()
+    return ItemCheckPage.material_gsid;
+end
+function GetMaterialCnt()
+    return ItemCheckPage.material_gsid_cnt;
+end
+function DoExtendedCost()
+    if(ItemCheckPage.selected_gsid and ItemCheckPage.rate_gsid_count)then
+        local from = tostring(ItemCheckPage.selected_gsid);
+        local rate_gsid_count = tonumber(ItemCheckPage.rate_gsid_count);
+        local material_gsid = tonumber(ItemCheckPage.material_gsid);
+        local material_gsid_cnt = tonumber(ItemCheckPage.material_gsid_cnt);
+
+        if(material_gsid and material_gsid_cnt)then
+            local __,__,__,copies = hasGSItem(material_gsid);
+            copies = copies or 0; 
+            if(copies < material_gsid_cnt)then
+				local gsItem = ItemManager.GetGlobalStoreItemInMemory(material_gsid);
+                local s = string.format("你的强化材料【%s】不够，不能鉴定！",gsItem.template.name);
+                _guihelper.MessageBox(s);
+                return
+            end
+            local exid = ItemCheckPage.GetExid(ItemCheckPage.selected_gsid,ItemCheckPage.rate_gsid_count);
+            echo("====ItemCheckPage DoExtendedCost()");
+            echo(exid);
+            echo(from);
+            echo(rate_gsid_count);
+            ItemCheckPage.is_pending = true;
+            page:Refresh(0);
+            System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid=exid, from=from, rate_gsid_count = rate_gsid_count}});
+        end
+    end
+end
+function IsPending()
+    return ItemCheckPage.is_pending;
+end
+function MaxRateCnt()
+    if(ItemCheckPage.rate_gsid)then
+        local __,__,__,copies = hasGSItem(ItemCheckPage.rate_gsid);
+        copies = copies or 0;
+        return copies;
+    end
+    return 0;
+end
+function OnDecrease()
+    if(ItemCheckPage.rate_gsid and ItemCheckPage.rate_gsid_count > 0)then
+        ItemCheckPage.rate_gsid_count = ItemCheckPage.rate_gsid_count - 1;
+        UpdateExTemplate();
+        page:Refresh(0);
+    end
+end
+function OnIncrease()
+    local rate = PowerExtendedCost.get_success_rate(ItemCheckPage.ex_template, ItemCheckPage.rate_gsid_count)
+    if(rate >= 1)then
+        return
+    end
+    if(ItemCheckPage.rate_gsid and ItemCheckPage.rate_gsid_count < MaxRateCnt())then
+        ItemCheckPage.rate_gsid_count = ItemCheckPage.rate_gsid_count + 1;
+        UpdateExTemplate();
+        page:Refresh(0);
+    end
+end
+function RateStr()
+    if(ItemCheckPage.rate_gsid_count)then
+        return string.format("使用%d个，共%d个",ItemCheckPage.rate_gsid_count,MaxRateCnt());
+    end
+end
+function ResultStr()
+    if(ItemCheckPage.ex_template and ItemCheckPage.trans_node and ItemCheckPage.trans_node.attr)then
+        local to = ItemCheckPage.trans_node.attr.to or {};
+        local k,v;
+        local s = "";
+        local rate = PowerExtendedCost.get_success_rate(ItemCheckPage.ex_template, ItemCheckPage.rate_gsid_count)
+        rate = math.floor(rate * 100)
+        for k,v in ipairs(to) do
+            local gsid = v.gsid;
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+            if(gsItem)then
+                s = s.. string.format([[<div style="margin-left:10px;margin-top:5px;">获得【%s】的成功率为<span style="color:#cc3333;font-weight:bold">%.2f%%</span></div>]],gsItem.template.name or "",rate);
+            end
+            break;
+        end
+        return s;
+    end
+end
+function DoCancel()
+    ItemCheckPage.Clear();
+    page:Refresh(0);
+end
+]]></script>
+<div style="width:690px;height:443px;color:#022a57;font-size:12;">
+    <div class="window" style="float:left;width:663px;height:433px;">
+        <div style="position:relative;width:573px;height:64px;margin-top:-8px;margin-left:59px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:250 21 260 32);">
+                <div style="position:relative;width:110px;height:32px;margin-left:235px;margin-top:13px;background:url(texture/aries/common/themekid/equip_view/cn_item_check_32bits.png#0 0 110 32);"/>
+        </div>  
+        <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage()" />
+
+        <div style="position:relative;margin-left:10px;margin-top:42px;width:641px;" >
+            <div style="position:relative;float:left;margin-left:0px;margin-top:0px;width:308px;height:385px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+            <div style="text-align:center;margin-top:10px;">
+                请放入你要鉴定的魂珠
+            </div>
+            <div style="margin-left:124px;margin-top:5px;padding:5px;width:60px;height:60px;" class="equip_bg">
+                <pe:item gsid='<%=GetSelectedGsid()%>' style="width:50px;height:50px;" onclick="DoCancel"/>
+            </div>
+            <div align="center" style="width:32px;margin-top:20px;margin-left:5px;height:45px;background:url(Texture/Aries/Common/themekid/EQUIP_EXCHANGE/yellow_arrow_32bits.png#0 0 32 45)"/>
+            <div style="margin-left:15px;margin-top:-5px;">
+                <div style="position:relative;margin-left:12px;margin-top:5px;">鉴定结果预测</div>
+                </div>
+            <div>
+                <div style="position:relative;margin-left:200px;margin-top:-40px;">
+                    <div style="position:relative;text-align:center;margin-left:-10px;margin-top:40px;"><%=RateStr()%></div>
+                    <input type="button" style="float:left;margin-top:12px;width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_dec_32bits.png)" onclick="OnDecrease()"/>
+                    <div style="float:left;margin-left:2px;margin-top:0px;padding:5px;width:40px;height:40px;" class="equip_bg">
+                        <pe:item gsid='<%=GetRateGsid()%>' style="width:30px;height:30px;" isclickable="false"/>
+                    </div>
+                    <input type="button" style="float:left;margin-left:2px;margin-top:12px;width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_inc_32bits.png)" onclick="OnIncrease()"/>
+                </div>
+                <div align="center" style="margin-top:20px;width:260px;height:40px;padding:6px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90: 7 7 7 7)" >
+                    <%=ResultStr()%>
+                </div>
+                
+            </div>
+            
+            <div style="margin-top:5px;height:40px;padding-left:25px;padding-right:20px;">使用净化魔晶可以明显提高成功率，保证魂珠不会被破坏，并且有机会获得更多的灵魂碎片。</div>
+            <div style="height:27px;">
+                <pe:tabs  name="tabs3"          
+                SelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14" 
+                UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14" style="background:;margin-left:8px;">
+                <pe:tab-item name="1" text="强化材料"  selected='true' />
+                </pe:tabs>
+            </div>
+
+                <div style="padding:6px;margin-left:7px;width:293px;margin-top:-6px;background:url(texture/aries/haqishop/bg3_32bits.png: 20 20 20 20)">
+
+                    <div style="float:left;width:48px;height:48px;margin-top:1px;" class="block">
+                        <pe:item name='material_item' isclickable="false" gsid='<%=GetMaterialGsid() %>' style="width:44px;height:44px;" />
+                    </div>
+                    <div style="float:left;margin-left:5px;margin-top:2px;">
+                    <div>
+                        <div style="float:left;">需要</div>
+                        <div style="float:left;width:50px;margin-left:-5px;" class="textfieldbutton" name="txtCostSlotRocks"> <%=GetMaterialCnt()%>个</div>
+                        <div>
+                            <div style="float:left;">拥有</div>
+                            <div style="float:left;margin-left:-5px;" class="textfieldbutton" name="txtIncomingGemsCount"><pe:slot type="count" gsid='<%=GetMaterialGsid() %>'/></div>
+                            <div style="float:left;">个</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <pe:if condition='<%=IsPending()%>'>
+                    <input type="button" value="开始鉴定" class="button_highlight" align="center" style="margin-top:5px;width:100px;height:25px;" enabled="false"/>
+                </pe:if>
+                <pe:if condition='<%=not IsPending()%>'>
+                    <input type="button" value="开始鉴定" class="button_highlight" align="center" style="margin-top:5px;width:100px;height:25px;" onclick="DoExtendedCost"/>
+                </pe:if>
+            </div>
+        </div>
+         <div style="position:relative;margin-left:308px;margin-top:0px;">
+            <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                <pe:togglebuttons name="folder_menu"  DataSource='<%=GetFolderDataSource() %>' 
+                ItemSpacing="2"
+                ButtonWidth="70"
+                ButtonHeight="25"
+                SelectedTextColor="#000000"
+                TextColor="#464f45"
+                TextFont="System;12;norm"
+                SelectedMenuItemBG="Texture/Aries/Common/ThemeKid/tab_btn_selected_32bits.png;0 0 41 26:12 14 12 14" 
+                UnSelectedMenuItemBG="Texture/Aries/Common/ThemeKid/tab_btn_unselected_32bits.png;0 0 41 26:12 14 12 14" 
+                onclick='OnClickFolder'/>
+		    </div>
+        </div>
+        <div style="position:relative;margin-left:308px;margin-top:28px;width:335px;height:357px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8)">
+            <div style="position:relative;margin-top:10px;width:500px;height:375px">
+            <pe:gridview DataSource="<%=DS_Func_Items%>" 
+                    name="gwvCombatInventory" style="margin-left:15px;margin-top:0px;" CellPadding="1"  
+                    DefaultNodeHeight = "60" ItemsPerLine="5" AllowPaging="True" pagesize="25" >
+                    <Columns>
+                        <div style="padding:5px;width:60px;height:60px;" class="equip_bg">
+                            <pe:slot guid='<%=Eval("guid")%>' style="width:50px;height:50px;" onclick="DoSelectedItem"/>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="padding:5px;width:60px;height:60px;" class="equip_bg">
+                        </div>
+                        <div style="margin-left:5px;margin-top:10px;">没有此类物品</div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin-left:70px;margin-top:30px;"></div>
+                    </FetchingDataTemplate>
+	                <PagerSettings Position="Bottom" height="36" style="position:relative;width:340px;margin-left:100px;margin-top:-30px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+                            <input type="button" name="pre" zorder=2 style="width:22px;height:22px;margin-left:5px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 21 21);"/>
+	                        <div style="float:right;margin-top:0px;width:53px;">
+	                            <label name="page" style="color:#FFFFFF;text-align:center;width:53px;height:18px;margin:4px"/>
+	                        </div>
+	                        <input type="button" name="next" zorder=2 style="width:22px;height:22px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

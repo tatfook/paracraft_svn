@@ -1,0 +1,355 @@
+﻿<!-- "script/apps/Aries/Combat/UI/MyCards.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MyCards.lua" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+MyCards = MyCompany.Aries.Combat.MyCards;
+MyCards.OnInit();
+
+local page = document:GetPageCtrl();
+
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+
+nRemainingRounds = -1;
+nExecutedRounds = -1;
+
+mode = page:GetRequestParam("mode");
+if(mode == "pve") then
+    nExecutedRounds = page:GetRequestParam("nRoundTag") or -1;
+    nExecutedRounds = tonumber(nExecutedRounds);
+elseif(mode == "free_pvp") then
+    nRemainingRounds = page:GetRequestParam("nRoundTag") or -1;
+    nRemainingRounds = tonumber(nRemainingRounds);
+    nRemainingRounds = math.ceil(nRemainingRounds / 2);
+end
+
+remaining_deck_count = page:GetRequestParam("remaining_deck_count") or 0;
+total_deck_count = page:GetRequestParam("total_deck_count") or 0;
+
+remaining_deck_card_str = format("剩余(%d) / 总卡牌(%d)", remaining_deck_count, total_deck_count);
+
+
+bToggleCameraButton = true;
+local IsInTutorial_BasicArena = commonlib.getfield("MyCompany.Aries.Quest.NPCs.BasicArena.IsInTutorial");
+if(IsInTutorial_BasicArena and IsInTutorial_BasicArena()) then
+    bToggleCameraButton = false;
+end
+
+bUseDefaultCamera = true;
+if(MsgHandler.GetIsUseDefaultCamera) then
+    bUseDefaultCamera = MsgHandler.GetIsUseDefaultCamera();
+end
+
+isInTutorial = false;
+
+local CombatTutorial = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatTutorial");
+if(CombatTutorial and CombatTutorial.IsInTutorial and CombatTutorial.IsInTutorial()) then
+	isInTutorial = true;
+end
+
+stage_PipTutorial = 0;
+local CombatPipTutorial = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatPipTutorial");
+if(CombatPipTutorial and CombatPipTutorial.IsInTutorial and CombatPipTutorial.IsInTutorial()) then
+	stage_PipTutorial = CombatPipTutorial.GetStage();
+end
+
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+
+local my_arena = MsgHandler.GetMyArenaData()
+
+mode = "pve"
+if(my_arena) then
+    mode = my_arena.mode;
+end
+
+-- test tags
+--isEmptyDeck = false;
+--isInTutorial = false;
+--stage_PipTutorial = 0;
+
+function OnClickCardTabs(tabitem_name)
+    MyCards.last_card_tab = tabitem_name
+end
+
+-- remember the last tab
+--if(MyCards.last_card_tab) then
+    --Page:SetValue("SelectableTabs", MyCards.last_card_tab);
+--end
+
+
+local bChecked = System.options.EnableAutoPickSingleTarget;
+page:SetNodeValue("checkBoxEnableAutoPickSingleTarget", bChecked);
+
+
+
+function checkBoxEnableAutoPickSingleTarget(bChecked)
+	System.options.EnableAutoPickSingleTarget = bChecked;
+	MyCompany.Aries.Player.SaveLocalData("AriesSettingsPage.EnableAutoPickSingleTarget", bChecked);
+end
+
+page:SetNodeValue("checkBoxToggleDefaultCamera", not bUseDefaultCamera);
+function OnCheckToggleDefaultCamera(bChecked)
+    MsgHandler.SetIsUseDefaultCamera(not bChecked);
+end
+
+catchable_mob_id = MyCompany.Aries.Combat.MsgHandler.hp_slots_upper_catchable_mob_id;
+
+if(catchable_mob_id) then
+    -- switch to Rune tab
+    page:SetValue("SelectableTabs", 2)
+end
+
+function ShowAllRune()
+    MyCardsManager.ShowRuneListPage(1)
+end
+
+function GetRemainCardStr()
+    local str = format("剩余(%d) / 总卡牌(%d)", MsgHandler.remaining_deck_count, MsgHandler.total_deck_count);
+    return str;
+end
+
+function BePvPMode()
+    if(MsgHandler.arena_mode == "pvp") then
+        return true;
+    else
+        return false;
+    end
+end
+
+function BePvEMode()
+    if(MsgHandler.arena_mode == "pve") then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetRoundStr()
+    local round_tag = MsgHandler.nRoundTag;
+    local str = "";
+    if(MsgHandler.arena_mode == "pvp") then
+        str = string.format("剩余回合数:%d", round_tag)
+    elseif(MsgHandler.arena_mode == "pve") then
+        str = string.format("经历回合数:%d", round_tag)
+    end
+    return str;
+end
+
+]]></script>
+<pe:container alignment="_ct" ClickThrough="true" style="position: relative; margin-left: -380px; margin-top: -200px; width: 800px; height: 340px; background:">
+<div style="position:relative;">
+    <pe:custom oncreate="MyCards.ShowCardPickHint_advanced" style="margin-top:102px;width:1px;height:1px"/>
+</div>
+<div style="position:relative;color:#ffffff;margin-top:100px;margin-left:455px;width:270px;height:32px;">
+    <pe:if condition='<%=Eval("isInTutorial") == false%>'>
+        <pe:slot bag="0" position="24" zorder="100" isclickable="false" style="width:24px;height:24px;margin-top:-2px;margin-right:8px;"/>
+        <div style="float:left;shadow-quality:8;shadow-color:#80133f48;text-shadow:true;">
+            <%=GetRemainCardStr()%>
+        </div>
+    </pe:if>
+</div>
+<pe:if condition='<%=Eval("bToggleCameraButton") == true%>'>
+    <div style="position: relative; margin-top: 65px; color: #844202; margin-left: 629px; font-size: 14px; width: 200px">
+        <input type="checkbox" zorder="100" name="checkBoxToggleDefaultCamera" onclick="OnCheckToggleDefaultCamera" tooltip="战斗画面锁定为高空视角，
+解决3D眩晕，适合多人战斗" />
+        <div style="float: left; color: #844202; margin-left: 3px; margin-top: -2px; ">
+            固定镜头
+        </div>
+    </div>
+</pe:if>
+<!--<div style="position:relative;margin-top:-40px;margin-left:290px;color:#ffffff;font-weight:bold;font-size:14px;">左键使用卡片，右键丢弃卡片</div>-->
+<div style="position: relative; margin-top: 87px; color: #844202; margin-left: 629px; font-size: 14px; width: 200px">
+    <input type="checkbox" zorder="100" name="checkBoxEnableAutoPickSingleTarget" onclick="checkBoxEnableAutoPickSingleTarget" tooltip="当法阵内敌友目标唯一时，
+所有选中卡牌将会自动施放"/>
+    <div style="float: left; margin-left: 3px; margin-top: -2px; ">
+    智能出牌
+    </div>
+    <br/>
+</div>
+
+<pe:if condition='<%=BePvPMode()%>'>
+    <div style="position:relative;">
+        <div style="color: #844202; margin-top: 57px; margin-left: 620px; background: url(Texture/Aries/Combat/CombatState/tab_32bits.png#0 0 32 26:11 11 11 11); padding-left: 8px; padding-top: 48px; padding-right: 5px; height: 72px; "><%=GetRoundStr()%></div>
+    </div>
+</pe:if>
+<pe:if condition='<%=BePvEMode()%>'>
+    <div style="position:relative;">
+        <div style="color: #844202; margin-top: 57px; margin-left: 620px; background: url(Texture/Aries/Combat/CombatState/tab_32bits.png#0 0 32 26:11 11 11 11); padding-left: 8px; padding-top: 48px; padding-right: 5px; height: 72px; "><%=GetRoundStr()%></div>
+    </div>
+</pe:if>
+<div style="margin-top:100px">
+<pe:tabs name="SelectableTabs" onclick="OnClickCardTabs" style="margin-top:0px;background_overdraw:0;padding-left:10px;padding-top:28px;margin-left:21px;width:740px;height:165px;background:url(Texture/Aries/Combat/CombatState/CardTransparent_bg_32bits.png:6 6 6 6);" TextColor="#844202" SelectedTextColor="#844202" ItemSpacing="3" TextFont = "System;12;norm"
+        SelectedMenuItemBG="Texture/Aries/Combat/CombatState/rune_pet_selected_32bits.png;0 0 32 30:11 9 11 10" UnSelectedMenuItemBG="Texture/Aries/Combat/CombatState/rune_pet_unselected_32bits.png;0 0 32 30:11 9 11 11">
+    <!-- standard spell cards -->
+    <pe:tab-item text="技能卡" tooltip="技能卡包和装备中的卡片" name="Skill" selected="true" width="100" height="30">
+        <pe:gridview DataSource="<%=MyCards.DS_Func_Card_Items%>" name="HomelandStoreItemView" style="margin-left:10px;margin-top:5px;width:720px;height:125px;" 
+            CellPadding="0"  DefaultNodeHeight = "125" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+            <Columns>
+                <div style="width:88px;height:125px">
+                    <pe:if condition='<%=Eval("bAvailable") == true%>'>
+                        <pe:if condition='<%=Eval("discarded") ~= true%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:79px;height:121px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTip(Eval('gsid')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCard" />
+                        </pe:if>
+                        <pe:if condition='<%=Eval("discarded") == true%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:79px;height:121px;" param1='<%=Eval("seq")%>' isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCard" />
+                        </pe:if>
+                        <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:0px;margin-top:-96px;width:64px;height:64px"/>
+                        <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                        <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("bAvailable") == false and (Eval("gsid") ~= 0 )%>'>
+                        <pe:if condition='<%=Eval("discarded") ~= true%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:79px;height:121px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTipUnavailable(Eval('gsid'), Eval('cooldown')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCardUnavailable" />
+                        </pe:if>
+                        <pe:if condition='<%=Eval("discarded") == true%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:79px;height:121px;" param1='<%=Eval("seq")%>' isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCardUnavailable" />
+                        </pe:if>
+                        <input type="button" enabled="false" style="margin-left:0px;margin-top:-121px;width:79px;height:121px;background:url(Texture/bg_black.png);" name='<%=Eval("gsid")%>'/>
+                        <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:7px;margin-top:-96px;width:64px;height:64px"/>
+                        <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                        <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                    </pe:if>
+                </div>
+                <div style="position:relation;width:0px;height:0px;">
+                    <pe:if condition='<%=Eval("discarded") == true%>'>
+                        <img src="Texture/Aries/Combat/CombatState/discardedcard.png" zorder="101" enabled="false" style="margin-left:0px;margin-top:-125px;width:128px;height:128px;"/>
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <div class="highbluecolor" style="margin-left:200px;margin-top:25px;">
+                    你没有任何可以使用的魔法卡片哦！<br />
+                    记得把卡片放入战斗背包，或装备带有卡片的法宝！
+                </div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:50px;margin-top:86px;color:#ffffff;text-shadow:true;">数据加载中，请稍等.....</div>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </pe:tab-item>
+    <!--rune cards-->
+    <pe:tab-item condition="<%=not System.options.mc%>" text='<%=format("符文卡(%d)", MyCards.DS_Func_Rune_Items(nil))%>' tooltip="符文是消耗类卡片. 可以收集,购买和赠送" name="Rune" width="92" height="30">
+        <pe:if condition='<%=Eval("isInTutorial") == false%>'>
+        <pe:gridview DataSource="<%=MyCards.DS_Func_Rune_Items%>" name="HomelandStoreItemView" style="margin-left:10px;margin-top:5px;width:720px;height:125px;" 
+                CellPadding="0"  DefaultNodeHeight = "70" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+            <Columns>
+                <div style="width:88px;height:125px;">
+                    <pe:if condition='<%=Eval("index") ~= 8%>'>
+                        <pe:if condition='<%=Eval("gsid") == 0%>'>
+                            
+                        </pe:if>
+                        <pe:if condition='<%=Eval("gsid") ~= 0%>'>
+                            <pe:if condition='<%=Eval("bAvailable") == true%>'>
+                                <pe:item gsid='<%=Eval("gsid")%>' style="width:77px;height:117px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTip(Eval('gsid')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCard" />
+                                <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:0px;margin-top:-96px;width:64px;height:64px"/>
+                                <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                                <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                                <div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("count")%></div>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("bAvailable") == false and (Eval("gsid") ~= 0 )%>'>
+                                <pe:item gsid='<%=Eval("gsid")%>' style="width:77px;height:117px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTipUnavailable(Eval('gsid'), Eval('cooldown')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCardUnavailable" />
+                                <input type="button" enabled="false" style="margin-left:0px;margin-top:-117px;width:77px;height:117px;background:url(Texture/bg_black.png);" name='<%=Eval("gsid")%>'/>
+                                <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:6px;margin-top:-96px;width:64px;height:64px"/>
+                                <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                                <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                                <div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("count")%></div>
+                            </pe:if>
+                        </pe:if>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 8%>'>
+                        <input type="button" onclick="ShowAllRune" style="width:77px;height:117px;background:url(Texture/Aries/Item/blankcard.png#0 0 147 226)"/>
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <div style="position:relative;margin-top:20px;width:400px;" align="center">
+                    <input type="button" name="dummy" shadow="true" enabled="false" 
+                        value="符文卡片是一种特殊的稀有卡片。你目前还没有符文卡片。"
+                        style="background:;font-size:12px;font-weight:bold;color:#d58302;width:400px;height:64px;"/>
+                </div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:50px;margin-top:86px;color:#ffffff;text-shadow:true;">数据加载中，请稍等.....</div>
+            </FetchingDataTemplate>
+        </pe:gridview>
+        </pe:if>
+    </pe:tab-item>
+    <!--pet cards-->
+    <pe:tab-item text="宠物卡" condition="<%=not System.options.mc%>" tooltip="切换宠物, 使用宠物卡片" name="PetCards" width="92" height="30">
+        <pe:if condition='<%=Eval("isInTutorial") == false%>'>
+        <input type="button" zorder="2" style="margin-left:24px;margin-top:5px;width:77px;height:117px;background:url(Texture/Aries/Combat/CombatState/PickPet_32bits.png#0 0 77 117)" onclick="MyCards.OnPickPet" name='PickPet'/>
+
+        <div style="float:left;">
+            <pe:gridview DataSource="<%=MyCards.DS_Func_FollowPetCards_Items%>" name="HomelandStoreItemView" style="margin-left:10px;margin-top:5px;width:720px;height:125px;" 
+                    CellPadding="0"  DefaultNodeHeight = "125" ItemsPerLine="7" AllowPaging="false" pagesize="7">
+                <Columns>
+                    <div style="width:88px;height:125px;">
+                        <pe:if condition='<%=Eval("bAvailable") == true%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:77px;height:117px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTip(Eval('gsid')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCard" />
+                            <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:0px;margin-top:-96px;width:64px;height:64px"/>
+                            <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                            <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                            <!--<div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("count")%></div>-->
+                        </pe:if>
+                        <pe:if condition='<%=Eval("bAvailable") == false and (Eval("gsid") ~= 0 )%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:77px;height:117px;" param1='<%=Eval("seq")%>' tooltip="<%=MyCards.getCardTipUnavailable(Eval('gsid'), Eval('cooldown')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87"  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCardUnavailable" />
+                            <input type="button" enabled="false" style="margin-left:0px;margin-top:-117px;width:77px;height:117px;background:url(Texture/bg_black.png);" name='<%=Eval("gsid")%>'/>
+                            <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:6px;margin-top:-96px;width:64px;height:64px"/>
+                            <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                            <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                            <!--<div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("count")%></div>-->
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <input type="button" name="dummy" shadow="true" enabled="false" 
+                        value="宠物卡是某些宠物满级后携带的卡片, 你可以在战斗中切换宠物"
+                        style="background:;font-size:12px;font-weight:bold;margin-top:20px;color:#d58302;width:400px;height:64px;"/>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin-left:50px;margin-top:86px;color:#ffffff;text-shadow:true;">数据加载中，请稍等.....</div>
+                </FetchingDataTemplate>
+            </pe:gridview>
+        </div>
+        </pe:if>
+    </pe:tab-item>
+</pe:tabs>
+</div>
+<div style="margin-left:21px;width:720px;height:170px;">
+    <pe:if condition='<%=Eval("isInTutorial") == true%>'>
+        <!--<input type="button" zorder="2" enabled="false" value="放弃" class="defaultbutton" style="margin-left:305px;margin-top:-3px;width:73px;height:23px;" onclick="MyCards.OnPass" />-->
+        <!--<input type="button" zorder="2" enabled="false" value="逃跑" class="defaultbutton" style="margin-left:10px;margin-top:-3px;width:73px;height:23px;" onclick="MyCards.OnFlee" />-->
+    </pe:if>
+    <pe:if condition='<%=Eval("isInTutorial") == false%>'>
+        <pe:if condition='<%=Eval("stage_PipTutorial") == 0%>'>
+            <input type="button" zorder="2" value="跳过" tooltip="跳过本轮出牌" class="card_button" style="margin-left:100px;color:#844202;width:73px;height:23px;" onclick="MyCards.OnPass" />
+            <input type="button" zorder="2" value="逃跑" class="card_button" style="color:#844202;margin-left:370px;width:73px;height:23px;" onclick="MyCards.OnFlee" />
+        </pe:if>
+        <pe:if condition='<%=Eval("stage_PipTutorial") ~= 2 and Eval("stage_PipTutorial") ~= 0%>'>
+            <input type="button" zorder="2" enabled="false" tooltip="跳过本轮出牌"  value="跳过" class="card_button" style="margin-left:100px;color:#844202;width:73px;height:23px;" onclick="MyCards.OnPass" />
+            <input type="button" zorder="2" enabled="false" value="逃跑" class="card_button" style="color:#844202;margin-left:370px;width:73px;height:23px;" onclick="MyCards.OnFlee" />
+        </pe:if>
+        <pe:if condition='<%=Eval("stage_PipTutorial") == 2%>'>
+            <input type="button" zorder="2" value="跳过" tooltip="跳过本轮出牌" class="card_button" style="margin-left:100px;color:#844202;width:73px;height:23px;" onclick="MyCards.OnPass" />
+            <input type="button" zorder="2" enabled="false" value="逃跑" class="card_button" style="color:#844202;margin-left:370px;width:73px;height:23px;" onclick="MyCards.OnFlee" />
+        </pe:if>
+    </pe:if>
+</div>
+<!--<pe:if condition='<%=MyCompany.Aries.Combat.MyCards.ShowTip() %>'>
+    <div style="width:220px;height:48px;padding:12px;margin-left:0px;margin-top:-448px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+        左键点击，选取一张魔法卡片
+    </div>
+    <pe:custom oncreate="MyCards.ShowCardPickHint" style="margin-top:50px;margin-top:-180px;width:1px;height:1px"/>
+</pe:if>-->
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

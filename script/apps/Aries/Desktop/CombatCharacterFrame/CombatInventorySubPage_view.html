@@ -1,0 +1,53 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatInventorySubPage_view, by zrf, 2010/9/27</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+local CombatInventorySubPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatInventorySubPage");
+CombatInventorySubPage.GetItems(nil, function(bImmediateUpdate)
+    if(not bImmediateUpdate) then
+        page:Refresh(0.01);
+    end
+end);
+
+]]></script>
+
+<pe:gridview DataSource="<%=MyCompany.Aries.Desktop.CombatInventorySubPage.DS_Func%>" 
+    name="gwvCombatInventory" style="margin-left:15px;margin-top:0px;" CellPadding="1"  
+    DefaultNodeHeight = "60" ItemsPerLine="5" AllowPaging="True" pagesize="25" >
+    <Columns>
+        <div style="padding:5px;width:60px;height:60px;" class="equip_bg">
+            <pe:slot guid='<%=Eval("guid")%>' style="width:50px;height:50px;"/>
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+        <div style="padding:5px;width:60px;height:60px;" class="equip_bg">
+        </div>
+        <div style="margin-left:5px;margin-top:10px;">没有此类物品</div>
+    </EmptyDataTemplate>
+	<PagerSettings Position="Bottom" height="36" style="position:relative;width:340px;margin-top:-30px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+            <div style="float:left;margin-top:1px;padding:2px;font-size:12px;color:#022a57;background:url(Texture/Aries/common/themekid/equip_view/panel_joybean_32bits.png:5 5 5 5)">
+                <pe:item gsid="17213" isenabled="false" style="width:20px;height:20px;"/>
+                <div style="float:left;margin-left:2px;">仙豆:</div><div style="float:left;max-width:45px;text-singleline:true"><pe:slot type="count" gsid="17213" style="float:left;" /></div>
+            </div>
+            <input type="button" name="pre" zorder="2" style="width:22px;height:22px;margin-left:5px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 21 21);"/>
+	        <div style="float:left;margin-top:0px;text-singleline:true">
+	            <label name="page" style="color:#FFFFFF;text-align:center;width:45px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder=2 style="width:22px;height:22px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)"/>
+            <input type="button" zorder="2" tooltip='<%=MyCompany.Aries.Desktop.CombatInventorySubPage.GetBagSizeTooltip() %>' value='<%="容量:" .. MyCompany.Aries.Desktop.CombatInventorySubPage.GetBagSizeString() %>' 
+                    style="position:relative;margin-left:5px;font-size:12px;margin-top:1px;height:23px;color:#022a57;background:url(Texture/Aries/common/themekid/equip_view/panel_joybean_32bits.png:5 5 5 5)" name="bagSize"  param1='3'/>
+	    </form>
+	</PagerTemplate>
+</pe:gridview>
+</pe:mcml> 
+</body>
+</html>

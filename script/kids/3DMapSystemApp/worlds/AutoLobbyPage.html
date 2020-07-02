@@ -1,0 +1,107 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/AutoLobbyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Default world info page LiXizhi 2008.6.9</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="AutoLobbyPage.lua"><![CDATA[
+Map3DSystem.App.worlds.AutoLobbyPage.OnInit();
+]]></script>
+<div style="margin-left:10px;margin-right:5px;margin-top:5px">
+    <div style="float:left;">当前世界:</div><a style="font-weight:bold;color:#000000"name="worldpath"></a><br />
+    <div style="float:left;">所有者:</div><span style="font-weight:bold" name="owner"></span><br />
+    <hr />
+    <div style="float:left;color:#808080">所在世界的服务器:</div>
+    <pe:gridview DataSource="<%=Map3DSystem.App.worlds.AutoLobbyPage.DS_Func_Rooms%>" style="height:190px" name="gvwLobbyRooms" DefaultNodeHeight = "64">
+        <Columns>
+           <div>
+               <div width="60%" style="float:left">主机用户: <pe:name uid='<%=Eval("hostuid")%>'/></div>
+               <a onclick="Map3DSystem.App.worlds.AutoLobbyPage.JoinRoom" param1='<%=Eval("hostuid")%>' param2='<%=Eval("description")%>' tooltip="点击登陆到服务器">
+                   <img style="background:url(Texture/3DMapSystem/common/world_go.png);width:16px;height:16px;margin:3px" />加入
+               </a>
+           </div>
+           <div>创建日期: <%=Eval("createDate")%></div>
+           <div style="float:left">服务器描述: <%=Eval("description")%></div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>当前世界没有找到活动的服务器</b>
+            <div style="color:#808080">
+                你可以点击做主机按钮, 申请这台PC机作为当前世界的JGSL类型服务器. 这样其它人将可以登录到你目前的世界中
+            </div>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+    <div>
+        <div style="float:left;">服务器状态:</div><label style="font-weight:bold;color:#006600;height:18px;margin-left:5px;margin-top:3px" name="result"/><br />
+        <input type="button" class="defaultbutton" value="自动加入" tooltip="自动加入到最近的服务器中" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClickAutoJoinRoom"/>
+        <input type="button" style="margin-left:5px" value="做主机" tooltip="申请这台PC机作为当前世界的JGSL类型服务器" onclick="Map3DSystem.App.worlds.AutoLobbyPage.CreateRoom"/>
+        <input type="button" style="margin-left:25px" value="刷新" tooltip="刷新当前世界的JGSL型服务器主机列表" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClickRefreshRooms"/>
+        <br />
+        <input type="checkbox" checked="true" name="EnableAutoLobby"/>当前服务器断线时, 自动加入其它可用主机<br />
+    </div>
+    <hr />
+    <pe:tabs name="Status" style="background:;">
+        <pe:tab-item text="权限" selected="true">
+            <div style="float:left;">你的角色:</div><span name="role"></span><br />
+            <div style="float:left;">你的权限:</div><br />
+            <div>
+                <div style="float:left;" width="50%">
+                    <input enabled="false" type="checkbox" name="CanSave"/>保存世界<br />
+                    <input enabled="false" type="checkbox" name="CanChat"/>发消息<br />
+                    <input enabled="false" type="checkbox" name="CanScreenShot"/>截图<br />
+                    <input enabled="false" type="checkbox" name="CanCreate"/>创建<br />
+                    <input enabled="false" type="checkbox" name="CanEdit"/>编辑<br />
+                    <input enabled="false" type="checkbox" name="CanDelete"/>删除<br />
+                </div>
+                <div style="float:left;" width="50%">
+                    <input enabled="false" type="checkbox" name="CanSky"/>改天空<br />
+                    <input enabled="false" type="checkbox" name="CanOcean"/>改海洋<br />
+                    <input enabled="false" type="checkbox" name="CanTerrainTexture"/>改大地颜色<br />
+                    <input enabled="false" type="checkbox" name="CanTerrainHeightmap"/>改地貌<br />
+                    <input enabled="false" type="checkbox" name="CanTimeOfDay"/>改时间<br />
+                    <input enabled="false" type="checkbox" name="CanShiftCharacter"/>附身<br />
+                </div>
+                <hr />
+                <input type="button" value="关闭" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClose();"/>
+            </div>
+        </pe:tab-item>
+        <pe:tab-item text="服务器信息">
+            <div style="float:left;">服务器名:</div><span style="font-weight:bold" name="ServerJID"></span><br />
+            <div style="float:left;">所有者:</div><pe:name style="font-weight:bold" name="ServerOwner" /><br />
+            <div style="float:left;">开机时间:</div><span style="font-weight:bold" name="StartTime"></span><br />
+            <div style="float:left;" width="50%">
+               <div style="float:left;">服务器版本:</div><span style="font-weight:bold" name="ServerVersion"></span><br />
+               <div style="float:left;">在线用户数:</div><span style="font-weight:bold" name="OnlineUserNum"></span><br />
+            </div>
+            <div style="float:left;" width="50%">
+                <div style="float:left;">客户端版本:</div><span style="font-weight:bold" name="ClientVersion"></span><br />
+                <div style="float:left;">最近访问量:</div><span style="font-weight:bold" name="VisitsSinceStart"></span><br />
+            </div>
+            <hr />
+            <input type="button" value="退出服务器" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClickLogOutServer()"/>
+            <input type="button" class="defaultbutton"  style="margin-left:5px" value="刷新" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClickRefreshServerInfo()"/>
+            <input type="button" style="margin-left:5px" value="关闭" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClose();"/>
+        </pe:tab-item>
+        <pe:tab-item text="个人主机信息">
+            <form name="MyServerInfoForm">
+                <div style="float:left;text-align:right" width="40%">服务器名:</div><span style="font-weight:bold" name="ClientJID"></span><br />
+                <div style="float:left;text-align:right" width="40%">人物出生范围(m):</div><input style="width:50px" name="miniSpawnRadius" value="5"/><br />
+                <div style="float:left;text-align:right" width="40%">更新间隔(ms):</div><input style="width:50px" name="TimerInterval" value="3000"/><br />
+                <div style="float:left;text-align:right" width="40%">超时时长(ms):</div><input style="width:50px" name="ClientTimeOut" value="20000"/><br />
+                <div style="float:left;text-align:right" width="40%">单包创建数:</div><input style="width:50px" name="max_creations_per_msg" value="5"/><br />
+                <hr />
+                <input type="button" class="defaultbutton" value="保存" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClickSaveMyServerSetting()"/>
+                <input type="button" style="margin-left:5px" value="关闭" onclick="Map3DSystem.App.worlds.AutoLobbyPage.OnClose();"/>
+                <div style="float:left;margin-left:5px;color:#808080">此功能稍后可用</div>
+            </form>
+        </pe:tab-item>
+    </pe:tabs>
+    
+</div>
+</pe:mcml>
+</body>
+</html>

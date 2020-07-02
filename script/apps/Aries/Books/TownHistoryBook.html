@@ -1,0 +1,153 @@
+﻿<!-- "script/apps/Aries/Books/TownHistoryBook.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DragonEncyclopedia, by zhangruofei, 2010/7/16</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local hasLollipop = false;
+
+if(hasGSItem(50028) and not hasGSItem(50029)) then
+    hasLollipop = true;
+end
+
+local datainfo = {
+{ name="新哈奇小镇的由来", startpage=2, endpage=2 },
+{ name="苏菲带来了抱抱龙", startpage=5, endpage=5 },
+{ name="伍迪抱抱龙的故事", startpage=9, endpage=9 },
+{ name="抵挡黑暗之魔的入侵", startpage=12, endpage=12 },
+}
+
+function Goto(index)
+    if(index) then
+        index = tonumber(index);
+        pageCtrl:CallMethod("TownHistoryBook", "GotoPage", index);
+    end
+end
+
+--显示目录
+function ShowCatalog(x,y,step)
+	local s = "";
+	local tmp;
+	local i,v;
+
+	for i,v in pairs(datainfo) do
+		if( v.startpage == v.endpage ) then
+			tmp = string.format([[<div style="position:relative;margin-left:%dpx;margin-top:%dpx;width:256px;height:128px;background:url()">
+							<a tooltip="%s  （A%d）" style="width:150px;height:24px;background:url(Texture/Aries/Books/TownHistoryBook_v1/lit_32bits.png#4 4 24 24: 22 1 1 1)" name="A2" onclick="Goto" param1='%d'><div style="width:120px;height:24px;"/></a>
+							</div>]], x, y + ( i - 1 ) * step, v.name, v.startpage*2, v.startpage );
+		else
+			tmp = string.format([[<div style="position:relative;margin-left:%dpx;margin-top:%dpx;width:256px;height:128px;background:url()">
+							<a tooltip="%s  （A%d-A%d）" style="width:150px;height:24px;background:url(Texture/Aries/Books/TownHistoryBook_v1/lit_32bits.png#4 4 24 24: 22 1 1 1)" name="A2" onclick="Goto" param1='%d'><div style="width:120px;height:24px;"/></a>
+							</div>]], x, y + ( i - 1 ) * step, v.name, v.startpage*2, v.endpage*2, v.startpage );
+		end
+
+		s = s .. tmp;
+	end
+
+	return s;
+end
+
+function DS_Func_TownHistoryBook(index)
+    if(index == nil) then
+        return 7;
+    elseif(index <= 7) then
+        local data = {}
+        local idx;
+        data.img = "Texture/Aries/Books/TownHistoryBook_v1/" .. index .. "_32bits.png;0 0 680 512";
+        
+        if(index == 1) then
+            idx = 1;
+        else
+            idx = 2;
+        end
+
+        data.bg = "Texture/Aries/Books/TownHistoryBook_v1/bg" .. idx .. "_32bits.png;0 0 734 518";
+
+        if(index==7 ) then
+            if(hasLollipop ) then
+                data.pop = "Texture/Aries/Quest/Props/Lollipop2.png";
+                data.iframe = "script/apps/Aries/NPCs/Dragon/30011_WishLevel6_TownHistoryBook_iframe.html";
+            else
+                data.pop = "";
+                data.iframe = "";
+            end
+        else
+            data.pop = "";
+            data.iframe = "";
+        end
+
+        return data;
+    end
+end
+
+function GoFirst()
+    pageCtrl:CallMethod("TownHistoryBook", "GotoPage", 1);
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<div style="width:758px;height:570px;margin-top:0px;margin-left:40px;">
+    <pe:gridview DataSource="<%=DS_Func_TownHistoryBook%>" name="TownHistoryBook" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "518" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:518px;">
+                <img src='<%=Eval("bg")%>' style="width:734px;height:518px;" /> 
+
+                <div style="margin-left:0px;margin-top:-513px;">
+                    <img src='<%=Eval("img")%>' style="margin-left:0px;margin-top:0px;width:680px;height:512px;" />                               
+                </div>
+                <div style="margin-left:0px;margin-top:-518px;width:70px;height:48px;">
+                    <pe:if condition='<%=Eval("index") ~= 1 %>'>
+                        <input type="button" zorder="2" Normal_BG = "" Pressed_BG = "Texture/Aries/Books/TownHistoryBook_v1/home_32bits.png" MouseOver_BG = "Texture/Aries/Books/TownHistoryBook_v1/home_32bits.png" alwaysmouseover="true" style="margin-left:63px;margin-top:10px;width:64px;height:32px;background:;" onclick="GoFirst()" name='3'/><br/>
+                    </pe:if>
+                </div>
+
+                <div style="position:relative;margin-left:360px;margin-top:-381px;width:848px;height:542px;">
+                    <pe:if condition='<%=Eval("index") == 7 %>'>
+                        <div style="position:relative;float:right;margin-left:-300px;">
+                            <img src='<%=Eval("pop")%>' style="margin:32px;width:256px;height:512px;" />
+                        </div>
+                        <div style="float:right;margin-left:0px;">
+                            <iframe name="TownHistoryBook_Lollipop" src='<%=Eval("iframe")%>' style="margin-top:0px;width:400px;height:430px;" />
+                        </div>
+                    </pe:if>
+                </div>
+            </div>
+            <div style="margin-top:-518px;width:758px;height:518px;">
+<!--                <pe:if condition='<%=Eval("index") == 1%>'>
+                    <%=ShowCatalog(140,297,24) %>
+                </pe:if>-->
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:90px;margin-top:-55px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-33px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:570px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<input type="button" onclick="Confirm()" style="margin-left:676px;margin-top:-548px;width:32px;height:32px;background:Texture/Aries/Books/TownHistoryBook_v1/close_32bits.png;"/>
+
+</pe:mcml> 
+</body>
+</html>

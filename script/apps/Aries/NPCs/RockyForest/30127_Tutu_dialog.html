@@ -1,0 +1,160 @@
+﻿<!-- "script/apps/Aries/NPCs/RockyForest/30127_Tutu_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30127_Tutu_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    return not MyCompany.Aries.Quest.NPCs.Tutu.IsDialoged()
+end;
+
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.Tutu.IsDialoged()
+end;
+Condition3 = function()
+    return MyCompany.Aries.Quest.NPCs.Tutu.IsFindAll() 
+end;
+Condition4 = function()
+    return not MyCompany.Aries.Quest.NPCs.Tutu.IsFindAll()
+end;
+Condition5 = function()
+    return MyCompany.Aries.Quest.NPCs.Tutu.IsFinished()
+end;
+GiveDialogTag = function()
+    MyCompany.Aries.Quest.NPCs.Tutu.GiveDialogTag()
+end
+DoExchange = function()
+    MyCompany.Aries.Quest.NPCs.Tutu.DoExchange()
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+GiveCarnationToday = function()
+    return MyCompany.Aries.Quest.NPCs.Tutu.GiveCarnationToday();
+end
+
+NotGiveCarnationTodayAndHaveCarnation = function()
+    return MyCompany.Aries.Quest.NPCs.Tutu.NotGiveCarnationTodayAndHaveCarnation();
+end
+
+GiveCarnation = function()
+    MyCompany.Aries.Quest.NPCs.Tutu.GiveCarnation();
+end
+
+reward_name = MyCompany.Aries.Quest.NPCs.Tutu.GetRandomRewardName();
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30127" />
+            <pe:placeholder id="name" source="{this}" value='美女驯兽师-涂涂'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+		        <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+		        <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    唉呀，我一时贪玩，让12生肖跑出来了！
+		    虽然我是美女驯兽师，但那么多宠物跑了，我一个人哪里抓的过来啊！你既然来了，就帮我一起抓吧，到时我会送份大礼给你的！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("GiveDialogTag")%>' target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+            这个12生肖还真是皮痒痒了，居然敢跑出来，还故意变来变去的，真的过分，看我怎么收拾它们！
+            你有帮我找齐12生肖宠物了吗？
+		    <pe:answer text="找齐了" template_id="foundall">
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' transition = '<%=Eval("DoExchange")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    很不错嘛，看来你的抱抱龙还蛮有捕捉宠物的天赋的，等我有空教他两招吧！12生肖就先跟着你混吧，我再送套衣服给你，这可是绝版，我最喜欢的海盗装！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "4">
+		    少来骗我，没抓到12宠物之前别来烦我！我的脾气可是很火爆，要不怎么能当驯兽师的！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	   <pe:state id = "5">
+		    衣服不是都给你了吗，还来找我做什么呀！现在我心情不好，别来打扰我！驯兽技能等我空点再教你的抱抱龙！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "21">
+		    衣服不是都给你了吗，还来找我做什么呀！现在我心情不好，别来打扰我！驯兽技能等我空点再教你的抱抱龙！
+		    <pe:answer text="送你康乃馨" template_id="giveyoucarnation">
+			    <pe:answer-if condition = '<%=Eval("GiveCarnationToday")%>' target_state = "22"/>
+			    <pe:answer-if condition = '<%=Eval("NotGiveCarnationTodayAndHaveCarnation")%>' target_state = "24"/>
+			    <pe:answer-if condition = "true" target_state = "23"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "22">
+		    小哈奇，你今天已经送过我康乃馨了，我可真乐坏了，再去送给别人嘛！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "23">
+		    你没有康乃馨，送什么送啊，没有种子的话快去找两个春天的气息放到生机瓶里，生机瓶会给你康乃馨种子的。快想办法种点康乃馨再来吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "24">
+		    <%=string.format("收到你这朵康乃馨，真让我心情大好呀！我也要送你一个%s，哈哈，开心吧！", Eval("reward_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GiveCarnation")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

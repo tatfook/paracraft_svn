@@ -1,0 +1,649 @@
+--
+--
+--*****this file is deprecated******
+--
+--
+--NPL.load("(gl)script/ide/common_control.lua");
+--NPL.load("(gl)script/network/markInfo.lua");
+--NPL.load("(gl)script/mapMark_db.lua");
+--NPL.load("(gl)script/ide/MultiLineEditbox.lua");
+--
+-----------------------------------------------------------------------
+--local mapMark = {
+	--name = "mapMark1",
+	--parent = nil,
+	--left = 10,
+	--top = 50,
+	--width = 32,
+	--height = 32,
+	--markInfo = nil,
+	--texture = "Texture/worldMap/mark_1.png",
+	--candrag = false,
+	--editable = false,
+	--visible = true,
+	--onClick = "";
+	--mediator = nil;
+--}
+--CommonCtrl.mapMark = mapMark;
+ --
+--function mapMark:new(o)
+	--o = o or {}  
+	--setmetatable(o, self)
+	--self.__index = self
+	--return o
+--end
+--
+--function mapMark:Initialize()
+	--local _this;
+	--if(self.name == nil)then
+		--log("mapMark instance name can not be nil -_- \r\n");
+		--return;
+	--end
+	--
+	--if(self.parent == nil)then
+		--log("mapMark parent can not be nil -_- \r\n");
+		--return;
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name);
+	--if( _this:IsValid() == false)then
+		--_this = ParaUI.CreateUIObject("button",self.name,"_lt",self.left,self.top,self.width,self.height);
+		--_this.background = self.texture;
+		--_this.visible = self.visible;
+		--_this.candrag = self.candrag;
+		--_this.animstyle = 22;
+		--_this.onclick = string.format( [[;CommonCtrl.mapMark.OnClick("%s");]],_this.name);
+		--_this.onmouseenter = string.format( [[;CommonCtrl.mapMark.OnEnterMark("%s");]],_this.name);
+		--_this.onmouseleave = string.format( [[;CommonCtrl.mapMark.OnLeaveMark("%s");]],_this.name);
+		--_this.ondragend = string.format( [[;CommonCtrl.mapMark.OnDragEnd("%s");]],_this.name);	
+		--self.parent:AddChild(_this);
+		--CommonCtrl.AddControl(self.name,self);
+	--end
+--end
+--
+--function mapMark:Show(bshow)
+	--if( bshow == nil)then
+		--return;
+	--else
+		--_this = ParaUI.GetUIObject(self.name);
+		--if( _this:IsValid())then
+			--_this.visible = bshow;
+		--end
+	--end
+--end
+--
+--function mapMark:SetPlayerInfo(_playerInfo)
+	--self.markInfo = _playerInfo;
+	--self:SetBackground( _playerInfo:GetMarkStyle());
+	--self:CanDrag( _playerInfo:IsEditable());
+--end
+--
+--function mapMark:GetMarkInfo()
+	--return self.markInfo;
+--end
+--
+--function mapMark:GetPosition()
+	--local _this = ParaUI.GetUIObject(self.name);
+	--if( _this:IsValid())then
+		--return _this.x,_this.y;
+	--end
+--end
+--
+--function mapMark:SetPosition(x,y)
+	--local _this = ParaUI.GetUIObject(self.name);
+	--if( _this:IsValid())then
+		--_this.x = x;
+		--_this.y = y;
+	--end
+--end
+--
+--function mapMark:SetBackground(_filename)
+	--local _this = ParaUI.GetUIObject(self.name);
+	--if( _this:IsValid())then
+		--_this.background = _filename;
+	--end
+--end
+--
+--function mapMark:Update()
+--end
+--
+--function mapMark:CanDrag(bshow)
+	--if(_this:IsValid() == false)then
+	--local _this = ParaUI.GetUIObject(self.name);
+		--log("err getting mapMark -_- \r\n");
+	--end
+--
+	--if(bshow ==nil)then
+		--_this.candrag = false;
+	--else
+		--_this.candrag = bshow;
+	--end
+--end
+--
+--function mapMark.OnClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("err getting mapMark instance -_- \r\n");
+		--return;
+	--end	
+--
+	--if(mouse_button == "left")then
+		--if( self.mediator ~= nil)then
+			--self.mediator:OnMarkClick(ctrName);
+		--end
+	--elseif(mouse_button == "left")then
+	--
+	--end
+--end
+--
+--function mapMark.OnEnterMark(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("err getting mapMark instance -_- \r\n");
+		--return;
+	--end
+	--
+	--if( self.mediator ~= nil)then
+		--self.mediator:OnEnterMark(ctrName);
+	--end
+--end
+--
+--function mapMark.OnLeaveMark(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("err getting mapMark instance -_- \r\n");
+		--return;
+	--end
+	--
+	--if( self.mediator ~= nil)then
+		--self.mediator:OnLeaveMark(ctrName);
+	--end
+--end
+--
+--function mapMark.OnDragEnd(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("mapMark:OnDragEng:err getting mapMarkInstance -_-# \r\n");
+		--return;
+	--end
+	--
+	--local _this = ParaUI.GetUIObject(ctrName);
+	--if( _this:IsValid() == false)then
+		--return;
+	--end
+	--
+	--local x,y = _this:GetAbsPosition();
+	--
+	--if( self.mediator ~= nil)then
+		--self.mediator:ChangeMarkPos(x,y,self.markInfo);
+	--end
+--end
+--
+--function mapMark:SetMediator(_mediator)
+	--self.mediator = _mediator;
+--end
+--
+--function mapMark:Destroy()
+	--ParaUI.Destroy(self.name);
+--end
+ --
+--
+-----------------------------------------------------------------------
+--if(not markDetailWnd)then
+	--markDetailWnd = {};
+--end;
+--if(not markDetailWnd.name)then markDetailWnd.name = "markInfoWnd";end;
+--if(not markDetailWnd.parent)then markDetailWnd.parent = nil;end;
+--if(not markDetailWnd.left)then markDetailWnd.left = 0;end;
+--if(not markDetailWnd.top)then markDetailWnd.top = 0;end;
+--if(not markDetailWnd.width)then markDetailWnd.width = 200;end;
+--if(not markDetailWnd.height)then markDetailWnd.height = 250;end;
+--if(not markDetailWnd.visible)then markDetailWnd.visible = false;end;
+--if(not markDetailWnd.transparency)then markDetailWnd.transparency = 160;end;
+--if(not markDetailWnd.markInfo)then markDetailWnd.markInfo = nil;end;
+--if(not markDetailWnd.editable)then markDetailWnd.editable = true;end;
+--if(not markDetailWnd.markURL)then markDetailWnd.markURL = "http://www.kids3dmovie.com/cn/";end;
+--
+--function markDetailWnd:Destroy()
+	--ParaUI.Destroy(self.name);
+--end
+--
+--function markDetailWnd:Initialize(_parentCtr)
+	--self.parent = _parentCtr;
+--
+	--local _this,_parent;	
+	--_this = ParaUI.GetUIObject(self.name);
+	--if(_this:IsValid() == false)then
+		----detail window
+		--_this = ParaUI.CreateUIObject("container", self.name, "_lt", 27, 29, self.width,self.height)
+		--_this.background = "Texture/worldMap/bg.png";
+		--_this:GetTexture("background").transparency = self.transparency;
+		--_this.visible = self.visible;
+		--_this.candrag = true;
+		--_this.ondragend = string.format( [[;markDetailWnd:OnDragEnd("%s");]],_this.name);
+		--self.parent:AddChild(_this);
+		--CommonCtrl.AddControl(self.name,self);
+		--_parent = _this;
+--
+		--_this = ParaUI.CreateUIObject("text", self.name.."txtPlayID", "_lt", 5, 5, 190, 16)
+		--_this.font = "System;16;bold";
+		--_this:GetFont("text").color = "200 0 0";
+		--_parent:AddChild(_this);	
+--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,25,200,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button", self.name.."ctnLogo", "_lt", 10, 30, 96, 96)
+		----_this:GetTexture("background").transparency = self.transparency;
+		----_this.onmouseenter	= string.format( [[;markDetailWnd:OnMouseEnter("%s","%s");]],self.name,_this.name);
+		----_this.onmouseleave = string.format( [[;markDetailWnd:OnMouseLeave("%s","%s");]],self.name,_this.name);
+		--_this.onclick = string.format( [[;markDetailWnd:OnLogoClick("%s");]],self.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."ctnClose","_rt",-15,5,10,10);
+		--_this.background = "Texture/worldMap/close.png";
+		--_this.onclick = string.format( [[;markDetailWnd:OnMouseClick("%s");]],self.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("text", "s", "_lt", 110, 35, 40, 9)
+		--_this.font = "System;12;norm";
+		--_this.text = "等级:";
+		--_this:GetFont("text").color = "75 0 130";
+		--_this:GetFont("text").transparency = self.transparency;
+		--_parent:AddChild(_this);	
+		--
+		--_this = ParaUI.CreateUIObject("text", self.name.."txtLvl", "_lt", 140, 35, 55, 12)
+		--_this.font = "System;12;norm";
+		--_this:GetFont("text").color = "255 0 0";
+		--_this:GetFont("text").transparency = self.transparency;
+		--_this.onmouseenter	= string.format( [[;markDetailWnd:OnMouseEnter("%s");]],_this.name);
+		--_this.onmouseleave = string.format( [[;markDetailWnd:OnMouseLeave("%s");]],_this.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("text", "s", "_lt", 109, 60, 60, 12)
+		--_this.font = "System;12;norm";
+		--_this.text = "位置：";
+		--_this:GetFont("text").color = "75 0 130";
+		--_this:GetFont("text").transparency = self.transparency;
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("text", self.name.."txtLocation", "_lt", 109, 76, 85, 36)
+		--_this.font = "System;12;norm";
+		--_this:GetFont("text").transparency = self.transparency;
+		--_this.onmouseenter	= string.format( [[;markDetailWnd:OnMouseEnter("%s");]],_this.name);
+		--_this.onmouseleave = string.format( [[;markDetailWnd:OnMouseLeave("%s");]],_this.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,130,200,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("text", self.name.."txtDetail", "_lt", 5, 135, 190, 30)
+		--_this.font = "System;12;norm";
+		--_this:GetFont("text").transparency = self.transparency;
+		--_this.onmouseenter	= string.format( [[;markDetailWnd:OnMouseEnter("%s");]],_this.name);
+		--_this.onmouseleave = string.format( [[;markDetailWnd:OnMouseLeave("%s");]],_this.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,225,200,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+--
+		--_this = ParaUI.CreateUIObject("button", self.name.."btnEnter", "_lt", 90, 227, 110, 20);
+		----_this.background = "Texture/worldMap/enter my world.png";
+		--_this.text = "进入我的世界";
+		--_this.font = "System;12;norm";
+		--_this:GetFont("text").color = "115 0 125";
+		--_this.onclick = string.format( [[;markDetailWnd.OnEnterBtnClick("%s");]],self.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button", self.name.."btnEdit", "_lt", 45, 227, 40, 20);
+		----_this.visible = self.editable;
+		--_this.visible = true;
+		--_this.text = "编辑";
+		--_this.font = "System;12;norm";
+		--_this:GetFont("text").color = "115 0 125";
+		--_this.onclick = string.format( [[;markDetailWnd:OnEditBtnClick("%s")]],_this.name);
+		--_parent:AddChild(_this);
+	--
+		--_this = ParaUI.CreateUIObject("button", self.name.."btnAdd2Favor", "_lt",8, 229, 16, 16);
+		--_this.background = "Texture/worldMap/add2Favor.jpg";
+		--_this.tooltip = "添加到我的世界";
+		--_this.onclick = string.format( [[;markDetailWnd.OnAdd2FavorClick("%s")]],self.name);
+		--_parent:AddChild(_this);
+		--
+		---- Edit window------------------------------------------------------------------
+		--_this = ParaUI.CreateUIObject("container", self.name.."_e", "_lt", 305, 29, 200, 250)
+		--_this.visible = false;
+		--_this.candrag = true;
+		--_this.background = "Texture/worldMap/bg.png";
+		--_this:GetTexture("background").transparency = self.transparency;
+		--_this.ondragend = string.format( [[;markDetailWnd:OnDragEnd("%s");]],_this.name);
+		--self.parent:AddChild(_this);
+		--_parent = _this;
+		--
+		--_this = ParaUI.CreateUIObject("text", self.name.."txtMarkID_e", "_t", 5, 5, 190, 16)
+		--_this.text = "Paraman";
+		--_this.font = "System;16;bold";
+		--_this:GetFont("text").color = "200 0 0";
+		--_parent:AddChild(_this);
+--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,25,200,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+--
+		--_this = ParaUI.CreateUIObject("button", self.name.."ctnLogo_e", "_lt", 5, 38, 76, 76)
+		--_this.background = "Texture/worldMap/bg.png";
+		----_this:GetTexture("background").transparency = self.transparency;
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."ctnMark_e", "_rt", -60, 38, 32, 32)
+		--_this.background = "Texture/worldMap/bg_small.png";
+		--_this:GetTexture("background").transparency = self.transparency;
+		--_parent:AddChild(_this);
+			--
+		--_this = ParaUI.CreateUIObject("text", "s", "_lt", 87, 60, 29, 12)
+		--_this.text = "位置";
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--local ctl = CommonCtrl.MultiLineEditbox:new{
+			--name = self.name.."editLocation",
+			--alignment = "_lt",
+			--left=85, top=75,
+			--width = 105,
+			--height = 50,
+			--line_count = 2,
+			--parent = _parent,
+		--};
+		--ctl:Show(true);
+		 --
+		--_this = ParaUI.CreateUIObject("text", "s", "_lt", 6, 120, 53, 12)
+		--_this.text = "自我介绍";
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--local ctl = CommonCtrl.MultiLineEditbox:new{
+			--name = self.name.."editDetail",
+			--alignment = "_lt",
+			--left=8, top=135,
+			--width = 185,
+			--height = 80,
+			--line_count = 3,
+			--parent = _parent,
+		--};
+		--ctl:Show(true);
+--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,220,200,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button", self.name.."btnOK", "_lt", 81, 225, 55, 23)
+		--_this.font = "System;12;norm";
+		--_this.text = "确定";
+		--_this.onclick = string.format( [[;markDetailWnd:OnOKButtonClick("%s");]],_this.name);
+		--_parent:AddChild(_this);
+--
+		--_this = ParaUI.CreateUIObject("button", self.name.."btnCancel", "_lt", 143, 225, 54, 23)
+		--_this.font = "System;12;norm";
+		--_this.text = "取消";
+		--_this.onclick = string.format( [[;markDetailWnd:OnCancelButtonClick("%s");]],_this.name);
+		--_parent:AddChild(_this);
+	--end
+--end
+--
+--function markDetailWnd:Show(bshow)
+	--if(bshow == nil) then
+		--return;
+	--else
+		--local _this = ParaUI.GetUIObject(self.name);
+		--if( _this:IsValid())then
+			--_this.visible = bshow;
+		--end
+		--_this = ParaUI.GetUIObject(self.name.."_e");
+		--if(_this:IsValid())then
+			--_this.visible = false;
+		--end;
+	--end
+--end
+--
+--function markDetailWnd:SetPosition(left,top)
+	--local _this = ParaUI.GetUIObject(self.name);
+	--if( _this:IsValid() == false)then
+		--log("markDetailWnd instance can not be found -_-\r\n");
+		--return;
+	--end
+	--_this.x = left;
+	--_this.y = top;
+	--
+	--_this = ParaUI.GetUIObject(self.name.."_e");
+	--if( _this:IsValid() == false)then
+		--log("markEditWnd instance can not be found -_-\r\n");
+		--return;
+	--end
+	--_this.x = left;
+	--_this.y = top;
+--end
+--
+--function markDetailWnd:GetSize()
+	--return self.width,self.height;
+--end
+--
+--function markDetailWnd:SetData(_markInfo)
+	--if( _markInfo == nil)then
+		--return;
+	--end
+	--
+	--self.markInfo = _markInfo;
+	--_this = ParaUI.GetUIObject( self.name.."txtPlayID");
+	--if( _this:IsValid() == true)then
+		--if( _markInfo:GetIsOnline())then
+			--_this:GetFont("text").color = "255 0 0";
+		--else
+			--_this:GetFont("text").color = "100 100 100";
+		--end
+		--_this.text = self.markInfo:GetMarkID()
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."txtLvl");
+	--if( _this:IsValid() == true)then
+		--_this.text = string.format("%d",self.markInfo:GetLevel());
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."txtLocation");
+	--if( _this:IsValid() == true)then
+		--_this.text = self.markInfo:GetLocation();
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."ctnLogo");
+	--if( _this:IsValid() == true)then
+		--_this.background = self.markInfo:GetLogo();
+	--end
+--
+	--_this = ParaUI.GetUIObject(self.name.."txtDetail");
+	--if( _this:IsValid() == true)then
+		--_this.text = self.markInfo:GetDetail();
+	--end
+--
+	--_this = ParaUI.GetUIObject(self.name.."txtMarkID_e");	
+	--if( _this:IsValid() == true)then
+		--_this.text = self.markInfo:GetMarkID();
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."ctnLogo_e");
+	--if( _this:IsValid() == true)then
+		--_this.background = self.markInfo:GetLogo();
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."ctnMark_e");
+	--if( _this:IsValid() == true)then
+		--_this.background = self.markInfo:GetMarkStyle();
+	--end
+--
+	--_this = CommonCtrl.GetControl(self.name.."editLocation");
+	--if( _this ~= nil)then
+		--_this:SetText(self.markInfo:GetLocation());
+	--end
+--
+	--_this = CommonCtrl.GetControl(self.name.."editDetail");
+	--if( _this ~= nil)then
+		--_this:SetText(self.markInfo:GetDetail());
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."btnEdit")
+	--if( _this:IsValid() == true)then
+		--_this.visible = self.markInfo:IsEditable();
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name.."btnAdd2Favor")
+	--if( _this:IsValid() == true)then
+		--_this.visible = not self.markInfo:IsEditable();
+	--end
+--end
+--
+--function markDetailWnd:ChangeLayout(_showEdit)
+	--local _this = ParaUI.GetUIObject(self.name.."_e")
+	--if(_this:IsValid() == false)then
+		--log("err getting markDetailWnd UI element \r\n");
+		--return;
+	--end	
+	--_this.visible = _showEdit;
+	--
+	--local _this = ParaUI.GetUIObject(self.name)
+	--if(_this:IsValid() == false)then
+		--log("err getting markDetailWnd UI element \r\n");
+		--return;
+	--end	
+	--_this.visible = not _showEdit;
+--end
+--
+--function markDetailWnd:OnMouseEnter(ctrName)
+	--local _this = ParaUI.GetUIObject(ctrName)
+	--if(_this:IsValid() == false)then
+		--log("err getting markDetailWnd UI element"..ctrName.."\r\n");
+		--return;
+	--end
+	--
+	--_this:GetFont("text").transparency = 255;
+	--_this:GetTexture("background").transparency = 255;
+--end
+--
+--function markDetailWnd:OnMouseLeave(ctrName)
+	--local _this = ParaUI.GetUIObject(ctrName)
+	--if(_this:IsValid() == false)then
+		--log("err getting markDetailWnd UI element"..ctrName.."\r\n");
+		--return;
+	--end
+	--
+	--_this:GetFont("text").transparency = self.transparency;
+	--_this:GetTexture("background").transparency = self.transparency;
+--end
+--
+--function markDetailWnd:OnMouseClick()
+	--self:Show(false);
+--end
+--
+--function markDetailWnd:OnDoubleClick(ctrName)
+	----log("double click\n");
+--end
+--
+--function markDetailWnd:OnEditBtnClick()
+	--self:ChangeLayout(true);
+--end
+--
+--function markDetailWnd:OnOKButtonClick()
+	--self:ChangeLayout(false);
+	--
+	--local paraCtr = CommonCtrl.GetControl( self.name.."editLocation");
+	--if( paraCtr == nil)then
+		--log( "markDetailWnd:OnOKButtonClick():err getting editLocation control\n");
+		--return;
+	--end
+	--
+	--self.markInfo:SetLocation( paraCtr:GetText());
+	--
+	--paraCtr = CommonCtrl.GetControl( self.name.."editDetail");
+	--if( paraCtr == nil)then
+		--log( "markDetailWnd:OnOKButtonClick():err getting control\n");
+		--return;
+	--end
+	--
+	--self.markInfo:SetDetail( paraCtr:GetText());
+	--self:SetData(self.markInfo);
+	--if( markInfo_db ~= nil)then
+		--markInfo_db.Update( self.markInfo );
+	--end
+	--
+--end
+--
+--function markDetailWnd:OnCancelButtonClick()
+	--self:ChangeLayout(false);
+--end
+--
+--function markDetailWnd:OnDragEnd(ctrName)
+	--local _this = ParaUI.GetUIObject(ctrName)
+	--if(_this:IsValid() == false)then
+		--log("err getting markDetailWnd UI element"..ctrName.."\r\n");
+		--return;
+	--end
+--
+	--self:SetPosition(_this.x,_this.y);
+--end
+--
+--function markDetailWnd:GetWidth()
+	--return self.width;
+--end
+--
+--function markDetailWnd:GetHeight()
+	--return self.height;
+--end
+--
+--function markDetailWnd:ShowEditBtn(bshow)
+	--local _this = ParaUI.GetUIObject( self.name.."btnEdit");
+	--if( _this:IsValid() == false)then
+		--log("err getting edit button -_-# \r\n");
+		--return;
+	--end
+	--
+	--_this.visible = bshow;
+--end
+--
+--function markDetailWnd:OnLogoClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log( "can not find markDetailWnd instance -_-# \r\n");
+		--return;
+	--end
+--
+	--local URL = self.markURL..self.markInfo:GetMarkID().."/default.aspx";
+	--ParaGlobal.ShellExecute("open", "iexplore.exe", URL, nil, 1); 
+--end
+--
+--function markDetailWnd.OnEnterBtnClick(ctrName)
+	--local self = CommonCtrl.GetControl( ctrName);
+	--if( self == nil)then
+		--log(" markDetailWnd instance can not found -_-# \r\n");
+		--return;
+	--end
+	--
+	--NPL.load("(gl)script/network/KM_WorldDownloader.lua");
+	--KM_WorldDownloader.ShowUIForTask(KM_WorldDownloader.NewTask({source="http://www.kids3dmovie.com/"..self.markInfo:GetMarkID(), type = 0}));
+--end
+--
+--function markDetailWnd.OnAdd2FavorClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log( "can not find markDetailWnd instance -_-# \r\n");
+		--return;
+	--end
+	--
+	--local _this = CommonCtrl.GetControl( self.parent.name);
+	--if( _this == nil)then
+		--return;
+	--end
+	--
+	--if (_this.mediator ~= nil )then
+		--_this.mediator:AddMark2Favor(self.markInfo:GetMarkID());
+	--end
+--end

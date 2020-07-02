@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- game server configuration file -->
+<GameServer>
+  <!--which ip and port this server listens to. As well as the nid of itself.
+  @param compress_incoming: whether to use compression for incoming connections. 
+    This must be true in order for CompressionLevel and CompressionThreshold to take effect 
+  @param CompressionLevel: -1, 0-9: Set the zlib compression level to use in case compresssion is enabled. 
+    Compression level is an integer in the range of -1 to 9. 
+		Lower compression levels result in faster execution, but less compression. Higher levels result in greater compression, 
+		but slower execution. The zlib constant -1, provides a good compromise between compression and speed and is equivalent to level 6. 
+  @param CompressionThreshold:  when the message size is bigger than this number of bytes, we will use m_nCompressionLevel for compression. 
+		For message smaller than the threshold, we will not compress even m_nCompressionLevel is not 0. 
+  -->
+  <config debug="true" IsPureServer="true"
+          compress_incoming = "true" 
+          CompressionLevel="-1" 
+          CompressionThreshold="102400" 
+          TCPKeepAlive="true" KeepAlive="false" IdleTimeout="false" IdleTimeoutPeriod="10000" 
+          host="127.0.0.1" port="60002" nid="1001" 
+          public_files="config/NPLPublicFiles.xml">
+    <!--where the REST interface send the message response back to-->
+    <rest reply_file="script/apps/GameServer/rest_client.lua" 
+          api_file="config/WebAPI.config.xml" />
+  </config>
+  
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread
+  npl state name is the world id
+  -->
+  <npl_states>
+    <npl_state name="world1"/>
+    <npl_state name="world2"/>
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="127.0.0.1" port="60002" nid="gs1"/>
+  </npl_runtime_addresses>
+
+  <!--the runtime state names on the NPL router-->
+  <router_states>
+    <router_state name="1"/>
+    <router_state name="2"/>
+    <router_state name="3"/>
+    <router_state name="4"/>
+  </router_states>
+  
+  <!--home world server grids: we can use game server as home server or use dedicated home server -->
+  <homegrids>
+    <homegrid address="(world1)1001" id="1"/>
+    <homegrid address="(world2)1001" id="2"/>
+  </homegrids>
+</GameServer>

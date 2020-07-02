@@ -1,0 +1,72 @@
+﻿<!-- "script/kids/3DMapSystemUI/ScreenShot/SnapshotPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Snapshot Page by LiXizhi, 2008.4.29</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="script/kids/3DMapSystemUI/ScreenShot/SnapshotPage.lua">
+    MyCompany.Apps.ScreenShot.SnapshotPage.OnInit();
+</script>
+<pe:tabs name="SnapshotTabs">
+  <pe:tab-item text="快速截图" selected="true" name="quickstart">
+    <form name="Snapshot"><div style="margin:5px">
+        <a onclick="Map3DSystem.App.Commands.Call" param1="Profile.CCS.FaceCamera"><img style="background:url(Texture/3DMapSystem/common/action.png);width:16px;height:16px;margin-right:3px" />人物面向摄影机</a><br />
+        <div><font style="font-weight:bold">您希望做什么?</font></div>
+        <input type="radio" checked="true" name="SnapshotAction" value="0"/>保存到本地<br />
+        <input type="radio" name="SnapshotAction" value="1"/>上传到官网<br />
+        <input type="radio" name="SnapshotAction" value="2"/>发给好友<br />
+        <input type="radio" name="SnapshotAction" value="3"/>做为3D世界预览图<br />
+        <input type="radio" name="SnapshotAction" value="4"/>做为登陆页桌面<br />
+        <hr />
+        <div><font style="font-weight:bold">当前截图预览:</font><font style="color:#808080;">快速截图键F11</font></div>
+        <img name="CurrentSnapshot" style="width:230px;height:140px;"/><br />
+        <div><font style="font-weight:bold">图片名称:</font><font style="color:#808080;">可以重命名截图</font></div>
+        <input type="text" name="SnapshotName"/>
+       <hr />
+       <input type="submit" name="DoAction" class="defaultbutton" value="确定/提交" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickDoAction()"/>
+       <input style="margin-left:10px" type="button" name="TakeSnapShot" value="重新截图" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickTakeSnapshot()"/>
+       <input style="margin-left:10px" type="button" name="OpenDir" value="打开目录" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickOpenSnapshotDir()"/><br />
+       <div><label name="result" style="color:#006600;font-weight:bold;margin-top:5px"></label></div>
+    </div></form>
+  </pe:tab-item>
+  <pe:tab-item text="图像设置" name="setting">
+    <form name="ImageSetting"><div style="margin:5px">
+        您希望的截图大小:
+        <select name="ImageResolution" AllowUserEdit="false" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnSelectImageSize()">
+          <option selected="true" value="">当前窗口</option>
+          <option value="960*540">960*540(16:9)</option>
+          <option value="640*480">640*480(4:3)</option>
+          <option value="600*400">600*400(3:2)</option>
+          <option value="300*200">300*200(3:2)</option>
+        </select><br/>
+        <div style="float:left">长度: <input style="width:50px" type="text" name="Width"/></div><div style="float:left;margin-left:10px">高度: <input style="width:50px" type="text" name="Height"/></div><br/>
+        <hr />
+        <input type="checkbox" name="IncludeUI"/>截图中是否包含UI(2D界面)<br/>
+        <input type="checkbox" name="IncludeHUD"/>是否包含HUD(头顶文字显示)<br/>
+        <input type="checkbox" name="IncludeWatermark"/>是否包含ParaEngine Logo(水印)<br/>
+        <hr />
+        <input type="submit" name="SaveSetting" class="defaultbutton" value="保存" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickSaveSetting()"/><label name="settingresult" style="color:#006600;font-weight:bold;margin-top:5px;margin-left:10px">尚未保存</label>
+    </div></form>
+  </pe:tab-item>
+  <pe:tab-item text="本地截图" name="browse">
+    <div style="margin:5px">
+      <div><font style="font-weight:bold">截图预览: </font><font style="color:#808080;">选择文件, 查看截图</font></div>
+       <img name="LocalSnapshot" style="width:230px;height:140px;"/>
+       <hr />
+       <input type="button" name="SetCurrent" class="defaultbutton" value="设为当前截图" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickSetAsCurrent()"/>
+       <input style="margin-left:10px" type="button" name="Delete" value="删除" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickDeleteFile()"/>
+       <input style="margin-left:10px" type="button" name="OpenFolder" value="打开" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnClickOpenFolder()"/>
+       <hr />
+      <select name="CurFolder" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnSelectFolder()">
+          <option selected="true" value="Screen Shots">缺省目录</option>
+          <option value="/">根目录(/)</option>
+      </select><input type="text" name="filepath"/><br/> 
+      <pe:filebrowser name="FileBrowser" filter="*.jpg;*.dds;*.bmp;" rootfolder="Screen Shots" onclick="MyCompany.Apps.ScreenShot.SnapshotPage.OnSelectFile()"/>
+    </div>
+  </pe:tab-item> 
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>

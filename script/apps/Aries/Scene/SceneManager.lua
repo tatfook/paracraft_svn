@@ -1,0 +1,175 @@
+----[[
+--Title: Manger singleton manager
+--Author(s): proposed by LiXizhi
+--Date: 2009/8/3
+--Desc:
+--use the lib:
+--------------------------------------------------------------
+--NPL.activate("(gl)script/apps/Aries/Scene/SceneManager.lua");
+--------------------------------------------------------------
+--]]
+--
+-------------------
+---- file: SceneManager.lua
+-------------------
+--local SceneManager = commonlib.gettable("Aries.SceneManager");
+--
+---- mapping from name to object for fast retrieval
+--local name_map = {};
+--
+---- all other player computers. 
+--local opcs = {};
+--
+---- the current player
+--local player = {};
+--
+---- home lands that we have visited. 
+--local homelands = {};
+--
+---- get object by its name. 
+--function SceneManager:GetObject(name)
+	--return name_map[name];
+--end
+--
+---- add a given object to the scene manager. 
+--function SceneManager:AddObject(object)
+	--if(object and object.name) then
+		--name_map[object.name] = object;
+	--end	
+	---- TODO: 
+--end
+--
+---- send a message to a given object. 
+--function SceneManager:SendMessage(object, msg)
+	---- TODO: 
+	--if(object) then
+		--object:OnMessage(msg);
+	--end
+--end
+--
+-------------------
+---- file: object.lua
+---- the base object for all scene object
+-------------------
+--
+--local object = commonlib.gettable("Aries.SceneManager.object");
+--
+--function object:new(o)
+	--o = o or {};
+	---- TODO: 
+	---- the ParaScene object id
+	--o.id = nil;
+	--
+	--return o;
+--end
+--
+---- safely delete this object. we will remove from the ParaScene and then from the SceneManager. 
+--function object:release()
+--end
+--
+---- only remove from the ParaScene, but object still in SceneManager. 
+--function object:remove()
+--end
+--
+---- virtualize this object. 
+--function object:create()
+--end
+--
+--
+---- virtual 
+--function object:OnNetSend(table_in, table_out)
+	---- TODO: add anything that you want to send to the out table 
+	--
+	--if(self.childs) then
+		--local _, child
+		--for _, child in pairs(self.childs) do
+			--child:OnNetSend(table_in, table_out);
+		--end
+	--end
+--end
+--
+---- virtual 
+--function object:OnNetReceive(input)
+	---- TODO: read anything from in table. and update the real object
+	--
+	--if(self.childs) then
+		--local _, child
+		--for _, child in pairs(self.childs) do
+			--child:OnNetReceive(input);
+		--end
+	--end
+--end
+--
+---- virtual 
+--function object:OnMessage(msg)
+	--local bRecusive;
+	---- TODO: handle message and if necessary let the child to handle the message
+	--
+	--if(bRecusive and self.childs) then
+		--local _, child
+		--for _, child in pairs(self.childs) do
+			--child:OnMessage(msg);
+		--end
+	--end
+--end
+--
+-------------------
+---- file: player.lua
+-------------------
+--local player = commonlib.gettable("Aries.SceneManager.player");
+--
+--function player:new(o)
+	---- TODO: commonlib.inherit("Aries.SceneManager.object");
+	---- the message queue
+	--o.queue = {};
+	--return o;
+--end
+--
+--function player:GetPet()
+--end
+--
+--function player:GetFollowPet()
+--end
+--
+--function player:Throw()
+--end
+--
+---- TODO: Add all your functions needed. 
+--
+--function player:OnNetSend(in, out)
+	---- TODO send network related events in self.queue. 
+	--
+	---- call parent. 
+	--object.OnNetSend(self, in, out);
+--end
+--
+--function player:OnNetReceive(in)
+	---- TODO update from input stream
+	--
+	---- call parent 
+	--object.OnNetReceive(self, in, out);
+--end
+--
+--function player:OnMessage(msg)
+	---- TODO update from input stream
+	--
+	---- call parent 
+	--object.OnMessage(msg);
+--end
+--
+-------------------
+---- file: driver_pet.lua
+---- same as player.lua
+-------------------
+--
+-------------------
+---- file: follow_pet.lua
+---- same as player.lua
+-------------------
+--
+-------------------
+---- file: homeland.lua
+---- same as player.lua
+-------------------
+--
+--

@@ -1,0 +1,119 @@
+﻿<!-- "script/apps/Aries/Books/HomeIndoorMagazine.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HomeIndoorMagazine, by Andy, 2009/9/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- check for discount value
+isHalfPriceDay = false;
+local discount = MyCompany.Aries.Scene.GetServerObjectValue("EMoneyDiscount");
+
+if(discount and tonumber(discount) == 0.5) then
+    isHalfPriceDay = true;
+end
+
+function DS_Func_HomeIndoorMagazine(index)
+    if(index == nil) then
+        return 7;
+    elseif(index == 1) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/1.png; 0 0 550 430",
+        };
+    elseif(index == 2) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/6.png; 0 0 550 430",
+        };
+    elseif(index == 3) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/7.png; 0 0 550 430",
+        };
+    elseif(index == 4) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/5.png; 0 0 550 430",
+        };
+    elseif(index == 5) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/4.png; 0 0 550 430",
+        };
+    elseif(index == 6) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/2.png; 0 0 550 430",
+        };
+    elseif(index == 7) then
+        return {background = "Texture/Aries/Books/HomeIndoorDeco_v1/3.png; 0 0 550 430",
+        };
+    end
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<input type="button" onclick="Confirm()" style="margin-left:690px;margin-top:0px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-40px;margin-left:40px;padding-left:110px;padding-top:36px;padding-bottom:-10px;background:url(Texture/Aries/Books/orange_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_HomeIndoorMagazine%>" name="HomeIndoorMagazine" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("background")%>' style="width:550px;height:430px;" />
+                <div style="margin-top:-430px;width:758px;height:430px">
+                    <pe:if condition='<%=Eval("index") == 2%>'>
+                        <pe:item gsid='30169' style="left:120px;top:362px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30170' style="left:438px;top:362px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 3%>'>
+                        <pe:item gsid='30166' style="left:111px;top:183px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30167' style="left:422px;top:183px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30168' style="left:287px;top:365px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 4%>'>
+                        <pe:item gsid='30138' style="left:181px;top:168px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30137' style="left:207px;top:346px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30141' style="left:457px;top:167px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30139' style="left:462px;top:340px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 5%>'>
+                        <pe:item gsid='30118' style="left:416px;top:349px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30119' style="left:279px;top:182px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30120' style="left:125px;top:347px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 6%>'>
+                        <pe:item gsid='30087' style="left:120px;top:211px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30083' style="left:110px;top:375px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 7%>'>
+                        <pe:item gsid='30084' style="left:290px;top:185px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30086' style="left:110px;top:350px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                        <pe:item gsid='30085' style="left:433px;top:372px;position:relative;width:56px;height:30px;background:url(Texture/Aries/Books/purchase_btn_32bits.png#0 0 68 38);"/>
+                    </pe:if>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:156px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-30px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<pe:if condition='<%=Eval("isHalfPriceDay") == true%>'>
+    <div style="margin-left:80px;margin-top:-600px;width:128px;height:140px;">
+        <img zorder="3" style="width:128px;height:140px;background:url(Texture/Aries/Books/halfprice_32bits.png# 0 0 128 140)">
+    </div>
+</pe:if>
+
+</pe:mcml> 
+</body>
+</html>

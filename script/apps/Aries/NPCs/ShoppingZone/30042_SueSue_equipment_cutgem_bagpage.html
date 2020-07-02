@@ -1,0 +1,71 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30042_SueSue_equipment_cutgem_bagpage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30042_SueSue_equipment_cutgem_bagpage, by Leio, 2010/12/06</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" src="30042_SueSue_equipment_cutgem_panel.lua"><![CDATA[
+local GameObject = MyCompany.Aries.Quest.GameObject;
+local NPC = MyCompany.Aries.Quest.NPC;
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local SueSue_equipment_cutgem_panel = MyCompany.Aries.Quest.NPCs.SueSue_equipment_cutgem_panel;
+local pageCtrl = SueSue_equipment_cutgem_panel.GetPageCtrl();
+function DS_Func_panel(index)
+    return SueSue_equipment_cutgem_panel.DS_Func_panel(index);
+end
+
+function DoClick_Slot(guid)
+    guid = tonumber(guid);
+    local item = ItemManager.GetItemByGUID(guid);
+	if(item)then
+        SueSue_equipment_cutgem_panel.selected_gsid = item.gsid;
+        SueSue_equipment_cutgem_panel.gem_gsids = {};
+        SueSue_equipment_cutgem_panel.GetDataSource();
+        SueSue_equipment_cutgem_panel.DoRefresh();
+    end
+end
+function OnRadioClick(value)
+   MyCompany.Aries.Quest.NPCs.SueSue_equipment_cutgem_panel.OnRadioClick(value)
+end
+]]></script>
+<div style="width:400px;height:500px;">
+       
+     <pe:gridview DataSource="<%=DS_Func_panel%>" name="_gridview" style="margin-left:35px;margin-top:0px;margin-right:0px;margin-bottom:0px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="3" AllowPaging="true" pagesize="9">
+        <Columns>
+        <div style="padding:8px;margin-left:0px;margin-top:0px;width:95px;height:95px;background:url(Texture/Aries/npcs/suit/slot_bg_32bits.png#0 0 95 95: 30 30 30 30)">
+                <pe:slot guid='<%=Eval("guid")%>' style="width:70px;height:70px;" onclick = "DoClick_Slot"/>
+        </div>
+        
+        </Columns>
+        <EmptyDataTemplate>
+            <div style="font-size:12;color:#114d81;padding-left:80px;margin-top:145px;">
+              你还没有已镶嵌宝石的装备
+            </div>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="36" style="margin-left:100px;margin-top:-165px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+	        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	        <div style="float:left;margin-top:-2px;width:64px;">
+	            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	    </form>
+	</PagerTemplate>
+    </pe:gridview>
+
+</div>
+
+</pe:mcml> 
+</body>
+</html>

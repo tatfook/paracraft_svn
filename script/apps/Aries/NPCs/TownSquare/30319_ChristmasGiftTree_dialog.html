@@ -1,0 +1,168 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30319_ChristmasGiftTree_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30319_ChristmasGiftTree_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 39101_SnowHomelandTemplate
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30319);
+memory[instance] = memory[instance] or {};
+memory = memory[instance];
+
+Condition1 = function()
+    if(memory.dialog_state and memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+
+Condition2 = function()
+    if(memory.dialog_state and memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+
+Condition3 = function()
+    if(memory.dialog_state and memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+
+Condition4 = function()
+    if(memory.dialog_state and memory.dialog_state == 4) then
+        return true;
+    end
+    return false;
+end;
+
+Condition5 = function()
+    if(memory.dialog_state and memory.dialog_state == 5) then
+        return true;
+    end
+    return false;
+end;
+
+Condition6 = function()
+    if(memory.dialog_state and memory.dialog_state == 6) then
+        return true;
+    end
+    return false;
+end;
+
+giftname = memory.giftname or "";
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+local ChristmasGiftTree = MyCompany.Aries.Quest.NPCs.ChristmasGiftTree;
+
+function ExitAction(from, to)
+    if(from == 0 and to == 4) then
+        ChristmasGiftTree.GetGift(memory.giftgsid);
+    elseif(from == 0 and to == 5) then
+        ChristmasGiftTree.GetGift(17033);
+    elseif(from == 0 and to == 6) then
+        ChristmasGiftTree.PreDialog_0()
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="name" source="{this}" value='有礼物的圣诞树'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+       
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		    哎呀，我的树冠上有什么呀，压得好重，快用雪球帮我砸点下来！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    树上的东西已经掉的差不多了，你过会再来帮忙吧，还是谢谢你哈~
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    原来是雪堆压在我头顶呀，难怪这么重了，现在轻松多了，谢谢你哦~
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    原来是<%=Eval("giftname")%>压在我头顶呀，你运气真好，这都让你找到了，那就送给你吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    这是谁干的！！！居然把这么大一个西瓜藏我头上，太过分了！你赶紧把这个西瓜拿走，我看了都生气！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    谁在我头顶藏了那么多的奇豆呀，难怪压的我这么重!现在好多了，谢谢你哦，这些奇豆就送给你吧！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

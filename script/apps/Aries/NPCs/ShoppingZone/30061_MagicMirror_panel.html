@@ -1,0 +1,303 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30061_MagicMirror_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30061_MagicMirror_panel, by Andy, 2009/11/28</title>
+</head>
+<body>
+    <pe:mcml>
+    
+    
+<script refresh="false" type="text/npl" src="30061_MagicMirror_panel.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+MyCompany.Aries.MagicMirrorPanelPage.OnInit();
+
+--asset_table = MyCompany.Aries.MagicMirrorPanelPage.asset_table;
+
+asset_table = {
+    name = "user_createnewavatar",
+    AssetFile="character/v3/Elf/Female/ElfFemale.xml",
+	--CCSInfoStr="1#1#1#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#336#337#0#0#0#0#0#0#0#0#0#1005#1006#0#1007#0#0#0#0#0#0#",
+	CCSInfoStr="0#1#0#1#1#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#0#0#0#0#0#0#0#1050#1051#0#0#1052#0#0#0#0#0#",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+function ShowChoiceTab(value)
+	pageCtrl:SetValue("NewAvatarTabs", value);
+    MyCompany.Aries.MagicMirrorPanelPage.ShowChoiceTab();
+end
+
+function DS_Func_Aries_CreateAvatar(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_Aries_CreateAvatar(index, pageCtrl);
+end
+
+function DS_Func_Hair(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_Hair(index)
+end
+function DS_Func_Eye(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_Eye(index)
+end
+function DS_Func_EyeBrow(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_EyeBrow(index)
+end
+function DS_Func_Mouth(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_Mouth(index)
+end
+function DS_Func_Nose(index)
+    return MyCompany.Aries.MagicMirrorPanelPage.DS_Func_Nose(index)
+end
+
+function OnClickOK()
+    MyCompany.Aries.MagicMirrorPanelPage.OnClickOK()
+end
+
+function OnClickCancel()
+    MyCompany.Aries.MagicMirrorPanelPage.OnClickCancel()
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+
+]]></script>
+<div width="730px" height="556px" style="background:url(Texture/Aries/NPCs/MagicMirror/bg_32bits.png# 0 0 878 668)">
+    <div style="margin-left:0px;margin-top:0px;">
+        <div style="float:left;margin-left:10px">
+            <div style="height:512px;width:512px;float:left">
+                <div style="margin-left:-84px;margin-top:-30px;height:512px;width:512px;float:left">
+                    <pe:canvas3d DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="0.1" name="MirrorAvatar" RenderTargetSize="512" miniscenegraphname="Aries_CreateNewAvatar" value='<%=commonlib.serialize(Eval("asset_table"))%>'
+                        ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="false"/>
+                        <!--ExternalSceneName="DefaultCanvas3DUI" -->
+                </div>
+                <div style="margin-left:-30px;margin-top:-100px;">
+                    <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar" type="rotateleft" zorder="2" 
+                        Normal_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_normal_32bits.png; 0 0 128 44"
+                        MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_highlight_32bits.png; 0 0 128 44"
+                        Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_pressed_32bits.png; 0 0 128 44"
+                        style="float:right;margin-left:50px;margin-top:10px;width:128px;height:44px;background:url(Texture/Aries/Login/NewAvatar/RotateLeft_32bits.png# 0 0 128 44)"/>
+                    <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar" type="rotateright" zorder="2" 
+                        Normal_BG = "Texture/Aries/Login/NewAvatar/RotateRight_normal_32bits.png; 0 0 128 44"
+                        MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateRight_highlight_32bits.png; 0 0 128 44"
+                        Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateRight_pressed_32bits.png; 0 0 128 44"
+                        style="float:right;margin-left:50px;margin-top:10px;width:128px;height:44px;background:url(Texture/Aries/Login/NewAvatar/RotateRight_32bits.png# 0 0 128 44)"/>
+                </div>
+            </div>
+        </div>
+        <div style="float:left;background:;">
+            <div style="margin-left:80px;margin-top:-90px;width:512px;height:128px;background:;"/>
+            <div style="width:400px;height:200px;margin-left:42px;margin-top:-3px;">
+                <div style="width:64px;height:32px;margin-left:70px;background:;"/>
+                <div style="width:200px;height:64px;background:;"/>
+                <pe:gridview style="margin-left:-109px;margin-top:-84px;width:300px;height:160px;" 
+                    DataSource="<%=DS_Func_Hair%>" name="GV_Hair" ItemsPerLine="4" CellPadding="0"  AllowPaging="true" pagesize="4">
+                    <Columns>
+                        <div style="float:left;padding:0px;background:url();width:51px;height:51px;">
+                            <a width="58" height="58" style="padding:0px;background:url();"
+                                onclick="MyCompany.Aries.MagicMirrorPanelPage.OnClickItem" param1='1' param2='<%=Eval("index")%>'>
+                                <div style="width:58px;height:58px;padding:4px;">
+                                    <input type="button" alwaysmouseover="true" 
+                                        Normal_BG="Texture/Aries/NPCs/MagicMirror/slot_32bits.png" 
+                                        MouseOver_BG="Texture/Aries/NPCs/MagicMirror/slot_over_32bits.png" 
+                                        style="width:56px;height:56px;background:url();"/>
+                                    <img width="40" height="40" name="choice1" style="margin-left:7px;margin-top:-53px;" src='<%=Eval("icon")%>'/>
+                                </div>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <!--<PagerSettings Position="Bottom" style="margin-left:170px"/>-->
+	                <PagerSettings Position="Bottom" height="48" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-40px;margin-top:-130px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:218px;margin-top:-130px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="width:400px;height:200px;margin-left:105px;margin-top:-94px;">
+                <div style="width:64px;height:32px;margin-left:70px;background:;"/>
+                <div style="width:200px;height:64px;background:;"/>
+                <pe:gridview style="margin-left:-121px;margin-top:-105px;width:300px;height:160px;" 
+                    DataSource="<%=DS_Func_EyeBrow%>" name="GV_EyeBrow" ItemsPerLine="3" CellPadding="0"  AllowPaging="true" pagesize="3">
+                    <Columns>
+                        <div style="float:left;padding:0px;background:url();width:51px;height:51px;">
+                            <a width="58" height="58" style="padding:0px;background:url();"
+                                onclick="MyCompany.Aries.MagicMirrorPanelPage.OnClickItem" param1='3' param2='<%=Eval("index")%>'>
+                                <div style="width:58px;height:58px;padding:4px;">
+                                    <input type="button" alwaysmouseover="true" 
+                                        Normal_BG="Texture/Aries/NPCs/MagicMirror/slot_32bits.png" 
+                                        MouseOver_BG="Texture/Aries/NPCs/MagicMirror/slot_over_32bits.png" 
+                                        style="width:56px;height:56px;background:url();"/>
+                                    <img width="48" height="48" name="choice1" style="margin-left:1px;margin-top:-52px;" src='<%=Eval("icon")%>'/>
+                                </div>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <!--<PagerSettings Position="Bottom" style="margin-left:170px"/>-->
+	                <PagerSettings Position="Bottom" height="48" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-42px;margin-top:-148px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:167px;margin-top:-148px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="width:400px;height:200px;margin-left:109px;margin-top:-95px;">
+                <div style="width:64px;height:32px;margin-left:70px;background:;"/>
+                <div style="width:200px;height:64px;background:;"/>
+                <pe:gridview style="margin-left:-126px;margin-top:-125px;width:300px;height:160px;" 
+                    DataSource="<%=DS_Func_Nose%>" name="GV_Nose" ItemsPerLine="3" CellPadding="0"  AllowPaging="true" pagesize="3">
+                    <Columns>
+                        <div style="float:left;padding:0px;background:url();width:51px;height:51px;">
+                            <a width="58" height="58" style="padding:0px;background:url();"
+                                onclick="MyCompany.Aries.MagicMirrorPanelPage.OnClickItem" param1='5' param2='<%=Eval("index")%>'>
+                                <div style="width:58px;height:58px;padding:4px;">
+                                    <input type="button" alwaysmouseover="true" 
+                                        Normal_BG="Texture/Aries/NPCs/MagicMirror/slot_32bits.png" 
+                                        MouseOver_BG="Texture/Aries/NPCs/MagicMirror/slot_over_32bits.png" 
+                                        style="width:56px;height:56px;background:url();"/>
+                                    <img width="48" height="48" name="choice1" style="margin-left:2px;margin-top:-60px;" src='<%=Eval("icon")%>'/>
+                                </div>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <!--<PagerSettings Position="Bottom" style="margin-left:170px"/>-->
+	                <PagerSettings Position="Bottom" height="48" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-40px;margin-top:-170px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:168px;margin-top:-170px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="width:400px;height:200px;margin-left:109px;margin-top:-95px;">
+                <div style="width:64px;height:32px;margin-left:70px;background:;"/>
+                <div style="width:200px;height:64px;background:;"/>
+                <pe:gridview style="margin-left:-126px;margin-top:-145px;width:300px;height:160px;" 
+                    DataSource="<%=DS_Func_Eye%>" name="GV_Eye" ItemsPerLine="3" CellPadding="0"  AllowPaging="true" pagesize="3">
+                    <Columns>
+                        <div style="float:left;padding:0px;background:url();width:51px;height:51px;">
+                            <a width="58" height="58" BringToBack="true" style="padding:0px;background:url();"
+                                onclick="MyCompany.Aries.MagicMirrorPanelPage.OnClickItem" param1='2' param2='<%=Eval("index")%>'>
+                                <div style="width:58px;height:58px;padding:4px;">
+                                    <input type="button" alwaysmouseover="true" 
+                                        Normal_BG="Texture/Aries/NPCs/MagicMirror/slot_32bits.png" 
+                                        MouseOver_BG="Texture/Aries/NPCs/MagicMirror/slot_over_32bits.png" 
+                                        style="width:56px;height:56px;background:url();"/>
+                                    <img width="48" height="48" name="choice1" style="margin-left:-2px;margin-top:-60px;" src='<%=Eval("icon")%>'/>
+                                </div>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <!--<PagerSettings Position="Bottom" style="margin-left:170px"/>-->
+	                <PagerSettings Position="Bottom" height="48" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-40px;margin-top:-190px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:168px;margin-top:-190px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="width:400px;height:200px;margin-left:48px;margin-top:-98px;">
+                <div style="width:64px;height:32px;margin-left:70px;background:;"/>
+                <div style="width:200px;height:64px;background:;"/>
+                <pe:gridview style="margin-left:-116px;margin-top:-162px;width:300px;height:160px;" 
+                    DataSource="<%=DS_Func_Mouth%>" name="GV_Mouth" ItemsPerLine="4" CellPadding="0"  AllowPaging="true" pagesize="4">
+                    <Columns>
+                        <div style="float:left;padding:0px;background:url();width:51px;height:51px;">
+                            <a width="58" height="58" BringToBack="true" style="padding:0px;background:url();"
+                                onclick="MyCompany.Aries.MagicMirrorPanelPage.OnClickItem" param1='4' param2='<%=Eval("index")%>'>
+                                <div style="width:58px;height:58px;padding:4px;">
+                                    <input type="button" alwaysmouseover="true" 
+                                        Normal_BG="Texture/Aries/NPCs/MagicMirror/slot_32bits.png" 
+                                        MouseOver_BG="Texture/Aries/NPCs/MagicMirror/slot_over_32bits.png" 
+                                        style="width:56px;height:56px;background:url();"/>
+                                    <img width="48" height="48" name="choice1" style="margin-left:2px;margin-top:-60px;" src='<%=Eval("icon")%>'/>
+                                </div>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <!--<PagerSettings Position="Bottom" style="margin-left:170px"/>-->
+	                <PagerSettings Position="Bottom" height="48" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-40px;margin-top:-206px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:220px;margin-top:-206px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+        </div>          
+    </div>
+</div>
+<div style="float:left;margin-left:144px;margin-top:-120px;">
+    <input type="button" zorder="2" style="width:84px;height:84px;background:url(Texture/Aries/NPCs/MagicMirror/random_32bits.png# 0 0 84 84)"  onclick="MyCompany.Aries.MagicMirrorPanelPage.OnRandom"/>
+</div>
+<div style="float:left;margin-left:150px;margin-top:-80px;">
+    <input type="button" zorder="2" style="margin-left:10px;width:152px;height:47px;background:url(Texture/Aries/NPCs/MagicMirror/OK_32bits.png# 0 0 152 47)" onclick="OnClickOK"/>
+    <input type="button" zorder="2" style="margin-left:10px;width:152px;height:47px;background:url(Texture/Aries/NPCs/MagicMirror/Cancel_32bits.png# 0 0 152 47)" onclick="OnClickCancel"/>
+</div>
+<div style="position:absolute;left:676px;top:-4px;width:54px;height:54px;">
+    <input type="button" zorder="2" style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54)"  onclick="OnClose"/>
+</div>
+
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!-- "script/apps/Aries/Scene/MakeGameWorldPreloader.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>FamilyServerSelect. spring  2011.9.1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MakeGameWorldPreloader.lua"><![CDATA[
+function EachWorldDS()
+end
+]]></script>
+<div style="width:300px;height:500px;">
+    <pe:treeview name="tvwXMLTest" DataSource='<%=EachWorldDS()%>'
+		    DefaultNodeHeight="20" ItemToggleSize="10" ItemToggleRightSpacing="6">
+	    <NodeTemplates>
+		    <NodeTemplate DataType="folder">
+                <pe:treenode text='<%=XPath("this|text")%>' expanded='<%=XPath("this|expanded")%>'></pe:treenode>
+            </NodeTemplate>
+            <NodeTemplate DataType="file">
+                <div style="height:20px;">
+                    <%=XPath("this|text")%>
+				    <span color="#008000">(已完成)</span>
+                </div>
+            </NodeTemplate>
+	    </NodeTemplates>
+        <!--this is where the data binded treenode to appear-->
+        <DataNodePlaceholder xpath="*"/>
+        <pe:treenode text="Select all file nodes" expanded="true">
+            <DataNodePlaceholder xpath="//file"/>
+	    </pe:treenode>
+	    <div>some other static tree node after the data binded node</div>
+    </pe:treeview>
+</div>
+</pe:mcml>
+</body>
+</html>
+

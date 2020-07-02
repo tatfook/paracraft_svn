@@ -1,0 +1,75 @@
+<!-- "script/apps/Aries/Login/SolveNetworkIssue.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>SolveNetworkIssue for user </title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+local page = document:GetPageCtrl();
+local MainLogin = commonlib.gettable("MyCompany.Aries.MainLogin");
+NPL.load("(gl)script/apps/Aries/Player/main.lua");
+
+function OnRestartDefaultPort()
+    -- remove preferred port since it is not working again. 
+	if(GameServer.rest.client.preferred_port) then
+		-- disable preferred port on next restart. 
+		MyCompany.Aries.Player.SaveLocalData("preferred_port", nil, true);
+	end
+    Map3DSystem.App.Commands.Call("Profile.Aries.Restart", {method="hard"});
+end
+
+function OnRestartUsePort80()
+    local new_port = GameServer.rest.client:get_login_server_port2();
+    if(new_port) then
+        MyCompany.Aries.Player.SaveLocalData("preferred_port", new_port, true);
+        Map3DSystem.App.Commands.Call("Profile.Aries.Restart", {method="hard"});
+    else
+        LOG.std("", "warn", "SolveNetworkIssue", "no secondary port to connect to. simply get back");
+        OnBack();
+    end
+end
+
+function OnBack()
+    page:CloseWindow();
+end
+]]></script>
+<div style="font-size:12px;padding:40px;padding-top:50px;padding-right:55px;padding-bottom:30px;width:550px;height:330px;background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 465 196:50 50 50 100)">
+    <div style="position:relative;height:30px;" valign="bottom">
+        <input type="button" name="OK" value="返回" style="margin-left:170px;width:90px;" onclick="OnBack"/>
+    </div>
+    <div style="font-size:13px;color:#CC0000;padding-bottom:5px;">
+        我们发现您的互联网连接无法访问哈奇的服务器, 我们将尝试帮助您修复，请做出选择：
+    </div>
+    <div style="margin-top:5px;">
+        <div style="float:left">1</div>
+        <div style="float:left">
+            <a name="restart"tooltip="点击重启并使用默认端口登录" onclick="OnRestartDefaultPort">
+                用默认端口重起客户端。 重启后, 如果您的电脑防火墙(比如360防火墙)弹出提示: 例如"是否允许ParaEngineClient.exe访问网络", 请选择永远允许。 
+            </a>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <div style="float:left">2</div>
+        <div style="float:left">
+            <a name="use80" tooltip="点击重启并使用80端口登录" onclick="OnRestartUsePort80">
+                如果第一步无效，请点击这里，我们为您自动选择能用的端口(80端口)。
+            </a>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <div style="float:left">3</div>
+        <div style="float:left">
+            <a target="_blank" href="http://tieba.baidu.com/f?kw=%C4%A7%B7%A8%B9%FE%C6%E6 " tooltip="点击打开玩家论坛">
+                看看是否是停服维护时间： 每晚0：00-6:00为停服时间, 每周五早上到中午可能有大版本升级。 
+                    到论坛上看看其他用户是否有同样的问题吧。
+            </a>
+        </div>
+    </div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+

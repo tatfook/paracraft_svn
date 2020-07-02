@@ -1,0 +1,97 @@
+<!-- "script/apps/Aries/Login/Tutorial/PickCameraMode.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+is_selected = false;
+function OnSelect(name)
+    is_selected = true;
+    NPL.load("(gl)script/apps/Aries/Scene/AutoCameraController.lua");
+    local camera_mode = "3d";
+    if(name == "2d") then
+        camera_mode = "2d";
+    end
+    MyCompany.Aries.AutoCameraController:ApplyStyle(camera_mode);
+    local Player = commonlib.getfield("MyCompany.Aries.Player");
+    if(Player.SaveLocalData) then
+        MyCompany.Aries.Player.SaveLocalData("CameraMode", camera_mode);
+    end
+
+    if (camera_mode == "2d") then
+        paraworld.PostLog({action = "user_select_2D3D", msg = "2D", mode = value}, "user_select_2D3D_log", function(msg)
+				end);
+    else
+        paraworld.PostLog({action = "user_select_2D3D", msg = "3D", mode = value}, "user_select_2D3D_log", function(msg)
+				end);
+    end
+
+    page:SetValue("CameraMode", camera_mode);
+    if(page.__camera_mode_bar_page) then
+        page.__camera_mode_bar_page.__is_show_marker = true;
+        page.__camera_mode_bar_page:SetValue("CameraMode", camera_mode);
+        page.__camera_mode_bar_page:Refresh(0);
+    end
+    page:Refresh(0.1);
+end
+function OnClose()
+    page:CloseWindow();
+    if(page.__camera_mode_bar_page) then
+        page.__camera_mode_bar_page.__is_show_marker = nil;
+        page.__camera_mode_bar_page:Refresh(0)
+    end
+end
+]]></script>
+<form>
+<div style="width:480px;height:300px">
+<pe:if condition='<%=not Eval("is_selected")%>'>
+    <div style="width:480px;height:280px;background:url(Texture/Aries/Common/bg_blue_1_32bits.png:20 20 20 20)">
+        <!--<div style="position:relative;margin-top:-5px;margin-left:450px;">
+            <input name="close" type="button" style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_48_32bits.png#0 0 48 48)" onclick="OnClose" />
+        </div>-->
+        <div align="center" style="margin-left:0px;margin-top:20px;width:256px;height:32px;background:url(Texture/Aries/Desktop/CameraMode/SelectYourCameraMode.png)"><!--请选择适合你的操作方式：--></div>
+        <div align="center" style="margin-top:0px;width:400px;height:4px;background:url(Texture/Aries/Desktop/CameraMode/horizontal_line.png)"></div>
+        <div style="float:left;margin:5px;margin-left:15px;width:220px;height:220px">
+            <div style="width:220px;text-align:center;font-weight:bold;font-size:14px;color:#023e63">3D模式（适合键盘操作）</div>
+            <div align="center" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/3dmode_demo.jpg)"/>
+            <div style="font-weight:bold;margin-left:25px;margin-top:3px;font-size:13px">
+                <div style="color:#CC0000;margin-left:64px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+                <div style="margin-left:32px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+                <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div>
+            </div>
+            <input type="button" style="margin-top:5px;margin-left:30px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" name="3d" onclick="OnSelect" />
+        </div>
+        <div style="float:left;margin-left:0px;margin:5px;width:220px;height:220px">
+            <div style="width:220px;text-align:center;font-weight:bold;font-size:14px;color:#023e63">2D模式（适合鼠标操作）</div>
+            <div align="center" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/2dmode_demo.jpg)"/>
+            <div style="margin-left:80px;margin-top:3px;font-size:12px;">
+                <div style="position:relative;margin-left:-20px;">移动--</div>
+                <div style="position:relative;margin-left:53px;">--跳跃</div>
+                <div style="width:64px;height:64px;background:url(Texture/Aries/Quest/TutorialMouse_LeftClick_32bits.png);" />
+            </div>
+            <input type="button" style="margin-top:5px;margin-left:35px;width:153px;height:49px;background:url(Texture/Aries/Common/OK_32bits.png# 0 0 153 49)" name="2d" onclick="OnSelect" />
+        </div>
+    </div>
+</pe:if>
+<pe:if condition='<%=Eval("is_selected")%>'>
+    <div align="center" style="font-weight:bold;font-size:14px;color:#023e63;padding:20px;width:400px;height:90px;background:url(Texture/Aries/Common/bg_blue_1_32bits.png:20 20 20 20)">
+        <div>点击右上角的
+        <div style="float:left;margin-right:5px;">
+            <input name="CameraMode" type="radio" value="2d" style="width:31px;height:20px" CheckedBG="Texture/Aries/Common/left_yellow_btn_32bits.png;0 0 31 20" UncheckedBG="Texture/Aries/Common/left_blue_btn_32bits.png;0 0 31 20"/><div style="float:left;font-size:11px;position:relative;margin-left:-20px;">2D</div>
+            <input name="CameraMode" type="radio" value="3d" style="width:31px;height:20px" checked="true" CheckedBG="Texture/Aries/Common/right_yellow_btn_32bits.png;0 0 31 20" UncheckedBG="Texture/Aries/Common/right_blue_btn_32bits.png;0 0 31 20"/><div style="float:left;font-size:11px;position:relative;margin-left:-25px;">3D</div>
+        </div>
+        按钮，可以随时切换操作方式</div>
+        <input type="button" style="margin-left:100px;margin-top:20px;width:153px;height:49px;background:url(Texture/Aries/Common/IKnow_32bits.png# 0 0 153 49)" name="ok" onclick="OnClose" />
+    </div>
+</pe:if>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

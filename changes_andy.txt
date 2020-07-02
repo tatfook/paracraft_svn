@@ -1,0 +1,609 @@
+ParaWorld changes
+@author WangTian Andy
+
+2008.11.7:
+BBSChatWnd of HelloChat
+force donot_highlight supported for movie playing
+
+2008.11.5:
+-- NOTE by Andy: secretly replace the name with a full name, if not provided
+-- This is specially useful to animate a ui object directly, if multiple objects may have the same name
+
+TODO: design an official way to change default window theme.
+
+2008.10.27:
+	- TODO BUG lxz: the new click and click creation has a bug: create a grass model, right click and open its attribute panel, right click to cancel. the creation is no longer useful. 
+		I think the old click once to create is also convient sometimes. I prefer using a checkbox to decide which method to use. May add some keyboard shotcut to scale and rotate the model while during move. 
+	- TODO BUG lxz: when in offline mode, load a world and click homepage. It will pops up login window. after login, the BBS generate lots of errors
+		GetBBS error on channel:Channel_Help, errorcode:500
+		script/ide/TreeView.lua:404: attempt to index field 'TreeView' (a nil value) <Runtime error>
+
+2008.10.10:
+	- Character 
+	- TODO lxz: Make character and scene creator panel draggable
+	- TODO lxz: design a way to create windows by specifying right top or right bottom positions to the current screen area. 
+	- TODO lxz: CCS should avoid using miniscenegraph. for each model, use miniscenegraph to generate several 64*64 dds texture in temp folder and reuse the texture the next time the model thumbnail is displayed. 
+	- TODO lxz: when adding new objects to the scene via user interface, we should automatically add the mesh object to the zone where the camera eye position resides. 
+	- TODO lxz: Inventory window (lib prepared). 
+	- TODO lxz: friends map and star map graph viewer (lib prepared)
+
+Error in sCode:deltatime=0.033333;Map3DSystem.App.Chat.LobbyBBSChannelPage.DoFramemove(); script/ide/TreeView.lua:404: attempt to index field 'TreeView' (a nil value) <Runtime error> Error in sCode:deltatime=0.033333;Map3DSystem.App.Chat.LobbyBBSChannelPage.DoFramemove(); script/ide/TreeView.lua:404: attempt to index field 'TreeView' (a nil value) <Runtime error> Error in sCode:deltatime=0.033333;Map3DSystem.App.Chat.LobbyBBSChannelPage.DoFramemove(); script/ide/TreeView.lua:404: attempt to index field 'TreeView' (a nil value) <Runtime error> Error in sCode:deltatime=0.033333;Map3DSystem.App.Chat.LobbyBBSChannelPage.DoFramemove(); script/ide/TreeView.lua:404: attempt to index field 'TreeView' (a nil value) <Runtime error> Error in sCode:deltatime=0.033333;Map3DSystem.App.Chat.LobbyBBSChannelPage.DoFramemove(); text property not supported for 2521/2/2/1/2/2/1/1
+onloadRegister(function() {UIContextualHelp.getInstance().addFlags([{"title":"Feed Filters","body":"Use these filters to see recent activity sorted by applications or friend lists.","offsetX":10,"offsetY":-30,"idToFollow":"newsfeed_more_flyout_link","align":1,"parentContainerId":"dropmenu_container","id":null,"letter":"feed_filters","sideArrow":null,"cssClass":"home_tutorial_feed_filters","pingOnCloseURI":"\/ajax\/profile_tutorial_hide.php?bit=256"}]);});
+onloadRegister(function() {window.loading_page_chrome = true;});
+onloadRegister(function() {placeholderSetup("status_placeholder_input_chat");});
+onloadRegister(function() {new ChatStatusEditor($("status_editor_chat"), 1);});
+onloadRegister(function() {window.presenceCookieManager = new CookieManager(2);});
+onloadRegister(function() {window.channelManager = new ChannelManager("583955268");});
+onloadRegister(function() {window.presence = new Presence("583955268", "Xizhi Li", "Xizhi", 1221730403000, 0, {"UPDATE_GRANULARITY":20,"BUDDY_BASE_TIME":40,"BUDDY_MAX_TIME":900,"BUDDY_COST_NEVER_SENT_MESSAGE":900,"BUDDY_COST_NO_LIST_CHANGE":30,"BUDDY_COST_NO_CHAT_TABS":30,"BUDDY_COST_CHAT_ACTIVITY":180,"BUDDY_COST_VIEW_ACTIVITY":180,"BUDDY_COST_PAGE_ACTIVITY":180,"BUDDY_MAX_ACTIVITY_MINS":180,"BUDDY_MAX_AVAIL_COOKIE":20,"BUDDY_VIEW_FETCH_WINDOW":120,"NOTIFICATIONS_PIGGYBACK_PERCENTAGE":25,"PRESENCE_APP_DOCK_IS_LIVE":1}, "http:\/\/www.new.facebook.com\/presence\/popout.php");});
+onloadRegister(function() {window.presenceUpdater = new PresenceUpdater();});
+onloadRegister(function() {window.presenceNotifications = new ChatNotifications(15, 15, 1221730403000, {"10226790978":"My House","5475824764":"Speed Racing","6382958436":"Animated GIFTS","2378983609":"Slide FunSpace","2219808235":"(fluff)Friends","6280837251":"Sparkey"}, 1221721916, 0);});
+onloadRegister(function() {Emote.initImageURL("http:\/\/static.ak.fbcdn.net\/images\/emote\/emote.gif?2:93872");});
+onloadRegister(function() {window.statusControl = new ChatStatusControl(1);});
+onloadRegister(function() {window.buddyList = new ChatBuddyList();});
+onloadRegister(function() {buddyList.initNoRender(1, {}, 1221730230000, 1);});
+onloadRegister(function() {window.chatDisplay = new ChatDisplay({"583955268":{"name":"Xizhi Li","firstName":"Xizhi","thumbSrc":"http:\/\/profile.ak.facebook.com\/profile5\/1313\/110\/q583955268_9895.jpg","status":null,"statusTime":0,"statusTimeRel":""}}, {}, 0, "http:\/\/www.new.facebook.com\/profile.php", "http:\/\/www.new.facebook.com\/inbox\/?compose", {"sound":1,"typ_send":true,"typ_show":true});});
+onloadRegister(function() {window.chatTabSlider = new ChatTabSlider();});
+onloadRegister(function() {chatDisplay.load();chatTabSlider.load();});
+onloadRegister(function() {window.applicationDock = new ApplicationDock({"6802152230":{"name":"Page Manager","href":"http:\/\/www.new.facebook.com\/business\/dashboard\/?ref=sb","icon":"http:\/\/photos-g.ak.facebook.com\/photos-ak-sctm\/v43\/146\/6802152230\/app_4_6802152230_487.gif","class":"ads_and_pages_manager_app_link","new_icon":"http:\/\/static.ak.fbcdn.net
+--can u design a way to create a FREE window which can be initially aligned with borders of the screen?
+
+-- new facebook interface application menu added at the bottom bar
+-- artwork recolored for the coming season report demo
+
+-- in charge of UI group
+
+TODO: animation death and attack
+
+2008/9/3
+-- TabControl implemented to separate the logic of the old gridview tab and grid
+-- Animation supported in TabControl when move the tab forward or backward
+-- Channel separated with each channel appear on different tab pages
+-- Raise quick chat window for a textbox height when user input text
+-- CCS, Creator and Cartoonface all refactored to Lorne's design with tabcontrol on the side
+-- Mouse position create support on normal model creator, like real time strategy(StarCraft)
+-- All original left/right aligned windows are switched to the new UI
+-- Refined CCS item data management
+-- hide input for the world load show, avoiding WASD controls to be typed into the textbox
+-- mini map is moved to the right top position and provide space for world name
+-- Status bar allow dynamic width when growing too large
+-- and lots of minor improvements
+-- an NPL and MCML machine translation page using google translate. 
+	script/kids/3DMapSystemApp/Developers/TranslateFilePage.html
+
+2008/8/30
+-- manually manage the Chat_GUID_QuickChatPage_window window
+
+2008/8/29
+-- show object components as model object not character
+
+2008/8/26
+-- TODO: AuraInventoryPreview[6][itemID]
+-- TODO: unload the textures and save as much as possible in the temp directory
+-- TODO: render all ccs component in several 256*256 textures, such as 64 pixel each. 
+-- http://www.new.facebook.com/
+
+2008/8/20
+-- new texture arrive
+
+2008/8/18
+-- Bug fixed: channel window empty when switched worlds or logged from within the game
+-- item editor bug: character select
+- new UI:left, right(ccs, bcs, many other apps), bottom
+- BBS chat UI and logics exactly match the design
+- esc key logics, ask lorne for its design. 
+- misc
+
+2008/8/16
+-- Chinese characters appear ?? in channle window CYF might transfer the db with wrong encoding
+
+2008/8/14
+-- new taskbar UI 
+
+2008/8/13
+-- contacts bar implemented with window minimize and restore
+
+2008/8/12
+-- boot height database
+-- take over rest of the Desktop/AppTaskBar.lua
+-- Fixed: some exception "paraworld.lobby.GetBBS", "%LOBBY%/GetBBS.asmx" errorcode 500
+
+2008/8/11
+-- more attachment points
+	ATT_ID_FACE_ADDON = 12,
+	ATT_ID_EAR_LEFT_ADDON = 13,
+	ATT_ID_EAR_RIGHT_ADDON = 14,
+	ATT_ID_BACK_ADDON = 15,
+	ATT_ID_WAIST = 16, 
+	ATT_ID_NECK = 17, 
+	ATT_ID_BOOTS = 18,
+-- high heel artists want high heel boot models. BootHeight property (attribute) is added for character. boot height, default to 0.f meters. It only affects rendering. In case, the character is wearing a high heel boot, we may set this to 0.1-0.2 meters. 
+		e.g. obj:GetAttributeObject():setfield("BootHeight", 0.1);
+-- error: chat channel
+
+2008/8/8
+-- connect to jabber server, but can not authenticate -> fixed with restart server
+
+2008/8/6
+-- some preparation works for the new UI, such as windowframe integrated ESC key logic, new right window style
+-- Write document to explain and suggest some of the key points as an extension of Star world concept
+
+2008/8/5
+-- BUG fixed: building block is gone. and all default xref script are inordered
+	-- local all local packages in the asset application directory to Map3DSystem.App.Assets.Packages array
+	function Map3DSystem.App.Assets.LoadAllLocalPackages()
+		local files = {};
+		local parentDir = Map3DSystem.App.Assets.app:GetAppDirectory();
+		commonlib.SearchFiles(files, parentDir, "*.asset", 0, 50, true)
+-- xref marker does not move
+	-- green marker does not appear at the nearest BCS components
+
+2008/8/4
+-- Build SDK main.pkg. sometimes, need to delete script/bin/*.* before run F12.
+	NPL.load("(gl)script/installer/BuildParaWorld.lua");
+	commonlib.BuildParaWorld.BuildInHouseSDK()
+
+2008/8/1
+-- Hospital to cure a Stomach pain
+	-- massive bacillus infection
+-- Crystal gaze concept on world view
+
+2008/7/30
+-- Consulting for management system and restricted resource and document access
+	-- MS TI Ni Autodesk AMD/ATI baidu nvidia M* .etc
+
+2008/7/29
+-- Sunny AI robot cooperation
+
+2008/7/28
+-- database generater append mode finished
+
+2008/7/26
+-- World view
+-- TODO: startpage and worldpage and 3D background
+
+2008/7/24
+-- Discussion on Lorne's UI
+
+2008/7/23
+-- Learn Lorne's UI design document
+	-- screen decoration is cut by the bits and pieces
+	-- close relation elements aren't close on enought on screen
+	-- no room for common MCML page, application developers have no common position to follow
+	-- centered windows, such as current login window, don't look center
+	-- windows are still overlapped together clustered on screen
+	-- where is the full application list
+	-- ambiguous and complicated operations towards app quicklaunch bar
+	-- no logical relation between statusbar and contact list but they stay closely together
+	-- waste on the bottom middle area(esp. large screen res), can be utilized for more functions
+	-- confusing relation between chat channles and FEED if put together
+
+2008/7/22
+-- Hospital to cure a Stomach pain
+
+2008/7/21
+-- Earth view is removed. Star view is further simplified to become location irrelavent
+-- Star world concept taken to the next level
+
+2008/7/19
+-- Lorne's new design and UI decoration
+-- New computer up ready to work
+
+2008/7/18
+-- Refine get lobby message interface, get all (uid, text) pairs after given time
+-- Summon mode ready
+-- Lecture on new Star World view
+
+2008/7/17
+-- Map3DSystem.App.Commands.Call("Profile.Chat.ChatWithContactImmediate", {JID = JID}); not workingyangy
+-- tabgrid logic
+-- item order
+-- TODO: Using disk texture instead of miniscenegraph in gridview
+
+2008/7/16
+-- Try different styles for chat channels
+-- Sky World design doc finished
+
+2008/7/15
+-- Map3DSystem.App.Chat.GetConnectedClient() is conneted and authenticated Jabber client
+-- Two channel window status provided: enable and disable
+	-- enable: user input editbox focused and all visual controls becomes valid
+	-- disable: normal navigation mode with all controls disabled
+-- /r shortcut supported
+	-- /r [username] will communicate with the contact via Jabber
+	-- chat messages also show backup in the channel window
+
+2008/7/14
+-- TODO: Customer Service message board for Chat application or channel
+-- xizhi's summon mode
+-- Lobby channel window fixed with WoW style scroll and side buttons
+-- Lobby channel switch with context menu and keyboard shortcut
+	-- /p: public channel
+	-- /h: help channel
+	-- /w: world channel current loaded world
+
+2008/7/13
+-- User JID changed from Map3DSystem.App.Chat.UserJID = username.."@"..servername; to Map3DSystem.UI.Chat.UserJID = string.lower(username.."@"..servername);
+
+2008/7/11
+-- Google Lively can logged in
+-- Google Lively UI studied:
+	-- Separate rooms forms different community. Rooms don't have logical or physical relations between each other
+	-- Top center chat box and chat pointer to user
+	-- Half screen creation/modification window
+	-- Direct mouse creation access
+	-- Cartoon avatar style and Apparel and Accessories
+	-- Dragable avatar, ubiquitous teleport in the room
+	-- Youtube video
+	-- Indoor rooms and outdoor scenes
+-- Each lobby channel rootnode assigned to treeview object, update the height in DrawNodeHandler and update again with the new height
+
+2008/7/10
+-- Lobby channel manager automatic message management with treenode
+-- Animation manager added to script soluction
+-- name NPL table files *.table instead of *.lua, such as as ccs.rules.table. they are automatically added
+	--.lua can not be compiled. and skipped during redist.
+-- Star world document init
+
+2008/7/9
+-- TODO: WOW style BBS scrolling problem
+-- onchange only happens when user text change is confirmed by enter key or losing focus
+-- TODO: use a table map of CCS aniamtion
+-- Google lively beta
+-- World view needs completely redesigned
+-- Top current world view weakness:
+	-- Threee separate navigation experience, Avatar, land, world concepts have there distinct meaning on three map stages
+	-- Difficulty to form big community, physically and logically
+	-- Neighborhood is only valid on 3D map, but completely no relative relationship between neibor worlds
+-- Google goes ahead on the 3D virtual community, if with Google Earth combined our currently world view is completely useless
+
+2008/7/8
+-- TODO: WOW style BBS scrolling problem
+-- 3D grid view in inventory preview
+-- Problem solves on BCS: ParaEngineSDK/model/scripts is not included in redist
+-- <pe:if condition='%Eval("ReleaseBuild")%'> I will later add this to mcml</pe:if>
+-- enclose new functions in if(not ReleaseBuild) then ... end
+-- BCS: all model/script/... modified, msg.type == Map3DSystem.msg.CREATOR_RECV_BCSMSG. Old creation.lua is removed to obsolete folder.
+
+2008/7/7
+-- TODO: refactor lobby BBS to 100% WOW style
+-- TODO: try to use 512*512 canvas size for ccs and disable active rendering
+-- TODO: improve GridView3D to dynamic render target size
+-- TODO: improve the original ParaWorld functions
+-- TODO: PhysX and move to VS2008
+-- TODO: Statistics in world creation
+
+2008/7/4
+-- Ground floor XRef added to distinguish the ground floor(have doors) and the floors above(have stairs)
+-- ParaworldStartPage.canvas is a little scaled on height from 512 to 612 to fit the scene to the screen
+	-- AppCanvas is shown below the top frame
+-- Particles and helpers moved to normal model category
+-- if(texAL == "character/v3/Item/TextureComponents/ArmLowerTexture/.dds") then texAL = nil; end
+-- omit the default world "_emptyworld/" closed message at first world load
+-- TODO: common animation re-exported and re-directed to character/Animation/v3/
+-- HIDE the ChatWnd toolbox
+
+2008/7/3
+-- Show headon speech when chatting over the current world channel
+-- XPath.XMLEncodeString and XMLDecodeString implemented to limit obvious attack, currently the BBS code is not running in sandbox
+-- NOTE: ParaIO.DoesFileExist(sDir_AU..sTexFileName_AU, true) the second param will seach in zip file. 
+
+2008/7/2
+-- XACT sound banks rebuild, remove 3 stream background music
+	-- XACT tools is updated in DXSDK June2008 which is not compatible to April2008.
+
+2008/7/1
+-- TODO: GetBBS now with no clean up on idle
+-- Apperance fixed: minor change according to LiYu's UI test report
+-- BUG pending: random copy and paste disabled
+
+2008/6/30
+-- TODO: status bar shortcut ordered in a F1 ~ F12 Fashion in the future for our official statusbar icons, at least 4 keys F9~F12
+-- BUG fixed: ChannelManager: assign each node with the treeview, if the node is inserted before the treeview is visualized
+-- World channel supported, link the channel at world load and drop link at world closed
+-- Hide CCS gloves and boots item editor object 
+-- Hide StartAppPage when app switching
+-- EM_KEY_ESCAPE hide QuickChatPage
+
+2008/6/27
+-- Update rate on public channel:
+	-  UI setup or init
+	- X seconds after channel window is first shown (onframemove)
+	- Y (Y>X) seconds after channel widnow is shown
+	- Z seconds after user enters text
+-- PARAENGINE_SDK temporaily enabled for artist item editor. Disable this at release time.
+-- QuickChatPage completely in MCML
+-- LobbyBBSChannelPage now support check box onclick
+-- character.db rebuild
+-- Add add contact command in user context menu
+-- Add chat with contact command in user context menu
+
+2008/6/26
+-- LobbyBBSChannelPage update to doframemove update, timer deprecated
+-- QuickChatPage fully implemented in MCML form with LobbyBBSChannelPage as iframe
+-- On select object with replaceable texture the ObjModifyPage will be also opened as a tab on left
+-- BUG fixed: get windowframe error on Map3DSystem.App.Chat.ChatWnd:Update() and windowframe resize
+	-- ChatWnd object doesn't keep a wnd member as a os.window object reference
+
+2008/6/25
+-- LobbyBBSChannelPage fully implemented in MCML
+-- Use swimsuit model for the avatar to be displayed when the appearance is not synchronized in JGSL. Defaulted in C++
+	--character/v3/Human/Male/HumanMale.x
+	--0#0#4#2#0#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#11#13#0#0#0#0#0#0#0#
+	--character/v3/Human/Female/HumanFemale.x
+	--0#0#0#1#0#@0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#0#F#0#0#0#0#@0#0#0#0#0#10#12#0#0#0#0#0#0#0#
+-- Use value in pe:name on the Channel MCML string in case of the absence of local server copy, and UI refresh.
+
+2008/6/24
+-- LobbyBBSChannelPage message is sent in MCML string which contain the pe:name and other helpful HTML/MCML tags
+-- BUG fixed: paraworld.lobby.GetBBS AfterDate parameter due to millisecond
+-- BUG fixed: status bar order is different from the order added
+	-- don't rely on the default table.sort in lua, if comparsion is equal
+	-- Instead of bubble sort by the time added, 
+		comparePriority is added to 1000times the priotity plus the added time which is decreasing on each AddTask() call
+-- <input type="button"> don't support <%=Eval("channelName")%> this kind of name and value it must be static
+
+2008/6/23
+-- StatusBar moved to Map3DSystemUI/Desktop/StatusBar
+-- BBS Channel paraworld.lobby.PostBBS and paraworld.lobby.GetBBS fully implemented
+	-- combine with QuickChat window
+-- Pending BUG: If you change to fly mode and create something (like a BCS base) under your feet, it change to running action. 
+	And you can run out of the base, and still in the air.
+-- Inventory improved with new item textures and new window frame
+-- BUG fixed: mis-dragging item on drag receiver between click-drag and hold-drag process
+
+2008/6/20
+-- Chat login moved to loginprocedure.lua
+-- StatusBar implemented in priority sorted order
+-- HuiXiang's inventory item preview objects is finally OK
+
+2008/6/19
+-- Random cartoon face implemented with 30% probability to show the mark or wrinkle component
+-- WindowFrame:MoveWindow(x, y, width, height) accepts nil
+-- BUG fixed: CCS and Creator breakdown on world reload
+
+2008/6/18
+-- Quick chat window fully implemented with the latest contact
+-- Left window tab fixed with over sized window title
+	-- Just fixed the left window tab with maximum of 4 window titles
+	-- left :  In ENVapp, right click property
+	-- right : In CreatorApp, click object and then click draw by myself. 
+-- disable the startpage online and offline page icon background highlight, the icon is of various shapes that are not iPhone app style
+-- Secretly offset the startpage canvas 16 pixel down to show background through the transparent bottom page background area
+	-- _this = ParaUI.CreateUIObject("container", "Login.ParaworldStartPage_cont", "_fi",0,0,0,-16);
+
+2008/6/17
+-- popup object modifcation window is refactored in CreatorApp
+-- Paraworld start page newly decorates with new textures and position
+	-- Paraworld start page topward Startup UISetup area fixed
+-- Using color picker in CCS cartoon face color and position adjusted
+-- BUG fixed: GridView accept empty cells on shifting within gridview boundary instead of the client area 
+-- Spore trial is awesome!!!
+
+2008/6/16
+-- TODO: a way to display on tab, but without invoking ShowUI. this could boost app switching time
+-- TODO: when there are more tabs to display then the width , the rendering is incorrect.
+-- Bug fixed: right panel does not close when calling Show (false) like left window
+-- TODO: specification for naming convension for CCS and preview icons(hair, skin, face), currently hard coded in script
+-- TODO: camera switch and character focus, flying mode and walk mode
+
+2008/6/14
+-- popup object modifcation window is refactored in CreatorApp. The UI is on mcml page PopupObjModPage.html.
+	-- TODO: for ENTER key to chat dialog
+-- Chat window status bar tabs
+-- Feed status bar
+	-- currently support user sign in and sign out minifeed
+	-- TODO: need animation
+	-- TODO: common interface for mini feed to display MCML object
+-- Bug fixed: WindowFrame:Destroy() does not destory the left window common title bar
+-- TODO: Inventory head, weapon, shoulder and cape
+
+2008/6/13
+-- Map3DSystem.SwitchToObject
+-- message type added: Map3DSystem.msg.OBJ_SwitchObject, application can hooked into ("scene", "object") for object switching operation
+-- Bug fixed: window frame resize problem
+-- Big fixed: hide window common title bar when no side(left/right) window is showing
+-- Random factor for creation process, including the random facing and random size
+-- New face type and skin color from HuiXiang
+	-- database restructure CharSectionsDB
+
+
+2008/6/12
+-- Map3DSystem.UI.NavMode.SwitchNavMode moved to Map3DSystem...
+-- Bug fixed: tabgrid tab head container over tab items
+-- Bug fixed XRef deselect, reset the BCS mini scene
+-- CCS main window with more tabs: Face CartoonFace Inventory Hair
+	-- Face type and skin color combo in "Face" panel
+	-- Hair type and hair color in "Hair" panel
+-- New inventory preview common template from HuiXiang
+
+2008/6/11
+-- TODO: Optimize window position:
+	For "Free" style windows, the newly created position preference is to open new windows horizontally centered. 
+	The vertical position should be visually centered: The distance from the bottom of
+	the window to the top of the Taskbar should be approximately twice the distance as that from the top of the screen to 
+	the top of the window. Subsequent windows are moved to the right 24 pixels and down 24 pixels and Make sure that 
+	no part of a new window goes out of the screen area.
+-- Bug fixed: creating existing named object when show selected object in canvas3D
+-- Change contect menu background
+-- TabGrid grid cell ownerdraw
+-- TODO: fix desktop startup bar
+
+2008/6/10
+-- New left and right window artstyle
+-- ObjEditor.CreateObjectByParams(param): if global object with the name already exists, create a new object with a new name
+	Change the object param.name, otherwise it will refer to the old object
+-- Side windows tab (left and right)
+-- use WH_CALLWNDPROCRET hook
+	-- Installs a hook procedure that monitors messages before the system sends them to the destination window procedure. 
+		WH_CALLWNDPROC = 1, 
+	-- Installs a hook procedure that monitors messages after they have been processed by the destination window procedure. 
+		WH_CALLWNDPROCRET = 2,
+		the difference is that CALLWNDPROC  allows you to cancel message. 
+-- Map3DSystem.OnScreenSize() one can now hook the onsize window of input application. The msg contains current screen width and height.
+
+2008/6/9
+-- Allow character selection when navigation mode is on
+-- Old mainbar mainpanel style UI totally abandoned
+-- STILL WORKING: Mainbar free UI. Reduce dependencies
+-- Update various information on Creator and CCS panel, including disable the Facial and Inventory panel
+-- Modify the CCS information to the current player object
+	-- TODO: Disable when Free Camera mode
+-- Right window style and chat main window import
+	-- NOTE: the window style background is 90 "off" the window frame area
+-- Hide chat "close", TODO: title artwork style on pure icon + text
+-- TODO: saves the ccstring to ccs profile like in ccs reg page
+
+2008/6/8
+-- CCS info string in script/kids/3DMapSystemUI/CCS/AvatarRegPage.html(lua)
+-- Allow switch characters(possession) in both Creator and CCS application
+-- Hook into selection and deselect, update CCS and Creator panel
+-- Complete Left window Style with environment app
+
+2008/6/7
+-- Cartoon face panel redesigned
+-- Creator and CCS modify panel with canvas support
+-- Reconstruct Creator and CCS windows with new artwork style
+-- Remove unused textures such as the "Map3DSystem/CategoryBox"
+-- Fix BCS bug when switching to mounted XRef
+-- Ocean, sky, terrain page refactored in mcml
+-- TODO: optimize MCML page command "File.MCMLWindowFrame"
+
+2008/6/6
+-- New ZhangYu final artwork import
+-- Two side window style
+	-- 1. no title bar and whole window area left empty for developer
+	-- 2. windows with the same alignment share the same title bar and the widest width
+
+2008/6/5
+-- Fix chat window multi line text
+-- Enviroment: sky, terrain, ocean import
+-- New ZhangYu artwork import
+
+2008/6/4
+-- Application switching halted
+-- TODO: Application switching with switching animation
+-- New ccs_unisex model for shirt, pants, gloves and boots
+	-- TODO: not fully tested with all items
+
+2008/6/3
+-- Application switching with grid organization
+-- Pinable window frame, window will stick on the screen regardless of the application switching
+-- action feed, with popup notification
+-- TODO: Application switching with switching animation
+-- New user interface elements imported to CCS and Creator, mainly the category icons
+
+2008/6/2
+-- WindowFrame:MoveWindow(x, y, width, height) added to the WindowFrame object to allow window position setting and resize
+-- NOTE: close button click didn't Destroy() or Show(false) the window on click the close button
+		it's up to the message processor to define its behavior(Destroy() or Show(false))
+-- WindowFrame.GetInsideScreenPosition() implemented, ensure the window inside the screen area
+-- TODO: AppTaskBar toolbox integration on taskbar
+-- Application space switching
+
+2008/6/1
+-- AppTaskBar toolbox integration
+-- navigation mode on app switching
+
+2008/5/31
+-- CCS main window is fully implemented with new artwork
+-- Creator window is fully implemented with new artwork
+
+2008/5/30
+-- New Chat system with chat tab on main bar(dock) with animation
+-- Fixed GridView3D bug, duplicate secret GridView
+
+2008/5/29
+-- Chat window fully refined
+
+2008/5/28
+-- Main window fully refined
+
+2008/5/27
+-- New Chat system
+-- TODO: environment: sky, water, terrain
+
+2008/5/26
+-- Creator and BCS window
+
+2008/5/24
+-- Bug fixed: Pay attention to the size change, make sure to send message to each window, this time the application tab
+
+2008/5/23
+-- TODO: unisex unirace cape model
+-- Original inventory is fully implemented including all character slots
+-- Cool TabGrid!
+-- TODO: GridView3D on 1024 render target size the items will shrink, readjust the camera position
+
+2008/5/22
+-- TabGrid: Add more alignment styles to grid
+-- TabGrid: support isAlwaysShowPager
+-- TabGrid: we assume that if one level 2 category has items, then all level 2 category has items
+-- TabGrid: Resizeable grid size
+-- Original creation category is fully implemented including "Normal Model", "BCS", "Normal Character"
+-- Original cartoon face is fully implemented including all face components
+-- MTY's new main UI and application icons are almost finished
+-- Next step UI artwork specification
+
+2008/5/21
+-- TODO: BUG on _fi alignment ui object changing x and y will also changes the width and height
+-- TabGrid support two level categories
+-- TabGrid support dynamic item gridview
+-- MTY's main UI needs unified artwork style on edge, shadow and color
+
+2008/5/20
+-- left right bottom aligned tab
+-- MainMenu:UpdateTopLevelMenu(): update the parent container as well
+-- MainMenu:UpdateTopLevelMenu(): top level menu node provided an icon
+-- SelectedTextColor and TextColor, the menu text has its own ui object
+-- TODO: BUG when disable the text ui object, text font and color is not valid
+-- TODO: BUG WindowFrame.lua:313: _window.height = WindowFrame.bottom; -- height doesn't change
+-- TODO: BUG dragable _m* alignment ui object distortion during dragging process
+
+
+
+2008/5/19
+-- CCS 1st level categories into Hair, CartoonFace and Inventory
+-- WindowFrame tabbar width is the first window with that alignment, we strongly recommands the window with the same alignment with in 
+	an application has the same width
+-- change the y and height of UI object with the middle left or middle right alignment will not affect
+
+2008/5/18
+-- UI object with the "_ct*" aligement always shows according to __root, not to the parent ui
+-- WindowFrame object fully implemented with 4 alignment style
+-- TODO: full autohideing window
+
+2008/5/17
+-- interview quiz including:
+	-- Questions: array and linked list, thread and process(Linux and multi-threading), 
+		virtual memery, IDE environment including the hotkeys F5 through F11
+		C/C++ difference, pass by value and pass by reference, precompile header, exception, virtual function, 
+		project, contribution and future tread on his expertise(basic English translations/knowledge at random like Will Wright, 
+		k times differentiable, conference name.etc  basicly the English that should known within that area)
+	-- Algorithm: DDA line drawing through Bresenham (without computer graphics background)
+		Render pipeline? Mainly mathematicly(with computer graphics background)
+	-- Thinking: Sudoku game? too difficult   Elavator interface? weird
+	-- Coding: either of the paper subject with complete C++ coding
+		or any of the search algorithm, binary, quick, .etc
+
+2008/5/16
+-- autohiding only apply to window with title bar
+-- Set/GetClientAreaRect() to manage the client area size, this will determine the window position with alignment
+-- parameters all re-defination
+-- TODO: replace with the new window param? when window object exist in the WindowFrame class window set
+-- CCS cartoon face refactor
+	-- gridview with categories
+-- fixed: CCS inventory with one item missing from database, mis-calculation on the count
+-- TODO: this afternoon interviewer handed in an almost empty paper, and the resume is poor
+	tell Alicia to filter the resumes more carefully
+
+2008/5/15
+-- TODO: artist requirements DEADLINE: May 21st
+-- implement script/ide/windows.lua
+	-- width and height using client area size
+	-- support alignment: Free|Left|Right|Bottom
+	-- window area divided into four regions: title, toolbox, client and status bar, bars except client area is optional
+	-- TODO: style texture specification
+	-- define interface with xizhi, ide/WindowFrame.lua
+-- CCS cartoon face refactor
+-- yesterday's interviewer has so many doubtful points to consider
+	

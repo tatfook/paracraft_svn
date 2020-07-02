@@ -1,0 +1,51 @@
+<!-- "script/kids/3DMapSystemUI/FreeGrab/Pages/FreeGrabChooseLevelPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FreeGrabChooseLevelPage.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+function DS_Func_Aries_Items(index)
+    return Map3DSystem.App.FreeGrab.FreeGrabChooseLevelPage.DS_Func_Items(index);
+end
+]]></script>
+<pe:editor style="margin:0px;padding:0px;background:;">
+    <div style="float:left;width:360px;height:410px;margin-left:0px;margin-top:30px;">
+        <div style="float:left;width:322px;height:410px;background:url(Texture/Aries/Inventory/right_panel_32bits.png# 16 0 48 436: 20 64 20 64);">
+            <pe:gridview  DataSource='<%=DS_Func_Aries_Items%>' name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+                <Columns>
+                    <a onclick="Map3DSystem.App.FreeGrab.FreeGrabChooseLevelPage.DoClick" param1='<%=Eval("level_index")%>'>
+                           <div style="width:80px;height:80px;background:Texture/Aries/Inventory/item_slot_32bits.png#3 3 100 95:24 24 24 24;">
+                                <img width="80" height="80" src='<%=Eval("snapshot")%>'/>
+                           </div>
+                    </a>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </div>
+    
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

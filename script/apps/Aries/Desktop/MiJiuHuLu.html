@@ -1,0 +1,493 @@
+﻿<!-- "script/apps/Aries/Desktop/MiJiuHuLu.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MiJiuHuLu, by zrf, 2010/12/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+VIP = commonlib.gettable("MyCompany.Aries.VIP");
+CombatMagicStarPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatMagicStarPage");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+
+local page = document:GetPageCtrl();
+local MiJiuHuLu = commonlib.gettable("MyCompany.Aries.Desktop.MiJiuHuLu");
+MiJiuHuLu.Init();
+
+local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+Player = commonlib.gettable("MyCompany.Aries.Player");
+local ItemManager = System.Item.ItemManager;
+local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory();
+
+function GetEnergyStone()
+    local gsid=998;
+    ItemManager.UseOrBuy_EnergyStone();
+    page:Refresh(0.1);
+end
+
+function IsLotteryFinished()
+    return MiJiuHuLu.LotteryFinished;
+end
+
+function OnClickFishing()
+    if(Player.GetLevel()>20) then
+        Page:CloseWindow();
+        WorldManager:GotoNPC(30389, function()
+        end);
+    end
+end
+
+function GetStoneTip()
+    local s="立刻开通魔法星";
+    local bVIP=VIP.IsVIP();
+
+	if (bVIP) then
+        s="立刻升级魔法星"
+    end
+    return s
+end
+
+function GetTryStoneTip()
+    local s = "试用魔法星(已领)";
+    local bVIP=VIP.IsVIPAndActivated();
+
+	if (bVIP) then
+        s="立刻升级魔法星"
+    else
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(50389);
+		local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(50389);
+		if(gsItem and gsObtain) then
+			local remainingWeekCount = (gsItem.maxweeklycount or 1) - (gsObtain.inweek or 0);
+			if(remainingWeekCount > 0) then
+                s="领取试用魔法星";
+            end
+        end
+    end
+    return s
+end
+
+function GetTryEnergyStone()
+    local bVIP=VIP.IsVIPAndActivated();
+    if(not bVIP) then
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(50389);
+		local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(50389);
+		if(gsItem and gsObtain) then
+			local remainingWeekCount = (gsItem.maxweeklycount or 1) - (gsObtain.inweek or 0);
+			if(remainingWeekCount > 0) then
+				local exid = 1659;
+                ItemManager.ExtendedCost(exid, nil, nil, function(msg)
+			        if(msg and msg.issuccess == true) then
+                        _guihelper.MessageBox("恭喜你获得了能量石碎片, 快打开魔法星背包激活魔法星吧!", function()
+                            DoJump("magicstarpage");
+                        end)
+                    end
+                end);
+			end
+        else
+            _guihelper.MessageBox("本周已经领取过试用的魔法星碎片了，下周再来吧！");
+		end
+    else
+        GetEnergyStone();
+    end
+end
+
+function GetLottery(v)
+    local v=string.lower(v);
+    local gsid_novip = 50343;
+    local gsid_vip = 50344;
+    local gsid_reward;
+    local obtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(gsid_novip);
+    local lt_index=string.match(v,"lottery(%d+)");
+
+	if (obtain.inday<1) then  -- 未领取过
+        MiJiuHuLu.DoLottery(lt_index);
+    elseif (VIP.IsVIP()) then
+        obtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(gsid_vip);
+        if (obtain.inday<1) then  -- 未领取过
+           MiJiuHuLu.DoLottery(lt_index);
+        end
+    end      
+end
+
+function DS_Func(index)
+    return MiJiuHuLu.DS_Lottery(index);
+end
+
+function IsLucky(v)
+   return MiJiuHuLu.IsLucky(v);
+end
+
+function getLuckyItem(v)
+   return MiJiuHuLu.getLuckyItem(v);
+end
+
+function getDisplayItem(v)
+   return MiJiuHuLu.getDisplayItem(v);
+end
+
+function GetGemsFromMagicPocket()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/30413_MagicPocket.lua");
+	MyCompany.Aries.Quest.NPCs.MagicPocket.ShowPage(2)
+end
+
+function Confirm()
+    page:CloseWindow();
+end
+
+function DoCheckin()
+--    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/Login/DailyCheckin.lua");
+    local DailyCheckin = commonlib.gettable("MyCompany.Aries.DailyCheckin");
+    DailyCheckin.ShowPage(2);
+end
+
+function GetM() 
+	local bean = System.App.profiles.ProfileManager.GetUserInfoInMemory();
+	if(bean)then
+		return "M值: " .. bean.m .. "/" .. bean.nextlelm;
+	end
+end
+
+function GetEnergy() 
+    return userinfo.energy;
+end
+
+function GetDayToLevelUp() 
+    local bean = System.App.profiles.ProfileManager.GetUserInfoInMemory();
+	if(bean)then
+		return math.ceil((bean.nextlelm - bean.m) / 5);
+	end
+end
+
+function OnClickAdvancedLottery()
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemLuckyPage.lua");
+	local ItemLuckyPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemLuckyPage");
+	ItemLuckyPage.ShowPage();
+end 
+
+local mlevel = VIP.GetMagicStarLevel()
+function GetMAttribute(name)
+    if(name == "stamina" or name=="attack" or name=="guard") then
+        if(not VIP.IsVIPAndActivated()) then
+            return "无法享受特权";
+        else
+            return format("%s%%", CombatMagicStarPage.GetSpecialValueKids(name, mlevel));
+        end
+    else
+        return CombatMagicStarPage.GetSpecialValueKids(name, mlevel);
+    end
+end
+
+function DoJump(name)
+    Page:CloseWindow();
+    if(name == "JumpToWeeklyBag") then
+        NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/30413_MagicPocket.lua")
+        local MagicPocket=commonlib.gettable("MyCompany.Aries.Quest.NPCs.MagicPocket");
+        MagicPocket.ShowPage();
+    elseif(name == "JumpToWeeklyMoney") then
+        NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/30410_MoneyBox_Dialog.lua")
+        local MoneyBox_Dialog=commonlib.gettable("MyCompany.Aries.Quest.NPCs.MoneyBox_Dialog");
+        MoneyBox_Dialog.ShowPage()
+    elseif(name == "magicstarpage") then
+        -- MyCompany.Aries.Desktop.Dock.ShowCharPage(5);
+        ItemManager.UseOrBuy_EnergyStone();
+    end
+end
+
+function GetMijiuHuluStatusLine(bIsVip)
+    if(bIsVip and not VIP.IsVIPAndActivated()) then
+        return "<span style='font-weight:bold;color:#3333cc'>无法享受特权</span>";
+    else
+        return format("%d/5", MiJiuHuLu.GetObtainAwardCount(bIsVip) or 0);
+    end
+end
+
+function GetWeeklyMoneyStatusLine()
+    if(VIP.IsVIPAndActivated()) then 
+        NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/MagicMoneyBox.lua");
+        local MagicMoneyBox = commonlib.gettable("MyCompany.Aries.Quest.NPCs.MagicMoneyBox");
+        return format("%d/1", if_else(MagicMoneyBox.CanGetMoney(), 0, 1));
+    else
+        return "<span style='font-weight:bold;color:#3333cc'>无特权</span>";
+    end
+end
+
+function GetWeeklyBagStatusLine()
+    if(VIP.IsVIPAndActivated()) then 
+        NPL.load("(gl)script/apps/Aries/NPCs/MagicMoneyBox/30413_MagicPocket.lua")
+        local MagicPocket=commonlib.gettable("MyCompany.Aries.Quest.NPCs.MagicPocket");
+        local num_left = MagicPocket.getgiftNum()
+
+        return format("%d/%d", mlevel+1 - num_left,  mlevel+1);
+    else
+        return "<span style='font-weight:bold;color:#3333cc'>无特权</span>";
+    end
+end
+
+]]></script>
+<div class="window" style="float:left;width:552px;height:480px;">
+    <div class="titlebar" width="100%">
+        <div class="windowlabel" >
+            <div style="margin-top:2px;margin-left:215px;width:123px;height:23px;background:url(Texture/Aries/Desktop/MiJiuHuLu/mijiuhulu_title_32bits.png# 0 0 123 23);"></div>
+        </div>
+        <input type="button" onclick="Confirm()" class="closewindow" style="position:relative;align:right;margin-right:5px;" />
+    </div>
+
+    <div>
+        <div style="float:left;margin-left:50px;margin-top:10px;width:47px;height:33px;background:url(Texture/Aries/Desktop/MiJiuHuLu/tips_starlvl_32bits.png# 0 0 47 33);"></div>
+        <div style="float:left;margin-left:10px;margin-top:10px;width:33px;height:33px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar_level_bg_32bits.png# 0 0 38 38);">            
+            <div style="color:#ffff00;font-weight:bold;margin-left:12px;margin-top:8px;"><%=CombatMagicStarPage.GetMLevel() %></div>
+         </div>
+        <div style="float:left;margin-left:-15px;margin-top:13px;width:190px;height:28px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_M_bg.png# 0 0 170 32);">
+            <div style="position:relative;margin-left:32px;margin-top:5px;width:170px;height:64px;">
+                   <%=CombatMagicStarPage.ShowMLine() %>
+            </div>
+            <div style="position:relative;margin-left:50px;margin-top:5px;color:#000000;font-weight:bold;">
+                   <%=GetM()  %>
+            </div>
+        </div>
+        <div style="float:left;margin-left:300px;margin-top:-31px;width:135px;height:28px;color:#fdfe40;font-weight:bold;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/MagicStar_M_bg.png# 0 32 129 32);"> 
+            <div style="float:left;margin-left:20px;margin-top:5px;color:#a0f100;">
+            能量值:<div style="float:left;color:#ffe100"><%=GetEnergy().."天"  %></div>
+            </div>
+        </div>
+        <input type="button" class="button_highlight" style="float:left;font-size:11px;width:100px;margin-left:5px;margin-top:-28px;" name="buy" onclick="GetTryEnergyStone()" value="<%=GetTryStoneTip()%>" />
+    </div>
+
+    <div class="panel" style="float:left;margin-left:9px;margin-top:5px;width:534px;height:138px;padding-left:10px;padding-top:5px;">
+        <div style="float:left;width:200px;">
+            <div style="font-size:15px;base-font-size:15px;font-weight:bold;">
+                <pe:if condition='<%=VIP.IsVIPAndActivated() ~= true %>'>
+                    你还没有魔法星<input type="button" name="magicstarpage" class="button_highlight" value="参加魔法星" onclick="DoJump()" tooltip="获得能量石给魔法星补充能量"/>
+                </pe:if>
+                <pe:if condition='<%=VIP.IsVIPAndActivated() == true %>'>
+                    <%=format("你的魔法星等级%s级", MyCompany.Aries.Desktop.CombatMagicStarPage.GetMLevel())%>
+                </pe:if>
+            </div>
+            <div style="font-size:12px;" >
+                <div><div style="float:left;">精力值,好友上限提高</div><div style="float:left;font-weight:bold;color:#3333cc"><%=GetMAttribute("stamina")%></div></div>
+                <div><div style="float:left;">攻击力提高</div><div style="float:left;font-weight:bold;color:#3333cc"><%=GetMAttribute("attack")%></div></div>
+                <div><div style="float:left;">防御力提高</div><div style="float:left;font-weight:bold;color:#3333cc"><%=GetMAttribute("guard")%></div></div>
+            </div>
+            <pe:if condition='<%=VIP.IsVIPAndActivated() == true %>'>
+            <div>
+                <pe:if condition='<%=GetDayToLevelUp() > 30000 %>'>
+                    <div style="color:#a00100;">魔法星已经满级</div>
+                </pe:if>
+                <pe:if condition='<%=GetDayToLevelUp() < 30000 %>'>
+                    <div style="color:#a00100;text-singleline:true"><%=format("离下一次魔法升级时间: %d天", GetDayToLevelUp() or 0) %></div>
+                    <div style="color:#a00100;">(每天加5点M值)<input type="button" name="magicstarpage" value="快速升级" class="button" tooltip="获得能量石给魔法星补充能量" onclick="DoJump()" style="height:22px;font-size:11px;margin-top:0px"/></div>
+                </pe:if>
+            </div>
+            </pe:if>
+        </div>
+        <div style="float:left;width:210px;">
+            <div style="margin-top:5px;">
+                <div style="font-weight:bold;">每日领奖:<%=format("%s仙豆", GetMAttribute("daily_money") or "0") %></div>
+                <div><div style="float:left;width:100px;">米酒葫芦</div><div style="float:left;"><%=GetMijiuHuluStatusLine(false) %></div></div>
+                <div><div style="float:left;width:100px;">魔法星葫芦</div><div style="float:left;"><%=GetMijiuHuluStatusLine(true) %></div></div>
+            </div>
+            <div style="margin-top:5px;">
+                <div style="font-weight:bold;">每周五领奖:<%=format("%s仙豆", GetMAttribute("weekly_money") or "0") %></div>
+                <div>
+                    <div style="float:left;width:100px;">魔法星储钱罐</div>
+                    <%=GetWeeklyMoneyStatusLine() %>
+                    <input type="button" name="JumpToWeeklyMoney" tooltip="现在就去" onclick='DoJump' style="position:relative;margin-top:0px;width:25px;height:21px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                </div>
+                <div>
+                    <div style="float:left;width:100px;">魔法星大口袋</div>
+                    <%=GetWeeklyBagStatusLine() %>
+                    <input type="button" name="JumpToWeeklyBag" tooltip="现在就去" onclick='DoJump' style="position:relative;margin-top:px;width:25px;height:21px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                </div>
+            </div>
+        </div>
+        <div style="float:left;">
+            <div style="margin-top:5px;">
+                <pe:if condition='<%=(Player.GetLevel()>=20)%>'>
+                    <img name="lottery_anim" enabled="false" class="animated_btn_overlay" zorder="1" style="position:relative;width:70px;height:32px;margin-top:-4px;"/>
+                    <input type="button" value="卡牌乐透" class="button_highlight" onclick="OnClickAdvancedLottery"/>
+                </pe:if>
+            </div>
+            <div style="margin-top:5px;">
+                <pe:if condition='<%=(Player.GetLevel()>20)%>'>
+                    <input type="button" value="欢乐捕鱼" class="button" onclick="OnClickFishing"/>
+                </pe:if>
+            </div>
+        </div>
+    </div>
+
+    <div class="titlebar" style="width:550px;">        
+         <div style="margin-top:2px;margin-left:185px;width:182px;height:23px;background:url(Texture/Aries/Desktop/MiJiuHuLu/mijiuhulu_title2_32bits.png# 0 0 182 23);"></div>      
+    </div>
+    <div class="panel" style="position:relative;margin-left:9px;margin-top:5px;width:534px;height:185px;">
+        <div style="float:left;margin-left:0px;margin-top:5px;width:500px;height:50px;color:#11436E;font-size:12px">
+            <div style="margin-left:135px;margin-top:0px;">在小镇待的时间越久，自家酿造的米酒葫芦就越香醇</div>
+            <div style="margin-left:35px;margin-top:0px;">喝完米酒葫芦之后，<b><font color="#a00100">拥有魔法星</font></b> 的哈奇还可以从葫芦里获得<b><font color="#a00100">额外奖励</font></b>哦！</div>
+        </div>
+        <div>
+            <div style="position:relative;margin-left:25px;margin-top:-10px;width:80px;height:100px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg5_32bits.png# 0 0 123 153)">
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(1) == 2 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(1) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25x;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="1" class="defaultbtn" value="可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" zorder="2" style="margin-left:5px;width:70px;height:22px;"/>
+                    </div>
+                </pe:if> 
+
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(1) == 3 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(1) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu2_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;width:80px;height:20px;color:#a0f100">1分钟</div>
+                </pe:if> 
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(1) == 1 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(1) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;color:#ff0000">已领取</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(11) == 4 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(1) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="11" class="button_orange" value="魔法星可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(1) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(11) == 5 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(1) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;" >
+                        <input type="button" class="button_lightgrey" value="魔法星可领取" onclick="GetEnergyStone()" tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(1) %>' zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+            </div>    
+
+            <div style="position:relative;margin-left:125px;margin-top:-10px;width:80px;height:100px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg5_32bits.png# 0 0 123 153)">
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(2) == 2 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(2) %>' style="position:relative;margin-left:24px;margin-top:26px;width:32px;height:38px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="2" class="defaultbtn" value="可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" zorder="2" style="margin-left:5px;width:70px;height:22px;"/>
+                    </div>
+                </pe:if> 
+
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(2) == 3 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(2) %>' style="position:relative;margin-left:24px;margin-top:26px;width:32px;height:38px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu2_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;width:80px;height:20px;color:#a0f100">15分钟</div>
+                </pe:if> 
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(2) == 1 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(2) %>' style="position:relative;margin-left:24px;margin-top:26px;width:32px;height:38px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;color:#ff0000">已领取</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(12) == 4 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(2) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="12" class="button_orange" value="魔法星可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(2) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(12) == 5 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(2) %>' style="position:relative;margin-left:27px;margin-top:30px;width:25px;height:30px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" class="button_lightgrey" value="魔法星可领取" onclick="GetEnergyStone()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(2) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+            </div>    
+
+            <div style="position:relative;margin-left:225px;margin-top:-10px;width:80px;height:100px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg5_32bits.png# 0 0 123 153)">
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(3) == 2 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(3) %>' style="position:relative;margin-left:20px;margin-top:21px;width:40px;height:47px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="3" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" class="defaultbtn" value="可领取" zorder="2" style="margin-left:5px;width:70px;height:22px;"/>
+                    </div>
+                </pe:if> 
+
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(3) == 3 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(3) %>' style="position:relative;margin-left:20px;margin-top:21px;width:40px;height:47px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu2_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;width:80px;height:20px;color:#a0f100">30分钟</div>
+                </pe:if> 
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(3) == 1 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(3) %>' style="position:relative;margin-left:20px;margin-top:21px;width:40px;height:47px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;color:#ff0000">已领取</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(13) == 4 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(3) %>' style="position:relative;margin-left:20px;margin-top:21px;width:40px;height:47px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="13" class="button_orange" value="魔法星可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(3) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(13) == 5 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(3) %>' style="position:relative;margin-left:20px;margin-top:21px;width:40px;height:47px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" class="button_lightgrey" value="魔法星可领取" onclick="GetEnergyStone()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(3) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+            </div>   
+        
+            <div style="position:relative;margin-left:325px;margin-top:-10px;width:80px;height:100px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg5_32bits.png# 0 0 123 153)">
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(4) == 2 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(4) %>' style="position:relative;margin-left:15px;margin-top:16px;width:50px;height:58px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="4" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" class="defaultbtn" value="可领取" zorder="2" style="margin-left:5px;width:70px;height:22px;"/>
+                    </div>
+                </pe:if> 
+
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(4) == 3 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(4) %>' style="position:relative;margin-left:15px;margin-top:16px;width:50px;height:58px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu2_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;width:80px;height:20px;color:#a0f100">60分钟</div>
+                </pe:if> 
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(4) == 1 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(4) %>' style="position:relative;margin-left:15px;margin-top:16px;width:50px;height:58px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;color:#ff0000">已领取</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(14) == 4 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(4) %>' style="position:relative;margin-left:15px;margin-top:16px;width:50px;height:58px;;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="14" class="button_orange" value="魔法星可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(4) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(14) == 5 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(4) %>' style="position:relative;margin-left:15px;margin-top:16px;width:50px;height:58px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" class="button_lightgrey" value="魔法星可领取" onclick="GetEnergyStone()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(4) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+            </div>   
+
+            <div style="position:relative;margin-left:425px;margin-top:-10px;width:80px;height:100px;background:url(Texture/Aries/Desktop/MiJiuHuLu/bg5_32bits.png# 0 0 123 153)">
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(5) == 2 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(5) %>' style="position:relative;margin-left:9px;margin-top:9px;width:62px;height:72px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="5" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" class="defaultbtn" value="可领取" zorder="2" style="margin-left:5px;width:70px;height:22px;"/>
+                    </div>
+                </pe:if> 
+
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(5) == 3 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(5) %>' style="position:relative;margin-left:9px;margin-top:9px;width:62px;height:72px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu2_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;width:80px;height:20px;color:#a0f100">90分钟<!--<pe:label name="time4">00:00</pe:label>--></div>
+                </pe:if> 
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(5) == 1 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(5) %>' style="position:relative;margin-left:9px;margin-top:9px;width:62px;height:72px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:20px;margin-top:98px;color:#ff0000">已领取</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(15) == 4 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(5) %>' style="position:relative;margin-left:9px;margin-top:9px;width:62px;height:72px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" name="15" class="button_orange" value="魔法星可领取" onclick="MyCompany.Aries.Desktop.MiJiuHuLu.OnClickAward()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(5) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetObtainAwardState(15) == 5 %>'>
+                    <div tooltip='<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetTip2(5) %>' style="position:relative;margin-left:9px;margin-top:9px;width:62px;height:72px;background:url(Texture/Aries/Desktop/MiJiuHuLu/hulu_32bits.png#0 0 80 113)"></div>
+                    <div style="margin-left:0px;margin-top:85px;">
+                        <input type="button" class="button_lightgrey" value="魔法星可领取" onclick="GetEnergyStone()" tooltip="<%=MyCompany.Aries.Desktop.MiJiuHuLu.GetVipTip(5) %>" zorder="2" style="margin-left:0px;width:80px;height:22px;font-size:11px;"/>
+                    </div>                    
+                </pe:if>
+            </div>  
+        </div>
+        <div style="margin-left:15px;margin-top:105px;width:570px;height:200px;color:#022E5B;font-size:12px">
+        米酒葫芦是以当天累积在线时间来计算，不管登陆几次，在线总时间加起来达到标准就可以哦！
+        </div>          
+    </div>
+    <div style="margin-left:15px;margin-left:200px;margin-top:195px;color:#022E5B;font-size:12px">
+        <div style="float:left;margin-top:-5px;width:48px;height:31px;background:url(Texture/Aries/Common/new4_32bits.png# 0 0 48 31);"></div>
+        每日签到送仙豆: <input type="button" value="签到" style="width:80px" onclick="DoCheckin" class="button_highlight"/>
+    </div>  
+</div>
+
+</pe:mcml> 
+</body>
+</html>

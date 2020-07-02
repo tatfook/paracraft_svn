@@ -1,0 +1,139 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30548_GoldenHorse_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30548_GoldenHorse_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+state = page:GetRequestParam("state") or 1;
+state = tonumber(state);
+
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30548);
+
+--local hasBe,_,_,num = System.Item.ItemManager.IfOwnGSItem(50404);
+
+
+r = math.random(0, 100);
+
+Condition1 = function()
+    return ((r >= 0 and r <= 25) and state == 0);
+end;
+Condition2 = function()
+    return ((r >= 26 and r <= 50) and state == 0);
+end;
+Condition3 = function()
+    return ((r >= 51 and r <= 75) and state == 0);
+end;
+Condition4 = function()
+    return ((r >= 76 and r <= 100) and state == 0);
+end;
+Condition5 = function()
+    return state == 1;
+end;
+
+function ExitAction(from, to)
+    if(from >= 1 and from <= 5  and to == -1) then
+       ItemManager.ExtendedCost(1921, nil, nil, function(msg)
+		    log("+++++++ExtendedCost 1921:  return: +++++++\n")
+		    commonlib.echo(msg);
+
+	        --MyCompany.Aries.Quest.NPCs.GoldenHorse.On_Shrink();
+
+
+			if(msg.issuccess == true) then
+				if(msg.obtains[2131]) then
+					--System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="FarmerAngryDemonHammer"}});
+                    --_guihelper.MessageBox("1111");
+                    --echo("appear");
+				end
+			end
+        end);
+		--memory.isFull = nil;
+        --memory.isRewarded = true;
+    end
+    if(from ~= 1 and to == -1) then
+	    MyCompany.Aries.Quest.NPCs.GoldenHorse.On_Shrink();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id);
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30548" />
+            <pe:placeholder id="name" source="{this}" value='小蓝马王子'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+                <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    魔力果冻真好吃，谢谢你！这些仙豆就送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    魔力果冻真好吃，不过今天吃太饱了吃不下，这点仙豆就送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    魔力果冻真好吃，不过这次有点事，就不多吃了，这有点东西就送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    好吃，好吃，就要这个味，今天吃的高兴，带的东西就全送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "5">
+		    哇，太好了，今天吃了这么多魔力果冻，太爽啦，这个传说的恶魔锤就送给你吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	   <!-- <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>-->
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

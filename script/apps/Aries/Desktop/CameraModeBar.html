@@ -1,0 +1,65 @@
+﻿<!-- "script/apps/Aries/Desktop/CameraModeBar.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Scene/AutoCameraController.lua");
+MyCompany.Aries.AutoCameraController:Init();
+
+local Player = commonlib.getfield("MyCompany.Aries.Player");
+if(Player) then
+    local curMode = Player.LoadLocalData("CameraMode", "") or "3d";
+
+    if(curMode ~= "") then
+        MyCompany.Aries.AutoCameraController:ApplyStyle(curMode);
+        page:SetValue("CameraMode", curMode);
+    else
+        --[[
+        local params = {
+		    url = "script/apps/Aries/Login/Tutorial/PickCameraMode.html", 
+		    name = "OnPickSchoolOfSpell", 
+		    isShowTitleBar = false,
+		    DestroyOnClose = true,
+		    style = CommonCtrl.WindowFrame.ContainerStyle,
+		    zorder = 10,
+		    allowDrag = false,
+		    directPosition = true,
+			    align = "_ct",
+			    x = -240,
+			    y = -150,
+			    width = 480,
+			    height = 300,
+	    };
+	    System.App.Commands.Call("File.MCMLWindowFrame", params);
+	    if(params._page) then
+            params._page.__camera_mode_bar_page = page;
+	    end
+        ]]
+    end
+end
+
+function OnCameraModeChanged(value, mcmlNode)    
+    MyCompany.Aries.AutoCameraController:ApplyStyle(value);
+    MyCompany.Aries.Player.SaveLocalData("CameraMode", value);
+end
+
+function IsShowMarker()
+    return page.__is_show_marker;
+end
+]]></script>
+<div>
+    <pe:if condition='<%=IsShowMarker() %>'>
+        <pe:arrowpointer name="tip" direction="6" style="margin-left:32px;margin-top:-7px;position:relative;margin-left:-48px;width:32px;height:32px;" />
+    </pe:if>
+    <input name="CameraMode" type="radio" value="2d" tooltip="适合鼠标行走" onclick="OnCameraModeChanged" style="width:31px;height:20px" CheckedBG="Texture/Aries/Common/left_yellow_btn_32bits.png;0 0 31 20" UncheckedBG="Texture/Aries/Common/left_blue_btn_32bits.png;0 0 31 20"/><div style="float:left;font-size:11px;position:relative;margin-left:-20px;">2D</div>
+    <input name="CameraMode" type="radio" value="3d" tooltip="适合键盘行走" onclick="OnCameraModeChanged" style="width:31px;height:20px" checked="true" CheckedBG="Texture/Aries/Common/right_yellow_btn_32bits.png;0 0 31 20" UncheckedBG="Texture/Aries/Common/right_blue_btn_32bits.png;0 0 31 20"/><div style="float:left;font-size:11px;position:relative;margin-left:-25px;">3D</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,122 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/PersonalWorldPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Load World Page by LiXizhi, 2008.8.14</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="script/kids/3DMapSystemApp/worlds/PersonalWorldPage.lua">
+    Map3DSystem.App.worlds.PersonalWorldPage.OnInit();
+    ShowPreview = Page:GetNodeValue("ShowPreviewImage");
+</script>
+
+<div style="float:left;width:635px;padding:5px;" class="box">
+<form name="searchWorld">
+    <select name="CurFolder" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnSelectFolder()">
+      <option selected="true" value="worlds/MyWorlds">我创建的世界</option>
+      <option value="worlds/downloads">我下载过的世界</option>
+      <option value="worlds/Official">官方世界</option>
+    </select>
+    <div style="float:left;margin-top:3px;margin-left:10px;margin-right:55px">
+        <input type="checkbox" checked="true" name="ShowPreviewImage" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnCheckShowPreview()"/>显示预览图片
+    </div>
+    <input style="width:126px" name="SearchText"/>
+    <input type="submit" DefaultButton="true" name="searchBtn" value="搜索" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnSearch"/>
+    <div style="margin-top:5px">
+    <pe:if condition='<%=Eval("ShowPreview")%>'>
+    <pe:gridview AllowPaging="True" pagesize="8" ItemsPerLine="2" name="gvwWorlds" DataSource='<%=Map3DSystem.App.worlds.PersonalWorldPage.DS_Func%>' DefaultNodeHeight="95">
+        <Columns>
+            <a param1='<%=Eval("worldpath")%>' param2='<%=Eval("writedate")%>' onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnSelectWorld">
+                <div style="width:295px">
+                    <div style="float:left;width:160px;">
+                        <img src='<%=Eval("preview")%>'width="160" height="90"/><br />
+                    </div>
+                    <div style="float:left;width:130px;margin-left:5px">
+                        <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                        面积:1600km^2<br />
+                        更新时间:<%=Eval("writedate")%><br />
+                    </div>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有找到符合条件的世界</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+        <PagerSettings style="margin-left:300px" Position="Bottom"/>
+    </pe:gridview>
+    </pe:if>
+    <pe:if-not condition='<%=Eval("ShowPreview")%>'>
+    <pe:gridview AllowPaging="false" ItemsPerLine="4" name="gvwWorlds2" DataSource='<%=Map3DSystem.App.worlds.PersonalWorldPage.DS_Func%>' DefaultNodeHeight="48">
+        <Columns>
+            <a param1='<%=Eval("worldpath")%>' param2='<%=Eval("writedate")%>' onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnSelectWorld">
+                <img style="width:16px;height:16px;margin-right:4px;" src='<%=Eval("icon")%>'/>
+                <div style="float:left;font-weight:bold;width:110px;"><%=Eval("Title")%></div>
+                <br /><%=Eval("writedate")%>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有找到符合条件的世界</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+    </pe:if-not>
+  </div>
+</form>
+</div>
+<div style="float:left;width:360px;margin-left:10px">
+    <div style="float:left;margin:5px;">
+        <div><font style="color:#808080;">提示: 请从左侧选择世界或者直接在下面文本框中输入路径</font></div>
+        当前世界路径: <select name="filepath" style="width:230px" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnSelectWorldPath()"><option value="" selected="true"></option></select><br/>
+       <div><font style="font-weight:bold">世界预览:</font></div>
+       <div style="padding:5px;margin-left:30px" class="box">
+        <img name="WorldImage" style="width:256px;height:150px;"/>
+       </div>
+    </div>
+    <div style="padding:5px"  class="box">
+        <div style="float:left;width:215px;">
+            世界:<pe:label style="height:16px;margin-top:1px" name="worldname"/><br />
+            创建者:<span name="owner">ParaEngine</span><br />
+            面积:<span name="size">1600km^2</span><br />
+            更新时间:<pe:label style="height:16px;margin-top:1px" name="updatetime"/><br />
+            历史访问用户数:<span name="visitors">33221人</span><br />
+        </div>
+        <div style="float:left;width:130px;padding:5px" class="box">
+            <img style="background:url(Texture/3DMapSystem/common/exclamation.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/action.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/bell.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/chat.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/color_swatch.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/eye.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/feed.png);width:16px;height:16px;margin:2px"/>
+            <div style="margin-left:96px">
+                <img style="background:url(Texture/3DMapSystem/common/PageLeft.png);width:8px;height:8px;"/>
+                <img style="margin-left:3px;background:url(Texture/3DMapSystem/common/PageRight.png);width:8px;height:8px;"/>
+            </div>
+        </div>
+        <div>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <font style="font-size:11px">(13002 votes)</font>
+        </div>
+        <hr />
+        <div>
+            <div style="float:left;">
+                <input style="height:26px" class="defaultbutton" type="button" DefaultButton="true" name="enterWorld" value="进入星球" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnClickLoadWorld"/>
+                <input style="margin-left:10px" type="button" name="DeleteWorld" value="删除" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnClickDeleteWorld()"/>
+                <input style="margin-left:10px" type="button" name="RefreshPreview" value="刷新" onclick="Map3DSystem.App.worlds.PersonalWorldPage.OnClickRefreshPreview()"/>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

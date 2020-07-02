@@ -1,0 +1,286 @@
+﻿<!-- "script/apps/Aries/Quest/QuestDetailFramePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="QuestDetailFramePage.lua"><![CDATA[
+MyCompany.Aries.Quest.QuestDetailFramePage.OnInit()
+
+
+]]></script>
+
+<pe:editor style="float:left;width:410px;background:">
+<pe:if condition="<%= not ShowInQuestList() %>">
+    <pe:treeview style="margin-top:0px;width:390px;height:310px;background:">
+    <div style="margin-left:0px;font-size:12;color:#6d3014">
+        <div><b>任务名称:</b><%=getInfo("Title") %></div>
+        <div><b>任务描述:</b><%=getInfo("Detail") %>
+        </div>
+        <pe:if condition="<%= HasGoal() %>">
+            <div><b>任务目标:</b></div>
+        </pe:if>
+        <div>
+        
+          <pe:if condition='<%=tableHasValue("Goal") %>'>
+                <%=goalProgressInfo("Goal") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("GoalItem") %>'>
+                <%=goalProgressInfo("GoalItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientGoalItem") %>'>
+                <%=goalProgressInfo("ClientGoalItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientExchangeItem") %>'>
+                <%=goalProgressInfo("ClientExchangeItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("FlashGame") %>'>
+                <%=goalProgressInfo("FlashGame") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientDialogNPC") %>'>
+                <%=goalProgressInfo("ClientDialogNPC") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("CustomGoal") %>'>
+                <%=goalProgressInfo("CustomGoal") %>
+            </pe:if>
+        </div>
+        <div>
+           <pe:if condition='<%=tableHasValue("RequestQuest") or tableHasValue("RequestAttr") %>'>
+           <div><b>领取条件:</b><%=getRequestQuest() %></div>
+            </pe:if>
+        </div>
+        <div>
+            <pe:if condition='<%=hasValidData() %>'>
+                有效期:<%=getInfo("ValidDate") %>
+            </pe:if>
+        </div>
+        <!--<div>
+            <pe:if condition='<%=hasReward_state(0) %>'>
+                <%=getReward_0()%>
+            </pe:if>
+        </div>-->
+        <!--<div>
+            <pe:if condition='<%=hasReward_state(1) %>'>
+                <%=getReward_1()%>
+            </pe:if>
+        </div>-->
+         <aries:quest questid="<%=GetQuestID()%>" >
+            <div style="margin-left:0px;margin-top:0px;"><aries:quest_item property="Reward_0" class="defaultcolor" style="float:left;font-size:12;"/></div>  
+        </aries:quest>
+        <pe:if condition='<%=HasExtraReward() %>'>
+            <div style="margin-left:-5px;height:55px;">
+                <aries:quest questid="<%=GetQuestID()%>" >
+                    <div style="margin-left:5px;"><b><%=Get_Extra_Reward_Title() %></b></div>
+                        <div style="width:500px;height:80px;margin-left:5px;">
+                            <pe:gridview name="extrta_reward_view_1" DataSource="<%=extra_reward_func%>" ItemsPerLine="10" AllowPaging="false" pagesize="20">
+				                <Columns>
+                                    <div>
+                                        <pe:if condition='<%=ShowAcceptBtn() %>'>
+                                            <div style="margin-left:0px;">
+                                                <div style="width:32px;height:32px;margin-left:2px;" class="block">
+                                                    <pe:item gsid="<%=Eval('gsid') %>" showdefaulttooltip="true" isclickable="false" style="width:32px;height:32px;"/>
+                                                </div>
+                                                <div class="defaultcolor" style="margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+					                        </div>
+                                        </pe:if>
+                                        <pe:if condition='<%=ShowFinishedBtn() %>'>
+					                        <div style="margin-left:2px;width:36px;height:36px;">
+                                                <pe:if condition="<%=not NeedSelect()%>">
+                                                    <div style="width:32px;height:32px;" class="block">
+                                                        <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="width:32px;height:32px;"/>
+                                                    </div>
+                                                    <div class="defaultcolor" style="width:150px;margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+                                                </pe:if>
+                                                <pe:if condition="<%=NeedSelect() %>">
+                                                    <pe:if condition="<%=Eval('checked') %>">
+                                                       <div style="width:32px;height:32px;" class="block">
+                                                            <pe:div style="position:relative;margin-left:2px;margin-top:2px;width:28px;height:28px;background:url(Texture/Aries/Common/ThemeKid/item_hl.png:6 6 6 6)">
+                                                                <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="margin-left:0px;margin-top:0px;width:28px;height:28px;"/>
+                                                            </pe:div>
+                                                        </div>
+                                                    </pe:if>
+                                                    <pe:if condition="<%=not Eval('checked') %>">
+                                                        <div style="width:32px;height:32px;" class="block">
+                                                            <pe:item gsid="<%=Eval('gsid') %>" name="<%=Eval('gsid') %>" onclick="DoClick_Extra_Reward()" showdefaulttooltip="true" style="margin-left:2px;margin-top:2px;width:28px;height:28px;"/>
+                                                        </div>
+                                                    </pe:if>
+                                                    <div class="defaultcolor" style="width:150px;margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+                                                </pe:if>
+					                        </div>
+                                        </pe:if>
+					                </div>
+				                </Columns>
+				                <EmptyDataTemplate>
+				                </EmptyDataTemplate>
+				                <FetchingDataTemplate>
+				                </FetchingDataTemplate>
+			                </pe:gridview>                
+                        </div>
+                </aries:quest>
+            </div>
+        </pe:if>         
+    </div>
+    </pe:treeview>
+    <pe:if condition="<%= MyCompany.Aries.Player.GetLevel()<20 %>">
+        <pe:arrowpointer name="quest_tip_window" direction="2" style="float:left;position:relative;margin-left:225px;margin-top:-70px;width:82px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_bg_32bits.png:7 7 7 7)" >
+            <div style="position:relative;margin-left:45px;margin-top:29px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeKid/tip/text_tip_arrow_down_32bits.png)" />
+	        <div style="margin-top:4px;margin-left:3px;line-height:20px;text-align:center;font-size:13px;font-weight:bold;text-shadow:true;shadow-quality:8;shadow-color:#60ffffff">点击这里</div>
+        </pe:arrowpointer>
+    </pe:if>
+    <pe:if condition="<%= canAccept() and ShowAcceptBtn() %>">
+        <input type="button" onclick="doAccept" hotkey="DIK_X" style="width:165px;height:78px;margin-left:200px;margin-top:-10px;background:url(Texture/Aries/Quest/QuestList/accept_btn_32bits.png#0 0 165 78)"/>
+    </pe:if>
+    <pe:if condition="<%= canFinished()  and ShowFinishedBtn()%>">
+        <input type="button" onclick="doFinished" hotkey="DIK_X" style="width:165px;height:78px;margin-left:200px;margin-top:-10px;background:url(Texture/Aries/Quest/QuestList/finished_btn_32bits.png#0 0 165 78)"/>
+    </pe:if>
+</pe:if>
+<!--在任务列表里面显示-->
+<pe:if condition="<%= ShowInQuestList() %>">
+    <pe:treeview style="height:290px;background:">
+    <div style="font-size:12;color:#6d3014">
+        <div><b>任务名称:</b><%=getInfo("Title") %>
+        <!--<br />
+         <pe:if condition='<%=not isTracked() and isActivedState() %>'>
+            <input type="button" onclick="doTracker" style="margin-left:0px;margin-top:0px;width:81px;height:22px;background:url(Texture/aries/quest/questlist/tracker_btn_32bits.png#0 0 81 22)"/>
+        </pe:if>
+        <pe:if condition='<%=isTracked()  and isActivedState()%>'>
+            <input type="button" onclick="unTracker" style="margin-left:0px;margin-top:0px;width:81px;height:22px;background:url(Texture/aries/quest/questlist/cancel_tracker_btn_32bits.png#0 0 81 22)"/>
+        </pe:if>-->
+        </div>
+        <div><b>任务描述:</b><%=getInfo("Detail") %>
+        </div>
+        <pe:if condition="<%= HasGoal() %>">
+            <div><b>任务目标:</b></div>
+        </pe:if>
+        <div>
+            <pe:if condition='<%=tableHasValue("Goal") %>'>
+                <%=goalProgressInfo("Goal") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("GoalItem") %>'>
+                <%=goalProgressInfo("GoalItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientGoalItem") %>'>
+                <%=goalProgressInfo("ClientGoalItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientExchangeItem") %>'>
+                <%=goalProgressInfo("ClientExchangeItem") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("FlashGame") %>'>
+                <%=goalProgressInfo("FlashGame") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("ClientDialogNPC") %>'>
+                <%=goalProgressInfo("ClientDialogNPC") %>
+            </pe:if>
+             <pe:if condition='<%=tableHasValue("CustomGoal") %>'>
+                <%=goalProgressInfo("CustomGoal") %>
+            </pe:if>
+        </div>
+       <div>
+           <pe:if condition='<%=tableHasValue("RequestQuest") or tableHasValue("RequestAttr") %>'>
+                <!--<div><b>领取条件:</b><%=getRequestQuest() %></div>-->
+               <aries:quest questid="<%=GetQuestID()%>" >
+                    <div class="defaultcolor" ><b>领取条件:</b><aries:quest_item property="RequestAttr" style="float:left;font-size:12;"/></div>  
+                </aries:quest>
+            </pe:if>
+            
+        </div>
+        <div>
+            <pe:if condition='<%=hasValidData() %>'>
+                有效期:<%=getInfo("ValidDate") %>
+            </pe:if>
+        </div>
+        <!--<div>
+            <pe:if condition='<%=hasReward_state(0) %>'>
+                <%=getReward_0()%>
+            </pe:if>
+        </div>-->
+        <!--<div>
+            <pe:if condition='<%=hasReward_state(1) %>'>
+                <%=getReward_1()%>
+            </pe:if>
+        </div>-->
+        <aries:quest questid="<%=GetQuestID()%>" >
+            <div style="margin-left:0px;margin-top:0px;"><aries:quest_item property="Reward_0" class="defaultcolor" style="float:left;font-size:12;"/></div>  
+        </aries:quest>
+        <pe:if condition='<%=HasExtraReward() %>'>
+            <div style="margin-left:-5px;">
+                 <aries:quest questid="<%=GetQuestID()%>" >
+                    <div style="margin-left:5px;"><b><%=Get_Extra_Reward_Title() %></b></div>
+                        <pe:if condition='<%=GetExtraRewardListLen() <= 10%>'>
+                            <div style="margin-left:5px;height:35px;">
+                                <pe:gridview name="extra_reward_view" DataSource="<%=extra_reward_func%>" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+				                    <Columns>
+					                        <div style="margin-left:0px;">
+                                        
+                                                <div style="width:32px;height:32px;margin-left:2px;" class="block">
+                                                    <pe:item gsid="<%=Eval('gsid') %>" showdefaulttooltip="true" isclickable="false" style="width:32px;height:32px;"/>
+                                                </div>
+                                                <div class="defaultcolor" style="margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+					                        </div>
+				                    </Columns>
+				                    <EmptyDataTemplate>
+				                    </EmptyDataTemplate>
+				                    <FetchingDataTemplate>
+				                    </FetchingDataTemplate>
+			                    </pe:gridview>                
+                            </div>  
+                        </pe:if>
+                        <pe:if condition='<%=GetExtraRewardListLen() > 10%>'>
+                            <div style="margin-left:5px;height:75px;">
+                                <pe:gridview name="extra_reward_view" DataSource="<%=extra_reward_func%>" ItemsPerLine="10" AllowPaging="false" pagesize="20">
+				                    <Columns>
+					                        <div style="margin-left:0px;">
+                                        
+                                                <div style="width:32px;height:32px;margin-left:2px;" class="block">
+                                                    <pe:item gsid="<%=Eval('gsid') %>" showdefaulttooltip="true" isclickable="false" style="width:32px;height:32px;"/>
+                                                </div>
+                                                <div class="defaultcolor" style="margin-left:22px;margin-top:-18px;"><%=Get_Extra_Reward_Num(Eval("num")) %></div>   
+					                        </div>
+				                    </Columns>
+				                    <EmptyDataTemplate>
+				                    </EmptyDataTemplate>
+				                    <FetchingDataTemplate>
+				                    </FetchingDataTemplate>
+			                    </pe:gridview>                
+                            </div>  
+                        </pe:if>
+                </aries:quest>
+            </div>
+        </pe:if>       
+
+       <div>
+            <b>任务接取:</b>
+            <%=getNpcLabel("StartNPC") %>
+            <pe:if condition="<%= canShowGotoBtn() %>">
+                <input type="button" name='<%=getNpcID("StartNPC") %>' onclick="goto_npc" tooltip="立即过去" style="width:25px;height:21px;margin-top:-4px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                <pe:if condition="<%= not hasAccept() and canAccept() and CanShowAutoTip(true)%>">
+                    <pe:arrowpointer name="quest_tip" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                </pe:if>
+            </pe:if>
+        </div>
+        <div>
+            <b>任务完成:</b>
+            <%=getNpcLabel("EndNPC") %>
+            <pe:if condition="<%= canShowGotoBtn() %>">
+                <input type="button" name='<%=getNpcID("EndNPC") %>' onclick="goto_npc" tooltip="立即过去" style="width:25px;height:21px;margin-top:-4px;background:url(Texture/Aries/Quest/QuestList/jumparrow_32bits.png#0 0 25 21)" />
+                <pe:if condition="<%= canFinished() and CanShowAutoTip()%>">
+                    <pe:arrowpointer name="quest_tip" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                </pe:if>
+            </pe:if>
+        </div>
+    </div>
+    </pe:treeview>
+    <pe:if condition="<%= hasAccept() and  (not ShowAcceptBtn()  and not ShowFinishedBtn())%>">
+        <input zorder="-1" type="button" onclick="doDrop" style="width:165px;height:78px;margin-left:260px;margin-top:-10px;background:url(Texture/Aries/Quest/QuestList/giveup_btn_32bits.png#0 0 165 78)"/>
+    </pe:if>
+    <pe:if condition="<%= hasDropped() and  (not ShowAcceptBtn()  and not ShowFinishedBtn())%>">
+        <input zorder="-1" type="button" onclick="doReAccept" style="width:165px;height:78px;margin-left:260px;margin-top:-10px;background:url(Texture/Aries/Quest/QuestList/recover_btn_32bits.png#0 0 165 78)"/>
+    </pe:if>
+</pe:if>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

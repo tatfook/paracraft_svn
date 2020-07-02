@@ -1,0 +1,64 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/QuickDockPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/11/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuickDockPage.lua"><![CDATA[
+MyCompany.Aries.Desktop.Dock.QuickDockPage.Init();
+
+local list = {
+	{ gsid =12001, },{ gsid =12002, },{ gsid =12007, },{ gsid =12012, },{ gsid =12013, },{ gsid =12014, },{ gsid =12019, },{ gsid =12020, },
+	{ gsid = 12046, },{ gsid = 12054, },{ gsid = 0, },{ gsid = 0, },{ gsid = 0, },{ gsid = 0, },{ gsid = 0, },{ gsid = 0, },
+}
+local list = {
+    { gsid =12081, },{ gsid =12084, },{ gsid =12087, },{ gsid =12090, },{ gsid =12093, },{ gsid =12096, },{ gsid =12099, },{ gsid =12102, },{ gsid =12105, },
+    { gsid =12082, },{ gsid =12085, },{ gsid =12088, },{ gsid =12091, },{ gsid =12094, },{ gsid =12097, },{ gsid =12100, },{ gsid =12103, },{ gsid =12106, },
+    { gsid =12083, },{ gsid =12086, },{ gsid =12089, },{ gsid =12092, },{ gsid =12095, },{ gsid =12098, },{ gsid =12101, },{ gsid =12104, },{ gsid =12107, },
+    { gsid =12108, },{ gsid =12109, },{ gsid =12110, },{ gsid =12001, },{ gsid =12046, },{ gsid =12002, },{ gsid =12054, },{ gsid =17250, },{ gsid =17157, },
+}
+function DS_Func_Items(index)
+	if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+
+function OnBuyItem(gsid, mcmlNode)
+    if(not gsid)then return end
+    
+    NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+    local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+    ItemGuides.OnClickViewItem(gsid);
+end
+
+function OnClose()
+    MyCompany.Aries.Desktop.Dock.OnClickQuickDockButton();
+end
+]]></script>
+<div class="border_bg8_css" style="width:385px;height:175px;">
+    <input type="button" style="position:relative;margin-top:8px;margin-left:355px" onclick="OnClose" class="close_btn_css"/>
+    <div style="margin-left:8px;margin-top:7px;">
+    <pe:gridview ClickThrough="true" name="quick_dock_pageview" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="9" AllowPaging="false" pagesize="36">
+		<Columns>
+            <div class="border_bg1_css" style="padding:2px;margin-left:2px;margin-top:2px;width:36px;height:36px;">
+                <pe:item gsid='<%=Eval("gsid")%>' on_emptyclick_item="OnBuyItem" isshortcut="true" style="width:32px;height:32px;" />
+			</div>
+		</Columns>
+		<EmptyDataTemplate>
+			<b>空</b>
+		</EmptyDataTemplate>
+		<FetchingDataTemplate>
+			<b>请稍等 ... </b>
+		</FetchingDataTemplate>
+	</pe:gridview>                
+    </div>
+</div>
+</pe:mcml> 
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/SeedView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SeedView.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local class = pageCtrl:GetRequestParam("class");
+local subclass = pageCtrl:GetRequestParam("subclass");
+pageCtrl:SetNodeValue("class", class);
+pageCtrl:SetNodeValue("subclass", subclass);
+
+-- status: nil not available, 1 fetching all, 2 fetched. 
+dsItems = Eval("dsItems") or {status = nil, };
+
+function DS_Func_Homeland_Seeds(index)
+    return MyCompany.Aries.Inventory.SeedViewPage.DS_Func_Homeland_Items(dsItems, index, pageCtrl);
+end
+]]></script>
+<pe:editor style="background:;">
+    <div style="margin-left:-20px;margin-top:0px;padding:0px;width:80px;background:url(Texture/Aries/Homeland/v1/homeseed_bg_32bits.png#0 0 80 340:30 30 30 30);">
+        <div style="float:right;margin-left:0px;margin-top:10px;width:180;height:340px;">
+            <pe:gridview DataSource="<%=DS_Func_Homeland_Seeds%>" name="SeedViewItemView" style="margin-left:12px;margin-top:40px;" CellPadding="0"  DefaultNodeHeight = "65" ItemsPerLine="1" AllowPaging="true" pagesize="4">
+                <Columns>
+                    <div style="margin-left:2px;width:64px;height:64px;">
+                        <div style="width:64px;height:64px;background:url(Texture/Aries/Homeland/v1/homeseed_slot_32bits.png#0 0 70 70:24 24 24 24)">
+                            <pe:slot guid='<%=Eval("guid")%>' style="width:50px;height:50px;"/>
+                        </div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>Empty Items</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin-left:0px;margin-top:10px;">数据加载中<br/>请稍等......</div>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:-8px;margin-top:0px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="margin-left:25px;margin-top:-295px;width:32px;height:32px;background:Texture/Aries/homeland/v1/homeseed_up_32bits.png#0 0 34 34;"/>
+                        <div style="float:right;margin-top:4px;width:32px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="margin-left:-60px;margin-top:-10px;width:32px;height:32px;background:Texture/Aries/homeland/v1/homeseed_down_32bits.png#0 0 34 34;"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

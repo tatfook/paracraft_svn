@@ -1,0 +1,1341 @@
+﻿<!-- 
+script/apps/Aries/CombatPet/CombatPetPane.xml
+Author(s): Leio 
+Date: 2012/08/14
+-->
+<pe:mcml xmlns:pe="http://mcml.paraengine.com" xmlns:aries="http://aries.paraengine.com">
+  <script type="text/npl" Refresh="false">
+    <![CDATA[
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");    
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp2.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPane.lua");
+local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+
+local CombatPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPane");
+--CombatPetPane.OnInit();
+local pageCtrl = document:GetPageCtrl();
+CombatPetPane.page = pageCtrl;
+function GetTitle()
+    return CombatPetPane.title;
+end
+function ClosePage()
+    CombatPetPane.ClosePage();
+end
+function DS_Func_Items(index)
+	return CombatPetPane.DS_Func_Items(index);
+end
+
+function GetLevelInfo()
+    return CombatPetPane.GetLevelInfo();
+end
+function GetSeniorLevelInfo()
+    return CombatPetPane.GetSeniorLevelInfo();
+end
+function IsRightLevel_ForGridview(level)
+    local cur_level,__,__,isfull = GetLevelInfo();
+    local senior_cur_level,__,__,senior_isfull = GetSeniorLevelInfo();
+    if(CombatPetPane.show_grow_type == "junior")then
+        if(cur_level == level)then
+            return true;
+        end
+    else
+        if(senior_cur_level == level)then
+            return true;
+        end
+    end
+end
+function LevelIsFull()
+	local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(provider and node)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(node.gsid,node.exp or 0);
+        if(isfull and provider:HasSeniorLevel(node.gsid))then
+		    level,cur_exp,total_exp,isfull = provider:GetSeniorLevelInfo(node.gsid,node.exp or 0);
+	    end
+        return isfull;
+    end
+end
+
+function GetModelValue()
+    if(CombatPetPane.selected_node)then
+        local node = CombatPetPane.selected_node;
+        --model
+	    local asset = Map3DSystem.App.Assets.asset:new({filename = node.assetfile})
+	    local objParams = asset:getModelParams()
+        if(objParams ~= nil) then
+            objParams.facing = 0;
+            if(node.gsid == 10135)then
+			    objParams.scaling = 0.5;
+            end
+            return commonlib.serialize_compact(objParams);
+	    end
+    end
+end
+function GetID()
+    if(CombatPetPane.selected_node)then
+        return CombatPetPane.selected_node.gsid;
+    end
+end
+
+function IsCombatPet()
+    local node = CombatPetPane.selected_node;
+    if(node and node.is_combat_pet and node.is_combat_pet == 1)then
+       return true;
+    end
+end
+function IsRequireMagicLevel()
+    local node = CombatPetPane.selected_node;
+    if(node and node.req_magic_level and node.req_magic_level > -1)then
+       return true;
+    end
+end
+function GetPetIcon(icon)
+    local s = string.format([[<img src="%s" style="margin-left:2px;width:26px;height:26px;"/>]],icon or "");
+    return s;
+end
+function GetPetItem()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        local gsid = node.gsid;
+        if(gsid) then
+		      local hasGSItem = ItemManager.IfOwnGSItem;
+		      local bHas, guid = hasGSItem(gsid);
+		      if(bHas == true) then
+			      local item = ItemManager.GetItemByGUID(guid);
+			      if(item and item.guid > 0) then
+                      return item;
+			      end
+		      end
+        end
+    end
+end
+function IsFollowing(gsid)
+    if(gsid)then
+       local item = ItemManager.GetMyCurrentFollowPetItemOnEquip();
+       if(item and item.guid > 0 and item.gsid == gsid) then
+            return true;
+       end
+    end
+end
+function GetNode(index)
+    local pet_list = CombatPetPane.pet_list;
+    if(pet_list and index)then
+        return pet_list[index];
+    end
+end
+function DoToggleHome(index)
+  if(not index) then return end
+    local node = GetNode(index);
+    if(not node)then
+      return
+    end
+    if(IsRequireMagicLevel())then
+      local req_magic_level = node.req_magic_level;      
+      local bean = Pet.GetBean() or {};
+      local mlel = bean.mlel or 0;
+      if(mlel < req_magic_level)then
+        local energy = bean.energy or 0;
+				local m = bean.m or 0;
+				local mlel = bean.mlel or 0;
+        local pet_name = node.name;
+				if( (req_magic_level == 0 and m == 0 and mlel == 0) or mlel < req_magic_level)then
+					local s;
+					if(req_magic_level == 0) then
+						s = string.format("[%s]需要激活魔法星才能召唤，先给你的魔法星补充能量再来召唤它吧！",pet_name or "");
+					else
+						s = string.format("[%s]需要魔法星%d级才能召唤，先给你的魔法星补充能量再来召唤它吧！",pet_name or "",req_magic_level or 0);
+					end
+					_guihelper.Custom_MessageBox(s,function(result)
+						if(result == _guihelper.DialogResult.Yes)then
+						else
+							local gsid=998;
+							Map3DSystem.mcml_controls.pe_item.OnClickGSItem(gsid,true);	
+						end
+					end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/GotMagicStone_32bits.png; 0 0 153 49"});
+					return;
+				end
+        return;
+      end
+    end
+    
+    NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+    local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+
+    local hasGSItem = ItemManager.IfOwnGSItem;
+		local bHas, guid = hasGSItem(node.gsid);
+		if(bHas == true) then
+			local item = ItemManager.GetItemByGUID(guid);
+			if(item and item.guid > 0) then
+         item:OnClick("left", nil, nil, true, function(msg)
+								if(item.gsid) then
+									local word = CombatPetHelper.GetPetTalk(item.gsid, "entercombat");
+									if(type(word) == "string") then
+										local followpet = Pet.GetUserFollowObj();
+										if(followpet and followpet:IsValid()) then
+											local speak_word = "<span style='color:#093f4f'>"..word.."</span>";
+											headon_speech.Speek(followpet.name, speak_word, 6, true, nil, true, nil, "#ffffffc0");
+										end
+									end
+								end
+							end); -- true for bShowStatsDiff
+        ClosePage();
+			end
+		end
+end
+function DoFree()
+   local item = GetPetItem();
+   if(item and item.guid > 0) then
+		local item_gsid = item.gsid;
+		local guid = item.guid;
+		local gsItem = ItemManager.GetGlobalStoreItemInMemory(item.gsid)
+		if(gsItem) then
+			local name = gsItem.template.name;
+			_guihelper.MessageBox("你确认要把你的"..name.."放生吗？", function(result)
+				if(_guihelper.DialogResult.Yes == result) then
+					System.Item.ItemManager.DestroyItem(guid, 1, function() 
+						log("+++++++ Destroy "..name.." guid:"..guid.." return: +++++++\n")
+						commonlib.echo(msg);
+                        ClosePage();
+					end);
+				elseif(_guihelper.DialogResult.No == result) then
+					-- do nothing
+				end
+			end, _guihelper.MessageBoxButtons.YesNo);
+		end
+	end
+end
+
+function GetPetNodeByIndex(index)
+    local pet_list = CombatPetPane.pet_list;
+    if(pet_list and index)then
+        local node = pet_list[index];
+        return node;
+    end
+end
+function HasPet(index)
+    local node = GetPetNodeByIndex(index);
+    if(node)then
+        local hasItem,guid = hasGSItem(node.gsid);
+        return hasItem; 
+    end
+end
+function GetPetLevelStr_allpets(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            return p.max_level or 0;
+        end
+    end
+end
+function Locate_SeniorLevel(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        return provider:Locate_SeniorLevel(node.gsid,node.exp);
+    end
+end
+function GetPetLevelStr(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local gsid = node.gsid;
+        local p = provider:GetPropertiesByID(gsid);
+        if(p)then
+			    local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,node.exp or 0);
+          local max_level= p.max_level or 0;
+          --TODO:最大索引错位
+          local s = string.format("%d",level)
+          if(isfull)then
+              return "满级";    
+			    end
+          return string.format("%s级",s or "");
+        end
+    end
+end
+function GetPetExpStr(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            local isfull = node.isfull;
+            local s;
+            if(isfull)then
+                s = "满级"
+            else
+                local cur_exp = node.cur_exp or 0;
+                local total_exp = node.total_exp or 0;
+                if(cur_exp == 0)then
+                    s = string.format("%d/%d",cur_exp,total_exp);
+                else
+                s = string.format([[
+                <div style="margin-left:10px;">
+                                <div style="float:left;"><pe:progressbar name="progress_%d" Minimum = "0" Value = "%d" Maximum = "%d" Step = "1" style="width:80px;float:left;" /></div>
+                                <div style="float:left;color:#ffffff;margin-left:5px;margin-top:-18px;width:80px;text-align:center;">%d/%d</div>
+                            </div>]],index,cur_exp,total_exp,cur_exp,total_exp);
+                end
+            end
+            return s;
+        end
+    end
+end
+function GetTabTitle_MyPet()
+    if(CombatPetPane.pet_list_mypet)then
+        local len = #CombatPetPane.pet_list_mypet;
+        local s = string.format("我的宠物(%d)",len);
+        return s;
+    end
+end
+function GetTabTitle_PetTemplate()
+    if(CombatPetPane.pet_list_templates)then
+        local len = #CombatPetPane.pet_list_templates;
+        local s = string.format("宠物大全(%d)",len);
+        return s;
+    end
+end
+function OnClickItem(index,bReload)
+    CombatPetPane.Update(CombatPetPane.show_type,index,CombatPetPane.show_grow_type,bReload)
+end
+function DoChangeShowType(ds,index,node)
+    if(node and node.value)then
+        CombatPetPane.Update(node.value,nil,nil,true)
+    end
+end
+function DoChangeShow_GrowType(ds,index,node)
+    if(node and node.value)then
+        CombatPetPane.Update(CombatPetPane.show_type,CombatPetPane.selected_index,node.value)
+    end
+end
+function DS_Func_combine_props_list(index)
+    return CombatPetPane.DS_Func_combine_props_list(index)
+end    
+function HasSeniorLevel()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:HasSeniorLevel(node.gsid);
+        return r;
+    end
+end
+function DS_Func_foods_list(index)
+    return CombatPetPane.DS_Func_foods_list(index)
+end
+function DoShop(gsid,mcmlnode,index)
+    ClearTooltip();
+    if(CombatPetPane.foods_list and CombatPetPane.foods_list[index])then
+        local node = CombatPetPane.foods_list[index];
+        if(node.can_buy and node.gsid)then
+            local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	        if(command) then
+		        command:Call({gsid = node.gsid});
+	        end
+        end
+    end
+end
+
+function DoClick_BuyFood(gsid)
+  NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	goal_manager.finish("eat_pet_food");
+  
+  Map3DSystem.mcml_controls.pe_item.OnClickGSItem(gsid);
+end
+
+function DoClick_Slot(gsid)
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	  local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	  goal_manager.finish("eat_pet_food");
+  
+    ClearTooltip();
+    gsid = tonumber(gsid)
+    local _, guid = ItemManager.IfOwnGSItem(gsid);
+    if(not guid) then
+      return
+    end
+    local item = ItemManager.GetItemByGUID(guid);
+    local node = CombatPetPane.selected_node;
+	  if(node and item)then
+        if(LevelIsFull())then
+            local s = string.format([[%s已经长到满级，不需要再喂食啦！]],node.name);
+			    _guihelper.Custom_MessageBox(s,function(result)
+			    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+            return
+        end
+        local cur_feed_num = node.cur_feed_num or 0;
+        
+        if(cur_feed_num >= 15 and not QuestHelp.IsPowerUser(Map3DSystem.User.nid))then
+            _guihelper.MessageBox(string.format("%s今天已经没有喂养次数了！",node.name));
+            return;
+        end
+        local food_gsid = item.gsid;
+        QuestClientLogics.DoFeed_FollowPet(node.gsid,food_gsid)
+    end
+end
+function GetDataSource_ShowType()
+    return CombatPetPane.show_type_menu;
+end
+function GetDataSource_ShowGrowType()
+    return CombatPetPane.show_grow_type_menu;
+end
+function DoNothing()
+    ClearTooltip();
+end
+function GetCurLevelCards()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:GetCurLevelCards(node.gsid,node.exp);
+        return commonlib.serialize_compact(r);
+    end
+end
+function GetCurLevelProps()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:GetCurLevelProps(node.gsid,node.exp);
+        return commonlib.serialize_compact(r);
+    end
+end
+----------------------------------------------------------------------------------------
+function OnSelectLevel(name,index)
+    if(CombatPetPane.all_level_list)then
+        local k,v;
+        local label=""
+        for k,v in ipairs(CombatPetPane.all_level_list) do
+            if(k == index)then
+                v.selected = "true";
+                label = v.text;
+            else
+                v.selected = "false";
+            end
+        end 
+        CombatPetPane.UpdateTemplateLevelShow();
+        CombatPetPane.UpdateTemplateFoodList();
+        pageCtrl:Refresh(0);
+        pageCtrl:SetUIValue("level_list",label);
+
+    end
+end
+function DoSelectLevel(index)
+    if(CombatPetPane.all_level_list)then
+        local k,v;
+        for k,v in ipairs(CombatPetPane.all_level_list) do
+            if(k == index)then
+                v.checked = true;
+            else
+                v.checked = false;
+            end
+        end 
+        CombatPetPane.UpdateTemplateLevelShow();
+        CombatPetPane.UpdateTemplateFoodList();
+        pageCtrl:Refresh(0);
+    end
+end
+function GetSelectedLevelProp()
+    return CombatPetPane.template_prop_selected_level;
+end
+function GetSelectedLevelCard()
+    return CombatPetPane.template_card_selected_level;
+end
+function GetSelectedLevelProp_MaxLevel()
+    return CombatPetPane.max_template_prop_selected_level;
+end
+function GetSelectedLevelCard_MaxLevel()
+    return CombatPetPane.max_template_card_selected_level;
+end
+function ShowCurPropsByIndex(index)
+    if(CombatPetPane.prop_selected_level)then
+        local node = CombatPetPane.prop_selected_level[index];
+        if(node)then
+            return node.label;
+        end
+    end
+end
+function ShowCurCardsByIndex(index)
+    if(CombatPetPane.card_selected_level)then
+        local node = CombatPetPane.card_selected_level[index];
+        if(node)then
+            return node.gsid;
+        end
+    end
+end
+function ShowTemplatePropsByIndex(index)
+    if(CombatPetPane.prop_selected_level)then
+        local node = CombatPetPane.template_prop_selected_level[index];
+        if(node)then
+            return node.label;
+        end
+    end
+end
+function HasCardsByIndex(index)
+    if(CombatPetPane.card_selected_level and CombatPetPane.template_card_selected_level)then
+        local template_node = CombatPetPane.template_card_selected_level[index];
+        if(template_node)then
+            local k,v;
+            for k,v in ipairs(CombatPetPane.card_selected_level) do
+                if(v.gsid == template_node.gsid)then
+                    return true;
+                end
+            end
+        end
+    end
+end
+function ShowMaxPropsByIndex(index)
+    if(CombatPetPane.max_template_prop_selected_level)then
+        local template_node = CombatPetPane.max_template_prop_selected_level[index];
+        if(template_node)then
+            return template_node.label;
+        end
+    end
+end
+function ShowMaxCardsByIndex(index)
+    if(CombatPetPane.max_template_card_selected_level)then
+        local template_node = CombatPetPane.max_template_card_selected_level[index];
+        if(template_node)then
+            return template_node.gsid;
+        end
+    end
+end
+function ShowCardsByIndex(index)
+    if(CombatPetPane.template_card_selected_level)then
+        local template_node = CombatPetPane.template_card_selected_level[index];
+        if(template_node)then
+            return template_node.gsid;
+        end
+    end
+end
+----------------------------------------------------------------------------------------
+function DS_Func_all_level_list(index)
+    return CombatPetPane.DS_Func_all_level_list(index)
+end
+
+function GetSelectedNodeName()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        return node.name;
+    end
+end
+function GetSelectedNodeDesc()
+	local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(node)then
+		local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            return p.desc or "";
+        end
+    end
+end
+function IsMyPet_SelectedNode()
+    local node = CombatPetPane.selected_node;
+    if(node and node.is_my_pet and node.is_my_pet == 1)then
+       return true; 
+    end
+end
+function GetSelectedNodeLevel()
+    return CombatPetPane.GetSelectedNodeLevel();
+end
+function GetSelectedNodeGrownState()
+    return CombatPetPane.GetSelectedNodeGrownState();
+end
+function GetSelectedNodeProps()
+    return CombatPetPane.GetSelectedNodeProps();
+end
+function GetSelectedNodeCards()
+    return CombatPetPane.GetSelectedNodeCards();
+end
+function GetSelectedProgress()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            local isfull = node.isfull;
+            local cur_exp = node.cur_exp or 0;
+            local total_exp = node.total_exp or 0;
+            local s;
+            local blockimage = "Texture/Aries/Common/ThemeKid/combatpet/bar_32bits.png;0 0 16 11:5 5 4 4";
+            if(isfull)then
+                s = string.format([[
+                <div style="width:150px;height:13px;background:url(Texture/Aries/Common/ThemeKid/combatpet/bar_bg_32bits.png#0 0 16 13:7 7 6 6)">
+                    <pe:progressbar name="progress_bar" Minimum = "0" Value = "100" Maximum = "100" Step = "1" style="margin-left:1px;margin-top:1px;width:150px;height:11px;" blockimage="%s" background=""/>
+                    <div style="color:#000000;margin-top:-15px;width:150px;text-align:center;">满级</div>
+                </div>]],blockimage);
+            else
+                s = string.format([[
+                <div style="width:150px;height:13px;background:url(Texture/Aries/Common/ThemeKid/combatpet/bar_bg_32bits.png#0 0 16 13:7 7 6 6)">
+                    <pe:progressbar name="progress_bar" Minimum = "0" Value = "%d" Maximum = "%d" Step = "1" style="margin-left:1px;margin-top:1px;width:150px;height:11px;" blockimage="%s" background=""/>
+                    <div style="color:#000000;margin-top:-15spx;width:150px;text-align:center;">%d/%d</div>
+                </div>]],cur_exp,total_exp,blockimage,cur_exp,total_exp);
+            end
+            return s;
+        end
+    end
+end
+if(CombatPetPane.anchor_tip)then
+    pageCtrl:SetValue("TooltipsPPT", "howtouse_petfood")
+end
+function ClearTooltip()
+    if(CombatPetPane.anchor_tip)then
+        CombatPetPane.anchor_tip = false;
+        pageCtrl:SetValue("TooltipsPPT", nil);
+    end
+end
+function GetLevelList()
+    return CombatPetPane.all_level_list;
+end
+function DoHelpPane()
+    local node = CombatPetPane.selected_node;
+    if(node and node.gsid)then
+        NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+        local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+        ItemGuides.OnClickViewItem(node.gsid);
+    end
+end
+
+function GetSchool(gsid)
+    local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(node)then
+		local p = provider:GetPropertiesByID(gsid);
+        if(p)then
+            local school = p.school;
+            local s;
+            local label;
+            if(school == "6")then
+                s = "Texture/Aries/Team/fire_32bits.png";
+                label = "烈火系";
+            elseif(school == "7")then
+                s = "Texture/Aries/Team/ice_32bits.png";
+                label = "寒冰系";
+            elseif(school == "8")then
+                s = "Texture/Aries/Team/storm_32bits.png";
+                label = "风暴系";
+            elseif(school == "9")then
+                s = "Texture/Aries/Team/myth_32bits.png";
+                label = "神秘系";
+            elseif(school == "10")then
+                s = "Texture/Aries/Team/life_32bits.png";
+                label = "生命系";
+            elseif(school == "11")then
+                s = "Texture/Aries/Team/death_32bits.png";
+                label = "死亡系";
+            elseif(school == "12")then
+                s = "Texture/Aries/Team/balance_32bits.png";
+                label = "平衡系";
+            end
+            return s,label;
+        end
+    end
+    
+end
+function GetSchoolTip(gsid)
+    local s,label = GetSchool(gsid);
+    return label;
+end
+function CanMoveUp(index)
+    if(not index)then return end
+    if(index > 1)then
+        return true;
+    end
+end
+function DoMoveUp(index)
+    if(not CanMoveUp(index))then return end 
+    local data = CombatPetPane.pet_list;
+    if(data)then
+      CombatPetPane.SwapToTop(index,data);
+      OnClickItem(1,true);
+    end
+end
+
+function CanEdit()
+  local node = CombatPetPane.selected_node;
+  if(node)then
+    return (node.is_my_pet == 1)
+  end
+end
+function IsEdit()
+    if(CombatPetPane.is_edit == 1)then
+        return true;
+    end
+end
+function GetPetName()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+      return node.name;
+    end
+end
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/Common_help.lua");
+    MyCompany.Aries.Help.Common_help.CombatPetHelp_ShowPage()
+
+end
+function ChangeName()
+    CombatPetPane.is_edit = 1;
+    pageCtrl:Refresh(0);
+    
+    pageCtrl:SetValue("edit_pet_name",GetPetName() or "")
+end
+function SaveName()
+    local maxlen = 24;
+    local nickname = pageCtrl:GetValue("edit_pet_name") or "";
+    local txt_len = string.len(nickname);
+	if(txt_len <=0)then
+			_guihelper.MessageBox("名称不能为空！");
+			return;
+	elseif(txt_len  > maxlen)then
+			--_guihelper.MessageBox(string.format("名称太长了，换一个吧！"..txt_len,maxlen));
+            _guihelper.MessageBox("名称太长了，换一个吧！");
+			return;
+	else
+    NPL.load("(gl)script/apps/Aries/Chat/BadWordFilter.lua");
+    local BadWordFilter = commonlib.gettable("MyCompany.Aries.Chat.BadWordFilter");
+    local replaced_name = BadWordFilter.FilterStringForUserName(nickname);
+    if( replaced_name ~= nickname)then
+        _guihelper.MessageBox("宠物的名字中包含非法字符，换一个其他的名字吧！");
+        return;
+    end
+    if(string.find(nickname,"[@#*]"))then
+        _guihelper.MessageBox("宠物的名字中包含非法字符，换一个其他的名字吧！");
+        return;
+    end
+      local node = CombatPetPane.selected_node;
+      if(node)then
+          node.name = nickname;
+          local gsid = node.gsid;
+          local bHas,guid = hasGSItem(gsid);
+          if(bHas)then
+              local item = ItemManager.GetItemByGUID(guid);
+              if(item and item.SetName_client)then
+                  item:SetName_client(nickname);
+                  CombatPetPane.is_edit = 0;
+                  pageCtrl:Refresh(0);
+              end
+          end
+      end
+   end
+end
+
+
+function GetPlace(index)
+  local node = GetNode(index);
+	local provider = CombatPetHelper.GetClientProvider();
+  if(node)then
+    return provider:GetPlace(node.gsid);
+  end
+end
+function DoTrack(index)
+  local node = GetNode(index);
+	local provider = CombatPetHelper.GetClientProvider();
+  if(node)then
+    provider:DoTrack(node.gsid);
+  end
+end
+function DoHideFoodPage()
+  CombatPetPane.gemsWnd_visible = false;
+  local ctl = pageCtrl:FindControl("gemsWnd")
+	if(ctl) then
+		ctl.visible = CombatPetPane.gemsWnd_visible;
+	end
+end
+function DoFoods()
+  if(CombatPetPane.foodsWnd_visible)then
+    CombatPetPane.foodsWnd_visible = false;
+  else
+    CombatPetPane.foodsWnd_visible = true;
+  end
+  local ctl = pageCtrl:FindControl("foodsWnd")
+	if(ctl) then
+		ctl.visible = CombatPetPane.foodsWnd_visible;
+	end
+  
+  CombatPetPane.gemsWnd_visible = false;
+  local ctl = pageCtrl:FindControl("gemsWnd")
+	if(ctl) then
+		ctl.visible = CombatPetPane.gemsWnd_visible;
+	end
+end
+function GetFoodsWndVisible()
+  return CombatPetPane.foodsWnd_visible;
+end
+function GetAddonProperties()
+  local node = CombatPetPane.selected_node;
+	local provider = CombatPetHelper.GetClientProvider();
+  if(node)then
+    local addon_map = provider:GetAddonProperties(node.gem_gsid);
+    local info = provider:Get_Props_Info(addon_map,"<br/>");
+    return info;
+  end
+end
+function GetGemGsid()
+  local node = CombatPetPane.selected_node;
+  if(node and node.gem_gsid)then
+    return node.gem_gsid;
+  end
+end
+function HasGem()
+  local node = CombatPetPane.selected_node;
+  if(node and node.gem_gsid)then
+    return true;
+  end
+end
+function __DoAttachGem()
+  if(CombatPetPane.gemsWnd_visible)then
+    CombatPetPane.gemsWnd_visible = false;
+  else
+    CombatPetPane.gemsWnd_visible = true;
+  end
+  local ctl = pageCtrl:FindControl("gemsWnd")
+	if(ctl) then
+		ctl.visible = CombatPetPane.gemsWnd_visible;
+	end
+  
+  CombatPetPane.foodsWnd_visible = false;
+  local ctl = pageCtrl:FindControl("foodsWnd")
+	if(ctl) then
+		ctl.visible = CombatPetPane.foodsWnd_visible;
+	end
+end
+function __DoUnAttachGem()
+  local gsid = 17289;
+	local bHas, guid ,__,copies = hasGSItem(gsid);
+  copies = copies or 0;
+  local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	local name = gsItem.template.name;
+  NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+  if(not bHas)then
+    local s = string.format("你还没有【%s】，现在去购买吗？",name);
+    _guihelper.CloseCustom_MessageBox();
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+      local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	    if(command) then
+		    command:Call({gsid = gsid});
+	    end
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{show_label = true, yes = "好的", no = "一会再说"});
+    return
+  end
+  local node = CombatPetPane.selected_node;
+  local gem_gsid = node.gem_gsid;
+  local gsItem = ItemManager.GetGlobalStoreItemInMemory(gem_gsid);
+	local gem_name = gsItem.template.name;
+  local s = string.format("你确定消耗1个【%s】(剩余%d个)将已镶嵌的【%s】拆除下来吗？",name,copies,gem_name);
+  _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+        QuestClientLogics.UnAttachGem(node.gsid);
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{show_label = true, yes = "立刻拆除", no = "一会再说"});
+end
+function HasAttachedGem()
+    local node = CombatPetPane.selected_node;
+    if(node and node.gem_gsid)then
+      return true;
+    end
+end
+function DoAttachGem()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("mount_pet_gem");
+
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+    local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+      return
+    end
+    if(not HasAttachedGem())then
+      __DoAttachGem();
+      return
+    end
+	local ctl = CommonCtrl.ContextMenu:new{
+			name = "showMoreInfo_RoomDetailPage",
+			width = 100,
+			height = 80, -- add menuitemHeight(30) with each new item
+			DefaultNodeHeight = 24,
+			style = CommonClientService.KidsContextMenuStyle(),
+			
+		};
+		local node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "Group", Type = "Group", NodeHeight = 0 });
+        
+		node:AddChild(CommonCtrl.TreeNode:new({Text = "镶嵌宝石", Name = "UseItem", Type = "Menuitem", onclick = __DoAttachGem, }));
+		node:AddChild(CommonCtrl.TreeNode:new({Text = "剥离宝石", Name = "Recollect", Type = "Menuitem", onclick = __DoUnAttachGem, }));
+	  local x, y = ParaUI.GetMousePosition();
+	  if(x and y)then
+		  ctl:Show(x, y);
+	  end
+end
+function GetGemsWndVisible()
+  return CombatPetPane.gemsWnd_visible;
+end
+function OnClick_Gem(gem_gsid)
+  if(not gem_gsid)then return end
+  local node = CombatPetPane.selected_node;
+  if(node)then
+    
+	  local gsItem = ItemManager.GetGlobalStoreItemInMemory(gem_gsid);
+	  local name = gsItem.template.name;
+    if(node.gem_gsid and node.gem_gsid == gem_gsid )then
+      local s = string.format("%s的项圈上已经镶嵌过【%s】了，试试其他的宝石吧！",node.name,name)
+      _guihelper.MessageBox(s);
+      return
+    end
+    
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local s;
+    if(node.gem_gsid)then
+	    local gsItem = ItemManager.GetGlobalStoreItemInMemory(node.gem_gsid);
+      local old_name = gsItem.template.name;
+      local gsid_arm = 17289
+	    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid_arm);
+      local name_arm = gsItem.template.name;
+      s = string.format("%s的项圈内已经放入了【%s】，是否确定使用【%s】替换【%s】？被替换的【%s】将会消失。",node.name,old_name,name,old_name,old_name)
+    else
+      s = string.format("你确定把【%s】放入%s的项圈内吗？",name,node.name)
+    end
+  _guihelper.Custom_MessageBox(s,function(result)
+	  if(result == _guihelper.DialogResult.Yes)then
+      QuestClientLogics.AttachGem(node.gsid,gem_gsid);
+	  end
+  end,_guihelper.MessageBoxButtons.YesNo);
+  end
+end
+function DS_Func_Items_gems_list(index)
+    return CombatPetPane.DS_Func_Items_gems_list(index)
+end
+function GetPetDesc()
+  local node = CombatPetPane.selected_node;
+  if(node)then
+    return node.description;
+  end
+end
+function DoSpecial()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        local gsid = node.gsid;
+        local k,v;
+        for k,v in ipairs(CombatPetPane.must_in_homeland) do
+            if(gsid == v)then
+                NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+                if(not Map3DSystem.App.HomeLand.HomeLandGateway.IsInMyHomeland())then
+                    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+                    _guihelper.Custom_MessageBox("这个操作只能在你自己的家园中操作哦！",function(result)
+	                    if(result == _guihelper.DialogResult.OK)then
+		                    commonlib.echo("OK");
+	                    end
+                    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+                    return;
+                end
+            end
+        end
+        local item = GetPetItem();
+       if(item and item.DoSpecialAbility)then
+            if(gsid == 10113)then
+              NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+              local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+              if(not DealDefend.CanPass())then
+                return
+              end
+            end
+            item:DoSpecialAbility();
+       end
+   end
+    --pageCtrl:CloseWindow();
+end
+function HasSpecial()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+      return node.special_ability;
+    end
+end
+function GetSpecialString()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+      return node.special_string;
+    end
+end
+function IsInHomeland()
+  NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+  local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+  return HomeLandGateway.IsInHomeland();
+end
+function ShowInHomeland()
+  NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+  local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+  return not HomeLandGateway.MyPetHideInHomeland()
+end
+function DoHidePet()
+    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+    local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+    HomeLandGateway.SaveMyPetShowState(true,function(msg)
+      pageCtrl:Refresh(0);
+    end);
+end
+function DoShowPet()
+    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+    local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+    HomeLandGateway.SaveMyPetShowState(false,function(msg)
+     pageCtrl:Refresh(0);
+    end);
+end
+]]>
+  </script>
+  <pe:div style="width:625px;height:475px;background:url(Texture/Aries/Common/ThemeKid/window_bg_32bits.png:10 10 10 10);" >
+    <pe:block style="position:relative;margin-left:34px;margin-top:-7px;width:573px;height:64px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:252 20 252 20);"/>
+    <pe:goalpointer listen="close" style="position:relative;margin-left:595px;margin-top:6px;width:28px;height:28px;"></pe:goalpointer>
+    <pe:button style="position:relative;margin-left:595px;margin-top:6px;width:28px;height:28px;background:url(Texture/Aries/Common/ThemeKid/close_btn_32bits.png#0 0 28 28);" onclick="ClosePage"/>
+    <pe:block style="position:relative;margin-left:295px;margin-top:7px;width:64px;height:32px;background:url(Texture/Aries/Common/ThemeKid/combatpet/title_bg_32bits.png);"/>
+    <pe:div style="position:relative;margin-left:12px;margin-top:45px;width:230px;height:425px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+      <pe:block style="position:relative;margin-left:2px;margin-top:2px;width:226px;height:32px;background:url(Texture/Aries/Common/ThemeKid/combatpet/gridview_title_bg_32bits.png:7 7 7 7);" />
+      <!--标题-->
+      <div style="position:relative;font-size:12;margin-top:10px;font-weight:bold;text-align:center;color:#052f5b;">
+        <div style="position:relative;margin-left:155px;">
+          <pe:if condition="%%=ShowInHomeland()%%">
+            <div style="position:relative;">显示</div>
+            <input type="button" tooltip='在家园中显示所有的宠物，点击隐藏全部' style="position:relative;margin-left:50px;margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeKid/checkbox_32bits.png)" zorder="2" name='%%=Eval("index")%%' onclick="DoHidePet"/>
+          </pe:if>
+          <pe:if condition="%%=not ShowInHomeland()%%">
+            <div style="position:relative;">隐藏</div>
+            <input type="button" tooltip='在家园中隐藏所有的宠物，点击显示全部' style="position:relative;margin-left:50px;margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeKid/uncheckbox_32bits.png)" zorder="2" name='%%=Eval("index")%%' onclick="DoShowPet"/>
+          </pe:if>
+        </div>
+
+        <pe:code>%%=GetTitle()%%</pe:code>
+      </div>
+      <pe:gridview name="pet_view" style="position:relative;margin-left:6px;margin-top:40px;width:230px;height:380px;" DataSource="%%=DS_Func_Items%%" RememberScrollPos="true"  VerticalScrollBarStep="32"  DefaultNodeHeight="32" ItemsPerLine="1" AllowPaging="true" pagesize="11">
+        <Columns>
+          <pe:if condition='%%= (Eval("gsid") ~= 10195 and Eval("gsid") ~= 10196 and Eval("gsid") ~= 10197) or Eval("is_my_pet")== 1 %%' >
+            <div style="width:215px;height:32px;font-size:12">
+              <div style="position:relative">
+                <pe:if condition='%%=Eval("checked") %%' >
+                  <img type="button" onclick="OnClickItem" enabled="false"  name='%%=Eval("index")%%'
+                  style="margin-left:1px;margin-top:0px;width:215px;height:30px;background:url(Texture/Aries/Common/ThemeKid/combatpet/item_selected_bg_32bits.png:6 6 6 6)" />
+                </pe:if>
+                <pe:if condition='%%=not Eval("checked") %%' >
+                  <input type="button" onclick="OnClickItem"  name='%%=Eval("index")%%'
+                  style="margin-left:1px;margin-top:0px;width:215px;height:30px;background:url(Texture/Aries/Common/ThemeKid/combatpet/item_bg_32bits.png:6 6 6 6)" />
+                </pe:if>
+              </div>
+              <div style="position:relative;margin-top:4px;height:26px;">
+                <!--已经拥有-->
+                <pe:if condition='%%=Eval("is_my_pet")== 1 %%'>
+                  <div style="color:#052f5b;">
+                    <aries:combatpet gsid='%%=Eval("gsid")%%' zorder="1" click_teleport="true" show_icon="true" style="float:left;margin-top:-4px;width:30px;height:30px;" />
+                    <div style="float:left;padding-left:2px;margin-top:2px;width:120px;">
+                      <pe:if condition='%%=IsFollowing(Eval("gsid"))%%'>
+                        <input type="button" name='%%=Eval("index")%%' value="休息" onclick="DoToggleHome" zorder="5" style="position:relative;margin-left:147px;margin-top:-3px;width:35px;height:23px;color:#095700;font-size:12;" class="button"/>
+                      </pe:if>
+                      <pe:if condition='%%=not IsFollowing(Eval("gsid"))%%'>
+                        <input type="button" name='%%=Eval("index")%%' value="召唤" onclick="DoToggleHome" zorder="5" style="position:relative;margin-left:147px;margin-top:-3px;width:35px;height:23px;color:#095700;font-size:12;" class="button"/>
+                      </pe:if>
+                      <pe:if condition='%%=IsFollowing(Eval("gsid"))%%'>
+                        <div style='font-weight:bold;color:#ff0000'>
+                          <pe:code>%%=Eval("name") %%</pe:code>
+                        </div>
+                      </pe:if>
+                      <pe:if condition='%%=not IsFollowing(Eval("gsid"))%%'>
+                        <pe:code>%%=Eval("name") %%</pe:code>
+                      </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:-20px;margin-top:2px;width:40px;text-align:center;">
+                      <pe:code>%%=GetPetLevelStr(Eval("index"))%%</pe:code>
+                    </div>
+                    <pe:if condition='%%=CanMoveUp(Eval("index"))%%'>
+                      <input type="button" tooltip='置顶'  style="position:relative;margin-left:-8px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeKid/combatpet/arrow_up_32bits.png)" zorder="2" name='%%=Eval("index")%%' onclick="DoMoveUp"/>
+                    </pe:if>
+                  </div>
+                </pe:if>
+                <!--还未拥有-->
+                <pe:if condition='%%=Eval("is_my_pet")== 0 %%'>
+                  <div style="color:#688b8e">
+                    <aries:combatpet gsid='%%=Eval("gsid")%%' zorder="1" click_teleport="true" show_if_not_owned="true" show_icon="true" style="float:left;margin-top:-4px;width:30px;height:30px;" />
+                    <div style="float:left;padding-left:2px;margin-top:2px;width:120px;">
+                      <input type="button" name='%%=Eval("index")%%' value="追踪" tooltip='%%=GetPlace(Eval("index"))%%' onclick="DoTrack" zorder="5" style="position:relative;margin-left:147px;margin-top:-3px;width:35px;height:23px;color:#095700;font-size:12;" class="button"/>
+                      <pe:code>%%=Eval("name") %%</pe:code>
+                    </div>
+                    <div style="float:left;margin-left:0px;width:40px;text-align:center;">
+                      <pe:code>%%=GetPetLevelStr(Eval("index"))%%</pe:code>
+                    </div>
+                    <img style="float:left;margin-left:10px;margin-top:3px;width:16px;height:16px;" src='%%=GetSchool(Eval("gsid")) %%' tooltip='%%=GetSchoolTip(Eval("gsid")) %%'/>
+                  </div>
+                </pe:if>
+              </div>
+            </div>
+          </pe:if>
+          
+        </Columns>
+        <EmptyDataTemplate>
+          <div class="defaultcolor" style="margin:10px;">
+            你还没有宠物呢<br />战斗时，使用捕获卡有一定几率获得宠物
+          </div>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+          <b>请稍等 ... </b>
+        </FetchingDataTemplate>
+        <PagerSettings Position="Bottom" style="margin-left:65px;margin-top:-2px;width:260px;height:25px;"/>
+        <PagerTemplate>
+          <form>
+            <input type="button" name="pre" invisibleondisabled="false" style="width:17px;height:22px;background:url(Texture/Aries/Common/ThemeKid/page_left_32bits.png#0 0 17 22);" value="" />
+            <input type="button" name="page" class="pagerbuttontext" style="color:#ffffff"/>
+            <input type="button" name="next" invisibleondisabled="false" style="width:17px;height:22px;background:url(Texture/Aries/Common/ThemeKid/page_right_32bits.png#0 0 17 22);" value="" />
+          </form>
+        </PagerTemplate>
+      </pe:gridview>
+    </pe:div>
+    <pe:div style="position:relative;margin-left:245px;margin-top:45px;width:370px;height:425px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+      <pe:block style="position:relative;margin-left:2px;margin-top:2px;width:366px;height:32px;background:url(Texture/Aries/Common/ThemeKid/combatpet/gridview_title_bg_32bits.png:7 7 7 7);" />
+      <pe:block style="position:relative;margin-left:10px;margin-top:35px;width:350px;height:165px;background:url(Texture/Aries/Common/ThemeKid/combatpet/model_bg_32bits.png:20 20 20 20);" />
+      <pe:if condition="%%=IsMyPet_SelectedNode()%%">
+        <pe:if condition="%%=HasSpecial()%%">
+          <pe:button onclick="DoSpecial()" value="%%=GetSpecialString()%%" style="position:relative;margin-left:290px;margin-top:5px;width:70px;height:25px;color:#095700;" class="button"/>
+        </pe:if>
+        <pe:if condition="%%=IsCombatPet()%%">
+          <pe:goalpointer listen="select_pet_food" style="position:relative;margin-left:280px;margin-top:203px;width:55px;height:25px;"></pe:goalpointer>
+          <pe:button style="position:relative;margin-left:280px;margin-top:203px;width:55px;height:25px;color:#631f03;" onclick="DoFoods" value="喂养" class="button_highlight"/>
+        </pe:if>
+
+      </pe:if>
+      <!--model preview-->
+      <div style="position:relative;margin-left:20px;margin-top:0px;">
+        <div style="position:relative;margin-left:-40px;margin-top:-20px;width:256px;height:256px;" >
+          <pe:canvas3d name="FollowPetCanvas" IsInteractive="false" style="width:256px;height:256px;" DefaultRotY="-1.5" FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="%%=GetModelValue() %%" MaskTexture="Texture/Aries/Quest/previewmask.dds" />
+        </div>
+        <div style="position:relative;margin-left:-15px;margin-top:165px;">
+          <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2" style="float:left;margin-left:16px;width:38px;height:26px;background:url(Texture/Aries/Common/ThemeKid/rotate_left_32bits.png#0 0 38 26);"/>
+          <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2" style="float:left;margin-left:100px;width:38px;height:26px;background:url(Texture/Aries/Common/ThemeKid/rotate_right_32bits.png#0 0 38 26);"/>
+        </div>
+      </div>
+      <div style="position:relative;margin-left:200px;margin-top:40px;font-size:12;color:#052f5b;">
+        <pe:if condition="%%=IsCombatPet()%%">
+          <aries:combatpet pet_gsid="%%=GetID()%%">
+            <div style="height:18px;">
+              <input type="button" value="当前等级:" style="float:left;font-size:12;width:60px;text-align:left;background:" />
+              <aries:combatpet_item property="level" style="float:left;margin-top:5px;"/>
+              <div style="float:left;margin-top:5px;">级</div>
+            </div>
+            <div style="height:18px;">
+              <input type="button" value="最大等级:" style="float:left;font-size:12;width:60px;text-align:left;background:" />
+              <aries:combatpet_item property="max_level" style="float:left;margin-top:5px;"/>
+              <div style="float:left;margin-top:5px;">级</div>
+            </div>
+            <div style="height:18px;">
+              <input type="button" value="单场战斗最大经验值:" style="float:left;font-size:12;width:120px;text-align:left;background:" />
+              <aries:combatpet_item property="add_exp_max_default" style="float:left;margin-top:5px;"/>
+            </div>
+            <div style="height:18px;">
+                <input type="button" value="本日喂养剩余:" style="float:left;font-size:12;width:80px;text-align:left;background:" />
+                <aries:combatpet_item property="left_feed_num" style="float:left;margin-top:5px;"/>
+                <div style="float:left;margin-top:5px;">次</div>
+            </div>
+            <pe:if condition='%%=IsRequireMagicLevel() %%'>
+              <div style="height:18px;">
+                <input type="button" value="召唤要求:" style="float:left;font-size:12;margin-top:2px;text-align:left;background:" />
+                <aries:combatpet_item property="req_magic_level" style="float:left;margin-top:5px;width:15px;"/>
+                <div style="float:left;margin-top:5px;">级魔法星</div>
+              </div>
+            </pe:if>
+            <!--<div style="width:140px;margin-top:2px;">
+              <div style="float:left;">出现地点:</div>
+              <input type="button" style="float:left;width:64px;height:25px;font-size:12;color:#095700;background:url(Texture/Aries/Common/ThemeKid/btn_default_32bits.png#0 0 32 25:10 10 10 10);" tooltip="%%=GetPlace()%%" onclick="DoTrack" value="点击追踪"/>
+            </div>-->
+          </aries:combatpet>
+        </pe:if>
+      </div>
+      <!--经验条-->
+      <div style="position:relative;margin-left:60px;margin-top:205px;font-size:12;">
+        <pe:if condition="%%=IsCombatPet()%%">
+          <pe:if condition="%%=IsMyPet_SelectedNode()%%">
+            <div style="float:left;margin-top:0px;">当前经验:</div>
+            <div style="float:left;margin-top:5px;">
+              <pe:code>%%=GetSelectedProgress() %%</pe:code>
+            </div>
+          </pe:if>
+        </pe:if>
+      </div>
+      <!--属性-->
+      <pe:div style="position:relative;margin-left:11px;margin-top:230px;width:350px;height:190px;background:url(Texture/Aries/Common/ThemeKid/character/bg_panel_32bits.png:5 5 5 5);" >
+        <pe:if condition="%%=not IsCombatPet()%%">
+          <div style="font-size:12;color:#8d2a92;padding:5px;">
+            <pe:code>%%=GetPetDesc()%%</pe:code>
+          </div>
+        </pe:if>
+        <pe:if condition="%%=IsCombatPet()%%">
+          <div style="font-size:12;">
+            <div style="float:left;padding-left:5px;width:175px;">
+              <pe:if condition="%%=IsMyPet_SelectedNode()%%">
+                <div style="color:#052f5b;">当前级别附加属性:</div>
+                <div style="height:110px;color:#8d2a92;">
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(1) %%</pe:code>
+                  </div>
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(2) %%</pe:code>
+                  </div>
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(3) %%</pe:code>
+                  </div>
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(4) %%</pe:code>
+                  </div>
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(5) %%</pe:code>
+                  </div>
+                  <div>
+                    <pe:code>%%=ShowCurPropsByIndex(6) %%</pe:code>
+                  </div>
+                </div>
+                <div style="color:#052f5b;">当前级别附加卡片:</div>
+                <div style="margin-top:5px;">
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(1) %%'/>
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(2) %%'/>
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(3) %%'/>
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(4) %%'/>
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(5) %%'/>
+                  <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowCurCardsByIndex(6) %%'/>
+                </div>
+              </pe:if>
+              <pe:if condition="%%=not IsMyPet_SelectedNode()%%">
+                <div style="color:#052f5b;">你还没有捕获到这个宠物！</div>
+              </pe:if>
+            </div>
+            <div style="float:left;width:175px;color:#052f5b;">
+              <div>满级附加属性:</div>
+              <div style="height:110px;color:#8d2a92;">
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(1) %%</pe:code>
+                </div>
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(2) %%</pe:code>
+                </div>
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(3) %%</pe:code>
+                </div>
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(4) %%</pe:code>
+                </div>
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(5) %%</pe:code>
+                </div>
+                <div>
+                  <pe:code>%%=ShowMaxPropsByIndex(6) %%</pe:code>
+                </div>
+              </div>
+
+              <div style="color:#052f5b;">满级别附加卡片:</div>
+              <div style="margin-top:5px;">
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(1) %%'/>
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(2) %%'/>
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(3) %%'/>
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(4) %%'/>
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(5) %%'/>
+                <pe:item isclickable="false" style="float:left;margin-left:2px;width:28px;height:28px;" gsid='%%=ShowMaxCardsByIndex(6) %%'/>
+              </div>
+            </div>
+          </div>
+        </pe:if>
+      </pe:div>
+
+      <!--改名-->
+      <div style="position:releative;margin-top:8px;text-align:center;height:30px;color:#052f5b;font-size:12;font-weight:bold;">
+        <pe:if condition='%%=not CanEdit() %%'>
+          <pe:code>%%=GetPetName() %%</pe:code>
+        </pe:if>
+        <pe:if condition='%%=CanEdit() %%'>
+          <div style="float:left;margin-left:115px;width:130px;height:32px;">
+            <pe:if condition='%%= not IsEdit()%%'>
+              <div style="color:#052f5b;font-size:12;font-weight:bold;text-align:center;">
+                <div style="float:left;">
+                  <pe:code>%%=GetPetName()%%</pe:code>
+                </div>
+              </div>
+            </pe:if>
+            <pe:if condition='%%=IsEdit()%%'>
+              <input type="text" name="edit_pet_name" zorder="2" style="width:130px;height:25px;"/>
+            </pe:if>
+          </div>
+          <pe:if condition='%%= not IsEdit()%%'>
+            <input type="button" zorder="3" style="margin-left:15px;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+            onclick="ChangeName();" tooltip="改名字" value=""/>
+          </pe:if>
+          <pe:if condition='%%=IsEdit()%%'>
+            <input type="button" zorder="3" style="margin-left:15px;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                onclick="SaveName();" tooltip="保存" value=""/>
+          </pe:if>
+        </pe:if>
+      </div>
+    </pe:div>
+    <!--necklace-->
+    <pe:if condition="%%=IsCombatPet() and IsMyPet_SelectedNode()%%">
+      <pe:if condition="%%=not HasGem()%%">
+        <input type="button" onclick="DoAttachGem()" style="position:relative;margin-left:450px;margin-top:190px;width:56px;height:43px;background:url(Texture/Aries/Common/ThemeKid/Combatpet/necklace_gem_32bits.png#0 0 56 43)" />
+      </pe:if>
+      <pe:if condition="%%=HasGem()%%">
+        <img type="button" onclick="DoAttachGem()" style="position:relative;margin-left:450px;margin-top:190px;width:56px;height:43px;background:url(Texture/Aries/Common/ThemeKid/Combatpet/necklace_empty_32bits.png#0 0 56 43)" />
+        <pe:item isshortcut="false" gsid='%%=GetGemGsid()%%' style="position:relative;margin-left:462px;margin-top:200px;width:32px;height:32px;" onclick="DoAttachGem()"/>
+      </pe:if>
+      <pe:div style="position:relative;margin-left:464px;margin-top:203px;width:29px;height:29px;background:url(Texture/Aries/Common/ThemeKid/item_hl.png:6 6 6 6)" enabled="false"/>
+    </pe:if>
+    <div style="position:relative;margin-left:520px;margin-top:180px;font-size:12;color:#8d2a92;">
+      <pe:code>%%=GetAddonProperties()%%</pe:code>
+    </div>
+    <pe:div name="foodsWnd" visible="%%=GetFoodsWndVisible()%%" style="position:relative;margin-left:400px;margin-top:180px;width:180px;height:61px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:10 10 10 10);">
+      <pe:goalpointer listen="eat_pet_food" style="position:relative;margin-left:5px;margin-top:10px;width:36px;height:36px;"></pe:goalpointer>
+      <pe:gridview style="margin-left:5px;margin-top:10px;width:385;height:85px" name="food_list_view" DataSource="%%=DS_Func_foods_list%%"  ItemsPerLine="4" AllowPaging="false" pagesize="4">
+        <Columns>
+          <div style="margin-left:2px;width:40px;height:40px;background:url(Texture/Aries/Common/ThemeKid/Item_bg_32bits.png:10 10 10 10);" >
+            <pe:if condition='%%=Eval("gsid")~=nil%%'>
+              <pe:item isshortcut="true" gsid='%%=Eval("gsid")%%' style="margin:2px;width:36px;height:36px;" on_emptyclick_item="DoClick_BuyFood" on_use_item="DoClick_Slot"/>
+            </pe:if>
+          </div>
+        </Columns>
+        <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+        <PagerTemplate>
+          <form>
+            <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+            <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/>
+            <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+          </form>
+        </PagerTemplate>
+      </pe:gridview>
+    </pe:div>
+    <pe:div name="gemsWnd" visible="%%=GetGemsWndVisible()%%" style="position:relative;margin-left:240px;margin-top:240px;width:400px;height:200px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:10 10 10 10);">
+      <pe:goalpointer listen="select_pet_necklace" style="position:relative;margin-left:5px;margin-top:10px;width:36px;height:36px;"></pe:goalpointer>
+        <pe:button style="position:relative;margin-left:365px;margin-top:6px;width:28px;height:28px;background:url(Texture/Aries/Common/ThemeKid/close_btn_32bits.png#0 0 28 28);" onclick="DoHideFoodPage"/>
+      <div style="height:80px;padding:10px;font-size:12;">
+        <div>1、向项圈内镶嵌宝石，给宠物增加宝石属性。</div>
+        <div>2、一个项圈只能镶嵌一个宝石。</div>
+        <div>3、镶嵌3级以上宝石有额外属性奖励，宝石等级越高额外奖励越高。</div>
+        <pe:if condition="<%=HasAttachedGem()%>">
+          <div style="color:#a00100">4、温馨提示：已镶嵌的宝石可以用【宝石筷子】拆下来。</div>
+        </pe:if>
+      </div>
+      <pe:gridview style="margin-left:10px;margin-top:10px;width:385;height:150px" name="gems_list_view" DataSource="%%=DS_Func_Items_gems_list%%"  ItemsPerLine="9" AllowPaging="true" pagesize="18">
+        <Columns>
+          <div style="margin-left:2px;width:40px;height:40px;background:url(Texture/Aries/Common/ThemeKid/Item_bg_32bits.png:10 10 10 10);" >
+            <pe:if condition='%%=Eval("gsid")~=nil%%'>
+              <pe:item isshortcut="true" gsid='%%=Eval("gsid")%%' style="margin:2px;width:36px;height:36px;" on_use_item="OnClick_Gem"/>
+            </pe:if>
+          </div>
+        </Columns>
+        <PagerSettings Position="Bottom" style="margin-left:140px;margin-top:-5px;width:260px;height:25px;"/>
+        <PagerTemplate>
+          <form>
+            <input type="button" name="pre" invisibleondisabled="false" style="width:17px;height:22px;background:url(Texture/Aries/Common/ThemeKid/page_left_32bits.png#0 0 17 22);" value="" />
+            <input type="button" name="page" class="pagerbuttontext" style="color:#ffffff"/>
+            <input type="button" name="next" invisibleondisabled="false" style="width:17px;height:22px;background:url(Texture/Aries/Common/ThemeKid/page_right_32bits.png#0 0 17 22);" value="" />
+          </form>
+        </PagerTemplate>
+      </pe:gridview>
+    </pe:div>
+  </pe:div>
+</pe:mcml>

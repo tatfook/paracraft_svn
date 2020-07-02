@@ -1,0 +1,39 @@
+﻿<!-- "script/kids/3DMapSystemApp/ActionFeed/PublishFeedPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Publish action feed Page by LiXizhi, 2008.6.1</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="PublishFeedPage.lua">
+Map3DSystem.App.ActionFeed.PublishFeedPage.OnInit();
+local pageCtrl = document:GetPageCtrl()
+touid = pageCtrl:GetRequestParam("uid");
+content = pageCtrl:GetRequestParam("content");
+</script>
+<div>
+<div style="margin-top:5px;margin-left:5px">
+    <img style="margin-top:2px;margin-right:10px; background:url(Texture/3DMapSystem/common/feed_add.png);width:16px;height:16px;" />发送消息给你的朋友们
+    <div style="color:#808080;">消息会出现在对方首页的悄悄话栏目</div>
+    <hr/>
+</div>
+<pe:editor labelwidth="120" style="background:;">
+  <input type="hidden" name="feedtype" value='<%=Page:GetRequestParam("feedtype")%>'/>
+  <input type="hidden" name="feedtemplate" value='<%=Page:GetRequestParam("feedtemplate")%>'/>
+  接受者: <br />
+  <input type="radio" name="receiver" value="all" checked="checked"/>全部好友
+  <input type="radio" name="receiver" value="uid" />指定好友<pe:name style="font-weight:bold" uid='<%=Eval("touid")%>' useyou="false" linked="false"/>
+  <input type="button" style="height:16px" name="btnSelectFriends" value="..." onclick="Map3DSystem.App.ActionFeed.PublishFeedPage.SelectFriends"/>
+  <br/>
+  内容:<br />
+  <textarea name="content" rows = "3"></textarea>
+  <hr />
+  <input type="submit" class="defaultbutton" name="save" value="发送" onclick="Map3DSystem.App.ActionFeed.PublishFeedPage.SendFeed()"/>
+  <input type="button" style="margin-left:5px" name="close" value="关闭" onclick="Map3DSystem.App.ActionFeed.PublishFeedPage.OnClose()"/>
+  <label name="result" style="height:20px;margin-top:5px;margin-left:10px;color:#006600;font-weight:bold"/>
+</pe:editor>
+</div>
+</pe:mcml>
+</body>
+</html>

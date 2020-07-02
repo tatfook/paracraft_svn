@@ -1,0 +1,112 @@
+<!-- "script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.html" -->
+<html>
+<body>
+<pe:mcml>
+<script type="text/npl" src="script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua" refresh="false"><![CDATA[
+local CustomMessageBox = commonlib.gettable("_Custom.CustomMessageBox");
+CustomMessageBox.buttons_style = CustomMessageBox.buttons_style or {
+    ["ok_32bits"] = "确定",
+    ["cancel_32bits"] = "取消",
+    ["iknow_32bits"] = "知道了",
+    ["yes_32bits"] = "确定",
+    ["no_32bits"] = "取消",
+    ["add_friends_32bits"] = "加他为好友",
+    ["addcard_32bits"] = "马上补充",
+    ["backtobag_btn_32bits"] = "放回背包",
+    ["backtolib_btn_32bits"] = "放回仓库",
+    ["coming_32bits"] = "马上过去",
+    ["continue_32bits"] = "继续使用",
+    ["continuegame_32bits"] = "继续游戏",
+    ["dealimmediately_32bits"] = "马上成交",
+    ["detailview_32bits"] = "查看详情",
+    ["get_gem_32bits"] = "购买宝石",
+    ["get_red_paper_32bits"] = "领取红包",
+    ["get_rune_32bits"] = "购买镶嵌符",
+    ["getgift_32bits"] = "领取礼物",
+    ["gohomeimmediately_32bits"] = "马上回家",
+    ["gooutimmediately_32bits"] = "马上出去",
+    ["goshop_32bits"] = "去商城看看",
+    ["got_combatpet_food_32bits"] = "购买口粮",
+    ["gotmagicstone_32bits"] = "获得能量石",
+    ["heart_fruits_32bits"] = "热心果换好礼",
+    ["invitetocomehere_32bits"] = "邀请过来",
+    ["later_32bits"] = "下次再说",
+    ["later2_32bits"] = "等下再进",
+    ["leaveimmediately_32bits"] = "马上离开",
+    ["leavelater_32bits"] = "稍后离开",
+    ["leavetown_32bits"] = "离开小镇",
+    ["lefthand_32bits"] = "左手",
+    ["mcurrencyrefund_32bits"] = "米币充值",
+    ["need_32bits"] = "需要",
+    ["neednot_32bits"] = "不需要",
+    ["ok_2_32bits"] = "好的",
+    ["openbag_32bits"] = "打开背包",
+    ["pickup_32bits"] = "收下",
+    ["purchaseimmediately_32bits"] = "马上购买",
+    ["purchasemagicbean_32bits"] = "购买金币",
+    ["reconnect_32bits"] = "重新登录",
+    ["red_fruits_32bits"] = "红心果换好礼",
+    ["refuse_login_32bits"] = "拒绝进入",
+    ["righthand_32bits"] = "右手",
+    ["sell_btn_32bits"] = "出售",
+    ["start_build_32bits"] = "开始建造",
+    ["submit_32bits"] = "提交",
+    ["thinkover_32bits"] = "再想想",
+    ["wouldlike_32bits"] = "愿意",
+    ["accept_32bits"] = "接受",
+    ["reject_32bits"] = "拒绝",
+}
+
+function GetValue(v)
+    if(v)then
+        v = v:match("/([%w_]+)%.png");
+        if(v) then
+            v = string.lower(v);
+            return CustomMessageBox.buttons_style[v]
+        end
+    end
+end
+
+function OnClosePage()
+    if(CustomMessageBox.buttons==_guihelper.MessageBoxButtons.OK) then
+        CustomMessageBox.OnMessageBoxClick("OK")
+    else
+        CustomMessageBox.OnMessageBoxClick("No")
+    end
+end
+]]></script>
+<aries:window width="340" height="175" title="信息" mode="lite" isdeepbg="true" onclose="OnClosePage">
+<div style="">
+  <div style="margin:5px;margin-bottom:0px;margin-left:10px;height:103px;" class="textpane">
+        <div style="float:left;">
+            <!-- tricky: always reference content like below. It allows MCML code that needs page:Refresh to work inside content.-->
+            <script refresh="false" >
+                document.write(_Custom.CustomMessageBox.content);
+            </script>
+        </div>
+  </div>
+  <div style="margin-left:0px;">
+      <pe:if condition='<%=_Custom.CustomMessageBox.buttons==_guihelper.MessageBoxButtons.OK%>'>
+        <pe:if condition='<%=_Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+            <input type="button" hotkey="DIK_RETURN" name="OK" value='<%=_Custom.CustomMessageBox.customBtnIcon.ok %>' style="margin-left:125px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+        </pe:if>
+        <pe:if condition='<%=not _Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+            <input type="button" hotkey="DIK_RETURN" name="OK" value='<%=GetValue(_Custom.CustomMessageBox.customBtnIcon.ok) or "确定" %>' style="margin-left:125px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+        </pe:if>
+      </pe:if>
+      <pe:if condition='<%=_Custom.CustomMessageBox.buttons==_guihelper.MessageBoxButtons.YesNo%>'>
+        <pe:if condition='<%=_Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+            <input type="button" hotkey="DIK_RETURN" name="Yes" value='<%=_Custom.CustomMessageBox.customBtnIcon.yes %>' style="margin-left:70px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+            <input type="button" name="No" value='<%=_Custom.CustomMessageBox.customBtnIcon.no %>' style="margin-left:15px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+        </pe:if>
+        <pe:if condition='<%=not _Custom.CustomMessageBox.customBtnIcon.show_label %>'>
+              <input type="button" hotkey="DIK_RETURN" name="Yes" value='<%=GetValue(_Custom.CustomMessageBox.customBtnIcon.yes) or "确定" %>' style="margin-left:70px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+              <input type="button" name="No" value='<%=GetValue(_Custom.CustomMessageBox.customBtnIcon.no) or "取消"%>' style="margin-left:15px;width:90px;height:25px;" onclick="_Custom.CustomMessageBox.OnMessageBoxClick()"/>
+        </pe:if>
+      </pe:if>
+  </div>
+</div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

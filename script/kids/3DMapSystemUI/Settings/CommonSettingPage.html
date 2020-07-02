@@ -1,0 +1,169 @@
+﻿<!-- "script/kids/3DMapSystemUI/Settings/CommonSettingPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Welcome Page 2008.8.23 lixizhi</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="CommonSettingPage.lua">
+    Map3DSystem.App.Settings.CommonSettingPage.OnInit();
+</script>
+
+<pe:tabs name="CommonSettings">
+<!--graphics-->
+<pe:tab-item name="Graphics" text="图形" selected="true" style="padding-left:5px"><div><form name="GraphicsForm">
+    <div style="width:100px;float:left;text-align:right">分辨率:</div>
+    <div style="float:left">
+        <input type="checkbox" name="checkBoxFullScreenMode"/>使用全屏显示
+        <select style="margin-left:20px;margin-top:-2px;margin-bottom:5px" name="comboBoxScreenResolution">
+            <option value="800 × 600">800 × 600</option>
+            <option value="1024 × 768" selected="true">1024 × 768</option>
+            <option value="1280 × 720">1280 × 720</option>
+            <option value="1600 × 1200">1600 × 1200</option>
+        </select>
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">反锯齿:</div>
+    <div style="float:left;">
+        <select style="margin-top:-2px" name="comboBoxMultiSampleType">
+            <option value="0">不使用反锯齿</option>
+            <option value="2">启动反锯齿 x 2</option>
+            <option value="4">启动反锯齿 x 4</option>
+        </select>
+        <select style="margin-top:-2px" name="comboBoxMultiSampleQuality">
+            <option value="0">缺省质量</option>
+            <option value="1">高质量</option>
+            <option value="2">超高质量</option>
+        </select>
+        <div style="color:#808080">注: 启动反锯齿, 可以使3D画面更柔和</div>
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">3D画面质量:</div>
+    <div style="float:left;padding:5px" class="box">
+        <input type="radio" name="graphic_quality" value="1024" />简约模式 (适合DirectX 7.0 显卡)<br />
+        <input type="radio" name="graphic_quality" value="-1" />较低画质 (可以提高运行速度)<br />
+        <input type="radio" name="graphic_quality" value="0" />中等画质 (推荐使用)<br />
+        <input type="radio" name="graphic_quality" value="1" />高等画质 (适合DirectX 9或以上的显卡)<br />
+        <input type="radio" name="graphic_quality" value="2" />特效全开<br />
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">3D物体阴影:</div>
+    <div style="float:left;">
+        <input type="checkbox" name="checkBoxUseShadow"/>渲染所有物体阴影<span style="color:#808080">(关闭可以提高运行速度)</span>
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">贴图质量:</div>
+    <div style="float:left">
+        <div style="float:left;margin-right:10px"><input type="radio" name="texture_lod" value="0" />最精细</div>
+        <div style="float:left;margin-right:10px"><input type="radio" name="texture_lod" value="1" />一般</div>
+        <div style="float:left;margin-right:10px"><input type="radio" name="texture_lod" value="2" />较低</div>
+        <div style="float:left;margin-right:10px"><input type="radio" name="texture_lod" value="3" />十分粗糙</div>
+        <div style="color:#808080">注: 显存越大, 可以使用更高的贴图分辨率</div>
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">全屏泛光:</div>
+    <div style="float:left;">
+        <input type="checkbox" name="checkBoxUseGlow"/>使用全屏泛光
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">水面反射:</div>
+    <div style="float:left;">
+        <div style="float:left;margin-right:10px"><input type="checkbox" name="checkBoxTerrainReflection"/>地表</div>
+        <div style="float:left;margin-right:10px"><input type="checkbox" name="comboBoxObjectReflection"/>物体</div>
+        <div style="float:left;margin-right:10px"><input type="checkbox" name="checkBoxPlayerReflection"/>主角</div>
+        <div style="float:left;margin-right:10px"><input type="checkbox" name="checkBoxCharacterReflection"/>人物</div>
+        <div style="color:#808080">注: 关闭所有水面反射可以提高运行速度</div>
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">可视距离:</div>
+    <div style="float:left">
+        <pe:sliderbar name="trackBarViewDistance" style="width:250px" min="40" max="400" min_step="10" value="120"/>
+        <div style="color:#808080">注: 数值越小运行速度越快</div>
+    </div><br />
+    <hr />
+    <div style="width:100px;float:left;text-align:right">语言:</div>
+    <div style="float:left">
+        <select style="margin-top:-2px;margin-bottom:5px" name="comboBoxLocale">
+            <option value="enUS">英文</option>
+            <option value="zhCN">中文</option>
+        </select>
+    </div><br />
+    <hr />
+    <div style="margin-left:100px">
+        <input type="submit" style="height:26px" class="defaultbutton" name="okBtn" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnSaveGraphics();" value="保存"/>
+        <label name="graphics_result" style="height:20px;margin-top:5px;margin-left:10px;color:#006600;font-weight:bold"/>
+    </div>
+</form></div></pe:tab-item>
+<!--Sounds-->
+<pe:tab-item name="Sounds" text="声音" style="padding-left:5px"><form name="ControlForm">
+    <div style="width:100px;float:left;text-align:right">音量:</div>
+    <div style="float:left">
+        <pe:sliderbar name="trackBarVolume" style="width:200px" min="0" max="100" min_step="1" value="0"/>
+    </div><br />
+    <hr />
+    <div style="margin-left:100px">
+        <input type="submit" style="height:26px" class="defaultbutton" name="okBtn" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnSaveSounds();" value="保存"/>
+        <label name="sounds_result" style="height:20px;margin-top:5px;margin-left:10px;color:#006600;font-weight:bold"/>
+    </div>
+</form></pe:tab-item>
+<!--control-->
+<pe:tab-item name="Control" text="操作" style="padding-left:5px"><form name="ControlForm">
+    <div style="width:100px;float:left;text-align:right">鼠标:</div>
+    <div style="float:left">
+       <input type="checkbox" name="checkBoxInverseMouse"/>反转鼠标控制模式<br />
+       左键点击选择; 按住左键不放拖动, 转摄影机<br />
+       右键点击察看属性; 按住右键不放拖动, 转动角色<br /> 
+    </div><br />
+    <div style="width:100px;float:left;text-align:right">键盘:</div>
+    <div style="float:left">
+        <div style="float:left;" width="200px">       
+           移动: W, A, S, D, Q, E键<br />
+           跳跃: 连续按空格键<br />
+           切换飞翔: F键<br />
+           切换跑步/走路: R键<br />
+           驾驶或切换人物: 左下角的Shift键<br />
+           和人物对话: 左下角的Ctrl键<br />
+           切换摄影机模式: C键<br />
+        </div>
+        <div style="float:left;font-weight:bold;font-size:13px">
+            <div style="margin-left:64px;background:url(Texture/3DMapSystem/common/keyboard.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+            <div style="margin-left:32px;background:url(Texture/3DMapSystem/common/keyboard.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+            <div style="background:url(Texture/3DMapSystem/common/keyboard.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+            <div style="background:url(Texture/3DMapSystem/common/keyboard.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div><br />
+            
+            <div style="margin-left:32px;margin-top:5px;background:url(Texture/3DMapSystem/common/keyboard.png:8 8 8 8);width:128px;height:32px;float:left;padding-left:30px;padding-top:4px;">Space</div><br />
+            <div style="margin-left:32px;margin-top:5px;background:url(Texture/3DMapSystem/common/keyboard.png:8 8 8 8);width:64px;height:32px;float:left;padding-left:10px;padding-top:4px;">Shift</div><br />
+            <div style="margin-left:32px;margin-top:5px;background:url(Texture/3DMapSystem/common/keyboard.png:8 8 8 8);width:48px;height:32px;float:left;padding-left:10px;padding-top:4px;">Ctrl</div><br />
+        </div>
+    </div><br />
+    <hr />
+    <div style="margin-left:100px">
+        <input type="submit" style="height:26px" class="defaultbutton" name="okBtn" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnSaveControl();" value="保存"/>
+        <label name="control_result" style="height:20px;margin-top:5px;margin-left:10px;color:#006600;font-weight:bold"/>
+    </div>
+</form></pe:tab-item>
+<pe:tab-item name="Cache" text="历史记录" style="padding-left:5px">
+    <img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin-right:3px" /><b>删除浏览的历史记录</b><br />
+    <hr />
+    <div style="margin-left:10px">
+        <b>Internet临时文件</b><br />
+        <div style="float:left;width:220px">
+            各种HTTP图片, 3D模型等
+        </div>
+        <input type="button" value="删除文件..." name="delCache" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnDeleteCacheFile"/>
+        <hr />
+        <b>人物贴图临时文件</b><br />
+        <div style="float:left; width:220px">
+            其他玩家和自己的动态贴图等
+        </div>
+        <input type="button" value="删除贴图..." name="delCacheCharTex" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnDeleteCacheCharTexFile"/>
+        <hr />
+        <b>历史记录</b><br />
+        <div style="float:left; width:220px">
+            本地数据库, 已经访问的用户信息等
+        </div>
+        <input type="button" value="删除历史记录..." name="delLocalServer" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnDeleteCacheLocalServer"/>
+        <hr />
+        <input type="button" value="全部删除..." name="delCacheAll" onclick="Map3DSystem.App.Settings.CommonSettingPage.OnDeleteCacheAll"/>
+        <label name="cache_result" style="height:20px;margin-top:5px;margin-left:10px;color:#006600;font-weight:bold"/>
+    </div>
+</pe:tab-item>
+
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>

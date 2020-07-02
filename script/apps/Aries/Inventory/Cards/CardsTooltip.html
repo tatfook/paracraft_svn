@@ -1,0 +1,612 @@
+<!-- script/apps/Aries/Inventory/Cards/CardsTooltip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local gsid = page:GetRequestParam("gsid");
+local state = page:GetRequestParam("state");
+bgpos = page:GetRequestParam("bg") or "2";
+bgpos = tonumber(bgpos);
+
+hdr = page:GetRequestParam("hdr");
+exp = page:GetRequestParam("exp");
+
+bFromInCombatDeck = page:GetRequestParam("bFromInCombatDeck");
+if(bFromInCombatDeck == "true") then
+    bFromInCombatDeck = true;
+end
+
+client_version = System.options.version;
+
+Combat = commonlib.gettable("MyCompany.Aries.Combat");
+
+bSkipRequireLevelInTooltip = page:GetRequestParam("bSkipRequireLevelInTooltip");
+if(bSkipRequireLevelInTooltip == "true") then
+    bSkipRequireLevelInTooltip = true;
+end
+
+local cooldown = page:GetRequestParam("cooldown") or "0";
+cooldown = tonumber(cooldown);
+
+cooldown_pic = if_else(cooldown and cooldown > 0 and cooldown < 10, "Texture/Aries/Desktop/CountDownHelper/countdown_"..cooldown..".png", "");
+cooldown_pic_digit1 = if_else(cooldown and cooldown >= 10, "Texture/Aries/Desktop/CountDownHelper/countdown_"..math.floor(cooldown / 10)..".png", "");
+cooldown_pic_digit2 = if_else(cooldown and cooldown >= 10, "Texture/Aries/Desktop/CountDownHelper/countdown_"..math.mod(cooldown, 10)..".png", "");
+
+gsid = tonumber(gsid) or 0;
+state = tonumber(state) or 1;
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+function IsRune()
+    if (gsid >= 23000 and gsid <= 23999) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function CheckLvl()
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem)then
+		local needlevel=gsItem.template.stats[138];
+        if (needlevel) then
+            needlevel=tonumber(needlevel);
+        else
+            needlevel=0;
+        end
+        local bean = MyCompany.Aries.Pet.GetBean();
+        local myCombatLevel = 0;
+        if(bean) then
+	        myCombatLevel = bean.combatlel or 0;
+        end
+        if (myCombatLevel>=needlevel) then
+            return true
+        else
+            return false
+        end
+	end      
+end
+
+function getNeedLvl()
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem)then
+		local needlevel=gsItem.template.stats[138];        
+        return needlevel;
+    else
+        return 0;
+	end  
+end
+
+function IsShowPipsHelper()
+    return page:GetRequestParam("pips_helper") == "true";
+end
+
+--gsid = gsid+1000;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+function getCopies()
+    local bHas,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+
+function getGsid()
+    return gsid;
+end
+
+function getIcon()
+    if(gsItem)then
+        return gsItem.icon;
+    end
+end
+function getName()
+    if(gsItem)then
+        return gsItem.template.name;
+    end
+end
+function getDesc()
+    if(gsItem and gsItem.template.description)then
+        local description = gsItem.template.description:gsub("\n", "<br/>");
+
+		local Combat = MyCompany.Aries.Combat;
+		local Card = MyCompany.Aries.Combat_Server.Card;
+
+		local cardkey = Combat.Get_cardkey_from_gsid(gsid) or Combat.Get_rune_cardkey_from_gsid(gsid);
+		if(cardkey) then
+			local cardTemplate = Card.GetCardTemplate(cardkey);
+			if(cardTemplate and cardTemplate.params) then
+				if(cardTemplate.type == "Absorb_Adv") then
+					local base_absorb_pts = cardTemplate.params.base_absorb_pts or 0;
+					local scale_absorb_pts = cardTemplate.params.scale_absorb_pts or 1;
+					local boost_absolute = Combat.GetStats(cardTemplate.spell_school, "damage_absolute_base") or 0;
+					local total_absorb_pts = math.ceil(base_absorb_pts + scale_absorb_pts * boost_absolute);
+						
+					description = string.gsub(description, "@absorb@", tostring(total_absorb_pts));
+				end
+			end
+		end
+        return description;
+    end
+end
+function getPips()
+    if(gsItem)then
+        if(gsItem.template.stats)then
+            local pips = gsItem.template.stats[134] or 0;
+            if(pips == 114) then
+                return "全部";
+            end
+            return pips;
+        end
+    end
+end
+function getSuccessRate()
+    if(System.options.version == "teen") then
+        return "";
+    end
+    if(gsItem)then
+        if(gsItem.template.stats)then
+            local rate = gsItem.template.stats[135] or 100;
+            local desc = "使用成功率：";
+            if(System.options.version == "teen") then
+                -- 243 add_hitchance_overall_percent(CG) 增加用户所有系魔法的命中百分比 此命中非儿童版的命中概念
+                desc = "命中率：";
+                rate = (gsItem.template.stats[243] or 1000) / 10;
+            end
+            local s = string.format("%s%s%%", desc, tostring(rate));
+            return s;
+        end
+    end
+end
+
+function getCommonCardDesc()
+    if(System.options.version == "teen") then
+        return "只有本系别或选修系别才能使用";
+    end
+    return "";
+end
+
+function isTradable()
+    if(gsItem and gsItem.template.canexchange and gsItem.template.cangift)then
+        return true;
+    end
+end
+
+function getCoolDown()
+    if(gsItem)then
+        if(gsItem.template.stats)then
+            local cooldown = gsItem.template.stats[186] or 0;
+            local s = string.format("%d",cooldown);
+            return s;
+        end
+    end
+end
+
+function getCriticalStrikeRate()
+    if(gsItem)then
+	    local cardkey = MyCompany.Aries.Combat.Get_cardkey_from_gsid(gsid)
+	    if(cardkey) then
+		    NPL.load("(gl)script/apps/Aries/Combat/ServerObject/card_server.lua");
+		    local Card = commonlib.gettable("MyCompany.Aries.Combat_Server.Card");
+		    local cardTemplate = Card.GetCardTemplate(cardkey);
+		    if(cardTemplate and cardTemplate.params.base_criticalstrike) then
+                return cardTemplate.params.base_criticalstrike.."%";
+		    end
+	    end
+    end
+end
+
+function getBgStyle()
+    local s;
+    local div = page:GetNode("CardTipDiv");
+    if(System.options.version=="kids") then
+        if (bgpos~=0) then
+            s="margin-top:0px;margin-left:5px;width:215px;height:250px;background:url(Texture/Aries/NPCs/MagicSchool/moveover_bg2_32bits.png#0 0 215 255: 50 80 20 20);"
+        else
+            s="margin-top:0px;margin-left:5px;width:215px;height:250px;background:url(Texture/Aries/NPCs/MagicSchool/moveover_bg_32bits.png#0 0 215 255: 50 80 20 20);"
+        end
+    else
+        s="margin-top:0px;margin-left:5px;width:158px;height:240px;background:url(Texture/Aries/Common/ThemeTeen/menu_bg_32bits.png:2 2 1 1);"
+    end
+    div:SetAttribute("style", s);
+end
+
+function IsRune_teen()
+    if(System.options.version == "teen") then
+        if(IsRune()) then
+            return true;
+        end
+    end
+    return false;
+end
+
+function CanCastSchool_teen()
+    if(gsItem) then
+        -- 136 school_card_or_qualification(C) 卡片或卷轴的属性 6火 7冰 8风暴 9神秘 10生命 11死亡 12平衡
+        local stat_136 = gsItem.template.stats[136];
+	    if(stat_136 == 12) then
+            return true;
+        end
+        local primary_school = Combat.GetSchoolGSID();
+        local secondary_school = Combat.GetSecondarySchoolGSID();
+        if(stat_136) then
+            if(Combat.Get_short_gsid_from_school_id(primary_school) == stat_136) then
+                return true;
+            end
+            if(Combat.Get_short_gsid_from_school_id(Combat.GSID_SecondarySchoolToSchool(secondary_school)) == stat_136) then
+                return true;
+            end
+        end
+    end
+
+    return false;
+end
+
+function ShowDoubleCostTip_teen()
+    if(System.options.version == "teen") then
+        if(gsItem) then
+            -- 136 school_card_or_qualification(C) 卡片或卷轴的属性 6火 7冰 8风暴 9神秘 10生命 11死亡 12平衡
+            local stat_136 = gsItem.template.stats[136];
+	        if(stat_136 == 12) then
+                return false;
+            end
+            local primary_school = Combat.GetSchoolGSID();
+            if(stat_136) then
+                if(Combat.Get_short_gsid_from_school_id(primary_school) == stat_136) then
+                    return false;
+                end
+            end
+        end
+        return true;
+    end
+    return false;
+end
+
+function ShowDoubleCostTip_kids()
+    if(System.options.version == "kids") then
+        if(gsItem) then
+            -- 136 school_card_or_qualification(C) 卡片或卷轴的属性 6火 7冰 8风暴 9神秘 10生命 11死亡 12平衡
+            local stat_136 = gsItem.template.stats[136];
+	        if(stat_136 == 12) then
+                return false;
+            end
+            local primary_school = Combat.GetSchoolGSID();
+            if(stat_136) then
+                if(Combat.Get_short_gsid_from_school_id(primary_school) == stat_136) then
+                    return false;
+                end
+            end
+        end
+        return true;
+    end
+    return false;
+end
+
+function ShowDoubleCostInPipCostLine()
+    if(System.options.version == "teen") then
+        if(gsItem) then
+            -- 136 school_card_or_qualification(C) 卡片或卷轴的属性 6火 7冰 8风暴 9神秘 10生命 11死亡 12平衡
+            local stat_136 = gsItem.template.stats[136];
+	        if(stat_136 == 12) then
+                return false;
+            end
+            local primary_school = Combat.GetSchoolGSID();
+            if(stat_136) then
+                if(Combat.Get_short_gsid_from_school_id(primary_school) == stat_136) then
+                    return false;
+                end
+            end
+        end
+        return true;
+    elseif(System.options.version == "kids") then
+        return false;
+    end
+    return false;
+end
+
+function getSchoolName()
+    if(gsItem) then
+        -- 136 school_card_or_qualification(C) 卡片或卷轴的属性 6火 7冰 8风暴 9神秘 10生命 11死亡 12平衡
+        local stat_136 = gsItem.template.stats[136];
+	    if(stat_136 == 6) then
+            return "烈火系";
+	    elseif(stat_136 == 7) then
+            return "寒冰系";
+	    elseif(stat_136 == 8) then
+            return "风暴系";
+	    elseif(stat_136 == 9) then
+            return "大地系";
+	    elseif(stat_136 == 10) then
+            return "生命系";
+	    elseif(stat_136 == 11) then
+            return "死亡系";
+	    elseif(stat_136 == 12) then
+            return "平衡系";
+	    end
+    end
+    return "";
+end
+
+function IsKids()
+    if(System.options.version=="kids") then
+        return true;
+    else
+        return false;
+    end
+end
+
+function showState_1()
+    if(not state or state == 1)then
+        return true;
+    end
+end
+function showState_2()
+    if(state and state == 2)then
+        return true;
+    end
+end
+function showState_3()
+    if(state and state == 3)then
+        return true;
+    end
+end
+function showState_4()
+    if(state and state == 4)then
+        return true;
+    end
+end
+function showState_5()
+    if(state and state == 5)then
+        return true;
+    end
+end
+function showState_6()
+    if(state and state == 6)then
+        return true;
+    end
+end
+function showState_7()
+    if(state and state == 7)then
+        return true;
+    end
+end
+getBgStyle();
+
+
+function hasCriticalStrikeRate()
+    if(getCriticalStrikeRate())then
+        return true;
+    end
+end
+
+function DrawPipsHelper()
+    local pips_normal_cost, pips_power_cost, pips_normal, pips_power, realcost, pip_count = MyCompany.Aries.Combat.MyCards.ComputeCostPip(gsid);
+    if(pips_normal and pips_power and (pips_normal > 0 or pips_power > 0) 
+            and ((realcost>0 and realcost==pip_count) or pip_count>=14) ) then
+        local s = format("<div style='float:left;width:%d;height:1px;'/>", (7-pips_normal-pips_power)*17);
+        local i;
+
+        for i = 1, pips_normal do
+            s = s .. [[<img zorder="1" src="Texture/Aries/Combat/CombatState/MagicPoint_32bits.png" style="margin-left:-15px;width:32px;height:32px;" />]];
+            if(i>(pips_normal-pips_normal_cost)) then
+                s = s .. [[<img zorder="2" src="Texture/Aries/Combat/CombatState/pips_selected.png" style="position:relative;margin-left:-32px;width:32px;height:32px;" />]];
+            end
+        end
+        for i = 1, pips_power do
+            s = s .. [[<img zorder="1" src="Texture/Aries/Combat/CombatState/superMagicPoint_32bits.png" style="margin-left:-15px;width:32px;height:32px;" />]];
+            if(i<=pips_power_cost) then
+                s = s .. [[<img zorder="2" src="Texture/Aries/Combat/CombatState/pips_selected.png" style="position:relative;margin-left:-32px;width:32px;height:32px;" />]];
+            end
+        end
+        return s;
+    end
+end
+
+unavailable_mask = "";
+if(System.options.version == "teen") then
+    unavailable_mask = [[<input type="button" enabled="false" style="margin-left:25px;margin-top:-230px;width:151px;height:230px;background:url(Texture/Aries/Combat/CardComponents/CardUnavailableMaskBig_32bits.png: 7 7 7 7);" name="a"/>]];
+else
+    unavailable_mask = [[<input type="button" enabled="false" style="margin-left:25px;margin-top:-230px;width:151px;height:230px;background:url(Texture/grey_32bits.png);" name="a"/>]];
+end
+
+outer_glow_available_teen = "";
+outer_glow_unavailable_teen = "";
+if(System.options.version == "teen") then
+    outer_glow_available_teen = [[<input type="button" zorder="-10" enabled="false" style="margin-left:5px;margin-top:-250px;width:186px;height:270px;background:url(Texture/Aries/Combat/CardComponents/CardOuterGlow_32bits.png: 30 30 30 30);" name="a"/>]];
+    outer_glow_unavailable_teen = [[<input type="button" zorder="-10" enabled="false" style="margin-left:5px;margin-top:-250px;width:186px;height:270px;background:url(Texture/Aries/Combat/CardComponents/CardOuterGlow_32bits.png: 30 30 30 30);" name="a"/>]];
+end
+
+if(bFromInCombatDeck) then
+    ParaAudio.PlayUISound("Bag_teen");
+end
+
+
+]]></script>
+<pe:if condition='<%=IsShowPipsHelper()%>'>
+    <div style="position:relative;margin-left:70px;margin-top:20px;"><%=DrawPipsHelper(gsid)%></div>
+</pe:if>
+<pe:if condition='<%=showState_1()%>'>
+    <div name="CardTipDiv" style="margin-left:10px;width:216px;height:250px;background:url(Texture/Aries/NPCs/MagicSchool/moveover_bg_32bits.png#0 0 215 255: 50 80 20 20);">
+        <pe:if condition='<%=IsKids() %>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:11px;margin-left:38px;width:151px;height:230px;"/>    
+        </pe:if>
+        <pe:if condition='<%=not IsKids() %>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:5px;margin-left:5px;width:151px;height:230px;"/>     
+            <pe:if condition='<%=Eval("bgpos")==0%>'>
+                <input type="button" style="margin-left:-10px;width:13px;height:12px;margin-top:-200px;background:url(Texture/Aries/Common/ThemeTeen/rightbg_arrow_32bits.png#0 0 13 12)" />
+            </pe:if>
+            <pe:if condition='<%=Eval("bgpos")==1%>'>
+                <input type="button" style="margin-left:-10px;width:13px;height:12px;margin-top:-65px;background:url(Texture/Aries/Common/ThemeTeen/rightbg_arrow_32bits.png#0 0 13 12)" />
+            </pe:if>
+        </pe:if>
+        <pe:if condition='<%=System.options.isAB_SDK%>'>
+            <div><%="gsid:"..tostring(getGsid())%></div>
+        </pe:if>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_2()%>'>
+    <div name="CardTipDiv" style="background:url(Texture/tooltip2_32bits.png: 7 7 7 7);">
+        <div style="font-size:12px;margin:10px;width:160px;">
+           <div style="color:#cc0033"><%=getName() %></div>          
+           <div style="margin-bottom:10px;"><%=getDesc() %></div>          
+           <div>消耗魔力点：<%=getPips() %></div>          
+           <div><%=getSuccessRate() %></div>          
+           <div>冷却回合：<%=getCoolDown() %></div>          
+           <pe:if condition='<%=hasCriticalStrikeRate()%>'>
+                <div>基础暴击率：<%=getCriticalStrikeRate() %></div>          
+           </pe:if>
+        </div>
+        <pe:if condition='<%=System.options.isAB_SDK%>'>
+            <div><%="gsid:"..tostring(getGsid())%></div>
+        </pe:if>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_3()%>'>
+    <div name="CardTipDiv" style="background:url(Texture/tooltip2_32bits.png: 7 7 7 7);">
+        <div style="font-size:12px;margin:10px;width:160px;">
+           <div style="color:#cc0033"><%=getName() %></div>          
+           <div style="margin-bottom:10px;"><%=getDesc() %></div>          
+           <div>消耗魔力点：<%=getPips() %></div>          
+           <div><%=getSuccessRate() %></div>          
+           <div>冷却回合：<%=getCoolDown() %></div>           
+           <pe:if condition='<%=hasCriticalStrikeRate()%>'>
+                <div>基础暴击率：<%=getCriticalStrikeRate() %></div>          
+           </pe:if>       
+        </div>
+        <pe:if condition='<%=System.options.isAB_SDK%>'>
+            <div><%="gsid:"..tostring(getGsid())%></div>
+        </pe:if>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_4()%>'>
+    <div style="font-size:12px;margin-left:10px;width:235px;height:255px;">
+        <!--<img src='<%=getIcon()%>' style="margin-top:40px;margin-left:25px;width:142px;height:200px;"/>    -->
+        
+        <pe:if condition='<%=Eval("bFromInCombatDeck") == true%>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:40px;margin-left:25px;width:151px;height:230px;" bFromInCombatDeck="true"/>
+        </pe:if>
+        <pe:if condition='<%=Eval("bFromInCombatDeck") ~= true%>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:40px;margin-left:25px;width:151px;height:230px;"/>
+        </pe:if>
+        <%=Eval("outer_glow_available_teen")%>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_5()%>'>
+    <div style="font-size:12px;margin-left:10px;width:235px;height:255px;">
+        <!--<img src='<%=getIcon()%>' style="margin-top:40px;margin-left:25px;width:142px;height:200px;"/>-->
+        <pe:if condition='<%=Eval("bFromInCombatDeck") == true%>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:40px;margin-left:25px;width:151px;height:230px;" bFromInCombatDeck="true"/>    
+        </pe:if>
+        <pe:if condition='<%=Eval("bFromInCombatDeck") ~= true%>'>
+            <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:40px;margin-left:25px;width:151px;height:230px;"/>    
+        </pe:if>
+        <%=Eval("unavailable_mask")%>
+        <!--<img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:-126px;margin-top:-161x;width:96px;height:96px"/>-->
+        
+        <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:-126px;margin-top:-170px;width:96px;height:96px"/>
+        <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-120px;margin-top:-170px;width:96px;height:96px"/>
+        <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:-44px;margin-top:-170px;width:96px;height:96px"/>
+
+        <%=Eval("outer_glow_unavailable_teen")%>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_6()%>'>
+    <div name="CardTipDiv" class="tooltip">
+        <div style="width:160px;">
+           <div class="tooltip_text_highlight"><%=getName() %></div>          
+           <div style="margin-bottom:10px;"><%=getDesc() %></div>          
+           <div >消耗魔力点：<%=getPips() %></div>          
+           <div ><%=getSuccessRate() %></div>          
+           <div >冷却回合：<%=getCoolDown() %></div>
+           <pe:if condition='<%=IsRune() %>'>
+                <pe:if condition='<%=not CheckLvl() %>'>
+                    <div style="color:#ff0000">需要等级: <%=getNeedLvl() %></div>
+                </pe:if><pe:if condition='<%=CheckLvl() %>'>
+                    <div >需要等级: <%=getNeedLvl() %></div>
+                </pe:if>
+           </pe:if>
+           <pe:if condition='<%=hasCriticalStrikeRate()%>'>
+                <div >基础暴击率：<%=getCriticalStrikeRate() %></div>          
+           </pe:if>       
+        </div>
+        <pe:if condition='<%=System.options.isAB_SDK%>'>
+            <div><%="gsid:"..tostring(getGsid())%></div>
+        </pe:if>
+    </div>
+</pe:if>
+<pe:if condition='<%=showState_7()%>'>
+    <div name="CardTipDiv" class="tooltip">
+        <div style="width:160px;">
+           <pe:if condition='<%=Eval("hdr") and Eval("hdr") ~= ""%>'>
+                <div style="color:#fcf776;font-weight:bold;"><%=Eval("hdr")%></div>
+           </pe:if>
+           <pe:if condition='<%=Eval("exp") and Eval("exp") ~= ""%>'>
+                <div>制造需要熟练度:<%=Eval("exp")%></div>
+           </pe:if>
+           <div class="tooltip_text_highlight"><%=getName() %></div>
+           <div style="margin-top:5px;margin-bottom:5px;"><%=getDesc() %></div>
+           
+            <pe:if condition='<%=IsRune_teen() %>'>
+                <div style="color:#ff0000">消耗性卡牌</div>
+            </pe:if>
+            <pe:if condition='<%=Eval("client_version") == "teen" %>'>
+                <pe:if condition='<%=not CanCastSchool_teen() %>'>
+                    <div style="color:#ff0000">卡片系别: <%=getSchoolName() %></div>
+                </pe:if>
+                <pe:if condition='<%=CanCastSchool_teen() %>'>
+                    <div >卡片系别: <%=getSchoolName() %></div>
+                </pe:if>
+            </pe:if>
+           <div >消耗魔力点：<%=getPips() %> 
+               <pe:if condition='<%=ShowDoubleCostInPipCostLine() %>'>
+                x 2
+               </pe:if>
+           </div>          
+           <div ><%=getSuccessRate() %></div>          
+           <div >冷却回合：<%=getCoolDown() %></div>           
+           <pe:if condition='<%=hasCriticalStrikeRate()%>'>
+                <div >基础暴击率：<%=getCriticalStrikeRate() %></div>          
+           </pe:if>
+           <pe:if condition='<%= Eval("bSkipRequireLevelInTooltip") ~= true %>'>
+                <pe:if condition='<%=Eval("client_version") == "teen" %>'>
+                    <pe:if condition='<%=not CheckLvl() %>'>
+                        <div style="color:#ff0000">需要等级: <%=getNeedLvl() %></div>
+                    </pe:if><pe:if condition='<%=CheckLvl() %>'>
+                        <div >需要等级: <%=getNeedLvl() %></div>
+                    </pe:if>
+                </pe:if>
+                <pe:if condition='<%=Eval("client_version") == "kids" %>'>
+                   <pe:if condition='<%=IsRune() %>'>
+                        <pe:if condition='<%=not CheckLvl() %>'>
+                            <div style="color:#ff0000">需要等级: <%=getNeedLvl() %></div>
+                        </pe:if><pe:if condition='<%=CheckLvl() %>'>
+                            <div >需要等级: <%=getNeedLvl() %></div>
+                        </pe:if>
+                   </pe:if>
+                </pe:if>
+           </pe:if>
+           <pe:if condition='<%=isTradable()%>'>
+                <div style="color:#ff9a00">可交易</div>
+           </pe:if>
+            <pe:if condition='<%=ShowDoubleCostTip_teen() %>'>
+                <div style="color:#ff0000">* 跨系使用需支付双倍魔力</div>
+            </pe:if>
+            <pe:if condition='<%=ShowDoubleCostTip_kids() %>'>
+                <div style="color:#cb002e">* 非本系别使用需消耗双倍魔力点</div>
+            </pe:if>
+        </div>
+        <pe:item gsid='<%=getGsid()%>' style="background-color:#ffffffff;margin-top:5px;margin-left:5px;width:151px;height:230px;"/> 
+        <pe:if condition='<%=System.options.isAB_SDK%>'>
+            <div><%="gsid:"..tostring(getGsid())%></div>
+        </pe:if>
+    </div>
+</pe:if>
+</pe:mcml>
+</body>
+</html>
+

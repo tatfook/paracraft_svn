@@ -1,0 +1,37 @@
+----[[
+--Title: DragonWish AI
+--Author(s): WangTian
+--Date: 2009/7/28
+--
+--use the lib:
+--
+--------------------------------------------------------------
+--script/apps/Aries/NPCs/Dragon/30011_Wish_AI.lua
+--------------------------------------------------------------
+--]]
+--
+--NPL.load("(gl)script/apps/Aries/Quest/NPCAIMemory.lua");
+--
+---- create class
+--local libName = "DragonWish_AI";
+--local DragonWish_AI = {};
+--commonlib.setfield("MyCompany.Aries.Quest.NPCAI.DragonWish_AI", DragonWish_AI);
+--
+--local GameObject = MyCompany.Aries.Quest.GameObject;
+--local NPC = MyCompany.Aries.Quest.NPC;
+--
+---- Dragon wish AI framemove
+--local count = 0;
+--function DragonWish_AI.On_Perception()
+	---- call the on framemove function at 1/10 rate
+	--if(count < 10) then
+		--count = count + 1;
+		--return;
+	--else
+		--count = 0;
+	--end
+	--
+	--commonlib.echo("DragonWish_AI.On_FrameMove()");
+	--
+	--local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30011);
+--end

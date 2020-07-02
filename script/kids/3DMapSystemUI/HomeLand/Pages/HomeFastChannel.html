@@ -1,0 +1,64 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/HomeFastChannel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>HomeFastChannel, by Leio, 2009/12/8</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+local page = document:GetPageCtrl();
+function gotoHome()
+    NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+    local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+    local nid = page:GetValue("nid_txt");
+    nid = tonumber(nid);
+            
+    if(nid)then
+	    local isGM = MyCompany.Aries.Scene.IsGMAccount(nid);
+	    if(isGM) then
+		    _guihelper.MessageBox([[<div style="margin-top:30px;margin-left:-2px;width:300px;">哦噢，罗德镇长现在住在公民管理处哦，下次再去看他的家园吧！]]);
+		    return;
+	    end
+        local nids = tostring(nid);
+        local bCanView = ExternalUserModule:CanViewUser(nids);
+        if(not bCanView)then
+            local s = string.format("请正确输入%s！",MyCompany.Aries.ExternalUserModule:GetConfig().account_name);
+		     _guihelper.MessageBox(s);
+             return
+        end
+        local inputMsg = {
+		    nids = nids, 
+	    };
+	paraworld.users.getInfo(inputMsg, queueName or "MyselfName", function(msg)
+		    if(msg == nil or not msg.users or not msg.users[1]) then
+			    if(msg and msg.users and #(msg.users) == 0) then
+                    local s = string.format("%s不存在！",MyCompany.Aries.ExternalUserModule:GetConfig().account_name);
+				    _guihelper.MessageBox(s);
+			    end
+			    return;
+		    end
+            closePage();
+		    Map3DSystem.App.HomeLand.HomeLandGateway.Gohome(nid)
+	    end);
+    else
+        local s = string.format("请正确输入%s！",MyCompany.Aries.ExternalUserModule:GetConfig().account_name);
+		 _guihelper.MessageBox(s);
+    end
+end
+function closePage()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:322;height:216px;background:Texture/Aries/Friends/addfriend_bg_32bits.png#0 0 322 216:40 40 40 40">
+<div style="text-align:left;margin-left:45px;margin-top:40px;font-weight:bold;">请输入对方<%=format("%s:", MyCompany.Aries.ExternalUserModule:GetConfig().account_name)%></div>
+<input type="text" name="nid_txt" style="width:230px;height:32px;margin-left:45px;margin-top:10px;" />
+<br />
+<input type="button" onclick="gotoHome()" style="width:108px;height:32px;margin-left:45px;margin-top:20px;background:Texture/Aries/Friends/addfriend_OK_32bits.png#0 0 108 32" />
+<input type="button" onclick="closePage()" style="width:108px;height:32px;margin-left:10px;margin-top:20px;background:Texture/Aries/Friends/addfriend_Cancel_32bits.png#0 0 108 32" />
+</div>
+</pe:mcml> 
+</body>
+</html>

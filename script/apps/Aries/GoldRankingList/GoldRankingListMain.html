@@ -1,0 +1,510 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListMain.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListMain, by zrf, 2011/1/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GoldRankingListMain.lua"><![CDATA[
+local page = document:GetPageCtrl();
+GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+GoldRankingListMain.Init();
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local combatlvl,setlvl=0,0;
+if(bean) then
+	combatlvl = bean.combatlel or 0;
+end 
+
+if (combatlvl>=20 and combatlvl<=29) then
+    setlvl=20
+elseif (combatlvl>=30 and combatlvl<=39) then
+    setlvl=30
+elseif (combatlvl>=40 and combatlvl<=49) then
+    setlvl=40
+elseif (combatlvl>=50 or combatlvl<20) then
+    setlvl=50
+end
+cur_lvl = cur_lvl or setlvl;
+cur_lvl = 50;
+function Confirm()
+    page:CloseWindow();
+end
+
+function IsBOSSList(listnm)
+	local listname=string.lower(listnm);
+	local isboss=string.find(listname,"boss");
+    if (isboss) then
+        return true
+    else
+        return false
+    end	
+end
+
+function GetLvl()
+    return cur_lvl;
+end
+
+function DS_Func_Lvl(index)
+    local lvl_list={
+        {name="20级", lvl=20},
+        {name="30级", lvl=30},
+        {name="40级", lvl=40},
+        {name="50级", lvl=50},
+    }
+	if(index == nil)then
+		return 1;
+	else
+		return lvl_list[index];
+	end
+end
+
+function StopRank()
+    _guihelper.MessageBox("2012年3月30日 至 2012年4月30日期间，竞技排名榜暂时关闭，其余排行榜依旧保持更新与奖励。");
+end
+
+function ChangeLvl(v)
+    cur_lvl=tonumber(v);
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangeList("pk",cur_lvl);
+end
+
+function ChangePKList()
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangeList("pk",cur_lvl);
+end
+
+function ChangeExploreList()
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangeList("explore");
+end
+
+function ChangePetsList()
+    MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangeList("pets");
+end
+
+function GetListViewDS()
+    local viewlist = GoldRankingListMain.GetListViewDS()
+    return viewlist;
+    --return GoldRankingListMain.listall_ds[GoldRankingListMain.curlist];
+end
+
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+end
+
+function IsPKRankingList()
+    if(GoldRankingListMain.curlist == "pk") then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetPKRankText(name)
+    local text;
+    local rank_name,rank_point_region = string.match(name,"([^#]*)#(.*)");
+    
+    if(rank_name and rank_point_region) then
+        text = rank_name.."\r\n"..rank_point_region;
+    else
+        text = name;
+    end
+    return text;
+end
+
+function IsPK1v1Or2v2(name)
+    local be1v1Or2v2;
+    if(string.match(name,"pk1v1") or string.match(name,"pk2v2")) then
+        be1v1Or2v2 = true;
+    else
+        be1v1Or2v2 = false;
+    end
+    return be1v1Or2v2;
+end
+
+]]></script>
+<div style="position:relative;margin-left:830px;margin-top:20px;width:48px;height:48px;">
+    <input type="button" onclick="Confirm()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+</div>
+<div style="position:relative;margin-left:0px;margin-top:0px;width:857px;height:512px;background:url(Texture/Aries/GoldRankingList/bg.png#0 0 857 512);">
+<!--    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() == "pk" %>'>
+    
+        <div style="position:relative;margin-left:45px;margin-top:140px;width:208px;height:353px;">        
+            <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.DS_Func%>" name="GoldRankingListMain_pk" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="9">
+            <Columns>
+                <div style="margin-top:5px;width:165px;height:32px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurPage() == Eval("listname")%>'>
+                        <div style="position:relative;margin-top:0px;width:165px;height:32px;color:#FFFEFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                            <div style="margin-left:5px;margin-top:5px;"> <%=Eval("name") %> </div>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurPage() ~= Eval("listname")%>'>
+
+                        <div style="position:relative;width:165px;height:32px;">
+                            <input type="button" style="float:left;margin-top:-1px;width:165px;height:32;color:#FFFEFF;text-align:center;font-size:12;background:;"
+                                name='<%=Eval("index") %>'
+                                value='<%=Eval("name") %>'
+                                onclick = "MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangePage()"
+                                Normal_BG=""
+                                MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32" />
+                        </div>   
+                    </pe:if>
+                
+                    <div style="position:relative;margin-left:130px;margin-top:3px;">
+                
+                        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList()=="pk" or IsBOSSList(Eval("listname")) %>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/pk_32bits.png;0 0 32 32") %>' /> 
+                        </pe:if>
+
+                        <pe:if condition='<%=Eval("listname")== "homevisit" or  Eval("listname")== "family_level" %>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/popularity_32bits.png;0 0 32 32") %>' />
+                        </pe:if>
+
+                        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList()~="pk" and  Eval("listname")~= "homevisit"  and  Eval("listname")~= "family_level" and (not IsBOSSList(Eval("listname")))%>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/%s_32bits.png;0 0 32 32",Eval("listname")) %>' />
+                        </pe:if>
+                    </div> 
+                    <pe:if condition='<%=Eval("isnew")==1 %>'>
+                        <div style="position:relative;margin-left:-20px;margin-top:-5px;">
+                            <img style="width:53px;height:42px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                        </div> 
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:25px;margin-top:-20px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                <div style="float:left;margin-top:-2px;width:64px;">
+	                    <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+    	
+                </form>
+	        </PagerTemplate>
+
+            </pe:gridview>
+        </div>
+    </pe:if>-->
+   <!-- <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() ~= "pk" %>'>           -->
+        <div style="position:relative;margin-left:45px;margin-top:140px;width:208px;height:353px;">
+<!--            <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.DS_Func%>" name="GoldRankingListMain" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="9">
+            <Columns>
+                <div style="margin-top:5px;width:165px;height:32px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurPage() == Eval("listname")%>'>
+                        <div style="position:relative;margin-top:0px;width:165px;height:32px;color:#FFFEFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                            <div style="margin-left:5px;margin-top:5px;"> <%=Eval("name") %> </div>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurPage() ~= Eval("listname")%>'>
+
+                        <div style="position:relative;width:165px;height:32px;">
+                            <input type="button" style="float:left;margin-top:-1px;width:165px;height:32;color:#FFFEFF;text-align:center;font-size:12;background:;"
+                                name='<%=Eval("index") %>'
+                                value='<%=Eval("name") %>'
+                                onclick = "MyCompany.Aries.GoldRankingList.GoldRankingListMain.ChangePage()"
+                                Normal_BG=""
+                                MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32" />
+                        </div>   
+                    </pe:if>
+                
+                    <div style="position:relative;margin-left:130px;margin-top:3px;">
+                
+                        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList()=="pk" or IsBOSSList(Eval("listname")) %>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/pk_32bits.png;0 0 32 32") %>' /> 
+                        </pe:if>
+
+                        <pe:if condition='<%=Eval("listname")== "homevisit" or  Eval("listname")== "family_level" %>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/popularity_32bits.png;0 0 32 32") %>' />
+                        </pe:if>
+
+                        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList()~="pk" and  Eval("listname")~= "homevisit"  and  Eval("listname")~= "family_level" and (not IsBOSSList(Eval("listname")))%>'>
+                            <img style="width:32px;height:32px" src='<%=string.format("Texture/Aries/GoldRankingList/%s_32bits.png;0 0 32 32",Eval("listname")) %>' />
+                        </pe:if>
+                    </div> 
+                    <pe:if condition='<%=Eval("isnew")==1 %>'>
+                        <div style="position:relative;margin-left:-20px;margin-top:-5px;">
+                            <img style="width:53px;height:42px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                        </div> 
+                    </pe:if>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:25px;margin-top:-20px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	                <div style="float:left;margin-top:-2px;width:64px;">
+	                    <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+    	
+                </form>
+	        </PagerTemplate>
+
+            </pe:gridview>-->
+		<pe:treeview RememberScrollPos="true" DataSource="<%=GetListViewDS()%>" indent="1" name="GoldRankingListMain"  style="width:175px;background:"  DefaultNodeHeight = "24" VerticalScrollBarStep="24" >
+            <NodeTemplates>
+		        <NodeTemplate DataType="folder">
+                    <pe:treenode text='<%=XPath("this|name")%>' expanded='<%=XPath("this|expanded")%>' 
+                        MouseOverBG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                        NormalBG="Texture/Aries/GoldRankingList/anniubg2_32bits.png;0 0 165 32"
+                        style="color:#FFFFFF;font-size:12px;width:155px;text-align:center;"
+                        can_select = "true" 
+                        OnClick="OnClickFolder()" />
+                </NodeTemplate>
+                <NodeTemplate DataType="rank">
+                    <pe:if condition='<%=IsPKRankingList() %>'>
+                        <pe:if condition='<%=XPath("this|listname") == "family_pk" or XPath("this|listname") == "monthly_pk_winner"%>'>
+                            <div style="height:24px;margin-left:0px;margin-top:4px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                                <pe:if condition='<%=GoldRankingListMain.GetCurPage() == XPath("this|listname")%>'>
+                                    <input enabled="false" value='<%=GetPKRankText(XPath("this|name")) %>' type="button" style="margin-top:0px;width:145px;height:24px;font-size:14;color:#FFFFFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)"/>
+                                </pe:if>
+                                <pe:if condition='<%=GoldRankingListMain.GetCurPage() ~= XPath("this|listname")%>'>
+                                    <div style="height:24px;">
+                                        <input type="button" style="float:left;text-align:center;margin-top:-1px;width:145px;height:24;color:#FFFFFF;font-size:12;background:" 
+                                            name='<%=XPath("this|index") %>'
+                                            value='<%=GetPKRankText(XPath("this|name")) %>'
+                                            onclick = "GoldRankingListMain.ChangePage()" 
+                                            Normal_BG=""
+                                            MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                            Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                            />
+                                    </div>   
+                                </pe:if>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=XPath("this|listname") ~= "family_pk" and XPath("this|listname") ~= "monthly_pk_winner"%>'>
+                            <pe:if condition='<%=IsPK1v1Or2v2(XPath("this|listname")) %>'>
+                                <div style="height:48px;margin-left:-4px;margin-top:4px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                                    <pe:if condition='<%=XPath("this|isnew")==1 %>'>
+                                        <div style="position:relative;margin-left:-20px;margin-top:-5px;" >
+                                            <img zorder="1" style="width:28px;height:16px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="ice" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:13px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/ice_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="fire" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:13px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/fire_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="storm" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:13px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/storm_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="life" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:13px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/life_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="death" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:13px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/death_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=GoldRankingListMain.GetCurPage() == XPath("this|listname")%>'>
+                                        <input enabled="false" value='<%=GetPKRankText(XPath("this|name")) %>' type="button" style="margin-top:0px;text-offset-x:11;width:145px;height:48px;font-size:14;color:#FFFFFF;text-singleline:false;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)"/>
+                                        <!--<div style="margin-top:0px;width:145px;height:48px;font-size:14;color:#FFFFFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                                            <%=XPath("this|name") %>
+                                        </div>-->
+                                    </pe:if>
+                                    <pe:if condition='<%=GoldRankingListMain.GetCurPage() ~= XPath("this|listname")%>'>
+                                        <div style="height:48px;">
+                                            <input type="button" style="float:left;text-singleline:false;text-align:center;margin-top:-1px;text-offset-x:8;width:145px;height:48;color:#FFFFFF;font-size:12;background:" 
+                                                name='<%=XPath("this|index") %>'
+                                                value='<%=GetPKRankText(XPath("this|name")) %>'
+                                                onclick = "GoldRankingListMain.ChangePage()" 
+                                                Normal_BG=""
+                                                MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                                Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                                />
+                                        </div>   
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%= not IsPK1v1Or2v2(XPath("this|listname")) %>'>
+                                <div style="height:24px;margin-left:-4px;margin-top:0px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                                    <pe:if condition='<%=XPath("this|isnew")==1 %>'>
+                                        <div style="position:relative;margin-left:-20px;margin-top:-5px;" >
+                                            <img zorder="1" style="width:28px;height:16px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="ice" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/ice_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="fire" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/fire_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="storm" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/storm_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="life" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/life_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=XPath("this|school")=="death" %>'>
+                                        <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                            <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/death_32bits.png;0 0 32 32" />
+                                        </div> 
+                                    </pe:if>
+                                    <pe:if condition='<%=GoldRankingListMain.GetCurPage() == XPath("this|listname")%>'>
+                                        <input enabled="false" value='<%=GetPKRankText(XPath("this|name")) %>' type="button" style="margin-top:0px;text-offset-x:0;width:145px;height:24px;font-size:14;color:#FFFFFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)"/>
+                                        <!--<div style="margin-top:0px;width:145px;height:48px;font-size:14;color:#FFFFFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                                            <%=XPath("this|name") %>
+                                        </div>-->
+                                    </pe:if>
+                                    <pe:if condition='<%=GoldRankingListMain.GetCurPage() ~= XPath("this|listname")%>'>
+                                        <div style="height:48px;">
+                                            <input type="button" style="float:left;text-align:center;margin-top:-1px;text-offset-x:0;width:145px;height:24;color:#FFFFFF;font-size:12;background:" 
+                                                name='<%=XPath("this|index") %>'
+                                                value='<%=GetPKRankText(XPath("this|name")) %>'
+                                                onclick = "GoldRankingListMain.ChangePage()" 
+                                                Normal_BG=""
+                                                MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                                Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                                />
+                                        </div>   
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            
+                        </pe:if>
+
+                        
+                    </pe:if>
+                    <pe:if condition='<%= not IsPKRankingList() %>'>
+                        <div style="height:24px;margin-top:4px;background:url(Texture/Aries/GoldRankingList/anniubg2_32bits.png#0 0 165 32)">
+                            <pe:if condition='<%=XPath("this|isnew")==1 %>'>
+                                <div style="position:relative;margin-left:-20px;margin-top:-5px;" >
+                                    <img zorder="1" style="width:28px;height:16px" src="Texture/Aries/Common/new0_32bits.png;0 0 53 42" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=XPath("this|school")=="ice" %>'>
+                                <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                    <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/ice_32bits.png;0 0 32 32" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=XPath("this|school")=="fire" %>'>
+                                <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                    <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/fire_32bits.png;0 0 32 32" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=XPath("this|school")=="storm" %>'>
+                                <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                    <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/storm_32bits.png;0 0 32 32" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=XPath("this|school")=="life" %>'>
+                                <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                    <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/life_32bits.png;0 0 32 32" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=XPath("this|school")=="death" %>'>
+                                <div style="position:relative;margin-left:10px;margin-top:3px;" >
+                                    <img zorder="1" style="width:20px;height:20px" src="Texture/Aries/Common/ThemeKid/character/death_32bits.png;0 0 32 32" />
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=GoldRankingListMain.GetCurPage() == XPath("this|listname")%>'>
+                                <div style="margin-top:0px;width:145px;height:24px;font-size:14;color:#FFFFFF;text-align:center;background:url(Texture/Aries/GoldRankingList/anniubg1_32bits.png#0 0 165 32)" >
+                                    <%=XPath("this|name") %>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=GoldRankingListMain.GetCurPage() ~= XPath("this|listname")%>'>
+                                <div style="height:22px;">
+                                    <input type="button" style="float:left;text-align:center;margin-top:-1px;width:145px;height:22;color:#FFFFFF;font-size:12;background:" 
+                                        name='<%=XPath("this|index") %>'
+                                        value='<%=XPath("this|name") %>'
+                                        onclick = "GoldRankingListMain.ChangePage()" 
+                                        Normal_BG=""
+                                        MouseOver_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                        Pressed_BG="Texture/Aries/GoldRankingList/anniubg1_32bits.png;0 0 165 32"
+                                        />
+                                </div>   
+                            </pe:if>
+                        </div>
+                    </pe:if>
+                    
+                </NodeTemplate>
+	        </NodeTemplates>
+		</pe:treeview>
+        </div>
+   <!-- </pe:if>-->
+
+    <div style="position:relative;margin-left:46px;margin-top:105px;width:180px;height:30px;">
+    <!-- 2012.4.1--2012.4.30 关闭竞技排名-->
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() == "pk" %>'>
+            <input type="button" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/contest_on.png#0 0 56 29);"/>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() ~= "pk" %>'>
+            <input type="button" onclick="ChangePKList()" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/contest_off.png#0 0 56 29);"/>
+        </pe:if>
+ <!--       <input type="button" onclick="StopRank()" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/contest_off.png#0 0 56 29);"/>-->
+
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() == "explore" %>'>
+            <input type="button" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/explore_on.png#0 0 56 29);"/>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() ~= "explore" %>'>
+            <input type="button" onclick="ChangeExploreList()" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/explore_off.png#0 0 56 29);"/>
+        </pe:if>
+
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() == "pets" %>'>
+            <input type="button" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/pets_on.png#0 0 56 29);"/>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() ~= "pets" %>'>
+            <input type="button" onclick="ChangePetsList()" zorder="2" style="width:56px;height:29px;background:url(Texture/Aries/GoldRankingList/pets_off.png#0 0 56 29);"/>
+        </pe:if>
+
+              
+    </div>
+    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() == "explore" %>'>
+        <div style="float:left;margin-left:300px;margin-top:80px;color:#FCEA98;">
+            温馨提示：排名150名以外的玩家，挑战总榜不计算回合分数。
+        </div>
+        <div style="margin-left:240px;margin-top:40px;">
+            <%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetFrame() %>
+        </div>
+    </pe:if>
+    <pe:if condition='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetCurList() ~= "explore" %>'>
+        <div style="margin-left:240px;margin-top:140px;">
+            <%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.GetFrame() %>
+        </div>
+    </pe:if>
+    
+
+</div>
+
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30341_HaqiGroupJoin_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.OnInit()
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+function ClosePage()
+    if(pageCtrl)then
+        pageCtrl:CloseWindow();
+        MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.Reset();
+    end
+end
+
+function DS_Func_HaqiGroupJoin(index)
+    local list;
+    if(MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 0)then
+        list = MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.newest_grouplist;
+    elseif(MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 1)then
+        list = MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.find_grouplist;
+    elseif(MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 2)then
+        list = MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.hot_grouplist;
+    end
+    if( not list)then
+        return 0 ;
+    end 
+    if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+function getMouseOverBG()
+    return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28";
+end
+function formatID(id)
+    id = tonumber(id);
+    if(id)then
+        if(id <= 9999)then
+            id = string.format("%05d", id)
+            return id;
+        end
+        return id;
+    end
+end
+function getBgLable(index)
+    if(index == MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.selected_index)then
+        return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28"
+    end
+    return "";
+end
+function getLevel(level)
+    level = level or 1;
+    local s = string.format("Texture/Aries/NPCs/HaqiGroup/star_%d.png;0 0 88 16",level);
+    return s;
+end
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/FamilyHelp/FamilyHelpPage.lua");
+    MyCompany.Aries.Help.FamilyHelpPage.ShowPage();
+end
+]]></script>
+<div style="width:434px;height:475px;margin-left:0px;margin-top:0px;background:Texture/Aries/NPCs/HaqiGroup/group_join_bg_2_32bits.png#0 0 434 475" >
+<input style="margin-left:400px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+<!--最新列表-->
+<pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 0%>' >
+    <input style="margin-left:30px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/latest_btn2_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoNewestGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/hot_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoHotGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/find_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.ShowFastChannelPage()" value=""/>
+</pe:if>
+<!--热门家族-->
+<pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 2%>' >
+    <input style="margin-left:30px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/latest_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoNewestGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/hot_btn2_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoHotGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/find_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.ShowFastChannelPage()" value=""/>
+</pe:if>
+<!--查找结果-->
+<pe:if condition = '<%=MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.page_state == 1%>' >
+    <input style="margin-left:30px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/latest_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoNewestGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/hot_btn1_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoHotGroup()" value=""/>
+    <input style="margin-left:10px;margin-top:20px;width:74px;height:18px;background:url(Texture/Aries/NPCs/HaqiGroup/find_btn2_32bits.png#0 0 74 18);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.ShowFastChannelPage()" value=""/>
+</pe:if>
+<div style="margin-left:30px;margin-top:30px;width:400;height:320px;background:url();">
+<pe:gridview DataSource="<%=DS_Func_HaqiGroupJoin%>" name="DS_Func_HaqiGroupJoin" 
+        VerticalScrollBarStep="30" CellPadding="0" DefaultNodeHeight = "27"  ItemsPerLine="1" AllowPaging="true" pagesize="9">
+        <Columns>
+           <div style="margin-left:2px;width:360px;height:27px;">
+                <a  param1='<%=Eval("index")%>' onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoSelected" style="background:">
+                    <input type="button" Normal_BG="" MouseOver_BG='<%=getMouseOverBG()%>' alwaysmouseover="true" style="float:right;margin-top:0px;margin-left:-5px;width:343px;height:27px;background:;"/>
+                    <div style="float:left;margin-top:-25px;margin-left:0px;width:400px;font-size:12;color:#000000;">
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:142px;"><%=Eval("name")%></div>
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:52px"><%=formatID(Eval("id"))%></div>
+                                <div style="float:left;text-align:center;margin-top:0px;font-size:14px;width:61px" ><%=Eval("membercnt")%></div>
+                                <pe:if condition = '<%=Eval("level") == 0%>' >
+                                    <div style="float:left;width:88px;height:16px;text-align:center;"><%=Eval("level")%></div>
+                                </pe:if>
+                                <pe:if condition = '<%=Eval("level") > 0%>' >
+                                    <img src='<%=getLevel(Eval("level")) %>' style="float:left;margin-top:0px;width:88px;height:16px;" />
+                                </pe:if>
+                    </div>
+                    <img zorder = -1 src='<%=getBgLable(Eval("index")) %>' style="margin-top:-30px;margin-left:-4px;width:343px;height:27px;"/>
+                </a>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            空
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="36" style="margin-left:35px;margin-top:-10px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" zorder=2 style="margin-left:312px;margin-top:-190px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_up_32bits.png#0 0 34 34;"/>
+               
+                <input type="button" name="next" zorder=2 style="margin-left:312px;margin-top:-140px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_down_32bits.png#0 0 34 34;"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="width:336px;height:66px;margin-left:30px;margin-top:-70px;color:#FFB400;font-weight:bold;font-size:14;">家族宣言：</div>
+<textarea style="width:336px;height:66px;margin-left:25px;margin-top:-55px;background:" name="content_info"  WordWrap="true" SingleLineEdit ="true" ReadOnly="true" rows="3"  value=""/>
+<br />
+<input style="margin-left:125px;margin-top:0px;width:150px;height:46px;background:url(Texture/Aries/NPCs/HaqiGroup/group_join_btn_32bits.png#0 0 150 46);" type="button" name="close" onclick="MyCompany.Aries.Quest.NPCs.HaqiGroupJoin.DoJoin()" value=""/>
+</div>
+<div style="margin-left:20px;margin-top:-460px;width:54px;height:54px;">
+    <input style="margin-left:4px;margin-top:6px;width:32px;height:32px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+        type="button" name="help" onclick="ViewHelp()" value="" tooltip="家族帮助"/>
+</div>
+</pe:mcml>
+</body>
+</html>

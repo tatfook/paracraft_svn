@@ -1,0 +1,260 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicSchool/30408_HeroDragonQuest_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30408_HeroDragonQuest.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local HeroDragonQuest = commonlib.gettable("MyCompany.Aries.Quest.NPCs.HeroDragonQuest");
+HeroDragonQuest.page = pageCtrl;
+function getSelectedQuest()
+    local item;
+    local q = HeroDragonQuest.GetQuestsTable();
+    HeroDragonQuest.selectedIndex = HeroDragonQuest.selectedIndex or 1;
+    if(q and HeroDragonQuest.selectedIndex)then
+        item = q[HeroDragonQuest.selectedIndex];
+        return item;
+    end
+end
+
+local curQuest = getSelectedQuest();
+local index = curQuest.pIndex;
+local actived = curQuest.actived;
+local quests = curQuest.quests;
+local items = HeroDragonQuest.GetReward(HeroDragonQuest.selectedIndex) or {}
+function isActived()
+    return actived;
+end
+function getExp()
+    if(items)then
+        return items.exp;
+    end
+end
+function getCoin()
+    if(items)then
+        return items.coin;
+    end
+end
+function getSelectedIndex()
+    return index;
+end
+function isSelected(index)
+    index = tonumber(index);
+    if(index and HeroDragonQuest.selectedIndex and index == HeroDragonQuest.selectedIndex)then
+        return true;
+    end
+end
+function canActived()
+    local q = HeroDragonQuest.GetTopQuest();
+    if(q)then
+        local pIndex = q.pIndex;
+        if(1 == HeroDragonQuest.selectedIndex)then
+            return true;
+        end
+    end
+end
+function closePage()
+    HeroDragonQuest.DoClosePage();
+end
+function doActive()
+    HeroDragonQuest.DoActive_Quest();
+end
+function doFinish()
+    HeroDragonQuest.DoFinish_Quest();
+end
+function IsFinished_Quest()
+    return HeroDragonQuest.IsFinished_Quest();
+end
+function DS_Func_TitleList(index)  
+    return HeroDragonQuest.DS_Func_TitleList(index)
+end
+function DS_Func(index)  
+    local item = getSelectedQuest();
+    return HeroDragonQuest.DS_Func(index,item)
+end
+function doKill()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/30408_HeroDragonQuest.lua");
+    local HeroDragonQuest = commonlib.gettable("MyCompany.Aries.Quest.NPCs.HeroDragonQuest");
+    local msg = {};
+    local k,v;
+    for k,v in ipairs(HeroDragonQuest.mobs) do
+	    msg[k] = { type = v.type, killed = 100,};
+    end
+    HeroDragonQuest.HandleCombat(msg);
+    pageCtrl:Refresh(0.01);
+end
+function getNum(cur_num,req_num)
+    cur_num = tonumber(cur_num);
+    req_num = tonumber(req_num);
+    if(cur_num and req_num)then
+        cur_num = math.min(cur_num,req_num);
+        local s = string.format("%d/%d",cur_num,req_num);
+        return s;
+    end
+end
+
+function getMobLabel(type)
+
+    if(type and HeroDragonQuest.mobs)then
+        local k,mob
+        local type = string.lower(type);
+        for k,mob in ipairs(HeroDragonQuest.mobs)do
+            local _type = string.lower(mob.type);
+            if(type == _type)then
+                return mob.label
+            end
+        end
+    end
+end
+function getMobPlace(type)
+    if(type and HeroDragonQuest.mobs)then
+        local k,mob
+        for k,mob in ipairs(HeroDragonQuest.mobs)do
+            local _type = string.lower(mob.type);
+            local type = string.lower(type);
+            if(type == _type)then
+                return mob.place
+            end
+        end
+    end
+end
+function getTitle()
+    if(quests)then
+        local k,v;
+        local s = "";
+        for k,v in ipairs(quests) do
+            local label = getMobLabel(v.type) or "";
+            if(k == 1)then
+                s = label;
+            else
+                s = s..","..label 
+            end
+        end
+        s = string.format("最近小镇里的怪物又猖獗起来了，其中%s尤其嚣张，勇者之龙快快去消灭他们，保卫小镇吧！",s);
+        return s;
+    end
+end
+function getTooltip(pIndex,index)
+    pIndex = tonumber(pIndex)
+    index = tonumber(index)
+    if(pIndex and pIndex > 1 and index and index > 1)then
+        pIndex = pIndex - 1;
+        local s = string.format("完成勇者任务%d才可以领取",pIndex);
+        return s;
+    end
+end
+]]></script>
+<div style="width:774px;height:496px;background:Texture/Aries/NPCs/HeroDragon/bg_32bits.png#0 0 774 496">
+<input type="button" style="width:32px;height:36px;margin-left:710px;margin-top:50px;background:Texture/Aries/NPCs/HeroDragon/close_32bits.png#0 0 32 36" 
+                    zorder="2" tooltip="关闭" onclick="closePage()" />
+<div style="margin-left:135px;margin-top:75px;font-size:12;color:#481f0b">公民管理处招募有战斗力的勇者之龙；每天前5个任务奖励丰厚，周末所有任务奖励还能翻倍呢！</div>
+<div>
+ <div style="float:left;margin-left:105px;margin-top:20px;width:220px;height:300px;background:;">
+        <pe:gridview DataSource="<%=DS_Func_TitleList%>"  style="margin-left:0px;margin-top:0px;margin-right:30px;margin-bottom:0px;" 
+            VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "29" ItemsPerLine="1" AllowPaging="false" pagesize="5">
+            <Columns>
+                <div style="width:180px;font-size:12;color:#481f0b;margin-left:30px;margin-top:12px;">
+                        <a style="float:left;margin-left:-5px;padding:0px;color:#481f0b;"
+                            tooltip='<%=getTooltip(Eval("pIndex"),Eval("index")) %>'
+                            onclick="MyCompany.Aries.Quest.NPCs.HeroDragonQuest.DoClick" param1='<%=Eval("index")%>'>
+                            勇者之龙任务之<%=Eval("pIndex") %>    
+                        </a>
+                        <div style="float:left;margin-left:-2px;">
+                            <pe:if condition="<%= not  Eval('actived') and  Eval('index')==1 %>" >
+                                <div style="width:32px;height:18px;background:Texture/Aries/NPCs/HeroDragon/unaccept_32bits.png#0 0 32 18"/>
+                            </pe:if>
+                            <pe:if condition="<%= Eval('actived') and not IsFinished_Quest()%>" >
+                                <div style="width:32px;height:18px;background:Texture/Aries/NPCs/HeroDragon/running_32bits.png#0 0 32 18"/>
+                            </pe:if>
+                            <pe:if condition="<%= not  Eval('actived') and  Eval('index') ~=1 %>" >
+                                <div style="width:29px;height:20px;margin-top:-2px;background:Texture/Aries/NPCs/HeroDragon/lock_32bits.png#0 0 29 20"/>
+                            </pe:if>
+                             <pe:if condition="<%= IsFinished_Quest() and  Eval('index') ==1 %>" >
+                                <div style="width:32px;height:18px;background:Texture/Aries/NPCs/HeroDragon/finished_32bits.png#0 0 32 18"/>
+                            </pe:if>
+                        </div>
+                        <div style="float:left;margin-left:10px;">
+                            <pe:if condition="<%=  isSelected(Eval('index')) %>" >
+                                <div style="width:15px;height:14px;background:Texture/Aries/NPCs/HeroDragon/arrow_32bits.png#0 0 15 14"/>
+                            </pe:if>
+                        </div>                        
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:40px;margin-top:-50px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	            <div style="float:right;margin-top:4px;width:40px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+	             </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+<div style="float:left;margin-left:30px;">
+<div style="width:345px;height:55px;font-size:12;font-weight:bold;color:#a14e18;margin-left:-10px;margin-top:25px;">勇者之龙任务之<%=getSelectedIndex() %></div>
+<div style="width:300px;height:57px;font-size:12;color:#a14e18;margin-left:-10px;margin-top:-35px;"><%=getTitle() %></div>
+<div style="width:345px;height:30px;font-size:12;font-weight:bold;color:#a14e18;margin-left:-10px;margin-top:-5px;">任务目标：</div>
+<pe:gridview style="margin-left:-10px;margin-top:-10px;width:600;height:340px" DataSource="<%=DS_Func%>"  ItemsPerLine="1" AllowPaging="true" pagesize="3">
+                <Columns>
+                    <div style="margin-left:0px;margin-top:0px;font-size:12;color:#a14e18">消灭<%=Eval("req_num") %>个<%=getMobLabel(Eval("type")) %>(<%=getMobPlace(Eval("type")) %>):<%=getNum(Eval("cur_num"),Eval("req_num")) %>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>请稍等 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:440px;margin-top:30px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+                        <div style="float:right;margin-top:4px;width:0px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+                    </form>
+                </PagerTemplate>
+</pe:gridview>
+<div style="width:345px;height:30px;font-size:12;font-weight:bold;color:#a14e18;margin-left:-10px;margin-top:-145px;">任务奖励：</div>
+<div style="margin-left:-10px;margin-top:-120px;">
+    <div style="float:left;">
+        <div style="float:left;margin-left:0px;margin-top:-4px;width:150px;font-size:12;color:#a14e18;">经验值：<%=getExp() %></div>
+    </div>
+    <div style="float:left;">
+        <div style="float:left;width:26px;height:16px;background:Texture/Aries/NPCs/HeroDragon/bean_32bits.png#0 0 26 16" />
+        <div style="float:left;margin-left:10px;margin-top:-2px;font-size:12;color:#a14e18;"><%=getCoin() %></div>
+    </div>
+</div>
+</div>
+
+</div>
+
+<pe:if condition="<%= not isActived() and canActived() %>" >
+<input type="button" style="width:120px;height:33px;margin-left:560px;margin-top:-105px;background:Texture/Aries/NPCs/HeroDragon/accept_32bits.png#0 0 120 33" 
+                    zorder="2" tooltip="接受任务" onclick="doActive()" />
+</pe:if>
+<pe:if condition="<%=isActived() %>" >
+                    <input type="button" style="width:120px;height:33px;margin-left:560px;margin-top:-105px;background:Texture/Aries/NPCs/HeroDragon/getreward_32bits.png#0 0 120 33" 
+                    zorder="2" tooltip="领取奖励" onclick="doFinish()" />
+<!--                    <input type="button" style="width:54px;height:54px;;margin-left:0px;margin-top:-70px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                    zorder="2" tooltip="杀怪" onclick="doKill()" />-->
+</pe:if>
+</div>
+</pe:mcml>
+</body>
+</html>

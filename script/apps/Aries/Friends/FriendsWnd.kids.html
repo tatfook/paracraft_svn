@@ -1,0 +1,82 @@
+﻿<!-- "script/apps/Aries/Friends/FriendsWnd.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FriendsWnd, by Andy, 2009/5/3</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="FriendsWnd.lua"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Friends/BestFriendList.lua");
+local BestFriendListPage = commonlib.gettable("MyCompany.Aries.Friends.BestFriendListPage");
+function ShowFriendsView(value, mcmlNode)
+    --local ctl = CommonCtrl.GetControl("AriesFriendsView");
+	local frame = page:GetNode("AriesFriendsView");
+	local urls = {
+	    ["1"] = "script/apps/Aries/Friends/BuddyList.html",
+	    ["2"] = "script/apps/Aries/Friends/RecentContactList.html",
+	    ["3"] = "script/apps/Aries/Friends/NearbyList.html",
+	    --["4"] = "script/apps/Aries/Friends/BlackList.html",
+	    ["4"] = "script/apps/Aries/Friends/BestFriendList.html",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            mcmlNode:SetValue(value);
+	        page:GetNode("AriesFriendsView");
+		    frame:SetAttribute("src", urls[value]);
+		    page:Refresh(0);
+        end
+    end
+    BestFriendListPage.ClosePage_SelectFriends()
+end
+]]></script>
+
+<form name="AriesFriendsTabs" style="margin:0px;padding:0px;background:;">
+    <div style="float:right;width:500px;height:500px;">
+        <div style="float:right;width:255px;height:385spx;background:url(Texture/Aries/Friends/friendlist_bg_32bits.png#0 0 255 360:30 216 60 30)">
+            <iframe name="AriesFriendsView" style="margin:0px;padding:0px;" src="script/apps/Aries/Friends/BuddyList.html"/>
+        </div>
+        <div style="float:right;margin-left:-5px;margin-top:-4px;width:150px;height:228px;">
+            <div style="margin-left:-40px;margin-bottom:0px;width:56px;height:53px">
+                <input type="button" style="margin-left:4px;margin-top:-4px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_48_32bits.png#0 0 48 48)" 
+                        zorder="2" onclick="MyCompany.Aries.Friends.HideMainWnd()" value=""/>
+            </div>
+            <div style="float:left;margin-left:-10px;margin-top:-16px;width:70px;height:410px;">
+                <div style="width:60px;height:60px;background:url(Texture/Aries/Friends/tab_myfriends_off_32bits.png#0 0 70 71)">
+                    <input type="radio" name="FriendsTabs" checked="true" value="1" style="padding:14px;width:32px;height:32px;background:url(Texture/Aries/Friends/tab_myfriends_on23_32bits.png);"
+                        background2="Texture/Aries/Friends/tab_myfriends_on_32bits.png;0 0 70 71" 
+                        tooltip="好友列表" animstyle="22"
+                        onclick="ShowFriendsView()"/>    
+                </div>
+                <div style="width:60px;height:60px;background:url(Texture/Aries/Friends/tab_recentcontact_off_32bits.png#0 0 70 71)">
+                    <input type="radio" name="FriendsTabs" value="2" style="padding:14px;width:32px;height:32px;background:url(Texture/Aries/Friends/tab_recentcontact_on2_32bits.png)"
+                        background2="Texture/Aries/Friends/tab_recentcontact_on_32bits.png;0 0 70 71" 
+                        tooltip="最近联系人" animstyle="22"
+                        onclick="ShowFriendsView()"/>
+                </div>
+                <div style="width:60px;height:60px;background:url(Texture/Aries/Friends/tab_nearby_off_32bits.png#0 0 70 71)">
+                    <pe:goalpointer listen="select_nearby" style="position:relative;margin:14px;width:32px;height:32px;"></pe:goalpointer>
+                    <input type="radio" name="FriendsTabs" value="3" style="padding:14px;width:32px;height:32px;background:url(Texture/Aries/Friends/tab_nearby_on2_32bits.png)"
+                        background2="Texture/Aries/Friends/tab_nearby_on_32bits.png;0 0 70 71" 
+                        tooltip="附近玩家" animstyle="22"
+                        onclick="ShowFriendsView()"/>
+                </div>
+               <!-- <div style="width:60px;height:60px;background:url(Texture/Aries/Friends/tab_bestfriend_off_32bits.png#0 0 70 71)">
+                    <input type="radio" name="FriendsTabs" value="4" style="padding:14px;width:32px;height:32px;background:url(Texture/Aries/Friends/tab_bestfriend_on23_32bits.png)"
+                        background2="Texture/Aries/Friends/tab_bestfriend_on_32bits.png;0 0 70 71" 
+                        tooltip="赛场回避好友" animstyle="22"
+                        onclick="ShowFriendsView()"/>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</form>
+
+</pe:mcml>
+</body>
+</html>

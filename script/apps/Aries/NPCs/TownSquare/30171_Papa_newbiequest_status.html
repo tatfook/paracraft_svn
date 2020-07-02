@@ -1,0 +1,171 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30171_Papa_newbiequest_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30171_Papa_newbiequest_status, by Andy, 2009/8/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50042_DoneMouseTutorial
+-- 50043_NewbieQuest_Acquire
+-- 50044_NewbieQuest_Complete
+-- 50045_NewbieQuest_HasReadTimeMagazine
+-- 50046_NewbieQuest_HasReadCitizenHandbook
+-- 50047_NewbieQuest_HasUsedLocalMap
+
+local Pet = MyCompany.Aries.Pet;
+
+local step1 = (hasGSItem(50045));
+local step2 = (hasGSItem(50046));
+local step3 = (hasGSItem(50047));
+local step4 = Pet.IsMyDragonFetchedFromSophie();
+
+if(step1 == true and step2 == true and step3 == true and step4 == true) then
+    showdialog = true;
+end
+
+local arrow_norm = "Texture/Aries/Quest/arrow_right_32bits.png";
+local arrow_grey = "Texture/Aries/Quest/arrow_right_grey_32bits.png";
+local slot_norm = "Texture/Aries/Quest/object_slot_32bits.png";
+local slot_grey = "Texture/Aries/Quest/object_slot_grey_32bits.png";
+
+function DS_Func_30171_Papa_newbiequest_status(index)
+    if(index == nil) then
+        return 4;
+    elseif(index == 1) then
+        if(step1) then
+            return {icon = "Texture/Aries/Quest/Papa/HasReadTimeMagazine_32bits.png", arrow_bg = "", slot_bg = slot_norm, tooltip = "阅读最新的时报"};
+        else
+            return {icon = "Texture/Aries/Quest/Papa/HasnotReadTimeMagazine_32bits.png", arrow_bg = "", slot_bg = slot_grey, tooltip = "阅读最新的时报"};
+        end
+    elseif(index == 2) then
+        if(step2) then
+            return {icon = "Texture/Aries/Quest/Papa/HasReadCitizenHandbook_32bits.png", arrow_bg = "", slot_bg = slot_norm, tooltip = "阅读背包中的公民手册"};
+        else
+            return {icon = "Texture/Aries/Quest/Papa/HasnotReadCitizenHandbook_32bits.png", arrow_bg = "", slot_bg = slot_grey, tooltip = "阅读背包中的公民手册"};
+        end
+    elseif(index == 3) then
+        if(step3) then
+            return {icon = "Texture/Aries/Quest/Papa/HasUsedLocalMap_32bits.png", arrow_bg = "", slot_bg = slot_norm, tooltip = "学会使用地图"};
+        else
+            return {icon = "Texture/Aries/Quest/Papa/HasnotUsedLocalMap_32bits.png", arrow_bg = "", slot_bg = slot_grey, tooltip = "学会使用地图"};
+        end
+    elseif(index == 4) then
+        if(step4) then
+            return {icon = "Texture/Aries/Quest/Papa/HasFetchedDragon_32bits.png", arrow_bg = "", slot_bg = slot_norm, tooltip = "到龙龙乐园领回小龙蛋"};
+        else
+            return {icon = "Texture/Aries/Quest/Papa/HasnotFetchedDragon_32bits.png", arrow_bg = "", slot_bg = slot_grey, tooltip = "到龙龙乐园领回小龙蛋"};
+        end
+    end
+end
+
+function ComeToMe(params)
+    local _this = ParaUI.CreateUIObject("container", "ComeToMeHint", 
+        params.alignment, params.left, params.top, 180, 64);
+	_this.background = "Texture/Aries/HeadOn/head_speak_bg_32bits.png;0 0 128 62:24 20 64 41";
+	params.parent:AddChild(_this);
+	
+    local _ = ParaUI.CreateUIObject("text", "text", "_lt", 16, 12, 180, 64);
+	_.text = "快来小镇广场找我吧！";
+	_this:AddChild(_);
+	_guihelper.SetFontColor(_, "#2b6fb3");
+	
+    local fileName = "script/UIAnimation/CommonIcon.lua.table";
+    UIAnimManager.LoadUIAnimationFile(fileName);
+	UIAnimManager.PlayUIAnimationSequence(_this, fileName, "Bounce", true);
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:820px;height:512px;margin-left:100px;margin-top:84px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+        <div style="width:256px;height:32px;background:url(texture/Aries/Quest/Papa/NewbieQuestHead_32bits.png)">
+            <div style="margin-left:280px;margin-top:60px;width:180px;height:64px;">
+                <pe:if condition='<%=showdialog == true%>'>
+                    <pe:custom oncreate="ComeToMe" style="width:180px;height:64px;"/>
+                </pe:if>
+            </div>
+        </div>
+        <div style="float:right;margin-left:415px;margin-top:-72px;height:10px;">
+            <input style="margin-top:30px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Papa/NewbieQuestBody_32bits.png)">
+            <div style="margin-left:40px;margin-top:230px;background:;">
+                <pe:gridview DataSource="<%=DS_Func_30171_Papa_newbiequest_status%>" name="Papa_newbiequest_status" CellPadding="20"  DefaultNodeHeight = "65" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+                    <Columns>
+                        <div style="float:right;width:128px;height:128px;">
+                            <pe:if condition='<%=Eval("index") == 1%>'>
+                                <img style="margin-left:20px;width:128px;height:128px" src='<%=Eval("icon")%>' tooltip='<%=Eval("tooltip")%>' animstyle="12"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 2%>'>
+                                <img style="margin-left:-10px;width:128px;height:128px" src='<%=Eval("icon")%>' tooltip='<%=Eval("tooltip")%>' animstyle="12"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 3%>'>
+                                <img style="margin-left:-10px;width:128px;height:128px" src='<%=Eval("icon")%>' tooltip='<%=Eval("tooltip")%>' animstyle="12"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("index") == 4%>'>
+                                <img style="margin-left:-20px;width:128px;height:128px" src='<%=Eval("icon")%>' tooltip='<%=Eval("tooltip")%>' animstyle="12"/>
+                            </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>Empty Items</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>Data Fetching, Please wait ... </b>
+                    </FetchingDataTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:320px;margin-top:-110px;width:175px;height:88px">
+        <input type="button" style="margin:0px;width:175px;height:88px;background:url(texture/Aries/Quest/ReturnIKnow_32bits.png# 0 0 175 88);" 
+                onclick="OnClose();"/>
+    </div>
+    
+    
+    <!--<div style="margin-left:160px;margin-top:40px;font-size:14;font-weight:bold;color:#FFFFFF">哈奇小镇入住手续</div>
+    <div style="float:right;margin-left:407px;margin-top:-39px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin:40px;margin-top:20px">
+    只要完成入住手续就可以成为哈奇小镇的正式居民了！
+    </div>
+    <div style="margin-left:40px;margin:20px;height:100px;">
+        <pe:gridview DataSource="<%=DS_Func_30171_Papa_newbiequest_status%>" name="Papa_newbiequest_status" CellPadding="6"  DefaultNodeHeight = "65" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+            <Columns>
+                <div style="float:right;width:64px;height:64px;">
+                    <img style="width:64px;height:64px" src='<%=Eval("slot_bg")%>'/>
+                    <pe:item gsid='<%=Eval("gsid")%>' isclickable=false tooltip='<%=Eval("tooltip")%>' style="margin-left:-56px;margin-top:8px;width:48px;height:48px;"/>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>Data Fetching, Please wait ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div>
+    <div style="float:left;margin-left:300px;margin-top:-120px;width:128px;height:128px;">
+        <pe:player nid='30171' object="npc" name='30171_Papa' miniscenegraphname='30171_Papa' style="width:128px;height:128px;" background="" IsPortrait=false IsInteractive=true/>
+    </div>
+        <input style="margin-left:100px;width:160px;height:48px;background:url(Texture/Aries/Profile/Profession_Empty.png# 0 0 48 48:23 23 23 23);" type="button" name="close" 
+                onclick="OnClose();" value="知道了"/>-->
+  </div>
+</pe:mcml>
+</body>
+</html>

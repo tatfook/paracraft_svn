@@ -1,0 +1,78 @@
+<!-- script/apps/Aries/Desktop/GenericTooltip_InOne.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local ItemManager = System.Item.ItemManager;
+NPL.load("(gl)script/apps/Aries/Desktop/GenericTooltip.lua");
+local page = document:GetPageCtrl();
+local gsid,guid,nid,hdr,exp,serverdata = page:GetRequestParam("gsid"),page:GetRequestParam("guid"),page:GetRequestParam("nid"),page:GetRequestParam("hdr"),page:GetRequestParam("exp"),page:GetRequestParam("serverdata");
+guid = tonumber(guid)
+gsid = tonumber(gsid);
+
+local item = ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+local equipped_item, isEquipped = ItemManager.GetEquippedItem(item);
+local equip_compare_url = "";
+
+if(equipped_item and equipped_item.guid ~= guid) then
+	equip_compare_url = string.format("GenericTooltip.html?gsid=%s&guid=%s&hdr=当前装备",tostring(equipped_item.gsid),tostring(equipped_item.guid),hdr);
+end
+
+if(item and item.template.class == 2 and item.template.subclass == 6) then
+    local equipped_item = ItemManager.GetItemByBagAndPosition(0, 33);
+    if(equipped_item and equipped_item.guid > 0) then
+        equip_compare_url = string.format("GenericTooltip.html?gsid=%s&guid=%s&hdr=当前坐骑",tostring(equipped_item.gsid),tostring(equipped_item.guid),hdr);
+    end
+end
+
+GetEquipCompareURL = function() return equip_compare_url;end
+GetTargetEquipURL = function() return string.format("GenericTooltip.html?gsid=%s&guid=%s&nid=%s&hdr=%s&exp=%s&serverdata=%s",tostring(gsid),tostring(guid),tostring(nid),tostring(hdr or ""),tostring(exp or ""), tostring(serverdata or "")); end
+
+function IsWidthLess()
+    local _, _, resWidth, resHeight = ParaUI.GetUIObject("root"):GetAbsPosition();
+    local mx,my = ParaUI.GetMousePosition();
+    if(GetEquipCompareURL() =="" and resWidth - mx < 198)then
+        return 1;
+    elseif(GetEquipCompareURL() ~="" and resWidth - mx < 396)then
+        return 2;
+    else
+        return 3;
+    end
+end
+
+]]></script>
+<pe:if condition='<%=IsWidthLess() == 1 %>'>
+    <div style="margin-left:-245px;width:248px;">
+        <iframe AutoSize="true" src='<%= GetTargetEquipURL()%>'></iframe>
+    </div>
+</pe:if>
+
+<pe:if condition='<%=IsWidthLess() == 2 %>'>
+    <div style="float:left;margin-left:-245px;width:248px;">
+        <iframe AutoSize="true" src='<%= GetTargetEquipURL()%>'></iframe>
+    </div>
+
+    <pe:if condition='<%=GetEquipCompareURL() ~= "" %>'>
+        <div style="float:left;margin-left:-446px;width:198px;">
+            <iframe AutoSize="true" src='<%= GetEquipCompareURL()%>'></iframe>
+        </div>
+    </pe:if>
+</pe:if>
+
+<pe:if condition='<%=IsWidthLess() == 3 %>'>
+    <div style="float:left;width:198px;">
+        <iframe AutoSize="true" src='<%= GetTargetEquipURL()%>'></iframe>
+    </div>
+    <pe:if condition='<%=GetEquipCompareURL() ~= "" %>'>
+        <div style="float:left;width:198px;">
+            <iframe AutoSize="true" src='<%= GetEquipCompareURL()%>'></iframe>
+        </div>
+    </pe:if>
+</pe:if>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,38 @@
+﻿<!-- "script/apps/Aries/CombatRoom/PvPModeSelectPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<!--Page._pvp_mode may be nil, "1v1", "2v2","3v3","4v4"-->
+<script refresh="true" type="text/npl" src="PvPModeSelectPage.lua"><![CDATA[
+Page._pvp_mode = nil;
+function ClosePage()
+    Page:CloseWindow();
+end
+function OnSelectMode(name)
+    Page._pvp_mode = name;
+    ClosePage();
+end
+]]></script>
+<div class="window" style="width:240px;">
+<div class="titlebar" width="100%">
+    <div class="windowlabel">请选择PK对战模式</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="clientarea" style="margin-left:20px;margin-top:20px;">
+    <input type="button" class="button_highlight" name="1v1" value="试炼场(1对1公平模式)" style="width:200px;height:25px;" onclick="OnSelectMode" />
+    <!--<input type="button" class="button" name="2v2" enabled="false" value="2对2(暂未开放)" style="width:200px;height:25px;" onclick="OnSelectMode" />
+    <input type="button" class="button" name="3v3" enabled="false" value="3对3(暂未开放)" style="width:200px;height:25px;" onclick="OnSelectMode" />-->
+    <input type="button" class="button_highlight" name="4v4" value="试炼场(4对4公平模式)" style="width:200px;height:25px;" onclick="OnSelectMode" />
+    <input type="button" class="button_highlight" name="battlefield" value="英雄谷(大型团队合作)" style="width:200px;height:25px;" onclick="OnSelectMode" />
+</div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

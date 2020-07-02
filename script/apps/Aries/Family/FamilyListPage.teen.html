@@ -1,0 +1,118 @@
+﻿<!-- "script/apps/Aries/Family/FamilyListPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Family/FamilyHelper.lua");
+local FamilyHelper = commonlib.gettable("Map3DSystem.App.Family.FamilyHelper");
+NPL.load("(gl)script/apps/Aries/Family/FamilyListPage.lua");
+local FamilyListPage = commonlib.gettable("Map3DSystem.App.Family.FamilyListPage");
+FamilyListPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+function DS_Func(index)
+    return FamilyListPage.DS_Func(index);
+end
+function OnClickItem(index)
+   FamilyListPage.OnClickItem(index);
+   pageCtrl:Refresh(0);
+end
+function GetSelectedContent()
+    if(FamilyListPage.selected_node)then
+        return FamilyListPage.selected_node.desc;
+    end
+end
+function DoChangeType(search_type)
+    FamilyListPage.DoChangeType(search_type);
+end
+function DoSearch()
+    FamilyListPage.ShowPage_SearchBox();
+    ClosePage();
+end
+function DoRequest()
+    --_guihelper.MessageBox(FamilyListPage.selected_node.id);
+    if(FamilyListPage.selected_node)then
+        FamilyHelper.DoRequest(tostring(FamilyListPage.selected_node.id));
+    end
+end
+]]></script>
+
+  <aries:window width="630" height="470" title="家族列表" onclose="ClosePage()" icon="Texture/Aries/Common/ThemeTeen/wintitle/family_icon_32bits.png">
+    <div style="margin:5px;" class="clientarea">
+    <pe:tabs name="tabscontrol" style="margin-left:60px;margin-top:25px;padding-top:22px;" onclick="DoChangeType" class="default_tabs">
+        <pe:tab-item text="最热家族" name="hot" selected="true" ></pe:tab-item>
+        <pe:tab-item text="最新家族" name="fresh" ></pe:tab-item>
+    </pe:tabs>
+    <div style="position:relative;margin-left:0px;margin-top:-413px;">
+        <div class="border_bg1_css" style="float:left;margin-left:5px;width:610px;height:325px;">
+            <div style="margin-left:5px;margin-top:5px;width:500px;height:315px;" >
+                <div style="margin-left:1px;margin-top:1px;width:598px;height:25px;" class="border_bg3_css">
+                    <input type="button" value="家族名称" class="titlebutton" style="float:left;width:200px;" enabled="false"/>
+                    <input type="button" value="编号" class="titlebutton" style="float:left;width:75px;" enabled="false"/>
+                    <input type="button" value="成员数量" class="titlebutton" style="float:left;width:75px;" enabled="false"/>
+                    <input type="button" value="等级" class="titlebutton" style="float:left;width:75px;" enabled="false"/>
+                    <input type="button" value="族长" class="titlebutton" style="float:left;width:170px;" enabled="false"/>
+                </div>
+                <div style="height:340px;">
+                    <pe:gridview name="familylist_view" DataSource="<%=DS_Func%>"  ItemsPerLine="1" AllowPaging="true" pagesize="10">
+				        <Columns>
+                            <div>
+                                <div>
+						            <pe:if condition='<%=Eval("checked") %>' >
+							            <input type="button" class="listbutton_selected" onclick="OnClickItem" enabled="false"  name='<%=Eval("index")%>'
+								            style="margin-left:1px;margin-top:0px;width:598px;height:25px;" />
+						            </pe:if>
+						            <pe:if condition='<%=not Eval("checked") %>' >
+							            <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								            style="margin-left:1px;margin-top:0px;width:598px;height:25px;" />
+						            </pe:if>
+		
+					            </div>
+					            <div style="margin-top:-22px;">
+						            <div style="float:left;margin-left:0px;width:200px;text-align:center;" class="list_color"><%=Eval("name") %></div>
+						            <div style="float:left;margin-left:0px;width:75px;text-align:center;" class="list_color"><%=Eval("id") %></div>
+						            <div style="float:left;margin-left:0px;width:75px;text-align:center;" class="list_color"><%=Eval("membercnt") %></div>
+						            <div style="float:left;margin-left:0px;width:75px;text-align:center;" class="list_color"><%=Eval("level") %></div>
+						            <div style="float:left;margin-left:0px;width:165px;text-align:center;" class="list_color"><pe:name nid='<%=Eval("admin") %>' linked=true/></div>
+					            </div>
+                                <div style="width:598px;height:1px;" class="black_line"/>
+					        </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:415px;margin-top:-52px;width:260px;height:22px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>                
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="position:relative;margin-left:5px;padding-left:5px;padding-top:5px;margin-top:-85px;width:610px;height:50px;" class="border_bg1_css">
+    <%=GetSelectedContent() %>
+    </div>
+    <div style="position:relative;margin-left:5px;margin-top:-30px;width:510px;height:50px;">
+        <input type="button" value="查找家族" style="width:80px;margin-left:0px;" onclick="DoSearch()"/>
+        <input type="button" value="申请加入" style="width:80px;margin-left:450px;" onclick="DoRequest()"/>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

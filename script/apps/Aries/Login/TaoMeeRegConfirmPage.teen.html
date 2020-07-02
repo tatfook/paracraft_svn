@@ -1,0 +1,58 @@
+<!-- "script/apps/Aries/Login/TaoMeeRegConfirmPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Server Select Page. 2009.8.1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TaoMeeRegConfirmPage.teen.lua">
+	<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+MyCompany.Aries.TaoMeeRegConfirmPage.OnInit();
+
+function chkEmail()
+    local MainLogin = commonlib.gettable("MyCompany.Aries.MainLogin");
+    local email=MainLogin.state.reg_user.username;
+    if (email~="") then 
+        return true
+    else
+        return false
+    end
+end
+]]>
+</script>
+<aries:window width="600" style="margin-left:150px;margin-top:50px;" title="米米号注册" mode="lite" isdeepbg="true">
+    <div style="margin-left:5px;margin-top:5px;width:590px;">
+    <div style="margin-left:50px;margin-top:10px;padding:10px;width:500px;font-size:14;font-weight:bold;color:#ffff00" >
+    	  恭喜你注册米米号成功！请记住以下信息：
+        <div style="margin-left:20px;margin-top:20px;font-size:14;font-weight:bold;color:#00eedd">
+        米米号：		
+            <input type="button" name="nid" textscale="1.1" enabled="false" style="margin-left:10px;margin-top:0px;width:150px;color:#ffffff;font-weight:bold;font-size:18;background:Texture/transparent.png;background-rotation:-0.0;text-align:left" />
+        </div>
+        <div style="margin-left:20px;margin-top:10px;font-size:14;font-weight:bold;color:#00eedd">
+        密  码：	
+            <input type="button" name="password" textscale="1.1" enabled="false" style="margin-left:20px;margin-top:0px;width:250px;color:#ffffff;font-weight:bold;font-size:18;background:Texture/transparent.png;background-rotation:-0.0;text-align:left" />
+        </div>
+        
+        <div style="margin-left:20px;margin-top:10px;font-size:14;font-weight:bold;color:#00eedd">
+        电子邮件：
+            <pe:if condition='<%=chkEmail() %>'>
+                <input type="button" name="email" textscale="1.1" enabled="false" style="margin-left:20px;margin-top:0px;width:300px;color:#ffffff;font-weight:bold;font-size:18;background:Texture/transparent.png;background-rotation:-0.0;text-align:left" />
+            </pe:if>
+            <pe:if condition='<%=not chkEmail() %>'>
+                你还没绑定Email，可以到淘米账户管理页面绑定 Email !
+            </pe:if>
+        </div>
+        <div style="float:left;margin-left:400px;margin-top:10px">
+            <input type="button" value="下一步" class="bordertext" style="width:100px;height:30px;font-size:14;" onclick="MyCompany.Aries.TaoMeeRegConfirmPage.OnNext()"/>
+        </div>
+        <div style="float:left;margin-left:150px;margin-top:-30px">
+            <input type="button" value="保存到本地" class="bordertext" style="width:100px;height:30px;" onclick="MyCompany.Aries.TaoMeeRegConfirmPage.SaveInfoToDisk()"/>
+        </div>
+    </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>

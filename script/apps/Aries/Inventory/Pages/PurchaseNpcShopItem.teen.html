@@ -1,0 +1,230 @@
+﻿<!-- "script/apps/Aries/Inventory/Pages/PurchaseNpcShopItem.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PurchaseNpcShopItem, by leio, 2011/10/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PurchaseNpcShopItem.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = Map3DSystem.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+local gsid = pageCtrl:GetRequestParam("gsid");
+gsid = tonumber(gsid);
+
+local exid = pageCtrl:GetRequestParam("exid");
+exid = tonumber(exid);
+
+local count = pageCtrl:GetRequestParam("count");
+count = tonumber(count);
+count = count or 1;
+local name = "";
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+local max_choice = NPCShopProvider.GetMaxChoice(gsid) or 99;
+--如果没有每日限制
+if(max_choice == -1)then
+    max_choice = NPCShopProvider.GetMaxCount(gsid)  or 0;
+end
+local day_choice = NPCShopProvider.LoadDaychoice(gsid) or 0;
+local max_count = max_choice - day_choice; 
+max_count = math.max(0,max_count);
+count = math.min(count,max_count);
+pageCtrl:SetValue("countText",count);
+
+function GetMaxcount()
+    return max_count;
+end
+
+function CheckState(cnt)
+    if(exid)then
+	    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+        if(not exTemplate)then
+		    return
+	    end
+        cnt = cnt or 1;
+        local can_pass,key,__,need_value = NPCShopProvider.PreCheckByExid_internal(exTemplate.froms,exid,cnt);
+        if(key == 0)then
+            local __,__,__,copies = hasGSItem(key);
+            copies = copies or 0;
+            if(can_pass)then
+                local s = string.format("%d个%s需要%d个%s，你现在有%d个%s，确认要购买吗？",cnt,name,need_value,System.options.haqi_GameCurrency,copies,System.options.haqi_GameCurrency);
+                pageCtrl:SetValue("buydesc", s);
+                pageCtrl:SetValue("action_btn", "马上购买");
+            else
+                local s = string.format("%d个%s需要%d个%s，你现在有%d个%s，数量不够，请立即补充！",cnt,name,need_value,System.options.haqi_GameCurrency,copies,System.options.haqi_GameCurrency);
+                pageCtrl:SetValue("buydesc", s);
+                pageCtrl:SetValue("action_btn", "立即补充");
+            end
+        else
+            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(key);
+            if(gsItem)then
+                local __,__,__,copies = hasGSItem(key);
+                copies = copies or 0;
+                if(can_pass)then
+                    local s = string.format("%d个%s需要%d个%s，你现在有%d个%s，确认要购买吗？",cnt,name,need_value,gsItem.template.name,copies,gsItem.template.name);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "马上购买");
+                else
+                    local s = string.format("%d个%s需要%d个%s，你现在有%d个%s，数量不够，请立即补充！",cnt,name,need_value,gsItem.template.name,copies,gsItem.template.name);
+                    pageCtrl:SetValue("buydesc", s);
+                    pageCtrl:SetValue("action_btn", "立即补充");
+                end
+            end    
+        end
+    end
+end
+function GetCountDesc()
+    return format("输入购买数量(1-%d)", max_count);
+end
+function OnOK()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    if(goal_manager.match_param("gsid", gsid)) then
+        goal_manager.finish("purchase_confirm");
+    end
+
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count) or 0;
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(not exTemplate)then
+		return
+	end
+    local can_pass,key,__,need_value = NPCShopProvider.PreCheckByExid_internal(exTemplate.froms,exid,count);
+    if(can_pass)then
+         local daychoice = NPCShopProvider.LoadDaychoice(gsid);
+         System.Item.ItemManager.ExtendedCost2(exid, count, nil, nil, function(msg)
+            if(msg and msg.issuccess)then
+		        NPCShopPage.LoadData_Bag(NPCShopPage.bag_type,true);
+                NPCShopProvider.SaveDaychoice(gsid,daychoice + count);
+
+                
+                --local info = NPCShopProvider.BuildExtendedInfo(exid,count);
+                --local req_froms = info.req_froms;
+
+                paraworld.PostLog({action = "npcshop", gsid = gsid, req_froms = req_froms, count = count,}, 
+							"npcshop_log", function(msg)
+						end);
+                
+            else
+                NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+                MyCompany.Aries.NPCShopPage.OnProcessPurchaseErrorMsg(msg);
+            end
+            MyCompany.Aries.HaqiShop.InvokeCallbackBySeq(Page:GetRequestParam("seq"), msg)
+	    end, function(msg) end, "purchase");
+        pageCtrl:CloseWindow();
+    else
+        pageCtrl:CloseWindow();
+        NPCShopProvider.ShowHelpFunc(key,count)    
+    end
+end
+
+function OnCancel()
+    pageCtrl:CloseWindow();
+end
+function OnDecrease()
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count);
+    if(count) then
+        if(count <= 1) then
+            count = max_count;
+        elseif(count > max_count) then
+            count = 1;
+        else
+            count = count - 1;
+        end
+        pageCtrl:SetValue("countText", count);
+        CheckState(count);
+    end
+end
+function OnIncrease()
+    local count;
+    count = pageCtrl:GetValue("countText");
+    count = tonumber(count);
+    if(count) then
+        if(count < 1) then
+            count = max_count;
+        elseif(count >= max_count) then
+            count = 1;
+        else
+            count = count + 1;
+        end
+        pageCtrl:SetValue("countText", count);
+        CheckState(count);
+    end
+end
+function OnKeyUp()
+    local count = pageCtrl:GetValue("countText");
+    count = tonumber(count) or 1;
+    if(count < 1)then
+        count = 1;
+        
+    elseif(count > max_count)then
+        count = max_count;
+    end
+    CheckState(count);
+end
+function GetTitle()
+    return name or "";
+end
+function GetGsid()
+    return gsid;
+end
+function DoHelp()
+    if(gsid)then
+        NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+        local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+        ItemGuides.OnClickViewItem(gsid);
+        pageCtrl:CloseWindow();
+    end
+end
+CheckState(count);
+]]></script>
+<aries:window width="400" height="210" title='<%=GetTitle()%>' mode="lite" onclose="OnCancel" isdeepbg="true" >
+    
+    <div class="clientarea" style="height:180px;margin-top:5px;">
+        <div style="margin-top:5px;" >
+            <div style="height:120px;">
+                <div style="float:left;margin:10px;">
+                    <pe:item gsid='<%=GetGsid()%>' isdragable="false" style="width:64px;height:64px" isclickable="false"/>
+                    <div style="position:relative;">
+                        <!--<input type="button" style="margin-top:5px;width:64px;height:30px;" onclick="DoHelp()" value="获取攻略"/>-->
+                    </div>
+                </div>
+                <div style="float:left;margin-left:50px;margin-top:25px;">
+                <pe:if condition='<%=GetMaxcount()==0 %>'>
+                    <div style="margin-left:12px;">今日已达到购买上限，明天再来买吧</div>
+                </pe:if>
+                <pe:if condition='<%=GetMaxcount()>0 %>'>
+                    <input type="button" style="width:23px;height:25px;" onclick="OnDecrease()" class="pagerleft"/>
+                    <div style="float:right;padding-left:50px;padding-top:2px;width:116px;height:30px;" class="property_bg_css">
+                        <input type="text" name="countText" onkeyup="OnKeyUp" enable_ime="false" value="2" style="width:60px;height:25px;background:;" />
+                    </div>
+                    <input type="button" style="margin-left:0px;width:23px;height:25px;" onclick="OnIncrease()" class="pagerright"/>
+                    <div style="margin-left:32px;"><%=GetCountDesc()%></div>
+                    <div style="margin-left:-50px;width:280px;margin-top:10px;">
+                        <label name="buydesc" style="height:60px;" />
+                    </div>
+                </pe:if>
+                </div>
+            </div>
+        </div>
+        <div style="height:48px;margin-top:10px;">
+            <pe:goalpointer listen="purchase_confirm" style="position:relative;margin-left:85px;width:80px;height:30px;"></pe:goalpointer>
+            <pe:if condition='<%=GetMaxcount()>0 %>'>
+            <input type="button" style="margin-left:85px;width:80px;height:30px;" onclick="OnOK()" name="action_btn" class="defaultbutton" value="马上购买"/>
+            </pe:if>
+            <input type="button" style="margin-left:50px;width:80px;height:30px;" onclick="OnCancel()" value="下次再说"/>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

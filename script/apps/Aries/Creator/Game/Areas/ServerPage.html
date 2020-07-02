@@ -1,0 +1,321 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Areas/ServerPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl" src="ServerPage.lua"><![CDATA[
+ServerPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.ServerPage")
+ServerPage.OnInit();
+if(not ServerPage.server_creator or ServerPage.server_creator=="") then
+    ServerPage.server_creator = System.User.keepworkUsername or "";
+end
+
+isEditServerName = false;
+isEditServerCreator = false;
+isEditServerDetail = false;
+
+function ClosePage()
+    Page:CloseWindow();
+end
+
+function IsClient()
+    return ServerPage.IsClient();
+end
+
+function IsServer()
+    return ServerPage.IsServer();
+end
+
+function IsInServer()
+    if(ServerPage.IsServer() or ServerPage.IsClient()) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetTitle()
+    local text;
+    if(IsInServer()) then
+        text = L"服务器信息";
+    else
+        text = L"创建服务器";
+    end
+    return text;
+end
+
+function GetName()
+    if(ServerPage.server_name =="" or not ServerPage.server_name) then
+        local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
+        return WorldCommon.GetWorldTag("name") or "";
+    else
+        return ServerPage.server_name;
+    end
+end
+
+function GetCreator()
+    if(ServerPage.server_creator=="" or not ServerPage.server_creator) then
+        return "admin"
+    else
+        return ServerPage.server_creator;
+    end
+end
+
+function CreateServer()
+    ServerPage.CreateServer();
+end
+
+function GetIP()
+    local ip = ServerPage.GetIP();
+    return ip;
+end
+
+function GetUserDS(index)
+    local ds = ServerPage.GetUserDS();
+    if(not index) then
+        return #ds;
+    else
+        return ds[index];
+    end
+end
+
+function IsNormalUser(beEmptyUser,beAddUser)
+    if(beEmptyUser or beAddUser) then
+        return false;
+    else
+        return true;
+    end
+end
+
+function UserIsSelected(index)
+    if(ServerPage.select_user_index == index) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function ChangeUser(name,mcmlNode)
+    local index = mcmlNode:GetAttribute("param1");
+    index = tonumber(index);
+    ServerPage.select_user_index = index;
+    Page:Refresh(0.01);
+end
+
+function CopyIPToClipboard(ip)
+    ServerPage.CopyIPToClipboard(ip)
+end
+
+function GetNetStat()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Network/ServerManager.lua");
+	local ServerManager = commonlib.gettable("MyCompany.Aries.Game.Network.ServerManager");
+    local stats = ServerManager.GetSingleton():GetStats(true);
+	local text = commonlib.serialize_compact(stats);
+    return text;
+end
+
+function OnSelectNetWorkMode(value)
+    if(value == "TunnelServer") then
+        GameLogic.IsVip("WanNetworking", true, function(result)
+            if (not result) then
+                Page:SetValue("NetWorkMode", "Lan")
+            end
+        end)
+    end
+end
+
+]]></script>
+<aries:window mode="thin" style="width:600px;height:400px;" title="<%= GetTitle() %>" onclose="ClosePage">
+    <div style="float:left;width:380px;" class="default">
+        <div style="margin-left:25px;margin-top:25px;">
+            <div>
+                <div style="float:left;min-width:100px;">
+                    <%=L"服务器名称"%>
+                </div>
+                <div style="float:left;margin-left:5px">
+                    <input type="text" name="text_server_name_create" value="<%= GetName() %>" class="mc_text" style="width:150px;height:24px;"/>
+                </div>
+            </div>
+            <div style="margin-top:10px;">
+                <div style="float:left;min-width:100px;">
+                    <%=L"创建人"%>
+                </div>
+                <div style="float:left;margin-left:5px">
+                    <input type="text" name="text_server_creator_create" value="<%= GetCreator() %>" class="mc_text" style="width:150px;height:24px;"/>
+                </div>
+            </div>
+            <div style="margin-top:10px;">
+                <div style="float:left;min-width:100px;">
+                    <%=L"人数上限"%>
+                </div>
+                <div style="float:left;margin-left:5px">
+                    <select name="MaxPlayers" style="width:70px;height:24px;" onselect="ServerPage.OnChangeMaxPlayers">
+                        <option value="3" selected="true">3</option>
+                    </select>
+                </div>
+            </div>
+            <pe:if condition='<%=IsInServer()%>'>
+                <div style="margin-top:10px;">
+                    <div style="float:left;min-width:100px;">
+                        <%=L"服务器状态："%>
+                    </div>
+                    <div style="float:left;margin-left:5px;color:#47ba18">
+                        <%=L"已经启动"%>
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <div style="float:left;min-width:100px;">
+                        <%=L"服务器信息："%>
+                    </div>
+                    <div style="float:left;margin-left:5px">
+                        <%=GetNetStat()%>
+                    </div>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not IsInServer()%>'>
+                
+                <div style="margin-top:10px;">
+                    <div style="float:left;min-width:100px;">
+                        <%=L"选择网络"%>
+                    </div>
+                    <div style="float:left;margin-left:5px">
+                        <div>
+                            <input type="radio" checked="checked" id="Lan" name="NetWorkMode" value="Lan" style="margin-top:3px;margin-right:5px"/>
+                            <div style="float:left">
+                                <div for="Lan" style="float:left;"><%=L"局域网, IP地址:"%><%=NPL.GetExternalIP() %></div>
+                                <input type="button" onclick="ServerPage.onClickGetPublicIP"  value='<%=L"如何获得互联网IP?"%>' class="linkbutton_yellow" />
+                            </div>
+                        </div>
+                        <div style="margin-top:5px;">
+                            <input type="radio" onclick="OnSelectNetWorkMode" id="TunnelServer" name="NetWorkMode" value="TunnelServer" style="margin-top:3px;margin-right:5px"/>
+                            <div style="float:left">
+                                <div for="TunnelServer"><%=L"互联网代理"%><%=L"(Beta版)"%></div>
+                                <select name="TunnelServerAddress" AllowUserEdit="true" style="height:24px;margin-top:5px">
+                                    <option selected="true" value="t1.tunnel.keepwork.com:8099">t1.tunnel.keepwork.com:8099</option>
+                                    <option value="127.0.0.1:8088">127.0.0.1:8088</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </pe:if>
+        </div>
+        
+    </div>
+    <div style="float:left;margin-left:-10px;margin-top:2px;width:1px;height:333px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#344 66 1 1)" />
+    <div style="float:left;height:330px;margin-left:5px;margin-right:8px;" class="default">
+        
+        <pe:if condition='<%=not IsClient() %>'>
+            <div style="margin-top:5px;color:#ffffff;">
+                <%=L"访问权限设置"%>
+            </div>
+            <div style="margin-top:5px;">
+                <input type="radio" checked="checked" id="Anonymous" name="BasicAuthMethod" value="Anonymous" onclick="ServerPage.OnClickBasicAuthMethod" style="margin-top:3px;margin-right:5px"/><div for="Anonymous" style="float:left;"><%=L"任何人可进入"%></div>
+            </div>
+            <div style="margin-top:5px;">
+                <input type="radio" id="UniversalPassword" name="BasicAuthMethod" value="UniversalPassword" onclick="ServerPage.OnClickBasicAuthMethod" style="margin-top:3px;margin-right:5px"/>
+                <div style="float:left;">
+                    <div for="UniversalPassword" style="float:left;"><%=L"统一密码为："%></div>
+                    <input type="text" name="room_password" style="height:24px;" value="" onchange="ServerPage.OnChangeRoomPassword"/>
+                </div>
+            </div>
+            <div style="margin-top:5px;">
+                <input type="radio" id="WhiteList" name="BasicAuthMethod" value="WhiteList" onclick="ServerPage.OnClickBasicAuthMethod" style="margin-top:3px;margin-right:5px"/>
+                <div for="WhiteList" style="float:left;"><%=L"指定下列白名单用户"%></div>
+            </div>
+            <div>
+                <div style="float:left;margin-top:5px;margin-left:30px;color:#ffffff;">
+                    <%=L"用户名"%>
+                </div>
+                <div style="float:left;margin-top:5px;margin-left:30px;color:#ffffff;">
+                    <%=L"密码"%>
+                </div>
+            </div>
+            <pe:gridview name="gvwServerUser" DefaultNodeHeight="32" DataSource="<%=GetUserDS%>" pagesize="50" ItemsPerLine="1" style="margin-top:3px;" AllowPaging="false">
+                <Columns>
+                    <div style="height:32px;margin-left:20px;">
+                        <pe:if condition='<%= Eval("beAddUser") == false %>'>
+                            <pe:if condition='<%= UserIsSelected(Eval("index")) == true %>'>
+                                <div style="float:left;color:#ffffff;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#208 89 21 21:4 4 4 4)">
+                                    <div style="float:left;width:70px;text-align:center;">
+                                        <%= Eval("username") %>
+                                    </div>
+                                    <div style="float:left;width:70px;text-align:center;">
+                                        <%= Eval("password") %>
+                                    </div>
+                                </div>
+                                <input type="button" name="btn_delete" tooltip='<%=L"删除"%>' onclick="ServerPage.RemoveUser" style="float:left;margin-left:15px;margin-top:6px;width:9px;height:11px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#495 124 9 11)"/>
+                            </pe:if>
+                            <pe:if condition='<%= not UserIsSelected(Eval("index")) == true %>'>
+                                <div style="position:relative;color:#ffffff;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#179 89 21 21:4 4 4 4)">
+                                    <div style="float:left;width:70px;text-align:center;">
+                                        <%= Eval("username") %>
+                                    </div>
+                                    <div style="float:left;width:70px;text-align:center;">
+                                        <%= Eval("password") %>
+                                    </div>
+                                </div>
+                                <input type="button" onclick="ChangeUser" name="btn_change" param1='<%=Eval("index") %>' style="position:relative;width:140px;background:"/>
+                            </pe:if>
+                            
+                        </pe:if>
+                        <pe:if condition='<%= Eval("beAddUser") == true %>'>
+                            <input type="button" onclick="ServerPage.ShowAddUserPage" tooltip='<%=L"点击添加新用户"%>' style="float:left;margin-top:6px;margin-left:65px;width:10px;height:10px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#501 203 10 10)"/>
+                        </pe:if>
+                    </div>
+                </Columns>  
+                <EmptyDataTemplate>
+                    <div style="color:#ffffff;margin-left:20px;">
+                        <b><%=L"当前没有用户"%></b>
+                    </div>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b><%=L"请稍等 ... "%></b>
+			    </FetchingDataTemplate>          
+            </pe:gridview>
+        </pe:if>
+        <pe:if condition='<%=IsClient() %>'>
+            <div style="color:#ffffff;margin-left:30px;margin-top:40px;">
+                <%=L"你不是服务器创建者"%><br />
+                <%=L"不能查看服务器人员名单"%>
+            </div>
+        </pe:if>
+
+    </div>
+    <div style="margin-left:-4px;width:600px;height:1px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#344 66 1 8)" />
+    <div style="margin-top:5px;margin-bottom:5px;height:38px;">
+        <pe:if condition='<%=IsInServer() %>'>
+            <div style="float:left;color:#ffffff;margin-right:15px;">
+                <%=L"服务器地址"%>
+            </div>
+            <pe:if condition='<%=ServerPage.GetServerUrl()~=nil %>'>
+                <div name="<%=ServerPage.GetServerUrl() %>" style="float:left;margin-right:10px;color:#ffffff;" onclick="CopyIPToClipboard" class="linkbutton" tooltip='<%=L"复制服务器地址"%>'>
+                    <%=ServerPage.GetServerUrlTip() %>
+                </div>
+                <input name="<%=ServerPage.GetServerUrl() %>" class="button" type="button" value='<%=L"复制"%>' onclick="CopyIPToClipboard"/>
+            </pe:if>
+            <pe:if condition='<%=ServerPage.GetServerUrl()==nil %>'>
+                <pe:repeat DataSource = "<%=ServerPage.GetAllIPAddress()%>">
+                    <pe:repeatitem>
+                        <div name="<%=Eval('text') %>" style="float:left;margin-right:10px;color:#ffffff;" onclick="CopyIPToClipboard" class="linkbutton" tooltip='<%=L"复制服务器地址"%>'>
+                            <%=Eval("text") %>
+                        </div>
+                        <input name="<%=Eval('text') %>" class="button" type="button" value='<%=L"复制"%>' onclick="CopyIPToClipboard"/>
+                    </pe:repeatitem>
+                </pe:repeat>
+            </pe:if>
+            
+        </pe:if>
+        <pe:if condition='<%=not IsInServer() %>'>
+            <input type="button" onclick="CreateServer"  value='<%=L"创建服务器"%>' style="margin-left:240px;color:#ffffff" class="mc_light_grey_button_with_fillet" />
+        </pe:if>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,205 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30171_Papa_HomelandTutorial.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30171_Papa_HomelandTutorial, by Andy, 2009/8/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30172);
+if(memory.state == 1) then
+    forcestate = 1;
+elseif(memory.state == 2) then
+    forcestate = 2;
+elseif(memory.state == 3) then
+    forcestate = 3;
+elseif(memory.state == 4) then
+    forcestate = 4;
+elseif(memory.state == 5) then
+    forcestate = 5;
+elseif(memory.state == 6) then
+    forcestate = 6;
+elseif(memory.state == 7) then
+    forcestate = 7;
+elseif(memory.state == 14) then
+    forcestate = 14;
+end
+
+Condition1 = function()
+    return (forcestate == 1);
+end;
+Condition2 = function()
+    return (forcestate == 2);
+end;
+Condition3 = function()
+    return (forcestate == 3);
+end;
+Condition4 = function()
+    return (forcestate == 4);
+end;
+Condition5 = function()
+    return (forcestate == 5);
+end;
+Condition6 = function()
+    return (forcestate == 6);
+end;
+Condition7 = function()
+    return (forcestate == 7);
+end;
+Condition14 = function()
+    return (forcestate == 14);
+end;
+
+
+function EntryAction(from, to)
+
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+]]></script>
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' width = "204" height = "320" style="background:url();" 
+    entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+			    <pe:answer-if condition = '<%=Eval("Condition14")%>' target_state = "14"/>
+			    <pe:answer-if condition = 'true' target_state = "14"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:55px;color:#d58302">
+		            欢迎回家，这是属于你的家园!<br/>
+                    你可以在这里种植各种植物，还可以把你的家园打扮的漂漂亮亮！
+		        </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "2">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:55px;color:#d58302">
+		            我们首先来学习一下种植植物吧。
+		        </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "3">
+	        <div style="width:204;height:220px;">
+	            <div style="margin-left:100px;margin-top:60px;color:#d58302;padding:14px;width:100px;height:50px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+		            点击小花圃
+		        </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "4">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:55px;color:#d58302">
+		            选择一颗种子
+		        </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "5">
+	        <div style="width:204;height:180px;margin-top:130px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:45px;color:#d58302">
+		            通过浇水、除虫照顾植物，结果之后别忘了来收获
+		        </div>
+                <div style="width:200px;height:40px;margin-top:20px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "6">
+	        <div style="width:204;height:180px;margin-top:130px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:45px;color:#d58302">
+		            你已经学会了种植植物<br/>
+                    在购物街的自动售货机可以买到各种各样的种子哦。
+		        </div>
+                <div style="width:200px;height:40px;margin-top:20px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "7">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:55px;color:#d58302">
+		            再来学习一下，如何装饰你的家园吧！
+		        </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "14">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+	            <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:55px;color:#d58302">
+		            你已经学会了装扮家园。<br/>
+                    在爱家小铺可以买到各种各样的漂亮的家园装饰哦。
+		        </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/Dialog_OK_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+	        </div>
+	    </pe:state>
+	    <pe:state id = "100">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

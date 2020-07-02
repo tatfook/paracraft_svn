@@ -1,0 +1,183 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazineWeb/v104.html" 
+Company: ParaEnging Co. & Taomee Inc.
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazineWeb, by zrf</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/ActivityNote.lua");
+NPL.load("(gl)script/apps/Aries/Books/TimesMagazineWeb/TimesMagazineWeb.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+--创想家家园ID号
+local homepageid = { "170438040", "143937825", "66213630", "80836315", "994281", "197322867", "96366440", "90748514", "16738315","44041323",
+"1054955", "46850746", "117079287", "16302615", "90748514", "48195770", "109857438", "5725548", "133053458", "66166262", };
+
+region_id=MyCompany.Aries.ExternalUserModule:GetRegionID();
+local pageheadinfo = {};
+pageheadinfo = 
+    {
+       
+
+    }
+
+--页眉信息
+
+MyCompany.Aries.Books.TimesMagazineWeb.Init(homepageid,pageheadinfo);
+
+
+function IWannaParticipate()
+    ParaGlobal.ShellExecute("open", "http://bbs.61.com/frame.php?frameon=yes&referer=http%3A//bbs.61.com/index.php%3Fgid%3D7", "", "", 1);
+end
+
+function OnEnterKongFuPi()
+    ParaGlobal.ShellExecute("open", "http://gf.61.com/", "", "", 1);
+end
+function GoLink()
+    ParaGlobal.ShellExecute("open", "http://www.much3g.com/", "", "", 1);
+end
+function GoShop()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabXC","2009");
+end
+function GotoNPC(npcid)
+    npcid = tonumber(npcid);
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    WorldManager:GotoNPC(npcid,function()
+        page:CloseWindow();
+    end)
+    paraworld.PostLog({action = "much_view_by_magazine_v104",}, 
+							"much_view_by_magazine_v104_log", function(msg)
+						end);
+end
+function GotoTree(state)
+	local cpos = {16.72,0.43,-0.36};
+	local pos = { 20331.13,-0.03,19678.72};
+   
+	local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+		_guihelper.MessageBox("<div style='margin-left:15px;margin-top:35px;text-align:center'>不在当前岛屿，无法传送！</div>");
+		return;
+	end
+    page:CloseWindow();
+
+	local msg = { aries_type = "OnMapTeleport", 
+			position = pos, 
+			camera = cpos, 
+			wndName = "map", 
+		};
+	CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg); 
+end
+function clickshop1()
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabRune","7005");
+end
+function IWannaParticipate()
+	ParaGlobal.ShellExecute("open", "iexplore.exe", "http://bbs.61.com/frame.php?frameon=yes&referer=http%3A//bbs.61.com/forumdisplay.php%3Ffid%3D16%26page%3D1%26filter%3Dtype%26typeid%3D11", "", 1);
+end
+]]></script>
+ 
+ 
+<input type="button" onclick="MyCompany.Aries.Books.TimesMagazineWeb.Confirm()" zorder="2" style="position:absolute;margin-left:775px;margin-top:10px;width:24px;height:24px;background:Texture/Aries/Books/TimesMagazineWeb/btn_style/close_32bits.png#0 0 24 24"/>
+<div style="margin-top:-65px;width:960px;height:560px;background:url(Texture/Aries/Books/TimesMagazineWeb/bg.png#0 0 960 560);">
+    <pe:gridview DataSource="<%=MyCompany.Aries.Books.TimesMagazineWeb.DS_Func%>" name="TimesMagazineWeb_v104" 
+        CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="height:560px;" >
+                <div style="height:560px;margin-left:123px;margin-top:70px;">
+                    <img src='<%=Eval("background")%>' zorder="-2" style="width:680px;height:420px;" />
+                </div>
+                <div style="margin-left:70px;margin-top:-574px;width:800px;height:560px;">
+                    <!--打印页眉-->
+                    <div style="position:relative;margin-left:95px;margin-top:25px;width:256px;height:128px;background:url();font-size:12px;">
+                        <%=MyCompany.Aries.Books.TimesMagazineWeb.GetPageHead(Eval("index")) %>
+                    </div>
+
+                    <pe:if condition='<%=Eval("index") == 1%>'>
+                        <div style="position:relative;margin-left:440px;margin-top:100px;width:306px;height:128px;background:url();font-size:12px;">
+                            第104期 2012年8月17日
+                        </div>
+
+                        <pe:if condition='<%=Eval("region_id")==0 %>'>
+                        <div style="position:relative;margin-left:575px;margin-top:100px;width:306px;height:128px;background:url();font-weight:bold;font-size:12px;color:#ff4000">
+                            haqi.61.com
+                        </div>
+                        </pe:if>
+                        
+                        
+                        <input type="button" tooltip="" style="position:relative;margin-left:105px;margin-top:75px;width:283px;height:301px;background:url()" name="2" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" />
+                        <input type="button" tooltip="" style="position:relative;margin-left:392px;margin-top:65px;width:283px;height:301px;background:url()" name="3" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" />
+
+                        <input type="button" value="官网" tooltip="官网" style="position:relative;margin-left:110px;margin-top:70px;width:60px;height:23px;background:url(Texture/Aries/Books/TimesMagazineWeb/anniubg_32bits.png# 0 0 97 23)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OpenOfficialSite"/>
+                        <input type="button" value="论坛" tooltip="论坛" style="position:relative;margin-left:175px;margin-top:70px;width:60px;height:23px;background:url(Texture/Aries/Books/TimesMagazineWeb/anniubg_32bits.png# 0 0 97 23)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OpenOfficialBBS"/>
+                        <input type="button" value="贴吧" tooltip="贴吧" style="position:relative;margin-left:545px;margin-top:70px;width:60px;height:23px;background:url(Texture/Aries/Books/TimesMagazineWeb/anniubg_32bits.png# 0 0 97 23)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OpenOfficialBlog"/>
+                        <input type="button" value="投诉" tooltip="投诉" style="position:relative;margin-left:610px;margin-top:70px;width:60px;height:23px;background:url(Texture/Aries/Books/TimesMagazineWeb/anniubg_32bits.png# 0 0 97 23)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OpenOfficialService"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") ~= 1%>'>
+                        <%=MyCompany.Aries.Books.TimesMagazineWeb.ShowOfficialUrl(250,18, "Texture/Aries/Books/TimesMagazineWeb/v39/anniubg_32bits.png", 89, 23 ) %>
+                    </pe:if>
+                     <pe:if condition='<%=Eval("index") == 2 and region_id == 0%>'>
+                        <input type="button" name="30431"  animstyle="22" zorder="100" style="margin-left:327px;margin-top:330px;width:139px;height:45px;background:url(Texture/Aries/Books/TimesMagazineWeb/mashangkankan_32bits.png#0 0 139 45)" onclick='GotoNPC()' />
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 6 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:147px;margin-top:365px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="写信告诉镇长" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 7 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:152px;margin-top:328px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="写信告诉帕帕" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteSomeSecret()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 8 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:149px;margin-top:322px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="写信告诉帕帕" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteSomeSecret()"/>
+                    </pe:if>
+                     <pe:if condition='<%=Eval("index") == 9 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:149px;margin-top:322px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="写信告诉帕帕" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteSomeSecret()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 10 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:169px;margin-top:343px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="写信告诉帕帕" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteSomeSecret()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 11 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:153px;margin-top:284px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="攻略投稿" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod_Combat()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 12 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:158px;margin-top:355px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="攻略投稿" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod_Combat()"/>
+                    </pe:if>
+                     <pe:if condition='<%=Eval("index") == 13 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:158px;margin-top:355px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="攻略投稿" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod_Combat()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 14 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:158px;margin-top:334px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="攻略投稿" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod_Combat()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 15 and region_id == 0%>'>
+                        <input type="button" animstyle="23" style="margin-left:158px;margin-top:348px;width:54px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png#0 0 54 32)" tooltip="攻略投稿" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod_Combat()"/>
+                    </pe:if>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="0" style="margin-left:150px;margin-top:-90px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:0px;width:13;height:21px;background:url(Texture/Aries/Books/TimesMagazineWeb/btn_style/previous_32bits.png# 0 0 13 21);"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:630px;margin-top:20px;width:13px;height:21px;background:url(Texture/Aries/Books/TimesMagazineWeb/btn_style/next_32bits.png# 0 0 13 21);"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="width:960px;height:560px;margin-top:-560px;background:url();">
+    <img src="Texture/Aries/Books/TimesMagazineWeb/Magazine_bg_12_4_Pierced_32bits.png" enabled="false" style="width:1024px;height:1024px;"/>
+</div>
+ 
+</pe:mcml>
+</body>
+</html>

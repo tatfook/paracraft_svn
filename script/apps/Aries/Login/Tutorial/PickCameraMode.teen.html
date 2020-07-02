@@ -1,0 +1,94 @@
+<!-- "script/apps/Aries/Login/Tutorial/PickCameraMode.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+is_selected = false;
+local MapArea = commonlib.gettable("MyCompany.Aries.Desktop.MapArea");
+    
+function OnSelect(name)
+    is_selected = true;
+    NPL.load("(gl)script/apps/Aries/Scene/AutoCameraController.lua");
+    local camera_mode = "3d";
+    if(name == "2d") then
+        camera_mode = "2d";
+    end
+    MyCompany.Aries.AutoCameraController:ApplyStyle(camera_mode);
+    local Player = commonlib.getfield("MyCompany.Aries.Player");
+    if(Player.SaveLocalData) then
+        MyCompany.Aries.Player.SaveLocalData("CameraMode", camera_mode);
+    end
+    page:SetValue("btnCameraMode", camera_mode=="3d");
+    
+    if(MapArea.RefreshCameraMode) then
+        MapArea.RefreshCameraMode(true);
+    end
+    page:Refresh(0.1);
+end
+function OnClose()
+    if(MapArea.RefreshCameraMode) then
+        MapArea.RefreshCameraMode();
+    end
+    page:CloseWindow();
+end
+]]></script>
+<form>
+<div style="width:480px;height:300px">
+<pe:if condition='<%=not Eval("is_selected")%>'>
+    <div style="width:480px;height:270px;" class="window">
+        <div class="titlebar">
+          <div class="windowlabel">请选择适合你的操作方式</div>
+          <input type="button" name="3d" onclick="OnSelect" class="closebutton" style="position:relative;margin-left:430px;" />
+        </div>
+        <div  class="clientarea">
+            <div style="float:left;margin:5px;width:220px;height:220px">
+                <div style="width:220px;text-align:center;font-weight:bold;">3D模式（适合键盘操作）</div>
+                <div align="center" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/3dmode_demo.jpg)"/>
+                <div style="font-weight:bold;margin-left:30px;margin-top:3px;font-size:13px;color:#000000">
+                    <div style="color:#CC0000;margin-left:64px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">W</div><br />
+                    <div style="margin-left:32px;background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">A</div>
+                    <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">S</div>
+                    <div style="background:url(Texture/Aries/Common/keyboard_32bits.png);width:32px;height:32px;float:left;padding-left:10px;padding-top:4px;">D</div>
+                </div>
+                <input type="button" style="margin-top:10px;margin-left:70px;width:80px;" value="确定" name="3d" onclick="OnSelect" />
+            </div>
+            <div style="float:left;margin-left:0px;margin:5px;width:220px;height:220px">
+                <div style="width:220px;text-align:center;font-weight:bold;">2D模式（适合鼠标操作）</div>
+                <div align="center" style="margin-top:5px;width:165px;height:95px;background:url(Texture/Aries/Desktop/CameraMode/2dmode_demo.jpg)"/>
+                <div style="margin-left:80px;margin-top:3px;font-size:12px;">
+                    <div style="position:relative;margin-left:-20px;">移动--</div>
+                    <div style="position:relative;margin-left:53px;">--跳跃</div>
+                    <div style="width:64px;height:64px;background:url(Texture/Aries/Quest/TutorialMouse_LeftClick_32bits.png);" />
+                </div>
+                <input type="button" style="margin-top:10px;margin-left:70px;width:80px;" value="确定" name="2d" onclick="OnSelect" />
+            </div>
+        </div>
+    </div>
+</pe:if>
+<pe:if condition='<%=Eval("is_selected")%>'>
+    <div align="center" style="width:380px;height:100px;" class="window">
+        <div class="titlebar">
+          <div class="windowlabel">提示</div>
+          <input type="button" name="closeBtn" onclick="OnClose" class="closebutton" style="position:relative;margin-left:330px;" />
+        </div>
+        <div class="clientarea">
+            <div>点击右上角的
+            <div style="float:left;margin-right:5px;">
+                <input name="btnCameraMode" type="checkbox" iconsize="20" CheckedBG="Texture/Aries/WorldMaps/common/camera_3d_32bits.png;0 0 20 20" UncheckedBG="Texture/Aries/WorldMaps/common/camera_2d_32bits.png;0 0 20 20" tooltip="切换2D/3D操作模式" style="width:20px;height:20px;" onclick="OnToggleCameraMode"/>
+            </div>
+            按钮，可以随时切换操作方式</div>
+            <input type="button" style="margin-left:130px;margin-top:15px;width:80px;" name="ok" value="知道了" onclick="OnClose" />
+        </div>
+    </div>
+</pe:if>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

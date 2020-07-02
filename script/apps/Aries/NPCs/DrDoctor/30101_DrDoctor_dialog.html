@@ -1,0 +1,350 @@
+﻿<!-- "script/apps/Aries/NPCs/DrDoctor/30101_DrDoctor_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30001_DrDoctor_dialog, by Andy, 2009/7/30</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50025: 50025_WishLevel5_Acquire
+-- 50026: 50026_WishLevel5_Complete
+
+
+Condition1 = function()
+    -- not accept the quest or have finished
+    return (not hasGSItem(50025) or ((hasGSItem(50025) and hasGSItem(50026)))) and (not hasGSItem(50215) or ((hasGSItem(50215) and hasGSItem(50216))));
+end;
+Condition2 = function()
+    -- quest gossip sequence1
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    -- quest gossip sequence2
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition4 = function()
+    -- quest gossip sequence3
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 3) then
+        return true;
+    end
+    return false;
+end;
+Condition5 = function()
+    -- quest gossip sequence4
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 4) then
+        return true;
+    end
+    return false;
+end;
+Condition6 = function()
+    -- accept the quest but not finish yet
+    if((hasGSItem(50025) and not hasGSItem(50026))) then
+	    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+	    if(memory) then
+	        if(memory.donespeek == true) then
+	            return true;
+	        end
+	    end
+    end
+    return false;
+end;
+
+Condition12 = function()
+    -- quest gossip sequence1
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 11) then
+        return true;
+    end
+    return false;
+end
+Condition13 = function()
+    -- quest gossip sequence1
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 12) then
+        return true;
+    end
+    return false;
+end
+Condition14 = function()
+    -- quest gossip sequence1
+    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+    if(memory and memory.donespeek ~= true and memory.speakcount == 13) then
+        return true;
+    end
+    return false;
+end
+Condition15 = function()
+    -- accept the quest but not finish yet
+    if((hasGSItem(50215) and not hasGSItem(50216))) then
+	    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+	    if(memory) then
+	        if(memory.donespeek == true) then
+	            return true;
+	        end
+	    end
+    end
+    return false;
+end; 
+
+Condition7 = function()
+    return true;
+end;
+--水晶兔任务是否开启
+BunnyQuestIsOpened = function()
+    NPL.load("(gl)script/apps/Aries/NPCs/DrDoctor/30376_CrystalBunny.lua");
+    return MyCompany.Aries.Quest.NPCs.CrystalBunny.IsOpened() and not MyCompany.Aries.Quest.NPCs.CrystalBunny.ExchangeFinishedFromDrDoctor();
+end
+--是否拥有足够的材料
+HasBunnyRequiredItems = function()
+    NPL.load("(gl)script/apps/Aries/NPCs/DrDoctor/30376_CrystalBunny.lua");
+    return MyCompany.Aries.Quest.NPCs.CrystalBunny.HasBunnyRequiredItems();
+end
+--标记需要的材料已经全部找到
+ExchangeBunnyItems = function()
+    NPL.load("(gl)script/apps/Aries/NPCs/DrDoctor/30376_CrystalBunny.lua");
+    return MyCompany.Aries.Quest.NPCs.CrystalBunny.ExchangeBunnyItems();
+end
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 6 and to == -1) then
+        -- finish the quest
+        local bHas, guid = hasGSItem(50025);
+        if(bHas == true) then
+            -- finish the quest
+            -- exid 88: DragonQuestGrow_Level5
+            ItemManager.ExtendedCost(88, nil, nil, function(msg)end, function(msg)
+		        log("+++++++ExtendedCost 88: DragonQuestGrow_Level5 return: +++++++\n")
+		        commonlib.echo(msg);
+			    --50027_WishLevel5_RewardFriendliness
+			    if(msg.issuccess == true) then
+				    -- use the item 50027 to increase pet friendliness
+                    local bHas, guid = hasGSItem(50027);
+                    if(bHas and guid) then
+                        local item = ItemManager.GetItemByGUID(guid);
+                        if(item and item.guid > 0) then
+                            item:OnClick("left");
+                        end
+                    end
+				    --WishLevel0.RefreshStatus();
+			    end
+            end);
+        end
+    end
+    if(from == 15 and to == -1) then
+        -- finish the quest
+        local bHas, guid = hasGSItem(50215);
+        if(bHas == true) then
+            -- finish the quest
+            -- exid 182: DragonQuestGrow_Level10 
+            ItemManager.ExtendedCost(182, nil, nil, function(msg)end, function(msg)
+		        log("+++++++ExtendedCost 182: DragonQuestGrow_Level10 return: +++++++\n")
+		        commonlib.echo(msg);
+			    -- 50217_WishLevel10_RewardFriendliness
+			    if(msg.issuccess == true) then
+                    
+				    -- use the item 50217 to increase pet friendliness
+                    local bHas, guid = hasGSItem(50217);
+                    if(bHas and guid) then
+                        local item = ItemManager.GetItemByGUID(guid);
+                        if(item and item.guid > 0) then
+                            item:OnClick("left");
+                        end
+                    end
+				    --WishLevel0.RefreshStatus();
+			    end
+            end);
+        end
+    end
+    if((from == 1 or from == 6 or from == 15 or from == 7) and to == -1) then
+	    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30101);
+	    if(memory) then
+	        memory.donespeek = false;
+	    end
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+local r = math.random(0, 300);
+if(r < 100) then
+    --gossip_text = "你们这些小哈奇总来打扰我工作，再这样下去我永远也造不出我那个伟大的发明了，哼哼，我的实验室有很多机关暗道，你们可要小心点～～";
+    --gossip_text = "圣诞节就要到了吗？我可没时间过节，还有很多实验没有做完呢。";
+    --gossip_text = "新年？怎么这么多节，我可不需要过节，我忙呀！";
+    --gossip_text = "这春天怎么迟迟不来呢，往年这时候大地都换上了新绿，真是怪异的很！";
+    gossip_text = "生命之泉的冰都化了吧，看来这春天的力量也真够强大的！";
+elseif(r < 200) then
+    --gossip_text = "哎呀呀，你来做什么，我这屋子很危险你们不知道么，走吧走吧，赶快都走吧，再不走小心我屋子要爆炸了！";
+    --gossip_text = "要是我去过节了，你们就别想用我的发明了，快走吧，我的时间很宝贵的。";
+    gossip_text = "现在都春暖花开了，我都忙得没有时间去踏青了，我这胳膊腿儿也该活动活动了。";
+else
+    --gossip_text = "我最近在搞一个惊世骇俗的发明，你们永远也想象不到，哼哼，到时候会让你们大吃一惊！";
+    --gossip_text = "你们这些哈奇，快和你们的抱抱龙一起去准备圣诞节吧，不要来打扰我工作。";
+    --gossip_text = "这就到新年了？时间怎么过的这么快，我还有一大堆事情没做完呢。";
+    --gossip_text = "我还是需要一些春天的味道，这么冷的天，可不利于我做实验！";
+    gossip_text = "我的骨头在咯吱咯吱响了，真想杵个拐棍去动动筋骨，可是我太忙了呀。";
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+        
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30101" />
+            <pe:placeholder id="name" source="{this}" value="多克特博士" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <!--如果水晶兔的任务开启-->
+			    <pe:answer-if condition = '<%=Eval("BunnyQuestIsOpened")%>' target_state = "20"/>
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition12")%>' target_state = "12"/>
+			    <pe:answer-if condition = '<%=Eval("Condition13")%>' target_state = "13"/>
+			    <pe:answer-if condition = '<%=Eval("Condition14")%>' target_state = "14"/>
+			    <pe:answer-if condition = '<%=Eval("Condition15")%>' target_state = "15"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    <%=Eval("gossip_text")%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    哎呀，怎么又是你们这些小哈奇呀，我现在很忙呀，你们能不能不要来打扰我的工作呀，等我把东西发明出来了一定会请你们来试用的啦～
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    最近在发明什么？这个怎么能现在告诉你们呢？天机不可泄漏，我在做一件惊世骇俗的事情，你就不要问啦～
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    哎呀到底要怎么样你们才肯让我静一静呀，我脑子都被你们搅乱了，这样子我是怎么能搞好工作呀，真是让人头疼！快走啦快走啦～
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    还不走？真是让人崩溃呀～给块豆腐我让我撞头吧～
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    真是拿你没办法，给你<div style="float:left;color:#FF0000">神秘箱子</div>你赶紧走吧，我把箱子放在你的背包里了，现在还不能打开，不过里面装的可是宝贝，弄丢了不要再来找我要了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    <div style="color:#6d2f00">
+		    出错
+            </div>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "12">
+		    哇！你的龙已经长这么大了，真不错！
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "13"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "13">
+		    快回去好好养你的抱抱龙吧！不要来烦我啦！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "14"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "14">
+		    不是已经给你箱子了吗？你不知道怎么打开吗？哎，还是要来麻烦我。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "15"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "15">
+		    好吧好吧，箱子给你打开了，这个飞飞是我心爱的宠物，它每天可以帮你把家园所有物品收回仓库一次，不过现在它是你的啦，箱子我收回了。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <!--水晶兔任务 20 21 22-->
+	     <pe:state id = "20">
+		    <%=Eval("gossip_text")%>
+		    <pe:answer text="给你材料" template_id="giveyoustuff">
+			    <pe:answer-if condition = "<%=not HasBunnyRequiredItems() %>" target_state = "21"/>
+			    <pe:answer-if condition = "true" target_state = "22"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "21">
+		    你要给我什么材料啊，我还两手空空的，行了行了，别来烦我了，我忙的很啊。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "22">
+		    啊，原来是怪怪蛋的材料，是水晶兔让你给我的吧，嗯，反正哈奇也挺喜欢我发明的怪怪蛋，我也就不生它气了，你赶紧找到它，把它带回家吧，别让它再给我这里添乱子了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = "<%=ExchangeBunnyItems() %>" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <!--水晶兔任务-->
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30203_CrownSnake_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30203_CrownSnake_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 10110: FollowPetHGS
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 1 and to == -1) then
+	    local snake = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30203, 1);
+	    if(snake and snake:IsValid() == true) then
+		    local snakeChar = snake:ToCharacter();
+		    snakeChar:Stop();
+		    -- remove the snake from scene
+            local params = {
+                asset_file = "character/v5/09effect/Disappear/Disappear.x",
+                binding_obj_name = snake.name,
+                start_position = nil,
+                duration_time = 1500,
+                force_name = "CrownSnakeDisappearEffect",
+                begin_callback = function() end,
+                end_callback = nil,
+                stage1_time = 800,
+                stage1_callback = function()
+						local EffectManager = MyCompany.Aries.EffectManager;
+						EffectManager.StopBinding("CrownSnakeDisappearEffect");
+		                MyCompany.Aries.Quest.NPC.DeleteNPCCharacter(30203, 1);
+	                end,
+                stage2_time = nil,
+                stage2_callback = nil,
+            };
+            local EffectManager = MyCompany.Aries.EffectManager;
+            EffectManager.CreateEffect(params);
+	    end
+    elseif(from == 2 and to == -1) then
+	    ItemManager.PurchaseItem(10110, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 10110_FollowPetHGS return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+				    local snake = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30203, 1);
+				    if(snake and snake:IsValid() == true) then
+					    local snakeChar = snake:ToCharacter();
+					    snakeChar:Stop();
+		                -- remove the snake from scene
+                        local params = {
+                            asset_file = "character/v5/09effect/Disappear/Disappear.x",
+                            binding_obj_name = snake.name,
+                            start_position = nil,
+                            duration_time = 3000,
+                            force_name = "CrownSnakeDisappearEffect",
+                            begin_callback = function() end,
+                            end_callback = nil,
+                            stage1_time = 800,
+                            stage1_callback = function()
+									local EffectManager = MyCompany.Aries.EffectManager;
+									EffectManager.StopBinding("CrownSnakeDisappearEffect");
+		                            MyCompany.Aries.Quest.NPC.DeleteNPCCharacter(30203, 1);
+	                            end,
+                            stage2_time = 2000,
+							stage2_callback = function()
+									local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30203);
+									memory.countdowntime = nil;
+									memory.isFlee = nil;
+									memory.countdowntime = nil;
+									memory.leaving = nil;
+									memory.isStunned = nil;
+                                    memory.TargetFleePosIndex = nil;
+									memory.lastFleePosition = nil;
+									memory.isRewarded = nil;
+                                    memory.count = nil;
+									NPL.load("(gl)script/apps/Aries/Quest/NPCList.lua");
+									local NPCList = commonlib.gettable("MyCompany.Aries.Quest.NPCList");
+									local params = NPCList.GetNPCByIDAllWorlds(npc_id);
+                                    params.instance = 1;
+									MyCompany.Aries.Quest.NPC.CreateNPCCharacter(30203,params);
+								end,
+                        };
+                        local EffectManager = MyCompany.Aries.EffectManager;
+                        EffectManager.CreateEffect(params);
+				    end
+			    end
+		    end
+	    end);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30203" />
+            <pe:placeholder id="name" source="{this}" value='皇冠蛇'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你是想收养我吗？其实我不是一条咬人的蛇，我是可爱的皇冠蛇。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    哎呀我已经被你打晕了，那我先回家休息去了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

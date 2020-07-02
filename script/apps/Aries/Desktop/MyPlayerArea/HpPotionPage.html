@@ -1,0 +1,55 @@
+<!-- script/apps/Aries/Desktop/MyPlayerArea/HpPotionPage.html -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+HPMyPlayerArea.OnInit_HpPotionPage();
+local pageCtrl = document:GetPageCtrl();
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function DS_Func(index)
+   return HPMyPlayerArea.DS_Func(index);
+end
+]]></script>
+<div style="width:500px;height:260px;padding-left:10px;padding-right:10px;font-size:12;background:url(Texture/Aries/Common/bg.png#0 0 64 64: 14 14 14 14)">
+<input type="button" onclick="ClosePage"  zorder="2" style="margin-left:450px;margin-top:-10px;width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48)"/>
+<div style="padding-left:20px;padding-top:2px;margin-top:-20px;width:63px;height:25px;background:url(Texture/Aries/LobbyService/header_bg2_32bits.png#0 0 16 25: 7 7 7 7)">红枣</div>
+<div style="padding-left:5px;margin-top:-2px;width:480px;height:200px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+    <pe:gridview DataSource="<%=DS_Func%>" 
+    name="grid_view" style="margin-left:10px;margin-top:5px;" CellPadding="4"  
+    DefaultNodeHeight = "80" ItemsPerLine="5" AllowPaging="false" pagesize="10">
+    <Columns>
+        <div style="padding-top:8px;padding-left:8px;width:85px;height:85px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+            <pe:slot guid='<%=Eval("guid")%>' style="width:70px;height:70px;"/>
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+                
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <div style="margin-left:70px;margin-top:30px;"></div>
+    </FetchingDataTemplate>
+	<PagerSettings Position="Bottom" height="36" style="margin-left:170px;margin-top:-8px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+	        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	        <div style="float:right;margin-top:-2px;width:64px;">
+	            <label name="page" style="color:#000000;text-align:center;width:64px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	    </form>
+	</PagerTemplate>
+</pe:gridview>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

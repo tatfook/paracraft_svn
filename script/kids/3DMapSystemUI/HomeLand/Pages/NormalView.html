@@ -1,0 +1,89 @@
+﻿<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/NormalView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="NormalView.lua"><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/Pages/NormalView.lua");
+local NormalViewPage = commonlib.gettable("MyCompany.Aries.Inventory.NormalViewPage");
+NormalViewPage.SetPage()
+function GetState_master_edit()
+    local curState = MyCompany.Aries.Inventory.NormalViewPage.curState;
+    if(curState == "master_edit")then
+        return true;
+    end
+end
+function GetParams()
+    local node = MyCompany.Aries.Inventory.NormalViewPage.node;
+    if(node)then
+        local objParams = node:GetEntityParams();
+        if(objParams and type(objParams) == "table")then
+            local r = commonlib.serialize(objParams)
+            return r;
+        end
+    end
+end
+function GetScale()
+    local node = MyCompany.Aries.Inventory.NormalViewPage.node;
+    if(node and node.GetScale)then
+        return node:GetScale() or 1;
+    end
+end
+function GetScaleTooltip_ZoomIn()
+    return string.format([[page://script/kids/3DMapSystemUI/HomeLand/Pages/ZoomTooltip.html?state=zoomin]]);
+end
+function GetScaleTooltip_ZoomOut()
+    return string.format([[page://script/kids/3DMapSystemUI/HomeLand/Pages/ZoomTooltip.html?state=zoomout]]);
+end
+]]></script>
+
+<pe:if condition='<%=GetState_master_edit()%>'>
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box" >
+                <pe:canvas3d miniscenegraphname="LeftTopCanvas128" RenderTargetSize="128" autoRotateSpeed="0.12" style="width:128;height:128;" value='<%=GetParams()%>' MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.png"/>
+                <div style="margin-left:8px;margin-top:-5px;">
+                    <div>
+                        <input type="button" name="move" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/Move_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip="移动"/>
+                        <input type="button" name="remove" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/To_remove_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip="回收"/>
+                    </div>
+                    <div>
+                        <input type="button" name="left_rot" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/Left_Rotation_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip='左旋转 (快捷键 "[")'/>
+                        <input type="button" name="right_rot" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/Right_Rotation_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip='右旋转 (快捷键 "]")'/>
+                    </div>
+                     <div>
+                        <input type="button" name="descale" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/descale_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip="<%=GetScaleTooltip_ZoomOut()%>"
+                            />
+                        <input type="button" name="scale" animstyle="22" 
+                            style="float:left;margin:0px;width:55px;height:55px;background:url(Texture/Aries/Homeland/v1/scale_32bits.png#0 0 55 55);" 
+                            onclick="MyCompany.Aries.Inventory.NormalViewPage.DoClick"
+                            tooltip="<%=GetScaleTooltip_ZoomIn()%>"
+                            />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</pe:if> 
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,217 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/MinorSkillPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MinorSkillPage, by leio, 2013/1/21</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="MinorSkillPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Combat/main.lua");
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MinorSkillPage.lua");
+MinorSkillPage = commonlib.gettable("MyCompany.Aries.Desktop.MinorSkillPage");
+local page = document:GetPageCtrl();
+MinorSkillPage.OnInit();
+function DS_Func_skills(index)
+    return MinorSkillPage.DS_Func_skills(index);
+end
+function HasLearned(gsid)
+    return hasGSItem(gsid);
+end
+function NeverLearned()
+    if(MinorSkillPage.skills)then
+        local k,v;
+        for k,v in ipairs(MinorSkillPage.skills) do
+            if(HasLearned(v.gsid))then
+                return false;
+            end
+        end
+    end
+    return true;
+end
+function GetLearnedNode()
+    if(MinorSkillPage.skills)then
+        local k,v;
+        for k,v in ipairs(MinorSkillPage.skills) do
+            if(HasLearned(v.gsid))then
+                return v;
+            end
+        end
+    end
+end
+local learned_node = GetLearnedNode() or {};
+local learned_gsid = learned_node.gsid;
+local learned_exp_gsid = learned_node.exp_gsid;
+function GetCopies(gsid)
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function GetExp()
+    return GetCopies(learned_exp_gsid);
+end
+
+local cur_level_stats,total_level, cur_level, cur_level_exp, cur_level_total_exp = Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, GetExp())
+total_level = total_level or 0;
+cur_level = cur_level or 0;
+cur_level_exp = cur_level_exp or 0;
+cur_level_total_exp = cur_level_total_exp or 0;
+function GetNode(gsid)
+    if(MinorSkillPage.skills)then
+        local k,v;
+        for k,v in ipairs(MinorSkillPage.skills) do
+            if(v.gsid == gsid)then
+                return v;
+            end
+        end
+    end
+end
+
+
+function GetLevels()
+    return cur_level;
+end
+function GetCurExp()
+    return cur_level_exp;
+end
+function GetMaxExp()
+    return cur_level_total_exp;
+end
+function GetExpStr()
+    return string.format("%d/%d",GetCurExp(),GetMaxExp());
+end
+
+
+function DoLearn(gsid)
+    local node = GetNode(gsid);
+    if(node)then
+        NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+        local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+        local can_pass = DealDefend.CanPass();
+        if(not can_pass)then
+	        return
+        end
+        local __,__,__,copies = hasGSItem(984);
+        copies = copies or 0;
+        if(copies < 50 and not NeverLearned())then
+            _guihelper.MessageBox("转换符印生产技能需要50金币，你的金币不够了。");
+            return
+        end
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        local s = string.format([[<div>确定选择【%s】作为你的符印生产技能么？四种符印生产技能只能选择一项.<br />(选定后，更改选择将收取50金币)</div>]],node.name);
+        _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="change_skill", gsid=gsid}});
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+    end
+end
+function DoForget(gsid)
+    local node = GetNode(gsid);
+    if(node)then
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        local s = string.format([[<div>你确定要遗忘%d级【%s】吗？</div>（符印生产技能一旦被遗忘，等级将会清零）]],GetLevels(),node.name);
+        _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+               
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+    end
+end
+function DoItemCheck()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemCheckPage.lua");
+    local ItemCheckPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemCheckPage");
+    ItemCheckPage.ShowPage();   
+    page:CloseWindow(); 
+end
+function DoItemBuild(sName)
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+    local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+    ItemBuildPage.ShowPage(sName);
+end
+
+function GotoMentor(gsid)
+    page:CloseWindow(); 
+    MinorSkillPage.GotoMentor(gsid)
+end
+]]></script>
+<div style="position:relative;margin-top:5px;width:645px;height:435px;font-size:12;color:#022a57;">
+     <div style="position:relative;margin-top:0px;width:500px;height:430px;">
+            <pe:gridview DataSource="<%=DS_Func_skills%>" 
+                    name="gwvCombatInventory" style="margin-left:5px;margin-top:0px;" CellPadding="1"  
+                    DefaultNodeHeight = "60" ItemsPerLine="1" AllowPaging="false" pagesize="4" >
+                    <Columns>
+                        <pe:if condition='<%=not HasLearned(Eval("gsid"))%>'>
+                            <div style="font-size:12;margin-top:4px;width:310px;height:100px;background-color:#80808080;" class="border_bg4_css">
+                                <div style="float:left;margin-left:10px;margin-top:10px;background-color:#80808080;">
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;background-color:#80808080;" isclickable="false"/>
+                                </div>
+                                <div style="float:left;margin-top:15px;">
+                                    <div style="position:relative;margin-left:15px;"></div>
+                                    <div style="position:relative;margin-left:60px;margin-top:50px;">
+                                        <pe:if condition='<%=NeverLearned()%>'>
+                                            <input type="button" value="学习" style="font-weight:bold;font-size:14px;height:26px;"  tooltip="每个魔法师只能学习一种符印生产技能" class="button" name='<%=Eval("gsid")%>' onclick="DoLearn"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=not NeverLearned()%>'>
+                                            <input type="button" value="转换技能" style="font-size:12px;color:#f0f000;background-color:#f0f000" tooltip="每个魔法师只能学习一种符印生产技能" class="linkbutton" name='<%=Eval("gsid")%>' onclick="DoLearn"/>
+                                        </pe:if>
+                                        <input type="button" value="拜访导师" style="position:relative;margin-left:50px;font-size:12px;color:#f0f000;background-color:#f0f000" tooltip="跳转到技能导师处" class="linkbutton" name='<%=Eval("gsid")%>' onclick="GotoMentor"/>
+                                    </div>
+                                    
+                                    <div style="font-weight:bold;font-size:15px;base-font-size:15;color:#9df9fd;margin-left:5px;margin-top:3px;"><%=Eval("name")%></div>
+                                    <div style="margin-left:8px;margin-top:3px;color:#9df9fd">
+                                        <%=Eval("tooltip")%>
+                                    </div>
+                                </div>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=HasLearned(Eval("gsid"))%>'>
+                            <div style="font-size:12;margin-top:4px;width:310px;height:100px;" class="border_bg4_css">
+                                <div style="float:left;margin-left:10px;margin-top:10px;">
+                                    <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" isclickable="false"/>
+                                </div>
+                                <div style="float:left;margin-top:15px;">
+                                    <input type="button" zorder="2" value='<%=tostring(GetLevels())%>' style="position:relative;font-weight:bold;font-size:14px;color:#ffffff;margin-left:-25px;margin-top:30px;width:36px;height:36px;background-color:#ffffffff;background:url(Texture/Aries/Inventory/dragon_level_bg_32bits.png)" />
+                                    <pe:if condition='<%=Eval("gsid") == 50391%>'>
+                                        <div style="position:relative;margin-left:60px;margin-top:50px;">
+                                            <input type="button" value="碎片鉴定" class="button"  style="font-weight:bold;font-size:14px;height:26px;" onclick="DoItemCheck"/>
+                                        </div>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("gsid") == 50392%>'>
+                                        <div style="position:relative;margin-left:60px;margin-top:50px;">
+                                            <input type="button" value="符印合成" class="button" style="font-weight:bold;font-size:14px;height:26px;" name="rune" onclick="DoItemBuild"/>
+                                        </div>
+                                    </pe:if>
+                                     <pe:if condition='<%=Eval("gsid") == 50397%>'>
+                                        <div style="position:relative;margin-left:60px;margin-top:50px;">
+                                            <input type="button" value="药剂合成" class="button" style="font-weight:bold;font-size:14px;height:26px;" name="medicine" onclick="DoItemBuild"/>
+                                        </div>
+                                    </pe:if>
+                                    <input type="button" value="拜访导师" style="position:relative;margin-left:170px;margin-top:50px;font-size:12px;" tooltip="跳转到技能导师处" class="linkbutton" name='<%=Eval("gsid")%>' onclick="GotoMentor"/>
+                                    <div style="font-weight:bold;font-size:15px;base-font-size:15;color:#ffffff;margin-left:5px;margin-top:3px;"><%=Eval("name")%></div>
+                                    <div style="margin-left:8px;margin-top:3px;">
+                                        <pe:progressbar class="expbar" name='<%=Eval("gsid")%>' Minimum = "1" Maximum = '<%=GetMaxExp(Eval("gsid"))%>' Value = '<%=GetCurExp(Eval("gsid"))%>' Step = "1" style="width:200px;height:20px;"
+                                              />
+                                        <div style="margin-top:-20px;margin-left:-20px;text-align:center;color:#ffffff;"><%=GetExpStr(Eval("gsid"))%></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </pe:if>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin-left:70px;margin-top:30px;"></div>
+                    </FetchingDataTemplate>
+                </pe:gridview>
+            </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

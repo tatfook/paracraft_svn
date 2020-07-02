@@ -1,0 +1,53 @@
+﻿<!-- "script/kids/3DMapSystemUI/PENote/Pages/LiteMailPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiteMailPage, by Leio, 2012/04/29</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/PENote/Pages/LiteMailPage.lua");
+Map3DSystem.App.PENote.LiteMailPage.OnInit()
+
+function getSelectList()
+    local list = {
+        { text="我发现了一个错误" ,value="我发现了一个错误",},
+        { text="我有一个建议" ,value="我有一个建议",}, 
+    }
+    list[2].selected = "true";
+    return list;
+end
+
+]]></script>
+    <aries:window width="470" height="350" title="意见反馈" onclose="Map3DSystem.App.PENote.LiteMailPage.ClosePage()" mode="lite">
+    
+	    <div style="width:500px;height:30px;margin-left:40px;margin-top:25px;color:#ffffff" class="bordertext">
+        意见分类：<select style="float:left;width:300px;" name="send_info_type" AllowUserEdit="false" DataSource="<%=getSelectList() %>" />
+        </div>
+
+	    <div style="width:383px;height:37px;margin-left:40px;margin-top:3px;color:#ffffff" >
+            <div style="float:left;" class="bordertext">标题:</div>
+	         <input type="text" style="float:left;margin-left:10px;width:340px;height:25px;" text="" name="send_info_title"/>
+	    </div>
+
+        <div style="margin-left:40px;color:#ffffff">
+        <div style="float:left;" class="bordertext">内容:</div>
+	    <div class="defaulttextfield" style="float:left;margin-left:10px;width:340px;height:140px;">
+            <textarea style="width:379px;" name="send_info"  rows="7" />
+        </div>
+        </div>
+        
+        <input type="button" text="提交意见" style="margin-left:157px;margin-top:10px;width:155px;height:35px;" class="gift_button_cn"
+            onclick = "Map3DSystem.App.PENote.LiteMailPage.SendMail_Postlog"  />
+
+<!--        <div style="color:#ffffff;font-size:12px;margin-left:20px;margin-top:-10px;" class="bordertext">温馨提示：</div>
+       <div style="color:#ffffff;font-size:12px;margin-left:20px;" class="bordertext">
+            <li>请不要随意乱写文字，否则可能会受到停号处理。</li>
+        </div>-->
+    </aries:window>
+</pe:mcml>
+</body>
+</html>
+

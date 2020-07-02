@@ -1,0 +1,76 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicMoneyBox/30410_MoneyBox_Dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30410_MoneyBox_Dialog.lua"><![CDATA[
+
+local pageCtrl = document:GetPageCtrl();
+
+local npc_id=30410
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    local memory ={};
+    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30410);
+    if (memory) then
+	   	gossip_text_1 = "我是神奇的魔法储蓄罐，只有魔法星的力量，才能让我拥有无穷的财富哦! 你来找我有什么事吗？";
+        npc_name = "魔法储蓄罐";
+   	    return true;
+    else
+        return false;
+    end
+end;
+
+GetPMoney = function()
+    MyCompany.Aries.Quest.NPCs.MoneyBox_Dialog.ShowPage();
+end
+
+function EntryAction(from, to)   
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+
+]]></script>
+       
+    <pe:dialog NPC_id = '30410' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30410' />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("npc_name")%>'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="getpmoney_ok" />
+            <pe:placeholder id="later" />
+        </pe:template>        
+
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1") %>' target_state = "1"/>
+		    </pe:answer>`
+	    </pe:state>
+	    <pe:state id = "1">
+		    <%=Eval("gossip_text_1")%>            
+		    <pe:answer text="领取奇豆" template_id="getpmoney_ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetPMoney") %>' target_state = "-1"/>
+		    </pe:answer>		         
+            <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

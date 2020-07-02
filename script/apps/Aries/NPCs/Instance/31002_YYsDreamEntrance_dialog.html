@@ -1,0 +1,142 @@
+﻿<!-- "script/apps/Aries/NPCs/Instance/31002_YYsDreamEntrance_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30001_ChiefHilton_dialog, by Andy, 2009/7/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+local state = page:GetRequestParam("state");
+state = tonumber(state);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Instance = commonlib.gettable("MyCompany.Aries.Instance");
+local Scene = commonlib.gettable("MyCompany.Aries.Scene");
+
+text_diag_1 = "我是YY，实力太弱去不了其他岛屿，但我的梦里也有火鸟岛和寒冰岛呢，不知道和真的像不像， 每晚7：30-8：30你也可以来哦！";
+text_diag_2 = "我现在还没开始做梦呢，你到晚上7：30-8：30之间再来吧！"
+
+local date = Scene.GetServerDate();
+if(date == "2011-01-07") then
+    text_diag_1 = "我是YY，实力太弱去不了其他岛屿，但我的梦里也有火鸟岛和寒冰岛呢，不知道和真的像不像， 每晚7：30-9：00你也可以来哦！";
+    text_diag_2 = "我现在还没开始做梦呢，你到晚上7：30-9：00之间再来吧！"
+end
+
+DuringActivity = function()
+    
+    local date = Scene.GetServerDate();
+    if(date == "2011-01-07") then
+        local seconds = Scene.GetElapsedSecondsSince0000()
+        if(seconds) then
+            if(seconds >= (3600 * 19 + 60 * 30) and seconds <= (3600 * 21 + 60 * 0)) then
+                return true;
+            end
+        end
+    else
+        local seconds = Scene.GetElapsedSecondsSince0000()
+        if(seconds) then
+            if(seconds >= (3600 * 19 + 60 * 30) and seconds <= (3600 * 20 + 60 * 30)) then
+                return true;
+            end
+        end
+    end
+
+    return false;
+end
+
+EnterDream = function()
+    Instance.EnterInstancePortal("HaqiTown_YYsDream_S1")
+end
+
+function HasState100()
+    if(state and state == 100)then
+        return true;
+    end
+end
+function HasState100_DuringActivity()
+    if(HasState100())then
+        local a = DuringActivity();
+        if(a)then
+            return true;
+        end
+    end
+end
+function HasState100_Not_DuringActivity()
+    if(HasState100())then
+        local a = DuringActivity();
+        if(not a)then
+            return true;
+        end
+    end
+end
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30417" />
+            <pe:placeholder id="name" source="{this}" value="YY" />
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "<%=HasState100_DuringActivity()%>" transition='<%=Eval("EnterDream")%>'  target_state = "-1"/>
+			    <pe:answer-if condition = "<%=HasState100_DuringActivity()%>" target_state = "3"/>
+			    <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    <%=Eval("text_diag_1")%>
+		    <pe:answer text="进入梦幻空间" template_id="enteryysdream">
+			    <pe:answer-if condition = '<%=Eval("DuringActivity")%>' transition='<%=Eval("EnterDream")%>' target_state = "-1"/>
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+		    <br/>
+	    </pe:state>
+	    <pe:state id = "3">
+            <%=Eval("text_diag_2")%>
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        
+
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

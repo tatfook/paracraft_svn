@@ -1,0 +1,49 @@
+<!-- "script/apps/Aries/Family/FamilySearchBox.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Family/FamilyListPage.lua");
+local FamilyListPage = commonlib.gettable("Map3DSystem.App.Family.FamilyListPage");
+NPL.load("(gl)script/apps/Aries/Family/FamilyHelper.lua");
+local FamilyHelper = commonlib.gettable("Map3DSystem.App.Family.FamilyHelper");
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+function DoSearch()
+    local id = pageCtrl:GetValue("id");
+    FamilyHelper.Search(id,function(msg)
+        if(msg and msg.family_info)then
+            FamilyListPage.ShowPage_SearchResult(msg.family_info);
+            ClosePage();
+        else
+            ClosePage();
+            _guihelper.MessageBox("家族不存在！");
+        end
+    end)
+end
+]]></script>
+  <div style="width:275px;height:130px;" class="pane">
+    <div style="height:19px;">
+        <div style="position:relative;color:#ffffff;text-align:center;margin-top:2px;">查找家族</div>
+        <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:233px;" />
+    </div>
+    <div style="float:left;padding:5px;margin-left:5px;margin-top:5px;width:265px;height:70px;" class="border">
+    <div style="margin-top:5px;"><div  style="float:left">家族名称/编号：</div><input type="text" name="id" enable_ime="false" class="defaulttextfield"/></div>
+    </div>
+    <div style="margin-top:5px;">
+    <input type="button" value="确定" onclick="DoSearch()" style="margin-left:55px;width:80px;height:22px;font-size:12px;"/>
+    <input type="button" value="取消" onclick="ClosePage()" style="margin-left:10px;width:80px;height:22px;font-size:12px;"/>
+    </div>
+</div>
+    
+</pe:mcml>
+</body>
+</html>
+

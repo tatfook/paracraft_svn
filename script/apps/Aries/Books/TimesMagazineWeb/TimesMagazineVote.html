@@ -1,0 +1,142 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazineWeb/TimesMagazineVote.html" 
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazineVote, by leio, 2012/05/09</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local TimesMagazineWeb = commonlib.gettable("MyCompany.Aries.Books.TimesMagazineWeb");
+local version = pageCtrl:GetRequestParam("version");
+local template = TimesMagazineWeb.LoadVoteTemplate();
+local vote_list;
+if(version and template)then
+    vote_list = template[version];
+    vote_list = commonlib.deepcopy(vote_list);
+end
+for k,v in ipairs(vote_list) do
+    v.is_checked = false;
+end
+function DS_Func(index)
+    if(not vote_list)then return nil end
+	if(index == nil) then
+		return #(vote_list);
+	else
+		return vote_list[index];
+	end
+end
+function HasChecked()
+    if(vote_list)then
+        local k,v;
+        local has_checked = false;
+        local cnt = 0;
+        for k,v in ipairs(vote_list) do
+            if(v.is_checked)then
+                has_checked = true;
+                cnt = cnt + 1;  
+            end
+        end
+        return has_checked,cnt;
+    end    
+end
+function DoCheck(index)
+    if(vote_list)then
+        local node = vote_list[index];
+        local choice = vote_list.choice;
+        if(not node.is_checked)then
+            node.is_checked = true;
+        else
+            node.is_checked = false;
+        end
+        pageCtrl:CallMethod("vote_list_view", "SetDataSource", vote_list);
+        pageCtrl:CallMethod("vote_list_view","DataBind");
+    end
+end
+function DoPost()
+    
+    local has_checked,cnt = HasChecked();
+    if(not has_checked)then
+        _guihelper.MessageBox("你还没有选择呢，不能提交！");
+        return
+    end
+    local choice = vote_list.choice;
+    if(cnt > choice)then
+        local s = string.format("最多选择%d项，你的选择太多了，不能提交！",choice);
+        _guihelper.MessageBox(s);
+        return;
+    end
+    if(HasPost())then
+        _guihelper.MessageBox("你已经提交过信息了！");
+        return
+    end
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("本期投票只有一次提交的机会，确定要提交你的选择吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            System.User.IsVoted = true;
+            local post = {};
+            post["title"] = vote_list.title;
+            post["version"] = vote_list.version;
+            local k,v;
+            for k,v in ipairs(vote_list) do
+                if(v.is_checked)then
+                    table.insert(post,{label = v.label,index = k});
+                end
+            end
+            local key = string.format("post_%s_%s",version,tostring(Map3DSystem.User.nid));
+            MyCompany.Aries.Player.SaveLocalData(key, true)
+            paraworld.PostLog({action = "post_vote", post = post}, 
+							        "post_vote_log", function(msg)
+						        end);
+            _guihelper.MessageBox("意见已经提交，感谢您对【魔法哈奇】的支持！");
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+    
+end
+function GetTitle()
+    if(vote_list)then
+        return vote_list.title;
+    end
+end
+function GetComment()
+    if(vote_list)then
+        return vote_list.comment;
+    end
+end
+function HasPost()
+    local key = string.format("post_%s_%s",version,tostring(Map3DSystem.User.nid));
+    return MyCompany.Aries.Player.LoadLocalData(key, false);
+end
+]]></script>
+<div style="margin-left:10px;width:641px;height:360px;background:url();">
+    <div style="width:540px;margin-left:50px;margin-top:50px;"><%=GetTitle() %></div>
+     <pe:gridview name="vote_list_view" DataSource="<%=DS_Func%>" style="margin-left:50px;margin-top:20px;height:200px;" ItemsPerLine="1" AllowPaging="false" pagesize="10">
+		<Columns>
+            <div style="width:270px;">
+                <div>
+					<pe:if condition='<%=Eval("is_checked")%>' >
+						<input type="button" class="listbutton_selected" onclick="DoCheck" name='<%=Eval("index")%>' value='<%=Eval("label")%>'
+							style="margin-left:35px;margin-top:0px;width:500px;height:25px;text-align:left;" />
+                        <input type="button" onclick="DoCheck"  name='<%=Eval("index")%>'  style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+					</pe:if>
+					<pe:if condition='<%=not Eval("is_checked") %>' >
+						<input type="button" class="listbutton_unselected" onclick="DoCheck"  name='<%=Eval("index")%>' value='<%=Eval("label")%>'
+							style="margin-left:35px;margin-top:0px;width:500px;height:25px;text-align:left;" />
+                        <input type="button" onclick="DoCheck"  name='<%=Eval("index")%>'  style="position:relative;margin-left:10px;margin-top:-20px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" />
+					</pe:if>
+				</div>
+			</div>
+		</Columns>
+	</pe:gridview>
+    <input type="button" value="提交" onclick="DoPost()" zorder="2" style="width:60px;margin-top:20px;margin-left:450px;"/> 
+    <div style="width:540px;margin-left:70px;margin-top:-60px;font-size:12px;"><%=GetComment() %></div>
+</div>
+
+
+
+</pe:mcml> 
+</body>
+</html>

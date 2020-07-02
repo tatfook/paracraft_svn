@@ -1,0 +1,110 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30153_BuidingWorkshop_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30153_BuidingWorkshop_dialog, by Andy, 2009/8/1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+ NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/30153_BuidingWorkshop.lua");
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 30006_IceHouse 冰雪小屋
+-- 17038_IceHouseBluePrint 冰雪小屋的图纸
+-- 17040_IceBrick 冰块
+-- 17039_DarkStone 石头
+
+Condition1 = function()
+    return MyCompany.Aries.Quest.NPCs.BuidingWorkshop.HasIcsHouse();--是否已经有冰雪小屋
+end;
+Condition2 = function()
+    return not MyCompany.Aries.Quest.NPCs.BuidingWorkshop.HasIceHouseBluePrint();--没有冰雪小屋的图纸
+end;
+Condition3 = function()
+    return not MyCompany.Aries.Quest.NPCs.BuidingWorkshop.HasEnoughAssets()--没有足够的资源来兑换
+end;
+Condition4 = function()
+    return MyCompany.Aries.Quest.NPCs.BuidingWorkshop.CanCompose()--满足所有的兑换条件
+end;
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 10 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.BuidingWorkshop.DoCompose();
+    end
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30153" />
+            <pe:placeholder id="name" source="{this}" value='圣诞老人的建房机'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <!----是否已经有冰雪小屋-->
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+		        <!----是否已经有冰雪小屋的图纸-->
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		        <!-----是否有足够的资源来兑换-->
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <!-----满足所有的兑换条件-->
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你已经拥有一座冰雪小屋了，不要太贪心哦。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    我是圣诞老人给大家准备的建房机，能建出最漂亮的冰雪小屋。但是没有图纸，我可不知道怎么工作。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+	        建造冰雪小屋需要50块石头，15块冰块，你还没有足够的材料哦。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    我是圣诞老人给大家准备的建房机，能建出最漂亮的冰雪小屋，需要50块石头和15块冰块。你要马上开始建造吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

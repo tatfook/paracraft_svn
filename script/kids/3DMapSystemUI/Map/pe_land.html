@@ -1,0 +1,50 @@
+﻿<!--script/kids/3DMapSystemUI/Map/pe_land.html?tileID=405-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>2008.6.13.Clayman. Refactored 2008.6.18 LiXizhi</title>
+</head>
+
+<body>
+<pe:mcml>
+<script type = "text/npl" src = "pe_land.lua">
+Map3DSystem.App.Map.landPage.OnInit();
+</script>
+
+<input type="hidden" name="IsUpdated"/>
+<div class="box" width="100%">
+    <div style="float:left;" width="50%">
+        <div style="color:#808080;float:left;width:55px;text-align:right">土地名:</div><span name="landName"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">所有者:</div><span name="owner"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">土地状态:</div><span name="landState"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">售价:</div><span name="price"></span><br />
+    </div>
+    <div style ="float:left;" width="50%">
+        <div style="color:#808080;float:left;width:55px;text-align:right">所属城市:</div><span name="city"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">使用者:</div><span name="user"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">土地评级:</div><span name="rank"></span><br />
+        <div style="color:#808080;float:left;width:55px;text-align:right">土地编号:</div><span name="landID"></span><br />
+    </div>
+    <hr />
+    <div name = "normalWorld">
+        <span style="color:#808080;">家园世界:</span><label name="emptyWorld" style="height:20px;color:#006600"></label><br />
+    </div>
+    <div name = "downloadPanel">
+       <pe:download style="width:120px;height:90px" name = "downloader" src="http://pedn.paraengine.com/twiki/pub/Main/AssetsApp/AssetManagerWnd.jpg" dest="temp/worlds/some_guid_of_the_world.zip">
+            <notready>
+                <span style="color:#808080;">家园世界:</span>
+                <label name="worldLable" style="margin-top:3px;height:20px;"></label><br />
+	            <label style="color:#808080;width:180px;height:20px;margin-left:10px;">你还未访问过该世界,点击立即下载</label>
+	            <label name="status" class="box" style="height:18px;margin:3px"/>
+            </notready>
+            <ready>
+                <span style="color:#808080;">家园世界:</span>
+	            <a name ="worldLink" onclick="Map3DSystem.App.Commands.Call" param1="File.LoadUserHomeWorld" param2="abc"></a>
+	            <input type="button" name="refresh" style ="margin-left:10px;width:16px;height:16px;background:Texture/3DMapSystem/3DMap/refresh.png" tooltip = "刷新世界"/>
+            </ready>
+        </pe:download>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

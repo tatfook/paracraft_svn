@@ -1,0 +1,86 @@
+﻿<!-- "script/apps/Aries/Desktop/ItemSellPanel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+MyCompany.Aries.Desktop.ItemSellPanel.Init();
+local pageCtrl = document:GetPageCtrl();
+function closePage()
+    pageCtrl:CloseWindow();
+end
+
+function OnDecrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local max = MyCompany.Aries.Desktop.ItemSellPanel.GetCount();
+    if(count) then
+        count = count - 1;
+        if(count < 1) then
+            count = max;
+        end
+        pageCtrl:SetValue("count", count);
+        UpdatePrice();
+    end
+end
+
+function OnIncrease()
+    local count = pageCtrl:GetValue("count");
+    local max = MyCompany.Aries.Desktop.ItemSellPanel.GetCount();
+    count = tonumber(count);
+    if(count) then
+        count = count + 1;
+        if(count > max) then
+            count = 1;
+        end
+        pageCtrl:SetValue("count", count);
+        UpdatePrice();
+    end
+end
+
+function UpdatePrice()
+    pageCtrl:SetValue("priceText", MyCompany.Aries.Desktop.ItemSellPanel.GetPriceText());
+end
+UpdatePrice();
+]]></script>
+<div style="float:left;width:361px;height:400px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469:64 64 64 64);">
+    <div style="position:relative;">
+        <input style="margin-left:312px;margin-top:16px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="closePage()" value=""/>
+    </div>
+    <div style="float:left;margin-left:0px;margin-top:48px;width:352px;height:44px;color:#ffffff;text-align:center;">
+        请填写要出售物品的数量，<br />我会给你最公道的价格！
+    </div>
+    <div style="margin-left:65px;margin-top:10px;width:230px;height:160px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+         <img name = "icon" src='<%=MyCompany.Aries.Desktop.ItemSellPanel.GetIcon() %>' style="margin-left:90px;margin-top:50px;width:64px;height:64px;"/>
+    </div>
+    <div style="margin-left:80px;margin-top:5px;height:80px;">
+        <div style="margin-left:-30px;">
+            <div style="position:relative;margin-left:20px;width:200px;height:30px;color:#ffffff;text-align:center;font-size:12;">
+                <pe:label name="priceText"></pe:label>
+            </div>
+            <div style="width:32px;height:19px;margin-left:190px;margin-top:0px;background:Texture/Aries/Quest/CastMachine/bean_32bits.png#0 0 32 19"/>
+        </div>
+        <div style="margin-left:-30px;margin-top:0px;height:10px;"/>
+        <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+        <div style="float:right;padding-left:50px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)">
+            <input type="text" ReadOnly="true" name="count" value="1" style="width:40px;height:26px;background:;"/>
+        </div>
+        <input type="button" style="width:38px;height:42px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+        <div style="margin-left:-30px;font-size:12;color:#ffffff;text-align:center;"><label name="getDesc2_txt" value=''/></div>
+    </div>
+    <div style="margin-top:10px;">
+        <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Common/DealImmediately_32bits.png#0 0 153 49)" 
+                    onclick="MyCompany.Aries.Desktop.ItemSellPanel.OnClickSell()" name="btn_send"  />
+        <input type="button" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Common/Later_32bits.png#0 0 153 49)" 
+                    onclick="closePage()" name="btn_cancel" />
+    </div> 
+</div>
+
+</pe:mcml> 
+</body>
+</html>

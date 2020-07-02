@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/NPCs/SunnyBeach/30427_InsuranceAmbassador_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30427_InsuranceAmbassador_dialog, by leio, 2011/9/27</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Instance = commonlib.gettable("MyCompany.Aries.Instance");
+local Scene = commonlib.gettable("MyCompany.Aries.Scene");
+
+function Purchase_SuperGoldBeanInsurance()
+    Map3DSystem.mcml_controls.pe_item.OnClickGSItem(12015, true);
+end
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.teen.html">
+            <pe:placeholder id="portrait" source="{this}" nid="31040" />
+            <pe:placeholder id="name" source="{this}" value="兔八哥" />
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+          你好，我是兔八哥保险公司的总经理兼客户总监——兔八哥。很高兴为你介绍我们公司的新产品“大客户金豆保险单”，你只要花费80金币购买一份保险就能在下一场赛场失败之后获得200金豆的巨额赔偿。这个保险每周最多只能购买7份。
+            
+		    <pe:answer text="大客户金豆保险单" template_id="dialog_30427_title_1">
+			    <pe:answer-if condition = "true" transition='<%=Eval("Purchase_SuperGoldBeanInsurance")%>' target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="询问公司背景" template_id="dialog_30427_title_2">
+			    <pe:answer-if condition = "true"  target_state = "2"/>
+		    </pe:answer>
+		    <br/>
+	    </pe:state>
+        
+        <pe:state id = "2">
+            我们公司是由兔哥家族兄弟创建的股份有限公司，是哈奇世界500强公司之一。我们公司一直秉承的是“真诚服务，百问不烦，以德服人”的经营理念，客户遍及全世界，是保险行业的第一品牌。
+		    <pe:answer text="aaa" template_id="dialog_30427_1">
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "3">
+            因为我是第一个创始人，也是现任董事长，在创业阶段我在老客户中具有极好的口碑，所以我的兄弟们一致赞成以我的名字来命名公司。
+		    <pe:answer text="aaa" template_id="dialog_30427_2">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "4">
+           他是九哥，我们是同父异母的兄弟。
+		    <pe:answer text="aaa" template_id="dialog_30427_3">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "5">
+           大哥、二哥出海开拓新市场去了；三哥请假一年在沙漠古堡探险度假；四哥和五哥在地下世界发展怪物人寿保险业务；六哥在死亡森林管理分公司；七哥在云中城负责航空交通意外保险业务。
+		    <pe:answer text="aaa" template_id="dialog_30427_4">
+			    <pe:answer-if condition = "true" target_state = "6"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "6">
+           很多高级魔法师都是我们的客户，其中有一些还是曾经的赛场冠军和家族族长；近年我们的业务越做越大，连一些怪物也开始来购买我们公司的人寿保险。比较知名的就有：千年僵尸伊萨鲁和法老王图坦卡蒙。
+           请问您还有什么问题么?
+		    <pe:answer text="aaa" template_id="dialog_30427_5">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true template_id="sure" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true template_id="sure" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

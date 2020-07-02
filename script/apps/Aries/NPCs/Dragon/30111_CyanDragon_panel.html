@@ -1,0 +1,54 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30111_CyanDragon_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30111_CyanDragon_dialog, by Andy, 2009/8/1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function EntryAction(from, to)
+    if(from == 1 and to == 10) then
+        System.App.Commands.Call("MiniGames.FireMaster");
+    end
+    
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+function OnClose()
+    pageCtrl:CloseWindow();
+    System.App.Commands.Call("Profile.Aries.ShowNPCDialog", 
+					{npc_id = 30111, state=6,}
+				);
+end
+]]></script>
+<div style="background:;width:840px;height:512px;background:url(Texture/Aries/Combat/BagPack/Card/bg.png# 0 0 840 512);">
+    <div style="float:right;position:relative;margin-left:800px;margin-top:-10px;">
+        <input style="width:44px;height:44px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+    <div style="margin-left:168px;margin-top:-20px;background:;width:543px;height:64px;background:url(Texture/Aries/Quest/CyanDragon/title_32bits.png# 0 0 543 64);" />
+    <div style="margin-left:40px;margin-top:20px;font-size:12;color:#05324e">
+    <div>1 打开抱抱龙背包页面</div>
+    <div>2 右侧点击选择进入战斗页卡</div>
+    <div>3 找到金木水火土中已经炼制好的魔法技能卷轴；并且点击卷轴下的购买按钮，用奇豆炼制魔法卡片</div>
+    <div>4 点击携带，就可以把已有的卡片放入战斗背包中</div>
+    </div>
+    <div style="margin-left:40px;background:;width:766px;height:338px;background:url(Texture/Aries/Quest/CyanDragon/bg_32bits.png# 0 0 766 338);" />
+</div> 
+</pe:mcml>
+</body>
+</html>

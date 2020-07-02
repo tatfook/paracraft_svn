@@ -1,0 +1,175 @@
+﻿<!-- "script/apps/Aries/Desktop/QuestArea/QuestArea.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestArea.teen.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Gift/ExtraGiftPage.lua");
+local ExtraGiftPage = commonlib.gettable("MyCompany.Aries.Gift.ExtraGiftPage");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+local QuestArea = commonlib.gettable("MyCompany.Aries.Desktop.QuestArea");
+local page = document:GetPageCtrl();
+function ds_DockNodes(index)
+    if(not QuestArea.show_gsids)then return 0 end
+    if(not index) then
+        return #QuestArea.show_gsids;
+    else
+        return QuestArea.show_gsids[index];
+    end
+end
+function CanShowNum(num)
+    if(num and num > 1)then
+        return true;
+    end
+end
+function GetTooltip(s)
+    return CommonClientService.GetTooltipString(s)
+end
+NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+local region_id = ExternalUserModule:GetRegionID();
+local links = QuestArea.external_links or {};
+if(region_id == 0 and System.options.locale == "zhTW")then
+    if(not QuestArea.external_links) then
+        links = {
+            {icon_bg = nil, link=false,},
+            {icon_bg = nil, link=false,},
+            {icon_bg = nil, link=false,},
+            {icon_bg = "Texture/Aries/Common/Teen/gifts/discount_32bits.png;0 0 53 53", link="npcshop", tooltip="", npcid = 31087, superclass="menu1", },
+            {icon_bg = "Texture/Aries/Common/Teen/gifts/fb_32bits.png;0 0 53 53", tooltip="", link="https://www.facebook.com/pages/%E9%AD%94%E5%8D%A1%E5%A4%A7%E4%BA%82%E9%AC%A5/441500589263781", },
+            {icon_bg = "Texture/Aries/Common/Teen/gifts/code_32bits.png;0 0 53 53", tooltip="", link="extra_gift_sun", },
+        }
+        NPL.load("(gl)script/ide/DateTime.lua");
+        local seconds, min, hour, day, month, year = MyCompany.Aries.Scene.GetServerDateTime()
+        if(not commonlib.timehelp.datetime_range:new("(0 0 28 4)(0 3 1 5)"):is_matched(min,hour,day, month, year)) then
+            links[4] = {icon_bg = nil, link=false,};
+        end
+        QuestArea.external_links = links;
+    end
+end
+function OpenLink(index)
+    local node = links[index];
+    if(node)then
+        local link = node.link;
+        
+        if(link == "extra_gift_sun")then
+            ExtraGiftPage.ShowPage(2);
+        elseif(link == "npcshop")then
+            NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+            local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+            local npcid = node.npcid;
+            local superclass = node.superclass;
+            if(npcid)then
+                NPCShopPage.ShowPage(npcid,superclass);
+            end
+        else
+            ParaGlobal.ShellExecute("open", link, "", "", 1);
+        end
+    end
+end
+function HasLink(link)
+    if(link)then
+        return true;
+    end
+end
+function ds_LinkNodes(index)
+    if(not index) then
+        return #links;
+    else
+        return links[index];
+    end
+end
+]]></script>
+<div style="width:350px;height:250px;margin-left:0px;" >
+    <div>
+        <pe:gridview style="width:512px;height:95px;" name="areaBar" ItemsPerLine="20" AllowPaging="true" DefaultNodeHeight = "46" pagesize="20"
+            DataSource='<%=ds_DockNodes%>'>
+	        <Columns>
+                    <div>
+                        <pe:if condition='<%=Eval("is_null") %>'>
+                            <div style="width:20px;height:20px;" />
+                        </pe:if>
+                        <pe:if condition='<%=not Eval("is_null") %>'>
+                            <pe:if condition='<%=Eval("guid") == nil %>'>
+                                <div style="width:20px;height:20px;" class="block">
+                                    <pe:if condition='<%=Eval("click_action") == nil %>'>
+                                        <input type="button" background='<%=Eval("icon") %>' tooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="0" tooltip_offset_y="16" is_lock_position="true" use_mouse_offset="false" style="margin-top:0px;width:20px;height:20px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "Bag" %>'>
+                                        <input type="button" background='<%=Eval("icon") %>' onclick="MyCompany.Aries.Desktop.QuestArea.OpenUserBag" tooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="0" tooltip_offset_y="16" is_lock_position="true" use_mouse_offset="false" style="margin-top:0px;width:20px;height:20px" />
+                                    </pe:if>
+                                </div>
+                                <div style="margin-left:2px;margin-top:-20px;position:relative;" class="defaultcolor">
+                                    <pe:if condition='<%=CanShowNum(Eval("copies")) %>'>
+                                        <%=Eval("copies") %>
+                                    </pe:if>
+                                </div>
+                                <div style="width:40px;height:12px;text-shadow:true;text-align:center;margin-left:-5px;margin-top:-18px;position:relative;color:#fee11c;" ><%=Eval("extra_info") %></div>
+                            </pe:if>
+                            <!-- slot -->
+                            <pe:if condition='<%=Eval("guid") ~= nil %>'>
+                                <div style="width:20px;height:20px;" class="block">
+                                    <pe:slot guid='<%=Eval("guid") %>' isclickable="false" style="margin-top:0px;width:20px;height:20px" />
+                                </div>
+                            </pe:if>
+                        </pe:if>
+                    </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+	        <PagerTemplate>
+                <div style="position:relative;margin-left:335px;">
+                   <!-- <form>
+                        <input zorder="1" style="margin-top:-4px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_up.png)" type="button" name="pre"/><br />
+                        <input type="button" name="text" value="1" style="color:#01d9ff;position:relative;margin-top:-7px;margin-left:-4px;background-color:#ffffff;background:url(Texture/Aries/Dock/teen/number_bg_32bits.png#0 0 23 23);height:23px;width:23px;" />
+                        <input zorder="1" style="margin-top:13px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_down.png)" type="button" name="next"/>
+                    </form>-->
+                </div>
+            </PagerTemplate>
+        </pe:gridview>
+    </div>
+     <!--<div>
+         <div style="position:relative;margin-left:20px;width:800px;height:100px;">
+             <pe:gridview name="linkBar" ItemsPerLine="6" AllowPaging="true" DefaultNodeHeight = "60" pagesize="6"
+                DataSource='<%=ds_LinkNodes%>'>
+	            <Columns>
+                        <div style="margin-left:2px;">
+                            <pe:if condition='<%=not HasLink(Eval("link")) %>'>
+                                <div style="width:53px;height:53px;" />
+                            </pe:if>
+                            <pe:if condition='<%=HasLink(Eval("link")) %>'>
+                                <input type="button" style="width:53px;height:53px;" tooltip='<%=Eval("tooltip") %>' name='<%=Eval("index") %>' onclick="OpenLink" background='<%=Eval("icon_bg") %>' />
+                                <pe:if condition='<%=Eval("link") == "npcshop" %>'>
+                                    <div style="position:relative;margin-left:2px;margin-top:-53px;background:" >
+                                        <img zorder="1" enabled="false" class="animated_white_overlay" width="53" height="53"/>
+                                    </div> 
+                                </pe:if>
+                            </pe:if>
+                        </div>
+	            </Columns>
+	            <EmptyDataTemplate>
+	            </EmptyDataTemplate>
+	            <FetchingDataTemplate>
+	            </FetchingDataTemplate>
+	            <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+	            <PagerTemplate>
+                    <div style="position:relative;margin-left:335px;">
+                       <form>
+                            <input zorder="1" style="margin-top:-4px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_up.png)" type="button" name="pre"/><br />
+                            <input type="button" name="text" value="1" style="color:#01d9ff;position:relative;margin-top:-7px;margin-left:-4px;background-color:#ffffff;background:url(Texture/Aries/Dock/teen/number_bg_32bits.png#0 0 23 23);height:23px;width:23px;" />
+                            <input zorder="1" style="margin-top:13px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_down.png)" type="button" name="next"/>
+                        </form>
+                    </div>
+                </PagerTemplate>
+            </pe:gridview>
+         </div>
+        
+    </div>-->
+</div>
+</pe:mcml> 
+</body>
+</html>

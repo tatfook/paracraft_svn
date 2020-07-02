@@ -1,0 +1,125 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/LoopTips.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/11/16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="LoopTips.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/NotificationArea/vote.lua");
+vote = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.vote");
+
+local LoopTips = commonlib.gettable("MyCompany.Aries.Desktop.LoopTips");
+LoopTips.OnInit_Teen()
+
+pagectrl = document:GetPageCtrl();
+
+NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+
+function isExpanded()
+    return LoopTips.is_expanded;
+end
+
+function BounceUnvotedIconIfNot()
+    do return end
+    UIAnimManager.PlayCustomAnimation(500, function(elapsedTime)
+	    if(elapsedTime == 500) then
+            if (not System.User.IsVoted) then
+                LoopTips.Bounce_Static_Icon("canvas_vote",pagectrl,"bounce");
+            else
+                LoopTips.Bounce_Static_Icon("canvas_vote",pagectrl,"stop");
+            end
+	    end
+    end);
+end
+
+function doExpanded() 
+    BounceUnvotedIconIfNot();
+    LoopTips.OnClickExpandBtn();
+end
+function DoPost()
+    NPL.load("(gl)script/kids/3DMapSystemUI/PENote/Pages/LiteMailPage.lua");
+    Map3DSystem.App.PENote.LiteMailPage.ShowPage();
+end
+
+local vote_date = nil; -- "20120622";
+
+function DoVote()
+    local Desktop = commonlib.gettable("MyCompany.Aries.Desktop");
+    vote.ShowPage(vote_date, true, function()
+        pagectrl:Refresh(0.1);
+    end);
+    pagectrl:Refresh(0.1);
+    BounceUnvotedIconIfNot();
+end
+
+function GetText()
+    return LoopTips.GetCurTip()
+end
+
+function HasVote()
+    local region_id = ExternalUserModule:GetRegionID();
+    region_id=tonumber(region_id)
+    if (region_id==0) then
+        return vote.HasAnyVote(vote_date)
+    else
+        return false
+    end
+end
+
+function CanVote()
+	local bean = MyCompany.Aries.Pet.GetBean();
+	local myCombatLevel=0;
+
+	if(bean) then
+		myCombatLevel = bean.combatlel or 0;
+	end
+
+    if (myCombatLevel>=20) then 
+        return true
+    else
+        return false
+    end
+end
+
+if(HasVote()) then
+    BounceUnvotedIconIfNot();
+end
+
+]]></script>
+
+<div style="width:310px;" align="right">
+<!--    <pe:container ClickThrough="true" name="canvas" alignment="_rt" style="width:100px;height:22px;background:;">
+        <pe:if condition="<%=isExpanded() %>">
+            <input  type="button" onclick="doExpanded" tooltip="隐藏提示" style="float:left;margin-left:81px;margin-top:0px;width:22px;height:24px;background:url(Texture/Aries/Common/Teen/quest/right_arrow_teen_32bits.png#0 0 22 24);" />
+        </pe:if>
+        <pe:if condition="<%=not isExpanded() %>">
+            <input  type="button" onclick="doExpanded" tooltip="显示提示" style="float:left;margin-left:81px;margin-top:0px;width:22px;height:24px;background:url(Texture/Aries/Common/Teen/quest/left_arrow_teen_32bits.png#0 0 22 24);" />
+        </pe:if>            
+    </pe:container>-->
+<!--    <pe:if condition="<%=isExpanded()%>">
+        <pe:container name="canvas_content" ClickThrough="true" style="position:relative;background-color:#1f3243;background:url(Texture/Aries/Common/gradient_white_32bits.png#0 0 8 16)" >    
+            <div style="color:#ffff00;text-align:right;margin:3px;margin-right:5px;margin-top:0px;background:;width:282px;height:22px;shadow-color:#802a2e27;shadow-quality:8;text-shadow:true">
+                <%=GetText() %>
+            </div>
+        </pe:container>
+    </pe:if>-->
+    <pe:if condition='<%=System.options.locale == "zhCN" and CanVote()%>' >
+        <pe:if condition='<%=HasVote()%>' >
+            <pe:container ClickThrough="true" name="canvas_vote" alignment="_rt" style="margin-top:50px;width:70px;height:25px;background:;">
+                <input type="button" class="bordertext" value="调查问卷" style="width:70px;height:25px;" onclick="DoVote()"/>
+            </pe:container>
+        </pe:if>
+<!--        <pe:container ClickThrough="true" name="canvas_debug" alignment="_rt" style="margin-top:80px;width:70px;height:25px;background:;">
+            <input type="button" class="bordertext" value="意见反馈" style="width:70px;height:25px;"  onclick="DoPost()"/>   
+        </pe:container>-->
+    </pe:if>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

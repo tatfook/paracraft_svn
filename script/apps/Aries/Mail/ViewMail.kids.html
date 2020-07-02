@@ -1,0 +1,268 @@
+﻿<!-- "script/apps/Aries/Mail/ViewMail.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ViewMail teen version, create by WD, 2011/11/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Mail/ViewMail.lua");
+local ViewMail = commonlib.gettable("MyCompany.Aries.Mail.ViewMail");
+
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+local AvatarBag = commonlib.gettable("MyCompany.Aries.Desktop.AvatarBag");
+
+ViewMail:Init();
+
+
+function ClosePage()
+    ViewMail:CloseWindow();
+end
+
+function GetDataSource(arg)
+    return ViewMail:GetDataSource(arg);
+end
+
+
+function SendMail()
+    MyCompany.Aries.Mail.ViewMail.Send();
+end
+function MailReply()
+    MyCompany.Aries.Mail.ViewMail.Reply();
+end
+
+function OnClickItem(arg,mcmlNode)
+    if(mcmlNode)then
+        local param1 = mcmlNode:GetAttribute("param1")
+        ViewMail:OnClickItem(arg,param1);
+    end
+end
+
+function ShowBag2()
+	if(not AvatarBag.Visible)then
+		ViewMail.SetMailContent()
+		AvatarBag:Show("Mail",ViewMail,6);
+	end
+end
+
+--switch show or hide bag
+function ShowBag()
+    ViewMail.SetMailContent()
+    if(not AvatarBag.Visible)then
+        AvatarBag:Show("Mail",ViewMail,6);
+    else
+        AvatarBag.Hide();
+    end
+end
+
+function GetFormattedNid() 
+    return string.format("(%s)",MyCompany.Aries.Mail.ViewMail.Nid() or "")
+end
+function DummyFunc()
+
+end
+]]></script>
+
+<div style="width:791px;height:470px;">
+    <pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.Visible %>'>
+        <div style="float:left;width:422px;height:416px;" class="pane">
+        <iframe name="AvatarBag" src='script/apps/Aries/Desktop/AvatarBag.kids.html'></iframe>
+        </div>  
+    </pe:if>
+<div style="float:left;width:358px;margin-left:1px;height:470px;" class="pane">
+    <div style="height:19px;margin-top:-5px;">
+      <input type="button" onclick="MyCompany.Aries.Mail.ViewMail.Hide()" class="closebutton" style="position:relative;margin-left:320px;" />
+    </div>
+
+    <div style="position:relative;width:64px;height:32px;margin-top:-5px;background:url(Texture/Aries/common/themekid/mail/cn_mail_32bits.png)" valign="top" align="center"/>   
+    <div style="width:348px;height:443px;margin-top:3px;margin-left:5px;" class="border">
+        <div style="float:left;margin-top:25px;" class="defaultcolor">
+            <div style="margin-left:10px;">
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.RECEIVE_MAIL %>'>
+                 <div style="margin-top:5px;">
+                <div style="float:left;color:#022a57;">发件人:
+                </div>
+                <div style="float:left;width:270px;">
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.Nid() == 0 %>'>
+                <div style="float:left;width:80px;">系统</div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.Nid() ~= 0 %>'>
+                <div style="float:left;color:#022a57;"><pe:name name="FullProfileUserName" nid='<%=MyCompany.Aries.Mail.ViewMail.Nid()%>' useyou="false"/></div>
+                <div style="float:left;width:80px;color:#022a57;"><%=GetFormattedNid() %></div>
+                </pe:if>
+                </div>
+                </div>
+
+                <div>
+                <div style="float:left;color:#022a57;">日期:
+                </div>
+                <div style="float:left;color:#022a57;"><%= MyCompany.Aries.Mail.ViewMail.MailDate()%>
+                </div>
+                </div>
+
+                <div>
+                <div style="float:left;color:#022a57;">主题:
+                </div>
+                <div style="float:left;width:270px;height:16px;">
+                  <input type="button" value='<%= MyCompany.Aries.Mail.ViewMail.MailTitle()%>' tooltip='<%= MyCompany.Aries.Mail.ViewMail.MailTitle()%>' style="text-align:left;width:270px;height:16px;font-size:12px;color:#022a57;background:;"/>
+                </div>
+                </div>
+                </pe:if>
+
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.SEND_MAIL %>'>
+                <div style="margin-top:5px;">
+                <div style="float:left;color:#022a57;">收件人:</div>
+                <div style="float:left;margin-left:0px;width:150px;">
+                <select style="width:220px;height:23px;margin-left:5px;" name="ddlFriends" AllowUserEdit="false" 
+                    DataSource='<%=MyCompany.Aries.Mail.MailBox.GetMyFriends() %>' 
+                    onclick='<%=MyCompany.Aries.Mail.ViewMail.OnSelectFriend() %>' >
+                    <option value='<%=Eval("value") %>'></option>
+                </select>
+
+                <!--<input type="text" name="txtNid"style="float:left;width:150px;height:22px;color:#022a57;" 
+                value ='<%=MyCompany.Aries.Mail.ViewMail.Nid() %>' onkeyup='<%=MyCompany.Aries.Mail.ViewMail.SetNid() %>'class="small_textbox"/>-->
+                </div>
+                </div>
+
+                <div>
+                <div style="float:left;width:50px;color:#022a57;">主 题:
+                </div>
+                <div style="float:left;margin-left:-5px;width:220px;">
+                <input type="text" name="txtTitle" style="float:left;width:285px;height:22px;color:#022a57;font-size:12px;"class="small_textbox"
+                 value ='<%=MyCompany.Aries.Mail.ViewMail.MailTitle() %>'/>
+                </div>
+                </div>
+                </pe:if>
+
+                <div style="color:#022a57;">信件内容:
+                </div>
+                
+            </div>
+
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.RECEIVE_MAIL %>'>
+                <div style="width:338px;padding:3px;height:305px;margin-top:3px;" class="inborder">
+                <div style="width:310px;height:220px;margin-left:10px;margin-top:5px;">
+                <%=MyCompany.Aries.Mail.ViewMail.GetReceiveMailText() %>
+                </div>
+
+                <pe:if condition='<%=#MyCompany.Aries.Mail.ViewMail.DisplayItems ~= 0 %>'>
+                <div style="margin-top:-5px;">
+                <div style="margin-left:5px;color:#022a57;">附件:
+                </div>
+                <div style="margin-left:8px;">
+                    <pe:gridview DataSource="<%=GetDataSource %>" name="gvwAttach1"
+                        CellPadding="2" ItemsPerLine="6" AllowPaging="false" pagesize="6" >
+                        <Columns>
+                            <div style="margin-left:2px;margin-top:2px;width:48px;height:48px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)" >
+                                <!--<pe:if condition='<%=Eval("isgetattach") == 0 %>'>-->
+                                <pe:item style="width:48px;height:48px;" gsid='<%=Eval("gsid")%>' isclickable="false"/>
+                                <!--<pe:item onclick='<%=MyCompany.Aries.Mail.ViewMail.TakeGoods %>' gsid='<%=Eval("gsid")%>' serverdata = '<%=Eval("serverdata")%>' param1="take" showdefaulttooltip="true" style="width:48px;height:48px;"/>-->
+                                <pe:if condition='<%=copies ~= 1%>'>
+                                <div style="margin-top:-15px;text-align:right;color:#ffffffff;"><%= Eval("copies")%></div>
+                                </pe:if>
+                                
+                            </div>
+                        </Columns>
+                        <FetchingDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                        </FetchingDataTemplate>
+	                    <!--<PagerSettings Position="Bottom" height="0" style="margin-left:152px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+	                        <form>
+                                <input type="button" name="pre" class="pagerleft" />
+                                <input type="button" name="page" class="pagertext" />
+                                <input type="button" name="next" class="pagerright" />
+	                        </form>
+	                    </PagerTemplate>-->
+                    </pe:gridview>
+                </div>
+                </div>
+                </pe:if>
+                </div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.SEND_MAIL %>'>
+                <div style="width:338px;padding:3px;height:311px;margin-top:3px;" class="inborder">
+                <textarea name="MyTextArea2" value='<%=MyCompany.Aries.Mail.ViewMail.Text() %>'style="width:320px;height:215px;margin-left:5px;margin-top:8px;color:#022a57;font-size:12px;"rows = "13" SingleLineEdit ="false" WordWrap="false" ></textarea>               
+
+                <div>
+                <div style="margin-left:5px;">附件:
+                </div>
+                <div style="margin-left:8px;">
+                    <pe:gridview DataSource="<%=GetDataSource %>" name="gvwAttach"
+                        CellPadding="2" ItemsPerLine="6" AllowPaging="false" pagesize="6" >
+                        <Columns>
+                            <div style="margin-left:2px;margin-top:2px;width:48px;height:48px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)" >
+                                <pe:slot onclick='OnClickItem' gsid='<%=Eval("gsid")%>' HideCnt = "true" param1="cancel" showdefaulttooltip="true" style="margin-left:2px;margin-top:2px;width:48px;height:48px;"/>
+                                <pe:if condition='<%=copies ~= 1%>'>
+                                <div style="margin-top:-15px;text-align:right;color:#ffffffff;"><%= Eval("copies")%></div>
+                                </pe:if>
+                            </div>
+                        </Columns>
+                        <FetchingDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                        </FetchingDataTemplate>
+                    </pe:gridview>
+                </div>
+                </div>
+                </div>
+                </pe:if>
+
+            <div style="margin-top:4px;">
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.SEND_MAIL %>'>
+                <input type="button" name="" zorder="2"  text="发送" class="defaultbutton"
+                onclick="SendMail" 
+                style="margin-left:78px;width:85px;height:25px;font-size:12px;color:#660033;" />
+
+                <input type="button" name="" zorder="2"  text="背包" class="defaultbutton"
+                    onclick="<%=ShowBag %>" 
+                style="margin-left:20px;width:85px;height:25px;font-size:12px;color:#660033;" />
+                </pe:if>
+
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.OpMode == MyCompany.Aries.Mail.ViewMail.RECEIVE_MAIL %>'>
+                    <!--<pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.Nid() == 0 %>'>
+                    <input type="button" name="" zorder="2" enabled="false" class="defaultbutton" text="回复"
+                    onclick="<%=MyCompany.Aries.Mail.ViewMail.Reply %>" 
+                style="margin-left:78px;width:85px;font-size:12px;color:#6600337f;" />
+                </pe:if>-->
+
+                <!--<pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.Nid() ~= 0 %>'>-->
+                    <input type="button" name="" zorder="2" class="defaultbutton" text="回复"
+                    onclick="MailReply" 
+                style="margin-left:35px;width:85px;height:25px;font-size:12px;color:#660033;" />
+                <!--</pe:if>-->
+
+                    <!--<input type="button" name="" zorder="2"  text="回复" class="defaultbutton"
+                    onclick="<%=MyCompany.Aries.Mail.ViewMail.Reply %>" 
+                style="margin-left:78px;width:85px;height:25px;font-size:12px;color:#660033;" />-->
+                <input type="button" name="btnDelMail" zorder="2" text="删除邮件"
+                    onclick="<%=MyCompany.Aries.Mail.MailBox.DelSelectMail %>" 
+                style="margin-left:12px;width:85px;height:25px;font-size:12px;color:#660033;margin-top:3px;" class="defaultbutton"/>
+
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.IsGetAttachment() == false and #MyCompany.Aries.Mail.ViewMail.DisplayItems > 0%>'>
+                <input type="button" name="btnGetAll" zorder="2" text="收取附件"
+                    onclick="<%=MyCompany.Aries.Mail.ViewMail.TakeGoods %>" 
+                style="margin-left:12px;width:85px;height:25px;font-size:12px;color:#660033;"  class="defaultbutton"/>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.IsGetAttachment() ==true or #MyCompany.Aries.Mail.ViewMail.DisplayItems == 0%>'>
+                <input type="button" name="" zorder="2"  enabled="false" class="defaultbutton" text="收取附件"
+                style="margin-left:12px;width:85px;height:25px;font-size:12px;color:#6600337f;" />
+                </pe:if>
+
+
+                </pe:if>
+
+                <!--<input type="button" name="" zorder="2" class="default_button" text="删除"
+                    onclick="<%=MyCompany.Aries.Mail.ViewMail.DelMail %>" 
+                style="margin-left:20px;" />-->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

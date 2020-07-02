@@ -1,0 +1,73 @@
+﻿<!-- "script/apps/Aries/Books/DragonFoodMenu.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DragonItemMagazine, by Andy, 2009/9/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+--50028_WishLevel6_Acquire
+--50029_WishLevel6_Complete
+
+local hasLollipop = false;
+
+if(hasGSItem(50028) and not hasGSItem(50029)) then
+    hasLollipop = true;
+end
+
+function DS_Func_DragonItemMagazine(index)
+    local s = nil;
+    if(index == nil) then
+        return 12;
+    elseif(index < 1) then
+    elseif( index <= 10 ) then
+        s = string.format("Texture/Aries/Books/DragonFoodMenu_v1/page0%d_32bits.png;0 0 550 430", index-1 );
+    elseif( index <= 12 ) then
+        s = string.format("Texture/Aries/Books/DragonFoodMenu_v1/page%d_32bits.png;0 0 550 430", index-1 );
+    end
+
+    if( s ) then
+       return {background = s, };
+    end
+
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+<input type="button" onclick="Confirm()" style="margin-left:700px;margin-top:10px;width:24px;height:24px;background:Texture/Aries/Books/close_32bits.png;"/>
+<div style="width:758px;height:530px;margin-top:-50px;margin-left:40px;padding-left:110px;padding-top:56px;padding-bottom:-10px;background:url(Texture/Aries/Books/yellowlight_bg_32bits.png#0 0 878 256: 100 60 100 120);">
+    <pe:gridview DataSource="<%=DS_Func_DragonItemMagazine%>" name="DragonItemMagazine" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "430" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:430px">
+                <img src='<%=Eval("background")%>' style="width:550px;height:430px;" />
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:10px;margin-top:-16px;width:168px;height:44px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-38px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:550px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

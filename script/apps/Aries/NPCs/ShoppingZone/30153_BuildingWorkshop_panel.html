@@ -1,0 +1,73 @@
+﻿<!-- "script/apps/Aries/NPCs/DrDoctor/30153_BuildingWorkshop_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30153_BuildingWorkshop_panel.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.BuildingWorkshop_panel.OnInit();
+
+local composer = MyCompany.Aries.Quest.NPCs.BuildingWorkshop_panel;
+local items = composer.items;
+local count = 0;
+if(items)then
+    count = #items;
+end
+function isFirstPage()
+    if(composer.index == 1)then
+        return true;
+    end
+end
+function isLastPage()
+    if(composer.index >= count)then
+        return true;
+    end
+end
+function prePage()
+    if(not isFirstPage())then
+        composer.index = composer.index - 1;
+        composer.BindFramePage();
+        composer.pageCtrl:Refresh(0.01);
+    end
+end
+function nextPage()
+    if(not isLastPage())then
+        composer.index = composer.index + 1;
+        composer.BindFramePage();
+        composer.pageCtrl:Refresh(0.01);
+    end
+end
+function getPage()
+    local s = string.format("%d/%d",composer.index,count);
+    return s;
+end
+]]></script>
+
+<div style="width:475px;height:542px;background:url(Texture/Aries/Quest/DrDoctor/AlmightyComposer/compose_house_bg_32bits.png#0 0 475 542);">
+<input type="button" style="width:54px;height:54px;margin-left:445px;margin-top:20px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                    zorder="2" onclick="MyCompany.Aries.Quest.NPCs.BuildingWorkshop_panel.ClosePage()" />
+<pe:if condition='<%= isFirstPage()%>'>
+<input type="button" enabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:170px;margin-top:340px;width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+</pe:if>
+<pe:if condition='<%= not isFirstPage()%>'>
+<input type="button" onclick="prePage()" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:170px;margin-top:340px;width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+</pe:if>
+<pe:if condition='<%= isLastPage()%>'>
+<input type="button"  enabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:30px;margin-top:340px;width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+</pe:if>
+<pe:if condition='<%= not isLastPage()%>'>
+<input type="button"  onclick="nextPage()" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:30px;margin-top:340px;width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+</pe:if>
+<br />
+<input type="button" zorder="2" style="margin-left:150px;margin-top:0px;width:153px;height:49px;background:url(Texture/Aries/Common/Start_Build_32bits.png#0 0 153 49)" tooltip="开始建造" onclick="MyCompany.Aries.Quest.NPCs.BuildingWorkshop_panel.OnCompose()"/>
+<div style="text-align:center;margin-left:152px;margin-top:-85px;width:153px;"><%=getPage() %></div>
+</div>
+ 
+<iframe style ="width:420px;margin-left:30px;margin-top:-480px;"name="contentframe" src='script/apps/Aries/NPCs/SnowArea/30345_CastMachine_compose_frame.html'/>
+</pe:mcml> 
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!-- script/apps/Aries/NPCs/MagicMoneyBox/GiftTooltips.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Local Map Page</title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local gsid = page:GetRequestParam("gsid") or 0;
+gsid = tonumber(gsid);
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+tooltip="";
+
+if(gsItem) then
+	local name = gsItem.template.name;
+	-- stats
+	--33 Collectable_Reward_Joybean(C) 钱袋包  
+	--34 Collectable_Reward_Exp(C) 经验包  
+	tooltip = name;
+	local joybean = gsItem.template.stats[33];
+	if(joybean) then
+		tooltip = tooltip.."<br/>"..joybean.."奇豆<br/>点击使用";
+        tooltip = "<div style='width:100px;text-align:center;font-size:11'>"..tooltip.."</div>"
+	end
+	local exp = gsItem.template.stats[34];
+	if(exp) then
+		tooltip = tooltip.."<br/>"..(exp * 100).."经验<br/>点击使用";
+        tooltip = "<div style='width:100px;text-align:center;font-size:11'>"..tooltip.."</div>"
+	end
+	if(gsItem.template.class == 3 and gsItem.template.subclass == 6) then
+		-- SocketableGem
+		local stat_word = "";
+		local type, value;
+		for type, value in pairs(gsItem.template.stats) do
+			local word = MyCompany.Aries.Combat.GetStatWord_OfTypeValue(type, value);
+			if(word) then
+				stat_word = stat_word..word.."<br/>";
+			end
+		end
+		tooltip = tooltip.."<br/>镶嵌后 "..stat_word;
+        tooltip = "<div style='width:180px;text-align:center;font-size:11'>"..tooltip.."</div>"
+	elseif(gsItem.template.class == 3 and gsItem.template.subclass == 7) then
+		-- SocketingRune
+		-- 35 Socketing_Rune_Success_Ratio(CS) 镶嵌符的影响成功率的数值 例如10 代表10%
+		tooltip = tooltip.."<br/>提高镶嵌成功率 "..(gsItem.template.stats[35] or 0).."%";
+        tooltip = "<div style='width:180px;text-align:center;font-size:11'>"..tooltip.."</div>"
+	end
+end
+]]></script>
+
+     <div style="padding:2px;padding-right:-2px;background:url(Texture/Aries/Friends/addfriend_input_32bits.png:10 10 10 10);">
+<!--           <div style="width:225px;text-align:center;font-size:11"><%=Eval("tooltip") %></div>            -->
+           <%=Eval("tooltip") %>
+    </div>
+    
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,199 @@
+----[[
+--Title: YoYoDeer
+--Author(s): Leio
+--Date: 2010/01/18
+--
+--use the lib:
+--
+--------------------------------------------------------------
+--script/apps/Aries/NPCs/FollowPets/30211_YoYoDeer.lua
+--------------------------------------------------------------
+--]]
+--
+---- create class
+--local libName = "YoYoDeer";
+--local YoYoDeer = {};
+--commonlib.setfield("MyCompany.Aries.Quest.NPCs.YoYoDeer", YoYoDeer);
+--
+--local GameObject = MyCompany.Aries.Quest.GameObject;
+--local NPC = MyCompany.Aries.Quest.NPC;
+--
+--local ItemManager = System.Item.ItemManager;
+--local hasGSItem = ItemManager.IfOwnGSItem;
+--local equipGSItem = ItemManager.IfEquipGSItem;
+--
+---- YoYoDeer.main
+--function YoYoDeer.main()
+	--local self = YoYoDeer; 
+	--if(self.HasYoYoDeer())then
+		----如果已经拥有呦呦鹿 删除呦呦鹿妈妈npc
+		--NPC.DeleteNPCCharacter(30211);
+	--end
+	--if(self.FindDeer_Less_6() and self.FindDeer_IsOpen())then
+		----创建没有捡取的小鹿
+		--self.BuildDeers();
+	--end
+	---- refresh the save gucci quest state
+	--YoYoDeer.RefreshStatusState();
+--end
+--
+--function YoYoDeer.RefreshStatusState()
+	---- refresh the save gucci state
+	--if(hasGSItem(50263) and not hasGSItem(50260)) then
+		---- show the save gucci quest icon
+		--local QuestArea = MyCompany.Aries.Desktop.QuestArea;
+		--QuestArea.AppendQuestStatus("script/apps/Aries/NPCs/FollowPets/30272_Gucci_Save_status.html", 
+			--"normal", "Texture/Aries/Quest/Props/SaveGucci_32bits.png;0 0 80 75", "营救古奇", nil, 30, nil);
+	--else
+		---- hide the save gucci quest icon
+		--local QuestArea = MyCompany.Aries.Desktop.QuestArea;
+		--QuestArea.DeleteQuestStatus("script/apps/Aries/NPCs/FollowPets/30272_Gucci_Save_status.html");
+	--end
+--end
+--
+--function YoYoDeer.PreDialog(npc_id, instance)
+	--return true;
+--end
+----是否开启寻找
+--function YoYoDeer.FindDeer_UnOpen()
+	--local self = YoYoDeer; 
+	--return not hasGSItem(50263);
+--end
+----已经开启寻找
+--function YoYoDeer.FindDeer_IsOpen()
+	--local self = YoYoDeer; 
+	--return hasGSItem(50263);
+--end
+--
+----已开启寻找，未全部找齐
+--function YoYoDeer.FindDeer_Less_6()	
+	--local self = YoYoDeer; 
+	--local bHas,__,__,copies = hasGSItem(50262);
+	--copies = copies or 0;
+	--if(copies < 6)then
+		--return true;
+	--end
+--end
+----寻找齐6只小鹿 但没有兑换
+--function YoYoDeer.FindDeer_6()
+	--local self = YoYoDeer; 
+	--local bHas,__,__,copies = hasGSItem(50262);
+	--if(bHas and copies >= 6)then
+		--return true;
+	--end
+--end
+----是否已经拥有呦呦鹿
+--function YoYoDeer.HasYoYoDeer()
+	--local self = YoYoDeer; 
+	--return hasGSItem(10116);
+--end
+----创建没有捡取的小鹿
+--function YoYoDeer.BuildDeers()
+	--local self = YoYoDeer; 
+	----如果已经拥有呦呦鹿
+	--if(self.HasYoYoDeer())then return end
+	--local len = 6;
+	--local bHas,__,__,copies = hasGSItem(50262);
+	--copies = copies or 0;
+	--len = len - copies;
+	--len = math.max(0,len);
+	--if(len > 0)then
+		----创建 可以被捡取的小鹿
+		--
+		--local positions = {
+			--{ 19774.482421875, 75.158958435059, 20387.40234375 },
+			--{ 19888.408203125, 68.885948181152, 20457.802734375 },
+			--{ 19853.369140625, 75.654228210449, 20456.47265625 },
+			--{ 19832.6875, 75.268707275391, 20467.732421875 },
+			--{ 19822.919921875, 74.548713684082, 20468.751953125 },
+			--{ 19824.763671875, 79.250152587891, 20450.451171875 },
+		--}
+		--local k;
+		--for k = 1,len do	
+			--local pos = positions[k];
+			--local params = { 
+				--name = "呦呦鹿",
+				--scaling = 1,
+				--position = pos,
+				--facing = 1.3442616462708,
+				--isalwaysshowheadontext = false,
+				--scaling = 0.8,
+				--assetfile_char = "character/v5/02animals/Deer/Deer.x",
+				--main_script = "script/apps/Aries/NPCs/FollowPets/30211_YoYoDeer_Entity.lua",
+				--main_function = "MyCompany.Aries.Quest.NPCs.YoYoDeer_Entity.main();",
+				--predialog_function = "MyCompany.Aries.Quest.NPCs.YoYoDeer_Entity.PreDialog",
+				--AI_script = "script/apps/Aries/NPCs/FollowPets/30211_YoYoDeer_Entity_AI.lua",
+				--On_FrameMove = ";MyCompany.Aries.Quest.NPCAI.YoYoDeer_Entity_AI.On_FrameMove();",
+			--}
+			--local id = "30211"..k;
+			--NPC.CreateNPCCharacter(id, params);
+		--end
+	--end
+--end
+----开启寻找小鹿的任务
+--function YoYoDeer.GetFoundYoyoDeerTag()
+	--local self = YoYoDeer; 
+	----如果已经开启了任务
+	--if(not self.FindDeer_UnOpen())then return end
+--
+	--ItemManager.PurchaseItem(50263, 1, function(msg) end, function(msg) 
+		--commonlib.echo("+++++++Purchase 50263_TalkedWithYoyoDeerMom return: +++++++\n")
+		--commonlib.echo(msg);
+		---- refresh the quest state
+		--YoYoDeer.RefreshStatusState()
+		----创建小鹿
+		--if(msg.issuccess == true) then
+			--self.BuildDeers()
+		--end
+	--end, nil, "none");							
+--end
+----获取自己的呦呦鹿
+--function YoYoDeer.GetMyYoyoDeer()
+	--local self = YoYoDeer; 
+	----如果已经拥有呦呦鹿
+	--if(self.HasYoYoDeer())then return end
+	--
+	--local exID;
+	--if(hasGSItem(50261))then
+		----如果已经发现古奇 只能兑换呦呦鹿
+		--exID = 214
+	--else
+		----如果没有发现古奇 兑换呦呦鹿的标记 和 发现古奇的标记
+		--exID = 215
+	--end
+	--ItemManager.ExtendedCost(exID, nil, nil, function(msg)end, function(msg)
+		--log("+++++++ Get_10116_FollowPet_YoyoDeer return: +++++++\n")
+		--commonlib.echo(msg);
+		--if(msg.issuccess == true) then
+			----鹿妈妈消失
+			--NPC.DeleteNPCCharacter(30211);
+			----古奇出现
+			--
+			--local params = { 
+				--name = "古奇",
+				--position = { 19793, 76, 20375 },
+				--facing = -2.1232047080994,
+				--scaling = 0.8,
+				--assetfile_char = "character/v5/01human/Gucci/Gucci.x",
+				--assetfile_model = "model/common/aries_npc_boundingvolumn/aries_npc_boundingvolumn.x",
+				--main_script = "script/apps/Aries/NPCs/FollowPets/30272_Gucci.lua",
+				--main_function = "MyCompany.Aries.Quest.NPCs.Gucci.main();",
+				--predialog_function = "MyCompany.Aries.Quest.NPCs.Gucci.PreDialog",
+				--dialog_page = "script/apps/Aries/NPCs/FollowPets/30272_Gucci_dialog.html",
+				--PerceptiveRadius = 5,
+				--SentientRadius = 50,
+				--autofacing = true,
+			--}
+			--if(exID == 215)then
+				--NPC.CreateNPCCharacter(30272, params);
+			--end
+			----NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+			----local s = "<div style='margin-left:15px;margin-top:15px;text-align:center'>好好照顾我的孩子，它已经先回家等你了！我也要带着其他的孩子离开这里，它们都被晃动吓坏了，你也要多小心！</div>";
+			----_guihelper.Custom_MessageBox(s,function(result)
+				----if(result == _guihelper.DialogResult.OK)then
+				----end
+			----end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+		--end
+	--end);
+		--
+--end

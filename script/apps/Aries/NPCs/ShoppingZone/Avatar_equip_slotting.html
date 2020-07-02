@@ -1,0 +1,340 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_slotting.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_equip_slotting,add by WD, 2011/08/16</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_slotting.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.lua");
+
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+local Avatar_equip_slotting = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting");
+Avatar_equip_slotting:Init();
+
+local pageCtrl = document:GetPageCtrl();
+
+function OnClickItem(arg)
+    Avatar_equip_slotting:OnClickItem(arg);
+    if (MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots>0) then
+        local bean = MyCompany.Aries.Pet.GetBean();
+        local myCombatLevel = 0;
+        if(bean) then
+	        myCombatLevel = bean.combatlel or 0;
+        end
+        
+        local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+        local equipslot_tips = true;
+
+        if (not system_looptip.equipslot_tip) then
+	        system_looptip.equipslot_tip=true;
+            local Player = commonlib.gettable("MyCompany.Aries.Player");
+            equipslot_tips = Player.LoadLocalData(key, false) or false;
+        end
+
+        if (myCombatLevel<10 and (not equipslot_tips)) then
+            onGotoStartPage(1);
+        end
+    end
+end
+
+function ClosePage()
+    Avatar_equip_slotting:CloseWindow();
+end
+
+function FilterItems(arg)
+    return Avatar_equipment_subpage:FilterItems(arg);
+end
+
+function DummyFunc()
+
+end
+----------
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local key = string.format("tesselatetips_%s",System.User.nid);
+local equipslot_tips = true;
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoPage()
+    pageCtrl:SetValue("TooltipsPPT", "page")
+end
+
+function onGotoStartPage(hstate)
+    if (not hstate) then
+        local IsEquipInBag;
+        local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+        if (Avatar_equipment_subpage.DisplayItems) then
+	        local firstItem = Avatar_equipment_subpage.DisplayItems[1];
+            -- commonlib.echo(firstItem);
+
+            if (firstItem) then
+                if (firstItem.gsid~=0) then
+	                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	                if (gsItem.template.class~=1) then -- judge item is equip or not
+                        IsEquipInBag = false;
+                    else
+                        IsEquipInBag = true;
+	                end
+                else
+                    IsEquipInBag = false;
+                end
+            end
+        else
+            IsEquipInBag = false;
+        end
+        -- commonlib.echo(IsEquipInBag);
+
+        if (not IsEquipInBag) then
+            _guihelper.MessageBox("你背包里还没有可以开孔的装备，等你拥有了这种装备再告诉你怎么用吧");
+            return
+        elseif (MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag<1) then
+            pageCtrl:SetValue("TooltipsPPT", "page1")
+        else
+            pageCtrl:SetValue("TooltipsPPT", "inventory1")
+        end
+    else
+        pageCtrl:SetValue("TooltipsPPT", "inventory1")
+    end
+    
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.equipslot_tip) then
+	    system_looptip.equipslot_tip=true;
+    end
+    if (not equipslot_tips) then
+        equipslot_tips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:750px;height:455px;">
+	<div name="page1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:55px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:360px;margin-top:122px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			鼠标左键选择你要镶嵌宝石的装备！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoPage" name="page1" style="width:70px;height:28px;margin-left:150px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:370px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:325px;margin-top:55px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:360px;margin-top:122px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			鼠标左键选择你要镶嵌宝石的装备！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:150px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:370px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory2">
+		<pe:maskarea zorder="-1" method="full" style="margin-left:350px;margin-top:202px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:100px;margin-top:270px;width:300px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			点击“开孔”按钮，就可以了。当然，你要有足够的开孔材料，才能开孔成功。
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:10px;margin-top:7px;" />
+		</div>                
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:678px;margin-top:0px;width:24px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:500px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:670px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+<div style="width:758px;height:470px;" class="pane">
+    
+    <div style="height:19px;">
+      <div class="windowlabel">装备开孔</div>
+      <input type="button" onclick="onGotoStartPage()" class="helpbutton" style="position:relative;margin-top:1px;margin-left:683px;" />
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:711px;" />
+    </div>
+
+    <div style="width:748px;height:443px;margin-top:3px;" class="border">
+        <div style="float:left;margin-top:10px;width:316px;height:425px;">
+            <div style="width:300px;height:300px;margin-left:18px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)">
+
+                <div style="margin-left:81px;margin-top:8px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_equip_32bits.png#0 0 118 118)">    
+                    <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.guid ~= 0 %>' >
+                    <pe:slot onclick='OnClickItem' name="IncomingEquipGuid" showdefaulttooltip="true" style="width:58px;height:58px;margin-top:-2px;" />
+                    </pe:if>
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots ~= 0%>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots == 0%>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>
+                    </pe:if>
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 2 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>    
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 2 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/> 
+                    </pe:if>
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 3 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>       
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 3 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>    
+                    </pe:if>
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <div style="float:left;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 1%>'>
+                        <input type="button" name="btnEquipSlotting1" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                        </pe:if>
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag >1 or  MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 0%>'>
+                        <input type="button" zorder="2" visible="false" class="small_button"/>    
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:55px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 2%>'>
+                        <input type="button" name="btnEquipSlotting2" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                        </pe:if>
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag >2%>'>
+                        <input type="button" zorder="2" visible="false" class="small_button"/>    
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:58px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 3%>'>
+                        <input type="button" name="btnEquipSlotting3" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                         </pe:if>
+                    </div>
+                </div>
+
+                <div style="margin-left:16px;margin-top:12px;">
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 4 %>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>          
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 4 %>'>
+                        <div style="float:left;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>   
+                    </pe:if>
+                    
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots >= 5 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>         
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 5 %>'>
+                        <div style="float:left;margin-left:52px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>    
+                    </pe:if>                    
+
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots == 6 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_slotting_32bits.png#1 1 53 53)"/>          
+                    </pe:if>
+                    <pe:if condition ='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.holdSlots < 6 %>'>
+                        <div style="float:left;margin-left:55px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53)"/>       
+                    </pe:if>      
+                    
+                </div>
+
+                <div style="margin-left:16px;margin-top:3px;">
+                    <div style="float:left;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 4%>'>
+                        <input type="button" name="btnEquipSlotting4" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                         </pe:if>
+                         <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag >4 or MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 0%>'>
+                        <input type="button" zorder="2" visible="false" class="small_button"/>    
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:55px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 5%>'>
+                        <input type="button" name="btnEquipSlotting5" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                         </pe:if>
+                         <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag >5%>'>
+                        <input type="button" zorder="2" visible="false" class="small_button"/>    
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:58px;">
+                        <pe:if condition ='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.VisibleFlag == 6%>'>
+                        <input type="button" name="btnEquipSlotting6" zorder="2" class="small_button" text="开孔"
+                         onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" />    
+                         </pe:if>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="height:27px;">
+                <pe:tabs name="tabMaterials"  class="default_tabs" >
+                <pe:tab-item name="1" text="打孔材料"  selected='true' />
+                </pe:tabs>
+            </div>
+                <div style="padding:6px;" class = "inborder">
+       
+                    <div style="float:left;width:48px;height:48px;" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.SlotRockGsid ~= nil %>' >
+                            <pe:item onclick='DummyFunc' name="SlotRockGsid"  gsid='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.SlotRockGsid%>' showdefaulttooltip="true" style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                    <div style="float:left;margin-left:8px;">
+                        <div>
+                            <div style="float:left;">需要:</div>
+                            <div style="float:left;width:50px;" class="textfieldbutton" name="txtCostSlotRocks"> <%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.GetCostSlotRocks() %></div>
+                            <div>
+                                <div style="float:left;">拥有:</div>
+                                <div style="float:left;width:50px;" class="textfieldbutton" name="txtIncomingGemsCount"> <%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.GetHoldSlotRocks() %></div>
+                            </div>
+                        </div>
+                    </div>
+                <div style="float:left;margin-left:8px;">
+                <div>
+                    <div style="float:left;">需要奇豆:</div>
+                    <div style="float:left;width:90px;" class="textfieldbutton" name="txtCostQidou"> <%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.GetCostQidou() %></div>
+                </div>
+                <div >
+                    <div style="float:left;">拥有奇豆:</div>
+                    <div style="float:left;width:90px;" class="textfieldbutton" name="txtHoldQidou"> <%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.GetHoldQidou() %></div>
+                </div>
+                
+            </div>
+            </div>
+
+
+            <!--
+            <div style="margin-top:4px;">
+                <input type="button" name="btnAllEquipSlotting" zorder="2" class="default_button" text="全部开孔"
+                 onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.EquipSlotting %>" 
+                style="margin-left:70px;" />
+                <input type="button" name="btnPurchase" enabled="false" zorder="2" class="default_button" text="购买材料"
+                onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_slotting.ShowPurchasePage %>" 
+                style="margin-left:5px;" />
+            </div>-->
+      
+        </div>
+
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <div style="height:27px;">
+                <pe:tabs name="tabsEquipments"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="1" text="所有装备"  selected='true' />
+                <pe:tab-item name="2" text="防具"/>
+                <pe:tab-item name="3" text="饰品"/>
+                <pe:tab-item name="4" text="武器"/>
+                </pe:tabs>
+            </div>
+            <iframe name="equip_subpage" src="script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.html"/>
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

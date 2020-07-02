@@ -1,0 +1,173 @@
+﻿<!-- "script/apps/Aries/NPCs/Ambassador/30132_HaqiAmbassador_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30132_HaqiAmbassador_panel, by Leio, 2009/12/7</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30132_HaqiAmbassador_panel.lua"><![CDATA[
+MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.OnInit();
+local pageCtrl =  document:GetPageCtrl();
+function getState()
+    return MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.state or 0;
+end
+function getFruits()
+    return MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.fruitsNum;
+end
+function getFriends()
+    return MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.friendsNum;
+end
+function click1()
+    MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.state = MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.last_state;
+    pageCtrl:Refresh(0.01);
+end
+function click2()
+    MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.last_state = MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.state;
+    MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.state = 2
+    pageCtrl:Refresh(0.01);
+end
+local codeList = MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.codeList or {};
+function getKeyByIndex(index)
+    local r = codeList[index];
+    if(r)then
+        return r.keycode or "";
+    end
+    return ""
+end
+function getKeyEnabledByIndex(index)
+    local r = codeList[index];
+    if(r)then
+        --if(r.owner == -1)then
+            return true;
+        --end
+    end
+    return false
+end
+function getKey_1()
+    return getKeyByIndex(1)
+end
+function getKey_1_enabled()
+    return getKeyEnabledByIndex(1);
+end
+function getKey_2()
+    return getKeyByIndex(2)
+end
+function getKey_2_enabled()
+    return getKeyEnabledByIndex(2);
+end
+function getKey_3()
+    return getKeyByIndex(3)
+end
+function getKey_3_enabled()
+    return getKeyEnabledByIndex(3);
+end
+function getKey_4()
+    return getKeyByIndex(4)
+end
+function getKey_4_enabled()
+    return getKeyEnabledByIndex(4);
+end
+function getKey_5()
+    return getKeyByIndex(5)
+end
+function getKey_5_enabled()
+    return getKeyEnabledByIndex(5);
+end
+]]></script>
+<div style="width:855px;height:561px;background:url(Texture/Aries/Quest/Ambassador/5_32bits.png#0 0 855 561);">
+    <input type="button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.ClosePage()" style="margin-left:780px;margin-top:70px;width:32px;height:32px;background:Texture/Aries/Books/close_11_20_32bits.png;"/>
+    <pe:if condition='<%= getState() == 0%>'>
+        <div style="width:820px;height:480px;margin-left:80px;margin-top:-35px;background:url(Texture/Aries/Quest/Ambassador/1_32bits.png#0 0 820 480);" />
+        <div style="width:100px;height:60px;margin-left:160px;margin-top:-300px;float:left;">
+           <img style="width:621px;height:123px;margin-left:-75px;margin-top:-45px;background:url(Texture/Aries/Quest/Ambassador/b_32bits.png#0 0 621 123);"/>
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+           
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+           
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            
+        </div>
+        
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_domain()" style="width:80px;height:23px;margin-left:-315px;margin-top:-165px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+        <input type = "button"  style="width:162px;height:48px;margin-left:0px;margin-top:-30px;background:url(Texture/Aries/Quest/Ambassador/anniu3_32bits.png#0 0 162 48);"
+            onclick="click2()" />
+    </pe:if>
+    <pe:if condition='<%= getState() == 1%>'>
+        <div style="width:820px;height:480px;margin-left:80px;margin-top:-35px;background:url(Texture/Aries/Quest/Ambassador/1_32bits.png#0 0 820 480);" />
+      
+        <div style="width:100px;height:60px;margin-left:160px;margin-top:-300px;float:left;">
+            <!--<div style=""><%=getKey_1() %></div>
+            <pe:if condition='<%= getKey_1_enabled()%>'>
+                <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_1()" style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+            </pe:if>
+             <pe:if condition='<%= not getKey_1_enabled()%>'>
+                <img  style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/old_32bits.png#0 0 80 23);" />
+            </pe:if>-->
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            <!--<div style=""><%=getKey_2() %></div>
+            <pe:if condition='<%= getKey_2_enabled()%>'>
+                <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_2()" style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+            </pe:if>
+             <pe:if condition='<%= not getKey_2_enabled()%>'>
+                <img style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/old_32bits.png#0 0 80 23);" />
+            </pe:if>-->
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            <!--<div style=""><%=getKey_3() %></div>
+            <pe:if condition='<%= getKey_3_enabled()%>'>
+                <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_3()" style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+            </pe:if>
+             <pe:if condition='<%= not getKey_3_enabled()%>'>
+                <img style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/old_32bits.png#0 0 80 23);" />
+            </pe:if>-->
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            <!--<div style=""><%=getKey_4() %></div>
+            <pe:if condition='<%= getKey_4_enabled()%>'>
+                <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_4()" style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+            </pe:if>
+             <pe:if condition='<%= not getKey_4_enabled()%>'>
+                <img style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/old_32bits.png#0 0 80 23);" />
+            </pe:if>-->
+        </div>
+        <div style="width:100px;height:60px;margin-left:10px;margin-top:-300px;float:left;">
+            <!--<div style=""><%=getKey_5() %></div>
+            <pe:if condition='<%= getKey_5_enabled()%>'>
+                <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_5()" style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 80 23);" />
+            </pe:if>
+             <pe:if condition='<%= not getKey_5_enabled()%>'>
+                <img style="width:80px;height:23px;margin-left:-20px;margin-top:5px;background:url(Texture/Aries/Quest/Ambassador/old_32bits.png#0 0 80 23);" />
+            </pe:if>-->
+        </div>
+        
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.CopyCode_domain()" style="width:84px;height:23px;margin-left:-315px;margin-top:-225px;background:url(Texture/Aries/Quest/Ambassador/copy_32bits.png#0 0 84 23);" />
+        <input type = "button"  style="width:162px;height:48px;margin-left:0px;margin-top:-30px;background:url(Texture/Aries/Quest/Ambassador/anniu3_32bits.png#0 0 162 48);"
+            onclick="click2()" />
+        <!--<div style="margin-left:145px;margin-top:-268px;font-size:12;color:#ffffff">
+        所有体验码都可以重复使用无限次哦，快快把你的体验码告诉朋友们去吧！
+        </div>-->
+    </pe:if>
+     <pe:if condition='<%= getState() == 2%>'>
+        <div style="float:left;width:53px;margin-left:265px;margin-top:0px;color:#ffff00;text-align:center;font-weight:bold;"><%=getFruits() %></div>
+        <div style="float:left;width:53px;margin-left:205px;margin-top:0px;color:#ffff00;text-align:center;font-weight:bold;"><%=getFriends() %></div>
+        <br />
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.TakeItem_Ambassador_1()" style="float:left;width:80px;height:23px;margin-left:150px;margin-top:210px;background:url(Texture/Aries/Quest/Ambassador/suihuan_32bits.png#0 0 80 23);" />
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.TakeItem_Ambassador_3()" style="float:left;width:80px;height:23px;margin-left:40px;margin-top:210px;background:url(Texture/Aries/Quest/Ambassador/suihuan_32bits.png#0 0 80 23);" />
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.TakeItem_Ambassador_6()" style="float:left;width:80px;height:23px;margin-left:50px;margin-top:210px;background:url(Texture/Aries/Quest/Ambassador/suihuan_32bits.png#0 0 80 23);" />
+        <input type = "button" onclick="MyCompany.Aries.Quest.NPCs.HaqiAmbassador_panel.TakeItem_Ambassador_10()" style="float:left;width:80px;height:23px;margin-left:40px;margin-top:210px;background:url(Texture/Aries/Quest/Ambassador/suihuan_32bits.png#0 0 80 23);" />
+        <br />
+
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

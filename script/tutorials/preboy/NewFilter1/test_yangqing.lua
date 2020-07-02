@@ -1,0 +1,96 @@
+----[[
+--Title: Displays hierarchical data, such as a table of contents, in a tree structure. It can handle tons of data
+--Author(s): LiXizhi
+--Date: 2007/9/19
+--Note: I made this control mainly for displaying IM contact list and read-only chat history
+--use the lib:
+--------------------------------------------------------------
+--NPL.load("(gl)script/ide/TreeView.lua");
+--local tree = MyCompany.TreeView:new{
+	--name = "default_name",
+--}
+--tree.name = "1";
+--commonlib.echo(tree:GetName());
+---------
+--local tree2 = MyCompany.TreeView:new{
+--}
+--tree2.name = "2";
+--commonlib.echo(tree:GetName());
+--
+-----
+--local a = {
+	--x = 0,
+	--y = nil,
+	--z = {
+	--},
+--}
+--function a.getX()
+	--return a.x;
+--end
+--
+--a.x = 10;
+--commonlib.echo(a.x);
+--a.x = 11;
+--commonlib.echo(a.x);
+---------------------------------------------------------
+--]]
+--
+--
+---- Displays hierarchical data, such as a table of contents, in a tree structure.
+--local TreeView = {
+	--name = nil,
+	--bg = "Texture/Aries/Quest/Dialog_BG2_32bits.png;10 10 50 50: 5 10 10 5 "
+--}
+--
+--commonlib.setfield("MyCompany.TreeView.", TreeView);
+---- constructor
+--function TreeView:new (o)
+	--o = o or {}   -- create object if user does not provide one
+	--setmetatable(o, self)
+	--self.__index = self
+	--return o
+--end
+--function TreeView:GetName()
+	--return self.name;
+--end
+--
+--local test  = {
+	--"1",
+	--"2",
+	--"3",
+	--"4",
+	--key_1 = "key_1",
+	--key_2 = "key_2",
+	--{
+		--x = 1,
+		--{
+		--},
+	--},
+--}
+--commonlib.echo(test[1]);
+--
+--local k,v;
+--for k,v pairs(test) do
+	--local s = string.fromat("%s___%s",k,v);
+	--commonlib.echo(s);
+--end
+--table.insert(test,{});
+--for k,v ipairs(test) do
+	--local s = string.fromat("%s___%s",k,v);
+	--commonlib.echo(s);
+--end
+--
+--local test_1  = {
+	--{ label = 1,name  = "a", },
+	--{ label = 2,name  = "a", },
+	--{ label = 3,name  = "a", },
+	--{ label = 5,name  = "a", },
+	--{ label = 4,name  = "a", },
+--}
+--table.sort(test_1,function(node1,node2)
+	--return node1.label > node2.label;
+--end);
+--
+--
+--
+--

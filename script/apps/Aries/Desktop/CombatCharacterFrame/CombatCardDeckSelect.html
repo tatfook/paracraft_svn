@@ -1,0 +1,112 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSelect.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local CardsSelectionPage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.CardsSelectionPage");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+function GetTooltip(name)
+	local str = string.format("当前战斗背包:\n %s",name);
+    return str;
+end
+
+function onGotoNextPage()
+    Page:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("deck_viewhelp");
+
+    Page:SetValue("TooltipsPPT", "card2")
+    --local btnHelp = Page:FindControl("whatisthis");
+    --if(btnHelp) then
+    --   btnHelp.visible = false;
+    --end
+end
+
+--local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");
+--if(ArrowPointer.IsArrowShown("CardUI_Arrow")) then
+--    ArrowPointer.RemoveArrow("CardUI_Arrow");
+--    onGotoStartPage();
+--end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:-10px;margin-left:-10px;width:660px;height:390px;">
+	<div name="card2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:14px;margin-top:5px;width:180px;height:35px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="8" style="float:left;position:relative;margin-left:20px;margin-top:59px;width:32px;height:32px;" />
+        <div style="margin-left:50px;margin-top:100px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			这是你目前拥有的卡片包，高亮的表示当前使用。点击上面的图标按钮可以直接切换!
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+	<div name="card3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:15px;margin-top:40;width:320px;height:100px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="8" style="float:left;position:relative;margin-left:160px;margin-top:160px;width:32px;height:32px;" />
+        <div style="margin-left:50px;margin-top:200px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			这是战斗背包卡片，放进这里的技能卡片，在战斗中才能使用
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+    <div name="card4">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:350px;margin-top:78px;width:300px;height:260px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="6" style="float:left;position:relative;margin-left:320px;margin-top:140px;width:32px;height:32px;" />
+        <div style="margin-left:50px;margin-top:188px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			这里是你已经学习过的技能卡片，鼠标点击卡片可以把它放入左边的格子；同样，点击左边格子里的卡片，也能把卡片收回来
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+    <!--<div name="card5">
+        <pe:maskarea zorder="-1" method="substract" style="margin-left:352px;margin-top:83px;width:14px;height:71px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="6" style="float:left;position:relative;margin-left:305px;margin-top:90px;width:32px;height:32px;" />
+        <div style="margin-left:50px;margin-top:160px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			卡片左侧小圆点的的个数，表示这张卡片可以放入左侧格子的最大数量，如3个点，代表可以最多点击3次，放3张进去
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>-->
+    <div name="card5">
+        <pe:maskarea zorder="-1" method="substract" style="margin-left:12px;margin-top:295px;width:327px;height:84px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="2" style="float:left;position:relative;margin-left:74px;margin-top:240px;width:32px;height:32px;" />
+        <div style="margin-left:50px;margin-top:120px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			如果你携带的装备带有卡片，这些卡片会自动出现在这里！
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+    <div name="card6">
+		<pe:maskarea zorder="-1" method="full" style="margin-left:5px;margin-top:280px;width:353px;height:132px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:50px;margin-top:150px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			战斗中每个回合出现的8张卡片都是在左侧的技能卡片格和装备卡片格中随机抽取出来的，如果这里面的卡片都用完了，你就弹尽粮绝了
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+</pe:powerpoint>
+<!--<pe:if condition='<%=true or System.options.isAB_SDK%>'>-->
+<pe:if condition='<%=false%>'>
+    <div style="position:relative;margin-left:550px;margin-top:3px;">
+        <pe:goalpointer listen="deck_viewhelp" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+        <input type="button" zorder="1" name="whatisthis" style="color:#003399;background:;background2:url(Texture/Aries/Common/underline_blue_32bits.png:3 3 3 3);font-size:11px;" value="这是什么?" onclick="onGotoStartPage" />
+    </div>
+</pe:if>
+
+<div style="width:663px;height:433px;">  
+    <div style="float:left;margin-top:0px;width:333px;height:370px;">
+        <iframe name="MyCardsBagView" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.html"/>
+    </div>
+    <div style="float:left;margin-top:0px;width:309px;height:370px;">
+        <iframe name="MyCardsView" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsBagPage.html"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

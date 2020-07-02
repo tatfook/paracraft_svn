@@ -1,0 +1,139 @@
+﻿<!-- "script/apps/Aries/Desktop/GemMerge.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GemMerge, by zrf, 2010/12/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Desktop.GemMerge.Init();
+function Confirm()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="position:relative;margin-left:720px;margin-top:0px;width:48px;height:48px;">
+    <input type="button" onclick="Confirm()" zorder="2" style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+</div>
+<div style="position:relative;margin-left:30px;margin-top:43px;">
+    <input type="radio" name="gemmergetab" id="Radio1" value="1" checked="checked" style="margin-left:0px;width:74px;height:18px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Desktop/GemMerge/2b_32bits.png;0 0 74 18" 
+        UncheckedBG="Texture/Aries/Desktop/GemMerge/2a_32bits.png;0 0 74 18" 
+        onclick="MyCompany.Aries.Desktop.GemMerge.OnClickRadio()"/>
+    <input type="radio" name="gemmergetab" id="Radio2" value="2" style="margin-left:4px;width:74px;height:18px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Desktop/GemMerge/3b_32bits.png;0 0 74 18" 
+        UncheckedBG="Texture/Aries/Desktop/GemMerge/3a_32bits.png;0 0 74 18" 
+        onclick="MyCompany.Aries.Desktop.GemMerge.OnClickRadio()"/>
+    <input type="radio" name="gemmergetab" id="Radio3" value="3" style="margin-left:4px;width:74px;height:18px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Desktop/GemMerge/4b_32bits.png;0 0 74 18" 
+        UncheckedBG="Texture/Aries/Desktop/GemMerge/4a_32bits.png;0 0 74 18" 
+        onclick="MyCompany.Aries.Desktop.GemMerge.OnClickRadio()"/>
+    <input type="radio" name="gemmergetab" id="Radio4" value="4" style="margin-left:4px;width:74px;height:18px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Desktop/GemMerge/5b_32bits.png;0 0 74 18" 
+        UncheckedBG="Texture/Aries/Desktop/GemMerge/5a_32bits.png;0 0 74 18" 
+        onclick="MyCompany.Aries.Desktop.GemMerge.OnClickRadio()"/>
+</div>
+<div style="position:relative;margin-left:0px;margin-top:0px;width:769px;height:508px;background:url(Texture/Aries/Desktop/GemMerge/bg.png#0 0 769 508)">
+    <div style="position:relative;margin-left:32px;margin-top:80px;height:400px;" >       
+        <pe:gridview DataSource="<%=MyCompany.Aries.Desktop.GemMerge.DS_Func%>" name="gemmerge" 
+            CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="10" >
+            <Columns>
+                <pe:if condition='<%=MyCompany.Aries.Desktop.GemMerge.ShowSelect(Eval("index"))%>'>
+                    <div style="margin-top:5px;width:228px;height:30px;background:url(Texture/Aries/Desktop/GemMerge/bg3_32bits.png#0 0 188 30);">
+
+                        <input type="button" style="float:left;margin-top:0px;width:228px;height:30;color:#803f06;font-size:12;background:"
+                            value='<%=Eval("displayname") %>' name='<%=Eval("index") %>'
+                            onclick = "MyCompany.Aries.Desktop.GemMerge.OnClickGem()"
+                            Normal_BG=""
+                            MouseOver_BG="Texture/Aries/Desktop/GemMerge/bg3_32bits.png;0 0 188 30"
+                            Pressed_BG="Texture/Aries/Desktop/GemMerge/bg3_32bits.png;0 0 188 30" />       
+                        <div style="float:left;margin-left:2px;margin-top:-30px;width:28px;height:28px;">
+                            <img style="width:28px;height:28px" src='<%=MyCompany.Aries.Desktop.GemMerge.GetSmallIcon(Eval("index")) %>' />
+                        </div>                     
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=not MyCompany.Aries.Desktop.GemMerge.ShowSelect(Eval("index"))%>'>
+                    <div style="margin-top:5px;width:228px;height:30px;background:url(Texture/Aries/Desktop/GemMerge/bg2_32bits.png#0 0 32 30: 8 8 8 8);">
+                        
+                        <input type="button" style="float:left;margin-top:0px;width:228px;height:30;color:#803f06;font-size:12;background:"
+                            value='<%=Eval("displayname") %>' name='<%=Eval("index") %>'
+                            onclick = "MyCompany.Aries.Desktop.GemMerge.OnClickGem()"
+                            Normal_BG=""
+                            MouseOver_BG="Texture/Aries/Desktop/GemMerge/bg3_32bits.png;0 0 188 30"
+                            Pressed_BG="Texture/Aries/Desktop/GemMerge/bg3_32bits.png;0 0 188 30" />                
+                        <div style="float:left;margin-left:2px;margin-top:-30px;width:28px;height:28px;">
+                            <img style="width:28px;height:28px" src='<%=MyCompany.Aries.Desktop.GemMerge.GetSmallIcon(Eval("index")) %>' />
+                        </div>                   
+                    </div>
+                </pe:if>
+            </Columns>
+            <FetchingDataTemplate>
+                <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:50px;margin-top:-43px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+
+	                <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	                <div style="float:right;margin-top:4px;width:40px;">
+	                    <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+
+
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+
+    <div style="position:relative;margin-left:350px;margin-top:124px;width:85px;height:85px;">
+        <img style="width:85px;height:85px" src='<%=MyCompany.Aries.Desktop.GemMerge.GetIcon() %>' />
+    </div>
+    
+    <div style="position:relative;margin-left:400px;margin-top:78px;width:200px;height:25px;text-align:center;font-size:larger;font-weight:bolder;color:#114d83;">
+    <%=MyCompany.Aries.Desktop.GemMerge.GetMergeDest() %>
+    </div>
+
+    <div style="position:relative;margin-left:480px;margin-top:115px;width:200px;height:200px;">
+        <div style="float:left;width:250px;height:25px;color:#114d83;">合成目标:<%=MyCompany.Aries.Desktop.GemMerge.GetMergeDest() %></div><br />
+        <div style="float:left;margin-top:0px;width:250px;height:25px;color:#114d83;">宝石功能:<%=MyCompany.Aries.Desktop.GemMerge.GetEffect() %></div><br />
+        <div style="float:left;margin-top:0px;width:250px;height:25px;color:#114d83;">合成材料:<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %></div><br />
+        <!--<div style="float:left;margin-top:0px;width:250px;height:25px;color:#114d83;">合成费用:<%=MyCompany.Aries.Desktop.GemMerge.GetMergePrice() %></div><br />-->
+    </div>
+    <div style="position:relative;margin-left:300px;margin-top:260px;width:500px;height:500px;">
+        <pe:if condition='<%=MyCompany.Aries.Desktop.GemMerge.curpage < 3 %>'>
+            <div style="position:relative;margin-left:15px;margin-top:-15px;width:39px;height:22px;background:url(Texture/Aries/Desktop/GemMerge/tuijian_32bits.png#0 0 39 22)" />
+        </pe:if>
+        <div style="position:relative;margin-top:0px;width:500px;height:300px;color:#114d83;" >
+            合成配方1：<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %>*5    成功率100%
+            <input type="button" name="5" onclick="MyCompany.Aries.Desktop.GemMerge.OnClickMerge()" zorder="2" style="float:left;margin-left:30px;margin-top:-4px;width:84px;height:32px;background:url(Texture/Aries/Desktop/GemMerge/merge_32bits.png#0 0 84 32);"/>
+
+        </div>
+        <pe:if condition='<%=MyCompany.Aries.Desktop.GemMerge.curpage < 3 %>'>
+            <div style="position:relative;margin-top:40px;width:500px;height:300px;color:#114d83;" >
+                合成配方2：<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %>*4    成功率60%
+                <input type="button" name="4" onclick="MyCompany.Aries.Desktop.GemMerge.OnClickMerge()" zorder="2" style="float:left;margin-left:38px;margin-top:-4px;width:84px;height:32px;background:url(Texture/Aries/Desktop/GemMerge/merge_32bits.png#0 0 84 32);"/>
+
+            </div>
+            <div style="position:relative;margin-top:80px;width:500px;height:300px;color:#114d83;" >
+                合成配方3：<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %>*3    成功率35%
+                <input type="button" name="3" onclick="MyCompany.Aries.Desktop.GemMerge.OnClickMerge()" zorder="2" style="float:left;margin-left:38px;margin-top:-4px;width:84px;height:32px;background:url(Texture/Aries/Desktop/GemMerge/merge_32bits.png#0 0 84 32);"/>
+
+            </div>
+            <div style="position:relative;margin-top:120px;width:500px;height:300px;color:#114d83;" >
+                合成配方4：<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %>*2    成功率15%
+                <input type="button" name="2" onclick="MyCompany.Aries.Desktop.GemMerge.OnClickMerge()" zorder="2" style="float:left;margin-left:38px;margin-top:-4px;width:84px;height:32px;background:url(Texture/Aries/Desktop/GemMerge/merge_32bits.png#0 0 84 32);"/>
+            </div>
+        </pe:if>
+        <!--<div style="position:relative;margin-top:160px;width:500px;height:30px;color:#114d83">
+        当前拥有<%=MyCompany.Aries.Desktop.GemMerge.GetMergeMaterial() %>的数量:<%=MyCompany.Aries.Desktop.GemMerge.GetMaterialCount() %>
+        </div>-->
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

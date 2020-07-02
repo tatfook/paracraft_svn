@@ -1,0 +1,55 @@
+<!-- "script/kids/3DMapSystemQuest/forms/Quest_ChainEdit_Page.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>by Leio, 2008.12.24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="Quest_ChainEdit_Page.lua">
+Map3DSystem.Quest.Quest_ChainEdit_Page.OnInit();
+function g_ChainView(params)
+    Map3DSystem.Quest.Quest_ChainEdit_Page.g_ChainView(params)
+end
+</script>
+<div>
+<div>
+<a name="" onclick="Map3DSystem.Quest.Quest_ChainEdit_Page.DoSave" style="margin-right:3px;">保存</a>
+<a name="" onclick="Map3DSystem.Quest.Quest_ChainEdit_Page.Refind" style="margin-right:3px;">找回</a>
+</div>   
+</div>
+<div style="float:left">
+<div style="float:left" width = "400px">
+        <div style="float:left;font-weight:bold;color:#808080">
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">entry</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">Title</div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px">Details</div>
+        </div>
+       <pe:gridview name="gvwMovies" DataSource='<%=Map3DSystem.Quest.Quest_Panel.UnValidQuestChains_DS_Func%>' DefaultNodeHeight="24" CellPadding="0">
+            <Columns>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("entry")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("Title")%></div>
+                <div style="float:left;font-weight:bold;width:60px;margin:2px"><%=Eval("Details")%></div>
+                <a tooltip = "查看" onclick="Map3DSystem.Quest.Quest_Panel.OnEditQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/comment_edit.png);width:16px;height:16px;margin-right:2px" />查看
+                </a>
+                <a tooltip = "导入任务链" onclick="Map3DSystem.Quest.Quest_ChainEdit_Page.PushQuest" param1='<%=Eval("entry")%>'>
+                    <img style="background:url(Texture/3DMapSystem/common/rightarrow.png);width:16px;height:16px;margin-right:2px" />导入
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>空</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+</div>
+<div style="float:left">
+<pe:custom oncreate="g_ChainView" />  
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>
+ 

@@ -1,0 +1,143 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/MagicCardShopPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+local hasGSItem = ItemManager.IfOwnGSItem;
+local page = document:GetPageCtrl();
+local MagicCardShopPage = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MagicCardShopPage");
+MagicCardShopPage.OnInit();
+function ClosePage()
+    page:CloseWindow();
+end
+function DS_Func(index)
+    return MagicCardShopPage.DS_Func(index);
+end
+function _DoBuy(exid,gsid)
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+        return
+    end
+    if(tonumber(exid) == 0) then
+        MyCompany.Aries.HaqiShop.BuyMoDou(gsid)
+        return;
+    end
+    local canpass = NPCShopProvider.PreCheckByExid(exid,1);
+	if(not canpass)then
+		return
+	end   
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command and gsid) then
+        command:Call({exid = exid, gsid = gsid, npc_shop = true});
+	end 
+end
+function DoBuy(index,exid,gsid)
+    local node = MagicCardShopPage.cards_list[index];
+    if(node)then
+        local exid = node.exid_1
+        local card_package_gsid = node.card_package_gsid;
+        _DoBuy(exid,card_package_gsid)
+    end   
+end
+
+function DoBuy2(index)
+    local node = MagicCardShopPage.cards_list[index];
+    if(node)then
+        local exid = node.exid_2;
+        local card_package_gsid = node.card_package_gsid;
+        _DoBuy(exid,card_package_gsid)
+    end   
+end
+function CoinRecharge_Click()
+    MyCompany.Aries.HaqiShop.GotoTaomeePage();
+end
+]]></script>
+   
+<aries:window width="640" height="445" title="魔法卡包" icon="Texture/Aries/Common/ThemeTeen/wintitle/card_unpack_32bits.png" onclose="ClosePage">
+    <div style="color:#ffffff;margin-top:25px;margin:5px;padding-top:5px;" width="100%" height="100%" class="subpane">
+       <div style="margin-left:5px;margin-top:20px;">
+           <pe:gridview name="cards_view" DataSource="<%=DS_Func%>"  ItemsPerLine="3" AllowPaging="false" pagesize="3">
+                <Columns>
+                    <div>
+                        <div style="margin-left:40px;width:153px;height:360px;" >
+                            <img src='<%=Eval("bg")%>' style="width:153px;height:196px"/>    
+                            <div style="margin-top:5px;width:153px;height:128px;background:url(Texture/Aries/MagicCardShop/bg_32bits.png:7 40 7 40)">
+                                <div style="margin-left:10px;margin-top:5px;">
+                                    <div style="margin-top:5px;">
+                                        <pe:item is_container="true" isclickable="false" gsid='<%=Eval("gsid")%>' style="float:left;width:80px;margin-top:2px;height:20px" class="highbluecolor" >
+                                            <pe:item gsid='<%=Eval("gsid")%>' isenabled="false" style="width:20px;height:20px;"/>
+                                            <div style="float:left;margin-left:5px;color:#ffff00;"><%=Eval("need_cnt_1")%></div>
+                                        </pe:item>
+                                        <input type="button" value="购买" class="button_highlight" name='<%=Eval("index")%>' onclick="DoBuy"  style="float:left;width:50px;"/>
+                                    </div>
+                                    <div style="margin-top:5px;">
+                                        <pe:item is_container="true" isclickable="false" gsid='<%=Eval("coin_gsid")%>' style="float:left;width:80px;margin-top:2px;height:20px" class="highbluecolor" >
+                                            <pe:item gsid='<%=Eval("coin_gsid")%>' isenabled="false" style="margin-top:3px;width:20px;height:20px;"/>
+                                            <div style="float:left;margin-left:5px;color:#ffff00;"><%=Eval("need_cnt_2")%></div>
+                                        </pe:item>
+                                        <input type="button" value="购买" class="button_highlight" name='<%=Eval("index")%>' onclick="DoBuy2"   style="float:left;width:50px;"/>
+                                    </div>
+                                    <div>
+                                        <pe:if condition='<%=Eval("index") == 1%>'>
+                                            <div style="margin-top:5px;">
+                                                <span style="color:#34cc0f">精良卡牌</span><span style="color:#9de0ef">高概率</span>
+                                            </div>
+                                            <div style="margin-top:5px;">
+                                                <span style="color:#059ae8">稀有卡牌</span><span style="color:#9de0ef">低概率</span>
+                                            </div>
+                                        </pe:if>
+                                        <pe:if condition='<%=Eval("index") == 2%>'>
+                                            <div style="margin-top:5px;">
+                                                <span style="color:#059ae8">稀有卡牌</span><span style="color:#9de0ef">高概率</span>
+                                            </div>
+                                            <div style="margin-top:5px;">
+                                                <span style="color:#bc4bf9">传奇卡牌</span><span style="color:#9de0ef">低概率</span>
+                                            </div>
+                                        </pe:if>
+                                        <pe:if condition='<%=Eval("index") == 3%>'>
+                                            <div style="margin-top:10px;">
+                                                <span style="color:#bc4bf9;margin-top:15px;">100%获得传奇卡牌</span>
+                                            </div>
+                                        </pe:if>
+                                    </div>
+                                </div>
+                            </div>        
+                        </div>
+                    </div>
+                </Columns>
+            </pe:gridview>
+       </div>
+        <div style="margin-left:40px;padding-left:5px;margin-top:-50px;width:670px;height:50px;" >
+            <pe:item is_container="true" isclickable="false" gsid='17702' style="float:left;width:80px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid='17702' isenabled="false" style="width:32px;height:32px;"/>
+                <pe:slot type="count" gsid='17702' style="float:left;margin-left:5px;margin-top:15px;font-weight:bold;color:#ffff00;" />
+            </pe:item>
+             <pe:item is_container="true" isclickable="false" gsid='17704' style="float:left;width:80px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid='17704' isenabled="false" style="width:32px;height:32px;"/>
+                <pe:slot type="count" gsid='17704' style="float:left;margin-left:5px;margin-top:15px;font-weight:bold;color:#ffff00;" />
+            </pe:item>
+            <pe:item is_container="true" isclickable="false" gsid='17705' style="float:left;width:80px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid='17705' isenabled="false" style="width:32px;height:32px;"/>
+                <pe:slot type="count" gsid='17705' style="float:left;margin-left:5px;margin-top:15px;font-weight:bold;color:#ffff00;" />
+            </pe:item>
+            <pe:item is_container="true" isclickable="false" gsid='984' style="float:left;width:100px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid='984' isenabled="false" style="margin-top:6px;width:32px;height:32px;"/>
+                <pe:slot type="count" gsid='984' style="float:left;margin-left:5px;margin-top:15px;font-weight:bold;color:#ffff00;" />
+            </pe:item>
+            <input type="button" onclick="CoinRecharge_Click" value="魔豆充值" class="highlightboldbutton"  style="float:left;font-size:16px;font-weight:bold;margin-left:20px;margin-top:-5px;width:198px;height:46px;background:url(Texture/Aries/MagicCardShop/coin_recharge_btn_32bits.png#0 0 198 46)"/>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

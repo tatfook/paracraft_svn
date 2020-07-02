@@ -1,0 +1,84 @@
+<!-- "script/kids/3DMapSystemUI/MiniMap/NewMiniMap.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>NewMiniMap Page 2010.11.23, by zrf</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="NewMiniMap.lua">
+    Map3DSystem.App.MiniMap.NewMiniMap.Init();
+</script>
+<div style="padding:5px">
+    <div style="position:relative;">
+        <input type="button" style="float:left" class="defaultbutton" name="btnLoad" value="加载小地图" onclick="Map3DSystem.App.MiniMap.NewMiniMap.LoadFile" /> 
+
+       
+        <a tooltip="常用社区设置" style="width:1024px;height:512px;"onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickMap">
+            <div style="position:relative;">
+                <%=Map3DSystem.App.MiniMap.NewMiniMap.ShowMarker() %>
+            </div>
+            <img name="minimap" style="width:1024px;height:512px" src='<%=Map3DSystem.App.MiniMap.NewMiniMap.GetImage() %>'/>
+        </a>
+
+    </div>
+
+
+    <div style="position:relative;margin-left:10px;margin-top:550px;">
+        <input type="button" style="float:left" class="defaultbutton" name="btnLoadAchor" value="加载锚点文件" onclick="Map3DSystem.App.MiniMap.NewMiniMap.LoadXMLFile" /> 
+        <input type="button" style="float:left" class="defaultbutton" name="btnSaveAchor" value="保存锚点文件" onclick="Map3DSystem.App.MiniMap.NewMiniMap.SaveXMLFile" />         
+        <!--<input type="file"  CheckFileExists="false" dir="" name="TVFileView"  fileext="锚点文件(*.xml)" onchange="Map3DSystem.App.MiniMap.NewMiniMap.LoadXMLFile" style="float:left;width:280px" />-->
+        <br />
+        <pe:treeview name="tvwAnchor" 
+            DataSource='<%=Map3DSystem.App.MiniMap.NewMiniMap.DS()%>' 
+            RememberScrollPos="true" 
+            DefaultNodeHeight = "26" 
+            style="width:250px;height:200px">
+
+            <NodeTemplates>
+                <NodeTemplate DataType="instance">
+                    <div style="width:240px;">
+                        <input type="button" style="float:left;width:230px;height:30;margin-top:5px;text-align:left;font-size:12;color:#96450e;background:"
+                            value='<%=format("[%d] MapCoord:{%s}, AvatarPosition:{%s}", XPath("this|index") or 0, XPath("this|MapCoord") or "",  XPath("this|AvatarPosition") or "")%>'
+                            tooltip='<%=format("[%d] MapCoord:{%s}, AvatarPosition:{%s}", XPath("this|index") or 0, XPath("this|MapCoord") or "",  XPath("this|AvatarPosition") or "")%>'
+                            Normal_BG='<%=Map3DSystem.App.MiniMap.NewMiniMap.GetNodeBG(XPath("this|index")) %>'
+                            MouseOver_BG="Texture/aries/quest/questlist/fontbg1_32bits.png"
+                            Pressed_BG="Texture/aries/quest/questlist/fontbg_32bits.png"
+                            onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickNode"
+                            name='<%=XPath("this|index") %>'
+                        />
+                    </div>
+                </NodeTemplate>
+            </NodeTemplates>
+	        <DataNodePlaceholder xpath="*"/>
+        </pe:treeview>
+    </div>
+    <div style="position:relative;margin-left:10px;margin-top:790px;">
+        <input type="button" style="float:left" class="defaultbutton" name="btnDeleteOne" value="删除选定锚点" onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickDeleteOne" /> 
+        <input type="button" style="float:left" class="defaultbutton" name="btnDeleteOne" value="清空所有锚点" onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickDeleteAll" /> 
+
+    </div>
+
+    <div style="margin-left:340px;margin-top:580px;">
+        <div style="">
+            对应的世界坐标:
+            <input type="button" style="float:left" class="defaultbutton" name="btnShowSelect" value="选择" onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickSelect" /> 
+            
+            <br />
+            <input type="text" name="worldpos" style="height:24px;width:250px;"/>
+            <br />
+            <br />
+            <br />
+            对应的小地图坐标:<br />
+            <input type="text" name="minimappos" style="height:24px;width:250px;"/>
+        </div>
+
+        <div style="position:relative;margin-top:10px;">
+            <input type="button" style="float:left" class="defaultbutton" name="btnReplace" value="替换选中项" onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickReplace" /> 
+            <input type="button" style="float:left" class="defaultbutton" name="btnAddNew" value="增加新项" onclick="Map3DSystem.App.MiniMap.NewMiniMap.OnClickAddNew" /> 
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

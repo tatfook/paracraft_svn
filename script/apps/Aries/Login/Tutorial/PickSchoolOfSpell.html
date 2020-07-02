@@ -1,0 +1,142 @@
+<!-- "script/apps/Aries/Login/Tutorial/PickSchoolOfSpell.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="PickSchoolOfSpell.lua"><![CDATA[
+MyCompany.Aries.Tutorial.PickSchoolOfSpell.OnInit();
+
+local schools = {
+   {name="fire", id = 986, exid = 866, wand_gsid = 1807, text="烈火系：奇怪招数总让敌方防不胜防！"},
+   {name="ice", id = 987, exid = 867, wand_gsid = 1808, text="寒冰系：寒冰体力值和防御最强！"},
+   {name="storm", id = 988, exid = 868, wand_gsid = 1809, text="风暴系：单体攻击无人能敌！"},
+   -- {name="myth", id = 989},
+   {name="life", id = 990, exid = 869, wand_gsid = 1810, text="生命系：补血魔法关键时刻十分管用！"},
+   {name="death", id = 991, exid = 870, wand_gsid = 1811, text="死亡系：吸血魔法非常厉害！"},
+   --{name="balance", id = 992},
+}
+function OnClickRandom()
+    local nIndex = math.floor(math.random()*5+1)
+    if(schools[nIndex]) then
+        Page:SetUIValue("school_of_spell", schools[nIndex].name);
+        OnSelectSchool(schools[nIndex].name)
+    end
+end
+function OnSelectSchool(school_name)
+    local _, school
+    for _, school in ipairs(schools) do 
+        if(school.name ==school_name) then
+            MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchoolID = school.name;
+            MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID = school.id;
+            MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID = school.exid;
+            MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid = school.wand_gsid;
+            Page:SetUIEnabled("selected_btn", true);
+            Page:SetValue("result", "你选择了"..(school.text or ""))
+            break;
+        end
+    end
+end
+function OnFinished()
+    Page:CloseWindow();
+    
+    if(MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchoolID 
+        and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID
+        and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID
+        and MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid) then
+        
+        local selected_school = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_GSID;
+        local selected_exid = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_EXID;
+        local selected_wand_gsid = MyCompany.Aries.Tutorial.PickSchoolOfSpell.SelectedSchool_wand_gsid;
+        local msg = {
+            school = selected_school,
+        };
+		paraworld.users.SetCombatSchool(msg, "SetCombatSchoolForSelf_"..selected_school, function(msg)
+            if(msg.issuccess == true) then
+                -- refresh local reference
+                local ProfileManager = commonlib.gettable("System.App.profiles.ProfileManager");
+                ProfileManager.GetUserInfo(nil, "SetCombatSchoolForSelf_"..selected_school.."_profilemanager", function() end, "access plus 1 minute");
+
+                -- continue with next stage
+                MyCompany.Aries.Quest.NPCs.CombatTutorial.ProcessNextStage();
+                
+                if(System.options.version == "kids") then
+                    -- exchange the newbie wand according to player school
+				    Map3DSystem.Item.ItemManager.ExtendedCost(selected_exid, nil, nil, function(msg)
+					    LOG.std("", "system","Item", "+++++++ self newbie wand return: +++++++"..LOG.tostring(msg));
+					    if(msg.issuccess == true) then
+                            local bHas, guid = Map3DSystem.Item.ItemManager.IfOwnGSItem(selected_wand_gsid);
+                            if(bHas) then
+                                Map3DSystem.Item.ItemManager.EquipItem(guid, function(msg) end);
+                            end
+					    end
+				    end, function(msg) end);
+                end
+	            
+	            -- send log information
+	            paraworld.PostLog({action = "pick_combat_school_success"}, "pick_combat_school_success_log", function(msg)
+	            end);
+            else
+                MyCompany.Aries.Quest.NPCs.CombatTutorial.Handler_Stage21();
+            end
+		end, nil, 10000, function()
+            MyCompany.Aries.Quest.NPCs.CombatTutorial.Handler_Stage21();
+        end);
+    end
+end
+
+]]></script>
+<form>
+<div style="width:600px;height:400px" align="center" valign="center">
+    <div style="margin-top:0px;width:490px;height:64px;background:url(Texture/Aries/Login/Tutorial/PickSchoolOfMagicTitle.png#0 0 490 64)" align="center">
+    </div>
+    <div style="margin-top:10px;width:128px;height:91px;background:url(Texture/Aries/Login/Tutorial/SchoolOfMagicBG.png#34 0 128 91)" align="center">
+        <div style="margin-top:12px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)" align="center">
+            <input type="button" style="margin-left:9px;margin-top:20px;width:58px;height:32px;background:url(Texture/Aries/Login/Tutorial/random.png#0 0 58 32)" name="Random" onclick="OnClickRandom" /><br />
+        </div>
+    </div>
+    <div style="width:600px;height:121px;" align="center">
+        <div style="float:left;padding-top:20px;padding-left:20px;width:236px;height:121px;background:url(Texture/Aries/Login/Tutorial/SchoolOfMagicBG.png#0 91 32 35:20 15 5 15)">
+            <div style="float:left;margin-top:0px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)">
+                <input type="radio" name="school_of_spell" background2="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" tooltip="坚厚的寒冰体力值和防御最强！" style="padding:21px;width:32px;height:32px;background:url(Texture/Aries/Login/Tutorial/school_ice_32bits.png)" value="ice" onclick="OnSelectSchool" /><br />
+            </div>
+            <div style="float:left;margin-top:20px;margin:3px;width:57px;height:32px;background:url(Texture/Aries/Login/Tutorial/double_arrow.png#0 0 57 32)">
+            </div>
+            <div style="float:left;margin-top:0px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)">
+                <input type="radio" name="school_of_spell" background2="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" tooltip="烈火的奇怪招数总让敌方防不胜防！" style="padding:21px;width:32px;height:32px;background:url(Texture/Aries/Login/Tutorial/school_fire_32bits.png)" value="fire" onclick="OnSelectSchool" /><br />
+            </div>
+        </div>
+        <div style="float:left;padding-top:20px;width:128px;height:121px;background:url(Texture/Aries/Login/Tutorial/SchoolOfMagicBG.png#35 91 128 35:15 15 15 15)">
+            <div style="margin-top:0px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)" align="center">
+                <input type="radio" name="school_of_spell" background2="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" tooltip="风暴的单体攻击无人能敌！" style="padding:21px;width:32px;height:32px;background:url(Texture/Aries/Login/Tutorial/school_storm_32bits.png)" value="storm" onclick="OnSelectSchool" /><br />
+            </div>
+        </div>
+        <div style="float:left;padding-top:20px;padding-left:2px;width:236px;height:121px;background:url(Texture/Aries/Login/Tutorial/SchoolOfMagicBG.png#162 91 35 35:5 15 20 15)">
+           <div style="float:left;margin-top:0px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)">
+                <input type="radio" name="school_of_spell" background2="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" tooltip="生命的补血魔法关键时刻十分管用！" style="padding:21px;width:32px;height:32px;background:url(Texture/Aries/Login/Tutorial/school_life_32bits.png)" value="life" onclick="OnSelectSchool" /><br />
+            </div>
+            <div style="float:left;margin-top:20px;margin:3px;width:57px;height:32px;background:url(Texture/Aries/Login/Tutorial/double_arrow.png#0 0 57 32)">
+            </div>
+            <div style="float:left;margin-top:0px;width:76px;height:76px;background:url(Texture/Aries/Login/Tutorial/SchoolIconBG.png#0 0 76 76)">
+                <input type="radio" name="school_of_spell" background2="Texture/Aries/Login/DragonSelect/dragon_select.png;0 0 100 100" tooltip="死亡的吸血魔法非常厉害！" padding="22" style="padding:21px;width:32px;height:32px;background:url(Texture/Aries/Login/Tutorial/school_death_32bits.png)" value="death" onclick="OnSelectSchool" /><br />
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:10px;width:85px;height:85px;" align="center">
+        <input type="button" name="selected_btn" enabled = "false"
+                    Normal_BG = "Texture/Aries/Login/Selected_btn_32bits.png;0 0 85 85"
+                    MouseOver_BG = "Texture/Aries/Login/Selected_btn_light_32bits.png;0 0 85 85"
+                    Disabled_BG = "Texture/Aries/Login/Selected_btn_grey_32bits.png;0 0 85 85"
+                    style="width:85px;height:85px;background:;" onclick="OnFinished"/>
+    </div>
+    <div style="width:300px;" align="center">
+            <pe:label name="result" style="text-align:center;height:20px;background:url(Texture/alphadot.png)">请仔细选择, 今后无法更改</pe:label>
+    </div>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

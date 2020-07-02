@@ -1,0 +1,748 @@
+<!-- script/apps/Aries/Trade/TradeClientPage.kids.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Trade/TradeClientPage.kids.lua");
+NPL.load("(gl)script/apps/Aries/Trade/TradeClient.lua");
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+NPL.load("(gl)script/apps/Aries/Dialog/Dialog_SelectionGoods.lua");
+NPL.load("(gl)script/ide/TooltipHelper.lua");
+local BroadcastHelper = commonlib.gettable("CommonCtrl.BroadcastHelper");
+
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local TradeClientPage = commonlib.gettable("MyCompany.Aries.Trade.TradeClientPage");
+local TradeClient = commonlib.gettable("MyCompany.Aries.Trade.TradeClient");
+local Dialog_SelectionGoods = commonlib.gettable("MyCompany.Aries.Dialog.Dialog_SelectionGoods");
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+
+local ItemManager = Map3DSystem.Item.ItemManager;
+local GetItemByID = ItemManager.GetGlobalStoreItemInMemory;
+local GetItemsCount = ItemManager.GetItemCountInBag;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+local page = document:GetPageCtrl();
+
+function GetMagicBean()
+    local __,__,__,copies = hasGSItem(984);
+    copies = copies or 0;
+    return copies;
+end
+
+TradeClientPage:Init();
+
+function GetGold() 
+    return TradeClientPage:GetGold();
+end
+
+local send_money,send_is_confirmed,send_is_ok = TradeClient:GetSendDataProperties2();
+
+page:SetNodeValue("txtCost", send_money);
+
+function GetNid()
+    return Map3DSystem.User.nid;
+end
+
+function CanTrade()
+    return TradeClientPage:CanExchangeAndGift();
+end
+
+function OnClickItemGUID(guid, node)
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item) then
+        OnClickItem(item.gsid, node);
+    end
+end
+
+function OnClickItem(arg,node)
+    if(Locked())then
+        --_guihelper.MessageBox("解除锁定后，才能放置物品哦！");
+        BroadcastHelper.PushLabel({id="lock_help_tip", label = "解除锁定后，才能放置物品哦！", max_duration=3000, color = "255 255 0", scaling=1.1, bold=true, shadow=true,});
+        return;
+    end
+
+    if(TradeClient:CheckItem(arg))then
+        --BroadcastHelper.PushLabel({id="lock_help_tip", label = "不能交易同样的物品！", max_duration=3000, color = "255 255 0", scaling=1.1, bold=true, shadow=true,});
+		_guihelper.MessageBox("不能交易同样的物品。");
+        return;
+	end
+
+    local params = node:GetAttribute("param1","none");
+
+    if(mouse_button ~= "left" and params ~= "cancelitem" and TradeClientPage.filter ~= 6)then
+        local items_count = TradeClientPage:GetItemsCountById(arg);
+        
+        if(items_count > 1)then
+            if(Dialog_SelectionGoods.ShowPage(items_count,function(incoming_items_count) 
+                params = string.match(params,"^(.+&)");
+                params = params .. incoming_items_count .. "!";
+                if(node and ((not send_is_confirmed and TradeClientPage.filter ~= 6) or TradeClientPage.filter == 6))then
+                    TradeClientPage:OnClickItem(arg,params);
+                end
+
+                --TradeClientPage:Update(); 
+            end ) == 0)then
+                --no process
+            else                
+                return;
+            end
+        end
+    else
+        if(params and params ~= "cancelitem")then
+            params = params .. "0";
+        end
+        if(node and ((not send_is_confirmed and TradeClientPage.filter ~= 6) or TradeClientPage.filter == 6))then
+            TradeClientPage:OnClickItem(arg,params);
+        end
+    end
+
+    
+    
+end
+
+function ClosePage()
+    TradeClientPage:CloseWindow();
+end
+
+function FilterItems(arg)
+    return TradeClientPage:FilterItems(arg);
+end
+
+function GetDataSource(arg)
+    return TradeClientPage:GetDataSource(arg);
+end
+
+function GetReceiveDataSource(arg)
+    return  TradeClientPage:GetReceiveDataSource(arg);
+end
+
+function GetSendDataSource(arg)
+    return  TradeClientPage:GetSendDataSource(arg);
+end
+
+
+
+function Locked()
+    return send_is_confirmed;
+end
+
+function Done()
+    return send_is_ok;
+end
+
+function TradeDone()
+   TradeClient:TradeDone();
+end
+
+function TradeLock()
+    TradeClientPage:CheckPay();
+    if(TradeClientPage.pay_magicbean and TradeClientPage.pay_magicbean > 0)then
+		if((TradeClientPage.pay_magicbean + TradeClientPage.commission) > TradeClientPage.GetMagicBean())then
+			_guihelper.MessageBox("你的魔豆不足以进行本次交易。");
+			return 
+		end
+	end
+    --if(TradeClient:CheckSendData())then
+        TradeClient:SetLock();
+        page:Refresh(0);--immediate refresh page,not wait
+        TradeClient:SendItemUpdate();
+    --end
+end
+
+
+local receive_money,receive_is_confirmed,receive_is_ok = TradeClient:GetReceiveDataProperties2();
+--receive data
+function PartnerPay()
+    return receive_money;
+end
+
+function PartnerLocked()
+    return receive_is_confirmed;
+end
+
+function PartnerDone()
+    return receive_is_ok;
+end
+
+function GetTradePartner()
+    return TradeClient:GetTradePartner();
+end
+
+--pet profile
+function GetPetIcon(icon)
+    return string.format([[<img src="%s" style="margin-left:5px;width:20px;height:20px;"/>]],icon or "");
+end
+
+function HasModel()
+    if(TradeClientPage.CurrentPet and TradeClientPage.CurrentPet.gsid)then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetModelValue()
+    if(TradeClientPage.CurrentPet and TradeClientPage.CurrentPet.gsid)then
+        page:SetUIEnabled("FollowPetInfoInHomeland",true);
+
+        local node = TradeClientPage.CurrentPet;
+        --model
+	    local asset = Map3DSystem.App.Assets.asset:new({filename = node.assetfile})
+	    local objParams = asset:getModelParams()
+        if(objParams ~= nil) then
+            objParams.facing = 0;
+            if(node.gsid == 10135)then
+			    objParams.scaling = 0.5;
+            end
+            return commonlib.serialize_compact(objParams);
+	    end
+    end
+    page:SetUIEnabled("FollowPetInfoInHomeland",false);
+end
+
+function GetID()
+    if(TradeClientPage.CurrentPet)then
+        return TradeClientPage.CurrentPet.gsid;
+    end
+end
+
+function GetPetLevel(level)
+    if(TradeClientPage.CurrentPet and TradeClientPage.CurrentPet.gsid)then
+        return string.format([[<div>当前等级：%s</div>]],TradeClientPage.CurrentPet.level);
+    end
+end
+function IsCombatPet()
+    local node = TradeClientPage.CurrentPet;
+    if(node and node.is_combat_pet and node.is_combat_pet == 1)then
+       return true;
+    end
+end
+function IsRequireMagicLevel()
+    local node = TradeClientPage.CurrentPet;
+    if(node and node.req_magic_level and node.req_magic_level > -1)then
+       return true;
+    end
+end
+
+function GetLevelInfo()
+	local provider = CombatPetHelper.GetClientProvider();
+    local node = TradeClientPage.CurrentPet;
+    if(provider and node)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(node.gsid,node.exp or 0);
+        return level,cur_exp,total_exp,isfull;
+    end
+end
+function LevelIsFull()
+    local level,cur_exp,total_exp,isfull = GetLevelInfo();
+    return isfull;
+end
+function HasLevelProp(level)
+    local provider = CombatPetHelper.GetClientProvider();
+    local node = TradeClientPage.CurrentPet;
+    if(provider and node and level)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p and p.append_prop_level)then
+            local append_prop_level = p.append_prop_level;
+            local r = append_prop_level[level];
+            if(TableHasValue(r))then
+                return true;
+            end
+        end
+    end
+end
+function TableHasValue(t)
+    if(not t)then return end
+    local k,v;
+    for k,v in pairs(t) do
+        return true;
+    end
+end
+function HasNextLevelProp()
+    local level = GetNextLevel();
+    if(level)then
+        return  HasLevelProp(level+1);
+    end
+end
+
+function GetNextLevel()
+    local node = TradeClientPage.CurrentPet;
+    if(node)then
+        local level = node.level or 0;
+        level = level + 1;
+        return level;
+    end
+end
+
+function HasNextLevelCard(level)
+    local level = GetNextLevel();
+    if(level)then
+        return  HasLevelCard(level+1);
+    end
+end
+function HasMaxLevelProp()
+    local level = GetMaxLevel();
+    if(level)then
+        return  HasLevelProp(level+1);
+    end
+end
+
+function GetMaxLevel()
+    local provider = CombatPetHelper.GetClientProvider();
+    local node = TradeClientPage.CurrentPet;
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            local level = p.max_level or 0;
+            return level;
+        end
+    end
+end
+
+function HasLevelCard(level)
+    local provider = CombatPetHelper.GetClientProvider();
+    local node = TradeClientPage.CurrentPet;
+    if(provider and node and level)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p and p.append_card_level)then
+            local append_card_level = p.append_card_level;
+            local r = append_card_level[level];
+            if(TableHasValue(r))then
+                return true;
+            end
+        end
+    end
+end
+
+function HasMaxLevelCard(level)
+    local level = GetMaxLevel();
+    if(level)then
+        return  HasLevelCard(level+1);
+    end
+end
+function GetDescription()
+    local node = TradeClientPage.CurrentPet;
+    if(node)then
+        return node.description;
+    end
+end
+
+function SelectPet()
+    TradeClientPage:SelectPet();
+end
+
+function DummyFunc() end
+
+function GetSchoolImg()
+    local arg = Combat.GetSchool(GetTradePartner());
+    if(arg)then
+    local imgfile  = string.format("Texture/Aries/Team/%s_32bits.png",arg) 
+    return imgfile;
+    else
+    return ""
+    end
+end
+function GetOtherSchool()
+    local arg = Combat.GetSchool(GetTradePartner());
+    
+    if(arg == "fire")then
+		return "烈火系";
+	elseif(arg == "ice") then
+		return "寒冰系";
+	elseif(arg == "storm") then
+		return "风暴系";
+	elseif(arg == "life") then
+		return "生命系";
+	elseif(arg == "death") then
+		return "死亡系";
+	else
+		return "";
+	end
+end
+
+function GetOtherLevel()
+    NPL.load("(gl)script/apps/Aries/Player/OPC.lua");
+    MyCompany.Aries.OPC.Init();
+    local level = MyCompany.Aries.OPC.GetLevel(GetTradePartner());
+    if(level)then
+        return level .. "级" 
+    else
+        return "";
+    end
+end
+
+function GetOtherCode()
+    local code = GetTradePartner();
+    if(code)then
+        return "编号:" ..code
+    else
+        return ""
+    end
+end
+]]></script>
+
+    
+<div style="width:780px;height:475px;background:url(Texture/Aries/HaqiShop/bg1_32bits.png:20 20 20 20)">   
+
+    <div style="margin-left:745px;margin-top:-10px;width:48px;height:48px;">
+        <input type="button" onclick="ClosePage()" zorder="2"style="width:48px;height:48px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+    </div>
+
+    <div style="width:128px;height:32px;margin-top:-30px;background:url(Texture/Aries/common/themekid/trade/cn_trade_32bits.png#0 0 128 32)" valign="top" align="center"/>   
+    
+    <div style="width:830px;height:515px;padding:10px;margin-top:-10px;">
+    
+    <div style="float:left;width:346px;height:464px;margin-top:2px;">
+        <div style="float:left;width:168px;height:418px;margin-top:4px;margin-left:4px;background:url(Texture/Aries/Common/ThemeKid/trade/bg5_frame_32bits.png:20 20 20 20)" >
+            <pe:if condition='<%=PartnerLocked() == true %>'>
+                <img src="Texture/Aries/Common/themeKid/trade/bg4_frame_32bits.png:15 15 15 15" zorder="3" style="position:relative;width:168px;height:385px;"/>
+            </pe:if>
+            <pe:if condition='<%=PartnerDone() == true %>'>
+                <img src="Texture/Aries/Common/completed_32bits.png" zorder="3" style="position:relative;width:64px;height:64px;margin-left:52px;margin-top:185px;"/>
+            </pe:if>
+
+            <div style="width:168px;height:32px;">
+                <div style="width:158px;height:32px;margin-left:5px;margin-top:5px;background:url(Texture/Aries/Common/ThemeKid/trade/bg3_frame_32bits.png: 10 10 10 10)">
+                    <div style="text-align:center;margin-top:5px;"><pe:name name="FullProfileUserName" nid='<%=GetTradePartner()%>' useyou="false" linked="false" /></div>
+                </div>
+            </div>
+
+        <div style="width:168px;">
+            <div style="width:168px;height:50px;margin-left:0px;">
+                <div style="float:left;margin-left:5px;margin-top:9px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeKid/trade/984_MagicBean_32bits.png)" tooltip="魔豆"/>
+                <div style="float:left;margin-left:5px;margin-top:5px;color:#000000;">支付</div>
+                <div style="float:left;width:102px;margin-top:5px;margin-left:-5px;" ><%=PartnerPay() %></div>
+
+                <div style="margin-left:2px;margin-top:-3px;">
+                <div style="float:left;margin-left:2px;width:16px;height:16px;margin-top:-2px;">
+                <img zorder="3" src='<%=GetSchoolImg() %>' style="width:16px;height:16px;margin-top:5px;"/>
+                </div>
+                <div style="float:left;height:22px;margin-top:2px;margin-left:2px;" >
+                <%=GetOtherLevel()%></div>
+                <div style="float:left;height:22px;margin-top:2px;margin-left:0px;" tooltip='<%="对方编号:" ..tostring(GetTradePartner()) %>'>
+                <%=GetOtherCode() %></div>
+                </div>
+            
+            </div>
+        <!--<div style="width:168px;height:32px;margin-left:0px;" >
+
+        </div>-->
+        <div style="margin-top:5px;margin-left:2px;">
+        <pe:gridview name="gvwBuyGoods " DataSource="<%=GetReceiveDataSource %>"  CellPadding="2" ItemsPerLine="1" AllowPaging="false" pagesize="6" >
+			<Columns>
+            <div style="width:161px;height:56px;margin-left:1px;margin-top:-8px;background:url(Texture/Aries/common/themekid/trade/bg7_frame_32bits.png):10 10 10 10;">
+			    <div style="float:left;margin-left:4px;margin-top:4px;width:48px;height:48px;background:url(Texture/Aries/Common/themekid/trade/bg8_frame_32bits.png);">
+                    <pe:item onclick='DummyFunc' gsid='<%=Eval("gsid")%>'showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                    <pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                    <div style="margin-top:-15px;text-align:right;color:#ffffff;font-size:12px;"><%= Eval("copies")%></div>
+                    </pe:if>
+			    </div>
+                <div style="float:left;margin-left:3px;margin-top:15px;"><%=Eval("displayname") %></div>
+            </div>
+			</Columns>
+            <FetchingDataTemplate>
+            <div style="text-align:center;" >正在更新物品...</div>
+            </FetchingDataTemplate>
+		</pe:gridview>
+        </div>
+        </div>
+
+        <div style="margin-top:-31px;width:168px;" valign="center" align="center">
+            <!--<div style="float:left;margin-left:5px;margin-top:6px;">-->
+                <pe:if condition='<%=PartnerDone() == true %>'>
+                <input type="button" zorder="2" enabled="false" style="width:168px;text-align:center;color:#00cc33;background:;" text="对方已完成交易"  />
+                </pe:if>
+                <pe:if condition='<%=PartnerDone() == false and PartnerLocked()==true%>'>
+                <input type="button" zorder="2" enabled="false" style="width:168px;text-align:center;background:;" text="对方确定交易"  />
+                </pe:if>
+                <pe:if condition='<%=PartnerDone() == false and PartnerLocked()==false%>'>
+                <input type="button" zorder="2" enabled="false" style="width:168px;text-align:center;background:;" text="对方未确定交易"  />
+                </pe:if>
+            <!--</div>-->
+        </div>
+
+        </div>
+
+        <div style="float:left;width:168px;height:418px;margin-top:4px;margin-left:2px;background:url(Texture/Aries/Common/ThemeKid/trade/bg5_frame_32bits.png:20 20 20 20)" >
+            <pe:if condition='<%=Locked() == true %>'>
+                <img src="Texture/Aries/Common/Themekid/trade/bg4_frame_32bits.png:15 15 15 15" zorder="3" style="position:relative;width:168px;height:385px;"/>
+            </pe:if>
+            <pe:if condition='<%=Done() == true %>'>
+                <img src="Texture/Aries/Common/completed_32bits.png" zorder="3" style="position:relative;width:64px;height:64px;margin-left:52px;margin-top:185px;"/>
+            </pe:if>
+            <div style="width:168px;height:32px;">
+                <div style="width:158px;height:32px;margin-left:5px;margin-top:5px;background:url(Texture/Aries/Common/ThemeKid/trade/bg3_frame_32bits.png: 10 10 10 10)">
+                    <!--<div style="float:left;position:relative;margin-left:5px;color:#ff0000;margin-top:5px;">我方:</div>-->
+                    <div style="text-align:center;margin-top:5px;"><pe:name name="FullProfileUserName" nid='<%=GetNid()%>' useyou="false" linked="false" /></div>
+                </div>
+            </div>
+
+        <div style="width:168px;">
+
+        <div style="width:168px;height:50px;margin-left:0px;" >
+            <div style="float:left;margin-left:5px;margin-top:9px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeKid/trade/984_MagicBean_32bits.png)" tooltip="魔豆"/>
+            <div style="float:left;margin-left:5px;margin-top:5px;">支付</div>
+            <div style="float:left;width:108px;margin-top:2px;margin-left:-5px;background:url(Texture/Aries/Common/ThemeKid/trade/bg3_frame_32bits.png:10 10 10 10);">
+            <input type="text" name="txtCost" style="height:24px;margin-top:3px;margin-left:5px;background:;" value='<%=MyCompany.Aries.Trade.TradeClientPage.pay_magicbean %>'/>
+            </div>
+
+            <!--<div style="float:left;margin-left:5px;margin-top:6px;width:16px;height:16px;">
+            <img tooltip="充值兑换，可用来购买高级装备和消耗品。" class="magic_bean" style="width:16px;height:16px;"/>
+            </div>
+
+            <div style="float:left;margin-left:5px;margin-top:2px;">支付</div>
+            <div style="float:left;width:102px;height:22px;margin-top:2px;margin-left:-5px;"   >
+            <input type="text" name="txtCost" style="float:left;width:114px;height:22px;"class="small_textbox"/></div>
+          -->  
+            <div style="margin-left:9px;margin-top:-5px;">
+            <div style="float:left;margin-left:5px;margin-top:2px;">手续费:</div>
+            <input type="text" name="txtCommission" ReadOnly="true" style="float:left;margin-top:2px;width:74px;height:22px;background:;"/>
+            <!--<div style="float:left;width:114px;height:22px;margin-top:2px;margin-left:-5px;" class="small_textbox"  >
+            <%=MyCompany.Aries.Trade.TradeClientPage.commission %></div>-->
+            </div>
+        </div>
+
+        <div style="margin-top:5px;margin-left:2px;">
+        <pe:gridview name="gvwSellGoods" DataSource="<%=GetSendDataSource%>"  CellPadding="2" ItemsPerLine="1" AllowPaging="false" pagesize="6" >
+			<Columns>
+            <div style="width:161px;height:56px;margin-left:1px;margin-top:-8px;background:url(Texture/Aries/common/themekid/trade/bg7_frame_32bits.png):10 10 10 10;">
+			    <div style="float:left;margin-left:4px;margin-top:2px;padding:2px;width:52px;height:52px;background:url(Texture/Aries/Common/themekid/trade/bg8_frame_32bits.png);">
+                    <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' param1='cancelitem' showdefaulttooltip="true" style="width:44px;height:44px;"/>
+                    <pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                    <div style="margin-top:-18px;margin-left:-5px;text-align:right;color:#ffffff;font-size:12px;"><%= Eval("copies")%></div>
+                    </pe:if>
+			    </div>
+                <div style="float:left;margin-left:3px;margin-top:15px;"><%=Eval("displayname") %></div>
+            </div>
+			</Columns>
+            <FetchingDataTemplate>
+            <div style="text-align:center;">正在更新物品...</div>
+            </FetchingDataTemplate>
+		</pe:gridview>
+        </div>
+        </div>
+
+        <div style="margin-top:-35px;margin-left:0px;width:168px;" >
+            <div style="float:left;margin-left:12px;margin-top:6px;">
+                <pe:if condition='<%=Locked() == true %>'>
+                <div zorder="3" style="float:left;margin-left:-8px;margin-top:-2px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/trade/lock_kids_32bits.png)"/>
+                <div style="float:left;">
+                    <input type="button" zorder="2" style="width:70px;" class="defaultbutton" tooltip="按键解除锁定交易物品，双方都锁定后，才能确定交易" text="解锁" onclick="TradeLock" />
+                </div>
+                </pe:if>
+                <pe:if condition='<%=Locked() == false %>'>
+                <div zorder="3" style="float:left;margin-left:-8px;margin-top:-2px;position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/trade/Unlocked_kids_32bits.png)"/>
+                <div style="float:left;">
+                    <input type="button" zorder="2" style="width:70px;" class="defaultbutton" tooltip="按键锁定交易物品，双方都锁定后，才能确定交易" text="锁定" onclick="TradeLock" />
+                </div>
+                </pe:if>
+            </div>
+
+            <pe:if condition='<%=Locked() == true and Done() == false and PartnerLocked() == true%>'>
+            <div style="float:left;margin-left:5px;margin-top:6px;">
+                <input type="button" zorder="2" style="width:70px;"class="defaultbutton" text="确定交易" onclick ='TradeDone' />
+            </div>
+            </pe:if>
+            <pe:if condition='<%=Locked() == true and Done() == false and PartnerLocked() == false%>'>
+            <div style="float:left;margin-left:5px;margin-top:6px;">
+                <input type="button" zorder="2" style="width:70px;color:#0000007f;" enabled="false" class="defaultbutton" text="确定交易" onclick ='TradeDone' />
+            </div>
+            </pe:if>
+            <pe:if condition='<%=Locked() == true and Done() == true %>'>
+            <div style="float:left;margin-left:5px;margin-top:6px;">
+                <input type="button" zorder="2" style="width:70px;"class="defaultbutton" text="确定交易" onclick ='TradeDone' />
+            </div>
+            </pe:if>
+
+            <pe:if condition='<%=Locked() == false %>'>
+            <div style="float:left;margin-left:5px;margin-top:6px;">
+                <input type="button" zorder="2" style="width:70px;color:#0000007f;" enabled="false" class="defaultbutton" text="确定交易" onclick ='TradeDone' />
+            </div>
+            </pe:if>
+        </div>
+        </div>
+    </div>
+
+    <div style="float:left;margin-left:5px;margin-top:10px;">
+	<div style="height:26px;margin-left:-5px;">
+        <pe:tabs name="tabsItems"  onclick="FilterItems" 
+        SelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg1_32bits.png:12 14 12 14" 
+        UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14"  
+        style="background:;padding-top:32px;padding-left:10px;" >
+			<pe:tab-item name="0" text="全部" selected="true" zorder="2" />
+			<pe:tab-item name="1" text="服装"/>
+            <pe:tab-item name="2" text="饰品"/>
+            <pe:tab-item name="3" text="武器"/>
+            <pe:tab-item name="4" text="卡牌"/>
+            <pe:tab-item name="5" text="符文"/>
+            <!--<pe:tab-item name="6" text="宠物"/>-->
+            <!--<pe:tab-item name="7" text="道具"/>-->
+            <pe:tab-item name="8" text="卡片包"/>
+            <pe:tab-item name="9" text="消耗品"/>
+		</pe:tabs>
+	</div>
+    <div style="padding:1px;width:442px;margin-left:-40px;height:375px;background:url(Texture/Aries/HaqiShop/bg4_32bits.png:20 20 20 20);">
+        <pe:if condition='<%=MyCompany.Aries.Trade.TradeClientPage.filter ~= 6%>'>
+        <div style="padding:15px;width:430px;margin-left:20px;height:375px;">
+        <pe:gridview name="gvwItems" DataSource="<%=GetDataSource%>"  CellPadding="2" ItemsPerLine="4" AllowPaging="true" pagesize="12" >
+			<Columns>
+                <pe:if condition='<%=not Eval("has_socketed")%>'>
+                    <pe:if condition='<%=(not Eval("canexchange") or not Eval("cangift")) and Eval("gsid") ~= 0 %>'>
+                        <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="该物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                    </pe:if>
+                </pe:if>
+                <pe:if condition='<%=Eval("has_socketed")%>'>
+                    <img src="Texture/Aries/Common/themekid/trade/lock_kids_32bits.png:32 32 1 1" zorder="3" tooltip="已经镶嵌宝石或强化的物品不能被交易" style="position:relative;width:90px;height:90px;"/>
+                </pe:if>
+			<div style="margin-left:5px;padding:10px;margin-top:2px;width:90px;height:90px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                <pe:slot guid='<%=Eval("guid")%>' onclick='<% OnClickItemGUID %>' HideCnt="true" gsid='<%=Eval("gsid")%>' param1='<%=Eval("params") %>' showdefaulttooltip="true" style="width:70px;height:70px;"/>
+                <!--<pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' param1='<%=Eval("params") %>' showdefaulttooltip="true" style="width:70px;height:70px;"/>-->
+                <pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                <div style="margin-top:-15px;text-align:right;color:#ffffffff;"><%= Eval("copies")%></div>
+                </pe:if>
+                
+			</div>
+			</Columns>
+            <FetchingDataTemplate>
+            <div style="text-align:center;" >正在更新物品...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:162px;margin-top:-60px;width:168px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>	                    
+	            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:-30px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19)"/>
+	            <div style="float:right;margin-left:10px;margin-top:-4px;width:60px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:15px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+
+	            </form>
+	        </PagerTemplate>
+		</pe:gridview>
+        </div>
+        <input type="button" style="margin-top:-70px;margin-left:310px;position:relative;color:#808080;background:" tooltip="右键点击堆叠物品可以批量输入数量" value="右键堆叠物品"/>
+        </pe:if>
+
+        <pe:if condition='<%=MyCompany.Aries.Trade.TradeClientPage.filter == 6%>'>
+            <div style="width:430px;height:375px;">
+                <div style="float:left;width:130px;height:388px;margin-top:5px;margin-left:35px;" >
+                    <pe:gridview name="gvwPets" DataSource="<%=GetDataSource%>"  CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="11" >
+			        <Columns>
+			        <!--<div>-->
+						<pe:if condition='<%=Eval("checked") %>' >
+							<input type="button" onclick="OnClickItem" enabled="false" 
+                            Normal_BG="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30"
+                            MouseOver_BG ="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30"
+                            Pressed_BG="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30"
+                            name='<%=Eval("gsid")%>'
+								style="margin-left:1px;position:relative;margin-top:0px;width:145px;height:25px;background:;" />
+						</pe:if>
+						<pe:if condition='<%=not Eval("checked") %>' >
+							<input type="button" class="listbutton_unselected" onclick="OnClickItem"  
+                            Normal_BG="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_2_32bits.png;0 0 212 30"
+                            MouseOver_BG ="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30"
+                            Pressed_BG="Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30"
+                            name='<%=Eval("gsid")%>'
+								style="margin-left:1px;position:relative;margin-top:0px;width:145px;height:25px;background:;" />
+						</pe:if>
+		
+					<!--</div>-->
+					<div style="">
+                        <div style="float:left;width:32px;position:relative;text-align:center;" ><%=GetPetIcon(Eval("icon")) %></div>
+						<div style="float:left;margin-left:26px;width:120px; font-size:12px;" ><%=Eval("name") %></div>
+                        <!--<pe:if condition='<%=Eval("copies") and Eval("copies") > 1 %>'>
+                        <div style="margin-top:-15px;text-align:right;"><%= Eval("copies")%></div>
+                        </pe:if>-->
+			        </div>
+                    <!--<div style="width:175px;height:1px;" class="black_line"/>-->
+			        </Columns>
+                    <FetchingDataTemplate>
+                    <div style="text-align:center;">正在更新物品...</div>
+                    </FetchingDataTemplate>
+	                <PagerSettings Position="Bottom" height="0" style="margin-left:35px;margin-top:-105px;width:100px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+                            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19)"/>
+                            <pe:if condition='<%=HasModel() == true %>'>
+                            <input type="button" name="page" style="width:30px;height:25px;font-siz:12px;margin:4px;margin-top:-1px;text-align:center;background:;"/>
+                            </pe:if>
+                            <pe:if condition='<%=HasModel() ~= true %>'>
+                            <input type="button" name="page" style="width:30px;height:25px;font-siz:12px;margin:4px;margin-top:-1px;text-align:center;color:#98fffc7f;background:;" />
+                            </pe:if>
+	                        <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:-3px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	                    </form>
+	                </PagerTemplate>
+		        </pe:gridview>
+                </div>
+                <div style="float:left;width:248px;height:388px;" >
+                    <div style="margin-left:18px;margin-top:5px;width:248px;height:180px;" class="static_block">
+                        <div style="margin-left:34px;width:180px;height:180px;">
+                            <pe:canvas3d name="FollowPetCanvas"  DefaultRotY="-1.5" IsInteractive=false FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="<%=GetModelValue() %>" />
+                            <pe:if condition='<%=HasModel() == true %>'>
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2"  style="float:left;margin-left:-12px;margin-top:-30px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2"  style="float:left;margin-left:142px;margin-top:-30px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                            </pe:if>
+                            <pe:if condition='<%=HasModel() ~= true %>'>
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2"  enabled="false" style="float:left;margin-left:-12px;margin-top:-30px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2"  enabled="false"  style="float:left;margin-left:142px;margin-top:-30px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                            </pe:if>
+                        </div>
+                    </div>
+                    <div style="margin-left:21px;margin-top:5px;">
+                        <div style="position:relative;"> 
+                        <div style="font-size:12px;"><%=GetPetLevel() %></div>
+                        <pe:if condition='<%=IsCombatPet()%>'>
+                            <aries:combatpet pet_gsid="<%=GetID() %>" >
+                                <pe:if condition='<%=not LevelIsFull() and HasNextLevelProp()%>'>
+                                    <div style="font-size:12px;">下级附加属性:<aries:combatpet_item property="get_prop_by_level" params_append_prop_level='<%=GetNextLevel()+1 %>' style="float:left;"/></div>
+                                </pe:if>
+                                <pe:if condition='<%=not LevelIsFull() and HasNextLevelCard()%>'>
+                                    <div style="font-size:12px;">下级附加卡牌:<br /><aries:combatpet_item property="get_card_by_level" params_append_card_level='<%=GetNextLevel()+1 %>' style="float:left;"/></div>
+                                </pe:if>
+                                <pe:if condition='<%=HasMaxLevelProp()%>'>
+                                    <div style="font-size:12px;">满级附加属性:<aries:combatpet_item property="get_prop_by_level" params_append_prop_level='<%=GetMaxLevel()+1 %>' style="float:left;"/></div>
+                                </pe:if>
+                                <pe:if condition='<%=HasMaxLevelCard()%>'>
+                                    <div style="font-size:12px;">满级附加卡牌:<br /><aries:combatpet_item property="get_card_by_level" params_append_card_level='<%=GetMaxLevel()+1 %>' style="float:left;"/></div>
+                                </pe:if>
+                            </aries:combatpet>
+                        </pe:if>
+                        <pe:if condition='<%=not IsCombatPet()%>'>
+                            <div style="font-size:12px;"><%=GetDescription() %></div>
+                        </pe:if>
+                        </div>
+                        <div style="margin-left:160px;margin-top:120px;">
+                            <div style="color:#0000007f;">宠物暂时不能交易</div>
+                            <pe:if condition='<%=HasModel() == true and CanTrade() == true%>'>
+                            <input type="button" name="btnSelectPet" zorder="2" style="width:70px;" class="defaultbutton" text="放置" onclick='<%=SelectPet %>' />
+                            </pe:if>
+                            <pe:if condition='<%=HasModel() ~= true or CanTrade() ~= true%>'>
+                            <input type="button" name="btnSelectPet" zorder="2" style="width:70px;color:#0000007f" tooltip ="该宠物被限制交易" enabled="false" class="defaultbutton" text="放置" onclick='<%=SelectPet %>' />
+                            </pe:if>
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </pe:if>
+        
+        <div style="width:386px;height:48px;margin-left:42px;margin-top:-40px;position:relative;background:url(Texture/Aries/Common/ThemeKid/trade/bg6_frame_32bits.png:15 48 48 1)">
+            <div style="float:left;margin-left:15px;width:150px;margin-top:6px;">魔豆:<%=MyCompany.Aries.Trade.TradeClientPage.GetMagicBean() %>
+            </div>
+            <div style="float:left;margin-left:5px;width:100px;margin-top:6px;">金豆:<%=GetGold() %>
+            </div>
+            <!--<div style="float:left;margin-left:5px;width:80px;margin-top:6px;">容量:
+            </div>-->
+            <!--<div style="float:left;margin-left:5px;margin-top:4px;">
+                <input type="button" name="btnExternlBag" zorder="2" style="width:70px;" class="defaultbutton" text="扩展背包"  />
+            </div>-->
+        </div>
+    </div>
+    </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

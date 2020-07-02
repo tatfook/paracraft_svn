@@ -1,0 +1,109 @@
+﻿<!-- "script/apps/Aries/Quest/QuestStatusDragon.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>QuestStatusDragon, by Andy, 2009/7/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestStatusDragon.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+dsStatus = Eval("dsStatus") or {};
+
+function DS_Func_Aries_QuestStatusDragon(index)
+    return MyCompany.Aries.Desktop.QuestArea.QuestStatusDragonPage.DS_Func_QuestStatusDragon(dsStatus, index, pageCtrl);
+end
+
+completequestcount = MyCompany.Aries.Quest.GetFinishedDragonQuestCount();
+
+function OnClose()
+    pageCtrl:CloseWindow();
+end
+
+]]></script>
+<div style="width:820px;height:512px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#000000">
+        <div style="width:256px;height:32px;background:url(texture/Aries/Quest/Dragon/WishListHead_32bits.png)">
+        </div><br/>
+        <div style="margin-left:50px">已完成心愿: <%=Eval("completequestcount")%>
+        </div>
+        <div style="float:right;margin-left:415px;margin-top:-72px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+    </div>
+    <div style="margin-left:120px;margin-top:-14px;">
+        <pe:gridview DataSource="<%=DS_Func_Aries_QuestStatusDragon%>" name="QuestStatusDragon" style="margin-left:12px;margin-top:22px;" 
+            CellPadding="2"  DefaultNodeHeight = "48" ItemsPerLine="1" AllowPaging="True" pagesize="6">
+            <Columns>
+                <div style="margin-left:26px;width:500px;height:48px;">
+                    <!--<div style="float:right;padding:8px;width:65px;height:65px;background:url(Texture/Aries/Quest/DragonWish_title_32bits.png#0 0 25 44:11 19 13 24)">
+                        <pe:item gsid='<%=Eval("gsid")%>' isclickable=false style="width:48px;height:48px;"/>
+                    </div>-->
+                    <div style="float:right;padding-left:0px;margin-top:0px;padding:0px;width:500px;height:50px;background:url()">
+                        <input type="button" zorder="2" style="float:right;width:500px;height:54px;background:url(Texture/Aries/Quest/Quest_title_32bits.png#0 0 108 54:50 24 50 24);" 
+                            Normal_BG = "Texture/Aries/Quest/Quest_title_32bits.png;0 0 500 54"
+                            MouseOver_BG = "Texture/Aries/Quest/Quest_title_light_32bits.png;0 0 500 54"
+                            Pressed_BG = "Texture/Aries/Quest/Quest_title_dark_32bits.png;0 0 500 54"
+                            href='<%=Eval("page_url")%>' 
+                            tooltip="" value='<%=Eval("title")%>' />
+                            <!---->
+                    </div>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>Data Fetching, Please wait ... </b>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="36" style="margin-left:140px;margin-top:-42px;width:200px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	                <input type="button" name="pre" zorder=2 style="margin-left:-60px;width:64px;height:64px;background:url(Texture/Aries/Quest/QuestList_PgLeft_32bits.png#0 0 64 64);"/>
+	                <div style="float:right;margin-left:100px;margin-top:8px;width:64px;">
+	                    <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next" zorder=2 style="margin-left:105px;width:64px;height:64px;background:url(Texture/Aries/Quest/QuestList_PgRight_32bits.png#0 0 64 64)"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+        <!--<input type="button" tooltip="重置所有宠物任务的道具和记录" style="float:right;margin-left:14px;margin-top:-60px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="ResetPet()"/>
+        <input type="button" tooltip="重置所有角色创建信息" style="float:right;margin-left:10px;margin-top:-60px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="ResetAvatar()"/>
+        <input type="button" tooltip="重置所有新手指引信息" style="float:right;margin-left:10px;margin-top:-60px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="ResetTutorial()"/>
+        <input type="button" tooltip="接受所有贪吃任务" style="float:right;margin-left:10px;margin-top:-60px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="RecvAllFoodSeries()"/>
+        <input type="button" tooltip="尝试接受所有随机跟随宠物任务" style="float:right;margin-left:400px;margin-top:-60px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="TryRecvAllPetSeries()"/>-->
+    
+    
+    <!--<div style="margin-left:350px;margin-top:0px;width:100px;height:65px">
+        <a style="width:132px;height:65px;padding:0px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" target="_self" href="script/apps/Aries/Quest/QuestStatusDragon.html">
+            <div style="margin-top:0px;width:132px;height:65px;">
+                <input type="button" style="margin:0px;width:132px;height:65px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" />
+            </div>
+        </a>
+    </div>-->
+    
+    
+    <!--<div style="margin-left:170px;margin-top:24px;height:50px;color:#FFFFFF">
+        <div style="width:124px;height:27px;background:url(texture/Aries/Quest/QuestStatusDragon_title_32bits.png#0 0 124 27)">
+        </div><br/>
+        <div style="margin-left:10px">已完成心愿: <%=Eval("completequestcount")%>
+        </div>
+        <input type="button" style="float:right;margin-left:134px;margin-top:-40px;width:48px;height:48px;background:texture/3dmapsystem/common/reset.png" onclick="ResetPet()"/>
+        <div style="float:right;margin-left:55px;margin-top:-50px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+    </div>-->
+    
+  </div>
+</pe:mcml> 
+</body>
+</html>

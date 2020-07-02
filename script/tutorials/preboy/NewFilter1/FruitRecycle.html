@@ -1,0 +1,214 @@
+<!-- "script/tutorials/preboy/NewFilter1/FruitRecycle.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="FruitRecycle.lua"><![CDATA[
+MyCompany.Aries.Inventory.FruitRecycle.OnInit()
+local pageCtrl = document:GetPageCtrl();
+
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+dsItems = Eval("dsItems") or {status = nil, };
+
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.FruitRecycle.DS_Func_Items(dsItems, index, pageCtrl);
+end
+
+function doClick(guid)
+    MyCompany.Aries.Inventory.FruitRecycle.DoClick(guid);
+end
+
+function OnCancel()
+    MyCompany.Aries.Inventory.FruitRecycle.ClosePage();
+end
+
+function getPrice()
+    return MyCompany.Aries.Inventory.FruitRecycle.price;
+end
+
+function getMaxNum()
+    return MyCompany.Aries.Inventory.FruitRecycle.maxNum;
+end
+
+function getSellInfo()
+    local maxNum = MyCompany.Aries.Inventory.FruitRecycle.maxNum;
+    local s = string.format("请输入出售数量(1-%d)",maxNum or 0)
+    return s;
+end
+
+
+function OnDecrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local maxNum = MyCompany.Aries.Inventory.FruitRecycle.maxNum or 0;
+    if(maxNum == 0)then
+        pageCtrl:SetValue("count", 0);
+        return
+    end
+    if(count) then
+        if(count <= 1) then
+            count = 1;
+        elseif(count >= maxNum) then
+            count = maxNum;
+        else
+            count = count - 1;
+        end
+        pageCtrl:SetValue("count", count);
+    end
+end
+
+function OnIncrease()
+    local count = pageCtrl:GetValue("count");
+    count = tonumber(count);
+    local maxNum = MyCompany.Aries.Inventory.FruitRecycle.maxNum or 0;
+    if(maxNum == 0)then
+        pageCtrl:SetValue("count", 0);
+        return
+    end
+    if(count) then
+        if(count < 1) then
+            count = 1;
+        elseif(count >= maxNum) then
+            count = maxNum;
+        else
+            count = count + 1;
+        end
+        pageCtrl:SetValue("count", count);
+    end
+end
+
+function isSelected()
+    local maxNum = MyCompany.Aries.Inventory.FruitRecycle.maxNum;
+    if(maxNum and maxNum>0)then
+        return true;
+    end
+end
+]]></script>
+<div style="width:716px;height:420px;padding:23px;margin-left:140px;;margin-top:100px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:15 25 15 25)">
+    <input type="button" style="width:54px;height:54px;margin-left:660px;margin-top:-30px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                        zorder="2" onclick="MyCompany.Aries.Inventory.FruitRecycle.ClosePage()" />
+    <div>
+        <div style="float:left;width:320px;height:270px;margin-left:5px;margin-top:0px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+            <div style="margin-left:20px;margin-top:12px;color:#243b5d;font-size:13px;">
+                还为你的果实太多而发愁吗？ 有了这个果实回收篮，你可以把多余的果实出售了。 我会给你最公道的价格哦！ 从右边列表选择你要出售的物品吧。
+            </div>
+            <img name = "icon" style="float:right;padding-left:8px;padding-top:-100px;width:80px;height:67px;margin-left:121px;margin-top:30px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)" />
+            <div style="float:right;margin-top:18px;padding-top:100px;padding-left:-135px;">
+                <input type="button" style="width:38px;height:42px;padding-top:75px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+                <div style="float:right;padding-left:52px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)">
+                    <input type="text" name="count" value="0" style="width:40px;height:26px;padding-top:75px;background:;"/>
+                </div>
+                <input type="button" style="width:38px;height:42px;padding-top:75px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+                <div style="margin-left:70px;margin-top:20px;color:#243b5d">收购价：<%=getPrice() %> </div>
+                <div style="margin-left:40px;padding-top:-5px;color:#243b5d"><%=getSellInfo() %></div>
+            </div>
+            <div style="width:466px;height:48px;margin-top:18px;">
+                <pe:if condition='<%=isSelected()%>'>
+                    <input type="button" style="margin-left:20px;width:154px;height:48px;background :url(Texture/Aries/Inventory/PurchaseItem/buy_btn_32bits.png#0 0 154 48)" onclick="MyCompany.Aries.Inventory.FruitRecycle.DoSell()"/>
+                </pe:if>
+                <pe:if condition='<%=not isSelected()%>'>
+                    <input type="button" style="margin-left:20px;width:154px;height:48px;background:url(Texture/Aries/Inventory/MountMe_grey_32bits.png#0 0 154 48)"/>
+                </pe:if>
+                <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="MyCompany.Aries.Inventory.FruitRecycle.ClosePage()"/>
+            </div>
+        </div>
+        <div style="float:left;width:300px;height:350px;margin-left:50px;margin-top:0px;">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:450px;margin-left:40px;margin-top:-20px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+                    <Columns>
+                        <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#3 3 100 95:24 24 24 24)">
+                            <div style="width:64px;height:64px;">
+                                 <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick = "doClick()"/>
+                            </div>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>你现在没有可以出售的水果</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>正在获取数据, 请稍候...</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" style="margin-left:50px;margin-top:-20px;" PreviousPageText="previous page" NextPageText="next page"/>
+                    <PagerTemplate>
+                        <form>
+                            <input type="button" name="pre" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                            <div style="float:left;margin-top:4px;width:64px;">
+                                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+                            </div>
+                            <input type="button" name="next" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                        </form>
+                    </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </div>    
+</div>
+ <!--<div style="width:716px;height:420px;padding:23px;margin-left:140px;;margin-top:100px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:15 25 15 25)">
+    <input type="button" style="width:54px;height:54px;margin-left:660px;margin-top:-30px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                        zorder="2" onclick="yq.FruitRecycle.ClosePage()" />
+    
+        <div style="float:left;width:320px;height:270px;margin-left:5px;margin-top:0px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+            <div style="margin-left:20px;margin-top:12px;color:#243b5d;font-size:13px;">
+                还为你的果实太多而发愁吗？ 有了这个果实回收篮，你可以把多余的果实出售了。 我会给你最公道的价格哦！ 从右边列表选择你要出售的物品吧。
+            </div>
+            <div style="float:right;padding-left:8px;padding-top:-100px;width:80px;height:67px;margin-left:121px;margin-top:30px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)" />
+                 
+            </div>
+            <div style="float:right;margin-top:18px;padding-top:100px;padding-left:-135px;">
+                <input type="button" style="width:38px;height:42px;padding-top:75px;background:url(Texture/Aries/Inventory/PurchaseItem/count_down_32bits.png#0 0 38 42)" onclick="OnDecrease()"/>
+                <div style="float:right;padding-left:52px;padding-top:8px;width:119px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40)">
+                    <input type="text" name="count" value="0" style="width:40px;height:26px;padding-top:75px;background:;"/>
+                </div>
+                <input type="button" style="width:38px;height:42px;padding-top:75px;background:url(Texture/Aries/Inventory/PurchaseItem/count_up_32bits.png#0 0 38 42)" onclick="OnIncrease()"/>
+                <div style="margin-left:70px;margin-top:20px;color:#243b5d">收购价：<%=getPrice() %> </div>
+                <div style="margin-left:40px;padding-top:-5px;color:#243b5d"><%=getSellInfo() %></div>
+            </div>
+            <div style="width:466px;height:48px;margin-top:18px;">
+                <pe:if condition='<%=isSelected()%>'>
+                    <input type="button" style="margin-left:20px;width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/buy_btn_32bits.png#0 0 154 48)" onclick="yq.FruitRecycle.DoSell()"/>
+                </pe:if>
+                <pe:if condition='<%=not isSelected()%>'>
+                    <input type="button" style="margin-left:20px;width:154px;height:48px;background:url(Texture/Aries/Inventory/MountMe_grey_32bits.png#0 0 154 48)"/>
+                </pe:if>
+                <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="yq.FruitRecycle.ClosePage()"/>
+            </div>
+        
+        <div style="float:left;width:300px;height:350px;margin-left:50px;margin-top:0px;">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:450px;margin-left:40px;margin-top:-20px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+                    <Columns>
+                        <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#3 3 100 95:24 24 24 24)">
+                            <div style="width:64px;height:64px;">
+                                 <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick = "doClick()"/>
+                            </div>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>你现在没有可以出售的水果</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>正在获取数据, 请稍候...</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" style="margin-left:50px;margin-top:-20px;" PreviousPageText="previous page" NextPageText="next page"/>
+                    <PagerTemplate>
+                        <form>
+                            <input type="button" name="pre" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                            <div style="float:left;margin-top:4px;width:64px;">
+                                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+                            </div>
+                            <input type="button" name="next" style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                        </form>
+                    </PagerTemplate>
+            </pe:gridview>
+        </div>
+         
+
+ </div>-->
+</pe:mcml> 
+</body>
+</html>

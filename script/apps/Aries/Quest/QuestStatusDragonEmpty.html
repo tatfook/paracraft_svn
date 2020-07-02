@@ -1,0 +1,53 @@
+<!-- "script/apps/Aries/Quest/QuestStatusDragonEmpty.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>QuestStatusDragon, by Andy, 2009/7/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestStatusDragon.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function InnerText(params)
+    local _this = ParaUI.CreateUIObject("text", "InnerTXT_QuestStatusDragonEmpty", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.text = "你的抱抱龙是个有思想有个性的小家伙，他提出的心愿将会记录在这里，记得随时关注哦！";
+	_this.font = "System;18;bold";
+	_guihelper.SetFontColor(_this, "#2a2a2a");
+	_this.shadow = true;
+	params.parent:AddChild(_this);
+end
+
+completequestcount = MyCompany.Aries.Quest.GetFinishedDragonQuestCount();
+
+function OnClose()
+    pageCtrl:CloseWindow();
+end
+
+]]></script>
+<div style="width:820px;height:512px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#000000">
+        <!--<div style="width:256px;height:32px;background:url(texture/Aries/Quest/Dragon/WishListHead_32bits.png)">-->
+        <div style="width:256px;height:32px;background:url(texture/Aries/Quest/Dragon/WishListHead_32bits.png)">
+        </div><br/>
+        <div style="margin-left:50px;margin-top:10px;">已完成心愿: <%=Eval("completequestcount")%>
+        </div>
+        <div style="float:right;margin-left:415px;margin-top:-82px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                    onclick="OnClose();" value=""/>
+        </div>
+    </div>
+    <div style="margin-left:120px;margin-top:20px;">
+        <pe:custom oncreate="InnerText" style="margin-left:60px;margin-top:40px;width:480px;height:300px;background:texture/alphadot.png"/>
+    </div>
+    
+  </div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿<!-- "script/apps/Aries/Desktop/Functions/SkillMenuPopup.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>leio, 2012/03/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SkillMenuPopup.teen.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+local xml_data = { 
+    {Text = "卡牌技能", tooltip="卡牌技能(V)", Name = "Spell", Type = "Menuitem", onclick = MyCardsManager.ShowPage, Icon = "texture/aries/dock/teen/GuideElf_32bits.png; 0 0 24 24"},
+    {Text = "生活技能", tooltip="" ,Name = "SparetimeLife", Type = "Menuitem", onclick = ItemBuildPage.ShowPage, Icon = "Texture/Aries/Dock/SystemSettings_32bits.png;0 0 24 24"},
+}
+function get_datasource()
+    return xml_data;
+end
+
+function tvwOnClickNode(name)
+    local data = xml_data[tonumber(name)];
+    if(data and data.onclick) then  
+        data.onclick();
+    end
+    Page:CloseWindow();
+end
+]]></script>
+<div style="width:140px;height:60px;padding:5px;padding-right:7px;padding-bottom:7px;background:url(Texture/Aries/Common/ThemeTeen/popupmenu_bg_32bits.png:5 5 7 7)">
+<pe:gridview name="menu_item" DataSource='<%=get_datasource()%>' DefaultNodeHeight = "23" OnClick="tvwOnClickNode()" ItemsPerLine="1" AllowPaging="false">
+	<Columns>
+        <div class="defaultcolor" style="height:23px;">
+            <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='tvwOnClickNode' name='<%=Eval("index")%>' tooltip='<%=Eval("tooltip")%>'/>
+            <img src='<%=Eval("Icon")%>' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:16px;margin-left:2px;"><%=Eval("Text")%></div>
+        </div>
+	</Columns>
+</pe:gridview>
+</div>
+</pe:mcml> 
+</body>
+</html>

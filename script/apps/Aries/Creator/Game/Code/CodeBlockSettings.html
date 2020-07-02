@@ -1,0 +1,49 @@
+<!--script/apps/Aries/Creator/Game/Code/CodeBlockSettings.html-->
+<pe:mcml>
+<script type="text/npl" refresh="false" src="CodeBlockSettings.lua">
+<![CDATA[
+CodeBlockSettings = commonlib.gettable("MyCompany.Aries.Game.Code.CodeBlockSettings");
+CodeBlockSettings.OnInit();
+
+function ClosePage()
+    Page:CloseWindow();
+end
+
+]]></script>
+
+<aries:window mode="thin" title='<%=L"代码方块设置"%>' onclose="ClosePage">
+<div width="100%" style="padding:5px;color:#cccccc;margin-right:10x;">
+    <div style="margin-bottom:10px;">
+        <div style="float:left"><%=L"编程语言:"%></div>
+        <div style="float:left">
+            <select name="language" style="height:25px;margin-top:-1px;" onselect="CodeBlockSettings.OnSelectLang" AllowUserEdit="false">
+                <option value="" selected="selected">NPL</option>
+                <option value="npl_cad">CAD</option>
+                <option value="mcml">MCML UI</option>
+                <option value="commands">commands</option>
+                <option value="npl_blockpen">pen</option>
+                <option value="npl_teacher">Teacher</option>
+            </select>
+            <input type="button" style="margin-left:5px" class="button" name="btnChangeLang" value='<%=L"自定义语言..."%>' onclick="CodeBlockSettings.OnClickCustomLanguage"/>
+        </div>
+    </div>
+    <div style="margin-bottom:10px;">
+        <input type="checkbox" name="allowClientExecution" style="margin-top:2px" onclick="CodeBlockSettings.OnChangeAllowClientExecution"/>
+        <div for="allowClientExecution" style="float:left;margin-left:5px;" >
+            <%=L"允许客户端执行代码"%>
+        </div>
+        <div style="color:#808080;font-size:12px"><%=L"通常在多人联网程序中, 客户端需要执行的代码方块会设置此项"%></div>
+    </div>
+    <div style="margin-bottom:10px;">
+        <input type="checkbox" name="allowFastMode" style="margin-top:2px" onclick="CodeBlockSettings.OnChangeAllowFastMode"/>
+        <div for="allowFastMode" style="float:left;margin-left:5px;" >
+            <%=L"开启高性能模式（高级）"%>
+        </div>
+    </div>
+    <div style="margin-bottom:10px;">
+        <input type="button" align="right" style="min-width:80px" class="button" name="close" value='<%=L"关闭"%>' onclick="ClosePage"/>
+    </div>
+</div>
+</aries:window>
+</pe:mcml>
+

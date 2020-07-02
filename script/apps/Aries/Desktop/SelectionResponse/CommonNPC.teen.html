@@ -1,0 +1,86 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/CommonNPC.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Common NPC Selection Response, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CommonNPC.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+instance = page:GetRequestParam("instance") or nil;
+name = "NPCSelection"..npc_id..(instance or "");
+    echo(npc_id)
+npc_id = tonumber(npc_id);
+if(instance) then
+    instance = tonumber(instance);
+end
+
+npc_name = "NPC";
+npc_level = "0";
+npc_hp = "???";
+
+isAB_SDK = false;
+if(System.options.isAB_SDK) then
+    isAB_SDK = true;
+end
+
+if(npc_id == 39001 and instance) then
+    -- mob creatures
+    local mob_data = MyCompany.Aries.Combat.MsgHandler.Get_mob_data_by_id(instance);
+	if(mob_data) then
+        npc_name = mob_data.displayname or npc_name;
+        npc_level = tostring(mob_data.level or npc_level);
+        Page:SetValue("health_text", tostring(mob_data.current_hp or "-").."/"..tostring(mob_data.max_hp or "-"));
+    else
+		LOG.warn("can not find mob : %d from data", instance);
+	end
+else
+    -- normal NPC 
+    npc_data = MyCompany.Aries.Quest.NPCList.GetNPCByID(npc_id);
+    if(npc_data) then
+        npc_name = npc_data.name;
+        npc_level = tostring(npc_data.level or npc_level);
+        npc_hp = tostring(npc_data.hp or npc_level);
+    end
+    if(not npc_data)then
+        local __,_map = QuestHelp.GetClientItemList();
+        if(_map and npc_id and _map[npc_id])then
+            local node = _map[npc_id];
+            npc_name = node.label;
+            npc_level = tostring(node.level or 0);
+        end
+    end
+end
+]]></script>
+<div style="background:url(Texture/Aries/Common/Teen/Team/otherplayer_bg_32bits.png#0 0 255 88);width:255px;height:88px;">
+    <input type="button" name="levelBtn" value='<%=Eval("npc_level") or "0"%>' style="position:relative;margin-left:87px;margin-top:17px;width:29px;height:16px;color:#93fafe;font-size:11px;font-weight:bold;background:;"/>
+    <div style="float:left;margin-left:10px;margin-top:10px;">
+     <pe:player nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>' object="npc" name='<%=Eval("name")%>' RenderTargetSize="64" miniscenegraphname="Aries_SelectedArea_miniscene" style="width:64px;height:64px;"
+            MaskTexture = "Texture/Aries/Common/circular_mask_head.png"   IsPortrait="true" />
+        <!--<div style="width:64px;heigth:64px;">
+            <aries:userhead nid='<%=Eval("nid")%>' object="npc" style="margin-left:2px;margin-top:6px;width:64px;height:64px;"/>
+        </div>-->
+    </div>
+    <div style="float:left;margin-left:1px;margin-top:13px">
+        <div style="margin-left:30px;margin-top:5px;width:130px;height:20px;text-align:center;color:#ffffff;">
+            <%=Eval("npc_name") or "NPC" %>
+        </div>
+        <div style="margin-left:9px;margin-top:3px;">
+             <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:164px;height:11px;" miniblockwidth="15"
+                    blockimage="Texture/Aries/Common/Teen/Team/blood_32bits.png;0 0 16 10: 7 4 7 4"
+                    background=""
+                />
+        </div>
+        
+        <input name="health_text" type="button"  style="position:relative;margin-top:-14px;margin-left:5px;width:164px;height:16px;color:#ffffff;font-size:11px;background:;"  value='<%=Eval("npc_hp")%>' />
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

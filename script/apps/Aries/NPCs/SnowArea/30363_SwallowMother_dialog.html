@@ -1,0 +1,90 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30363_SwallowMother.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30363_SwallowMother.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+HasBug = function()
+    return MyCompany.Aries.Quest.NPCs.SwallowMother.HasBug();
+end
+GetEgg = function()
+    MyCompany.Aries.Quest.NPCs.SwallowMother.FeedBug();
+end
+function EntryAction(from, to)
+    
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30363' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='燕子妈妈'/>
+        </pe:template> 	    
+
+        <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		  以往我飞回来时都已经春暖花开了，今年却好像越来越寒冷，我连一条虫子都找不到，饿的一点力气都没有了！
+		   <br />
+		  小哈奇，你能帮我先找1条小青虫吗！
+		    <pe:answer template_id = "giveyou">
+			    <pe:answer-if condition = '<%=Eval("HasBug") %>' transition = '<%=Eval("DeductBug") %>' target_state = "2"/>
+			    <pe:answer-if condition = "true" target_state = "3"/>
+		    </pe:answer>
+
+		        <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "2">
+		   真是谢谢你，我这里唯一的一点春泥送给你吧！
+		   <br />
+		   现在我要寻找一个阳光明媚的地方建窝，也许要很久才能回来，你能先照顾下我的孩子吗？如果你能把它孵化出来并且照顾它长大，它
+		   会和你回家，帮你除掉家园植物上所有的害虫的！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetEgg") %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "3">
+		   你也没有虫子呀！
+		   <br />
+		   我记得以前在蜂窝树里还有不少小青虫，要不你去摇摇蜂窝树看看？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,59 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationArea/NPCTips_GiftBox.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="NPCTips_GiftBox.lua"><![CDATA[
+local page = document:GetPageCtrl();
+NPCTips_GiftBox = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.NPCTips_GiftBox");
+tip = NPCTips_GiftBox.show_dialog_tip or {is_empty=true};
+gsid = tonumber(Page:GetRequestParam("gsid")) or 17275;
+function OnClose()
+    Page:CloseWindow();
+end
+
+function OnClickActionBtn()
+    local ItemManager = System.Item.ItemManager;
+    ItemManager.PurchaseItem(gsid, 1, function(msg)
+		if(msg and msg.issuccess) then
+			_guihelper.MessageBox("领取成功! 快打开背包看看吧");
+        else
+            _guihelper.MessageBox("条件不符! ");
+		end
+	end);
+    Page:CloseWindow();
+end
+]]></script>
+<div style="width:420px;margin-left:0px;padding-bottom:10px" class="window">
+    <div style="text-align:center;margin-top:10px;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:#fcf73c;shadow-color:#8000468e;text-shadow:true">
+        <%="老用户专享超级礼包" %>
+    </div>
+    <div style="margin-left:15px;margin-right:10px;">
+        <div style="float:left;">
+            <pe:item gsid='<%=Eval("gsid") %>' style="width:64px;height:64px;"></pe:item>
+        </div>
+        <div class="titlebar" style="float:left;margin-top:8px;margin-left:-48px;padding-left:50px;height:190px;">
+            <div style="float:left;margin-left:3px;font-size:15px;base-font-size:15;line-height:15" width="100%">
+                <div style="font-weight:bold">国庆有木有！大回馈有木有！</div>
+                <div style="margin:5px;margin-left:0px;margin-right:0px;">
+                只要你是<div style="float:left;color:#a00000;font-weight:bold">2012年6月1号</div>前就进入游戏的哈奇，就可以领取“老用户专享超级礼包”！
+                然后迅速的把自己提升到<div style="float:left;color:#a00000;font-weight:bold">45级</div>，就可以打开礼包享受绝对的特权！！国庆节，老用户们HI起来吧！
+                </div>
+                <div style="font-weight:bold;margin-top:5px;">
+                    礼包内含：
+                </div>
+                <div style="margin-left:-30px">
+                    <pe:item gsid='17213' style="width:48px;height:48px;" /><div style="float:left;font-weight:bold;margin-top:20px;">1000颗</div>
+                    <pe:item gsid='17258' style="width:48px;height:48px;" /><div style="float:left;font-weight:bold;margin-top:20px;">5颗</div>
+                    <pe:item gsid='17276' style="width:64px;height:64px;margin-top:-16px;" /><div style="float:left;font-weight:bold;margin-top:20px;">全套魔晶套装</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <input name="closeLater" style="margin-left:160px;height:26px;width:80px;" class="button_thick" type="button" value="领取" onclick="OnClickActionBtn"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

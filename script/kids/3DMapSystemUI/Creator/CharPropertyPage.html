@@ -1,0 +1,95 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/CharPropertyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>character property page by LiXizhi 2008.6.14</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<%
+function map3dsystem_char_property_canvas(params)
+    NPL.load("(gl)script/ide/Canvas3D.lua");
+	local ctl = CommonCtrl.Canvas3D:new{
+		name = "map3dsystem_char_property_canvas",
+		alignment = params.alignment,
+		left = params.left,
+		top = params.top,
+		width = params.width,
+		height = params.height,
+		parent = params.parent,
+		autoRotateSpeed = 0.12,
+		IsActiveRendering = true,
+		miniscenegraphname = nil,
+	};
+	ctl:Show();
+end
+%>
+<script type="text/npl" src="CharPropertyPage.lua"><![CDATA[
+Map3DSystem.App.Creator.CharPropertyPage.OnInit();
+
+function map3dsystem_modify_magnify_btn(params)
+   local  _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_magnify_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/magnify.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnMagnifyClick();";
+end
+
+function map3dsystem_modify_minify_btn(params)
+    local _this = ParaUI.CreateUIObject("button", "map3dsystem_modify_minify_btn", params.alignment, params.left, params.top, params.width, params.height);
+	params.parent:AddChild(_this);
+	_this.background="Texture/3DMapSystem/modify/minify.png";
+	_this.onclick=";Map3DSystem.App.Creator.ObjModifyPage.OnMinifyClick();";
+end
+]]></script>
+<div >
+    <div>
+        <pe:custom oncreate="map3dsystem_char_property_canvas" style="width:128px;height:128px"/>
+        <div style="float:left;width:32px;">
+            <div style="float:left;width:80px;">
+                <div><input style="width:40px" name="scale"/><input type="button" name="changescale" value="放缩" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnChangeCharacterScale"/></div>
+                <br/>
+                <div style="margin-top:3px;"><a name="changeSkinBtn" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnChangeCharacterSkin" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/color_swatch.png"/>皮肤</a></div>
+                <div style="margin-top:3px;"><a name="SwitchBtn" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnSwitchToObject" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/findcontacts.png"/>附身</a></div>
+                <div style="margin-top:3px;"><a name="delBtn" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnDeleteCharacter" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/delete.png"/>删除</a></div>
+                <div style="margin-top:3px;margin-left:-30px;"><a name="ShowAndCopyAssetBtn" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnShowAndCopyAssetBtn" style="margin-right:3px;"><img style="width:16px;height:16px;margin-right:3px" src="Texture/3DMapSystem/common/findcontacts.png"/>显示复制路径</a></div>
+            </div>
+        </div>
+    </div>
+    <div>名字:<input style="width:90px" name="name"/><input type="button" name="changename" value="改名" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnChangeCharacterName"/></div>
+    <div>
+        <div height="80%">
+            我要成为: <span style="color:#808080">选择人物行为</span>
+            <pe:tabs name="CharActionTabs" style="background:;"> 
+             <pe:tab-item text="NPC" name="NPC" selected="true">
+                <pe:gridview DataSource="<%=Map3DSystem.App.Creator.CharPropertyPage.DS_Func_NPC%>" name="gvwOfficialAppList" CellPadding="3" DefaultNodeHeight = "50">
+                    <Columns>
+                        <a onclick="Map3DSystem.App.Creator.CharPropertyPage.OnClickNPLTemplate" param1='<%=Eval("index")%>'>
+                            <div style="float:left"><img src='<%=Eval("Icon")%>'width="48" height="48"/></div>
+                            <div style="float:left;margin-top:3px;margin-left:5px">
+                                <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                                <div><%=Eval("SubTitle")%></div>
+                            </div>
+                        </a>
+                    </Columns>
+                </pe:gridview>
+             </pe:tab-item>    
+             <pe:tab-item text="演员" name="actor">
+                <span style="color:#808080">此功能稍后可用:你可以成为演员和导演, 拍摄3D电影</span>
+             </pe:tab-item>
+             <pe:tab-item text="自定义" name="custom">
+                <span style="color:#808080">此功能稍后可用: 你将可以用它制作自己的RPG游戏人物角色</span>
+             </pe:tab-item>
+            </pe:tabs>
+        </div>
+        <div>
+            <hr />
+            <input type="button" name="save" class="defaultbutton" value="保存" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnSaveCharacterProperty"/><input type="button" value="关闭" onclick="Map3DSystem.App.Creator.CharPropertyPage.OnClose()"/>
+            <label style="margin-left:10px;margin-top:5px;color:#006600" name="result">尚未保存</label>
+        </div>
+    </div>
+</div>
+
+</pe:mcml>
+</body>
+</html>
+

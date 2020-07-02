@@ -1,0 +1,201 @@
+﻿<!-- "script/apps/Aries/Items/sign_item_page.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="sign_item_page.lua"><![CDATA[
+sign_item_page = commonlib.gettable("MyCompany.Aries.Items.sign_item_page");
+sign_item_page.init();
+local ItemManager = Map3DSystem.Item.ItemManager;
+
+guid = tonumber(Page:GetRequestParam("guid"));
+
+function GetItemName()
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item) then
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(item.gsid);
+        if(gsItem) then
+            
+            return gsItem.template.name;
+        end
+    end
+end
+
+function OnClose()
+    Page:CloseWindow();
+end
+
+local money = 100;
+local last_money = 100;
+
+
+-- restore the last value
+local item = ItemManager.GetItemByGUID(guid);
+if(item and item.GetServerData) then
+    local old_params = item:GetServerData();
+    if(old_params and old_params.money) then
+        money = old_params.money;
+        last_money = money;
+        Page:SetValue("txtItemsCount", tostring(math.floor(old_params.money/100)));
+        Page:SetValue("moudou", tostring(money));
+        if(old_params.sign_text) then
+            Page:SetValue("SignText", old_params.sign_text);
+        end
+        Page:Refresh(0.1);
+    end
+end
+
+function OnKeyupCopies(name)
+    local item_count_kela = tonumber(Page:GetUIValue("txtItemsCount"));
+    if(not item_count_kela) then
+        item_count_kela = 1;
+        _guihelper.MessageBox("请输入整数")
+    end
+
+	if(name=="dec")then
+        item_count_kela = item_count_kela -1;
+        Page:SetUIValue("txtItemsCount", string.format("%.1f", item_count_kela));
+	elseif(name=="inc")then
+        item_count_kela = item_count_kela +1;
+        Page:SetUIValue("txtItemsCount", string.format("%.1f", item_count_kela));
+    end	
+    if(item_count_kela <1) then
+        item_count_kela = 1;
+        Page:SetValue("txtItemsCount", string.format("%.1f", item_count_kela));
+        _guihelper.MessageBox("至少需要1克拉")
+    end
+    
+    money = math.floor(item_count_kela*100);
+    Page:SetValue("moudou", tostring(money));
+
+    if(last_money ~= money) then
+        Page:SetValue("txtItemsCount", string.format("%.1f", item_count_kela));
+        last_money = money
+        Page:Refresh(0.1);
+    end
+end
+
+function OnClickSignItem(name)
+    local money = Page:GetUIValue("moudou", 100)
+    money = tonumber(money) or 100;
+    local money_cost = money;
+    local item = ItemManager.GetItemByGUID(guid);
+    if(item and item.GetServerData) then
+        local old_params = item:GetServerData();
+        if(old_params and old_params.money) then
+            money_cost = math.max(100, money - old_params.money);
+        end
+    end
+    local text = format("本次签名需要花费%d魔豆, 是否继续？", money_cost or 0);
+    if(money_cost ~= money) then
+        text = format("本次签名价值%d魔豆. <br/>折算后，您只需要支付%d魔豆, 是否继续？", money, money_cost);
+    end
+    
+    _guihelper.MessageBox(text, function(res)
+	    if(res and res == _guihelper.DialogResult.Yes) then
+	        local sign_text = Page:GetUIValue("SignText", "")
+            sign_item_page.sign_item(guid, money, sign_text, money_cost);
+	    end
+    end, _guihelper.MessageBoxButtons.YesNo);
+end
+
+sign_item_page.static_gem_shape_map = sign_item_page.static_gem_shape_map or {
+	{0,1,1,0,1,1,0},
+	{1,0,0,1,0,0,1},
+	{1,0,1,1,1,0,1},
+	{1,0,1,1,1,0,1},
+	{0,1,0,1,0,1,0},
+	{0,0,1,0,1,0,0},
+	{0,0,0,1,0,0,0},
+};
+function GetGemStr(money_)
+    money_ = money_ or money;
+    local gem_count = math.floor((tonumber(money_) or 0)/100);
+	if(gem_count>0) then
+        local gem_str = "<div>";
+        local gem_x,gem_y = 0,0;
+	    for gem_x = 1, #sign_item_page.static_gem_shape_map do
+		    local row = sign_item_page.static_gem_shape_map[gem_x];
+		    for gem_y = 1, #row do
+			    if(gem_count>0) then
+				    if(row[gem_y] == 1) then
+					    gem_count = gem_count - 1;
+					    gem_str = gem_str..[[<div style="float:left;width:12px;height:12px;background:url(Texture/Aries/Item/PinkDiamond_32Bits_fps4_a004.png);"/>]]
+				    else
+					    gem_str = gem_str..[[<div style="float:left;width:12px;height:12px;"/>]]
+				    end
+			    else
+				    break;
+			    end
+		    end
+		    if(gem_count>0) then
+			    gem_str = gem_str.."<br/>"
+		    else
+			    break;
+		    end
+            
+	    end
+        gem_str = gem_str.."</div>"
+        return gem_str
+    end
+end
+
+]]></script>
+<div style="width:360px;height:270px;" class="window">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" >戒指签名</div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClose()" class="closewindow"/>
+    </div>
+    <div class="clientarea" style="margin-left:5px;margin-right:5px;margin-top:3px;">
+        <div>
+            <div style="position:relative;margin-left:250px;margin-top:20px;width:128px;height:128px">
+                <%=GetGemStr()%>
+            </div>
+            <div style="margin-left:5px;float:left">
+                <div style="font-size:14px;margin-left:5px;font-weight:bold;"><%=GetItemName()%></div>
+                <div style="float:left;width:75px;height:75px;margin-top:3px;padding:6px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                    <pe:slot isclickable='false' name="IncomingEquipGuid" guid='<%=Eval("guid")%>' showdefaulttooltip="true" style="width:64px;height:64px;" />
+                </div>
+                <div style="float:left;margin-left:10px;margin-top:-3px;width:150px">
+                    <div style="margin:5px;text-align:center;font-size:13px;" >
+                        戒指钻石克拉数
+                    </div>
+                    <div style="width:100px;" align="center">
+                        <div style="float:left;margin-left:5px;margin-top:2px;">
+                            <input type="button" name="dec" style="width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_dec_32bits.png)" onclick="OnKeyupCopies" />
+                        </div>
+                        <div style="float:left;margin-left:5px;">
+                            <input type="text" style="float:left;width:40px;height:24px;" enable_ime="false" value='1.0' name="txtItemsCount" onkeyup="OnKeyupCopies"/>
+                        </div>
+                        <div style="float:left;margin-left:5px;margin-top:2px;">
+                            <input type="button" name="inc" style="width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_inc_32bits.png)" onclick="OnKeyupCopies" />
+                        </div>
+                    </div>
+                    <div style="margin:5px;text-align:center;" >
+                        需要魔豆:<pe:label name="moudou" style="height:20px;text-align:left">100</pe:label>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div style="margin-bottom:5px;margin:5px">
+            <div style="float:left;margin-top:2px;font-size:13px;width:90px;text-align:right">戒指刻字: </div><input type="text" name="SignText" style="float:left;height:24px;" value='我们永远在一起' />
+        </div>
+        <div style="margin-left:125px">
+            <input type="button" name="signitem" value="签名" style="width:75px;height:26px;" class="button_highlight" onclick="OnClickSignItem"/>
+        </div>
+        <hr />
+        <div style="text-align:center;">
+            在物品上签上你的名字， 与你喜欢的人交换<br />
+            签名后的戒指只能给别人使用<br />
+            每1克拉, 戒指上会出现一颗美丽的钻石
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

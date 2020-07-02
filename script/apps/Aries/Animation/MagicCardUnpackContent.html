@@ -1,0 +1,32 @@
+﻿<!-- "script/apps/Aries/Animation/MagicCardUnpackContent.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2012/10/17</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local MyCards = MyCompany.Aries.Combat.MyCards;
+NPL.load("(gl)script/ide/Director/Movie.lua");
+local Movie = commonlib.gettable("Director.Movie");
+local pageCtrl = document:GetPageCtrl();
+local playername = pageCtrl:GetRequestParam("playername") or "";
+local tag = pageCtrl:GetRequestParam("tag") or "";
+local index = tonumber(tag);
+
+local player = Movie.CreateOrGetPlayer(playername);
+local runtime_datasource = player.runtime_datasource or {};
+local node = runtime_datasource[index] or {};
+function get_gsid()
+    return node.gsid;
+end
+
+
+]]></script>
+    <pe:item gsid='<%=get_gsid()%>' style="width:113px;height:172px;background-color:#ffffffff;" isclickable="false" />
+</pe:mcml> 
+</body>
+</html>

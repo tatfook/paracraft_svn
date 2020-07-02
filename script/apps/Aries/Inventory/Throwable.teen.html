@@ -1,0 +1,53 @@
+﻿<!-- "script/apps/Aries/Inventory/Throwable.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="Throwable.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Inventory.ThrowablePage.pageCtrl = page;
+dsItems = Eval("dsItems") or {status = nil, };
+function DS_Func_Aries_Throwable(index)
+    return MyCompany.Aries.Inventory.ThrowablePage.DS_Func_Items(dsItems, index, page);
+end
+]]></script>
+<pe:editor style="margin-left:-20px;margin-top:-5px;margin-right:20px;padding:0px;background:;">
+    <div class="border_bg8_css"  style="padding-left:20px;padding-top:14px;padding-bottom:16px;width:184px;height:265px;">
+       <pe:gridview DataSource="<%=DS_Func_Aries_Throwable%>" name="ItemView_Throwable" 
+            VerticalScrollBarStep="44" CellPadding="2"  DefaultNodeHeight = "44" ItemsPerLine="3" AllowPaging="false" pagesize="15">
+            <Columns>
+                <a width="44" height="44" style="padding:0px;background:Texture/Aries/Dock/Action_MouseOver_32bits.png:7 7 7 7;"
+                    onclick="MyCompany.Aries.Inventory.ThrowablePage.OnClickItemGSID" param1='<%=Eval("gsid")%>' tooltip='<%=Eval("tooltip")%>'>
+                    <div class="border_bg1_css" style="padding:2px;width:44px;height:44px;">
+                        <pe:if condition='<%=Eval("gsid") ~= 100000%>'>
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:38px;height:38px;"/>
+                        </pe:if>
+                    </div>
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <div style="margin-left:30px;margin-top:10px;">数据加载中<br/>请稍等......</div>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+            <PagerTemplate>
+                <form>
+                    <input type="button" name="pre" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageLeft.png;"/>
+                    <div style="float:right;margin-top:4px;width:64px;">
+                        <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+                    </div>
+                    <input type="button" name="next" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageRight.png;"/>
+                </form>
+            </PagerTemplate>
+        </pe:gridview>
+    </div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,101 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/SetSecondarySchool.teen.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+----------------------- init
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local _school_list = {
+	[1] = { name="烈火系", main_school=986, schoolid=969, icon="Texture/Aries/Common/ThemeTeen/school_fire_icon_32bits.png;0 0 42 46" },
+	[2] = { name="寒冰系", main_school=987, schoolid=970, icon="Texture/Aries/Common/ThemeTeen/school_ice_icon_32bits.png;0 0 42 46" },
+	[3] = { name="风暴系", main_school=988, schoolid=971, icon="Texture/Aries/Common/ThemeTeen/school_storm_icon_32bits.png;0 0 42 46" },
+	[4] = { name="生命系", main_school=990, schoolid=973, icon="Texture/Aries/Common/ThemeTeen/school_life_icon_32bits.png;0 0 42 46" },
+	[5] = { name="死亡系", main_school=991, schoolid=974, icon="Texture/Aries/Common/ThemeTeen/school_death_icon_32bits.png;0 0 42 46" },
+--	    [6] = { name="通用系", main_school=992, schoolid=975, icon="Texture/Aries/Common/ThemeTeen/school_balance_icon_32bits.png;0 0 42 46" },
+--	    [7] = { name="大地系", main_school=989, schoolid=972, icon="Texture/Aries/Common/ThemeTeen/school_land_icon_32bits.png;0 0 42 46" },
+}
+
+local mySchool = MyCompany.Aries.Combat.GetSchoolGSID();
+local school_list={};
+local _;
+local _school={};
+for _,_school in ipairs(_school_list) do
+    if (mySchool~=_school.main_school) then
+        table.insert(school_list,_school);
+    end
+end
+
+function DS_school_list(index)
+	if(index == nil) then
+		return #(school_list);
+	else
+		return school_list[index];
+	end  
+end
+----------
+function SetSchool(schoolid)
+	--_guihelper.MessageBox(schoolid)
+	MyCardsManager.SetSecondarySchool(schoolid);
+    ClosePage();
+end
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+---------
+function DoViewEncyclopedia()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+    local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+
+    local zorder=3;
+    CombatSkillLearn.ShowSkillEncyclopedia(zorder);
+end
+]]>
+</script>
+
+<aries:window title="学习辅修系魔法" width="480" height="260" onhelp="" onclose="ClosePage()" mode="lite">
+    
+	<div style="color:#ffffff;margin-left:10px;margin-top:10px;shadow-quality:8;shadow-color:#802a2e27;text-shadow:true;text-offset-y:-2">
+		请选择以下系别魔法学习，作为辅修魔法，一旦选定，再做修改将要支付50000银币！
+	</div>
+    <div style="margin-left:160px;margin-top:5px;width:136px;height:35px;">  
+	    <input type="button" class="gift_button_cn" value="卡牌百科" tooltip="卡牌百科 点击查看" onclick="DoViewEncyclopedia" style="margin-left:2px;width:130px;height:35px;"/>			    										
+    </div> 
+	<div style="width:480px;height:160px;margin-left:16px;margin-top:10px;">
+
+		<pe:gridview name="cardsdeck" DataSource="<%=DS_school_list%>"  DefaultNodeHeight="50" ItemsPerLine="2" AllowPaging="false" pagesize="6">
+				<Columns>
+					<div style="margin-left:50px;width:135px;height:40px;">  
+					        <input type="button" class="gift_button_cn" name='<%=Eval("schoolid")%>' value='<%=Eval("name")%>' onclick="SetSchool" style="margin-left:2px;width:130px;height:40px;"/>
+							<img style="float:left;width:35px;height:37px;margin-left:5px;margin-top:-38px;" src="<%=Eval('icon')%>" />											
+					</div> 
+				</Columns>
+				<EmptyDataTemplate>
+				<b>空</b>
+				</EmptyDataTemplate>
+				<FetchingDataTemplate>
+				<b>请稍等 ... </b>
+				</FetchingDataTemplate>
+				</PagerTemplate>
+		</pe:gridview>
+
+	</div>      
+
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+
+ 

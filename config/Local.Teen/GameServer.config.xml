@@ -1,0 +1,101 @@
+<!-- config/Aries/aries.lobby_persistent_games.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- game server configuration file -->
+<!-- by Xizhi 2010.8.21. 
+Quick start:
+  Run alienbrain://PARA2/KidsMovie:595/ParaEngineSDK/bin/GameServerDevLocal.bat (it will start the game server as (1)127.0.0.1:800, nid=1003, worldname="别进来131" )
+  
+Manully config:
+I wrote this config file so that one can run full featured game server locally on the developer's computer. 
+The local game server will use the 229 router for DB and other infrastuctures. To avoid multiple developers 
+using the same game server nid, one need to follow following rules to create your dev game server on your own computer. 
+1. select an nid in the range 1003-1010 (basically 1003 is for Xizhi, 1004 is for Andy, 1005 for Leio, etc. )
+2. modify AriesDevLocal.GameServer.config.xml file locally to match your nid, ip and port (you can also create your own config file and commit)
+3. modify gameclient.config.xml to include your nid in the world_server_addresses section, like below 
+    <address host="127.0.0.1" port="800" nid="1003"/>
+4. add virtual world servers in the http://192.168.0.51:84/Admin/WorldServers/ServerList.aspx so that it will appear during login. or one can enter address in the quick-enter editbox of the game.
+5. launch ParaEngineServer.exe using command line config="config/AriesDevLocal.GameServer.config.xml". A bat file is on alienbrain://PARA2/KidsMovie:595/ParaEngineSDK/bin/GameServerDevLocal.bat
+
+Please note the default setting on SVN is configured for nid 1003 (别进来131), so there can only be one people in the office using that nid to run game server locally. 
+-->
+<GameServer>
+  <!--which ip and port this server listens to. As well as the nid of itself.
+  @param compress_incoming: whether to use compression for incoming connections. 
+    This must be true in order for CompressionLevel and CompressionThreshold to take effect 
+  @param CompressionLevel: -1, 0-9: Set the zlib compression level to use in case compresssion is enabled. 
+    Compression level is an integer in the range of -1 to 9. 
+		Lower compression levels result in faster execution, but less compression. Higher levels result in greater compression, 
+		but slower execution. The zlib constant -1, provides a good compromise between compression and speed and is equivalent to level 6. 
+  @param CompressionThreshold:  when the message size is bigger than this number of bytes, we will use m_nCompressionLevel for compression. 
+		For message smaller than the threshold, we will not compress even m_nCompressionLevel is not 0. 
+  @param imserver_heartbeat_interval: milliseconds to send heart beat to IM server. If this 0 or does not exist, we will not send heart beat messages to im server. which is usually the case for HomeServer, where user connections are not kept. 
+  @param log_level: default to "INFO". This can also be "DEBUG"
+  @param gc_interval: garbage collection interval. default to none. 
+  @param gc_opt: this can be "collect" or "step". default to "collect". the first one causes a complete gc cycle;the second is incremental. 
+  @param npl_queue_size: the default npl queue size for each npl thread. defaults to 500. may set to something like 5000 for busy servers
+  @param post_log_url: [obsoleted, use LogService instead]if "" or nil, the server side paraworld.PostLog is not valid. otherwise, the server side will post log to the log server via this api.
+  -->
+  <config host="127.0.0.1" port="800" nid="1003" public_files="config/NPLPublicFiles.xml"
+          compress_incoming = "true" CompressionLevel="-1" CompressionThreshold="90000" imserver_heartbeat_interval="5000"
+          TCPKeepAlive="true" KeepAlive="false" IdleTimeout="false" IdleTimeoutPeriod="10000" log_level="DEBUG" 
+          gc_interval="1000" gc_opt="none" print_gc_info="true" gc_setpause="90" gc_setstepmul="200"
+		  gsl_config_filename="config/GSL.teen.config.xml"
+          npl_queue_size="2000"
+          >
+    <rest reply_file="script/apps/GameServer/rest_client.lua"
+          api_file="config/WebAPI.power.config.xml" />
+  </config>
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread
+  npl state name is the world id
+  -->
+  <npl_states>
+    <npl_state name="1"/>
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="127.0.0.1" port="62001" nid="router1"/>
+    <address host="127.0.0.1" port="62001" nid="IMServer1"/>
+  </npl_runtime_addresses>
+  
+  <!--the runtime state names on the NPL router--> 
+  <router_states>
+    <router_state name="1"/>
+  </router_states>
+
+  <!--the runtime state names on the IMServer-->
+  <imserver_states>
+    <imserver_state name="1"/>
+  </imserver_states>
+  
+  <!--home world server grids: we can use game server as home server or use dedicated home server -->
+  <homegrids>
+    <homegrid address="(1)1003" id="1"/>
+  </homegrids>
+
+  <!-- the log service 
+  @param nid: the remote server nid, if this is same as local game_nid the log server will be created. 
+  @param thread_name: if thread name is not specified. it defaults to "log". This thread will be created on the log server if not exist.
+  @param folder: where the log file is saved. if not specified, it is the "log" folder relative to the current working directory (relative folder will created if not exist). 
+      in linux, it may be something like "/var/www/Items/Logs". please note, the first character is /, otherwise it will be treated relative to current working dir. 
+  @param force_flush: force flush to disk on very log message. default to "true"
+  @param append_mode: append to existing file. default to "true", otherwise file will be recreated when log server restart. 
+  -->
+  <LogService nid="1003" thread_name="log"  folder="log/GSL" force_flush="true" append_mode="true">
+  </LogService>
+    
+  <!-- the lobby service 
+  @param proxy_thread_name: the name of the thread to run the lobby server proxy
+  -->
+  <LobbyService proxy_thread_name="rest" debug_stream="true">
+    <!-- 
+    @param nid: the nid of the lobby server, it may be local or remote nid, usually the game server 
+    @param thread_name:  the npl thread(state) where the lobby is running. 
+    @param persistent_games: the xml file for precreated games on the server
+    @param game_start_timeout_interval: milliseconds that a started game is timed out. we will reset the game when it is started for this mount of time. 
+    @param timer_interval: the internal timer in milliseconds. usually 3-5 second. 
+    -->
+    <LobbyServer nid="1003" thread_name="rest" game_start_timeout_interval="120000" timer_interval="1000"
+                 persistent_games="config/Aries/LobbyService_Teen/aries.lobby_persistent_games.teen.xml" debug_stream="true"/>
+  </LobbyService>
+</GameServer>

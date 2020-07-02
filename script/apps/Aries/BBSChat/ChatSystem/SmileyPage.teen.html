@@ -1,0 +1,53 @@
+﻿<!-- "script/apps/Aries/BBSChat/ChatSystem/SmileyPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SmileyPage.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local SmileyPage = commonlib.gettable("MyCompany.Aries.ChatSystem.SmileyPage");
+SmileyPage.OnInit();
+function DS_Func_Items(index)
+    return SmileyPage.DS_Func_Items(index);
+end
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+
+function OnClickIcon(index)
+    SmileyPage.DoClick(index);
+end
+
+]]></script>
+
+<div style="width:250px;height:180px;" class="window">
+    <div style="height:19px;">
+      <div class="windowlabel">表情</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:203px;" />
+    </div>
+    <div style="margin-left:5px;margin-top:5px;">
+    <pe:gridview DataSource="<%=DS_Func_Items%>" name="DS_Func_Items" 
+        VerticalScrollBarStep="45" CellPadding="2"  DefaultNodeHeight = "41" ItemsPerLine="5" AllowPaging="false" pagesize="250">
+        <Columns>
+            <a width="44" height="41" tooltip='<%=Eval("symbol")%>' style="padding:0px;background:Texture/Aries/Dock/Action_MouseOver_32bits.png:7 7 7 7;"
+                onclick="OnClickIcon" param1='<%=Eval("index")%>'>
+                <div style="margin:1px;padding-left:2px;width:42px;height:42px;" class="block">
+                    <img width="38" height="38" src='<%=Eval("icon")%>'/>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+        </FetchingDataTemplate>
+    </pe:gridview>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

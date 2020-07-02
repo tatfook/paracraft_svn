@@ -1,0 +1,178 @@
+﻿<!-- "script/apps/Aries/Desktop/GemMerge_teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GemMerge_teen teen version, create by WD, 2011/07/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/GemMerge_teen.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.lua");
+local GemMerge_teen = commonlib.gettable("MyCompany.Aries.Desktop.GemMerge_teen");
+local Avatar_gems_subpage = commonlib.gettable("MyCompany.Aries.Desktop.Avatar_gems_subpage");
+
+GemMerge_teen:Init();
+
+function ClosePage()
+    GemMerge_teen:CloseWindow();
+end
+
+function GenRecipe()
+    return Avatar_gems_subpage:GenRecipe();
+end
+
+function FilterItems(arg)
+    return Avatar_gems_subpage:FilterItems(arg);
+end
+
+asset_table = {
+    name = "gememergeeffect",
+    AssetFile="character/v5/09effect/common/GemMergeProcess_effect.x",
+    
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+function OnClickItem(arg)
+    GemMerge_teen:CancelItem(arg);
+end
+
+function DummyFunc()
+
+end
+]]></script>
+
+<div style="width:758px;height:470px;" class="pane">
+    <pe:powerpoint name="AlphaPPT" value="0">
+		<pe:maskarea method="add" name="1" style="position:relative;background-color:#ff000000"  width="100%" height="100%"/>
+    </pe:powerpoint>
+    <div style="height:19px;">
+      <div class="windowlabel">宝石合成</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:711px;" />
+    </div>
+
+    <div style="width:748px;height:443px;margin-top:3px;" class="border">
+        <div style="float:left;margin-top:20px;width:316px;height:425px;">
+            <div style="position:relative;margin-top:-13px;width:100px;height:16px;" align="right">
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.starCount >= 0 %>'>
+                    <div style="float:left;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.starCount >= 1 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.starCount >= 2 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.starCount >= 3 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.starCount >= 4 %>'>
+                    <div style="float:left;margin-left:2px;" class="star"/>
+                </pe:if>
+            </div>
+            <div style="position:relative;width:300px;height:300px;margin-left:18px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)">
+                
+                <!-- incoming gems -->
+                <div style="position:relative;margin-left:117px;margin-top:10px;float:left;width:48px;height:48px;" zorder = "2" class="block">
+                    <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.copies >= 1 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid1" zorder = "2"  showdefaulttooltip="true" style="width:48px;height:48px;" />
+                    </pe:if>
+                </div>
+                
+                <div style="position:relative;margin-top:90px;">
+                    <div style="position:relative;float:left;margin-left:5px;width:48px;height:48px;" zorder = "2" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.copies >= 2 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid2" zorder = "2" showdefaulttooltip="true" style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+
+                    <div style="position:relative;margin-left:226px;float:left;width:48px;height:48px;" zorder = "2" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.copies >= 3 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid3"  zorder = "2" showdefaulttooltip="true" style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                </div>             
+                    <div style="margin-top:203px;">
+                    <div style="position:relative;float:left;margin-left:37px;width:48px;height:48px;" zorder = "2" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.copies >= 4 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid4"  zorder = "2" showdefaulttooltip="true" style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                    <div style="position:relative;float:left;margin-left:195px;width:48px;height:48px;" zorder = "2" class="block">
+                        <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.copies == 5 %>' >
+                        <pe:item onclick='OnClickItem' name="IncomingGemGsid5" zorder = "2" showdefaulttooltip="true" style="width:48px;height:48px;" />
+                        </pe:if>
+                    </div>
+                    </div>
+
+                <!-- refined gem -->
+                <div zorder = "2" style="position:relative;margin-left:81px;float:left;margin-top:89px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_refined_gem_32bits.png#0 0 118 118)">    
+                    <pe:if condition='<%= MyCompany.Aries.Desktop.Avatar_gems_subpage.IncomingGem.high_level_gsid ~= 0 %>' >
+                    <pe:item onclick='DummyFunc' name="RefinedGemGsid" showdefaulttooltip="true" zorder = "2" style="width:58px;height:58px;" />
+                    </pe:if>
+                </div>
+            </div>
+            
+            <div style="position:relative;">
+                <pe:if condition='<%= MyCompany.Aries.Desktop.GemMerge_teen.PlayAnimation == true%>'>
+                    <pe:canvas3d name="gemMergeAnimation" style="width:290px;height:290px;margin-left:12px;" DefaultRotY="0" zorder = "1" DefaultCameraObjectDist = "7" 
+                    LookAtHeight="11.0" DefaultLiftupAngle="1.57" miniscenegraphname='gemMergeAnimation' IsInteractive ="false"
+                    value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+                </pe:if>
+            </div>
+     
+            <div style="margin-top:320px;padding:8px;" class = "inborder">
+                <div style="float:left;">
+                    <div style="float:left;">
+                        <div style="float:left;width:55px;">需要花费:</div>
+                        <div style="float:left;width:80px;" class="textfieldbutton" name="txtCostQidou"> <%=MyCompany.Aries.Desktop.GemMerge_teen.CostQidou %></div>
+                    </div>
+                <div style="float:left;">
+                    <div style="float:left; text-align:right;width:80px;">拥有:</div>
+                    <div style="float:left;width:80px;" class="textfieldbutton" name="txtHoldQidou"> <%=MyCompany.Aries.Desktop.GemMerge_teen.HoldQidou %></div>
+                    
+                </div>
+                <div>
+                <div style="float:left;width:70px;">合成成功率:</div>
+                    <div style="float:left;margin-top:2px;">
+                        <pe:progressbar name="pgbGemMergeOdds" Minimum = "1" Maximum = "100" Value = '0' Step = "1" style="width:200px;"  />
+                    </div>
+                    <div style="float:left;text-align:center;color:#ffffff;margin-left:-130px;width:50px;">
+                        <pe:if condition='<%=MyCompany.Aries.Desktop.GemMerge_teen.mergeOdd ~= 0 %>'>
+                        <%=MyCompany.Aries.Desktop.GemMerge_teen.mergeOdd%>%
+                        </pe:if>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <div style="margin-top:5px;">
+                <input type="button" name="btnGemRefine" zorder="2" class="highlightbutton" text="合成"
+                 onclick="<%=MyCompany.Aries.Desktop.GemMerge_teen.GemRefine %>" 
+                style="margin-left:70px;width:85px;height:25px;" />
+                <input type="button" name="btnPurchase" zorder="2" class="highlightbutton" text="购买材料"
+                style="margin-left:5px;width:85px;height:25px;" />
+            </div>
+        </div>
+
+
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <div style="height:27px;">
+                <pe:tabs name="tabsLevelGems"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="0" text="所有宝石"  selected='true' />
+                <pe:tab-item name="1" text="一级"/>
+                <pe:tab-item name="2" text="二级"/>
+                <pe:tab-item name="3" text="三级"/>
+                <pe:tab-item name="4" text="四级"/>
+                </pe:tabs>
+            </div>
+            <iframe name="gems_subpage" style="margin-top:1px;" src="script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.html"/>
+        </div>
+    </div>
+
+</div>
+</pe:mcml> 
+</body>
+</html>

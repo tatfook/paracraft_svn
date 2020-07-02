@@ -1,0 +1,278 @@
+<!-- "script/apps/Aries/CombatPet/CombatPetFoodsPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" Refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPane.lua");
+local CombatPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPane");
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetFoodsPage.lua");
+local CombatPetFoodsPage = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetFoodsPage");
+CombatPetFoodsPage.OnInit();
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+
+function ClosePage()
+    page:CloseWindow(0);
+end
+function DS_Func_panel(index)
+    return CombatPetFoodsPage.DS_Func_panel(index);
+end
+
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPage.lua");
+local CombatPetPage = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPage");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local gsid = CombatPetFoodsPage.pet_gsid;
+local item_root;
+local pet_root;
+local bHas,guid = ItemManager.IfOwnGSItem(gsid)
+if(bHas)then
+	item_root = ItemManager.GetItemByGUID(guid);
+end
+function GetPetItem()
+    return item_root;
+end
+function GetPet()
+    return pet_root;
+end
+function GetLevel()
+    local provider = CombatPetHelper.GetClientProvider();
+    local pet = GetPet();
+    if(provider and pet)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(pet.gsid,pet.exp or 0);
+        return level,cur_exp,total_exp,isfull;
+    end
+   return -1;
+end
+
+function GetPet_OnInit()
+    local pet;
+    local name = "";
+    local item = GetPetItem();
+	if(item and item.GetName_client)then
+		name = item:GetName_client();
+	end
+	local exp = 0;
+    local cur_feed_num = 0;
+	if(item and item.GetServerData)then
+        local serverdata = item:GetServerData();
+		exp = serverdata.exp;
+		cur_feed_num = serverdata.cur_feed_num;
+	end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    local description;
+	local assetfile;
+    if(gsItem) then
+		assetfile = gsItem.assetfile;
+		description = gsItem.template.description;
+	end
+	local provider = CombatPetHelper.GetClientProvider();
+	local is_combat_pet = 0;
+    local is_combat,isvip;
+	if(provider)then
+        is_combat,isvip = provider:IsCombatPet(gsid);
+		if(is_combat)then
+			is_combat_pet = 1;
+		end
+	end
+	pet = {
+		gsid = gsid,
+		assetfile = assetfile,
+		name = name,
+		exp = exp,
+		is_combat_pet = is_combat_pet,
+        isvip = isvip,
+		description = description,
+        cur_feed_num = cur_feed_num,
+	};
+    return pet;
+end
+pet_root = GetPet_OnInit()
+function ShowLevel()
+    local level,cur_exp,total_exp,isfull = GetLevel();
+    return level;
+end
+function ShowProgress()
+    local level,cur_exp,total_exp,isfull = GetLevel();
+	if(cur_exp and total_exp)then
+		if(page)then
+			local mcmlNode = page:GetNode("progress");
+			if(mcmlNode)then
+				mcmlNode:SetAttribute("Value", cur_exp);
+				mcmlNode:SetAttribute("Maximum", total_exp);
+			end
+		end
+	end
+end
+function DoClick_Slot(guid)
+    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+    local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+    if(HomeLandGateway.IsInHomeland())then
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        _guihelper.Custom_MessageBox("家园中无法给宠物喂食，带着你的宠物到外面逛逛吧！",function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+		        HomeLandGateway.Away();
+	        else
+		        commonlib.echo("no");
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/Coming_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+        return
+    end
+    CombatPetPane.SetAnchorTip(false);
+    guid = tonumber(guid);
+    local item = ItemManager.GetItemByGUID(guid);
+	if(item)then
+        local food_gsid = item.gsid;
+        QuestClientLogics.DoFeed_FollowPet(gsid,food_gsid)
+    end
+end
+function GetPetGsid()
+    return gsid;
+end
+function GetPetName()
+    local pet = GetPet();
+    if(pet)then
+        return pet.name;
+    end
+end
+function ShowLevel_Info_2()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     if(level and level >=0)then
+        local s = string.format("%d/%d",cur_exp or 0,total_exp or 0);
+        return s;
+     end
+end
+function GetCurFeedNum()
+    local pet = GetPet();
+    if(pet)then
+        local cur_feed_num = pet.cur_feed_num or 0;
+        if(cur_feed_num)then
+            cur_feed_num = 15 - cur_feed_num;
+            cur_feed_num = math.max(0,cur_feed_num);
+            return cur_feed_num;
+        end
+    end
+end
+function DoShop(gsid)
+    gsid = tonumber(gsid)
+    if(not gsid)then return end
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command) then
+		command:Call({gsid = gsid});
+	end
+end
+function IsFullLevel()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     return isfull;
+end
+ShowProgress();
+if(CombatPetPane.anchor_tip)then
+    page:SetValue("TooltipsPPT", "howtouse_petfood")
+else
+    page:SetValue("TooltipsPPT", nil);
+end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:157px;margin-left:-95px;width:150px;height:70px;">
+	<div name="howtouse_petfood">
+        <div class="anchor_tooltip_bg" style="margin-left:10px;margin-top:0px;">
+			点击喂食
+		</div>
+        <div style="position:relative;margin-left:115px;margin-top:18px;width:64px;height:64px;" class="anchor_tooltip_highlight"/>
+        <input type="button" class="anchor_tooltip_downarrow" style="float:left;margin-top:-7px;margin-left:120px;" />
+	</div>
+</pe:powerpoint>
+<div style="width:540px;height:440px;" class="window">
+<div style="height:19px;">
+    <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:493px;" />
+</div>
+<div style="width:485px;height:50px;margin-left:27px;margin-top:10px;" class="inborder">
+<pe:item gsid='<%=GetPetGsid()%>' style="margin-top:2px;margin-left:10px;width:45px;height:45px" isclickable="false"/>
+<div style="float:left;margin-left:40px;margin-top:15px;">
+    <div style="float:left;font-size:12px;"><%=GetPetName() %></div>
+    <div style="float:left;font-size:12px;">当前等级:</div>
+    <div style="float:left;font-size:12px;color:#ff0000"><%=ShowLevel() %></div>
+    <pe:if condition="<%=not IsFullLevel() %>">
+    <div style="float:left;font-size:12px;">当前经验:</div>
+    <div style="float:left;">
+        <pe:progressbar name="progress" Minimum = "0" Maximum = "10" Value = "0" Step = "1"
+            style="width:160px;"
+           
+        />
+    </div>
+     <div style="float:left;margin-left:-200px;margin-top:0px;color:#ffffff;text-align:center"><%=ShowLevel_Info_2() %></div>
+     </pe:if>
+    <pe:if condition="<%=IsFullLevel() %>">
+         <div style="float:left;font-size:12px;">(已经为满级)</div>
+    </pe:if>
+</div>
+</div>
+<div style="height:120px;padding-top:5px;">
+    <div style="text-align:center;" class="defaultcolor">战宠口粮是所有战宠最喜欢吃的！</div>
+    <div style="margin-top:5px;margin-left:100px;">
+        <div style="float:left;margin-left:0px;margin-top:0px;">
+            <pe:item gsid='17172' style="width:64px;height:64px;" onclick="DoShop" />
+            <br />
+            <input type="button" value="立即购买" name="17172" onclick="DoShop" style="width:64px;margin-top:5px;" />
+        </div>
+         <div style="float:left;margin-left:80px;margin-top:0px;">
+            <pe:item gsid='17185' style="width:64px;height:64px;" onclick="DoShop" />
+            <br />
+            <input type="button" value="立即购买" name="17185" onclick="DoShop" style="width:64px;margin-top:5px;" />
+        </div>
+         <div style="float:left;margin-left:80px;margin-top:0px;">
+            <pe:item gsid='17211' style="width:64px;height:64px;" onclick="DoShop" />
+            <br />
+            <input type="button" value="立即购买" name="17211" onclick="DoShop" style="width:64px;margin-top:5px;" />
+        </div>
+    </div>
+</div>
+<div style="margin-left:15px;margin-top:10px;width:510px;height:220px;" class="inborder">
+<div style="margin-top:10px;height:20px;">
+    <div style="margin-left:100px;float:left;" class="defaultcolor">鼠标左键点击物品可以直接进行喂养；当天剩余喂养次数：</div>
+    <div style="float:left;color:#ff0000"><%=GetCurFeedNum() %></div>
+</div>
+<pe:gridview DataSource="<%=DS_Func_panel%>" name="_gridview" style="height:200px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="7" AllowPaging="true" pagesize="14">
+        <Columns>
+        <div style="margin-left:0px;margin-top:0px;width:64px;height:64px;" class="block">
+            <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick = "DoClick_Slot"/>
+        </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <div style="font-size:12;padding-left:20px;padding-right:20px;margin-top:60px;" class="defaultcolor">
+              战宠口粮可以让你的战宠快快长大！  
+            </div>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;" class="defaultcolor">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="20" style="margin-left:160px;margin-top:-10px;width:260px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+			<input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+				<input type="button" name="page" class="pagerbuttontext" /> 
+			<input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	    </form>
+	</PagerTemplate>
+    </pe:gridview>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,49 @@
+﻿<!-- "script/apps/Aries/Desktop/Functions/SystemMenuPopup.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi, 2011/11/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SystemMenuPopup.teen.lua" refresh="false"><![CDATA[
+-- local SystemMenuPopup = commonlib.gettable("MyCompany.Aries.Desktop.Functions.SystemMenuPopup");
+-- SystemMenuPopup.OnInit()
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+local xml_data = { 
+{Text = "意见反馈", Name = "RecommPost", Type = "Menuitem", onclick = Dock.PENoteDoPost, Icon = "texture/aries/dock/teen/GuideElf_32bits.png; 0 0 24 24"},
+{Text = "<span style='font-weight:bold'>充值导引</span>", Name = "PayGuide", Type = "Menuitem", onclick = Dock.PayGuide, Icon = "Texture/Aries/Item_Teen/984_MagicBean.png"},
+{Text = "帮助", Name = "GuideElf", Type = "Menuitem", onclick = Dock.ShowHelpPage, Icon = "texture/aries/dock/teen/GuideElf_32bits.png; 0 0 24 24"},
+{Text = "系统设置", Name = "SystemSettings", Type = "Menuitem", onclick = Dock.OnSystemSetting, Icon = "Texture/Aries/Dock/SystemSettings_32bits.png;0 0 24 24"},
+{Text = "拍照(F11)", Name = "TakePhoto", Type = "Menuitem", onclick = Dock.DoSharePhotos, Icon = "Texture/Aries/Dock/Web/camera_32bits.png;0 0 20 20"},
+{Text = "切换服务器", Name = "SwitchServer", Type = "Menuitem", onclick = Dock.OnSwitchServer, Icon = "Texture/Aries/Dock/SwitchingServers_32bits.png;0 0 24 24"},
+{Text = "返回登录", Name = "SwitchUser", Type = "Menuitem", onclick = Dock.OnSwitchUser, Icon = "Texture/Aries/Dock/teen/SwitchUser_32bits.png;0 0 24 24"},
+{Text = "退出游戏", Name = "ExitGame", Type = "Menuitem", onclick = Dock.OnExit, Icon = "Texture/Aries/Dock/Quit_32bits.png;0 0 24 24"},
+}
+function get_datasource()
+    return xml_data;
+end
+
+function tvwOnClickNode(name)
+    local data = xml_data[tonumber(name)];
+    if(data and data.onclick) then  
+        data.onclick();
+    end
+    Page:CloseWindow();
+end
+]]></script>
+<div style="width:140px;height:225px;padding:5px;padding-right:7px;padding-bottom:7px;background:url(Texture/Aries/Common/ThemeTeen/popupmenu_bg_32bits.png:5 5 7 7)">
+<pe:gridview name="menu_item" DataSource='<%=get_datasource()%>' DefaultNodeHeight = "26" OnClick="tvwOnClickNode()" ItemsPerLine="1" AllowPaging="false">
+	<Columns>
+        <div class="defaultcolor" style="height:26px;">
+            <input type="button" zorder="-1" class="listbutton_unselected" style="position:relative;width:130px;height:22px;background:" onclick='tvwOnClickNode' name='<%=Eval("index")%>'/>
+            <img src='<%=Eval("Icon")%>' style="float:left;margin:3px;width:16px;height:16px;" />
+            <div style="float:left;height:18px;margin-left:2px;font-size:15px;" class="bordertext"><%=Eval("Text")%></div>
+        </div>
+	</Columns>
+</pe:gridview>
+</div>
+</pe:mcml> 
+</body>
+</html>

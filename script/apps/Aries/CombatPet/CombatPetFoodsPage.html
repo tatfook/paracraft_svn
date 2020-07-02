@@ -1,0 +1,246 @@
+﻿
+<!-- "script/apps/Aries/CombatPet/CombatPetFoodsPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" Refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetFoodsPage.lua");
+local CombatPetFoodsPage = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetFoodsPage");
+CombatPetFoodsPage.OnInit();
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+
+function ClosePage()
+    page:CloseWindow(0);
+end
+function DS_Func_panel(index)
+    return CombatPetFoodsPage.DS_Func_panel(index);
+end
+
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPage.lua");
+local CombatPetPage = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPage");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local gsid = CombatPetFoodsPage.pet_gsid;
+local item_root;
+local pet_root;
+local bHas,guid = ItemManager.IfOwnGSItem(gsid)
+if(bHas)then
+	item_root = ItemManager.GetItemByGUID(guid);
+end
+function GetPetItem()
+    return item_root;
+end
+function GetPet()
+    return pet_root;
+end
+function GetLevel()
+    local provider = CombatPetHelper.GetClientProvider();
+    local pet = GetPet();
+    if(provider and pet)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(pet.gsid,pet.exp or 0);
+        return level,cur_exp,total_exp,isfull;
+    end
+   return -1;
+end
+
+function GetPet_OnInit()
+    local pet;
+    local name = "";
+    local item = GetPetItem();
+	if(item and item.GetName_client)then
+		name = item:GetName_client();
+	end
+	local exp = 0;
+    local cur_feed_num = 0;
+	if(item and item.GetServerData)then
+        local serverdata = item:GetServerData();
+		exp = serverdata.exp;
+		cur_feed_num = serverdata.cur_feed_num;
+	end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    local description;
+	local assetfile;
+    if(gsItem) then
+		assetfile = gsItem.assetfile;
+		description = gsItem.template.description;
+	end
+	local provider = CombatPetHelper.GetClientProvider();
+	local is_combat_pet = 0;
+    local is_combat,isvip;
+	if(provider)then
+        is_combat,isvip = provider:IsCombatPet(gsid);
+		if(is_combat)then
+			is_combat_pet = 1;
+		end
+	end
+	pet = {
+		gsid = gsid,
+		assetfile = assetfile,
+		name = name,
+		exp = exp,
+		is_combat_pet = is_combat_pet,
+        isvip = isvip,
+		description = description,
+        cur_feed_num = cur_feed_num,
+	};
+    return pet;
+end
+pet_root = GetPet_OnInit()
+function ShowLevel()
+    local level,cur_exp,total_exp,isfull = GetLevel();
+    return level;
+end
+function ShowProgress()
+    local level,cur_exp,total_exp,isfull = GetLevel();
+	if(cur_exp and total_exp)then
+		if(page)then
+			local mcmlNode = page:GetNode("progress");
+			if(mcmlNode)then
+				mcmlNode:SetAttribute("Value", cur_exp);
+				mcmlNode:SetAttribute("Maximum", total_exp);
+			end
+		end
+	end
+end
+function DoClick_Slot(guid)
+    NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+    local HomeLandGateway = commonlib.gettable("Map3DSystem.App.HomeLand.HomeLandGateway");
+    if(HomeLandGateway.IsInHomeland())then
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        _guihelper.Custom_MessageBox("家园中无法给宠物喂食，带着你的宠物到外面逛逛吧！",function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+		        HomeLandGateway.Away();
+	        else
+		        commonlib.echo("no");
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/Coming_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Later_32bits.png; 0 0 153 49"});
+        return
+    end
+    guid = tonumber(guid);
+    local item = ItemManager.GetItemByGUID(guid);
+	if(item)then
+        local food_gsid = item.gsid;
+        QuestClientLogics.DoFeed_FollowPet(gsid,food_gsid)
+    end
+end
+function GetPetGsid()
+    return gsid;
+end
+function GetPetName()
+    local pet = GetPet();
+    if(pet)then
+        return pet.name;
+    end
+end
+function ShowLevel_Info_2()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     if(level and level >=0)then
+        local s = string.format("%d/%d",cur_exp or 0,total_exp or 0);
+        return s;
+     end
+end
+function GetCurFeedNum()
+    local pet = GetPet();
+    if(pet)then
+        local cur_feed_num = pet.cur_feed_num or 0;
+        if(cur_feed_num)then
+            cur_feed_num = 15 - cur_feed_num;
+            cur_feed_num = math.max(0,cur_feed_num);
+            return cur_feed_num;
+        end
+    end
+end
+function DoShop()
+    page:CloseWindow();
+    NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    MyCompany.Aries.HaqiShop.ShowMainWnd("tabTool","5003")
+end
+function IsFullLevel()
+     local level,cur_exp,total_exp,isfull = GetLevel();
+     return isfull;
+end
+ShowProgress();
+]]></script>
+<div style="width:540px;height:440px;font-size:12px;background:url(Texture/Aries/Common/bg_blue_1_32bits.png:20 20 20 20)">
+<input style="margin-left:500px;margin-top:-10px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+<div style="width:485px;height:50px;margin-left:10px;margin-top:-30px;background:url(Texture/Aries/Common/bg_blue_2_32bits.png#0 0 64 51:20 20 20 20)">
+<pe:item gsid='<%=GetPetGsid()%>' style="margin-top:2px;margin-left:10px;width:45px;height:45px" isclickable="false"/>
+<div style="float:left;margin-top:15px;">
+    <div style="float:left;font-size:12px;"><%=GetPetName() %></div>
+    <div style="float:left;font-size:12px;">当前等级:</div>
+    <div style="float:left;font-size:12px;color:#ff0000"><%=ShowLevel() %></div>
+    <pe:if condition="<%=not IsFullLevel() %>">
+    <div style="float:left;font-size:12px;">当前经验:</div>
+    <div style="float:left;">
+        <pe:progressbar name="progress" Minimum = "0" Maximum = "10" Value = "0" Step = "1"
+            style="width:160px;height:25px;"
+            blockimage="Texture/Aries/Inventory/green_fill_32bits.png;0 0 32 26: 14 13 14 12" 
+            background="Texture/Aries/Inventory/Empty_slot_32bits.png;0 0 32 26: 14 13 14 12"
+        />
+    </div>
+     <div style="float:left;margin-left:-230px;margin-top:3px;color:#ffffff;text-align:center"><%=ShowLevel_Info_2() %></div>
+     </pe:if>
+    <pe:if condition="<%=IsFullLevel() %>">
+         <div style="float:left;font-size:12px;">(已经为满级)</div>
+    </pe:if>
+</div>
+</div>
+<div style="padding-left:30px;padding-right:30px;margin-top:10px;">
+家园种植出的果实可以来喂养战宠，但每天战宠喜欢的东西不一样，喂对一次增加30点战斗经验，喂错会消耗果实，但不增长经验！ 
+</div>
+<div style="padding-left:30px;padding-right:30px;float:left;">战宠口粮是所有战宠每天都喜欢吃的，每次可增加300点战宠经验！</div>
+  <input type="button" onclick="DoShop()" style="float:left;width:81px;height:22px;background:url(Texture/Aries/NPCs/CombatPet/got_feeds_32bits.png#0 0 81 22);" />
+<div>
+</div>
+<div style="margin-left:15px;margin-top:10px;width:510px;height:280px;background:url(Texture/Aries/Common/bg_blue_2_32bits.png#0 0 64 51:20 20 20 20)">
+<div style="margin-top:10px;height:20px;">
+    <div style="text-align:center;">鼠标左键点击物品可以直接进行喂养；</div>
+    <!--<div style="float:left;color:#ff0000"><%=GetCurFeedNum() %></div>-->
+</div>
+<pe:gridview DataSource="<%=DS_Func_panel%>" name="_gridview" style="height:400px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="5" AllowPaging="true" pagesize="10">
+        <Columns>
+        <div style="padding:8px;margin-left:0px;margin-top:0px;width:95px;height:95px;background:url(Texture/Aries/npcs/suit/slot_bg_32bits.png#0 0 95 95: 30 30 30 30)">
+            <pe:slot guid='<%=Eval("guid")%>' style="width:70px;height:70px;" onclick = "DoClick_Slot"/>
+        </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <div style="font-size:12;padding-left:20px;padding-right:20px;margin-top:60px;">
+              你很懒哦，一个果实都没有，快去家园多种植点吧！或者可以先买点战宠口粮，让战宠快快长大呢！  
+            </div>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="36" style="margin-left:200px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+	        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	        <div style="float:left;margin-top:-2px;width:64px;">
+	            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	    </form>
+	</PagerTemplate>
+    </pe:gridview>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

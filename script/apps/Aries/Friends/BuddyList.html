@@ -1,0 +1,144 @@
+﻿<!-- "script/apps/Aries/Friends/BuddyList.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>BuddyList, by Andy, 2009/5/3</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="BuddyList.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+MyCompany.Aries.Friends.BuddyListPage.OnInit(pageCtrl);
+
+-- status: nil not available, 1 fetching all, 2 fetching online, 3 fetched. 
+dsBuddies = Eval("dsBuddies") or {status = nil, };
+
+function DS_Func_BuddyList(index)
+    return MyCompany.Aries.Friends.BuddyListPage.DS_Func_Buddies(dsBuddies, index, pageCtrl);
+end
+
+function OnClickHomeland(value)
+    if(value) then
+        System.App.Commands.Call("Profile.Aries.GotoHomeLand", {nid = tonumber(value)});
+    end
+end
+
+function OnClickMagicStar(value)
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatProfile.lua");
+    MyCompany.Aries.Desktop.CombatProfile.ShowPage(tonumber(value));
+end
+
+function OnClickPhone(value)
+    System.App.Commands.Call("Profile.Aries.ChatWithFriendImmediate", {nid = value});
+end
+
+function ToggleToRefuseAddFriend()
+	_guihelper.MessageBox("是否拒绝其他小哈奇加你为好友?", function(res)
+		if(res and res == _guihelper.DialogResult.Yes) then
+		    MyCompany.Aries.Friends.BuddyListPage.ToggleAllowAddFriend(pageCtrl, false);
+		end	
+	end, _guihelper.MessageBoxButtons.YesNo);
+end
+
+
+function ToggleToAllowAddFriend()
+	_guihelper.MessageBox("是否允许其他小哈奇加你为好友?", function(res)
+		if(res and res == _guihelper.DialogResult.Yes) then
+		    MyCompany.Aries.Friends.BuddyListPage.ToggleAllowAddFriend(pageCtrl, true);
+		end	
+	end, _guihelper.MessageBoxButtons.YesNo);
+end
+
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30";
+]]></script>
+
+    <div type="box" style="float:right;margin-left:10px;margin-top:24px;width:128px;height:60px;">
+      <form name = "upper">
+        <div style="float:right;margin-top:12px;margin-left:40px">
+            <div style="width:77px;height:19px;background:url(Texture/Aries/Friends/myfriends_title_32bits.png# 0 0 77 19)"/>
+        </div>
+        <br/>
+        <div style="float:right;margin-top:4px;margin-left:50px;width:60px;color:#4c7aaa">
+            <label name="onlinecount"/>
+        </div>
+        <div style="float:right;margin-top:-24px;margin-left:25px">
+            <input type="button" style="width:32px;height:32px;background:url(Texture/Aries/Friends/FriendsWnd_Add_32bits.png#0 0 32 32)" 
+                        onclick="MyCompany.Aries.Friends.BuddyListPage.AddFriend" value="" tooltip="添加好友"/>
+        </div>
+        <div style="float:right;margin-top:-46px;margin-left:112px">
+            <pe:if condition='<%=System.options.isAllowAddFriend%>'>
+                <input type="button" style="width:32px;height:32px;background:url(Texture/Aries/Friends/FriendsWnd_RefuseAddAsFriend_32bits.png# 0 0 32 32)" 
+                            name="ToggleAllowAddFriend"
+                            onclick="ToggleToRefuseAddFriend()" tooltip="拒绝添加好友"/>
+            </pe:if>
+            <pe:if condition='<%=not System.options.isAllowAddFriend%>'>
+                <input type="button" style="width:32px;height:32px;background:url(Texture/Aries/Friends/FriendsWnd_AllowAddAsFriend_32bits.png# 0 0 32 32)" 
+                            name="ToggleAllowAddFriend"
+                            onclick="ToggleToAllowAddFriend()" tooltip="允许添加好友"/>
+            </pe:if>
+            <!--<input type="radio" style="width:32px;height:32px;background:Texture/Aries/Friends/FriendsWnd_Delete.png" 
+                        onclick="MyCompany.Aries.Friends.BuddyListPage.ToggleAllowAddFriend" value=""/>-->
+        </div>
+      </form>
+    </div>
+    <pe:gridview RememberScrollPos="true" DataSource="<%=DS_Func_BuddyList%>" name="BuddyList" style="margin-left:20px;margin-right:13px;margin-bottom:25px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="250">
+        <Columns>
+            <div style="width:196px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+               <pe:if condition='<%=Eval("bshow")%>'>
+                    <a style="width:196px;height:30px;margin:0px;padding:0px;background:;"
+                        onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:196px;height:30px;background:;"/>
+                        <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:210px;height:30px;">
+                            <a width="32" height="26" style="padding-left:0px;padding-top:2px;background:;"
+                                onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                                <aries:onlinestatus width="32" height="26" nid='<%=Eval("nid")%>'/>
+                            </a>
+                            <div style="float:right;margin-left:0px;margin-top:3px;width:108px;font-size:12pt;color:#000000">
+                                <div style="width:170px;">
+                                    <pe:name nid='<%=Eval("nid")%>' linked=false useyou=false/>
+                                </div>
+                            </div>
+                            <pe:if condition='<%=not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                                <!--<input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="OnClickHomeland()" name='<%=Eval("nid")%>'/>-->
+                                <pe:if condition='<%=Eval("isvip") == true%>'>
+                                    <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:Texture/Aries/Friends/MagicStarMid_32bits.png" onclick="OnClickMagicStar()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("isvip") == false%>'>
+                                    <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:;" onclick="OnClickPhone()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                                <!--<input type="button" zorder="1" enabled="false" style="float:right;margin-left:-5px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="OnClickHomeland()" name='<%=Eval("nid")%>'/>-->
+                                <pe:if condition='<%=Eval("isvip") == true%>'>
+                                    <input type="button" zorder="1" enabled="false" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:Texture/Aries/Friends/MagicStarMid_32bits.png" onclick="OnClickMagicStar()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("isvip") == false%>'>
+                                    <input type="button" zorder="1" enabled="false" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:;" onclick="OnClickPhone()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                            </pe:if>
+                            <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/FriendsWnd_Phone2_32bits.png" onclick="OnClickPhone()" name='<%=Eval("nid")%>'/>
+                        </div>
+                    </a>
+               </pe:if>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+
+
+</pe:mcml>
+</body>
+</html>

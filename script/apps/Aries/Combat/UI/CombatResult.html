@@ -1,0 +1,250 @@
+﻿<!-- "script/apps/Aries/Combat/UI/CombatResult.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by zhangruofei, 2010/7/1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local _all_buddy_exp = pageCtrl:GetRequestParam("all_buddy_exp") or "";
+local _islevelup = pageCtrl:GetRequestParam("islevelup") or true;
+local _isdefeated = pageCtrl:GetRequestParam("isdefeated") or "true";
+local _isteamdefeated = pageCtrl:GetRequestParam("_isteamdefeated") or "true";
+local _all_buddy_loots = pageCtrl:GetRequestParam("all_buddy_loots") or "";
+local _all_buddy_joybeans = pageCtrl:GetRequestParam("all_buddy_joybeans") or "";
+
+if(_isdefeated == "true") then
+    _isdefeated = true
+elseif(_isdefeated == "false") then
+    _isdefeated = false;
+end
+
+if(_isteamdefeated == "true") then
+    _isteamdefeated = true
+elseif(_isteamdefeated == "false") then
+    _isteamdefeated = false;
+end
+
+results = {};
+
+--测试代码
+--_islevelup = true;
+--_isteamdefeated = false;
+--results = {
+--{nid="191822478",exp="2134"},
+--{nid="163080878",exp="2134"},
+--{nid="165626926",exp="2134"},
+--};
+--_all_buddy_exp= "(191822478,13)";
+--_all_buddy_loots="(191822478,17114#17115#17116#17113#)";
+--_all_buddy_joybeans="(191822478,3)";
+
+local each_result;
+for each_result in string.gmatch(_all_buddy_exp, "([^%(^%)]+)") do
+    local nid, exp, original_exp, exp_scale = string.match(each_result, "^(.+),(.+),(.+),(.+)$");
+    if(nid and exp and original_exp and exp_scale) then
+        nid = tonumber(nid);
+        exp = tonumber(exp);
+        original_exp = tonumber(original_exp);
+        exp_scale = tonumber(exp_scale);
+        local exp_str = original_exp;
+        if(exp_scale > 1) then
+            exp_str = original_exp.." x "..exp_scale;
+        end
+        table.insert(results, {nid = nid, exp = exp, original_exp = original_exp, exp_scale = exp_scale, exp_str = exp_str });
+    end
+end
+
+local _each;
+local i;
+
+for _each in string.gmatch(_all_buddy_joybeans, "([^%(^%)]+)") do
+    local nid, bean = string.match(_each, "^(.+),(.+)$");
+
+    if(nid and bean) then
+        nid = tonumber(nid);
+        bean = tonumber(bean);
+        for i = 1, table.getn( results ) do
+            if(results[i].nid == nid ) then
+                results[i].bean = bean;
+                --commonlib.echo("!!!!!!!!!!!!:1");
+                --commonlib.echo(i);
+                --commonlib.echo(results[i].bean);
+                break;
+            end
+        end
+    end
+end
+
+for _each in string.gmatch(_all_buddy_loots, "([^%(^%)]+)") do
+    local nid, loots = string.match(_each, "^(.+),(.+)$");
+     
+    if( nid and loots ) then
+        if(loots~="#")then
+            nid = tonumber(nid);
+            for i = 1, table.getn( results ) do
+                if(results[i].nid == nid ) then
+                    results[i].loots = loots;
+                    --commonlib.echo("!!!!!!!!!!!!:2");
+                    --commonlib.echo(i);
+                    --commonlib.echo(results[i].loots);
+                    break;
+                end
+            end
+        end
+    end
+end
+
+function IsLevelUp()
+    return _islevelup;
+end
+
+function IsWin()
+    return not _isdefeated; 
+end
+
+function IsTeamWin()
+    return not _isteamdefeated;
+end
+
+function IsMyself(nid)
+
+    if(tonumber(nid) == System.App.profiles.ProfileManager.GetNID()) then
+        return true;
+    end
+    return false;
+end
+
+function DS_Func_CombatResult(index)
+    if(index == nil) then
+        return #results;
+    else
+        if(index <= #results) then
+            return results[index];
+        end
+    end
+end
+
+function ShowItems(index)
+    --commonlib.echo("!!!!!!!!!!!!!:3");
+    --commonlib.echo(index);
+    --commonlib.echo(results[index]);
+
+    local data = results[index];
+    local loots = data.loots or "";
+    local bean=results[index].bean or 0;
+    local _each;
+    local gsid;
+    local s = "";
+    local i = 0;
+    local tmp;
+    
+    --commonlib.echo(loots);
+    --commonlib.echo(bean);
+
+    if( bean>0) then
+        s = [[<img src="Texture/Aries/Item/0_JoyBean.png" enabled="false" style="margin-left:0px;width:34px;height:34px;" />]];
+        i = 1;
+    end
+
+    if( loots == "" ) then
+        return s;
+    end
+    --commonlib.echo("loots:" .. loots);
+    local gsItem;
+    local i = 1;
+    for _each in string.gmatch(loots, "(.-)#") do
+        if( i > 2 ) then
+            tmp = string.format([[<div style="margin-left:%dpx;margin-top:-30xp;width:84px;height:34px;" >....</div>]], i*28-13 );
+            s = s .. tmp;
+            return s;
+        end
+
+        --commonlib.echo(_each);
+        gsid = tonumber(_each);
+
+        --commonlib.echo("gsid=" .. gsid);
+        gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+        --commonlib.echo(gsItem);
+
+        if(gsItem) then
+            --commonlib.echo(gsItem.descfile);
+            tmp = string.format([[<img src="%s" enabled="false" style="margin-left:%dpx;margin-top:-34xp;width:34px;height:34px;" />]], gsItem.icon, i*31 );
+            s = s .. tmp;
+            i = i + 1;
+        end
+    end
+
+    commonlib.echo("!!!!!!!!!!!!!!:" .. i);
+
+    return s;
+end
+
+function OnClose()
+    pageCtrl:CloseWindow();
+end
+
+]]></script>
+
+<input type="button" onclick="OnClose()" zorder="2" style="margin-left:775px;margin-top:45px;width:64px;height:64px;background:Texture/Aries/Combat/CombatResult/CombatResult_close_32bits.png;"/>
+<div style="margin-top:-109px;width:850px;height:512px;background:url(Texture/Aries/Combat/CombatResult/CombatResult_bg.png#0 0 850 512)">
+    <div style="position:relative;margin-left:300px;margin-top:85px;width:256px;height:64px;">
+        <pe:if condition='<%=IsWin() %>'>
+            <img src="Texture/Aries/Combat/CombatResult/Battlevictory_32bits.png;0 0 256 64" enabled="false" style="width:256px;height:64px;" />
+        </pe:if>
+        <pe:if condition='<%=not IsWin() %>'>
+            <img src="Texture/Aries/Combat/CombatResult/Defeat_32bits.png;0 0 256 64" enabled="false" style="width:256px;height:64px;" />            
+        </pe:if>
+    </div>
+    <pe:gridview DataSource="<%=DS_Func_CombatResult%>" name="CombatResult" 
+        style="margin-left:133px;margin-top:164px;width:582px;height:352px;"
+        CellPadding="0" ItemsPerLine="1" AllowPaging="false" pagesize="4" DefaultNodeHeight="41" >
+        <Columns>
+            <div style="width:582px;height:41px;">
+                <div style="float:left;margin-left:5px;margin-top:0px;padding-top:8px;width:164px;height:41px;" >
+                    <pe:name name="UserName" nid='<%=tostring(Eval("nid"))%>' useyou="true" linked="true" style="text-align:center"/>
+                </div>
+
+                <div style="float:left;margin-left:10px;margin-top:0px;padding-top:8px;width:134px;" >
+                    <aries:mountpetname nid='<%=Eval("nid")%>' style="font-size:14;text-align:left;"/>                
+                </div>
+                <pe:if condition='<%=IsMyself(Eval("nid")) %>'>
+                    <pe:if condition='<%=IsLevelUp() %>'>
+                        <div style="position:relative;float:left;margin-left:-30px;margin-top:-10px;">
+                            <img src="Texture/Aries/Combat/CombatResult/Upgrade_32bits.png" enabled="false" style="width:64px;height:64px;" />
+                        </div>
+                    </pe:if>
+                </pe:if>
+                <div style="float:left;margin-left:0px;margin-top:0px;padding-top:8px;width:144px;text-align:center;" >
+                    <%=Eval("exp_str") %>
+                </div>
+                <div style="float:left;margin-left:0px;margin-top:-10px;padding-top:8px;width:80px;text-align:center;" >
+                    <!--<%=Eval("items") %>-->
+                    <%=ShowItems(Eval("index")) %>
+<!--                        <pe:if condition='<%=IsLevelUp() %>'>
+                            <img src="Texture/Aries/Item/22000_CardQualification_MagicStone.png;0 0 64 64" enabled="false" style="width:34px;height:34px;" />                        
+                        </pe:if>-->
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+    </pe:gridview>
+
+    <input type="button" onclick="OnClose()" zorder="2" style="margin-left:350px;margin-top:-190px;width:151px;height:47px;background:Texture/Aries/Combat/CombatResult/IKnow_32bits.png#0 0 151 47"/>
+</div>
+</pe:mcml> 
+</body>
+</html>

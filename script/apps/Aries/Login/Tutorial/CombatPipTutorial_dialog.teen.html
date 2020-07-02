@@ -1,0 +1,432 @@
+﻿<!-- "script/apps/Aries/Login/Tutorial/CombatPipTutorial_dialog.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 39002;
+npc_id = tonumber(npc_id);
+
+local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");
+
+local CombatPipTutorial = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatPipTutorial");
+
+start_state = page:GetRequestParam("start_state") or 1;
+start_state = tonumber(start_state);
+
+cur_state = cur_state or 0;
+local audio_state_mapping = {
+	[1] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_1.ogg",
+	[3] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_2.ogg",
+	[4] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_3.ogg",
+	[5] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_4.ogg",
+	[6] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_5.ogg",
+	[7] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_6.ogg",
+	[14] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_7.ogg",
+	[10] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_8.ogg",
+	[13] = "Audio/Haqi/CombatTutorialTeen/CombatTutorial_9.ogg",
+};
+
+function PlayMouseTutorialAudio(state)
+    if(state == 6) then
+        StopMouseTutorialAudio(5);
+    elseif(state == 14) then
+        StopMouseTutorialAudio(7);
+    end
+
+	local asset_file = audio_state_mapping[state];
+	if(asset_file) then
+		local audio_src = AudioEngine.CreateGet(asset_file)
+		audio_src.file = asset_file;
+		audio_src:play(); -- then play with default. 
+	end
+end
+
+function StopMouseTutorialAudio(state)
+	local asset_file = audio_state_mapping[state];
+	if(asset_file) then
+		local audio_src = AudioEngine.CreateGet(asset_file)
+		audio_src.file = asset_file;
+		audio_src:stop(); -- then play with default. 
+		audio_src:release();
+	end
+end
+
+function IsState6()
+    return (start_state == 6);
+end
+function IsState7()
+    return (start_state == 7);
+end
+function IsState8()
+    return (start_state == 8);
+end
+function IsState9()
+    return (start_state == 9);
+end
+function IsState10()
+    return (start_state == 10);
+end
+function IsState11()
+    return (start_state == 11);
+end
+function IsState12()
+    return (start_state == 12);
+end
+function IsState13()
+    return (start_state == 13);
+end
+function IsState14()
+    return (start_state == 14);
+end
+function IsState15()
+    return (start_state == 15);
+end
+function IsState16()
+    return (start_state == 16);
+end
+function IsState17()
+    return (start_state == 17);
+end
+
+function DoExchange()
+	local ctl = CommonCtrl.GetControl("CombatPipTutorial_TemplatCommon");
+	if(ctl) then
+        _guihelper.MessageBox("1")
+        local asset = ParaAsset.LoadParaX("", "character/v5/10mobs/HaqiTown/RedCrab/RedCrab.x");
+		local ret_obj = ParaScene.CreateCharacter("", asset, "", true, 0.35, -1.57, 1);
+		ctl:ShowModel(ret_obj);
+    end
+    
+    --Map3DSystem.mcml_controls.GetClassByTagName("pe:player").RefreshContainingPageCtrls()
+end
+
+function StartFight()
+    MyCompany.Aries.Quest.NPCs.CombatPipTutorial.ProcessNextStage();
+end
+
+function ContinueAfterHPIntro()
+    MyCompany.Aries.Quest.NPCs.CombatPipTutorial.ProcessNextStage();
+end
+
+function ContinueAfterCardIntro()
+    MyCompany.Aries.Quest.NPCs.CombatPipTutorial.ProcessNextStage();
+end
+
+function MobSpawn()
+	local rat = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30563);
+	if(rat and rat:IsValid() == true) then
+        rat:SetVisible(false);
+		local params = {
+			asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+			binding_obj_name = rat.name,
+            scale = 3,
+			start_position = nil,
+			duration_time = 1000,
+			force_name = nil,
+			begin_callback = function() end,
+			end_callback = nil,
+			stage1_time = 800,
+			stage1_callback = function()
+					local rat = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30563);
+					if(rat and rat:IsValid() == true) then
+						rat:SetVisible(true);
+					end
+				end,
+			stage2_time = nil,
+			stage2_callback = nil,
+		};
+		local EffectManager = MyCompany.Aries.EffectManager;
+		EffectManager.CreateEffect(params);
+	end
+    local viewmob_camera_setting = {9.1744527816772,0.27507531642914,1.0194290876389};
+	local att = ParaCamera.GetAttributeObject();
+	att:SetField("CameraObjectDistance", viewmob_camera_setting[1]);
+	att:SetField("CameraLiftupAngle", viewmob_camera_setting[2]);
+	att:SetField("CameraRotY", viewmob_camera_setting[3]);
+    
+	local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+	local player
+	if(Pet.GetRealPlayer) then
+		player = Pet.GetRealPlayer();
+	else
+		player = ParaScene.GetPlayer();
+	end
+
+	-- set view mob facing
+	player:SetFacing(viewmob_camera_setting[3]);
+end
+
+
+function ShowPipsHint()
+end
+
+function ShowPipsHintAndShowCardDetailed()
+    -- show card detailed
+    ArrowPointer.ShowArrow(9849, 6, "_ct", -154, -228, 64, 64);
+end
+
+function HideCardDetailed()
+    -- hide card detailed
+	ArrowPointer.HideArrow(9849);
+end
+
+function ShowCandidateCard()
+    -- show card candidate
+    CombatPipTutorial.ProcessNextStage();
+    -- pass pointer
+    ArrowPointer.ShowArrow(9849, 2, "_ct", 260, -80, 64, 64);
+end
+
+function StartOver()
+    CombatPipTutorial.HideDialog();
+    CombatPipTutorial.Restart();
+end
+
+function Finish()
+    CombatPipTutorial.Finish();
+end
+
+
+local each_school_2pips_spell = {
+	["fire"] = 22103, --Fire_SingleAttack_Level3
+	["ice"] = 22140, --Ice_SingleAttack_Level2
+	["storm"] = 22122, --Storm_SingleAttack_Level2
+	["life"] = 22159, --Life_SingleAttack_Level2
+	["death"] = 22182, --Death_SingleAttackWithLifeTap_Level2
+};
+
+local each_school_3pips_spell = {
+	["fire"] = 22102,
+	["ice"] = 22141,
+	["storm"] = 22123,
+	["life"] = 22160,
+	["death"] = 22183,
+};
+
+myschool_2pips_card = [[<pe:item gsid="22159" style="margin-left:-70px;margin-top:-210px;width:151px;height:230px;"/>]];
+myschool_3pips_card = [[<pe:item gsid="22160" style="margin-left:-70px;margin-top:-210px;width:151px;height:230px;"/>]];
+
+local school = MyCompany.Aries.Combat.GetSchool();
+if(school and school ~= "unknown" and each_school_2pips_spell[school]) then
+    myschool_2pips_card = string.format([[<pe:item gsid="%d" style="margin-left:-70px;margin-top:-210px;width:151px;height:230px;"/>]], each_school_2pips_spell[school]);
+    myschool_3pips_card = string.format([[<pe:item gsid="%d" style="margin-left:-70px;margin-top:-210px;width:151px;height:230px;"/>]], each_school_3pips_spell[school]);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function EntryAction(from, to)
+    cur_state = to;
+    PlayMouseTutorialAudio(to);
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+    if(to == 2) then
+        CombatPipTutorial.ShowPipPointer();
+    end
+    if(to == 5) then
+        CombatPipTutorial.ShowCurrentPipHelper();
+    end
+    if(to == 6) then
+        CombatPipTutorial.ShowPipPointer();
+        CombatPipTutorial.ShowCurrentPipHelper();
+    end
+    if(to == 7) then
+        CombatPipTutorial.ShowClickFirstCardHelper();
+    end
+    if(to == 8) then
+        CombatPipTutorial.ShowPowerPipPointer();
+    end
+end
+
+function ExitAction(from, to)
+    StopMouseTutorialAudio(from);
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 2) then
+        CombatPipTutorial.HidePipPointer();
+    end
+    if(from == 6) then
+        CombatPipTutorial.HidePipPointer();
+        CombatPipTutorial.HideCurrentPipHelper();
+        CombatPipTutorial.ProcessNextStage();
+    end
+    if(from == 8) then
+        CombatPipTutorial.HidePowerPipPointer();
+    end
+end
+
+name = "梅林";
+if(npc_id == 30563) then
+    name = "怪物名";
+elseif(npc_id == 39003) then
+    name = "船长法斯特";
+end
+
+]]>
+</script>
+    <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">    
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_CombatTutorial_teen.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+        <pe:placeholder id="name" source="{this}" value='<%=Eval("name")%>'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="later" />
+        <pe:placeholder id="ok" />
+        <pe:placeholder id="thanks" />
+        <pe:placeholder id="giveyoustuff" />
+    </pe:template>
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+            <pe:answer-if condition = '<%=IsState6() %>' target_state = "6"/>
+            <pe:answer-if condition = '<%=IsState7() %>' target_state = "7"/>
+            <pe:answer-if condition = '<%=IsState8() %>' target_state = "8"/>
+            <pe:answer-if condition = '<%=IsState9() %>' target_state = "9"/>
+            <pe:answer-if condition = '<%=IsState10() %>' target_state = "10"/>
+            <pe:answer-if condition = '<%=IsState11() %>' target_state = "11"/>
+            <pe:answer-if condition = '<%=IsState12() %>' target_state = "12"/>
+            <pe:answer-if condition = '<%=IsState13() %>' target_state = "13"/>
+            <pe:answer-if condition = '<%=IsState14() %>' target_state = "14"/>
+            <pe:answer-if condition = '<%=IsState15() %>' target_state = "15"/>
+            <pe:answer-if condition = '<%=IsState16() %>' target_state = "16"/>
+            <pe:answer-if condition = '<%=IsState17() %>' target_state = "17"/>
+            <pe:answer-if condition = 'true' target_state = "1"/>
+		</pe:answer>
+	</pe:state>
+
+    <pe:state id = "1">
+        作为精灵，你天生就拥有操纵<span class='guide'>魔法卡片</span>的能力。不过在操纵魔卡之前，首先要理解魔卡的力量源头之所在，也就是<span class='guide'>魔力点</span>。
+        <pe:answer template_id="imlistening">
+			<pe:answer-if condition = "true" transition="<%=ShowPipsHintAndShowCardDetailed()%>" target_state = "3"/>
+		</pe:answer>
+	</pe:state>
+
+	<pe:state id = "2">
+		先看下你<span class='guide'>脚下</span>的光圈，在光圈上有亮起的小点，它表示你本回合拥有的<span class='guide'>魔力点</span>!
+        <pe:answer template_id="igotit">
+			<pe:answer-if condition = "true" transition="<%=ShowPipsHintAndShowCardDetailed()%>" target_state = "3"/>
+		</pe:answer>
+	</pe:state>
+
+	<pe:state id = "3">
+		每张卡片<span class='guide'>左上角</span>有一个数字，这个数字代表使用这张卡片需要消耗的<span class='guide'>魔力点</span>！ 
+        <pe:answer template_id="igotit">
+			<pe:answer-if condition = "true" transition="<%=HideCardDetailed()%>" target_state = "4"/>
+		</pe:answer>
+        <div style="position:screen;width:151px;height:230px;align:center;" left="50%" top="50%">
+            <%=Eval("myschool_3pips_card")%>
+        </div>
+	</pe:state>
+    
+	<pe:state id = "4">
+		下面，我们拿一张需要<span class='guide'>2个魔力点</span>才能施放的卡片来试一下。
+        <pe:answer template_id="noproblem">
+			<pe:answer-if condition = "true" transition="<%=ShowCandidateCard()%>" target_state = "5"/>
+		</pe:answer>
+        <div style="position:screen;width:151px;height:230px;align:center;" left="50%" top="50%">
+            <%=Eval("myschool_2pips_card")%>
+        </div>
+	</pe:state>
+    
+	<pe:state id = "5">
+		这张卡片要2个魔力点，现在你只有1个魔力点，所以<span class='guide'>不能使用</span>；这个回合你只能选择<span class='guide'>跳过</span>了！
+        <!--<pe:answer template_id="nothing">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<pe:state id = "6">
+		魔力点每回合都能<span class='guide'>自动获得</span>1个，上一轮你的的魔力点没有使用，攒了1个；加上这个回合的魔力点，现在你就有2个魔力点！
+        <pe:answer template_id="igotitagain">
+			<pe:answer-if condition = "true" target_state = "7"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "7">
+		现在这张2星级的卡片就可以使用了！用鼠标<span class='guide'>左键点击</span>卡片，然后再选择一个怪物，使用这张卡片吧！
+        <!--<pe:answer template_id="nothing">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>-->
+	</pe:state>
+    
+	<!--<pe:state id = "8">
+		还有一种情况很特殊，看到脚下的魔力点了吗？一个是白色的，另外一个是黄色的，很亮！
+        <pe:answer template_id="whatsthedifference">
+			<pe:answer-if condition = "true" target_state = "9"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "9">
+		黄色，很亮的那个是超级魔力点，当你使用本系别卡片时，每个超级魔力点可以当作2个魔力点来使用哦！
+        <pe:answer template_id="greatiknow">
+			<pe:answer-if condition = "true" target_state = "10"/>
+		</pe:answer>
+	</pe:state>-->
+    
+	<pe:state id = "10">
+		运用好魔力点，是基本的战斗策略！好了，基本就是这些，都记住了么？
+        <pe:answer template_id="iknowitseasy">
+			<pe:answer-if condition = "true" target_state = "13"/>
+		</pe:answer>
+        <pe:answer template_id="startover">
+			<pe:answer-if condition = "true" transition="<%=StartOver()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "11">
+		如果想出星级高的卡片技能，记得要<span class='guide'>攒魔力点</span>，通过放弃或者使用0星的卡片，就能解决这个问题! 
+        <pe:answer template_id="greatidea">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "12">
+		另外，如果你有超级魔力点，最好是出本系的卡片，这样能当做2个魔力点使用呢！
+        <pe:answer template_id="iwillremember">
+			<pe:answer-if condition = "true" transition="<%=ContinueAfterCardIntro()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "13">
+		很好，你已经掌握了使用魔法牌的全部基础知识。未来的路就要靠你自己去摸索前进了，期待着未来与你的再会，快出发吧。
+        <pe:answer template_id="thanksimgoing">
+			<pe:answer-if condition = "true" transition="<%=Finish()%>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    
+	<pe:state id = "14">
+		看到了吧，想出更高级的卡片，记得要通过放弃或使用0魔力点的卡片攒够魔力点！
+        <pe:answer template_id="eniknow">
+			<pe:answer-if condition = "true" target_state = "10"/>
+		</pe:answer>
+	</pe:state>
+    
+
+
+
+    
+    
+
+    <pe:state id = "100">
+		材料还没找齐吗？要仔细找呀，我也不知道他们具体在哪，哎哟，我好想念我的刨刨！
+		<pe:answer template_id = "ok">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "101">
+		哇！真的被你都找到了，太好嘞，我不再忧郁了，来吧让我做一个玩具人吧，虽然不是原来那个，我还是有点小开心呐。这个玩具人就送给你当宠物吧。我也不在医院待着啦。
+		<pe:answer template_id = "thanks">
+			<pe:answer-if condition = "true" transition="<%=DoExchange() %>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>
+

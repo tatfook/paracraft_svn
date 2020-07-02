@@ -1,0 +1,633 @@
+﻿<!-- "script/apps/Aries/HaqiShop/AuctionHouseItemView.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>author: LiXizhi</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="AuctionHouse.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopProvider.lua");
+local NPCShopProvider = commonlib.gettable("MyCompany.Aries.NPCShopProvider");
+NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+local HaqiShop = commonlib.gettable("MyCompany.Aries.HaqiShop");
+local ItemManager = System.Item.ItemManager;
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+local GenericTooltip = CommonCtrl.GenericTooltip:new();
+local NPCList = commonlib.gettable("MyCompany.Aries.Quest.NPCList");
+local page = Page;
+AuctionHouse.OnInitItemView();
+gsid = tonumber(page:GetRequestParam("gsid"));
+local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+
+obtainGuideDS = MyCompany.Aries.ItemGuides.BuildGuideDataSourceForItem(gsid);
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+function OnClickTreeNode(name,mcmlNode)
+	if(mcmlNode)then
+    end
+end
+
+function GetName(gsid)
+    if(not gsid)then return end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		return gsItem.template.name;
+    end
+end
+
+function HasMerchant(npcid)
+    if(npcid and npcid>0) then
+        local npc, worldname = NPCList.GetNPCByIDAllWorlds(npcid);
+        if(npc and npc.name) then
+            return true;
+        end
+    end
+end
+
+function GetMerchantModel(npcid)
+    if(npcid and npcid>0) then
+        local npc, worldname = NPCList.GetNPCByIDAllWorlds(npcid);
+        if(npc and npc.name) then
+            return {x=0,y=0,z=0, AssetFile=npc.assetfile_char, IsCharacter=true, name="merchant"};
+        end
+    end
+end
+
+
+function GetMerchantName(npcid)
+    if(npcid and npcid>0) then
+        local npc, worldname = NPCList.GetNPCByIDAllWorlds(npcid);
+        if(npc and npc.name) then
+            local name;
+            if(npc.name2) then
+                name = npc.name..npc.name2;
+            else
+                name = npc.name;
+            end
+            local world_title = WorldManager:GetWorldInfo(worldname).world_title;
+            if(world_title) then
+                name=format("[%s]%s", world_title, name);
+            end
+            return name;
+        end
+    end
+end
+
+function GetLevelText(require_level)
+    if(require_level and require_level~=0) then
+        if(require_level <=Player.GetLevel() ) then
+            return format("等级:%d", require_level)
+        else
+            return format("<div style='color:#fe6102'>等级:%d</div>", require_level)
+        end
+    end
+end
+
+function IsRightSchool(gsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+		local school_id = gsItem.template.stats[137] or gsItem.template.stats[246];
+        if(school_id)then
+            return CommonClientService.IsRightSchool(gsid, nil, nil, school_id);
+        end
+    end
+    return true;
+end
+
+function DoSearch()
+end
+
+function GetDataSource(index)
+    return AuctionHouse.GetItemDataSource(gsid, index);
+end
+
+function GetName(gsid)
+    if(not gsid)then return end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		return gsItem.template.name;
+    end
+end
+
+function GetPrice(gsid)
+    if(not gsid)then 
+        return 0 
+    end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		return gsItem.count or 0;
+    end
+    return 0;
+end
+
+function CalcTotalPrice(arg)
+    arg = math.ceil(arg + (arg * 0.2))
+    arg = tostring(arg);
+    return arg;
+end
+
+function GenEquipColorName(id,name,qty)
+    local color = GenericTooltip.GetEquipColor(qty);
+    return string.format([[<input type='button' class='titlebutton' onclick='OnClickItem' name='%s' 
+ style='float:left;width:130px;margin-top:1px;margin-left:5px;font-size:12px;text-align:left;color:%s;' 
+ value='%s'tooltip='%s'/>]],
+ id,color,name,name);
+end
+
+function OnBuyOfficial()
+    if(System.options.isAB_SDK) then
+        _guihelper.MessageBox("直接购买功能, 内网SDK版本才有", function()
+            MyCompany.Aries.HaqiShop.BuyMoDou(gsid);
+        end)
+    end
+end
+
+function CanSellOfficially()
+    if(gsItem and gsItem.count) then
+        return gsItem.count>0 and gsItem.count<5000;
+    end
+end
+
+function CanPreviewItem()
+    return HaqiShop.CanPreviewItem(gsid);
+end
+
+function ShowPreviewPage(bShow)
+    local ctl = Page:FindControl("previewWnd")
+    if(ctl) then
+        ctl.visible = bShow;
+    end
+end
+
+function ClosePreviewPage()
+    ShowPreviewPage(false)
+end
+
+function OnClickPreviewItem(gsid)
+    if(HaqiShop.CanPreviewItem(gsid)) then
+        HaqiShop.OnClickItem(gsid, nil, nil, page);
+        ShowPreviewPage(true)
+    end
+end
+
+function ResetPreviewModel()
+    HaqiShop.ResetPreviewModel(page);
+end
+
+
+function GetNPCShopItems()
+    if(gsItem and gsItem.npc_shop_items) then
+        return gsItem.npc_shop_items;
+    end
+end
+
+function GetExidMoney(exid, index, is_selling)
+    if(not exid)then return end
+    index = index or 1;
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exTemplate and exTemplate.froms and exTemplate.tos)then
+        
+        local node = if_else(is_selling, exTemplate.tos[index], exTemplate.froms[index]);
+        if(node)then
+            --if(node.key ~= 984)then
+                local label;
+                local gsItem = ItemManager.GetGlobalStoreItemInMemory(node.key);
+                if(gsItem) then
+                    label = gsItem.template.name;
+                elseif(node.key == 0 or node.key == 1) then
+                    label = "银币";
+                end
+                return string.format([[
+<pe:item is_container="true" isclickable="false" gsid='%d' style="float:left;width:130px;margin-top:2px;height:20px" >
+    <pe:item gsid='%d' isenabled="false" style="width:20px;height:20px;"/>
+    <div style="float:left;margin-left:2px;">%s:</div><pe:slot type="count" gsid='%s' style="float:left" />
+</pe:item>]], node.key, node.key, label or "", node.key);
+            --end
+        end
+    end
+end
+
+function GetLine(exid,index, is_selling)
+    if(not exid or not index)then return end
+    local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+    if(exid == 0) then 
+        if(index==1 and gsItem) then
+            local price = gsItem.ebuyprice;
+            local pbuyprice = gsItem.count;
+            
+            if(price and price>0) then
+                local s = string.format([[<img tooltip="银币" class="stable_bean" style="margin-top:2px;width:20px;height:20px;"/><div style="float:left;margin-left:2px;">%d</div>]],price);
+                return s;
+            elseif(pbuyprice and pbuyprice>0) then
+                local s = string.format([[<pe:item gsid="984" isclickable="false" style="width:20px;height:20px;"/><div style="float:left;margin-left:2px;">%d</div>]],pbuyprice);
+                return s;
+            end
+        end
+    elseif(exTemplate and exTemplate.froms and exTemplate.tos)then
+        local node = if_else(is_selling, exTemplate.tos[index], exTemplate.froms[index]);
+        if(node)then
+            local name = "";
+            local value = node.value or 0;
+            local gsid = node.key;
+            local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+            local assetfile = "";
+            if(gsItem)then
+		        name = gsItem.template.name;
+		        assetfile = gsItem.icon or "";
+            end
+            if(node.key == 0)then
+                name = "银币";
+                local s = string.format([[<img tooltip="银币" class="stable_bean" style="margin-top:2px;width:20px;height:20px;"/><div style="float:left;margin-left:2px;">%d</div>]],value);
+                return s;
+            elseif(node.key == -1)then
+                name = "普通银币";
+            else
+                local s = string.format([[<pe:item gsid="%d" isclickable="false" style="width:20px;height:20px;"/><div style="float:left;margin-left:2px;">%d</div>]],gsid or 0,value);
+                return s;
+            end
+    	    
+            local s = string.format([[<img tooltip="%s" style="margin-top:2px;width:20px;height:20px;background:url(%s)"/><div style="float:left;margin-left:2px;">%d</div>]],name,assetfile,value);
+            --local s = string.format("%s:%d",name,value);
+            return s;
+        end
+    end
+end
+
+function OnBuyFromNPC(exid,mcmlNode)
+    if(gsid and exid) then
+        local npcid = mcmlNode:GetAttributeWithCode("param1");
+        if(npcid and npcid>0) then
+            local result = WorldManager:TrackAndGotoNPC(npcid, function()
+                MyCompany.Aries.Desktop.Dock.ShowHideAllWindow(false);
+                ClosePage();
+            end);
+            if(result) then
+                return
+            end
+        end
+
+        local time_range = mcmlNode:GetAttributeWithCode("param2");
+        
+        
+        if(time_range and time_range ~= "") then
+            local time_range = commonlib.timehelp.datetime_range:new(time_range);
+            local seconds, min, hour, day, month, year = MyCompany.Aries.Scene.GetServerDateTime();
+            if(time_range and not time_range:is_matched(min, hour, day, month, year)) then
+                _guihelper.MessageBox(format("促销活动已经下架. 活动时间为: <br/>%s", time_range:tostring()));
+                return;
+            end
+        end
+
+        if(exid ~= 0) then
+	        if(not NPCShopProvider.PreCheckByGsid(gsid) or not NPCShopProvider.PreCheckByExid(exid,1))then
+		        return
+	        end
+        end
+        local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+		if(IsRightSchool(gsid)) then
+            command:Call({exid = exid, gsid = gsid, npc_shop = true});
+        else
+            _guihelper.MessageBox("你所购买的物品，不适合你的系别使用. 是否还要买?", function()
+                command:Call({exid = exid, gsid = gsid, npc_shop = true});
+            end, _guihelper.MessageBoxButtons.YesNo)
+        end
+    end
+end
+
+function CanExchange()
+    return AuctionHouse.CanExchange(gsItem);
+end
+
+function OnClickItem(id)
+    AuctionHouse.OnSelectAndPurchaseItem(id, function()
+        page:Refresh(0.1);
+    end);
+end
+
+function GetCountText()
+    if(gsid) then
+        local has, _, _, copies = ItemManager.IfOwnGSItem(gsid);
+        if(has) then
+            return format("已有:%d个", copies);
+        end
+    end
+end
+
+function OnClickFolder(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+		if(t.expanded)then
+			t.expanded = false;
+		else
+			t.expanded = true;
+		end
+    end
+end
+
+function HasGuides()
+    return ItemGuides.HasGuidesForItem(gsid);
+end
+
+function OnCheckItemGuide(name, mcmlNode)
+    if(mcmlNode)then
+        local t = mcmlNode:GetPreValue("this", true);
+        if(t.gsid) then
+            ClosePage();
+            ItemGuides.OnClickViewItem(t.gsid);
+        end
+    end
+end
+
+function OnGotoNPC(name, mcmlNode)
+    if(mcmlNode)then
+        local t = mcmlNode:GetPreValue("this", true);
+        if(t.npcid) then
+            local npcid = t.npcid;
+            WorldManager:TrackAndGotoNPC(npcid, function()
+                ClosePage();
+            end);
+        end
+    end
+end
+
+function OnTrackPoint(name, mcmlNode)
+    if(mcmlNode)then
+        local t = mcmlNode:GetPreValue("this", true);
+        AuctionHouse.OnTrackPoint(t)
+    end
+end
+
+function OnTeleportPoint(name, mcmlNode)
+    if(mcmlNode) then
+        local t = mcmlNode:GetPreValue("this", true);
+        if(t)then
+            local worldname,position,camera = t.worldname, {t.x, t.y, t.z}, t.camera;
+            if(position) then
+                WorldManager:GotoWorldPosition(worldname,position,camera,nil, function()
+                    ClosePage();
+                end);
+            end
+        end
+    end
+end
+
+function OnMakeItem(name, mcmlNode)
+    if(mcmlNode) then
+        local t = mcmlNode:GetPreValue("this", true);
+        if(t)then
+            ClosePage();
+            NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+            local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+            ItemBuildPage.ShowPage();
+        end
+    end
+end
+
+function OnClickShowQuest(id)
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+    local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+    QuestPane.ShowPage("template_quest",id);
+end
+
+
+]]></script>
+<aries:window width="600" height="490" title="物品信息" mode="lite" isdeepbg="true" onclose="ClosePage">
+    <div class="clientarea">
+        <div style="margin-left:5px;height:64px;margin-top:5px;" >
+            <div style="float:left">
+                <pe:item gsid='<%=Eval("gsid")%>' onclick="OnBuyOfficial" showdefaulttooltip="true" style="background-color:#ffffffff;width:64px;height:64px;"></pe:item>
+            </div>
+            <div style="float:left;">
+                <div style="margin-left:5px;margin-top:-3px">
+                    <div><%=GetName(Eval("gsid"))%></div>
+                    <pe:if condition='<%=CanExchange()%>' >
+                        <div style="max-width:50px">
+                            <input type="button" style="text-align:left;font-size:12px;background:;color:#ff9900;" value='可交易' />
+                            <pe:if condition='<%=System.options.isAB_SDK%>' >
+                                <input type="button" tooltip="官网给出的寄售行参考定价(仅SDK内网可见)" style="text-align:left;font-size:12px;background:;color:#ff9900;" value='<%=tostring(GetPrice(Eval("gsid"))*2)..System.options.haqi_RMB_Currency%>' />
+                            </pe:if>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=not CanExchange()%>' >
+                        <div><input type="button" style="text-align:left;font-size:12px;background:;color:#ff9900;" value='不可交易' /></div>
+                    </pe:if>
+                    <div><%=GetCountText()%></div>
+                    <!--<pe:if condition='<%=CanPreviewItem()%>'>
+                        <input type="button" style="float:left;width:60px;" onclick="OnClickPreviewItem" value="3D预览"/>
+                    </pe:if>-->
+                </div>
+            </div>
+            <pe:repeat DataSource="<%=GetNPCShopItems()%>">
+                <pe:repeatitem style="float:left;">
+                    <pe:if condition='<%=Eval("index")<=2%>'>
+                    <div style="float:left;">
+                        <pe:if condition='<%=HasMerchant(Eval("npcid"))%>'>
+                            <div style="float:left;width:64px;height:64px;">
+                                <pe:canvas3d  minZoomDist="1" DefaultRotY="-0.9" DefaultLiftupAngle="0.1" RenderTargetSize="64" name="ItemNPCIcon" miniscenegraphname="ItemNPC" MaskTexture="Texture/Aries/Quest/previewmask.dds" IsInteractive="false" value='<%=GetMerchantModel(Eval("npcid")) %>'/>
+                            </div>
+                            <div style="float:left;">
+                                <div style="margin-left:5px;margin-top:-3px">
+                                    <div>
+                                        <input type="button" class="linkbutton2" name='<%=Eval("exid") %>' param1='<%=Eval("npcid") %>' tooltip="点击传送" style="color:#00ff00;background2-color:#00ff00;margin-top:0px;height:18px;float:left;text-align:left;" onclick="OnBuyFromNPC" value='<%=GetMerchantName(Eval("npcid")) or GetName(Eval("gsid"))%>'/>
+                                    </div>
+                                    <div style="height:24px;"><%=GetLine(Eval("exid"),1) %><%=GetLine(Eval("exid"),2) %></div>
+                                    <div><input type="button" name='<%=Eval("exid") %>' param2='<%=Eval("time_range") %>' style="float:left;width:60px;" class="defaultbutton" onclick="OnBuyFromNPC" value="兑换"/></div>
+                                </div>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=not HasMerchant(Eval("npcid"))%>'>
+                            <div style="float:left"><pe:item gsid='<%=Eval("gsid")%>' isclickable="false" showdefaulttooltip="true" style="width:64px;height:64px;"></pe:item></div>
+                            <div style="float:left;">
+                                <div style="margin-left:5px;margin-top:-3px">
+                                    <div style="height:18px;"><%=GetName(Eval("gsid"))%></div>
+                                    <div style="height:24px;"><%=GetLine(Eval("exid"),1) %><%=GetLine(Eval("exid"),2) %></div>
+                                    <div><input type="button" name='<%=Eval("exid") %>' param1='<%=Eval("npcid") %>' param2='<%=Eval("time_region") %>' style="float:left;width:60px;" class="defaultbutton" onclick="OnBuyFromNPC" value="兑换"/></div>
+                                </div>
+                            </div>
+                        </pe:if>
+                    </div>
+                    </pe:if>
+                </pe:repeatitem>
+            </pe:repeat>
+        </div>
+        <pe:tabs name="options" style="margin-left:-5px;margin-top:5px;width:570px;height:310px;">
+            <pe:tab-item text="市场采购" name="auction" condition='<%=CanExchange()==true%>' style="padding-top:0px">
+                <!--<div style="margin-top:5px;margin-left:5px">
+                下面是其他玩家出售的物品
+                </div>-->
+                <div style="height:25px;margin-left:2px;margin-top:1px;margin-right:2px;" class="border_bg2_css" width="100%">
+                    <input type="button" name="0" value="名字" class="titlebutton" style="float:left;width:165px;text-align:left;margin-left:30px;"/>
+                    <input type="button" value="单价" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:60px;" enabled="false"/>
+                    <input type="button" value="数量" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:48px;" enabled="false"/>
+                    <input type="button" name="2" value="总价" class="titlebutton" style="float:left;text-align:left;width:70px;" />
+                    <input type="button" value="截止时间" class="titlebutton" style="float:left;width:110px;" enabled="false"/>
+                    <input type="button" name="2" value="出售者" class="titlebutton" style="float:left;width:60px;" />
+                </div>
+                <pe:gridview DataSource="<%=GetDataSource %>" name="pegvwGemsView"
+                    DefaultNodeHeight="27" VerticalScrollBarStep="29" 
+                    CellPadding="2" ItemsPerLine="1" AllowPaging="false" pagesize="20" >
+                    <Columns>
+                        <div style="height:27px;margin-top:0px;" >
+                            <input type="button"  class="listbutton_selected"
+                                    style="position:relative;width:566px;height:28px;background:"
+                                    onclick="OnClickItem" name='<%=Eval("id")%>' value='<%=Eval("id")%>'/>
+                            <div style="float:left;margin-top:1px;width:26px;height:26px;" class="block">
+                                <pe:item isclickable="false" gsid='<%=Eval("gsid")%>' serverdata = '<%=Eval("serverdata")%>' showdefaulttooltip="true" style="width:26px;height:26px;"/>
+                            </div>
+                            <%=GenEquipColorName(Eval("id"),Eval("name"),Eval("qty"))%>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:70px;margin-top:2px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("display_price")) %>' tooltip='<%="总价:" .. tostring(Eval("display_price"))%>'/>
+                            <pe:item gsid='<%=Eval("money_gsid")%>' style="margin-top:2px;margin-left:3px;width:24px;height:24px;position:relative;"/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:110px;margin-top:1px;text-align:right;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("time")) %>' />
+                            <pe:if condition='<%=Eval("nname")~=nil%>' >
+                                <div style="float:left;width:90px;text-align:center;margin-top:2px;margin-left:5px;font-size:12px;color:#52dff4;">
+                                    <!--<pe:name nid='<%=Eval("nid") %>' style="float:left;width:110px;" value='<%=Eval("nname") %>'/>-->
+                                    <%=Eval("nname")%>
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=not Eval("nname")%>' >
+                                <div style="float:left;text-align:center;margin-top:2px;margin-left:5px;font-size:12px;width:90px;color:#52dff4;">
+                                    匿名
+                                </div>
+                            </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="text-align:center;margin-top:10px;font-size:12px;color:#ff9900;" class="defaultstyle">哇！ 居然无人出售此物品.<br /> 快去收集，一定可以卖个好价钱！</div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                    </FetchingDataTemplate>
+                </pe:gridview>
+            </pe:tab-item>
+            <pe:tab-item name="guide" text="获取攻略" selected='true'>
+                <div style="margin:5px;">
+                    <pe:treeview RememberScrollPos="true" DefaultNodeHeight="26" VerticalScrollBarStep="26" name="guide_cate" DataSource='<%=MyCompany.Aries.ItemGuides.BuildGuideDataSourceForItem(Eval("gsid"))%>' class="defaulttreeview">
+                        <NodeTemplates>
+                            <NodeTemplate DataType="text">
+                                <div style="color:#52dff4;"><%=XPath("this|value")%></div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="item">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="点击查看" onclick="OnCheckItemGuide" />
+                                <div style="height:25px;width:530px;color:#52dff4;">
+                                    <pe:item isclickable="false" gsid='<%=XPath("this|gsid")%>' style="margin-top:0px;height:24px;width:24px;margin-right:5px;"/><%=GetName(XPath("this|gsid"))%>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="npc">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="追踪目标" onclick="OnGotoNPC" />
+                                <div style="padding-top:2px;height:25px;width:530px;color:#52dff4;">
+                                    <div style="float:left;color:#00ff00;min-width:200px;margin-left:5px;"><%=XPath("this|npc_name")%></div>
+                                    <div style="float:left;margin-left:5px;">所在岛屿:<%=XPath("this|world_title")%></div>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="folder">
+                                <pe:treenode  text='<%=XPath("this|label")%>' 
+                                    expanded='<%=XPath("this|expanded")%>'
+                                    MouseOverBG=""
+                                    OnClick="OnClickFolder()" 
+                                    can_select = "true" 
+                                    style="font-weight:bold;color:#52dff4;font-size:13px;"
+                                    />
+                            </NodeTemplate>
+                            <NodeTemplate DataType="loot">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="追踪目标" onclick="OnTrackPoint" />
+                                <div style="height:25px;width:530px;">
+                                    <img style="margin:3px;width:19px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_track_32bits.png#0 0 19 21)"/>
+                                    <div style="float:left;color:#52dff4;margin-top:3px;">
+                                        地点:<div style="float:left;color:#00ff00;width:120px;"><%=XPath("this|world_title")%></div>
+                                        怪物:<div style="float:left;color:#d7383a;width:150px;"><%=format("%s(%d级)", XPath("this|displayname"), XPath("this|mob_level"))%></div>
+                                        掉率:<div style="float:left;color:#00ff00;width:70px;text-align:left;"><%=XPath("this|drop_percent_text")%></div>
+                                    </div>
+                                    <div align="right" style="float:left;width:16px;margin-top:4px;margin-right:5px;">
+                                        <input type="button" onclick="OnTeleportPoint" tooltip="立即过去" style="width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_32bits.png)"/>
+                                    </div>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="catchpet">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="追踪目标" onclick="OnTrackPoint" />
+                                <div style="height:25px;width:530px;">
+                                    <img style="margin:3px;width:19px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_track_32bits.png#0 0 19 21)"/>
+                                    <div style="float:left;color:#52dff4;margin-top:3px;">
+                                        地点:<div style="float:left;color:#00ff00;width:120px;"><%=XPath("this|world_title")%></div>
+                                        宠物:<div style="float:left;color:#d7383a;width:150px;"><%=format("%s(%d级)", XPath("this|displayname"), XPath("this|mob_level"))%></div>
+                                    </div>
+                                    <div align="right" style="float:left;width:16px;margin-top:4px;margin-right:5px;">
+                                        <input type="button" onclick="OnTeleportPoint" tooltip="立即过去" style="width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_32bits.png)"/>
+                                    </div>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="gather">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="追踪目标" onclick="OnTrackPoint" />
+                                <div style="height:25px;width:530px;">
+                                    <img style="margin:3px;width:19px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_track_32bits.png#0 0 19 21)"/>
+                                    <div style="float:left;color:#52dff4;margin-top:3px;">
+                                        地点:<div style="float:left;color:#00ff00;width:120px;"><%=XPath("this|world_title")%></div>
+                                        坐标:<div style="float:left;color:#d7383a;width:150px;"><%=format("%d,%d", XPath("this|x"), XPath("this|z"))%></div>
+                                    </div>
+                                    <div align="right" style="float:left;width:16px;margin-top:4px;margin-right:5px;">
+                                        <input type="button" onclick="OnTeleportPoint" tooltip="立即过去" style="width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_32bits.png)"/>
+                                    </div>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="making">
+                                <input type="button"  style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip="点击打开制造界面" onclick="OnMakeItem" />
+                                <div style="margin-left:4px;height:25px;width:530px;">
+                                    <div style="float:left;color:#52dff4;margin-top:3px;">
+                                        专业:<div style="float:left;color:#00ff00;width:120px;"><%=XPath("this|displayname")%></div>
+                                        熟练度:<div style="float:left;color:#00ff00;width:50px;"><%=XPath("this|require_level")%></div>
+                                    </div>
+                                </div>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="quest">
+                                <input type="button"  name='<%=XPath("this|Id")%>' style="position:relative;height:25px;width:530px;" class="menuitem_bg" tooltip='<%=XPath("this|Detail")%>'onclick="OnClickShowQuest" />
+                                <div style="margin-left:4px;height:25px;width:530px;">
+                                    <div style="float:left;color:#52dff4;margin-top:3px;">
+                                        标题:<div style="float:left;color:#00ff00;width:170px;"><%=XPath("this|Title")%></div>
+                                        推荐等级:<div style="float:left;color:#00ff00;width:50px;"><%=XPath("this|RecommendLevel") or 0%></div>
+                                    </div>
+                                </div>
+                            </NodeTemplate>
+                        </NodeTemplates>
+                    </pe:treeview>
+                </div>
+            </pe:tab-item>
+        </pe:tabs>
+        
+        <div style="margin-left:10px;margin-top:0px;height:50px;">
+            <!--<pe:item gsid="984" style="float:left;width:120px;height:24px;" is_container="true" isclickable="false">
+                <div style="font-weight:bold;margin-top:5px;">
+                    魔豆余额:<div style="float:left"><pe:slot type="count" gsid="984"></pe:slot></div>
+                </div>
+            </pe:item>-->
+            <div style="float:left;margin-top:3px;">
+                <pe:repeat DataSource="<%=GetNPCShopItems()%>">
+                    <pe:repeatitem style="float:left;">
+                        <%=GetExidMoney(Eval("exid"),1) %><%=GetExidMoney(Eval("exid"),2) %>
+                        <%=GetExidMoney(Eval("exid"),3) %><%=GetExidMoney(Eval("exid"),4) %>
+                    </pe:repeatitem>
+                </pe:repeat>
+            </div>
+        </div>
+        <div style="position:relative;margin-top:-15px;width:120px;" align="right">
+            <input type="button" name="close" class="defaultbtn" style="width:60px;margin-left:50px;" value="关闭" onclick="ClosePage" />
+            <!--<input type="button" name="0" value="上一页" onclick="DoSearch" />
+            <input type="button" name="1" value="下一页" style="margin-left:5px;" onclick="DoSearch" />-->
+        </div>
+    </div>
+</aries:window>
+
+</pe:mcml> 
+</body>
+</html>

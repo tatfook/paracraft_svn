@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/Inventory/Cards/MyCardsPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Inventory.Cards.MyCardsManager.Set_MyCardsPageCtrl(page)
+
+local MyCardsPage = commonlib.gettable("MyCompany.Aries.Inventory.MyCardsPage");
+MyCardsPage.TabValue = MyCardsPage.TabValue or "1";
+
+function ShowItemView(value, mcmlNode)
+	local frame = page:GetNode("AriesInventoryMountItemView");
+	local urls = {
+	    ["1"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=all",
+	    ["2"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=metal",
+	    ["3"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=wood",
+	    ["4"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=water",
+	    ["5"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=fire",
+	    ["6"] = "script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=combat&subclass=earth",
+	};
+	
+    if(frame ~= nil) then
+        local cachePolicy -- = System.localserver.CachePolicy:new("access plus 0");
+		local cachePolicy = "access plus 1 minute";
+        if(value) then
+            MyCardsPage.TabValue = value;
+            page:SetValue("Level2Tabs", value);
+            page:GetNode("AriesInventoryMountItemView");
+            frame:SetAttribute("src", urls[value]);
+            page:Refresh(0.1);
+        end
+    end
+end
+
+if(page:GetValue("Level2Tabs") ~= MyCardsPage.TabValue) then
+    page:SetValue("Level2Tabs", MyCardsPage.TabValue);
+    ShowItemView(MyCardsPage.TabValue);
+    page:Refresh(0.1);
+end
+
+]]></script>
+<pe:editor style="width:421px;height:452px;background:url(Texture/Aries/Combat/BagPack/Card/my_cards_bg_32bits.png# 0 0 421 452);">
+<div style="margin-left:115px;margin-top:-2px;width:370px;height:60px;">
+     <input type="radio" name="Level2Tabs" id="Radio6" value="1" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs" id="Radio7" value="2" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio8" value="3" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio9" value="4" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio10" value="5" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+        <input type="radio" name="Level2Tabs" id="Radio11" value="6" style="width:46px;height:48px;margin-left:0px;background-color:#FFFFFF;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/bg2b_32bits.png;0 0 46 48" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/bg2a_32bits.png;0 0 46 48"
+        onclick="ShowItemView()"/>
+</div>
+<div style="margin-left:115px;margin-top:-45px;width:370px;height:60px;">
+     <input type="radio" name="Level2Tabs_Over" id="Radio12" value="1" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/all_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/all_32bits.png;"
+        animstyle = "22" tooltip="全部"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio1" value="2" style="width:32px;height:32px;margin-left:14px;margin-top:-2px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/metal_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/metal_32bits.png;"
+        animstyle = "22" tooltip="金"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio2" value="3" style="width:32px;height:32px;margin-left:15px;margin-top:-4px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/wood_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/wood_32bits.png;"
+        animstyle = "22" tooltip="木"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio3" value="4" style="width:32px;height:32px;margin-left:17px;margin-top:-4px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/water_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/water_32bits.png;"
+        animstyle = "22" tooltip="水"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio4" value="5" style="width:32px;height:32px;margin-left:14px;margin-top:-4px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/fire_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/fire_32bits.png;"
+        animstyle = "22" tooltip="火"
+        onclick="ShowItemView()"/>
+    <input type="radio" name="Level2Tabs_Over" id="Radio5" value="6" style="width:32px;height:32px;margin-left:10px;margin-top:0px;"
+        CheckedBG="Texture/Aries/Combat/BagPack/Card/earth_32bits.png;" 
+        UncheckedBG="Texture/Aries/Combat/BagPack/Card/earth_32bits.png;"
+        animstyle = "22" tooltip="土"
+        onclick="ShowItemView()"/>
+</div>
+<div style="width:420px;height:450px;">
+    <iframe name="AriesInventoryMountItemView" src="script/apps/Aries/Inventory/Cards/CardsViewPage.html?class=mount&amp;subclass=feed"/>
+</div>
+            
+
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

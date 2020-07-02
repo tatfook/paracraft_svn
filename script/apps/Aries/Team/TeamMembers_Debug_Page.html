@@ -1,0 +1,40 @@
+﻿<!-- "script/apps/Aries/Team/TeamMembers_Debug_Page.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="TeamMembersPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local nid = page:GetRequestParam("nid") or 0;
+local TeamMembersPage=commonlib.gettable("MyCompany.Aries.Team.TeamMembersPage");
+
+nid = tonumber(nid);
+commonlib.echo("======nid")
+commonlib.echo(nid)
+function ClosePage()
+    page:CloseWindow();
+end
+function DoInvite()
+    TeamMembersPage.InviteToTeam(nid);
+  --  _guihelper.MessageBox(nid);
+end
+function DoRequest()
+    TeamMembersPage.JoinToTeam(nid);
+  --  _guihelper.MessageBox(nid);
+end
+]]></script>
+<div style="width:400px;height:400px;background:url(Texture/whitedot.PNG)">
+    <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+    <br />
+    <input type="button" value="邀请加入队伍" onclick="DoInvite()"/>
+    <br />
+    <input type="button" value="申请加入队伍" onclick="DoRequest()"/>
+    <br />
+</div>
+</pe:mcml> 
+</body>
+</html>

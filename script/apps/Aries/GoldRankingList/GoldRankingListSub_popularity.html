@@ -1,0 +1,194 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListSub_4.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListSub_3, by zrf, 2011/1/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/ActivityNote.lua");
+local GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+local page = document:GetPageCtrl();
+
+listname = string.lower(page:GetRequestParam("listname") or "popularity");
+
+function GetRankName()
+    if (listname=="popularity") then
+        return "昵称"
+    elseif (listname=="homevisit") then
+        return "昵称"
+    elseif (listname=="family_level") then
+        return "家族"
+    end
+end
+
+function GetRankValue()
+    if (listname=="popularity") then
+        return "人气"
+    elseif (listname=="homevisit") then
+        return "家园热度"
+    elseif (listname=="family_level") then
+        return "家族活跃度"
+    end
+end
+
+function GetList2Title()
+    if (listname=="popularity") then
+        return "所在家族"
+    elseif (listname=="homevisit") then
+        return "所在家族"
+    elseif (listname=="family_level") then
+        return "族长"
+    end
+end
+
+function GetTips()
+    if (listname=="popularity") then
+        return "找朋友投票，或者去摇摇幸运树，树里的人气帖可以增加人气呢！"
+    elseif (listname=="homevisit") then
+        return "把家园布置漂亮些，邀请朋友去你家看看，可以增加家园热度呢！"
+    elseif (listname=="family_level") then
+        return "把家族里的族员都动员起来吧，每天都来家族看看，提升家族活跃度！所在家族的活跃度大于800才可以参加每赛季的赛场家族榜排名哦！"
+    end
+end
+
+function GotoTree()
+    page:CloseWindow();
+    if (listname=="popularity") then
+        MyCompany.Aries.Desktop.ActivityNote.GotoTree();
+    elseif (listname=="homevisit") then
+        System.App.Commands.Call("Profile.Aries.MyHomeLand");
+    elseif (listname=="family_level") then
+        System.App.Commands.Call("Profile.Aries.MyFamilyWnd");
+    end
+end
+]]></script>
+
+<div style="position:relative;margin-left:20px;margin-top:0px;color:#FCEA98;">
+名次
+</div>
+
+<div style="position:relative;margin-left:150px;margin-top:0px;color:#FCEA98;">
+<%=GetRankName() %>
+</div>
+
+<div style="position:relative;margin-left:300px;margin-top:0px;color:#FCEA98;">
+<%=GetRankValue() %>
+</div>
+
+<div style="position:relative;margin-left:435px;margin-top:0px;color:#FCEA98;">
+<%=GetList2Title() %>
+</div>
+
+<div style="position:relative;font-size:12;margin-left:5px;margin-top:305px;width:460px;height:50px;color:#FCEA98;">
+温馨提示: <%=GetTips() %>
+</div>
+
+<div style="position:relative;margin-left:470px;margin-top:300px;">
+    <pe:if condition='<%=Eval("listname")=="popularity" %>'>
+    <input type="button" onclick="GotoTree()" zorder="2" style="width:101px;height:28px;background:url(Texture/Aries/GoldRankingList/lijiguoqu_32bits.png#0 0 101 28);"/>
+    </pe:if>
+    <pe:if condition='<%=Eval("listname")=="homevisit" %>'>
+    <input type="button" onclick="GotoTree()" zorder="2" value='回家装修' style="float:left;width:78px;height:30px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+    </pe:if>
+    <pe:if condition='<%=Eval("listname")=="family_level" %>'>
+    <input type="button" onclick="GotoTree()" zorder="2" value='家族签到' style="float:left;width:78px;height:30px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>
+    </pe:if>
+</div>
+
+<div style="position:relative;margin-top:28px;width:580px;height:272px;">
+    <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.DS_Func_Sub%>" 
+    name="GoldRankingListSub" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="8">
+    <Columns>
+        <div style="margin-top:0px;width:572px;height:33px;background:;">
+            <pe:if condition='<%=Eval("index") <= 3 %>'>
+                <div style="position:relative;margin-left:10px;margin-top:2px;width:52px;height:30px;color:#6601FF;text-align:center;">
+                <%=Eval("index") %>
+                </div>
+                <div style="position:relative;margin-left:83px;margin-top:2px;width:174px;height:30px;">
+                    <pe:if condition='<%=Eval("listname") == "popularity" or Eval("listname") == "homevisit" %>'>
+                        <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:170px;color:#6601FF;text-align:center;"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("listname") == "family_level"  %>'>
+                        <%=Eval("familyname") %>
+                    </pe:if>
+                </div>
+                <div style="position:relative;margin-left:246px;margin-top:2px;width:138px;height:30px;color:#6601FF;text-align:center;">
+                <%=Eval("field1") %>
+                </div>
+                <div style="position:relative;margin-left:366px;margin-top:2px;width:186px;height:30px;color:#6601FF;text-align:center;">
+                    <pe:if condition='<%=Eval("listname") == "popularity" or Eval("listname") == "homevisit" %>'>
+                        <%=Eval("familyname") %>                        
+                    </pe:if>
+                    <pe:if condition='<%=Eval("listname") == "family_level"  %>'>
+                        <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:170px;color:#6601FF;text-align:center;"/>
+                    </pe:if>                
+                </div>
+            </pe:if>
+            <pe:if condition='<%=Eval("index") > 3 %>'>
+                <div style="position:relative;margin-left:10px;margin-top:2px;width:52px;height:30px;color:#983201;text-align:center;">
+                <%=Eval("index") %>
+                </div>
+                <div style="position:relative;margin-left:83px;margin-top:2px;width:174px;height:30px;">                     
+                    <pe:if condition='<%=Eval("listname") == "popularity" or Eval("listname") == "homevisit" %>'>
+                        <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:170px;color:#983201;text-align:center;"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("listname") == "family_level"  %>'>
+                        <%=Eval("familyname") %>
+                    </pe:if>
+                </div>
+                <div style="position:relative;margin-left:246px;margin-top:2px;width:138px;height:30px;color:#983201;text-align:center;">
+                <%=Eval("field1") %>
+                </div>
+                <div style="position:relative;margin-left:366px;margin-top:2px;width:186px;height:30px;color:#983201;text-align:center;">
+                    <pe:if condition='<%=Eval("listname") == "popularity" or Eval("listname") == "homevisit" %>'>
+                        <%=Eval("familyname") %>                        
+                    </pe:if>
+                    <pe:if condition='<%=Eval("listname") == "family_level"  %>'>
+                        <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:170px;color:#983201;text-align:center;"/>
+                    </pe:if>                                
+                </div>
+            </pe:if>
+            <pe:if condition='<%=Eval("listname") == "popularity" or Eval("listname") == "homevisit" %>'>
+                <pe:if condition = '<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMS(Eval("index")) %>'>
+                <div style="position:relative;float:left;margin-left:250px;margin-top:0px;width:20px;height:15px;">
+                    <input type="button" tooltip="魔法星" name='<%=Eval("index") %>' onclick="MyCompany.Aries.GoldRankingList.GoldRankingListMain.OnClickMagicStar()" style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png#0 0 21 21);"/>
+                    <img src='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMLevel(Eval("index")) %>' style="margin-top:-21px;margin-left:11px;width:16px;height:10px;"/>
+                </div>
+                </pe:if>  
+            </pe:if>
+            <pe:if condition='<%=Eval("listname") == "family_level"  %>'>
+                <pe:if condition = '<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMS(Eval("index")) %>'>
+                <div style="position:relative;float:left;margin-left:530px;margin-top:0px;width:20px;height:15px;">
+                    <input type="button" tooltip="魔法星" name='<%=Eval("index") %>' onclick="MyCompany.Aries.GoldRankingList.GoldRankingListMain.OnClickMagicStar()" style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/magicstar4_32bits.png#0 0 21 21);"/>
+                    <img src='<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMLevel(Eval("index")) %>' style="margin-top:-21px;margin-left:11px;width:16px;height:10px;"/>
+                </div>
+                </pe:if>  
+             </pe:if>                                  
+        </div>
+    </Columns>
+    <EmptyDataTemplate>
+            
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+            
+    </FetchingDataTemplate>
+	<PagerSettings Position="Bottom" height="0" style="margin-left:235px;margin-top:-15px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	<PagerTemplate>
+	    <form>
+	        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+	        <div style="float:left;margin-top:-2px;width:64px;">
+	            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	        </div>
+	        <input type="button" name="next" zorder="2" style="width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+    	
+        </form>
+	</PagerTemplate>
+    </pe:gridview>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

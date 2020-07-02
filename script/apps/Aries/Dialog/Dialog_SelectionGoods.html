@@ -1,0 +1,47 @@
+﻿<!-- "script/apps/Aries/Dialog/Dialog_SelectionGoods.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by WD, 2011/10/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="Dialog_SelectionGoods.lua"><![CDATA[
+local Dialog_SelectionGoods = commonlib.gettable("MyCompany.Aries.Dialog.Dialog_SelectionGoods");
+Dialog_SelectionGoods:Init();
+
+function ClosePage()
+    Dialog_SelectionGoods:CloseWindow();
+end
+]]></script>
+<aries:window width="250" title="堆叠物品" mode="lite" isdeepbg="true" onclose="ClosePage">
+    <div style="width:230px;margin:10px;margin-bottom:20px;" class="default">
+        <div style="margin-top:0px;">
+        <div style="float:left;margin-left:10px;text-align:left;width:55px;">堆叠物品:</div>
+           <input type="text" style="float:left;width:80px;" autofocus="true" enable_ime="false" class="textfieldbutton" value="1" name="txtItemsCount" onkeyup="MyCompany.Aries.Dialog.Dialog_SelectionGoods.OnKeyup"/>
+        </div>
+
+        <div style="margin-top:10px;margin-left:5px;">
+        <pe:sliderbar name="trackbarMultiItems" style="width:210px" min="1" max='<%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nforth%>' min_step="1" onchange="MyCompany.Aries.Dialog.Dialog_SelectionGoods.OnChangeCount"/>
+        
+        <div style="float:left;position:relative;width:52px;"><%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nfirst %></div>
+        <div style="float:left;position:relative;text-align:right;width:80px;"><%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nsecond %></div>
+        <div style="float:left;position:relative;text-align:right;width:112px;"><%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nhalf %></div>
+        <div style="float:left;position:relative;text-align:right;width:145px;"><%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nthird %></div>
+        <div style="float:left;position:relative;text-align:right;width:215px;"><%=MyCompany.Aries.Dialog.Dialog_SelectionGoods.nforth %></div>
+        </div>
+        
+        <div style="float:left;margin-top:30px;">
+            <input type="button" name="1" class="defaultbutton" text="确定"
+                 onclick="MyCompany.Aries.Dialog.Dialog_SelectionGoods.OnClick" 
+                style="margin-left:15px;width:80px;" />    
+           <input type="button" name="0" text="取消"
+                 onclick="MyCompany.Aries.Dialog.Dialog_SelectionGoods.OnClick" 
+                style="margin-left:25px;width:80px;" />
+        </div>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

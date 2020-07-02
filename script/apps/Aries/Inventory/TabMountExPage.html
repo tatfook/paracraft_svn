@@ -1,0 +1,352 @@
+﻿<!-- "script/apps/Aries/Inventory/TabMountExPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="TabMountExPage.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandConfig.lua");
+NPL.load("(gl)script/kids/3DMapSystemApp/API/homeland/paraworld.homeland.petevolved.lua");
+NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/PetState.lua");
+--初始化
+MyCompany.Aries.Inventory.TabMountExPage.OnInit();
+
+function GetNID()
+    return nid;
+end
+
+withtip = page:GetRequestParam("withtip");
+if(withtip == "true") then
+    withtip = true;
+end
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+-- 50011_WishLevel0_Complete
+if(not hasGSItem(50011)) then
+    withtip = true;
+end
+
+local bean = MyCompany.Aries.Pet.GetBean();
+commonlib.echo("================TabMountExPage show pet data:")
+commonlib.echo(bean);
+local pet_id = MyCompany.Aries.Pet.GetPetID();
+local pet_name;
+local pet_name;
+if(bean) then
+    pet_name = bean.petname;
+end
+
+function GetName()
+    if(not pet_name or pet_name=="")then
+        pet_name = "抱抱龙";
+    end
+    return pet_name;
+end
+function GetHealth()
+    local health = "";
+    if(bean)then
+	    if(bean.health == 0)then
+		    health = "健康";
+--	    elseif(bean.health == 1)then
+--		    health = "生病";
+--	    elseif(bean.health == 2)then
+--		    health = "死亡";
+	    end
+	end
+    return health;
+end
+
+function isInHomeland_Func()
+    return System.App.HomeLand.HomeLandGateway.IsInHomeland();
+end
+
+function isNotInHomeland_Func()
+    return (not isInHomeland_Func());
+end
+
+function isDead_Func()
+--    if(bean)then
+--        if(bean.health == 2)then
+--            return true;
+--        end
+--    end
+    return false;
+end
+
+function isNotDead_Func()
+    return not isDead_Func()
+end
+
+local TabMountExPage = MyCompany.Aries.Inventory.TabMountExPage;
+TabMountExPage.TabValue = TabMountExPage.TabValue or "1";
+
+function ShowItemView(value, mcmlNode)
+    TabMountExPage.ShowItemView(value)
+   
+end
+
+if(page:GetValue("Level2Tabs") ~= TabMountExPage.TabValue) then
+    page:SetValue("Level2Tabs", TabMountExPage.TabValue);
+    ShowItemView(TabMountExPage.TabValue);
+    page:Refresh(0.1);
+end
+function GetMountPetIFrame_URL()
+    local health = 0;
+    local level = 0;
+    if(bean) then
+        health = bean.health or 0;
+        level = bean.level or 0;
+    end
+    local s = string.format("script/apps/Aries/Inventory/MountPetView.html?nid=%s&health=%d&level=%d", 
+        tostring(System.App.profiles.ProfileManager.GetNID()), health, level);
+    return s;
+end
+function IsEdit()
+    local s = MyCompany.Aries.Inventory.TabMountExPage.GetEditState();
+    if(s)then
+        return s;
+    end
+end
+function IsNotEdit()
+    local s = MyCompany.Aries.Inventory.TabMountExPage.GetEditState();
+    if(not s)then
+        return true;
+    end
+end
+function ChangeName()
+    MyCompany.Aries.Inventory.TabMountExPage.SetEditState(true);
+    page:Refresh(0.1);
+    
+    page:SetValue("edit_pet_name",tostring(pet_name))
+end
+function SaveName()
+    local maxlen = Map3DSystem.App.HomeLand.HomeLandConfig.HomeNameMax;
+    local nickname = page:GetValue("edit_pet_name") or "";
+    local txt_len = string.len(nickname);
+	if(txt_len <=0)then
+			_guihelper.MessageBox("名称不能为空！");
+			return;
+	elseif(txt_len  > maxlen)then
+			_guihelper.MessageBox(string.format("名称太长了，换一个吧！",maxlen));
+			return;
+	else
+        local msg = {
+            sessionkey = Map3DSystem.User.sessionkey,
+            id = pet_id,
+            nickname = nickname,
+        }
+         commonlib.echo("before save dragon pet name：");
+         commonlib.echo(msg);
+        paraworld.homeland.petevolved.Update(msg,"pet",function(msg)
+             commonlib.echo("after saved dragon pet name:");
+             commonlib.echo(msg);
+             if(msg and msg.issuccess)then
+                -- pet name changed
+                local hook_msg = { aries_type = "PetNameChanged", changed_name = nickname, wndName = "main"};
+                CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+                local hook_msg = { aries_type = "onPetNameChanged_MPD", changed_name = nickname, wndName = "main"};
+                CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+                MyCompany.Aries.Pet.SetBean(nil,msg)
+                 MyCompany.Aries.Inventory.TabMountExPage.SetEditState(false);
+                --page:Refresh(0.1);
+                page:Goto("script/apps/Aries/Inventory/TabMountExPage.html");
+             end
+        end,"access plus 0 minutes");
+   end
+end
+
+local ItemManager = System.Item.ItemManager;
+local item = ItemManager.GetMyMountPetItem();
+
+
+function OnClose()
+   MyCompany.Aries.Inventory.TabMountExPage.ClosePage();
+end
+
+
+function ViewDragonHelp()
+    NPL.load("(gl)script/apps/Aries/Help/PetHelp/PetHelpPage.lua");
+    MyCompany.Aries.Help.PetHelpPage.ShowPage();
+end
+
+function HasLanguage()
+    if(MyCompany.Aries.Inventory.TabMountExPage.language and MyCompany.Aries.Inventory.TabMountExPage.language ~= "")then
+        return true;
+    end
+end
+function GetPetLanguage()
+    return MyCompany.Aries.Inventory.TabMountExPage.language or "";
+end
+function DoTeleportWoody()
+    local HomeLandGateway = Map3DSystem.App.HomeLand.HomeLandGateway;
+    if(HomeLandGateway.IsInHomeland()) then
+        -- leave the homeland and teleport to woody
+        HomeLandGateway.SetTeleportBackPosition(19999.95703125, -0.7812192440033, 20011.130859375);
+        HomeLandGateway.Away();
+        OnClose();
+    else
+        -- directly teleport to woody
+		local params = {
+			asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+			binding_obj_name = ParaScene.GetPlayer().name,
+			start_position = nil,
+			duration_time = 800,
+			force_name = nil,
+			begin_callback = function() 
+					local player = ParaScene.GetPlayer();
+					if(player and player:IsValid() == true) then
+						player:ToCharacter():Stop();
+					end
+				end,
+			end_callback = nil,
+			stage1_time = 600,
+			stage1_callback = function()
+					local player = ParaScene.GetPlayer();
+					if(player and player:IsValid() == true) then
+						player:SetPosition(19999.95703125, -0.7812192440033, 20011.130859375);
+						-- refresh the avatar, mount pet and follow pet
+						System.Item.ItemManager.RefreshMyself();
+						-- refresh all <pe:player>
+						Map3DSystem.mcml_controls.GetClassByTagName("pe:player").RefreshContainingPageCtrls();
+					end
+				end,
+			stage2_time = nil,
+			stage2_callback = nil,
+		};
+		local EffectManager = MyCompany.Aries.EffectManager;
+		EffectManager.CreateEffect(params);
+		OnClose();
+    end
+end
+
+--function isShowCardFrame()
+--    commonlib.echo("=====TabMountExPage.TabValue");
+--    commonlib.echo(TabMountExPage.TabValue);
+--    if(not TabMountExPage.TabValue or TabMountExPage.TabValue == "1")then
+--        return true;
+--    end
+--end
+
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/CombatHelp/CombatHelpPage.lua");
+    MyCompany.Aries.Help.CombatHelpPage.ShowPage();
+end
+]]></script>
+<div style="margin-left:20px;width:791px;height:460px;" align="center" valign="center">
+<pe:editor style="margin:0px;padding:0px;background:;background:;">
+<div style="float:left;margin:0px;padding:0px;background:;width:755px;height:460px;background:url(Texture/Aries/Combat/BagPack/Card/bg.png# 0 0 840 512);">
+    <div style="position:absolute;margin-left:0px;margin-top:-10px;width:44px;" align="right">
+        <input style="width:44px;height:44px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+    </div>
+    <div style="position:absolute;margin-top:-20px;width:267px;" align="center">
+        <img name="title_bg" style="width:267px;height:72px" />
+    </div>
+    
+    <div style="float:left;width:328px;margin-left:10px;margin-top:20px;background:">
+        <div style="margin-left:50px;margin-top:10px;width:260px;height:48px;">
+            <div style="float:left;width:50px;height:16px;">
+                <div style="position:relative;margin-left:-30px;margin-top:10px;width:54px;height:54px;">
+                    <input style="width:32px;height:32px;background:url(Texture/Aries/Inventory/SmallHelp_32bits.png);" 
+                        type="button" name="help" onclick="ViewDragonHelp()" value="" tooltip="抱抱龙帮助"/>
+                </div>
+            </div>
+            <br/>
+            <div style="float:left;width:50px;height:12px;">
+            </div>
+            <div style="float:left;margin-left:-20px;width:130px;height:32px;">
+                <!--<iframe name="AriesMountPetName" src="script/apps/Aries/Inventory/MountPetName.html"/>-->
+                <!--<div style="float:left;"><aries:mountpetname/></div><%=GetHealth()%><%=GetLevel()%>-->
+                 <pe:if condition='<%=IsNotEdit()%>'>
+                    <div style="color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"><div style="float:left;"><%=GetName()%></div></div>
+                 </pe:if>
+                  <pe:if condition='<%=IsEdit()%>'>
+                    <!--<pe:editor-text name="edit_pet_name" style="height:30px;"/>-->
+                    <input type="text" name="edit_pet_name" style="width:130px;height:25px;"/>
+                 </pe:if>
+            </div>
+            <pe:if condition='<%=IsNotEdit()%>'>
+                 <input type="button" zorder="3" style="margin-left:4px;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+                    onclick="ChangeName();" tooltip="改名字" value=""/>
+                 <pe:if condition='<%=withtip%>'>
+                     <div style="padding:16px;margin-left:80px;margin-top:-110px;width:160px;height:80px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41);">
+                        改名字，点这里哦！
+                     </div>
+                 </pe:if>
+            </pe:if>
+            <pe:if condition='<%=IsEdit()%>'>
+                <input type="button" zorder="3" style="margin-left:4px;margin-top:-2px;width:32px;height:32px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                    onclick="SaveName();" tooltip="保存" value=""/>
+                 <pe:if condition='<%=withtip%>'>
+                     <div style="padding:16px;margin-left:50px;margin-top:-110px;width:190px;height:80px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41);">
+                        改好名字点这里保存哦！
+                     </div>
+                 </pe:if>
+            </pe:if>
+        </div>
+        <div style="margin-left:10px;margin-top:10px;width:308px;height:350px;">
+            <iframe src='<%=GetMountPetIFrame_URL()%>'/>
+            <pe:if condition='<%=HasLanguage()%>'>
+            <img style="float:left;padding:15px;text-align:left;margin-left:50px;margin-top:-340px;width:180px;height:70px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41)">
+            </img>
+            <div  style="float:left;padding:15px;text-align:left;font-size:12;margin-left:50px;margin-top:-350px;width:180px;height:70px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41)">
+            <%=GetPetLanguage()%>
+            </div>
+            </pe:if>
+        </div>
+        <br/>
+    </div>
+    <div style="float:left;margin-left:5px;margin-top:50px;">
+        <pe:if condition='<%=isNotDead_Func()%>'>
+            <iframe name="AriesInventoryMountItemView" src="script/apps/Aries/Inventory/Cards/CardSelectionPage.html"/>
+        </pe:if>
+<!--        <pe:if condition='<%=isDead_Func()%>'>
+            <div style="float:left;width:390px;height:386px;background:;">
+                <div style="margin:40px;height:240px;color:#FFFFFF">
+                    <div style="width:380px;float:left;">你的<div style="float:left;margin-left:-4px;"><aries:mountpetname/></div>已经死亡了，<br/>
+                    让他复活需要找生命之泉的伍迪帮忙。
+                    </div>
+                </div>
+                
+                <input type="button" style="margin-left:80px;width:153;height:49px;background:url(Texture/Aries/Common/Coming_32bits.png#0 0 153 49)" 
+                            onclick="DoTeleportWoody" name="btn_coming"/>
+            </div>
+        </pe:if>-->
+    </div>
+    <!--</pe:if>-->
+</div>
+ <div style="float:left;width:36px;height:95px;margin-left:0px;margin-top:0px;">
+    <pe:if condition='<%=isNotDead_Func()%>'>
+        <div style="float:left;margin-left:-4px;margin-top:50px;width:64px;">
+<!--            <input type="radio" name="Level2Tabs" id="Radio8" value="1" style="width:36px;height:95px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Combat/BagPack/Card/CardSelected_32bits.png;0 0 36 95" 
+                UncheckedBG="Texture/Aries/Combat/BagPack/Card/CardNoSelected_32bits.png;0 0 36 95"
+                onclick="ShowItemView()"/>-->
+            <input type="radio" name="Level2Tabs" id="Radio1" value="1" style="width:36px;height:95px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Combat/BagPack/Card/BagSelected_32bits.png;0 0 36 95" 
+                UncheckedBG="Texture/Aries/Combat/BagPack/Card/BagNoSelected_32bits.png;0 0 36 95"
+                onclick="ShowItemView()"/>
+            <input type="radio" name="Level2Tabs" id="Radio2" value="2" style="width:36px;height:95px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Combat/BagPack/Card/SkillSelected_32bits.png;0 0 36 95" 
+                UncheckedBG="Texture/Aries/Combat/BagPack/Card/SkillNoSelected_32bits.png;0 0 36 95"
+                onclick="ShowItemView()"/>
+           <!-- <input type="radio" name="Level2Tabs" id="Radio3" value="4" style="width:36px;height:95px;background-color:#FFFFFF;"
+                CheckedBG="Texture/Aries/Combat/BagPack/Card/EquipSelected_32bits.png;0 0 36 95" 
+                UncheckedBG="Texture/Aries/Combat/BagPack/Card/EquipNoSelected_32bits.png;0 0 36 95"
+                onclick="ShowItemView()"/>-->
+        </div>
+    </pe:if>
+</div>
+</pe:editor></div>
+</pe:mcml> 
+</body>
+</html>

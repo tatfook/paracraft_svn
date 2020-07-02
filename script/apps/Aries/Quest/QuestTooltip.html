@@ -1,0 +1,69 @@
+<!-- script/apps/Aries/Quest/QuestTooltip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+
+local page = document:GetPageCtrl();
+
+local questid = page:GetRequestParam("questid");
+questid = tonumber(questid)
+
+function GetTooltip()
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+    if(templates)then
+        local template = templates[questid];
+        if(template)then
+            local RequestAttr = template.RequestAttr;
+            if(RequestAttr)then
+                local len = #RequestAttr;
+                local condition_info="";
+                
+                if(len > 0)then
+                    local condition = RequestAttr.condition or 0;
+                    if(len > 1)then
+                        if(condition == 0)then
+                            condition_info="同时";
+                        else
+                            condition_info="或者";
+                        end
+                    end
+                    local info="";
+                    local __,map = QuestHelp.GetAttrList();
+                    local k,v;
+                    for k,v in ipairs(RequestAttr)do
+                        local item = map[v.id]
+                        local label = "";
+                        if(item)then
+                            label = item.label;
+                        end
+                        local s = string.format("<div>%s:%d</div><br/>",label,v.value or 0);
+                        info = info .. s;
+                    end
+                    info = string.format([[<div><b>前提条件：%s</b></div><br/><div>%s</div>]],condition_info,info)
+                    return info;
+                end
+            end
+        end
+    end
+end
+]]></script>
+<div style="font-size:12;margin-top:0px;margin-left:10px;width:235px;height:80px;background:url(Texture/Aries/NPCs/MagicSchool/moveover_bg_32bits.png#0 0 215 255: 50 60 20 20);">
+        <div style="margin-left:50px;margin-top:20px;"><%=GetTooltip() %></div>
+</div>
+
+
+
+
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectsPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Terrain Editing Page by LiXizhi 2008.6.8</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="ObjectsPage.lua"><![CDATA[
+Map3DSystem.App.Creator.ObjectsPage.OnInit();
+]]></script>
+<pe:tabs name="ObjectsPageTab" TabPosition="bottom"> 
+<!--<pe:tab-item text="文档" name="document"  style="padding-left:3px;padding-right:3px;">
+文件路径：
+<input type="text" name="filepath"  style="width:200px"/>
+<hr />
+<input type="button" name="new" value="启动" onclick="Map3DSystem.App.Creator.ObjectsPage.OnStart"/><br />
+<input type="button" name="new" value="结束" onclick="Map3DSystem.App.Creator.ObjectsPage.OnEnd"/><br />
+<hr />
+<input type="button" name="new" value="新建" onclick="Map3DSystem.App.Creator.ObjectsPage.OnNew"/><br />
+<input type="button" name="saveas" value="打开" onclick="Map3DSystem.App.Creator.ObjectsPage.OnOpen"/><br />
+<input type="button" name="save" value="保存" onclick="Map3DSystem.App.Creator.ObjectsPage.OnSave"/><br />
+<input type="button" name="saveas" value="另存为" onclick="Map3DSystem.App.Creator.ObjectsPage.OnSaveAs"/><br />
+<hr />
+加载的路径：
+<input type="text" name="loadTemplateFilepath"  style="width:200px"/>
+<input type="button" name="load" value="加载" onclick="Map3DSystem.App.Creator.ObjectsPage.OnLoad"/><br />
+<input type="button" name="unload" value="卸载" onclick="Map3DSystem.App.Creator.ObjectsPage.OnUnLoad"/><br />
+<hr />
+<input type="button" name="compose" value="合成用户房间" onclick="Map3DSystem.App.Creator.ObjectsPage.OnCompose"/><br />
+</pe:tab-item>-->
+<pe:tab-item text="工具" name="objectTools" selected="true">
+     <pe:tabs name="PageFrames" ItemStyle="ButtonOnly" DefaultIconSize="32" DefaultIconPadding="3" ItemSpacing="3"> 
+        <pe:tab-item name="select" onclick="" style="padding-top:0px;" selected="true" text="选择" icon="Texture/3DMapSystem/Creator/Objects/Tool_Select.png">
+            <iframe name="SelectFrame" src="ObjectSelectPage.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="move" onclick="" style="padding-top:0px;" text="移动" icon="Texture/3DMapSystem/Creator/Objects/Tool_Move.png">
+            <iframe name="MoveFrame" src="ObjectMovePage.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="rotate" onclick="" style="padding-top:0px;" text="旋转" icon="Texture/3DMapSystem/Creator/Objects/Tool_Rotate.png">
+            <iframe name="RotateFrame" src="ObjectRotatePage.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="add" onclick="" style="padding-top:0px;" text="添加" icon="Texture/3DMapSystem/Creator/Objects/Object_Add.png">
+            <iframe name="AddFrame" src="ObjectAddPage.html"></iframe>
+        </pe:tab-item>
+        <pe:tab-item name="list" onclick="" style="padding-top:0px;" text="区域选择" icon="Texture/3DMapSystem/Creator/Objects/cursor.png">
+            <iframe name="ListFrame" src="ObjectListInAreaPage.html"></iframe>
+        </pe:tab-item>
+    </pe:tabs>
+</pe:tab-item>
+<pe:tab-item text="属性" name="editorProperties" style="padding-left:10px;padding-top:10px;padding-bottom:0px">
+    <form name="editorpropertyform">
+    <input type="checkbox" name="snapToTerrain"/>显示阴影<br />
+    <input type="checkbox" name="snapToTerrain"/>显示雾<br />
+    <input type="checkbox" name="snapToTerrain"/>显示水<br />
+    <input type="checkbox" name="snapToTerrain"/>显示网格<br />
+    网格大小:
+    <select name="GridSize">
+        <option selected="true">16</option>
+        <option>32</option>
+        <option>64</option>
+    </select><br />
+    <input type="checkbox" name="snapToTerrain"/>保持物体在地表上<br />
+    <input type="checkbox" name="snapToTerrain"/>自动对齐物体<br />
+    <input type="checkbox" name="snapToTerrain"/>自动旋转对齐物体<br />
+    <input type="checkbox" name="snapToTerrain"/>自动对齐地面<br />
+    <input type="checkbox" name="snapToTerrain"/>反转鼠标<br />
+    渲染质量: 
+    <select name="EngineQuality">
+        <option>最佳</option>
+        <option selected="true">一般</option>
+        <option>最差</option>
+    </select><br />
+    <input type="checkbox" name="snapToTerrain"/>忽略Portal, Zone<br />
+    </form>
+</pe:tab-item>
+
+<!--<pe:tab-item text="帮助"  name="help" style="padding-left:0px;padding-top:5px;">
+<pe:treeview name="categories" style="background:;">
+<div>
+<b>说明：</b>
+<div>在创作之前，请先“启动”，默认情况下，“启动”后系统已经自动为你创建了一个新的“文档”，这时你就可以编辑了。</div>
+<div>在“启动”，你可以创建新的“文档”。</div>
+<div>注意要记得保存自己的文档。</div>
+<b>快捷键说明：</b>
+<div>新建文档：Ctrl+N</div>
+<div>打开文档：Ctrl+O</div>
+<div>保存文档：Ctrl+S</div>
+<div>另存为：Ctrl+Shift+S</div>
+<div>剪切：Ctrl+X</div>
+<div>复制：Ctrl+V</div>
+<div>粘贴：Ctrl+C</div>
+<div>撤销：Ctrl+Z</div>
+<div>重做：Ctrl+Y</div>
+<div>全部选中：Ctrl+A</div>
+<div>取消选中：Esc</div>
+<div>删除：Delete</div>
+<div>依次选择物体：Tab</div>
+<div>库：Ctrl+D</div>
+<div>属性面板：Ctrl+P</div>
+<div>向x轴移动 ：Ctrl+Up Ctrl+Down</div>
+<div>向y轴移动 ：Ctrl+Home Ctrl+End</div>
+<div>向z轴移动 ：Ctrl+Left Ctrl+Right</div>
+<div>缩放:Ctrl+(+) Ctrl+(-)</div>
+<div>绕自身y轴旋转：Ctrl+([) Ctrl+(])</div>
+<div>绕某点y轴旋转：Ctrl+Alt+([) Ctrl+Alt+(])</div>
+<b>鼠标操作说明：</b>
+<div>鼠标单击左键，选中单个物体</div>
+<div>按下Ctrl，鼠标单击左键，选中多个物体</div>
+<div>在选择物体后，按下Alt左右移动鼠标，绕自身Y轴旋转</div>
+<div>在选择多个物体后，按下Ctrl和 Alt左右移动鼠标，绕鼠标按下的那个物体自身Y轴旋转</div>
+<div>在选择物体后，按下Shift移动鼠标，复制物体</div>
+</div>
+</pe:treeview>
+ </pe:tab-item>-->
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>
+
+

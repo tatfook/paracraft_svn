@@ -1,0 +1,314 @@
+<!-- "script/apps/Aries/Map/LocalMap.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="LocalMap.teen.lua"><![CDATA[
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local pageCtrl = document:GetPageCtrl();
+MyCompany.Aries.Desktop.LocalMap.OnInit(); 
+local LocalMap = commonlib.gettable("MyCompany.Aries.Desktop.LocalMap");
+local NPCList = commonlib.gettable("MyCompany.Aries.Quest.NPCList");
+
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+WorldServerName = commonlib.getfield("MyCompany.Aries.WorldServerName") or "";
+WorldServerSeqId = commonlib.getfield("MyCompany.Aries.WorldServerSeqId") or "";
+
+IsInPublicWorld = WorldManager:IsInPublicWorld();
+
+IsLocalMap = true;
+local page = document:GetPageCtrl();
+local tab = Page:GetRequestParam("tab", "");
+if(tab=="all_worlds") then
+    IsLocalMap = false;
+    Page:SetValue("map_tabs", tab);
+end
+
+function OnClose()
+    MyCompany.Aries.Desktop.LocalMap.ClosePage();
+end
+
+function GetMapClipCircle()
+    local cur_world = WorldManager:GetCurrentWorld();
+	if(cur_world and cur_world.local_map_settings) then
+        local full_map = cur_world.local_map_settings
+		return {center_x = full_map.center_x,  center_y = full_map.center_y, radius = full_map.radius,};
+	else
+		return "20000,20000,850";
+	end
+end
+
+function GetWorldName()
+    local cur_world = WorldManager:GetCurrentWorld();
+    if(cur_world and cur_world.world_title) then
+        return cur_world.world_title;
+    end
+end
+
+function GetMapImage()
+    local cur_world = WorldManager:GetCurrentWorld();
+    if(cur_world and cur_world.local_map_settings) then
+        return cur_world.local_map_settings.background;
+    end
+end
+
+function DS_Func_tex(index)
+    return MyCompany.Aries.Desktop.MapArea.DS_Func_MapTexture(index);
+end
+
+function GetServerName()    
+    return MyCompany.Aries.FamilyServer.FamilyServerSelect.GetLastLoginWorld_text()
+end
+
+-- teleport by map position. TODO: remove this
+function OnMapMouseUp(mcmlNode, pos_x, pos_y)
+    local height = ParaTerrain.GetElevation(pos_x, pos_y);
+    local Position = {pos_x, height, pos_y};
+    if(System.options.isAB_SDK and mouse_button == "middle")then
+        OnClose();
+        local msg = { aries_type = "OnMapTeleport", 
+			    position = Position, 
+                camera = {ParaCamera.GetEyePos()},
+			    bCheckBagWeight = true,
+			    wndName = "map", 
+		    };
+	    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    elseif(IsInPublicWorld) then
+        local cur_world = WorldManager:GetCurrentWorld();
+        local worldname = cur_world.name;
+        WorldManager:GotoWorldPosition(cur_world.name,Position,{ParaCamera.GetEyePos()},function()
+            OnClose();
+        end, nil, nil, nil, nil, true); -- force using jump stone
+    end
+end
+function OnJump(name, mcmlNode)
+    OnClickNPC(name, mcmlNode)
+    if(mcmlNode) then
+		local item_info = mcmlNode:GetPreValue("this", true);
+		if(item_info) then
+            local worldname,position,camera = WorldManager:GetWorldPositionByNPC(item_info.id);
+            WorldManager:GotoWorldPosition(worldname,position,camera,function()
+                LocalMap.ClosePage();
+            end, nil, nil, true, true); -- ignore_instance_world
+		end
+	end
+end
+function OnClickNPC(name, mcmlNode)
+    if(mcmlNode) then
+		local item_info = mcmlNode:GetPreValue("this", true);
+        if(not item_info)then
+            return;
+        end
+        if(LocalMap.last_clicknode and LocalMap.last_clicknode ~= item_info)then
+            LocalMap.last_clicknode.checked = false;
+        end
+        item_info.checked = true;
+        LocalMap.last_clicknode = item_info;
+        LocalMap.TrackingNPC(item_info);
+        LocalMap.ShowNodeInMapArea();
+        pageCtrl:CallMethod("npc_tvw","DataBind",true);
+    end
+end
+
+function OnClickArena(name, mcmlNode)
+    if(mcmlNode and System.options.isAB_SDK) then
+		local item_info = mcmlNode:GetPreValue("this", true);
+        if(item_info)then
+            local worldname,position,camera = MyCompany.Aries.Desktop.LocalMap.GetArenaTeleportPosByArenaID(item_info.id);
+            if(position) then
+                LOG.std(nil, "system", "LocalMap", {worldname,position,camera});
+                WorldManager:GotoWorldPosition(worldname,position,camera,function()
+                    LocalMap.ClosePage();
+                end, nil, nil, true); -- ignore_instance_world
+            end
+        end
+    end
+end
+
+function GetStoneCnt()
+    local __,guid,__,copies = hasGSItem(12016);
+    copies = copies or 0;
+    return copies;
+end
+function OnClickReturnMainTown(name)
+    OnClose();
+    WorldManager:TeleportByWorldAddress(WorldManager:GetMainTownBornAddress(name))
+end
+
+function OnClickTeleportBack()
+    OnClose();
+    if(not WorldManager:TeleportBack()) then
+        WorldManager:TeleportByWorldAddress(WorldManager:GetMainTownBornAddress(name))
+    end
+end
+
+function OnShowCurrentMap()
+    IsLocalMap = true;
+    Page:Refresh(0.01);
+end
+
+function OnShowWorldMap()
+    IsLocalMap = false;
+    Page:Refresh(0.01);
+end
+
+function GetCurrentQuestWorld()
+   return LocalMap.GetCurrentQuestWorldName();
+end
+function DoBuyStone()
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command) then
+		command:Call({gsid = 12016});
+        OnClose();
+	end
+end
+]]></script>
+<!--this is an embedded data source which is referenced by name-->
+<Resource style="display:none" name="AllIslands" >
+    <island name="61HaqiTown_teen" text="    彩虹岛(1-10级)" />
+    <island name="FlamingPhoenixIsland" text="    火鸟岛(10-20级)" />
+    <island name="FrostRoarIsland" text="    寒冰岛(20-30级)" />
+    <island name="AncientEgyptIsland" text="    沙漠岛(30-40级)" />
+    <island name="DarkForestIsland" text="    幽暗岛(40-50级)" />
+    <island name="CloudFortressIsland" text="    云海秘境(50-70级)" />
+</Resource>
+
+<aries:window width="770" height="555" title='<%=format("%s地图", GetWorldName() or "") %>' onclose="OnClose" icon="Texture/Aries/Common/ThemeTeen/wintitle/map_icon_32bits.png" >
+  <pe:div style="position:relative;margin-left:5px;margin-top:28px;width:760px;height:523px;" class="border_bg1_css" zorder="-2"/>
+  <pe:block style="position:relative;margin-left:7px;margin-top:2px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/wintitle/map_icon_32bits.png);" />
+    <pe:div style="margin-top:31px;width:800px;background::" class="clientarea">
+        <div style="float:left;width:232px;height:516px;" >
+            <pe:tabs name="map_tabs" style="padding-left:50px;">
+                <pe:tab-item name="npc_pos" text="当前地图" selected="true" style="padding-left:5px;" onclick="OnShowCurrentMap">
+                    <div style="height:455px;margin-right:2px;">
+                        <pe:treeview name="npc_tvw" RememberScrollPos="true" VerticalScrollBarStep="27" MouseOverBG="Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png" DefaultIndentation="0" DefaultNodeHeight="27" DefaultIconSize="0" style="background:" DataSource="<%=MyCompany.Aries.Desktop.LocalMap.GetNPCDataSource()%>">
+                            <NodeTemplates>
+                                <NodeTemplate DataType="world">
+                                    <pe:treenode text='<%=XPath("this|text") or "当前世界"%>' expanded='true'></pe:treenode>
+                                </NodeTemplate>
+                                <NodeTemplate DataType="npc">
+                                    <div style="height:27px">
+                                            <div style="position:relative;">
+                                                <input type="button" onclick="OnJump" zorder="2" tooltip="立即过去" style="width:16px;height:16px;margin-left:185px;margin-top:4px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_32bits.png)"/>
+                                            </div>
+                                            <pe:if condition='<%=XPath("this|checked") %>' >
+		                                        <input type="button" onclick="OnClickNPC" class="listbutton_selected" value='<%="    "..XPath("this|Name")%>' style="width:208px;height:26px;margin-top:0px;text-align:left" tooltip='<%=(XPath("this|Desc") or "").."\n点击追踪"%>'/>
+	                                        </pe:if>
+	                                        <pe:if condition='<%=not XPath("this|checked") %>' >
+		                                        <input type="button" onclick="OnClickNPC" class="listbutton_unselected" value='<%="    "..XPath("this|Name")%>' style="width:208px;height:26px;margin-top:0px;text-align:left" tooltip='<%=(XPath("this|Desc") or "").."\n点击追踪"%>'/>
+	                                        </pe:if>
+                                            <div style="width:208px;height:1px;margin-left:2px;margin-top:0px;" class="black_line"/>
+                                    </div>
+                                </NodeTemplate>
+                                <NodeTemplate DataType="arena">
+                                    <div style="min-height:27px">
+                                        <div onclick="OnClickArena" zorder="-1" style="min-width:208px;color:#ffffff;padding-left:10px;padding-top:2px;padding-bottom:2px;font-size:12px;background2:url(Texture/Aries/Common/Teen/control/gridview_selected_32bits.png#0 0 194 20)">
+                                            <%=XPath("this|Name")%>
+                                        </div>
+                                        <div style="width:208px;height:1px;margin:2px;" class="black_line"/>
+                                    </div>
+                                </NodeTemplate>
+                                <NodeTemplate DataType="arena_parent">
+                                    <pe:treenode text='<%=XPath("this|Name") or "法阵"%>' expanded='true'></pe:treenode>
+                                </NodeTemplate>
+                            </NodeTemplates>
+                            <!--<div style="height:27px">
+                                <input type="button" name="default" onclick="OnClickTeleportBack" class="listbutton_unselected" value='<%="    ".."返回主城(免费)"%>' style="width:198px;height:26px;margin-top:0px;text-align:left" tooltip='点击传送'/>
+                            </div>-->
+                            <DataNodePlaceholder xpath="*"/>
+                        </pe:treeview>
+                    </div>
+                    <div style="margin-top:5px;">
+                        <div style="float:left;width:150px;">
+                        你有<div style="float:left" class="yellow_text"><%=GetStoneCnt() %></div>颗传送石
+                        </div>
+                        <input type="button" name="buy_stone" style="float:left;width:64px;height:25px;margin-left:10px;margin-top:-2px;"  class="highlight_btn_css" value="购买" onclick="DoBuyStone" />
+                    </div>
+                </pe:tab-item>
+                <pe:tab-item name="all_worlds" text="世界地图" style="padding-left:5px" onclick="OnShowWorldMap">
+                    <!--<input type="button" name="61HaqiTown_teen" onclick="OnClickTeleportBack" class="listbutton_unselected" value="    返回公共岛屿(免费)" style="width:198px;height:26px;margin-top:1px;text-align:left" tooltip='点击传送'/>-->
+                    <div style="margin-top:5px;font-weight:bold;color:#ffffff">可传送的岛屿:</div>
+                    <pe:treeview name="island_tvw" DataSourceID='AllIslands' VerticalScrollBarStep="27" MouseOverBG="Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png" DefaultIndentation="0" DefaultNodeHeight="27" DefaultIconSize="0" style="background:" >
+                        <NodeTemplates>
+                            <NodeTemplate DataType="island">
+                                <div style="height:27px">
+                                    <input type="button" name='<%=XPath("this|name") %>' onclick="OnClickReturnMainTown" class="listbutton_unselected" value='<%=XPath("this|text") %>' style="width:208px;height:26px;margin-top:1px;text-align:left" tooltip='点击传送'/>
+                                    <pe:if condition='<%=XPath("this|name")==GetCurrentQuestWorld()%>'>
+                                        <pe:container enabled="false" style="position:relative;width:160px;margin-left:140px;margin-top:-54px;background:" zorder="100">
+                                            <div class="anchor_tooltip">当前追踪的目标在这里</div>
+                                            <input type="button" style="float:left;width:18px;height:18px;margin-top:-7px;margin-left:10px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftdown_32bits.png#0 0 27 27)" />
+                                        </pe:container>
+                                    </pe:if>
+                                    <div style="width:208px;height:1px;margin-left:0px;margin-top:0px;" class="black_line"/>
+                                </div>
+                            </NodeTemplate>
+                        </NodeTemplates>
+                        <DataNodePlaceholder xpath="*" />
+                    </pe:treeview>
+                </pe:tab-item>
+            </pe:tabs>
+        </div>
+        <div style="float:left;margin-left:2px;width:516px;height:516px;" class="border_bg2_css">
+            <div style="margin:4px;background:url(Texture/Aries/WorldMaps/Teen/map_bg3.png:325 333 156 139)" width="100%" height="100%">
+                <div style="position:relative;">
+                    <pe:if condition='<%=Eval("IsLocalMap")%>' >
+                        <pe:if condition='<%=not MyCompany.Aries.Desktop.MapArea.HasLocalMap()%>' >
+                            <div style="position:relative;width:300px;height:70px;text-align:center;color:#8e1f13" align="center" valign="center">
+                                这是一个神秘的世界, 没有地图哦
+                            </div>
+                        </pe:if>
+                        <pe:aries_map name="aries_teen_local_map" style='width:512px;height:512px;'
+                                update_interval="160"
+                                flip_vertical = "true"
+                                ClipCircle = '<%=GetMapClipCircle()%>'
+                                center_on_player = "false"
+                                show_player="true"
+                                show_camera  = "true"
+                                show_team="true"
+                                show_friends="true"
+                                map_boundary = '<%=DS_Func_tex(1)%>'
+                                onmouseup = "OnMapMouseUp"
+                                >
+                                <pe:texture_grid render_target_type="container">
+                                    <pe:textureassemble name="tex" DataSource='<%=DS_Func_tex %>' />
+                                </pe:texture_grid>
+                        </pe:aries_map>
+                    </pe:if>
+                    <pe:if condition='<%=not Eval("IsLocalMap")%>' >
+                        <div style="width:512px;height:512px;background:url(Texture/Aries/WorldMaps/Teen/worldmap_teen.png)">
+                            <input type="button" name="CloudFortressIsland" onclick="OnClickReturnMainTown" tooltip="云海秘境(50-70级)&#10;【点击传送】" style="position:relative;background:;margin-left:20px;margin-top:180px;width:171px;height:169px;" />
+                            <input type="button" name="DarkForestIsland" onclick="OnClickReturnMainTown" tooltip="幽暗岛(40-50级)&#10;封印着暗黑魔王&#10;【点击传送】" style="background:;position:relative;margin-left:60px;width:171px;height:169px;" />
+                            <input type="button" name="FrostRoarIsland" onclick="OnClickReturnMainTown" tooltip="寒冰岛(20-30级)&#10;【点击传送】" style="background:;position:relative;margin-left:231px;width:200px;height:165px;" />
+                            <input type="button" name="61HaqiTown_teen" onclick="OnClickReturnMainTown" tooltip="彩虹岛&#10;精灵与人类的主城&#10;【点击传送】" style="background:;position:relative;margin-left:156px;margin-top:170px;width:184px;height:181px;" />
+                            <input type="button" name="AncientEgyptIsland" onclick="OnClickReturnMainTown" tooltip="沙漠岛(30-40级)&#10;【点击传送】" style="background:;position:relative;margin-left:40px;margin-top:354px;width:144px;height:123px;" />
+                            <input type="button" name="FlamingPhoenixIsland" onclick="OnClickReturnMainTown" tooltip="火鸟岛(10-20级)&#10;【点击传送】" style="background:;position:relative;margin-left:287px;margin-top:350px;width:214px;height:138px;" />
+                        </div>
+                    </pe:if>
+                </div>
+                <pe:if condition='<%=Eval("IsLocalMap")%>' >
+                    <div style="position:relative;margin-left:15px;margin-top:10px;color:#8e1f13;">
+                        <%=GetWorldName()%>
+                        <pe:if condition='<%=XPath("IsInPublicWorld")%>'>
+                            <div style="float:left;color:#808080;">
+                                (鼠标<span style='color:#8e1f13'>右键</span>点击地图直接传送)
+                            </div>
+                        </pe:if>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=Eval("IsLocalMap")%>' >
+                    <div style="position:relative;width:128px;height:128px;background:url(Texture/Aries/WorldMaps/Teen/compass.png)" align="right"></div>
+                </pe:if>
+                <div style="position:relative;width:270px;height:30px;color:#8e1f13;" align="right" valign="bottom">
+                    你所在的服务器是：<%=GetServerName() %>
+                </div>
+            </div>
+        </div>
+    </pe:div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

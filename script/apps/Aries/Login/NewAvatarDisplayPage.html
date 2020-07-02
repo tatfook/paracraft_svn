@@ -1,0 +1,262 @@
+<!-- "script/apps/Aries/Login/NewAvatarDisplayPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Server Select Page. 2009.8.1</title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="NewAvatarDisplayPage.lua"><![CDATA[
+
+local pageCtrl = document:GetPageCtrl();
+
+asset_table = MyCompany.Aries.NewAvatarDisplayPage.asset_table;
+
+MyCompany.Aries.NewAvatarDisplayPage.OnInit(asset_table);
+
+function ShowChoiceTab(value)
+	pageCtrl:SetValue("NewAvatarTabs", value);
+    MyCompany.Aries.NewAvatarDisplayPage.ShowChoiceTab();
+end
+
+function DS_Func_Aries_CreateAvatar(index)
+    return MyCompany.Aries.NewAvatarDisplayPage.DS_Func_Aries_CreateAvatar(index, pageCtrl);
+end
+
+function DS_Func_Faces(index)
+    return MyCompany.Aries.NewAvatarDisplayPage.DS_Func_Faces(index);
+end
+
+function DS_Func_Hair(index)
+    return MyCompany.Aries.NewAvatarDisplayPage.DS_Func_Hair(index)
+end
+
+function DS_Func_SkinColor(index)
+    return MyCompany.Aries.NewAvatarDisplayPage.DS_Func_SkinColor(index)
+end
+
+function DS_Func_Clothes(index)
+    return MyCompany.Aries.NewAvatarDisplayPage.DS_Func_Clothes(index)
+end
+
+function UpdateButtonStatus(params)
+    local _this = ParaUI.CreateUIObject("container", "UpdateButtonStatus_NewAvatar", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "";
+	params.parent:AddChild(_this);
+	
+	_this.onframemove = ";MyCompany.Aries.NewAvatarDisplayPage.UpdateButtonEnableness();";
+end
+
+]]></script>
+<div width="100%" height="100%" style="background:">
+    <!--3d avatar and rotate buttons-->
+    <div style="position:absolute;width:256px;background:url(Texture/Aries/Login/NewAvatar_light_32bits.png)" height="70%" align="center"></div>
+    <div style="position:absolute;height:140px;width:210px" align="center" valign="bottom">
+        <div style="height:0px;width:0px;">
+            <pe:canvas3d name="CreateNewAvatar" 
+                DefaultRotY="1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="0" 
+                ExternalSceneName="Aries_CreateNewAvatar_ingame" IgnoreExternalCamera="true"
+                value='<%=commonlib.serialize(Eval("asset_table"))%>'
+                ExternalOffsetX="19750" ExternalOffsetY="3.3" ExternalOffsetZ="19966" 
+                IsInteractive="false"/>
+                <!--ExternalSceneName="DefaultCanvas3DUI" -->
+        </div>
+        <div>
+            <aries:miniscenecameramodifier IsRotateModel="true" miniscenename="Aries_CreateNewAvatar_ingame" type="rotateleft" zorder="2" 
+                Normal_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_normal_32bits.png; 0 0 128 44"
+                MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_highlight_32bits.png; 0 0 128 44"
+                Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_pressed_32bits.png; 0 0 128 44"
+                style="float:left;width:96px;height:33px;background:url(Texture/Aries/Login/NewAvatar/RotateLeft_32bits.png# 0 0 128 44)"/>
+            <aries:miniscenecameramodifier IsRotateModel="true" miniscenename="Aries_CreateNewAvatar_ingame" type="rotateright" zorder="2" 
+                Normal_BG = "Texture/Aries/Login/NewAvatar/RotateRight_normal_32bits.png; 0 0 128 44"
+                MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateRight_highlight_32bits.png; 0 0 128 44"
+                Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateRight_pressed_32bits.png; 0 0 128 44"
+                style="float:left;margin-left:10px;width:96px;height:33px;background:url(Texture/Aries/Login/NewAvatar/RotateRight_32bits.png# 0 0 128 44)"/>
+        </div>
+    </div>
+
+    <div style="position:absolute;margin-bottom:10px;width:292px;height:91px;background:url(Texture/Aries/Login/enter_username_bg.png# 0 0 292 91)" align="center" valign="bottom">
+        <input type="text" name="nickname" value="开心哈奇" style="margin-left:29px;margin-top:43px;width:160px;height:24px;background:;"/>
+        <input type="button" name="randomname" enabled = "true" tooltip="换个名字" zorder="2"
+                    style="margin-left:5px;margin-top:41px;width:75px;height:24px;background:url(Texture/Aries/Login/changerandomname_32bits.png# 0 0 75 24);"
+                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnRandomName"/>
+        <input type="button" name="selected_btn" enabled = "false" zorder="2"
+            Normal_BG = "Texture/Aries/Login/entergame_32bits.png"
+            MouseOver_BG = "Texture/Aries/Login/entergame_light_32bits.png"
+            Disabled_BG = "Texture/Aries/Login/entergame_grey_32bits.png"
+            style="margin-left:300px;margin-top:-80px;width:128px;height:128px;background:;" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnNext"/>
+        <input type="button" name="tooltip_btn" enabled = "true" tooltip="请先为自己起个昵称吧" zorder="2"
+            style="margin-left:300px;margin-top:-150px;width:128px;height:128px;background:;"/>
+    </div>
+
+    <div style="position:absolute;width:360px;height:560px;" align="right">
+        <div style="margin-top:20px;width:350px;height:64px;background:url(Texture/Aries/Login/SelectAvatarTile_32bits.png#0 0 350 64)"></div>
+        <!--脸部-->
+        <pe:gridview style="margin-left:90px;width:300px;height:90px;" 
+            DataSource="<%=DS_Func_Faces%>" name="GV_Faces" ItemsPerLine="3" CellPadding="14"  AllowPaging="true" pagesize="3">
+            <Columns>
+                <a style="width:48px;height:48px;padding:0px;background:url();"
+                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem_kids" param1='1' param2='<%=Eval("index")%>'>
+                    <div style="width:48px;height:48px;padding:4px;">
+                        <input type="button" alwaysmouseover="true" 
+                            Normal_BG="Texture/Aries/Login/UnSelectedIcon2_32bits.png; 0 0 48 48" 
+                            MouseOver_BG="Texture/Aries/Login/SelectedIcon2_a_32bits.png; 0 0 48 48" 
+                            style="width:48px;height:48px;background:url();"/>
+                        <img width="48" height="48" name="choice1" style="margin-left:0px;margin-top:-48px;" src='<%=Eval("icon")%>'/>
+                    </div>
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>EmptyDataTemplate</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>FetchingDataTemplate</b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="0" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate >
+	            <form>
+	                <div style="height:0px;margin-left:-30px;margin-top:-64px;">
+	                    <input type="button" name="pre" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageLeft3_32bits.png;"/>
+	                </div>
+	                <div style="height:0px;margin-left:210px;margin-top:-64px;">
+	                    <input type="button" name="next" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageRight3_32bits.png;"/>
+	                </div>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+
+        <!--发型-->
+        <pe:gridview style="margin-left:105px;width:250px;height:90px;" 
+            DataSource="<%=DS_Func_Hair%>" name="GV_Hair" ItemsPerLine="3" CellPadding="11"  AllowPaging="true" pagesize="3">
+            <Columns>
+                <a style="width:48px;height:48px;padding:0px;background:url();"
+                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem_kids" param1='2' param2='<%=Eval("index")%>'>
+                    <div style="width:48px;height:48px;padding:4px;">
+                        <input type="button" alwaysmouseover="true" 
+                            Normal_BG="Texture/Aries/Login/UnSelectedIcon2_32bits.png; 0 0 48 48" 
+                            MouseOver_BG="Texture/Aries/Login/SelectedIcon2_a_32bits.png; 0 0 48 48" 
+                            style="width:48px;height:48px;background:url();"/>
+                        <img width="44" height="44" name="choice1" style="margin-left:4px;margin-top:-48px;" src='<%=Eval("icon")%>'/>
+                    </div>
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>EmptyDataTemplate</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>FetchingDataTemplate</b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="0" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate >
+	            <form>
+	                <div style="height:0px;margin-left:-30px;margin-top:-64px;">
+	                    <input type="button" name="pre" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageLeft3_32bits.png;"/>
+	                </div>
+	                <div style="height:0px;margin-left:195px;margin-top:-64px;">
+	                    <input type="button" name="next" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageRight3_32bits.png;"/>
+	                </div>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+
+        <!--肤色-->
+        <pe:gridview style="margin-left:120px;width:300px;height:85px;" DefaultNodeHeight="48"
+            DataSource="<%=DS_Func_SkinColor%>" name="GV_SkinColor" ItemsPerLine="3" CellPadding="7"  AllowPaging="true" pagesize="3">
+            <Columns>
+                <a style="width:48px;height:48px;padding:0px;background:url();"
+                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem_kids" param1='3' param2='<%=Eval("index")%>'>
+                    <div style="width:48px;height:48px;padding:4px;">
+                        <input type="button" alwaysmouseover="true" 
+                            Normal_BG="Texture/Aries/Login/UnSelectedIcon2_32bits.png; 0 0 48 48" 
+                            MouseOver_BG="Texture/Aries/Login/SelectedIcon2_a_32bits.png; 0 0 48 48" 
+                            style="width:48px;height:48px;background:url();"/>
+                        <img width="42" height="42" name="choice1" style="margin-left:4px;margin-top:-47px;" src='<%=Eval("icon")%>'/>
+                    </div>
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>EmptyDataTemplate</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>FetchingDataTemplate</b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="0" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate >
+	            <form>
+	                <div style="height:0px;margin-left:-30px;margin-top:-64px;">
+	                    <input type="button" name="pre" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageLeft3_32bits.png;"/>
+	                </div>
+	                <div style="height:0px;margin-left:178px;margin-top:-64px;">
+	                    <input type="button" name="next" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageRight3_32bits.png;"/>
+	                </div>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+
+        <!--衣服-->
+        <pe:gridview style="margin-left:135px;width:250px;height:85px;" DefaultNodeHeight="48"
+            DataSource="<%=DS_Func_Clothes%>" name="GV_Clothes" ItemsPerLine="3" CellPadding="4"  AllowPaging="true" pagesize="3">
+            <Columns>
+                <a style="width:48px;height:48px;padding:0px;background:url();"
+                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem_kids" param1='4' param2='<%=Eval("index")%>'>
+                    <div style="width:48px;height:48px;padding:4px;">
+                        <input type="button" alwaysmouseover="true" 
+                            Normal_BG="Texture/Aries/Login/UnSelectedIcon2_32bits.png; 0 0 48 48" 
+                            MouseOver_BG="Texture/Aries/Login/SelectedIcon2_a_32bits.png; 0 0 48 48" 
+                            style="width:48px;height:48px;background:url();"/>
+                        <img width="44" height="44" name="choice1" style="margin-left:2px;margin-top:-48px;" src='<%=Eval("icon")%>'/>
+                    </div>
+                </a>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>EmptyDataTemplate</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>FetchingDataTemplate</b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="0" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate >
+	            <form>
+	                <div style="height:0px;margin-left:-30px;margin-top:-64px;">
+	                    <input type="button" name="pre" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageLeft3_32bits.png;"/>
+	                </div>
+	                <div style="height:0px;margin-left:166px;margin-top:-64px;">
+	                    <input type="button" name="next" zorder=2 style="width:32px;height:32px;background:Texture/Aries/Login/UserSelect_PageRight3_32bits.png;"/>
+	                </div>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+        <div style="width:300px;height:200px;margin-left:130px;">
+            <div style="float:left;margin-left:28px;margin-top:37px;">
+                <input type="button" style="width:95px;height:55px;background:url(Texture/Aries/Login/Random_Choice2_32bits.png# 0 0 95 55)" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnRandom"/>
+            </div>
+            <!--<div style="float:left;margin-left:5px;margin-top:0px;">
+                <input type="button" name="selected_btn" enabled = "false" zorder="2"
+                    Normal_BG = "Texture/Aries/Login/Selected_btn_32bits.png"
+                    MouseOver_BG = "Texture/Aries/Login/Selected_btn_light_32bits.png"
+                    Disabled_BG = "Texture/Aries/Login/Selected_btn_grey_32bits.png"
+                    style="width:128px;height:128px;background:;" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnNext"/>
+                <input type="button" name="tooltip_btn" enabled = "true" tooltip="请先为自己起个昵称吧" zorder="2"
+                    style="margin-left:-128px;margin-top:0px;width:128px;height:128px;background:;"/>
+                <pe:custom oncreate="UpdateButtonStatus" style="width:16px;height:16px"/>
+            </div>-->
+            <div style="float:left;margin-left:-250px;margin-top:140px;">
+                <pe:custom oncreate="UpdateButtonStatus" style="width:16px;height:16px"/>
+            </div>
+            <div style="margin-left:-10px;margin-top:11px;">
+                <!--<div style="margin-left:50px;margin-top:-14px;width:256px;height:64px;background:url(Texture/Aries/Login/TrailCode_bg_32bits.png#0 0 256 64);">
+                    <input type="text" name="ActivationCode" style="margin-left:80px;margin-top:8px;float:left;width:104px;height:32px;background:url()"/>
+                </div>
+                <input type="button" value="进入官网抽取体验码" style="margin-left:110px;margin-top:-16px;width:130px;height:20px;color:#fffc00;background:url(Texture/Aries/Common/underline_yellow_32bits.png: 1 1 1 2)" tooltip="进入官网抽取体验码" onclick="MyCompany.Aries.NewAvatarDisplayPage.GotoWebSite"/>-->
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

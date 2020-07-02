@@ -1,0 +1,60 @@
+﻿<!-- "script/apps/Aries/NPCs/Playground/30096_ExiledPanda_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30096_ExiledPanda_dialog, by LiXzihi, 2010/1/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+function ShowListPanel()
+    System.App.Commands.Call("File.MCMLWindowFrame", {
+		url = "show the script/apps/Aries/NPCs/Playground/30096_ExiledPanda_list_panel.html ", 
+		name = "30096_ExiledPanda_list_panel", 
+		isShowTitleBar = false,
+		DestroyOnClose = true,
+		zorder = 2,
+		allowDrag = false,
+		style = CommonCtrl.WindowFrame.ContainerStyle,
+		directPosition = true,
+			align = "_ct",
+			x = -680/2,
+			y = -480/2,
+			width = 680,
+			height = 480,
+	});
+end
+function EntryAction(from, to)
+end
+function ExitAction(from, to)
+end
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30096" />
+            <pe:placeholder id="name" source="{this}" value="名贵的熊猫" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        <pe:state id = "0">
+		    认识我们不？我们可是名贵的熊猫，是有脾气的！不好好照顾我们，我们就会离家出走！<br />
+            当然，你要是愿意好好照顾我们，就看看今天有没有伙伴愿意去你家吧！
+		    <pe:answer text="获取体验码" template_id="Ambassador_hqtym">
+			    <pe:answer-if condition = "true"  transition = '<%=ShowListPanel%>' target_state = "-1"/>
+		    </pe:answer>
+		    <br />
+		    <pe:answer text="以后再说" template_id="later" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

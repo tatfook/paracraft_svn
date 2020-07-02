@@ -1,0 +1,146 @@
+﻿<!-- "script/apps/Aries/NPCs/SunnyBeach/30143_SkinBaker_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30143_SkinBaker_panel, by Andy, 2009/11/28</title>
+</head>
+<body>
+    <pe:mcml>
+    
+    
+<script refresh="false" type="text/npl" src="30143_SkinBaker_panel.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+MyCompany.Aries.SkinBakerPanelPage.OnInit();
+
+function ShowChoiceTab(value)
+	pageCtrl:SetValue("NewAvatarTabs", value);
+    MyCompany.Aries.SkinBakerPanelPage.ShowChoiceTab();
+end
+
+function DS_Func_Aries_CreateAvatar(index)
+    return MyCompany.Aries.SkinBakerPanelPage.DS_Func_Aries_CreateAvatar(index, pageCtrl);
+end
+
+function OnClickOK()
+    MyCompany.Aries.SkinBakerPanelPage.OnClickOK()
+end
+
+function OnClickCancel()
+    MyCompany.Aries.SkinBakerPanelPage.OnClickCancel()
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+function OnChangeColorHue(value)
+    MyCompany.Aries.SkinBakerPanelPage.OnChangeHSLUI_hsl();
+end
+
+function OnChangeColorSaturation(value)
+    MyCompany.Aries.SkinBakerPanelPage.OnChangeHSLUI_hsl();
+end
+
+function OnChangeColorLightness(value)
+    MyCompany.Aries.SkinBakerPanelPage.OnChangeHSLUI_hsl();
+end
+
+]]></script>
+<div width="730px" height="556px" style="background:url(Texture/Aries/NPCs/SkinBaker/bg.png# 0 0 878 668)">
+    <div style="margin-left:0px;margin-top:0px;">
+        <div style="float:left;margin-left:10px">
+            <div style="height:512px;width:512px;float:left">
+                <div style="margin-left:-90px;margin-top:0px;height:512px;width:512px;float:left">
+                    <pe:canvas3d DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="0.1" name="MirrorAvatar" RenderTargetSize="512" miniscenegraphname="Aries_CreateNewAvatar" value='<%=commonlib.serialize(MyCompany.Aries.SkinBakerPanelPage.asset_table)%>'
+                        ExternalOffsetX="0.1" ExternalOffsetY="0" ExternalOffsetZ="0" IsInteractive="false"/>
+                        <!--ExternalSceneName="DefaultCanvas3DUI" -->
+                </div>
+                <div style="margin-left:-20px;margin-top:-70px;">
+                    <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar" type="rotateleft" zorder="2" 
+                        Normal_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_normal_32bits.png; 0 0 128 44"
+                        MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_highlight_32bits.png; 0 0 128 44"
+                        Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateLeft_pressed_32bits.png; 0 0 128 44"
+                        style="float:right;margin-left:40px;margin-top:10px;width:128px;height:44px;background:url(Texture/Aries/Login/NewAvatar/RotateLeft_32bits.png# 0 0 128 44)"/>
+                    <aries:miniscenecameramodifier miniscenename="Aries_CreateNewAvatar" type="rotateright" zorder="2" 
+                        Normal_BG = "Texture/Aries/Login/NewAvatar/RotateRight_normal_32bits.png; 0 0 128 44"
+                        MouseOver_BG = "Texture/Aries/Login/NewAvatar/RotateRight_highlight_32bits.png; 0 0 128 44"
+                        Pressed_BG = "Texture/Aries/Login/NewAvatar/RotateRight_pressed_32bits.png; 0 0 128 44"
+                        style="float:right;margin-left:40px;margin-top:10px;width:128px;height:44px;background:url(Texture/Aries/Login/NewAvatar/RotateRight_32bits.png# 0 0 128 44)"/>
+                </div>
+            </div>
+        </div>
+        <div style="float:left;margin-left:-99px;background:;">
+            <div style="margin-left:-14px;margin-top:132px;">
+                <pe:gridview style="width:370px;height:160px;" 
+                    DataSource="<%=MyCompany.Aries.SkinBakerPanelPage.DS_Func_Skin_hot%>" name="GV_Hair" ItemsPerLine="5" CellPadding="0"  AllowPaging="true" pagesize="10">
+                    <Columns>
+                        <div style="float:left;width:48px;height:51px;padding:2px">
+                            <a style="background:url(Texture/Aries/NPCs/SkinBaker/btn_mouseover.png#0 0 54 54);padding:5px;"
+                                onclick="MyCompany.Aries.SkinBakerPanelPage.OnClickPickColor" param1='<%=Eval("colormask")%>'>
+                                <img style="width:39px;height:40px;background:url(Texture/Aries/NPCs/SkinBaker/colorsample.png#0 0 42 43)" color='<%=Eval("colormask")%>'/>
+                            </a>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" height="0" style="margin-left:0px;margin-top:0px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate >
+	                    <form>
+	                        <div style="height:0px;margin-left:-50px;margin-top:-128px;">
+	                            <input type="button" name="pre" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowleft_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                        <div style="height:0px;margin-left:255px;margin-top:-128px;">
+	                            <input type="button" name="next" zorder=2 style="width:40px;height:40px;background:url(Texture/Aries/NPCs/MagicMirror/arrowright_32bits.png#0 0 40 40);"/>
+	                        </div>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+            <div style="margin-top:13px;margin-left:3px;">
+                <div style="float:left">
+                    <div style="width:215px;height:20px">
+                        <div style="width:215px;height:8px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_outline.png# 0 0 215 8)">
+                            <img style="width:213px;height:5px;margin:1px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_hue.png# 0 0 213 5)"/>
+                        </div>
+                        <pe:sliderbar tooltip="点击颜色条上合适的点" button_bg="Texture/Aries/NPCs/SkinBaker/slider_btn_32bits.png;0 0 11 19" button_width="11" button_height="19" name="colorHue" style="margin-top:-25px;height:46px;background:;" onchange="OnChangeColorHue()" min="0" max="1" value="0.01"/>
+                    </div>
+                    <div style="width:215px;height:20px;margin-top:18px;">
+                        <div style="width:215px;height:8px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_outline.png# 0 0 215 8)">
+                            <img name="saturation_color" style="width:213px;height:5px;margin:1px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_saturation.png# 0 0 213 5)"/>
+                        </div>
+                        <pe:sliderbar tooltip="点击颜色条上合适的点" name="colorSaturation" button_bg="Texture/Aries/NPCs/SkinBaker/slider_btn_32bits.png;0 0 11 19" button_width="11" button_height="19" style="margin-top:-25px;height:46px;background:;" onchange="OnChangeColorSaturation()" min="0" max="1" value="0.01"/>
+                    </div>
+                    <div style="width:215px;height:20px;margin-top:18px;">
+                        <div style="width:215px;height:8px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_outline.png# 0 0 215 8)">
+                            <img style="width:213px;height:5px;margin:1px;background:url(Texture/Aries/NPCs/SkinBaker/HSL_slider_saturation.png# 0 0 213 5)"/>
+                        </div>
+                        <pe:sliderbar tooltip="点击颜色条上合适的点" name="colorLightness" button_bg="Texture/Aries/NPCs/SkinBaker/slider_btn_32bits.png;0 0 11 19" button_width="11" button_height="19" style="margin-top:-25px;height:46px;background:;" onchange="OnChangeColorLightness()" min="0.05" max="1" value="0.01"/>
+                    </div>    
+                </div>
+                <div style="margin-left:19px;margin-top:16px">
+                    <img name="rgb_color_block" style="width:169px;height:20px;" src="Texture/whitedot.png"/>
+                </div>
+            </div>
+        </div>          
+    </div>
+</div>
+<!--<div style="float:left;margin-left:182px;margin-top:-120px;">
+    <input type="button" zorder="2" style="width:84px;height:84px;background:url(Texture/Aries/NPCs/MagicMirror/random_32bits.png# 0 0 84 84)"  onclick="MyCompany.Aries.SkinBakerPanelPage.OnRandom"/>
+</div>-->
+<div style="float:left;margin-left:350px;margin-top:-90px;">
+    <input type="button" zorder="2" style="margin-left:20px;width:152px;height:47px;background:url(Texture/Aries/NPCs/MagicMirror/OK_32bits.png# 0 0 152 47)" onclick="OnClickOK"/>
+    <input type="button" zorder="2" style="margin-left:20px;width:152px;height:47px;background:url(Texture/Aries/NPCs/MagicMirror/Cancel_32bits.png# 0 0 152 47)" onclick="OnClickCancel"/>
+</div>
+<div style="position:absolute;left:676px;top:-4px;width:54px;height:54px;">
+    <input type="button" zorder="2" style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54)"  onclick="OnClose"/>
+</div>
+
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,193 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_exchange.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_equip_exchange,add by WD, 2011/09/24</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equip_exchange.kids.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_equipment_subpage.lua");
+
+local Avatar_equipment_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage");
+local Avatar_equip_exchange = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange");
+Avatar_equipment_subpage:Init();
+
+function equip_GetDataSource(arg)
+    return Avatar_equipment_subpage:GetDataSource(arg);
+end
+
+function GetExtraMaterialsDataSource(arg)
+    return Avatar_equip_exchange:GetExtraMaterialsDataSource(arg);
+end
+
+function equip_OnClickItem(arg)
+    Avatar_equipment_subpage:OnClickItem(arg,false);
+end
+
+local Avatar_equip_exchange = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange");
+Avatar_equip_exchange:Init();
+
+--local HoldGoldbean = tostring(Avatar_equip_exchange.HoldGoldbean);
+--if(string.len(HoldGoldbean) > 10)then
+	--HoldGoldbean= string.sub(HoldGoldbean,1,9) .. "+"
+--end
+
+function OnClickItem(arg,mcmlNode)
+    if(mcmlNode)then
+        arg = mcmlNode:GetAttribute("param1")
+    end
+    Avatar_equip_exchange:OnClickItem(arg);
+end
+
+function ClosePage()
+    Avatar_equip_exchange:CloseWindow();
+end
+
+function FilterItems(arg)
+    return Avatar_equipment_subpage:FilterItems(arg);
+end
+
+function GetCostRocks()
+    return Avatar_equip_exchange:GetExchangeExtra() 
+end
+
+function DummyFunc()
+
+end
+
+]]></script>
+<div style="width:759px;height:470px;" class="pane">
+    
+    <div style="margin-left:718px;margin-top:-5px;width:48px;height:48px;">
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;width:48px;height:48px;" />
+    </div>
+
+    <div style="width:256px;height:34px;margin-left:43px;margin-top:-30px;background:url(Texture/Aries/common/themekid/EQUIP_EXCHANGE/cn_equip_exchange_32bits.png)" valign="top" align="center"/>   
+
+    <div style="width:759px;height:443px;margin-top:3px;">
+        <div  style="float:left;margin-top:5px;margin-left:15px;width:316px;height:405px;background:url(Texture/Aries/common/themekid/EQUIP_EXCHANGE/bg_left_panel_32bits.png: 20 20 20 20)">
+            <div style="width:316px;height:275px;">
+    
+            <div style="text-align:center;margin-left:7px;margin-top:8px;">请放入你要换购的装备</div>
+            <div style="text-align:center;color:#808080;margin-left:7px;">(兑换后,旧装备上的宝石会转移到新装备上)</div>
+            
+            <div style="width:75px;height:75px;margin-top:8px;padding:6px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)" align="center" >
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equipment_subpage.IncomingEquip.guid ~= 0 %>' >
+                <pe:slot onclick='OnClickItem' param1="from" name="IncomingEquipGuid" showdefaulttooltip="true" style="width:64px;height:64px;" />
+                </pe:if>
+            </div>
+
+            <div align="center" style="width:32px;margin-top:8px;margin-left:5px;height:45px;background:url(Texture/Aries/Common/themekid/EQUIP_EXCHANGE/yellow_arrow_32bits.png#0 0 32 45)"/>
+            <div align="center" style="width:170px;margin-top:-4px; font-size:12px;">
+                <select style="width:170px;height:23px;" name="ddlDestEquipList" 
+                AllowUserEdit="false" DataSource='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange.GetHighEquipTable() %>'onclick='<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange.OnSelectEquip() %>'>
+                <option value='<%=Eval("value") %>'></option>
+                </select>
+            </div>
+
+            <div align="center" style="width:75px;height:75px;margin-top:8px;padding:6px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)" >
+                <pe:if condition='<%= MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange.GetDesiredEquipGsid() ~= 0 %>' >
+                <pe:item onclick='OnClickItem' param1="to" name="DesiredEquipGsid"  style="width:64px;height:64px;" />
+                </pe:if>
+            </div>
+
+
+            </div>
+            <div style="height:27px;">
+                <pe:tabs  name="tabs3"          
+                SelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14" 
+                UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14" style="background:;margin-left:8px;">
+                <pe:tab-item name="1" text="换购材料"  selected='true' />
+                </pe:tabs>
+            </div>
+
+                <div style="padding:6px;margin-left:7px;width:300px;margin-top:-6px;background:url(texture/aries/haqishop/bg3_32bits.png: 20 20 20 20)">
+                    <pe:gridview DataSource="<%=GetExtraMaterialsDataSource %>" name="pegvwExtraMat" 
+                    CellPadding="0" ItemsPerLine="2" AllowPaging="false" pagesize="2" style="width:288px;height:50px;" >
+                    <Columns>
+                        <div style="float:left;width:48px;height:48px;margin-top:1px;" class="block">
+                            <pe:item onclick='DummyFunc' name='<%=Eval("gsid")%>'  gsid='<%=Eval("gsid")%>' showdefaulttooltip="true" style="width:44px;height:44px;" />
+                        </div>
+                        <div style="float:left;margin-left:5px;margin-top:2px;">
+                        <div>
+                            <div style="float:left;">需要</div>
+                            <div style="float:left;width:50px;margin-left:-5px;" class="textfieldbutton" name="txtCostSlotRocks"> <%=Eval("count") %></div>
+                            <div>
+                                <div style="float:left;">拥有</div>
+                                <div style="float:left;width:50px;margin-left:-5px;" class="textfieldbutton" name="txtIncomingGemsCount"> <%=Eval("hold_cnt") %></div>
+                            </div>
+                        </div>
+                    </div>
+                    </Columns>
+                    <FetchingDataTemplate>
+                    <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                    </FetchingDataTemplate>
+                </pe:gridview>
+            </div>
+
+            <div style="margin-top:6px;">
+                <input type="button" name="btnAllEquipSlotting" zorder="2" class="defaultbutton" text="换 购"
+                 onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange.EquipExchange %>" 
+                style="margin-left:120px;width:70px;" />
+
+
+                <input type="button" name="btnPurchase" zorder="2" visible="false" class="defaultbutton" text="购买材料"
+                onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.Avatar_equip_exchange.ShowPurchasePage %>" 
+                style="margin-left:5px;width:70px;" />
+            </div>
+      
+        </div>
+
+        <div style="float:left;margin-top:4px;">
+            <div style="height:27px;">
+                <pe:tabs name="tabsEquipments"  onclick="FilterItems"         
+                SelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg1_32bits.png:12 14 12 14" 
+                UnSelectedMenuItemBG="Texture/Aries/HaqiShop/radiobg2_32bits.png:12 14 12 14"  
+                style="background:;padding-top:32px;padding-left:10px;margin-left:10px;" >
+                <pe:tab-item name="1" text="所有装备"  selected='true' />
+                <pe:tab-item name="2" text="防具"/>
+                <pe:tab-item name="3" text="饰品"/>
+                <pe:tab-item name="4" text="武器"/>
+                </pe:tabs>
+                <div style="position:relative;margin-top:5px;margin-left:12px;color:#cc3300;">穿在身上的装备不能兑换,请先脱下。</div>
+            </div>
+             <div style="width:452px;margin-left:-40px;margin-top:-1px;height:363px;background:url(Texture/Aries/HaqiShop/bg4_32bits.png:20 20 20 20);" >
+             
+             
+             <div style="padding:15px;width:430px;margin-left:30px;margin-top:10px;height:363px;">
+        <pe:gridview name="pegvwEquipView" DataSource="<%=equip_GetDataSource %>" 
+            CellPadding="2" ItemsPerLine="4" AllowPaging="true" pagesize="12" >
+            <Columns>
+                <div style="margin-left:5px;padding:10px;margin-top:2px;width:90px;height:90px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/inventory/bg.png#0 0 90 90)">
+                    <pe:slot onclick='<% equip_OnClickItem %>' guid='<%=Eval("guid")%>' HideCnt= "true" showdefaulttooltip="true" style="width:70px;height:70px;"/>               
+			    </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <!--<FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>-->
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:152px;margin-top:-40px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    <input type="button" name="pre"zorder="2" style="width:20px;margin-left:0px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+                    <div style="float:right;margin-top:-2px;width:54px;">
+	                    <label name="page" style="color:#FFFFFF;text-align:center;width:54px;height:18px;margin:4px"/>
+	                </div>
+	                <input type="button" name="next"zorder="2" style="margin-left:8px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+        
+        </div>
+        </div> 
+        </div>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

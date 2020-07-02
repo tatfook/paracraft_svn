@@ -1,0 +1,82 @@
+﻿<!-- "script/apps/Aries/VIP/PurChaseMagicBean.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Purchase MagicBean, by Spring, 2012/4/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PurChaseMagicBean.teen.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local PurChaseMagicBean = MyCompany.Aries.Inventory.PurChaseMagicBean;
+PurChaseMagicBean.OnInit();
+
+gsid=984;
+name="金币";
+
+local ItemManager = System.Item.ItemManager;
+
+function GetBuyDesc()
+    local count = 300;
+    count = pageCtrl:GetValue("count", count);
+    local s = string.format("%d个金币需要%d%s，你确认要购买吗？",count,count*0.1,MyCompany.Aries.ExternalUserModule:GetConfig().currency_name);
+    return s;
+end
+defaultDesc = GetBuyDesc();
+
+function OnOK()
+    PurChaseMagicBean.BuyMagicBean();
+end
+
+function pageCtrl.OnClose()
+    PurChaseMagicBean.StopTimer();
+end
+
+PurChaseMagicBean.StartTimer(pageCtrl.name, gsid);
+
+function OnCancel()
+    PurChaseMagicBean.StopTimer();
+    pageCtrl:CloseWindow();
+end
+
+]]></script>
+<aries:window title="金币充值" width="480" height="260" onhelp="" onclose="OnCancel()" mode="lite">
+    <div style="width:450px;height:200px;">
+        <div style="width:411px;height:120px;">
+            <div style="margin-left:0px;margin-top:20px;float:right;padding-left:10px;padding-top:10px;width:160px;height:120px;margin:21px;background:">
+                <pe:item gsid='<%=Eval("gsid")%>' style="margin-left:10px;margin-top:20px;width:64px;height:64px" isclickable="false"/>
+            </div>
+            <div style="margin-left:10px;float:right;margin-top:15px;padding-left:-124px;">
+                <div style="margin-left:48px;color:#52dff4">请选择购买金币的数量</div>
+                    
+                <div style="float:right;padding-left:50px;padding-top:8px;width:500px;height:40px;color:#52dff4;font-size:12;background:">
+                    	<input type="radio" name="count" value="10" /> 10 金币
+                    	<input type="radio" name="count" value="100" /> 100 金币
+                    	<input type="radio" name="count" value="300" checked="true" /> 300 金币
+                    	<input type="radio" name="count" value="1000" /> 1000 金币                       
+                </div>
+                    
+                <br/>
+                   
+                <div style="margin-left:60px;margin-top:5px;color:#52dff4">    <%=format("请输入%s帐户支付密码", MyCompany.Aries.ExternalUserModule:GetConfig().currency_name)%>
+  					<a style="font-size:12px" onclick="MyCompany.Aries.Inventory.PurChaseMagicBean.SetPayPasswd">设置支付密码</a></div>
+                <div style="margin-left:68px;float:right;padding-left:10px;padding-top:3px;width:280px;height:30px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40:12 12 12 12)">
+                    <input type="text" name="passwd" PasswordChar="*" value="" style="width:280px;height:24px;background:;"/>
+                </div>
+                    
+            </div>
+        </div>
+        <br/>
+        <div style="margin-left:150px;margin-top:20px;color:#e5ff00">
+            <label name="buydesc" value='你确认要购买吗？'/>
+        </div>
+    </div>
+    <div style="width:560px;height:48px;margin-top:-30px;">
+        <input type="button" class="defaultbutton" style="margin-left:140px;width:80px;height:30px;" value="马上充值" onclick="OnOK()"/>
+        <input type="button" class="defaultbutton" style="margin-left:60px;width:80px;height:30px;" value="网页支付" onclick="MyCompany.Aries.Inventory.PurChaseMagicBean.WebPay"/>
+    </div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

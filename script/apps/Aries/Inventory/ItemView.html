@@ -1,0 +1,56 @@
+<!-- "script/apps/Aries/Inventory/ItemView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by Andy, 2009/4/24</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="ItemView.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local class = pageCtrl:GetRequestParam("class");
+local subclass = pageCtrl:GetRequestParam("subclass");
+local bag = pageCtrl:GetRequestParam("bag");
+pageCtrl:SetNodeValue("class", class);
+pageCtrl:SetNodeValue("subclass", subclass);
+pageCtrl:SetNodeValue("bag", bag);
+
+-- status: nil not available, 1 fetching all, 2 fetched. 
+dsItems = Eval("dsItems") or {status = nil, };
+
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.ItemViewPage.DS_Func_Items(dsItems, index, pageCtrl);
+end
+]]></script>
+
+    <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="margin-left:12px;margin-top:20px;" CellPadding="4"  DefaultNodeHeight = "65" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+        <Columns>
+            <div style="margin-left:3px;width:66px;height:54px;">
+                <div style="padding-top:8px;padding-left:8px;width:74px;height:72px;background:url(Texture/Aries/Inventory/item_slot_32bits.png#0 0 74 72:24 24 24 24)">
+                    <pe:slot guid='<%=Eval("guid")%>' style="width:58px;height:54px;"/>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:70px;margin-top:30px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-28px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+	            <div style="float:right;margin-top:4px;width:64px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" zorder=2 style="width:42px;height:41px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+
+</pe:mcml> 
+</body>
+</html>

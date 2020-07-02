@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/VIP/PurChaseEnergyStone.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Purchase EnergyStone, by Spring, 2010/10/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SetCardBagName.lua" refresh="true"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local SetCardBagName = MyCompany.Aries.Inventory.Cards.SetCardBagName;
+local baggsid = pageCtrl:GetRequestParam("baggsid");
+baggsid=tonumber(baggsid);
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(baggsid);
+if (gsItem) then
+    bagname = gsItem.template.name;	
+end
+SetCardBagName.OnInit();
+local scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");
+if (scardbag_info) then
+    cust_name=scardbag_info[baggsid];
+else
+    cust_name=""
+end
+local ItemManager = System.Item.ItemManager;
+
+function OnOK() 
+    local bname;
+    if(System.options.version=="kids") then
+        bname=pageCtrl:GetValue("bname_kids"); 
+    else
+        bname=pageCtrl:GetValue("bname_teen"); 
+    end
+    -- 去掉前后空格
+    bname=string.gsub(bname,"^%s*(.-)%s*$","%1");
+    if (string.len(bname)>30) then
+        _guihelper.MessageBox("你输入的文字太多了，请缩短一点吧");
+        return
+    end
+    scardbag_info[baggsid] = bname; 
+    SetCardBagName.SaveBagInfo(scardbag_info);
+    pageCtrl:CloseWindow();
+end
+
+function OnCancel()    
+    pageCtrl:CloseWindow();
+end
+
+function IsKids()
+    if(System.options.version=="kids") then
+        return true;
+    else
+        return false;
+    end
+end
+
+]]></script>
+<div style="width:466px;height:255px;">
+<pe:if condition='<%=IsKids()%>'>
+    <div style="width:466px;height:232px;padding:23px;background:url(Texture/Aries/Inventory/PurchaseItem/frame_bg_32bits.png#0 0 55 332:19 159 20 160)">
+        <div style="width:411px;height:180px;background:url(Texture/Aries/Inventory/PurchaseItem/content_bg_32bits.png#0 0 256 240:233 20 22 20)">
+            <div style="width:411px;height:120px;">
+               
+                <div style="float:right;margin-top:28px;">
+                    <div style="margin-left:18px;color:#243b5d">当前口袋(<%=Eval("bagname")%>)自定义名称：<%=Eval("cust_name")%></div>
+                    <br/>
+                    <div style="margin-left:18px;margin-top:28px;color:#243b5d">
+                        请输入自定义名称：（10个汉字）
+                    </div>
+                    <div style="float:right;margin-left:48px;padding-top:8px;width:200px;height:40px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40:12 12 12 12)">
+                        <input type="text" name="bname_kids" value="" style="width:200px;height:26px;background:;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="width:466px;height:48px;margin-top:-36px;">
+        <input type="button" style="margin-left:70px;width:154px;height:48px;background:url(Texture/Aries/Common/OK_32bits.png#0 0 154 48)" onclick="OnOK()"/>
+        <input type="button" style="width:154px;height:48px;background:url(Texture/Aries/Inventory/PurchaseItem/cancel_btn_32bits.png#0 0 154 48)" onclick="OnCancel()"/>
+    </div>
+</pe:if>
+
+<pe:if condition='<%=not IsKids()%>'>
+    
+   <div style="width:366px;height:200px;padding:23px;" class="window">
+       <div style="float:left;margin-left:-22px;margin-top:-21px;height:19px;">
+          <div class="windowlabel">自定义口袋名称</div>    
+          <input type="button" onclick="OnCancel()" class="closebutton" style="position:relative;margin-left:320px;" />
+        </div>
+        <div style="width:411px;height:180px;" >
+            <div style="width:411px;height:120px;">
+               
+                <div style="float:right;margin-top:18px;">
+                    <div style="margin-left:18px;">当前口袋(<%=Eval("bagname")%>)自定义名称：<%=Eval("cust_name")%></div>
+                    <br/>
+                    <div style="margin-left:18px;margin-top:18px;">
+                        请输入自定义名称：（10个汉字）
+                    </div>
+                    <div style="float:right;margin-left:48px;margin-top:10px;width:260px;height:30px;" class="inborder">
+                        <input type="text" name="bname_teen" value="" style="width:200px;height:26px;background:;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="width:366px;height:48px;margin-top:-46px;">
+        <input type="button" style="margin-left:150px;width:80px;height:30px;" onclick="OnOK()" class="defaultbutton" value="确定"/>
+        <input type="button" style="margin-left:30px;width:80px;height:30px;" onclick="OnCancel()" class="defaultbutton" value="取消"/>
+    </div>
+</pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

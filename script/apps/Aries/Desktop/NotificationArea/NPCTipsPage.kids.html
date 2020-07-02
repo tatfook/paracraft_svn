@@ -1,0 +1,46 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationArea/NPCTipsPage.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="NPCTipsPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+NPCTipsPage = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.NPCTipsPage");
+tip = NPCTipsPage.show_dialog_tip or {is_empty=true};
+
+function OnClose()
+    Page:CloseWindow();
+end
+
+function OnClickActionBtn()
+    Page:CloseWindow();
+    NPCTipsPage.OnClickActionBtn(tip);
+end
+]]></script>
+<div style="width:420px;margin-left:0px;padding-bottom:10px" class="window">
+    <div style="text-align:center;margin-top:10px;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:#fcf73c;shadow-color:#8000468e;text-shadow:true">
+        <%=tip.title or "小精灵提示" %>
+    </div>
+    <div style="margin-left:15px;margin-right:10px;">
+        <div style="float:left;">
+            <img src='<%=(tip.npc_icon or "Texture/Aries/NPCs/Portrait/common_tip_elf_32bits.png") %>' style="width:64px;height:64px"/>
+        </div>
+        <div style="float:left;margin-top:8px;margin-left:-48px;padding-left:50px;min-height:64px;background:url(Texture/Aries/Common/ThemeKid/wnd_title.png:2 6 1 6)">
+            <div style="float:left;margin:3px;font-size:15px;base-font-size:15;font-weight:bold;line-height:15" width="100%">
+                <%=tip[1] or "VIP等级越高每日领取的仙豆越多哦" %>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <pe:if condition='<%=not tip.has_action %>'>
+            <input name="closeLater" style="margin-left:160px;height:26px;width:80px;" class="button_thick" type="button" value="知道了" onclick="OnClose"/>
+        </pe:if>
+        <pe:if condition='<%=tip.has_action %>'>
+            <input name="gotoNPC" style="margin-left:80px;height:26px;width:105px;" class="button_highlight" type="button" value="现在去看看" onclick="OnClickActionBtn"/>
+            <input name="closeLater" style="margin-left:40px;height:26px;width:105px;" class="button_thick" type="button" value="等下提醒我" onclick="OnClose"/>
+        </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

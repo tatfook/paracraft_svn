@@ -1,0 +1,133 @@
+<!-- "script/apps/Aries/Combat/Battlefield/BattlefieldStatPanel.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/GameServer/BattlefieldService/GSL_BattleClient.lua");
+local client = Map3DSystem.GSL.Battle.GSL_BattleClient.GetSingleton();
+local bf = client.bf;
+local nid = tostring(System.User.nid);
+local my_side = bf:get_player_side(nid)
+
+function OnClose()
+    Page:CloseWindow();
+    if(bf and bf.is_finished) then
+        _guihelper.MessageBox("战斗结束了, 请点击地图离开战场");
+    end
+end
+
+echo("BattlefieldStatPanel.html inited");
+
+if(bf.battle_stat) then
+    local stats = NPL.LoadTableFromString(bf.battle_stat);
+    if(stats) then
+        local _, stat;
+        for _, stat in ipairs(stats) do 
+            local nid = stat[1];
+            local score = stat[2];
+            local player = bf.players[tostring(nid)];
+            if(player) then
+                player.score = score or player.score;
+            end
+        end
+    end
+end
+local each_nid, player;
+local players_ds = {};
+for each_nid, player in pairs(bf.players) do
+    players_ds[#players_ds+1] = {nid = player.nid, score=player.score, side=player.side, is_myside=(player.side==my_side)};
+end
+table.sort(players_ds, function(a,b)
+    return a.score > b.score
+end)
+function GetDataSource(index)
+    if(index == nil) then
+		return #(players_ds);
+	else
+		return players_ds[index];
+	end
+end
+
+function GetTitle()
+    if(bf.is_finished) then
+        local our_score = if_else(my_side == 0, bf.score_side0, bf.score_side1)
+		local other_score = if_else(my_side == 0, bf.score_side1, bf.score_side0)
+		if(our_score > other_score) then
+            return "恭喜! 我方获胜!"
+        else
+            return "很遗憾! 我们输掉了比赛"
+        end
+    else
+        return "战斗尚未结束"
+    end
+end
+
+]]></script>
+<div class = "window" style="font-size:12px;width:430px;height:310px;">
+<div class="titlebar">
+    <div class="windowlabel">赛场统计：<div style="float:left;color:#ffff00;"><%=GetTitle()%></div></div>
+    <input type="button" onclick="OnClose" class="closebutton" style="position:relative;margin-left:383px;" />
+</div>
+<div class="clientarea">
+<div style="margin:2px;margin-top:12px;margin-left:8px;font-weight:bold">
+    <div style="float:left;text-align:center;width:160px;">名字</div>
+    <div style="float:left;text-align:center;width:90px;" tooltip="造成对方伤害或己方治疗会平分给法阵上所有玩家" >伤害+治疗</div>
+    <div style="float:left;text-align:center;width:40px;">阵营</div>
+    <div style="float:left;text-align:center;width:80px;">积分</div>
+</div>
+<div style="margin:2px;margin-left:12px;height:190px;">
+<pe:gridview DataSource="<%=GetDataSource %>" name="pegvwGemsView" 
+    CellPadding="0" ItemsPerLine="1" AllowPaging="true" RememberScrollPos="true" RememberLastPage="true" DefaultNodeHeight="26" VerticalScrollBarStep="26" pagesize="7" >
+    <Columns>
+        <div style="position:relative;background-color:#197DB4;background:url(Texture/whitedot.png);width:380px;height:1px;"></div>
+        <pe:if condition='<%=Eval("is_myside")%>'>
+            <div style="color:#00cc00;height:25px;font-size:12px;">
+                <div style="float:left;width:160px;">
+                    <%=Eval("index")%>
+                    <pe:name nid='<%=Eval("nid")%>' a_style="color:#00cc00"></pe:name>
+                </div>
+                <div style="float:left;text-align:center;width:90px;">
+                    <%=Eval("score")%>
+                </div>
+                <div style="float:left;text-align:center;width:40px;">
+                    <%=if_else(Eval("is_myside"), "我方", "对方")%>
+                </div>
+                <div style="float:left;text-align:center;width:80px;">
+                    <%=Eval("score")/100%>
+                </div>
+            </div>
+        </pe:if>
+        <pe:if condition='<%=not Eval("is_myside")%>'>
+            <div style="color:#cc0000;height:25px;font-size:12px;">
+                <div style="float:left;width:160px;">
+                    <%=Eval("index")%>
+                    <pe:name nid='<%=Eval("nid")%>' a_style="color:#cc0000"></pe:name>
+                </div>
+                <div style="float:left;text-align:center;width:90px;">
+                    <%=Eval("score")%>
+                </div>
+                <div style="float:left;text-align:center;width:40px;">
+                    <%=if_else(Eval("is_myside"), "我方", "对方")%>
+                </div>
+                <div style="float:left;text-align:center;width:80px;">
+                    <%=math.floor(Eval("score")/100)%>
+                </div>
+            </div>
+        </pe:if>
+    </Columns>
+    <PagerSettings Position="Bottom" style="position:relative;margin-left:110px;margin-top:5px;" height="0" PreviousPageText="" NextPageText="" />
+    <PagerTemplate>
+	    <form>
+			<input type="button" name="pre" value="上一页" class="pagerbuttonleft" />
+				<input type="button" name="page" class="pagerbuttontext" /> 
+			<input type="button" name="next" value="下一页" class="pagerbuttonright" />
+	    </form>
+    </PagerTemplate>
+</pe:gridview>
+</div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

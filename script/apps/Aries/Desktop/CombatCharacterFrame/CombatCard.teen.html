@@ -1,0 +1,1189 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatCard.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+----------------------- init
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+
+new_gsid = pageCtrl:GetRequestParam("gsid");
+if (new_gsid) then
+    new_gsid = tonumber(new_gsid);
+end
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/SetCardBagName.lua");
+local SetCardBagName = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName");
+SetCardBagName.OnInit();
+local scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local key = string.format("MyCardsManager.cardtips_%s",System.User.nid);
+local runekey = string.format("MyCardsManager.runetips_%s",System.User.nid);
+local equipkey = string.format("MyCardsManager.equiptips_%s",System.User.nid);
+local cardtips = true;
+local runetips = true;
+local equiptips = true;
+
+local IsGoToEnd= IsGoToEnd or false;
+
+MyCardsManager.Set_PageCtrl(pageCtrl);
+
+MyCardsManager.CardFilter =  MyCardsManager.CardFilter or "all";
+
+MyCardsManager.TabValue = MyCardsManager.TabValue or "all";
+cardclass = MyCardsManager.TabValue;
+
+MyCardsManager.card_type = MyCardsManager.card_type or "combat";
+card_type = MyCardsManager.card_type;
+
+MyCardsManager.Init(new_gsid,MyCardsManager.card_type,cardclass);
+MyCardsManager.OnOpen()
+
+local card_maxnum= MyCardsManager.singlecard_maxnum;
+MyCardsManager.dsCards = MyCardsManager.dsCards or {status = nil, };
+
+local maxcards_page=6;
+local cardEquip={hasEquip=0,};
+
+-------------------------
+local bImmediateUpdate = true;
+MyCardsManager.GetCombatDeckItems(nil, function()
+    if(not bImmediateUpdate) then
+        pageCtrl:Refresh(0.01);
+    end
+end);
+bImmediateUpdate = nil;
+
+mouseover_icon = Eval("mouseover_icon") or "";
+
+function OnClickItem(guid, mcmlNode, mouse_button)
+    if(mouse_button == "left") then
+        mouseover_icon = "";
+        local item = Map3DSystem.Item.ItemManager.GetItemByGUID(guid);
+	    if(item and item.guid > 0) then
+            local _preGsid  = MyCardsManager.combatbag_gsid;
+            local _curGsid = item.gsid;
+		    item:OnClick(mouse_button);
+            MyCardsManager.AutoCopyCardsFrmPreDeck(_preGsid,_curGsid,true);
+	    end
+    else
+        return true;
+    end
+end
+
+local ppt_click = ppt_click or 0;
+local activeclick_ppt = activeclick_ppt or false;
+local equipRuneNum = MyCardsManager.GetEquipRuneNum();
+local equipCardNum = MyCardsManager.GetEquipCardNum();
+
+function onGotoNextPage()
+    if (ppt_click==2) then
+        if (equipRuneNum==0 and not activeclick_ppt) then        
+            ppt_click = ppt_click+1;  
+            if (equipCardNum==0 and not activeclick_ppt) then
+                ppt_click = ppt_click+1;    
+                pageCtrl:SetValue("TooltipsPPT", "card5")
+            else
+                pageCtrl:SetValue("TooltipsPPT", "card4")
+            end
+        else
+            if (IsGoToEnd) then
+                ppt_click = 6;
+                pageCtrl:SetValue("TooltipsPPT", nil)
+            else
+                ppt_click = ppt_click+1;    
+                pageCtrl:SetValue("TooltipsPPT", "next")
+            end
+        end            
+    elseif (ppt_click==3) then
+        if (equipCardNum==0 and not activeclick_ppt) then
+            ppt_click = ppt_click+1;    
+            pageCtrl:SetValue("TooltipsPPT", "card5")
+        else
+            if (IsGoToEnd) then
+                ppt_click = 6;
+                pageCtrl:SetValue("TooltipsPPT", nil)
+            else
+                ppt_click = ppt_click+1;    
+                pageCtrl:SetValue("TooltipsPPT", "next")
+            end
+        end
+    else
+        ppt_click = ppt_click+1;    
+        pageCtrl:SetValue("TooltipsPPT", "next")
+    end
+end
+
+function onGotoStartPageAll()
+    ppt_click = 0;
+    activeclick_ppt=true;
+    pageCtrl:SetValue("TooltipsPPT", "card1")
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.cardshelp_tip) then
+	    system_looptip.cardshelp_tip=true;
+    end
+    if (not cardtips) then
+        cardtips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+function onGotoStartPage()
+    ppt_click = 0;
+    pageCtrl:SetValue("TooltipsPPT", "card1")
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.cardshelp_tip) then
+	    system_looptip.cardshelp_tip=true;
+    end
+    if (not cardtips) then
+        cardtips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");
+if(ArrowPointer.IsArrowShown("CardUI_Arrow")) then
+    ArrowPointer.RemoveArrow("CardUI_Arrow");
+    onGotoStartPage();
+end
+
+-----------------------DataSource
+function DS_Func_CombatDeck_Items(index)
+    return MyCardsManager.Bag_DS_Func_Items(index);
+end
+
+function DS_Func_Rune(index)
+    return MyCardsManager.Rune_DS_Func_Items(index);
+end
+
+function DS_Func_CardsDeck(index)
+    return MyCardsManager.DS_Func_CardsDeck(MyCardsManager.dsCards, index,MyCardsManager.card_type,cardclass,maxcards_page,card_maxnum,new_gsid);
+end
+
+function CheckRuneLvl(vgsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(vgsid);
+	if(gsItem)then
+		local needlevel=gsItem.template.stats[138];
+        if (needlevel) then
+            needlevel=tonumber(needlevel);
+        else
+            needlevel=0;
+        end
+        local bean = MyCompany.Aries.Pet.GetBean();
+        local myCombatLevel = 0;
+        if(bean) then
+	        myCombatLevel = bean.combatlel or 0;
+        end
+        if (myCombatLevel>=needlevel) then
+            return true
+        else
+            return false
+        end
+	end    
+end
+
+function GetRuneLvl(vgsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(vgsid);
+	if(gsItem)then
+		local needlevel=gsItem.template.stats[138];
+        local s=string.format("需要等级\n %d",needlevel);
+        return s
+    else
+        return "";
+	end    
+end
+
+----------------CombatDeck Operation
+function RemoveAllCards()
+    MyCardsManager.RemoveAllCardsFromCombatBag()
+end
+
+function doRemoveClick(name)
+    gsid,index=string.match(name,"(%d+)_(%d+)$");
+    gsid = tonumber(gsid)
+    MyCardsManager.DoRemove(gsid,index)
+end
+
+function isOpenedBag(index)
+    index = tonumber(index);
+    if(index and index <= MyCardsManager.canEquipNum)then
+        return true;
+    end
+end
+
+function getIcon(gsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        local s = string.format("%s",gsItem.descfile or "");
+        return s;
+    end
+end
+
+function getName(gsid,index) 
+    local s=string.format("%d_%d",gsid,index);
+    return s;
+end
+
+----------------------- CardDeck Operation
+function ChangeCardsView_internal(card_type,value,status,bRefresh)
+    cardclass = value;
+    if(value) then
+        if (status) then
+            MyCardsManager.dsCards.status = nil;
+        end
+        MyCardsManager.DS_Func_CardsDeck(MyCardsManager.dsCards, nil, card_type,cardclass,maxcards_page,card_maxnum,new_gsid)
+        MyCardsManager.TabValue = value;
+        if(bRefresh)then
+            pageCtrl:Refresh(0.1);
+        end
+    end 
+end
+
+function getTabValue()   
+    return tonumber(MyCardsManager.TabValue);
+end
+
+function ChangeCardType(name)
+    local name=string.lower(name);
+    if (name) then
+        MyCardsManager.card_type = name;
+        card_type = MyCardsManager.card_type;
+    end
+    MyCardsManager.CardFilter="all";
+    ChangeCardsView_internal(MyCardsManager.card_type,"all", true,true);
+end
+
+function ChangeCardsView(value)
+	ChangeCardsView_internal(MyCardsManager.card_type,value, true,true);
+end
+
+function BuyNewCombatDeck()
+    goal_manager.finish("select_add_carddeck");
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    local buynewdeck_key = string.format("MyCardsManager.buynewdeck_%s",System.User.nid);
+    local buynewdeck_tips;
+    if (not system_looptip.buynewdeck_tip) then
+	    system_looptip.buynewdeck_tip=true;
+        buynewdeck_tips = Player.LoadLocalData(buynewdeck_key, false) or false;
+    end
+
+    if (not buynewdeck_tips) then
+        buynewdeck_tips = true;
+        Player.SaveLocalData(buynewdeck_key, true);
+    end  
+    MyCardsManager.OpenBuyNewCombatDeckWnd(2)
+end
+---------------------- Card Operation
+function cardEquip_num(index)
+    return MyCardsManager.DS_cardEquip_num(index);
+end
+
+function isEquip(gsid)
+    return MyCardsManager.InCombatBag(gsid);
+end
+
+function getCardGuidByTemplateGsid(templategsid)
+    local gsid = templategsid;
+    local bHas,guid = hasGSItem(gsid);
+    guid = guid or 0;
+    return guid;
+end
+
+function getCardSelectNum(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+
+	local cardInCombatBag="";														
+	for i=1, #(MyCardsManager.combat_bags) do
+		cardInCombatBag=cardInCombatBag..MyCardsManager.combat_bags[i].gsid..","
+	end
+	local _,hasCardNum=string.gsub(cardInCombatBag,templategsid,"");
+
+    if (hasCardNum>card_maxnum) then
+        hasCardNum = card_maxnum;
+    end
+    return hasCardNum;
+end
+
+function getCardMaxNum(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+
+    local cardItem=ItemManager.GetGlobalStoreItemInMemory(templategsid);
+    local cardMaxnum=card_maxnum;
+	if (MyCardsManager.class_maxnum ~= 0 and cardItem.template.stats[136]==MyCardsManager.class_type) then
+        cardMaxnum=MyCardsManager.class_maxnum;
+	end
+    return cardMaxnum;
+end
+
+function doEquip(gsid)
+    local gsid = tonumber(gsid);
+    if(not MyCardsManager.CanEquip())then
+        local s = string.format("您当前的卡包已经满了！<br/>点击左侧的卡牌图标从卡包中移除不要的卡。配卡决定了魔法师的能力哦！<br/>卡包商城中有更多更好的卡包！");
+        _guihelper.Custom_MessageBox( s, function(result)
+            if(result == _guihelper.DialogResult.Yes)then
+                BuyNewCombatDeck()
+            end
+        end,_guihelper.MessageBoxButtons.YesNo,{show_label = true, yes = "立刻购买新卡包", no = "知道了"});
+        return 
+    end
+    local cardMaxnum=card_maxnum;
+    local cardItem=ItemManager.GetGlobalStoreItemInMemory(gsid);	
+	if (MyCardsManager.class_maxnum ~= 0 and cardItem.template.stats[136]==MyCardsManager.class_type) then
+        cardMaxnum=MyCardsManager.class_maxnum;
+	end	
+	local cardInCombatBag="";														
+	for i=1, #(MyCardsManager.combat_bags) do
+		cardInCombatBag=cardInCombatBag..MyCardsManager.combat_bags[i].gsid..","
+	end
+	
+    local hasCardNum,_hasCardNum_white,_hasCardNum_green,_hasCardNum_blue,_hasCardNum_violet,_hasCardNum_orange=0,0,0,0,0,0;
+    if(gsid<23000 or gsid>24000)then
+        local gsid_white,gsid_green,gsid_blue,gsid_violet,gsid_orange=0,0,0,0,0,0;    
+        if (gsid<23000) then
+            gsid_white = gsid;
+            gsid_green = gsid+19000;
+            gsid_blue  = gsid+20000;
+            gsid_violet= gsid+21000;
+            gsid_orange= gsid+22000;
+        elseif (gsid>=41001 and gsid<=41999) then
+            gsid_white = gsid-19000;
+            gsid_green = gsid;
+            gsid_blue  = gsid+1000;
+            gsid_violet= gsid+2000;
+            gsid_orange= gsid+3000;            
+        elseif (gsid>=42001 and gsid<=42999) then
+            gsid_white = gsid-20000;
+            gsid_green = gsid-1000;
+            gsid_blue  = gsid;
+            gsid_violet= gsid+1000;
+            gsid_orange= gsid+2000;               
+        elseif (gsid>=43001 and gsid<=43999) then
+            gsid_white = gsid-21000;
+            gsid_green = gsid-2000;
+            gsid_blue  = gsid-1000;
+            gsid_violet= gsid;
+            gsid_orange= gsid+1000;   
+        elseif (gsid>=44001 and gsid<=44999) then
+            gsid_white = gsid-22000;
+            gsid_green = gsid-3000;
+            gsid_blue  = gsid-2000;
+            gsid_violet= gsid-1000;
+            gsid_orange= gsid;  
+        end
+        local _,_hasCardNum_white = string.gsub(cardInCombatBag,gsid_white,"");
+        local _,_hasCardNum_green = string.gsub(cardInCombatBag,gsid_green,"");
+        local _,_hasCardNum_blue  = string.gsub(cardInCombatBag,gsid_blue,"");
+        local _,_hasCardNum_violet= string.gsub(cardInCombatBag,gsid_violet,"");
+        local _,_hasCardNum_orange= string.gsub(cardInCombatBag,gsid_orange,"");
+		_hasCardNum_white = _hasCardNum_white or 0;
+		_hasCardNum_green = _hasCardNum_green or 0;
+		_hasCardNum_blue  = _hasCardNum_blue or 0;
+		_hasCardNum_violet= _hasCardNum_violet or 0;
+		_hasCardNum_orange= _hasCardNum_orange or 0;
+        hasCardNum = _hasCardNum_white + _hasCardNum_green + _hasCardNum_blue + _hasCardNum_violet + _hasCardNum_orange;
+    else
+        local _,_hasCardNum= string.gsub(cardInCombatBag,gsid,"");
+        hasCardNum = _hasCardNum;
+    end    
+    
+    if(hasCardNum>=cardMaxnum)then
+        _guihelper.MessageBox(cardItem.template.name.."卡片，你最多只能带"..cardMaxnum.."张！");
+        return 
+    end
+
+    MyCardsManager.DoAppend(gsid);
+end
+
+function IsRuneInBag(gsid)
+    local gsid = tonumber(gsid);
+    local include = MyCardsManager.InCombatBag(gsid);
+    if(include)then
+        return true
+    else
+        return false
+    end
+end
+
+function doEquipRune(gsid)
+    local gsid = tonumber(gsid);
+    local include = MyCardsManager.InCombatBag(gsid);
+    if(include)then
+        _guihelper.MessageBox("这个符文你已经放入背包了！");
+        return 
+    end
+
+    if(not MyCardsManager.CanEquipRune())then
+        _guihelper.MessageBox("你不能带太多的符文了！");
+        return 
+    end
+    MyCardsManager.DoAppend(gsid);
+end
+
+function doClick(sName)
+    local gsid = tonumber(sName);
+    if (gsid) then
+        doEquip(gsid);
+    end
+end
+
+function doClickRune(sName)
+    local gsid = tonumber(sName);
+    if(gsid)then
+         doEquipRune(gsid);
+    end
+end
+
+function GetRuneNum(gsid)
+    local gsid=tonumber(gsid);
+    local bHas,guid,_,copies = hasGSItem(gsid);
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    local maxcopiesinstack=0;
+    if(gsItem and gsItem.template)then
+        maxcopiesinstack = gsItem.template.maxcopiesinstack;
+	end
+    local s;
+    s= " "..copies .. "/" .. maxcopiesinstack;
+    return s
+end
+
+function DoViewEncyclopedia()
+    NPL.load("(gl)script/apps/Aries/NPCs/MagicSchool/CombatSkillLearn.lua");
+    local CombatSkillLearn = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CombatSkillLearn");
+
+    local zorder=1;
+    CombatSkillLearn.ShowSkillEncyclopedia(zorder);
+end
+
+function IsLearned(school)
+    if (school==MyCardsManager.MainSchoolName or school==MyCardsManager.SecondarySchoolName) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function HasSecondarySchool()
+    if (MyCardsManager.SecondarySchoolName and MyCardsManager.SecondarySchoolName~="") then
+        return true
+    else
+        return false
+    end
+end
+
+function SetSecondarySchool()
+    goal_manager.finish("click_secondary_school");
+
+    if(GetCombatLvl()<30) then
+        _guihelper.MessageBox("30级后才可选择辅修系别");
+    else
+        MyCardsManager.OpenSetSecondarySchoolWnd(2)
+    end
+end
+
+function ResetSecondarySchool()
+    goal_manager.finish("click_secondary_school");
+
+--    local bHas,guid,_,copies = hasGSItem(984);
+    local copies = MyCompany.Aries.Player.GetMyJoybeanCount() or 0;
+--    if (bHas) then
+        if (copies>=50000) then
+            MyCardsManager.ResetSecondarySchool()
+        else
+            local s = string.format("<div style='margin-left:45px;margin-top:20px;'>重置辅修系需要<font color='#ff0000'>50000银币</font>，你银币不足，<br/>不能重置辅修系，现在就补充吗？</div>");
+            _guihelper.Custom_MessageBox(s,function(result)
+                if(result == _guihelper.DialogResult.Yes)then
+                    local needcount = math.floor((50000 - copies)/10000 + 0.5);
+                    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+                    command:Call({gsid = 17213,count = needcount,});
+--                    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+--                    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+--                    PurchaseMagicBean.Show()
+                end
+            end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});        
+        end
+
+--    else
+--        local s = string.format("<div style='margin-left:45px;margin-top:20px;'>重置辅修系需要<font color='#ff0000'>100金币</font>，你金币不足，<br/>不能重置辅修系，现在就充值金币吗？</div>");
+--        _guihelper.Custom_MessageBox(s,function(result)
+--            if(result == _guihelper.DialogResult.Yes)then
+--                NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+--                local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+--                PurchaseMagicBean.Show()
+--            end
+--        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});        
+--    end    
+end
+
+function IsNewGsid(_gsid)
+    local _gsid=tonumber(_gsid);
+    if (new_gsid) then
+        if (new_gsid==_gsid) then
+            return true
+        else
+            return false
+        end
+    else
+        return false
+    end
+end
+
+function OnSelectIcon()
+    MyCardsManager.SetBigCardMode(false);
+    MyCompany.Aries.app:WriteConfig("bBigCardMode", false);
+    pageCtrl:Refresh(0.1);
+end
+
+function OnSelectCard()
+    MyCardsManager.SetBigCardMode(true);
+    MyCompany.Aries.app:WriteConfig("bBigCardMode", true);
+    pageCtrl:Refresh(0.1);
+
+end
+function  BigCardMode()
+   return MyCardsManager.GetBigCardMode();
+end
+
+function onclick_cardhelp()
+    local HelpMainList = commonlib.gettable("MyCompany.Aries.Desktop.HelpMainList");
+    HelpMainList.ShowPage("HelpBook","什么是魔法卡牌")
+end
+
+function DoShop()
+    --NPL.load("(gl)script/apps/Aries/NPCs/Commons/CommonNPCs.teen.lua");
+    --local CommonNPCs = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CommonNPCs");
+    --CommonNPCs.ShowBear();
+
+    --NPL.load("(gl)script/apps/Aries/HaqiShop/HaqiShop.lua");
+    --MyCompany.Aries.HaqiShop.ShowMainWnd("tabRune","7005");
+
+    local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+    Dock.FireCmd("AuctionHouse.ShowPage"); 
+
+    ClosePage();    
+end
+
+function cardfilter(ctype)
+    if (MyCardsManager.CardFilter==ctype) then
+        return true
+    else
+        return false
+    end   
+end
+
+function OnFilterCard(ctype)
+    MyCardsManager.CardFilter=ctype;   
+--    if (ctype=="all") then
+--        pageCtrl:SetValue("qualityfilter", "all");
+--    end
+    MyCardsManager.dsCards.status = nil;
+    MyCardsManager.DS_Func_CardsDeck(MyCardsManager.dsCards, nil, card_type,cardclass,maxcards_page,card_maxnum)     
+    pageCtrl:Refresh(0.1);
+end
+------------- tip
+function BuyNewDeckTip()
+    if (not MyCardsManager.CanEquip()) then
+        local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+        local buynewdeck_key = string.format("MyCardsManager.buynewdeck_%s",System.User.nid);
+        local buynewdeck_tips;
+        if (not system_looptip.buynewdeck_tip) then
+	        system_looptip.buynewdeck_tip=true;
+            buynewdeck_tips = Player.LoadLocalData(buynewdeck_key, false) or false;
+        end
+
+        if (not buynewdeck_tips) then
+            return false;
+        end     
+        return true
+    end
+end
+
+function SetBagName(name)
+    local cur_time = ParaGlobal.timeGetTime();
+    if(selection_name == name and last_click_time and (cur_time - last_click_time) < 500) then
+        -- double click to set bag name
+        local baggsid=tonumber(name);
+        local SetCardBagName = MyCompany.Aries.Inventory.Cards.SetCardBagName;
+        SetCardBagName.Show(baggsid,pageCtrl);
+    else
+        if(selection_name ~= name) then
+            selection_name = name; 
+            pageCtrl:Refresh(0);
+        end
+    end
+    last_click_time = cur_time;    
+end
+
+function GetCurrBagName(gsid)
+    local baggsid=tonumber(gsid);    
+    scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");    
+    local _label="";
+    if (scardbag_info) then
+        _label=scardbag_info[baggsid] or "";
+    end
+    if (_label=="") then 
+        _label="??"
+    end
+    local s= string.format('%s卡包\r\n双击设置自定义卡包名称',_label);
+    return s;
+end
+
+function HasCustBagName(gsid)
+    local baggsid=tonumber(gsid);    
+    scardbag_info = commonlib.gettable("MyCompany.Aries.Inventory.Cards.SetCardBagName.system_cardbaginfo");    
+    local _label="";
+    if (scardbag_info) then
+        _label=scardbag_info[baggsid] or "";
+    end
+    if (_label=="") then 
+        return false
+    else
+        return true
+    end
+end
+
+function GetTooltip(name)
+	local str = string.format("当前战斗背包:\n %s",name);
+    return str;
+end
+
+function getCardTip(templategsid,bg)
+    local templategsid = tonumber(templategsid);
+    if (bg) then
+        bg = tonumber(bg);
+    else
+        bg = 0;
+    end 
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&bg=%d",templategsid,bg);
+end
+
+function getCardTipCardBag(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",templategsid);
+end
+
+function rune_tip()
+    local s=string.format("符文是一种消耗性的卡片，装备上之后将固定出现，而不像常规卡片那样随机出现。鼠标点击下面的卡片可以将选中卡牌移入战斗背包，<br/><font color='#ffff00'>按右上角的 ？可以看到操作指引。</font>");
+    return string.format("page://script/apps/Aries/Service/CommonTooltip.teen.html?s=%s",s);
+end
+
+function card_tip()
+    local s=string.format("战斗时，从背包中随机抽取8张常规卡片，之后每打出或丢弃一张，随机从剩余卡片中补充一张，发招失败的卡片会被放回背包中。鼠标点击下面的卡片可以将选中卡牌移入战斗背包，<br/><font color='#ffff00'>按右上角的 ？可以看到操作指引。</font>");
+    return string.format("page://script/apps/Aries/Service/CommonTooltip.teen.html?s=%s",s);
+end
+
+function combatbag_normalcard_tip()
+    local s=string.format("这里是放入战斗背包的常规技能卡片，\n战斗时会从当前战斗背包中随机抽取8张，\n之后每打出或丢弃一张，随机从剩余卡片中补充一张，\n发招失败的卡片会被放回背包中。\n鼠标点击下面的卡片可以将选中卡牌移出战斗背包，\n按右上角的 ？可以看到操作指引。");
+    return s
+end
+
+function combatbag_runecard_tip()
+    local s=string.format("这里是你放入战斗背包的符文卡片，\n装备上之后将固定出现，而不像常规卡片那样随机出现。\n鼠标点击下面的卡片可以将选中卡牌移出战斗背包，\n按右上角的 ？可以看到操作指引。");
+    return s
+end
+----------
+function ClosePage()
+    if (MyCardsManager.equipNum==0 and MyCardsManager.cardNum>0) then
+         _guihelper.MessageBox("你当前战斗背包中没有卡片哦！一定要带上卡片，否则战斗中只能挨打了！");
+        return
+    end
+    pageCtrl:CloseWindow();
+end
+
+---------
+if (card_type=="combat") then
+    pageCtrl:SetValue("card_class", MyCardsManager.TabValue);
+elseif (card_type=="rune")then
+    pageCtrl:SetValue("rune_class", MyCardsManager.TabValue);
+end
+
+pageCtrl:SetValue("cardtype", MyCardsManager.card_type);
+ChangeCardsView_internal(MyCardsManager.card_type,MyCardsManager.TabValue,nil, nil);
+
+-------------
+function GetCombatLvl()
+    local bean = MyCompany.Aries.Pet.GetBean();
+    local _CombatLevel = 0;
+    if(bean) then
+	    _CombatLevel = bean.combatlel or 0;
+    end
+    return _CombatLevel;
+end
+
+local myCombatLevel = GetCombatLvl();
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+
+if (not system_looptip.cardshelp_tip) then
+	system_looptip.cardshelp_tip=true;
+    cardtips = Player.LoadLocalData(key, false) or false;
+end
+if (not system_looptip.runehelp_tip) then
+	system_looptip.runehelp_tip=true;
+    runetips = Player.LoadLocalData(runekey, false) or false;
+end
+
+if (myCombatLevel<10 and (not cardtips)) then
+    onGotoStartPage();
+elseif (not runetips) then
+    ppt_click=2; IsGoToEnd=true;
+    if (not runetips) then
+        runetips = true;
+        Player.SaveLocalData(runekey, true);
+    end
+    pageCtrl:SetValue("TooltipsPPT", "card4")
+end
+
+function ShowAllRune()
+    MyCardsManager.ShowRuneListPage(0)
+end
+
+]]>
+</script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:0px;margin-left:5px;width:750px;height:480px;">
+	<div name="card1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:10px;margin-top:55px;width:300px;height:35px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <input type="button" style="background-color:#ffffffff;float:left;position:relative;width:21px;height:26px;margin-top:87px;margin-left:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+        <div style="margin-left:10px;margin-top:105px;base-font-size:15;font-size:15px;width:300px;height:;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			这是你拥有的卡片包，可以记录你的不同配牌方案。点击图标，在不同的方案中切换。点击<span class="guide">加号</span>，可购买更多的卡片包。
+            <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-top:5px;" />
+		</div>
+	</div>
+	<div name="card2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:15px;margin-top:100px;width:325px;height:150px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:20px;margin-top:180px;width:300px;height:;padding:8px;base-font-size:15;font-size:15px;color:#98fffc;" class="anchor_tooltip_bg">
+            <div style="position:relative;width:21px;height:26px;margin-top:-26px;margin-left:12px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+			这是卡片包中用于放置技能卡片的区域。放到这里的卡片，才会出现在战斗抽牌的过程中。
+           <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="float:left;width:70px;height:28px;" />
+		</div>
+	</div>
+    <div name="card3">
+        <pe:if condition='<%=BigCardMode()%>'>
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:360px;margin-top:60px;width:380px;height:380px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:90px;margin-top:246px;height:;base-font-size:15;font-size:15px;width:300px;height:;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+            <input type="button" style="float:left;width:21px;height:26px;margin-top:-28px;margin-left:265px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+			这是你可以使用的技能卡片，<span class="guide">点击添加</span>到左侧的卡包中；同样，点击左侧的卡包中的卡片，也能把卡片<span  class="guide">收回来</span>
+            <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-left:2px;margin-top:5px;" />
+		</div>
+        </pe:if>
+
+        <pe:if condition='<%=not BigCardMode()%>'>
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:360px;margin-top:60px;width:380px;height:380px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:90px;margin-top:150px;width:300px;height:;base-font-size:15;font-size:15px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+            <input type="button" style="position:relative;width:21px;height:26px;margin-top:-28px;margin-left:253px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+			这是你可以使用的技能卡片，<span class="guide">点击添加</span>到左侧的卡包中；同样，点击左侧的卡包中的卡片，也能把卡片<span  class="guide">收回来</span>
+            <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-left:2px;margin-top:5px;" />
+		</div>
+        </pe:if>
+	</div>
+    
+    <div name="card4">
+        <pe:maskarea zorder="-1" method="substract" style="margin-left:10px;margin-top:380px;width:340px;height:40px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:20px;margin-top:300px;width:300px;height:70px;base-font-size:15;font-size:15px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			携带符文卡的位置，放到里面的符文卡，在战斗中会<span class="guide" >固定出现</span>
+           <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-7px;margin-left:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="card5">
+		<pe:maskarea zorder="-1" method="full" style="margin-left:5px;margin-top:295px;width:353px;height:132px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:50px;margin-top:150px;width:310px;height:;base-font-size:15;font-size:15px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			战斗中抽取的卡片是从卡包中<span class="guide" >随机抽取</span>出来的，你可以通过<span class="guide" >右击弃牌</span>来增加自己抽到某张卡片的几率。但是，弃掉的牌，不会再出现在本次战斗中。
+           <input type="button" class="defaultbutton" onclick="onGotoNextPage" value="知道了" style="width:70px;height:28px;margin-top:5px;" />
+		</div>
+	</div>
+    <div name="card6">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:700px;margin-top:5px;width:20px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:520px;margin-top:42px;width:200px;height:;base-font-size:15;font-size:15px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+            <input type="button" style="position:relative;width:21px;height:26px;margin-top:-28px;margin-left:170px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+	</div>
+</pe:powerpoint>
+
+<aries:window title="卡牌" width="760" height="480" onhelp="onGotoStartPageAll" onclose="ClosePage()" icon="Texture/Aries/Common/ThemeTeen/wintitle/card_icon_32bits.png">
+    <pe:goalpointer listen="close" class="closewindow_tip"></pe:goalpointer>
+    <div style="margin-top:26px;margin-left:5px;" class="clientarea">
+        <div style="float:left;width:410px;height:440px;margin-left:0px;margin-top:5px;" >
+            <pe:block style="position:relative;margin-left:10px;margin-top:-2px;" class="rename_bg_css" />
+            <div style="position:relative;width:355px;height:260px;margin-left:9px;margin-top:68px;" >
+                <pe:gridview name="combatdeck" DataSource="<%=DS_Func_CombatDeck_Items%>"  ItemsPerLine="9" AllowPaging="false" pagesize="72">
+				        <Columns>
+						        <div class="block" style="margin-left:2px;margin-top:2px;width:35px;height:35px;">
+                                    <div>                                        
+                                        <pe:if condition='<%=Eval("gsid") > 0%>'>
+                                            <div style="position:relative;margin-left:1px;"><pe:item isenabled="false"  gsid='<%=Eval("gsid")%>' style="width:34px;height:34px;background-color:#ffffffff" /></div>
+				                            <input type="button" animstyle="14" zorder="1"  Normal_BG="" MouseOver_BG="Texture/Aries/Common/ThemeTeen/candel_32bits.png" style="margin-left:0px;width:30px;height:30px;background:;" name='<%=getName(Eval("gsid"),Eval("index")) %>' onclick="doRemoveClick"   tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="32" tooltip_offset_y="-55"/>
+                                        </pe:if>
+                                    </div>
+				                </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="width:0px;height:0px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" style="width:0px;height:0px;background:" />
+							        <input type="button" name="page" style="width:0px;height:0px;background:"/>
+						        <input type="button" name="next" style="width:0px;height:0px;background:"/>
+	                     </form>
+				        </PagerTemplate>
+			    </pe:gridview>
+            </div>
+
+            <div style="position:relative;width:340px;height:47px;margin-left:7px;margin-top:345px;" class="border_bg3_css">
+                <div style="float:left;width:42px;height:43px;margin-left:-1px;margin-top:2px;background:url(Texture/Aries/Common/ThemeTeen/rune_tips_ico_32bits.png#0 0 42 43)"></div>
+                <div style="position:relative;width:340px;height:65px;margin-left:40px;margin-top:-40px;">
+                <pe:gridview name="runedeck" DataSource="<%=DS_Func_Rune%>"  ItemsPerLine="8" AllowPaging="fale" pagesize="8">
+				    <Columns>
+                            <pe:if condition='<%=Eval("index") < 8%>'>
+						        <div class="block" style="margin-left:2px;margin-top:0px;width:35px;height:35px;">
+                                    <div style="margin-left:1px;">
+                                            <!--  符文-->
+                                        <pe:if condition='<%=Eval("gsid") ~= 0%>'>                                        
+                                            <img src='<%=getIcon(Eval("gsid")) %>' style="position:relative;width:32px;height:32pvx;margin-left:1px;margin-top:1px;" />
+                                            <input type="button" zorder="1"  value='<%=string.format("%d",Eval("copies")) %>' style="margin-left:15px;margin-top:15x;width:30px;height:30px;background:url;" />
+				                            <input type="button" animstyle="14" zorder="1"   Normal_BG="" MouseOver_BG="Texture/Aries/Common/ThemeTeen/candel_32bits.png" style="margin-left:5px;margin-top:-40x;width:30px;height:30px;background:url;" name= '<%=getName(Eval("gsid"),Eval("index")) %>'  onclick="doRemoveClick"  tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="32" tooltip_offset_y="-55"/>
+                                        </pe:if>
+                                    </div>
+				                </div>
+                            </pe:if>                                                                          
+                            <pe:if condition='<%=Eval("index") == 8%>'>
+                                <input type="button" value="所有&#10;符文" animstyle="14" zorder="1"   Normal_BG="" MouseOver_BG="" style="margin-left:5px;margin-top:2x;width:30px;height:30px;background:url;text-singleline:false;" name= 'allRuneBtn'  onclick="ShowAllRune"  tooltip='查看所有符文' />
+                            </pe:if>
+				    </Columns>
+				    <EmptyDataTemplate>
+					    <b>空</b>
+				    </EmptyDataTemplate>
+				    <FetchingDataTemplate>
+					    <b>请稍等 ... </b>
+				    </FetchingDataTemplate>
+				    <PagerSettings Position="Bottom" style="width:0px;height:0px;"/>
+				    <PagerTemplate>
+					    <form>
+	                    </form>
+				    </PagerTemplate>
+			    </pe:gridview>
+                </div>
+            </div>
+            <div style="position:relative;margin-left:5px;margin-top:63px;width:343px;height:275px;" class="border_bg2_css">
+            </div>
+            <div style="position:relative;margin-left:3px;margin-top:59px;width:347px;height:335px;" class="inborder_golden">
+            </div>
+
+            <div style="position:relative;margin-left:10px;margin-top:24px;width:300px;height:35px;background:">      
+                <pe:gridview DataSource="<%=MyCompany.Aries.Inventory.Cards.MyCardsManager.CombatDeckDS_Func%>" 
+                    name="CombatDeckInventory" style="margin-left:2px;margin-top:0px;width:300px;heigth:30px;" CellPadding="0" ItemsPerLine="7" AllowPaging="false" pagesize="7" >
+                    <Columns>
+                        <pe:if condition='<%=Eval("gsid") > 0%>'>
+                            <pe:if condition='<%=Eval("isCombatDeck")==1%>'>
+                                <div style="padding-top:5px;padding-left:5px;width:40px;height:35px;background:url(Texture/Aries/Common/Teen/control/tab_btn_selected_32bits.png#0 0 86 23:10 10 10 10);">                             
+                                    <div style="margin-top:-5px;margin-left:-5px;width:40px;height:35px;background:url(Texture/Aries/Common/Teen/control/tab_outline_selected_32bits.png#0 0 32 30: 5 5 5 5);">
+                                        <pe:item gsid='<%=Eval("gsid")%>' cursor='<%=mouseover_icon%>' tooltip='<%=GetTooltip(Eval("name"))%>'  isclickable="false" style="margin-top:5px;margin-left:5px;width:28px;height:28px;"/> 
+                                        <input type="button" zorder="2" style="margin-left:0px;margin-top:-30px;width:40px;height:35px;background:;" name='<%=Eval("gsid")%>'  onclick="SetBagName"  tooltip='<%=GetCurrBagName(Eval("gsid")) %>'/>
+                                    </div> 
+                                </div> 
+                            </pe:if>
+                            <pe:if condition='<%=Eval("isCombatDeck")~=1%>'>
+                                <div style="padding-top:5px;padding-left:5px;width:40px;height:35px;background:url(Texture/Aries/Common/Teen/control/tab_btn_32bits.png#0 0 86 23:10 10 10 10);">                            
+                                    <pe:if condition='<%=HasCustBagName(Eval("gsid")) %>'>
+                                        <pe:slot guid='<%=Eval("guid")%>' cursor='<%=mouseover_icon%>' IsRightClickDisable="true" onclick="OnClickItem" style="width:28px;height:28px;" tooltip='<%=GetCurrBagName(Eval("gsid")) %>'/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not HasCustBagName(Eval("gsid")) %>'>
+                                        <pe:slot guid='<%=Eval("guid")%>' cursor='<%=mouseover_icon%>' IsRightClickDisable="true" onclick="OnClickItem" style="width:28px;height:28px;"/>
+                                    </pe:if>
+
+                                </div> 
+                            </pe:if>
+                        </pe:if>
+                        <pe:if condition='<%=Eval("gsid") == 0%>'>
+                            <div style="padding-top:5px;padding-left:5px;width:40px;height:35px;background:url(Texture/Aries/Common/Teen/control/tab_btn_32bits.png#0 0 86 23:10 10 10 10);">
+                                <pe:goalpointer listen="select_add_carddeck" style="position:relative;margin-left:2px;margin-top:2px;width:32px;height:32px;"></pe:goalpointer>
+                                <input type="button" zorder="2" style="margin-left:2px;margin-top:2px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/addicon_32bits.png#0 0 32 32);" onclick="BuyNewCombatDeck"  tooltip='购买新卡包'/>
+                            </div> 
+                            <pe:if condition='<%=BuyNewDeckTip() %>'>
+                                <div style="position:relative;margin-left:-3px;margin-top:-40px;width:55px;height:40px;background:" >
+                                        <img zorder="3" enabled="false" class="animated_btn_overlay" width="50" height="40"/>
+                                </div> 
+                            </pe:if>
+                        </pe:if>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>	  
+                    <PagerSettings Position="" height="0" PreviousPageText="" NextPageText=""/>      
+	                <PagerTemplate>	
+            	        <form>                	</form>    
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+
+            <div style="position:relative;margin-left:2px;margin-top:20px;width:350px;height:423px;" class="border_bg1_css">
+            </div>            
+
+            <div style="float:left;margin-left:80px;margin-top:403px;">
+                <input type="button" class="default_btn_css" value="卡牌百科" tooltip="卡牌百科 点击查看" onclick="DoViewEncyclopedia" style="margin-top:3px;width:80px;height:24px;"/>
+            </div>
+            <div style="float:left;margin-left:15px;margin-top:403px;">
+                <input type="button" class="default_btn_css" value="配牌说明" tooltip="配牌说明 点击查看" onclick="onclick_cardhelp" style="margin-top:3px;width:80px;height:24px;"/>
+            </div>
+            <div style="float:left;margin-left:15px;margin-top:403px;">
+                <input type="button" class="default_btn_css" value="清空卡包" tooltip="将战斗卡包所有卡片全部移除" onclick="RemoveAllCards" style="margin-top:3px;height:24px;width:80px;"/>
+            </div>
+        </div>
+
+        <div style="float:left;" >
+			<div style="position:relative;margin-left:-52px;margin-top:3px;">
+				<pe:tabs name="cardtype" ItemSpacing="0" class="tabs_blue" >
+                    <pe:tab-item name="combat" selected="true" text="常规" style="width:150px;" onclick="ChangeCardType()" tooltip="<%=card_tip() %>">
+			        </pe:tab-item>
+        			<pe:tab-item name="rune" text="符文" style="width:150px;" onclick="ChangeCardType()" tooltip="<%=rune_tip() %>">
+			        </pe:tab-item>
+				</pe:tabs>
+                <pe:goalpointer listen="click_secondary_school" style="position:relative;margin-left:323px;margin-top:-445px;width:60px;height:24px;"></pe:goalpointer>
+                <pe:if condition='<%=HasSecondarySchool() %>'>
+                    <input type="button" class="highlight_btn_css" value="重置辅修" tooltip="重修辅修系别" onclick="ResetSecondarySchool" style="margin-left:323px;margin-top:-445px;width:60px;height:24px;"/>
+                </pe:if>
+                <pe:if condition='<%=not HasSecondarySchool() and GetCombatLvl()>=30 %>'>
+                    <input type="button" class="highlight_btn_css" value="选择辅修" tooltip="选择辅修系别" onclick="SetSecondarySchool" style="margin-left:323px;margin-top:-445px;width:60px;height:24px;"/>
+                </pe:if>
+                <pe:if condition='<%=not HasSecondarySchool() and GetCombatLvl()<30 %>'>
+                    <input type="button" class="gift_not_button_cn" value="选择辅修" tooltip="30级后才可选择辅修系别" onclick="SetSecondarySchool" style="margin-left:323px;margin-top:-445px;width:60px;height:24px;"/>
+                </pe:if>
+			</div>
+			<div style="position:relative;margin-left:-63px;margin-top:30px;">
+                <pe:if condition='<%=Eval("card_type")=="combat" %>'>
+                    <pe:tabs name="card_class" onclick="ChangeCardsView" ItemSpacing="0" class="default_tabs" >
+                        <pe:tab-item name="all" icon="Texture/Aries/Common/ThemeTeen/school_all_icn16_32bits.png" text="全部" selected="true" style="width:53px;">  </pe:tab-item>
+                        <pe:tab-item name="ice" icon="Texture/Aries/Common/ThemeTeen/school_ice_icn16_32bits.png" text="寒冰" condition='<%=IsLearned("ice") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="fire" icon="Texture/Aries/Common/ThemeTeen/school_fire_icn16_32bits.png" text="烈火" condition='<%=IsLearned("fire") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="storm" icon="Texture/Aries/Common/ThemeTeen/school_storm_icn16_32bits.png" text="风暴" condition='<%=IsLearned("storm") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="earth" icon="Texture/Aries/Common/ThemeTeen/school_land_icn16_32bits.png" text="大地" condition='<%=IsLearned("earth") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="death" icon="Texture/Aries/Common/ThemeTeen/school_death_icn16_32bits.png" text="死亡"condition='<%=IsLearned("death") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="life" icon="Texture/Aries/Common/ThemeTeen/school_life_icn16_32bits.png" text="生命" condition='<%=IsLearned("life") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="balance" icon="Texture/Aries/Common/ThemeTeen/school_balance_icn16_32bits.png" text="平衡" condition='<%=IsLearned("balance") %>' style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="other" text="其他" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                    </pe:tabs>
+                </pe:if>
+
+                <pe:if condition='<%=Eval("card_type")=="rune" %>'>
+                    <pe:tabs name="rune_class" onclick="ChangeCardsView" ItemSpacing="0" class="default_tabs" >
+                        <pe:tab-item name="all" icon="Texture/Aries/Common/ThemeTeen/school_all_icn16_32bits.png" text="全部" selected="true" style="width:53px;">  </pe:tab-item>
+<!--                        <pe:tab-item name="ice" icon="Texture/Aries/Common/ThemeTeen/school_ice_icn16_32bits.png" text="寒冰" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="fire" icon="Texture/Aries/Common/ThemeTeen/school_fire_icn16_32bits.png" text="烈火" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="storm" icon="Texture/Aries/Common/ThemeTeen/school_storm_icn16_32bits.png" text="风暴" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="earth" icon="Texture/Aries/Common/ThemeTeen/school_land_icn16_32bits.png" text="大地" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="death" icon="Texture/Aries/Common/ThemeTeen/school_death_icn16_32bits.png" text="死亡" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="life" icon="Texture/Aries/Common/ThemeTeen/school_life_icn16_32bits.png" text="生命" style="width:53px;margin-left:0px;">  </pe:tab-item>
+                        <pe:tab-item name="balance" icon="Texture/Aries/Common/ThemeTeen/school_balance_icn16_32bits.png" text="通用" style="width:53px;margin-left:0px;">  </pe:tab-item>
+-->                    </pe:tabs>
+                </pe:if>
+
+                <pe:if condition='<%=BigCardMode()%>'>
+                    <input type="button" value="" style="margin-left:280px;margin-top:-410px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                    <input type="button" value="卡牌" style="margin-left:-3px;margin-top:-412px;width:40px;height:20px;background:" />
+                    
+                    <input type="button" value="" style="margin-left:5px;margin-top:-410px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectIcon" />
+                    <input type="button" value="图标" style="margin-left:-3px;margin-top:-412px;width:40px;height:20px;background:" onclick="OnSelectIcon" />
+                </pe:if>
+                <pe:if condition='<%=not BigCardMode()%>'>
+                    <input type="button" value="" style="margin-left:280px;margin-top:-410px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectCard" />
+                    <input type="button" value="卡牌" style="margin-left:-3px;margin-top:-412px;width:40px;height:20px;background:" onclick="OnSelectCard" />
+                    
+                    <input type="button" value="" style="margin-left:5px;margin-top:-410px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                    <input type="button" value="图标" style="margin-left:-3px;margin-top:-412px;width:40px;height:20px;background:" />
+                </pe:if>
+			</div>
+
+            <div style="width:370px;height:355px;margin-left:-45px;margin-top:65px;"> 
+                <pe:if condition='<%=BigCardMode()%>'>
+                    <pe:gridview name="cardsdeck_bigcard" DataSource="<%=DS_Func_CardsDeck%>"  ItemsPerLine="3" AllowPaging="false" DefaultNodeHeight="170" VerticalScrollBarStep="170" RememberScrollPos="true">
+				        <Columns>
+						        <div class="block" style="margin-left:10px;margin-top:15px;width:105px;height:155px;">
+                                    <div style="width:96px;height:145px;">
+                                    <!-- 如果拥有卡片模板 -->
+                                    <pe:if condition='<%=(Eval("guid") ~= 0)%>'>
+                                        
+                                       <!-- 如果有卡片 显示卡片 -->
+                                            <pe:if condition='<%=Eval("card_type")=="combat" %>'>
+                                                <div style="position:relative;"><pe:item  gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClick" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_is_lock_position="true" tooltip_offset_x="101" tooltip_offset_y="-5"  style="width:95px;height:145px;margin-left:6px;margin-top:5px;background-color:#ffffffff" animstyle="0" /></div>
+                                                <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:132px;margin-left:80px;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("card_type")=="rune" %>'>
+                                                <pe:if condition='<%=CheckRuneLvl(Eval("gsid"))%>'>                                                    
+                                                    <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClickRune" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_is_lock_position="true" tooltip_offset_x="101" tooltip_offset_y="-5" style="width:95px;height:145px;margin-left:7px;margin-top:7px;" animstyle="0" /></div>
+                                                </pe:if>
+                                                <pe:if condition='<%=not CheckRuneLvl(Eval("gsid"))%>'>
+                                                    <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' style="width:95px;height:145px;margin-left:7px;margin-top:7px;" /></div>
+                                                    <input type="button" style="position:relative;width:95px;height:145px;margin-left:7px;margin-top:7px;color:#ff0000;background:url(Texture/Aries/Desktop/ItemOutline/redmask_cannot_use_32bits.png# 0 0 16 16);" zorder="2" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="5" tooltip_offset_y="-55"  animstyle="0" />
+                                                </pe:if>
+                                                <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:132px;margin-left:80px;;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                                                <!--<input type="button" class="yellowbutton" style="width:60px;height:20px;margin-top:132px;margin-left:40px;" zorder="3" value='<%=GetRuneNum(Eval("gsid")) %>' />-->
+                                            </pe:if>
+                                            <pe:if condition='<%=IsNewGsid(Eval("gsid")) and Eval("card_type")=="combat"%>'>
+                                                <div style="position:relative;margin-left:-10px;margin-top:-170px;width:125px;height:168px;background:" >
+                                                        <img zorder="1" enabled="false" class="animated_btn_overlay" width="125" height="168"/>
+                                                </div>                                                 
+                                            </pe:if>
+                                            <pe:if condition='<%=IsNewGsid(Eval("gsid")) and Eval("card_type")=="rune"%>'>
+                                                <div style="position:relative;margin-left:-10px;margin-top:-170px;width:125px;height:168px;background:" >
+                                                        <img zorder="1" enabled="false" class="animated_btn_overlay" width="125" height="168"/>
+                                                </div>                                                 
+                                            </pe:if>
+                                    </pe:if>
+                                    <pe:if condition='<%=(Eval("guid") == 0 or Eval("guid") == nil)%>'>
+                                          <pe:if condition='<%=Eval("card_type")=="rune" and Eval("buytip")==true%>'>
+                                            <div style="margin-left:10px;margin-top:50px;width:72px"><a style="font-size:12px" onclick="DoShop">召唤外卖熊补充符文卡牌</a></div>
+                                          </pe:if>
+                                    </pe:if>
+                                    </div>
+				                </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:125px;margin-top:-132px;width:260px;height:25px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>
+                </pe:if>
+                <pe:if condition='<%=not BigCardMode()%>'>
+                    <pe:gridview name="cardsdeck_icon" DataSource="<%=DS_Func_CardsDeck%>"  ItemsPerLine="7" AllowPaging="false" DefaultNodeHeight="50" VerticalScrollBarStep="50" RememberScrollPos="true">
+				        <Columns>
+						        <div class="block" style="margin-left:5px;margin-top:2px;width:45px;height:45px;">
+                                    <div style="width:40px;height:40px;">
+                                    <!-- 如果拥有卡片模板 -->
+                                    <pe:if condition='<%=(Eval("guid") ~= 0)%>'>
+                                            <pe:if condition='<%=Eval("card_type")=="combat" %>'>
+                                                <div style="position:relative;"><pe:item  gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClick" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_is_lock_position="true" tooltip_offset_x="45" tooltip_offset_y="-25" style="width:40px;height:40px;margin-left:2px;margin-top:2px;" animstyle="12" /></div>
+                                                <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:26px;margin-left:26px;font-weight:bold;" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />                                                
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("card_type")=="rune" %>'>
+                                                <pe:if condition='<%=CheckRuneLvl(Eval("gsid"))%>'>                                                    
+                                                    <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClickRune" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_is_lock_position="true" tooltip_offset_x="45" tooltip_offset_y="-25" style="width:40px;height:40px;margin-left:2px;margin-top:2px;" animstyle="12" /></div>
+                                                </pe:if>
+                                                <pe:if condition='<%=not CheckRuneLvl(Eval("gsid"))%>'>
+                                                    <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' style="width:40px;height:40px;margin-left:2px;margin-top:2px;" /></div>
+                                                    <input type="button" style="position:relative;width:40px;height:40px;margin-left:2px;margin-top:2px;color:#ff0000;background:url(Texture/Aries/Desktop/ItemOutline/redmask_cannot_use_32bits.png# 0 0 16 16);" zorder="2" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="5" tooltip_offset_y="-55"  animstyle="0" />
+                                                </pe:if>
+                                                <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:26px;margin-left:26px;;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                                            </pe:if>
+                                            <pe:if condition='<%=IsNewGsid(Eval("gsid")) and Eval("card_type")=="combat"%>'>
+                                                <div style="position:relative;margin-left:1px;margin-top:-50px;width:45px;height:45px;background:" >
+                                                        <img zorder="1" enabled="false" class="animated_btn_overlay" width="45" height="45"/>
+                                                </div>                                                 
+                                            </pe:if>
+                                            <pe:if condition='<%=IsNewGsid(Eval("gsid")) and Eval("card_type")=="rune"%>'>
+                                                <div style="position:relative;margin-left:1px;margin-top:-50px;width:45px;height:45px;background:" >
+                                                        <img zorder="1" enabled="false" class="animated_btn_overlay" width="45" height="45"/>
+                                                </div>                                                 
+                                            </pe:if>
+                                    </pe:if>
+                                    <pe:if condition='<%=(Eval("guid") == 0 or Eval("guid") == nil)%>'>
+                                          <pe:if condition='<%=Eval("card_type")=="rune" and Eval("buytip")==true%>'>
+                                            <div style="margin-left:8px;margin-top:10px;"><a style="font-size:12px" onclick="DoShop">补充</a></div>
+                                          </pe:if>
+                                    </pe:if>
+                                    </div>
+				                </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:125px;margin-top:-132px;width:260px;height:25px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>
+                </pe:if>
+            </div>
+
+            <div style="position:relative;width:200px;margin-left:-35px;margin-top:-3px;">
+
+                <pe:if condition='<%=cardfilter("all")%>'>
+                    <input type="button" class="highlight_btn_css" value="全部" tooltip="显示全部品质的卡牌"  style="margin-left:5px;margin-top:3px;width:36px;height:20px;" />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("all")%>'>
+                    <input type="button" class="default_btn_css" value="全部" tooltip="显示全部品质的卡牌" name="all" style="margin-left:5px;margin-top:3px;width:36px;height:20px;" onclick="OnFilterCard" />
+                </pe:if>
+                <pe:if condition='<%=cardfilter("white")%>'>
+                    <input type="button" tooltip="只显示白卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_selected_btn_32bits.png)"  />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("white")%>'>
+                    <input type="button" name="white" tooltip="只显示白卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/white_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("green")%>'>
+                    <input type="button" tooltip="只显示绿卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_selected_btn_32bits.png)"  />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("green")%>'>
+                    <input type="button" name="green" tooltip="只显示绿卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/green_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("blue")%>'>
+                    <input type="button" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_selected_btn_32bits.png)"  />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("blue")%>'>
+                    <input type="button" name="blue" tooltip="只显示蓝卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/blue_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+
+                <pe:if condition='<%=cardfilter("purple")%>'>
+                    <input type="button" tooltip="只显示紫卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_selected_btn_32bits.png)"  />
+                </pe:if>
+                <pe:if condition='<%=not cardfilter("purple")%>'>
+                    <input type="button" name="purple" tooltip="只显示紫卡" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_btn_32bits.png)" onclick="OnFilterCard" />
+                </pe:if>
+                                
+<!--                <input type="radio" value="purple" tooltip="只显示紫卡" name="qualityfilter" background2="Texture/Aries/Common/Teen/control/purple_selected_btn_32bits.png" style="margin-left:5px;margin-top:5px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/control/purple_btn_32bits.png)" onclick="OnFilterCard" />-->
+            </div>
+            <div style="position:relative;width:390px;height:386px;margin-left:-52px;margin-top:-362px;"  class="border_bg2_css">
+            </div>
+            <div style="position:relative;width:396px;height:423px;margin-left:-56px;margin-top:-395px;"  class="border_bg1_css">
+            </div>
+        </div>
+
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

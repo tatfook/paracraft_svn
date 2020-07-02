@@ -1,0 +1,129 @@
+﻿<!-- "script/kids/3DMapSystemApp/worlds/StarViewPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Star View Page by LiXizhi, 2008.8.14</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="StarViewPage.lua">
+    -- Map3DSystem.App.worlds.StarViewPage.OnInit();
+</script>
+
+<div style="float:left;width:635px;padding:5px;" class="box">
+  <form name="searchWorld">
+  <select name="CurFolder" onclick="Map3DSystem.App.worlds.StarViewPage.OnSelectFolder()">
+      <option selected="true" value="worlds/MyWorlds">按历史访问人数排序</option>
+      <option value="worlds/Official">按当前在线人数排序</option>
+      <option value="worlds/Templates">按世界面积大小排序</option>
+      <option value="worlds/downloads">按更新时间排序</option>
+      <option value="worlds">按更新创建时间排序</option>
+  </select>
+  <div style="float:left;margin-top:3px;margin-left:10px;margin-right:5px">
+    <input type="checkbox" checked="true" name="ShowPreviewImage"/>显示预览图片
+  </div>
+  <select style="margin-left:42px;width:126px" name="SearchText">
+    <option selected="true"></option>
+    <option>游戏</option>
+    <option>教程</option>
+    <option>ParaEngine</option>
+  </select>
+  <input type="submit" DefaultButton="true" name="searchBtn" value="搜索" onclick="Map3DSystem.App.worlds.StarViewPage.OnSearch"/>
+  </form>
+  <div style="margin-top:5px">
+    <pe:gridview AllowPaging="True" pagesize="6" ItemsPerLine="2" name="gvwWorlds" DataSource='<%=Map3DSystem.App.worlds.StarViewPage.DS_OnlineTutorial_Func%>' DefaultNodeHeight="125">
+        <Columns>
+            <pe:world worldpath='<%=Eval("worldpath")%>' role="poweruser">
+                <div style="width:295px">
+                    <div style="float:left;width:160px;">
+                        <img src='<%=Eval("preview")%>'width="160" height="90"/><br />
+                        <div style="margin-top:2px">
+                        <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+                        <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+                        <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+                        <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+                        <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+                        <font style="font-size:11px">(13002 votes)</font>
+                        </div>
+                    </div>
+                    <div style="float:left;width:130px;margin-left:5px">
+                        <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                        创建者:ParaEngine<br />
+                        面积:1600km^2<br />
+                        更新时间:2008-8-8<br />
+                        访客数:33221人<br />
+                        个人服务器
+                    </div>
+                </div>
+            </pe:world>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有找到符合条件的世界</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+        <PagerSettings style="margin-left:300px" Position="Bottom"/>
+    </pe:gridview>
+  </div>
+</div>
+<div style="float:left;width:360px;margin-left:10px">
+    <div style="margin-left:15px">
+        <pe:canvas3d name="planetView" style="width:256px;height:256px;"><![CDATA[
+        {
+          name= "Planet",
+	        AssetFile= "model/common/star/star01.x",
+	        x=0,y=0,z=0,
+        }
+        ]]></pe:canvas3d>
+    </div>
+    <div style="padding:5px"  class="box">
+        <div style="float:left;width:215px;">
+            世界:<span name="worldname">PE岛</span><br />
+            创建者:<span name="owner">ParaEngine</span><br />
+            面积:<span name="size">1600km^2</span><br />
+            更新时间:<span name="updatetime">2008-8-8</span><br />
+            历史访问用户数:<span name="visitors">33221人</span><br />
+            当前在线人数:<span name="online">32/100人</span><br />
+        </div>
+        <div style="float:left;width:130px;padding:5px" class="box">
+            <img style="background:url(Texture/3DMapSystem/common/exclamation.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/action.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/bell.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/chat.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/color_swatch.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/eye.png);width:16px;height:16px;margin:2px"/>
+            <img style="background:url(Texture/3DMapSystem/common/feed.png);width:16px;height:16px;margin:2px"/>
+            <div style="margin-left:96px">
+                <img style="background:url(Texture/3DMapSystem/common/PageLeft.png);width:8px;height:8px;"/>
+                <img style="margin-left:3px;background:url(Texture/3DMapSystem/common/PageRight.png);width:8px;height:8px;"/>
+            </div>
+        </div>
+        <!--<div>
+            星球居民: 
+            <div style="float:left">
+                李西峙, Andy, Lorne, ZhangYu
+            </div>
+        </div>-->
+        <div>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <img style="background:url(Texture/3DMapSystem/common/star.png);width:12px;height:12px;"/>
+            <font style="font-size:11px">(13002 votes)</font>
+        </div>
+        <div>
+            <div style="float:left;width:240px">
+                个人服务器(开放)<br />
+                <img style="background:url(Texture/3DMapSystem/common/chart_bar.png);width:16px;height:16px;margin-right:3px"/>链接状态: 242ms
+            </div>
+            <div style="float:left;margin-left:20px">
+                <input style="height:26px" class="defaultbutton" type="button" DefaultButton="true" name="enterWorld" value="进入星球" onclick="Map3DSystem.App.worlds.StarViewPage.OnClickLoadWorld"/>
+            </div>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

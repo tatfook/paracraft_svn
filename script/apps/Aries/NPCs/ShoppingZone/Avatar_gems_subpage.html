@@ -1,0 +1,54 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar_gems_subpage,add by WD, 2011/08/02</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/Avatar_gems_subpage.lua");
+local Avatar_gems_subpage = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage");
+Avatar_gems_subpage:Init();
+
+function GetDataSource(arg)
+    return Avatar_gems_subpage:GetDataSource(arg);
+end
+
+function OnClickItem(arg)
+    Avatar_gems_subpage:OnClickItem(arg);   
+end
+]]></script>
+    <div style="padding:1px;width:422px;height:408px;" class="inborder">
+    <pe:gridview DataSource="<%=GetDataSource %>" name="pegvwGemsView" 
+        CellPadding="2" ItemsPerLine="8" AllowPaging="true" pagesize="56" >
+        <Columns>
+            <div style="margin-left:2px;margin-top:2px;width:48px;height:48px;" class="block">
+                <pe:if condition='<%=#MyCompany.Aries.NPCs.ShoppingZone.Avatar_gems_subpage.DisplayItems ~= 0 %>'>
+                <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>'showdefaulttooltip="false" style="width:48px;height:48px;"/>
+                <pe:if condition='<%=Eval("copies") > 0 %>'>
+                <div style="margin-top:-15px;text-align:right;"><%= Eval("copies")%></div>
+                </pe:if>
+                </pe:if>
+            </div>
+        </Columns>
+        <!--<EmptyDataTemplate>
+        <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+        </EmptyDataTemplate>-->
+        <FetchingDataTemplate>
+        <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="0" style="margin-left:152px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+                <input type="button" name="pre" class="pagerleft" />
+                <input type="button" name="page" class="pagertext" />
+                <input type="button" name="next" class="pagerright" />
+	        </form>   
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>   
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local MagicStarHelpPage = commonlib.gettable("MyCompany.Aries.Help.MagicStarHelpPage");
+MagicStarHelpPage.TabValue = MagicStarHelpPage.TabValue or "1";
+
+local rEmoney={};
+
+for i=1,10 do
+    rEmoney[i]={mlel=i,emoney=(i+4)*1000,};
+end
+
+function DS_Func_RewardsEmoney(index)
+    if(index == nil) then
+        return 1;
+	else
+		return rEmoney[index];
+	end	
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+
+function HaveLook()
+    local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+    local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+			_guihelper.MessageBox("<div style='margin-left:15px;margin-top:15px;text-align:center'>魔法口袋在哈奇岛，不在当前岛屿，不能过去哦！回到哈奇岛就可以找到它了！！</div>");
+		return
+	end
+    local position = {20198.562500, 3.916379, 20093.791016};
+    local camera = {8.86,0.35,-2.93};
+    local msg = { aries_type = "OnMapTeleport", 
+		    position = position, 
+		    camera = camera, 
+		    wndName = "map", 
+	    };
+    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    ClosePage();
+end
+
+]]></script>
+
+<div style="margin-left:-10px;margin-top:-2px;width:402px;height:372px;background:url(Texture/Aries/Common/right_bg.png#0 0 64 64: 20 20 20 20);">
+ <div style="margin-left:0px;margin-top:5px;width:200px;height:370px">
+    <div style="margin-left:125px;margin-top:5px;width:30px;height:31px;background:url(Texture/Aries/Common/magicMoneybox_ico.png#0 0 30 31)" ></div>     
+    <div style="color:#022a57;font-weight:bold;font-size:14;margin-left:20px;margin-top:-28px;">1. 魔法储蓄罐</div>
+    <div style="color:#022a57;font-size:12;margin-top:-6px;margin-left:25px;">
+        魔法星每周会帮你存下奇豆，等级越高，存的奇豆也越多！每个星期都要记得来领取奇豆哦！
+    </div>
+
+    <div style="color:#022a57;font-size:12;margin-top:-5px;margin-left:15px;width:183px;height:28px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tabletitle.png#0 0 183 30);">
+    </div>
+<!--    <div style="color:#022a57;font-size:12;margin-top:-2px;margin-left:15px;width:364px;height:260px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_bg.png#0 0 364 283);"> -->
+    <div style="color:#022a57;font-size:12;margin-top:0px;margin-left:15px;width:184px;height:240px;background:;">
+    <pe:gridview DataSource="<%=DS_Func_RewardsEmoney%>" name="reward_emoney" style="margin-left:0px;margin-top:0px;margin-right:0px;margin-bottom:0px;width:183px;height:240px;" 
+       VerticalScrollBarStep="35"  CellPadding="0"  DefaultNodeHeight = "6" ItemsPerLine="1" AllowPaging="false" pagesize="10">
+        <Columns>  
+<!--                <div style="margin-left:110px;margin-top:0px;font-size:12;color:#022a57;" ><%=Eval("emoney") %></div>  -->
+                <div style="margin-left:0px;margin-top:0px;width:183px;height:24px;background:url(Texture/Aries/MapHelp/MagicStarHelp/FreeTake_right_tablerow_bg.png#0 1 183 26);" >
+                    <div style="margin-left:25px;margin-top:3px;font-size:12;color:#022a57;"><%=Eval("mlel") %> 级</div>
+                    <div style="margin-left:110px;margin-top:-23px;font-size:12;color:#022a57;"><%=Eval("emoney") %></div>
+                </div>  
+
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>
+ </div>
+ <div style="margin-left:200px;margin-top:-370px;width:190px;height:370px">
+    <div style="margin-left:105px;margin-top:5px;width:23px;height:24px;background:url(Texture/Aries/MapHelp/MagicStarHelp/pocket_ico.png#0 0 23 24)" ></div>     
+    <div style="color:#022a57;font-weight:bold;font-size:14;margin-left:20px;margin-top:-28px;">2. 魔法口袋</div>
+    <div style="color:#022a57;font-size:12;margin-top:-3px;margin-left:25px;">
+        神奇的魔法口袋里有宝石等好多宝贝，魔法星存在能量时，每周可以拿出比自己魔法星等级多1的礼物，具体能拿到什么要看你自己的手气哦！        
+    </div>
+    <input style="float:left;margin-left:90px;margin-top:5px;width:92px;height:35px;background:url(Texture/Aries/MapHelp/NormalHelp/havelook_32bits.png#0 0 92 35);" type="button"  onclick="HaveLook()" value="" tooltip="去找魔法口袋"/>
+    <div style="margin-left:10px;margin-top:-45px;width:250px;height:240px;background:url(Texture/Aries/MapHelp/MagicStarHelp/gem_bg.png#0 0 256 256)" ></div>     
+ </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatProfile.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatProfile, by zrf, 2010/10/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CombatProfile.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Desktop.CombatProfile.Init();
+
+function Confirm()
+    page:CloseWindow();
+end
+]]></script>
+<div style="position:relative">
+    <input type="button" onclick="Confirm()" zorder="2" style="margin-left:357px;margin-top:32px;width:49px;height:50px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/Close.png#0 0 49 50);"/>
+</div>
+<div style="width:410px;height:490px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/bg.png#0 0 410 490)">
+    <div style="position:relative;margin-left:10px;margin-top:70px;width:365px;height:387px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/bg_left_32bits.png# 0 0 365 387);">
+        <div style="position:relative;margin-left:12px;margin-top:10px;">
+            <img style="width:81px;height:84px" src='<%=MyCompany.Aries.Desktop.CombatProfile.GetLogo() %>'/>
+        </div>        
+        <div tooltip='' style="position:relative;margin-left:128px;margin-top:28px;width:172px;height:26px;color:#fdfe40;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowMLine() %>
+            <div style="position:relative;color:#000000;font-weight:bold;">
+                <%=MyCompany.Aries.Desktop.CombatProfile.GetM() %>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:118px;margin-top:60px;width:172px;height:26px;color:#fdfe40;font-weight:bold;">
+<!--            <div style="float:left;position:relative;color:#000000">
+                能量值:
+            </div>-->
+            <div style="float:left;position:relative;margin-left:0px;color:#fdfe40">
+            能量值:<%=MyCompany.Aries.Desktop.CombatProfile.GetEnergy() %>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:70px;margin-top:10px;width:70px;height:30px;color:#fdfe40;text-align:center;font-weight:bold">
+            <%=MyCompany.Aries.Desktop.CombatProfile.GetMLevel() %>
+        </div>
+
+        <div style="position:relative;margin-left:20px;margin-top:90px;width:329px;height:340px;background:;">
+            <div style="margin-left:15px;margin-top:40px;">
+                <pe:gridview DataSource="<%=MyCompany.Aries.Desktop.CombatMagicStarPage.DS_Func2%>" 
+                    name="CombatMagicStarPage2" style="margin-left:7px;margin-top:20px;" CellPadding="4"  
+                    DefaultNodeHeight = "80" ItemsPerLine="4" AllowPaging="True" pagesize="4">
+                    <Columns>
+                        <div style="padding-top:8px;padding-left:1px;width:70px;height:110px;background:;">
+                            <pe:item gsid='<%=Eval("gsid")%>' isclickable="false" tooltip='<%=MyCompany.Aries.Desktop.CombatMagicStarPage.GetTooltip(Eval("gsid")) %>' style="width:60px;height:60px;"/>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                    </EmptyDataTemplate>
+	                <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:-210px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+	                        <input type="button" name="pre" zorder="2" style="width:19px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+
+	                        <input type="button" name="next" zorder="2" style="margin-left:290px;width:22px;height:19px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:50px;margin-top:300px;width:100px;height:60px;color:#000000;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowHPAdd() %>
+        </div>
+        <div style="position:relative;margin-left:190px;margin-top:300px;width:100px;height:60px;color:#000000;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowAttackAdd() %>
+        </div>
+        <div style="position:relative;margin-left:50px;margin-top:330px;width:100px;height:60px;color:#000000;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowGuardAdd() %>
+        </div>
+        <div style="position:relative;margin-left:190px;margin-top:330px;width:100px;height:60px;color:#000000;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowHitAdd() %>
+        </div>
+        <div style="position:relative;margin-left:50px;margin-top:360px;width:180px;height:60px;color:#000000;">
+            <%=MyCompany.Aries.Desktop.CombatProfile.ShowExpAdd() %>
+        </div>
+
+        <div style="position:relative;margin-left:190px;margin-top:350px;">
+            <input type="button" zorder="10" onclick="MyCompany.Aries.Desktop.CombatMagicStarPage.OnClickGetMagicStone()" style="width:108px;height:32px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/getstone_32bits.png#0 0 108 32)"/>
+        </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html> 

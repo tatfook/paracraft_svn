@@ -1,0 +1,128 @@
+﻿<!-- "script/apps/Aquarius/Profile/friends_view.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Friends Page by LiXizhi, 2008.4.30</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script refresh="false" type="text/npl" src="friends_view.lua">
+	local tabpage = document:GetPageCtrl():GetRequestParam("tab");
+    if(tabpage and tabpage~="") then
+        document:GetPageCtrl():SetNodeValue("FriendsTabs", tabpage);
+    end
+</script>
+<script type="text/npl"><![CDATA[
+MyCompany.Aquarius.friends_view.OnInit();
+local pageCtrl = document:GetPageCtrl();
+hostuid = pageCtrl:GetNodeValue("uid")
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsEveryone = Eval("dsEveryone") or {status=nil, };
+dsRecent = Eval("dsRecent") or {status=nil, };
+dsOnline = Eval("dsOnline") or {status=nil, };
+
+function DS_Func_Everyone(index)
+    return MyCompany.Aquarius.friends_view.DS_Func(dsEveryone, index, hostuid, pageCtrl)
+end
+
+function DS_Func_Recent(index)
+    return MyCompany.Aquarius.friends_view.DS_Func(dsRecent, index, hostuid, pageCtrl, nil, nil, 2)
+end
+
+function DS_Func_Online(index)
+    return MyCompany.Aquarius.friends_view.DS_Func(dsOnline, index, hostuid, pageCtrl, nil, 1)
+end
+
+]]></script>
+<input type="hidden" name="uid"/>
+<div>
+    <div style="margin-top:5px;margin-bottom:8px">
+        <img style="margin-right:10px;background:url(Texture/3DMapSystem/common/Users_Group.png);width:16px;height:16px;" />
+        <div style="font-weight:bold;float:left"><pe:name uid='<%=Eval("hostuid")%>' linked="false" />所有的朋友<pe:label style="height:20px" name="sub_category"></pe:label></div>
+    </div>
+    <div style="float:left;">
+        <pe:tabs name="FriendsTabs">
+        <pe:tab-item text="最近更新的" name="recent">
+            <pe:gridview DataSource="<%=DS_Func_Recent%>" name="gvwNewlyUpdated" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "70" pagesize="10">
+                <Columns>
+                    <div style="float:left; margin-right:10px">
+                        <pe:profile-photo uid='<%=Eval("uid")%>'/>
+		            </div>
+		            <div style="float:left; margin-right:10px">
+		                <pe:name style="font-weight:bold" uid='<%=Eval("uid")%>'/><a tooltip="查看他(她)的好友" href='<%="friends_view.html?uid="..Eval("uid")%>' target="_self">查看好友</a><br />
+		                <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+		                <pe:if-is-user uid='<%=Eval("hostuid")%>' style="float:left">
+		                    <a onclick="Map3DSystem.App.profiles.ProfileManager.RemoveFriend" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin:3px" />删除好友</a>
+		                </pe:if-is-user>
+		                <br />
+		                <hr/>
+		            </div>
+                </Columns>
+                <EmptyDataTemplate>
+		            <b><pe:name uid='<%=Eval("hostuid")%>' linked="false" />没有最近添加的好友</b>
+	            </EmptyDataTemplate>
+                <FetchingDataTemplate>
+	                <b>正在搜索, 请稍候 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom"/>
+            </pe:gridview>
+        </pe:tab-item> 
+          
+        <pe:tab-item text="所有人"  selected="true" name="everyone">
+            <pe:gridview DataSource="<%=DS_Func_Everyone%>" name="gvwAllFriend" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "70" pagesize="10">
+                <Columns>
+                    <div style="float:left; margin-right:10px">
+                        <pe:profile-photo uid='<%=Eval("uid")%>'/>
+		            </div>
+		            <div style="float:left; margin-right:10px">
+		                <pe:name style="font-weight:bold" uid='<%=Eval("uid")%>'/><a tooltip="查看他(她)的好友" href='<%="friends_view.html?uid="..Eval("uid")%>' target="_self">查看好友</a><br />
+		                <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+		                <pe:if-is-user uid='<%=Eval("hostuid")%>' style="float:left">
+		                    <a onclick="Map3DSystem.App.profiles.ProfileManager.RemoveFriend" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin:3px" />删除好友</a>
+		                </pe:if-is-user>
+		                <br />
+		                <hr/>
+		            </div>
+                </Columns>
+                <EmptyDataTemplate>
+		            <b><pe:name uid='<%=Eval("hostuid")%>' linked="false" />尚没有好友</b>
+	            </EmptyDataTemplate>
+                <FetchingDataTemplate>
+	                <b>正在搜索, 请稍候 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom"/>
+            </pe:gridview>
+        </pe:tab-item>
+        
+        <pe:tab-item text="当前在线的" name="online">
+            <pe:gridview DataSource="<%=DS_Func_Online%>" name="gvwQAPeople" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "70" pagesize="10">
+                <Columns>
+                    <div style="float:left; margin-right:10px">
+                        <pe:profile-photo uid='<%=Eval("uid")%>'/>
+		            </div>
+		            <div style="float:left; margin-right:10px">
+		                <pe:name style="font-weight:bold" uid='<%=Eval("uid")%>'/><a tooltip="查看他(她)的好友" href='<%="friends_view.html?uid="..Eval("uid")%>' target="_self">查看好友</a><br />
+		                <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+		                <pe:if-is-user uid='<%=Eval("hostuid")%>' style="float:left">
+		                    <a onclick="Map3DSystem.App.profiles.ProfileManager.RemoveFriend" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/delete.png);width:16px;height:16px;margin:3px" />删除好友</a>
+		                </pe:if-is-user>
+		                <br />
+		                <hr/>
+		            </div>
+                </Columns>
+                <EmptyDataTemplate>
+		            <b><pe:name uid='<%=Eval("hostuid")%>' linked="false" />没有好友在线</b>
+	            </EmptyDataTemplate>
+                <FetchingDataTemplate>
+	                <b>正在搜索, 请稍候 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom"/>
+            </pe:gridview>
+        </pe:tab-item>
+        </pe:tabs>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

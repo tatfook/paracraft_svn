@@ -1,0 +1,66 @@
+﻿<!-- "script/kids/3DMapSystemUI/Movie/PropertyPanel/ActorPanelPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>movie app by Leio, 2008.10.30</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="ActorPanelPage.lua">
+    NPL.load("(gl)script/kids/3DMapSystemUI/CCS/AnimationPage.lua");
+    Map3DSystem.App.CCS.AnimationPage.OnInit();
+    Map3DSystem.Movie.ActorPanelPage.OnInit();
+</script>
+
+ <pe:tabs name="actortools">
+  <pe:tab-item text="坐标" selected="true">
+        <div style="padding:5px" width="100%">
+<!--        <div style="float:left;text-align:right;width:80px">x:</div><pe:numericupdown name="pos_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangePosX"/><br />
+        <div style="float:left;text-align:right;width:80px">y:</div><pe:numericupdown name="pos_y" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangePosY"/><br />
+        <div style="float:left;text-align:right;width:80px">z:</div><pe:numericupdown name="pos_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangePosZ"/><br />-->
+        <div style="float:left;text-align:right;width:80px">facing:</div><pe:numericupdown name="facing" min_step="0.01" value="1" valueformat="%.2f" min="-6.28" max="6.28" onchange="Map3DSystem.Movie.ActorPanelPage.OnFacing"/><br />
+        <div style="float:left;text-align:right;width:80px">scaling:</div><pe:numericupdown name="scaling" min_step="0.01" value="1" valueformat="%.2f" min="0.01" max="4" onchange="Map3DSystem.Movie.ActorPanelPage.OnScaling"/><br />
+        <div style="float:left;text-align:right;width:80px">rot_x:</div><pe:numericupdown name="rot_x" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRotX"/><br />
+        <div style="float:left;text-align:right;width:80px">rot_y:</div><pe:numericupdown name="rot_y" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRotY"/><br />
+        <div style="float:left;text-align:right;width:80px">rot_z:</div><pe:numericupdown name="rot_z" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRotZ"/><br />
+        <div style="float:left;text-align:right;width:80px">runto_x:</div><pe:numericupdown name="runto_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRunToX"/><br />
+        <div style="float:left;text-align:right;width:80px">runto_y:</div><pe:numericupdown name="runto_y" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRunToY"/><br />
+         <div style="float:left;text-align:right;width:80px">runto_z:</div><pe:numericupdown name="runto_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.Movie.ActorPanelPage.OnChangeRunToZ"/><br />
+         <input checked="true" onclick="Map3DSystem.Movie.ActorPanelPage.OnCheckBoxClicked()" type="checkbox" name="isRunTo"/>跑动<br />
+        <input checked="true" onclick="Map3DSystem.Movie.ActorPanelPage.OnVisible()" type="checkbox" name="isVisible"/>是否可见<br />
+        <input name="btnUpdatePlanes" type="submit" value="抓取" onclick="Map3DSystem.Movie.ActorPanelPage.OnGetProperty"/>
+ </div>
+  </pe:tab-item>
+  <pe:tab-item text="动作">
+  <pe:gridview ItemsPerLine="2" name="gvwAnims" DataSource='<%=Map3DSystem.App.CCS.AnimationPage.DS_Anims_Func%>' CellPadding="0" DefaultNodeHeight="85">
+            <Columns>
+	            <a onclick=" Map3DSystem.Movie.ActorPanelPage.PlayAnimFile" param1='<%=Eval("file")%>'>
+	                <div style="width:64px;">
+	                <img src='<%=Eval("bg")%>'width="64" height="64"/>
+	                <div style="text-align:center"><%=Eval("text")%></div>
+	                </div>
+	            </a>
+            </Columns>
+        </pe:gridview>
+  </pe:tab-item>
+  <pe:tab-item text="从动作文件" name="file">
+       <div style="margin:5px">
+           <div><font style="color:#808080;">提示: 请双击动画文件</font></div>
+            文件:<select name="filepath" style="width:120px"><option value="" selected="true"></option></select><br/>
+            类别:
+          <select name="CurFolder" onclick="Map3DSystem.App.CCS.AnimationPage.OnSelectFolder()">
+              <option selected="true" value="character/Animation/v3">官方动作_V3</option>
+              <option value="character/Animation">全部</option>
+          </select>
+      </div>
+      <pe:filebrowser name="AnimFileBrowser" AllowFolderSelection="false" filter="*.x;*.bvh;" rootfolder="character/Animation/v3"  ondoubleclick="Map3DSystem.Movie.ActorPanelPage.OnDoubleClickAnimFile()" />
+    </pe:tab-item>
+  <pe:tab-item text="说话">
+    <div>请记得点击保存</div>
+    <textarea name="_txt" rows="12" ></textarea>
+    <input name="btnUpdatePlanes" type="submit" value="保存" onclick="Map3DSystem.Movie.ActorPanelPage.OnUpdateProperty"/>
+  </pe:tab-item> 
+</pe:tabs>   
+</pe:mcml>
+</body>
+</html>

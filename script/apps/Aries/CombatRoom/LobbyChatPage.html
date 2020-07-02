@@ -1,0 +1,89 @@
+<!-- "script/apps/Aries/CombatRoom/LobbyChatPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyChatPage.lua");
+local LobbyChatPage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyChatPage");
+NPL.load("(gl)script/apps/Aries/BBSChat/ChatSystem/ChatChannel.lua");
+local ChatChannel = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatChannel");
+local state = page:GetRequestParam("state");
+
+LobbyChatPage.Init();
+function OnClickSend()
+    local words = page:GetValue("chatedit_words");
+	if(words == "")then
+		return;
+	end
+
+	local _editbox = page:FindUIControl("chatedit_words");
+	if(_editbox) then
+		if((#words) > 120) then
+			_editbox.text = "你输入的文字太多了";
+			return;
+		end
+		if(ChatChannel.SendMessage( ChatChannel.EnumChannels.AllTeam, nil, nil, words )) then
+			ResetDefaultChannelText(true);
+		end
+	end
+end
+function ResetDefaultChannelText(bSetFocus)
+	local input = page:FindUIControl("chatedit_words");
+	if(input)then
+		input.text = "";
+		if(bSetFocus)then
+			input:Focus();
+			input:SetCaretPosition(-1);
+		end
+	end
+end
+
+function OnKeyUp(name, mcmlNode)
+	local _editbox = page:FindUIControl("chatedit_words");
+	if(_editbox:IsValid() == true) then
+		local sentText = _editbox.text;
+		if(string.len(sentText) > 120) then
+			_editbox.text = string.sub(sentText, 1, 120);
+			_editbox:SetCaretPosition(-1);
+		end
+	
+		if(virtual_key == Event_Mapping.EM_KEY_RETURN or virtual_key == Event_Mapping.EM_KEY_NUMPADENTER) then
+			OnClickSend();
+		end
+	end
+end
+function isPvE()
+    if(state == "PvE")then
+        return true;
+    end
+end
+]]></script>
+<div >
+    <pe:if condition="<%=isPvE()%>">
+        <div style="width:270px;height:105px;background:url(Texture/Aries/LobbyService/box_bg_3_32bits.png: 10 10 10 10);">
+                <pe:custom oncreate="MyCompany.Aries.CombatRoom.LobbyChatPage.CreateTreeView()" />
+        </div>
+    </pe:if>
+    <pe:if condition="<%=not isPvE()%>">
+        <div style="width:270px;height:205px;background:url(Texture/Aries/LobbyService/box_bg_3_32bits.png: 10 10 10 10);">
+                <pe:custom oncreate="MyCompany.Aries.CombatRoom.LobbyChatPage.CreateTreeView()" />
+        </div>
+    </pe:if>
+      <div style="float:left;margin-top:2px;margin-left:0px;margin-right:50px;height:21px;background:url(Texture/Aries/LobbyService/box_bg_5_32bits.png:7 7 7 7);">
+        <input type="text" name="chatedit_words" CaretColor="#ff000000" textcolor="#000000" onkeyup="OnKeyUp" style="position:relative;margin-top:-2px;height:24px;background:;"/>
+    </div>
+    <div style="position:relative;float:left;margin-left:-48px;">
+        <input type="button" style="margin-top:2px;width:45px;height:21px;background:url(Texture/Aries/ChatSystem/anniubg_32bits.png#0 0 32 21);" 
+            name="send" value="发送" onclick="OnClickSend"/>    
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,135 @@
+--
+--*****this file is deprecated******
+--
+--NPL.load("(gl)script/ide/common_control.lua");
+--
+--local myWorldWnd = {
+	--name = "myWorldWnd",
+	--parent = nil,
+	--left = 0,
+	--top = 0,
+	--right = 0,
+	--bottom = 0,
+	--mediator = nil,
+--}
+--CommonCtrl.myWorldWnd = myWorldWnd;
+--
+--function myWorldWnd:new(o)
+	--o = o or {}   -- create object if user does not provide one
+	--setmetatable(o, self)
+	--self.__index = self
+	--return o
+--end
+--
+--function myWorldWnd:Show(bshow)
+	--local _this,_parent;
+	--if( self.name == nil)then
+		--log("myWorldWnd instance name can not be nil -_-b \r\n");
+		--return;
+	--end
+	--
+	--_this = ParaUI.GetUIObject(self.name);
+	--if(_this:IsValid() == false)then
+		----create control container
+		--_this = ParaUI.CreateUIObject("container",self.name,"_fi",self.left,self.top,self.right,self.bottom);
+		--_this.background = "Texture/worldMap/UI/darkBlue.png";
+		--_this.visible = false;
+		--if(self.parent == nil)then
+			--_this:AttachToRoot();
+		--else
+			--self.parent:AddChild(_this);
+		--end
+		--CommonCtrl.AddControl(self.name,self);
+		--_parent = _this;
+		--
+		--local __,__,width = _parent:GetAbsPosition();
+		--
+		--_this = ParaUI.CreateUIObject("text",self.name.."txtMyFavor","_lt",10,10,150,25);
+		--_this.text = "我收藏的世界";
+		--_this:GetFont("text").color = "20 60 80";
+		----_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lt",0,30,width,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);	
+--
+		--_this = ParaUI.CreateUIObject("listbox",self.name.."lbMyFavor","_fi",0,35,0,65);
+		--_this.scrollable=true;
+		--_this.background = "Texture/worldMap/UI/lightBlue.png";
+		--_this.font = "System;12;norm";
+		--_this.onselect = string.format( [[;CommonCtrl.myWorldWnd.OnItemClick("%s")]],self.name);
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("container","s","_lb",0,-60,width,1);
+		--_this.background = "Texture/worldMap/splitline.png";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."btnShare","_lb",0,-55,100,25);
+		--_this.background = "Texture/worldMap/UI/blueBtn.png";
+		--_this.text = "共享我的世界";
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."btnUpload","_lb",90,-55,95,25);
+		--_this.background = "Texture/worldMap/UI/blueBtn.png";
+		--_this.text = "打开我的网页";
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+		--
+		--_this = ParaUI.CreateUIObject("button",self.name.."btnExploreWeb","_lb",0,-30,180,25);
+		--_this.background = "Texture/worldMap/UI/blueBtn.png";
+		--_this.text = "访问Kids-Movie";
+		--_this.font = "System;12;norm";
+		--_parent:AddChild(_this);
+	--
+	--else
+		--if(bshow == nil)then
+			--if(_this.visible == true) then
+				--_this.visible = false;
+			--else
+				--_this.visible = true;
+			--end
+		--else
+			--_this.visible = bshow;
+		--end
+	--end			
+--end
+--
+--function myWorldWnd:SetMediator(_mediator)
+	--self.mediator = _mediator;
+--end
+--
+--function myWorldWnd:Destroy()
+	--ParaUI.Destory(self.name);
+--end
+--
+--function myWorldWnd:FillDate(_data)
+	--local _this  = ParaUI.GetUIObject( self.name.."lbMyFavor");
+	--if( _this:IsValid() == false)then
+		--log("error getting myFavor mark listbox -_-# \r\n");
+		--return;
+	--end
+	--
+	--for item in _data do
+		--_this:AddTextItem(item);
+	--end
+--end
+--
+--function myWorldWnd.OnItemClick(ctrName)
+	--local self = CommonCtrl.GetControl(ctrName);
+	--if( self == nil)then
+		--log("error getting my world window instance -_-#\r\n");
+		--return;
+	--end
+	--
+	--local _this = ParaUI.GetUIObject(self.name.."lbMyFavor");
+	--if( _this:IsValid() == false)then
+		--log("err getting my world window UI element lbMyFavor -_-\r\n");
+		--return;
+	--end	
+	--
+	--if(self.mediator ~= nil)then
+		--self.mediator:OnItemClick(_this.text)
+	--end
+--end

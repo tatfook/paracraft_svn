@@ -1,0 +1,112 @@
+﻿<!-- "script/kids/3DMapSystemApp/profiles/VisitWorldPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Invite Friends Page by LiXizhi, 2008.6.16</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="VisitWorldPage.lua"><![CDATA[
+Map3DSystem.App.profiles.VisitWorldPage.OnInit();
+uid = Page:GetRequestParam("uid") or "loggedinuser"
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsWorlds = Eval("dsWorlds") or {status=nil, };
+     
+function DS_Func_Worlds(index)
+    return Map3DSystem.App.profiles.VisitWorldPage.DataSourceFunc(index, dsWorlds, uid, Page)
+end
+]]></script>
+<input type="hidden" name="HomeWorldTileID"/>
+<input type="hidden" name="HomeWorldWorldID"/>
+<input type="hidden" name="HomeWorldWorldInfo"/>
+<pe:tabs name="VisitWorldPageTabs">
+  <pe:tab-item text="家园世界" selected="true" style="padding-left:5px">
+  <div style="float:left">
+    <img style="background:url(Texture/3DMapSystem/AppIcons/homepage_64.dds);width:48px;height:48px;"/>
+    <div style="float:left;margin-left:5px;">
+        <div style="font-weight:bold;"><pe:name uid='<%=Eval("uid")%>'linked="false" style="font-weight:bold;"/>的家园</div>
+        <span style="color:#808080">家园世界对应地图上的一块土地(预览版不可用)</span><br />
+        <label name="result" style="height:20px;color:#006600">正在读取土地信息, 请稍后...</label>
+    </div>
+    <hr />
+    <div name="homeworld">
+        <div name="NoHomeWorld">
+            <pe:world worldpath = "worlds/Official/DefaultHomeWorld" role="poweruser" autolobby="true">
+                点击进入未开垦的家园<br />
+                <img style="background:url(worlds/Official/DefaultHomeWorld/preview.jpg);width:160px;height:90px"/>
+            </pe:world>
+        </div>
+        <div name="RemoteWorld">
+           <pe:download style="background:;" name = "downloader" src="http://pedn.paraengine.com/twiki/pub/Main/AssetsApp/AssetManagerWnd.jpg" dest="temp/worlds/some_guid_of_the_world.zip">
+                <notready enabled="true">
+	                <label name="status" class="box" style="height:18px;width:120px;margin:3px"/><br />
+		            <input type="button" name="start" value="开始下载"/>
+			        <input type="button" name="stop" value="结束下载"/>
+	            </notready>
+                <ready>
+                    <pe:world worldpath = "worlds/Official/DefaultHomeWorld" role="friend" autolobby="true">
+                        请点击进入世界<br />
+                        <img style="background:url(worlds/Official/DefaultHomeWorld/preview.jpg);width:160px;height:90px"/>
+                    </pe:world><br />
+	                <input type="button" name="refresh" value="重新下载" tooltip = "重新下载世界"/><div style="float:left;margin-left:5px;color:#808080">世界已经同步</div>
+                </ready>
+            </pe:download>
+        </div>
+    </div>
+    <div style="float:left;" width="50%">
+        <div style="color:#808080;float:left;">土地名:</div><span name="landName"></span><br />
+        <div style="color:#808080;float:left;">所有者:</div><span name="owner"></span><br />
+        <div style="color:#808080;float:left;">土地状态:</div><span name="landState"></span><br />
+        <div style="color:#808080;float:left;">售价:</div><span name="price"></span><br />
+    </div>
+    <div style ="float:left;" width="50%">
+        <div style="color:#808080;float:left;">所属城市:</div><span name="city"></span><br />
+        <div style="color:#808080;float:left;">使用者:</div><span name="user"></span><br />
+        <div style="color:#808080;float:left;">土地评级:</div><span name="rank"></span><br />
+        <div style="color:#808080;float:left;">土地编号:</div><span name="landID"></span><br />
+    </div>
+  </div>
+  </pe:tab-item>  
+  <pe:tab-item text="个人世界" style="padding-left:5px">
+    <img style="background:url(Texture/3DMapSystem/AppIcons/minimap_64.dds);width:48px;height:48px;"/>
+    <div style="float:left;margin-left:5px;">
+        <b>个人世界简介</b>
+        个人世界是没有地域限制的完全由玩家创造的3D世界<br />
+        <div style="color:#808080">你可以到朋友的个人世界中一同在线创作交流</div>
+    </div>
+    <hr />
+    <pe:gridview DataSource="<%=DS_Func_Worlds%>" name="gvwWorlds" DefaultNodeHeight = "80">
+        <Columns>
+            <pe:world worldpath='<%=Eval("savepath")%>' role="friend" autolobby="true">
+            <div style="float:left">
+                <img style="background:url(Texture/3DMapSystem/AppIcons/ScreenShot_64.dds);width:48px;height:48px;"/>
+            </div>
+            <div style="float:left;margin-left:10px;margin-top:3px">
+                世界名字:<b><%=Eval("worldname")%></b><br />创建日期:<b><%=Eval("createDate")%></b><br />
+            </div>  
+            </pe:world><br />
+            <pe:download style="background:;" src='<%=Eval("fileURL")%>' dest='<%=Eval("savepath")%>'>
+                <notready enabled="true">
+	                <input type="button" class="defaultbutton" name="start" value="开始下载"/>
+			        <input type="button" style="margin-left:5px" name="stop" value="结束下载"/>
+			        <label name="status" style="color:#808080;height:18px;width:120px;margin-top:6px;margin-left:5px"/>
+	            </notready>
+                <ready>
+                    <div style="float:left;color:#006600;font-weight:bold">世界已经同步, 点击进入世界</div><input type="button" name="refresh" value="重新下载" tooltip = "重新下载世界"/>
+                </ready>
+            </pe:download>
+            <hr />
+        </Columns>
+        <EmptyDataTemplate>
+            <b><pe:name uid='<%=Eval("uid")%>' linked="false" />没有公开任何个人世界</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在获取个人世界, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+  </pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>

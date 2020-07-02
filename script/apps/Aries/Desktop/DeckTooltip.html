@@ -1,0 +1,158 @@
+﻿<!-- script/apps/Aries/Desktop/DeckTooltip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local gsid = page:GetRequestParam("gsid");
+local count = page:GetRequestParam("count");
+gsid = tonumber(gsid) or 0;
+state = tonumber(state) or 1;
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+--gsid = gsid+1000;
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+function getCopies()
+    local bHas,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function getIcon()
+    if(gsItem)then
+        return gsItem.icon;
+    end
+end
+function getName()
+    if(gsItem)then
+        return gsItem.template.name;
+    end
+end
+function getStat(id)
+    if(gsItem)then
+        return gsItem.template.stats[id];
+    end
+end
+
+function isNonCombatItem()
+    local i
+    for i = 101, 177 do
+        if(getStat(i)) then
+            return false;
+        end
+    end
+    return true;
+end
+
+function getCardIcon(gsid)
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        return gsItem.icon;
+    end
+end
+
+
+combatlevel = 1;
+local bean = MyCompany.Aries.Pet.GetBean();
+if(bean) then
+	combatlevel = bean.combatlel;
+end
+
+myschool = "storm";
+local school = MyCompany.Aries.Combat.GetSchool();
+if(school) then
+	myschool = school;
+end
+
+item_school_name = "风暴";
+item_school = "storm";
+
+school_id = getStat(169);
+if(school_id == 6) then
+    item_school_name = "烈火";
+    item_school = "fire";
+elseif(school_id == 7) then
+    item_school_name = "寒冰";
+    item_school = "ice";
+elseif(school_id == 8) then
+    item_school_name = "风暴";
+    item_school = "storm";
+elseif(school_id == 9) then
+    item_school_name = "神秘";
+    item_school = "myth";
+elseif(school_id == 10) then
+    item_school_name = "生命";
+    item_school = "life";
+elseif(school_id == 11) then
+    item_school_name = "死亡";
+    item_school = "death";
+elseif(school_id == 12) then
+    item_school_name = "平衡";
+    item_school = "balance";
+end
+
+
+
+]]></script>
+<div style="font-size:12px;padding:8px;background:url(Texture/tooltip2_32bits.png: 7 7 7 7);">
+        
+<pe:if condition='<%=isNonCombatItem() == false%>'>
+    <div style="margin-left:50px;font-weight:bold;"><%=getName() %></div>
+</pe:if>
+<pe:if condition='<%=isNonCombatItem() == true%>'>
+    <div style="margin-left:10px;font-weight:bold;"><%=getName() %></div>
+</pe:if>
+<pe:if condition='<%=getStat(167) ~= nil%>'>
+    <div style="margin-left:20px;">一共可放置<%=getStat(167)%>张卡片</div>
+</pe:if>
+<pe:if condition='<%=getStat(170) ~= nil%>'>
+    <div style="margin-left:10px;">单张卡片最多放置<%=getStat(170)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(171) ~= nil%>'>
+    <div style="margin-left:10px;">单张烈火系卡片最多放置<%=getStat(171)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(172) ~= nil%>'>
+    <div style="margin-left:10px;">单张寒冰系卡片最多放置<%=getStat(172)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(173) ~= nil%>'>
+    <div style="margin-left:10px;">单张风暴系卡片最多放置<%=getStat(173)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(174) ~= nil%>'>
+    <div style="margin-left:10px;">单张神秘系卡片最多放置<%=getStat(174)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(175) ~= nil%>'>
+    <div style="margin-left:10px;">单张生命系卡片最多放置<%=getStat(175)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(176) ~= nil%>'>
+    <div style="margin-left:10px;">单张死亡系卡片最多放置<%=getStat(176)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(177) ~= nil%>'>
+    <div style="margin-left:10px;">单张平衡系卡片最多放置<%=getStat(177)%>张</div>
+</pe:if>
+<pe:if condition='<%=getStat(168) ~= nil%>'>
+    <pe:if condition='<%=getStat(168) <= combatlevel%>'>
+        <div style="margin-left:30px;">需要等级<%=getStat(168)%> </div>
+    </pe:if>
+    <pe:if condition='<%=getStat(168) > combatlevel%>'>
+        <div style="margin-left:30px;color:#FF0000">需要等级<%=getStat(168)%> </div>
+    </pe:if>
+</pe:if>
+<pe:if condition='<%=getStat(169) ~= nil%>'>
+    <pe:if condition='<%=item_school == myschool%>'>
+        <div style="margin-left:30px;">需要系别<%=item_school_name%> </div>
+    </pe:if>
+    <pe:if condition='<%=item_school ~= myschool%>'>
+        <div style="margin-left:30px;color:#FF0000">需要系别<%=item_school_name%> </div>
+    </pe:if>
+</pe:if>
+</div>
+</pe:mcml>
+</body>
+</html>
+

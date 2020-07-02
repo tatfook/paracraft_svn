@@ -1,0 +1,71 @@
+<!-- "script/apps/Aries/NPCs/Doctor/30085_RainbowFlowerGame_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30085_RainbowFlowerGame, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+
+local page = document:GetPageCtrl();
+
+local flower_bg = {
+    "Texture/Aries/NPCs/RainbowFlower/petal_1_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_2_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_3_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_4_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_5_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_6_32bits.png;0 0 20 35",
+    "Texture/Aries/NPCs/RainbowFlower/petal_7_32bits.png;0 0 20 35",
+};
+
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30085);
+
+local i;
+for i = 1, 7 do
+    if(i <= (memory.CountPetal or 0)) then
+        page:SetValue("petal"..i, "Texture/Aries/NPCs/RainbowFlower/petal_"..i.."_32bits.png;0 0 20 35");
+    else
+        page:SetValue("petal"..i, "Texture/Aries/NPCs/RainbowFlower/petal_empty_32bits.png;0 0 20 35");
+    end
+end
+
+local progress = page:GetNode("progressbar_time");
+progress:SetValue(10 + (memory.countdownseconds or 0));
+progress:SetAttribute("Maximum", 10 + (commonlib.getfield("MyCompany.Aries.Quest.NPCs.RainbowFlowerGame.time_limit") or 10));
+
+]]></script>
+    
+    <div style="width:250px;height:100px;">
+        
+        <div style="float:left;margin-left:50px;margin-top:32px;width:155;height:21px;background:url(Texture/Aries/NPCs/RainbowFlower/time_bg_32bits.png#0 0 64 21: 10 10 10 10);">
+            <pe:progressbar name="progressbar_time" value = "0.5"
+                blockimage = "Texture/Aries/NPCs/RainbowFlower/time_block_32bits.png;0 0 64 15:7 7 7 7" 
+                background = "Texture/Aries/NPCs/RainbowFlower/time_slot_32bits.png;0 0 64 15:7 7 7 7" 
+                style="float:right;margin:3px;margin-bottom:0px;width:151px;height:15px;"/>
+        </div>
+        <div style="float:left;margin-left:-200px;width:73;height:72px;">
+            <img src="Texture/Aries/NPCs/RainbowFlower/Clock_bg_32bits.png" zorder=2 style="width:128px;height:128px;"/>
+        </div>
+        
+        <br/>
+        
+        <div style="margin-left:32px;">
+            <img name="petal1" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal2" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal3" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal4" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal5" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal6" src="" style="width:20px;height:35px;margin-right:4px;"/>
+            <img name="petal7" src="" style="width:20px;height:35px;margin-right:4px;"/>
+        </div>
+        
+    </div>
+    
+    
+</pe:mcml>
+</body>
+</html>

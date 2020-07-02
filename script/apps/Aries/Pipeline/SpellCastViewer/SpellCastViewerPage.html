@@ -1,0 +1,1015 @@
+﻿<!-- "script/apps/Aries/Pipeline/SpellCastViewer/SpellCastViewerPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dock Page, by WangTian, 2009/4/29</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SpellCastViewerPage.lua">
+MyCompany.Aries.Combat.SpellCastViewerPage.OnInit();
+
+
+
+function Test1()
+    local att = ParaScene.GetPlayer():GetAttributeObject();
+    att:SetDynamicField("ForceMountDragon", true);
+    MyCompany.Aries.Pet.RefreshOPC_CCS(nid, nil, "0#1#0#2#1#@0#F#0#0#0#0#0#F#0#0#0#0#9#F#0#0#0#0#9#F#0#0#0#0#10#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@1#10001#0#3#11009#0#0#0#0#0#0#0#0#1072#1073#1074#0#0#0#0#0#0#0#0#");
+end
+
+function Test2()
+    MyCompany.Aries.Combat.ObjectManager.UnMountPlayerFromSlot(46650264)
+end
+
+
+function DS_Func_Items(index)
+    return MyCompany.Aries.Combat.SpellCastViewerPage.DS_Func_Items(index)
+end
+
+function TestArena()
+    MyCompany.Aries.Combat.SpellCastViewerPage.TestArena();
+end
+function RemoveTestArena()
+    MyCompany.Aries.Combat.SpellCastViewerPage.RemoveTestArena();
+end
+
+function SwitchToTeenVersionAssets()
+    MyCompany.Aries.Combat.SpellCastViewerPage.SwitchToTeenVersionAssets();
+end
+
+
+function StopSpellCasting()
+    MyCompany.Aries.Combat.SpellCastViewerPage.StopSpellCasting();
+end
+
+function TestCustomTarget()
+    MyCompany.Aries.Combat.MsgHandler.OnPickCard("SingleHeal_Level1_Water", false, 73409);
+end
+
+function TestSequence()
+    MyCompany.Aries.Combat.ObjectManager.ShowSequenceArrow(9991, 7.23, 7.23);
+end
+
+function TestSpellByFile(file)
+    
+    MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile(file);
+end
+
+function MarkDebugPoint()
+    MyCompany.Aries.Combat.MsgHandler.OnMarkDebugPoint()
+end
+
+function EnterCombat1001()
+    MyCompany.Aries.Combat.MsgHandler.OnEnterCombat(1001)
+end
+function EnterCombat1002()
+    MyCompany.Aries.Combat.MsgHandler.OnEnterCombat(1002)
+end
+function EnterCombat1003()
+    MyCompany.Aries.Combat.MsgHandler.OnEnterCombat(1003)
+end
+function EnterCombat1004()
+    MyCompany.Aries.Combat.MsgHandler.OnEnterCombat(1004)
+end
+function EnterCombat1005()
+    MyCompany.Aries.Combat.MsgHandler.OnEnterCombat(1005)
+end
+
+function DumpArena1001()
+    MyCompany.Aries.Combat.MsgHandler.OnDumpArenaData(1001);
+end
+function DumpArena1002()
+    MyCompany.Aries.Combat.MsgHandler.OnDumpArenaData(1002);
+end
+function DumpArena1003()
+    MyCompany.Aries.Combat.MsgHandler.OnDumpArenaData(1003);
+end
+function DumpArena1004()
+    MyCompany.Aries.Combat.MsgHandler.OnDumpArenaData(1004);
+end
+function DumpArena1005()
+    MyCompany.Aries.Combat.MsgHandler.OnDumpArenaData(1005);
+end
+
+function PickCard()
+    MyCompany.Aries.Combat.MsgHandler.OnPickCard()
+end
+
+function TestAllBuffs()
+    local ObjectManager = MyCompany.Aries.Combat.ObjectManager;
+    ObjectManager.RefreshBuffs(9991, 1, "charm", "11,12,13,14,15,16,11,12,13,14,15,16,");
+    ObjectManager.RefreshBuffs(9991, 2, "charm", "17,18,19,20,21,22,23,24,25,26,27,28,");
+    ObjectManager.RefreshBuffs(9991, 3, "charm", "29,30,31,32,33,34,35,");
+    ObjectManager.RefreshBuffs(9991, 1, "ward", "21,22,23,24,25,26,27,28,29,30,31,32,");
+    ObjectManager.RefreshBuffs(9991, 2, "ward", "33,34,35,36,37,38,39,40,41,42,43,44,");
+    ObjectManager.RefreshBuffs(9991, 3, "ward", "45,46,47,48,49,50,51,52,54,58,0,0,");
+    ObjectManager.RefreshBuffs(9991, 1, "overtime", "fire,ice,storm,life,death,hot,");
+    ObjectManager.RefreshBuffs(9991, 2, "overtime", "disabledheal,firesplash,cursedheal,cursedpowerpip,boostpowerpip,anti_freeze,");
+    ObjectManager.RefreshBuffs(9991, 1, "miniaura", "1");
+    ObjectManager.RefreshBuffs(9991, 2, "miniaura", "2");
+    ObjectManager.RefreshBuffs(9991, 3, "miniaura", "3");
+    ObjectManager.RefreshBuffs(9991, 4, "miniaura", "4");
+    ObjectManager.RefreshBuffs(9991, 5, "miniaura", "5,freeze");
+    ObjectManager.RefreshBuffs(9991, 6, "miniaura", "dead_boss");
+    ObjectManager.RefreshBuffs(9991, 7, "miniaura", "dead");
+    ObjectManager.RefreshBuffs(9991, 8, "miniaura", "dead_elite");
+end
+
+</script>
+    <div style="margin-left:10px;float:left;width:900px;">
+        技能演示器
+        <br/>
+        第一步 建造一个战斗平台
+        <input type="button" zorder="1" style="width:96px;height:24px;" onclick="TestArena()" text="测试战斗平台" name='TestArena'/>
+        <input type="button" zorder="1" style="width:120px;height:24px;" onclick="RemoveTestArena()" text="移除测试战斗平台" name='RemoveTestArena'/>
+        <input type="button" zorder="1" style="width:80px;height:24px;" onclick="TestAllBuffs()" text="测试buff" name='TestAllBuffs'/>
+        <input type="button" zorder="1" style="width:80px;height:24px;" onclick="StopSpellCasting()" text="停当前特效" name='StopSpellCasting'/>
+        <input type="button" zorder="1" style="width:80px;height:24px;" onclick="SwitchToTeenVersionAssets()" text="切换到青年版" name='SwitchToTeenVersionAssets'/>
+        
+        
+        技能品质<select style="margin-left:0px;margin-top:2px;margin-bottom:px" name="SpellQuality">
+            <option value="White" selected="true">白</option>
+            <option value="Green">绿</option>
+            <option value="Blue">蓝</option>
+            <option value="Purple">紫</option>
+        </select>
+        
+        <br/>
+        第二步 选取施法者和接受者
+        施法者(1-8)<input type="text" style="width:40px;height:24px;" text="1" name='caster_id'/>
+        接受者(1-8)<input type="text" style="width:40px;height:24px;" text="5" name='target_id'/>
+        <br/>
+        第三步 选取测试魔法效果
+        <pe:tabs name="ShoppingTabs" style="width:800px;height:450px;">
+            <pe:tab-item selected="true" text="新版本" name="new">
+                <br/>
+                烈火
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level1.xml" tooltip="Fire_SingleAttack_Level1.xml">火攻1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithDOT_Level2.xml" tooltip="Fire_SingleAttackWithDOT_Level2.xml">火攻2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level3.xml" tooltip="Fire_SingleAttack_Level3.xml">火攻3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDamageTrap.xml" tooltip="Fire_FireDamageTrap.xml">火陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaAttack_Level4.xml" tooltip="Fire_AreaAttack_Level4.xml">火群攻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireGlobalAura.xml" tooltip="Fire_FireGlobalAura.xml">火全场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level5.xml" tooltip="Fire_SingleAttack_Level5.xml">火攻5</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level6.xml" tooltip="Fire_SingleAttack_Level6.xml">火攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDamageBlade.xml" tooltip="Fire_FireDamageBlade.xml">火加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FirePrism.xml" tooltip="Fire_FirePrism.xml">火棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttackWithHOT_Level2.xml" tooltip="Fire_DOTAttackWithHOT_Level2.xml">火链接</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_StealPositiveCharm.xml" tooltip="Fire_StealPositiveCharm.xml">偷加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttack_LevelX.xml" tooltip="Fire_DOTAttack_LevelX.xml">火狼</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithImmolate_Level4.xml" tooltip="Fire_SingleAttackWithImmolate_Level4.xml">灼伤之炎</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaDOTAttack_Level5.xml" tooltip="Fire_AreaDOTAttack_Level5.xml">群烧</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaAccuracyWeakness.xml" tooltip="Fire_AreaAccuracyWeakness.xml">烟雾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaStun.xml" tooltip="Fire_AreaStun.xml">火眩晕</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaSingleAttackWithDOT_Level7.xml" tooltip="Fire_AreaSingleAttackWithDOT_Level7.xml">火攻7</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDispellWeakness.xml" tooltip="Fire_FireDispellWeakness.xml">火DISPEL</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireGreatShield.xml" tooltip="Fire_FireGreatShield.xml">火盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_ArenaAttack_Level8.xml" tooltip="Fire_ArenaAttack_Level8.xml">末日审判</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level6_OutStandingCard.xml" tooltip="Fire_SingleAttack_Level6_OutStandingCard.xml">加强烈火攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_BlazingStance.xml" tooltip="Fire_BlazingStance.xml">烈火形态</a>
+                <br/>
+                风暴
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level1.xml" tooltip="Storm_SingleAttack_Level1.xml">风暴攻1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level2.xml" tooltip="Storm_SingleAttack_Level2.xml">风暴攻2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level3.xml" tooltip="Storm_SingleAttack_Level3.xml">风暴攻3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageTrap.xml" tooltip="Storm_StormDamageTrap.xml">风暴陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level4.xml" tooltip="Storm_SingleAttack_Level4.xml">风暴攻4</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaDamageTrap.xml" tooltip="Storm_AreaDamageTrap.xml">风暴群陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormGlobalAura.xml" tooltip="Storm_StormGlobalAura.xml">全场风暴</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level5.xml" tooltip="Storm_SingleAttack_Level5.xml">风暴攻5</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormAccuracyBlade.xml" tooltip="Storm_StormAccuracyBlade.xml">加成功率</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageBlade.xml" tooltip="Storm_StormDamageBlade.xml">风暴加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_RemovePositiveCharm.xml" tooltip="Storm_RemovePositiveCharm.xml">移除优良状态</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_RemoveNegativeCharm.xml" tooltip="Storm_RemoveNegativeCharm.xml">移除不良状态</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaAttack_LevelX.xml" tooltip="Storm_AreaAttack_LevelX.xml">风暴群攻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_WildBolt_Level2.xml" tooltip="Storm_SingleAttack_WildBolt_Level2.xml">狂野风暴</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level6.xml" tooltip="Storm_SingleAttack_Level6.xml">风暴攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaAttackWithStun_Level7.xml" tooltip="Storm_AreaAttackWithStun_Level7.xml">风暴攻7</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDispellWeakness.xml" tooltip="Storm_StormDispellWeakness.xml">风暴DISPEL</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormGreatShield.xml" tooltip="Storm_StormGreatShield.xml">风暴盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleStealth.xml" tooltip="Storm_SingleStealth.xml">风影斗篷</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level6_OutStandingCard.xml" tooltip="Storm_SingleAttack_Level6_OutStandingCard.xml">加强风暴攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_ElectricStance.xml" tooltip="Storm_ElectricStance.xml">风暴形态</a>
+                <br/>
+                寒冰
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level1.xml" tooltip="Ice_SingleAttack_Level1.xml">冰攻1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level2.xml" tooltip="Ice_SingleAttack_Level2.xml">冰攻2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level3.xml" tooltip="Ice_SingleAttack_Level3.xml">冰攻3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_GlobalShield.xml" tooltip="Ice_GlobalShield.xml">万能盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level4.xml" tooltip="Ice_SingleAttack_Level4.xml">冰攻4</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_AreaAttack_Level4.xml" tooltip="Ice_AreaAttack_Level4.xml">冰群攻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceGlobalAura.xml" tooltip="Ice_IceGlobalAura.xml">冰全场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level6.xml" tooltip="Ice_SingleAttack_Level6.xml">冰攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleStun.xml" tooltip="Ice_SingleStun.xml">冰眩晕</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDamageTrap.xml" tooltip="Ice_IceDamageTrap.xml">冰陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IcePrism.xml" tooltip="Ice_IcePrism.xml">冰棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Absorb_LevelX.xml" tooltip="Ice_Absorb_LevelX.xml">冰吸收</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_StealPositiveWard.xml" tooltip="Ice_StealPositiveWard.xml">偷盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttackWithDOT_Level5.xml" tooltip="Ice_SingleAttackWithDOT_Level5.xml">冰攻5</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDamageBlade.xml" tooltip="Ice_IceDamageBlade.xml">冰加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_AreaAttackWithStun_Level7.xml" tooltip="Ice_AreaAttackWithStun_Level7.xml">冰攻7</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_StunAbsorb.xml" tooltip="Ice_StunAbsorb.xml">眩晕吸收</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDispellWeakness.xml" tooltip="Ice_IceDispellWeakness.xml">冰DISPEL</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceGreatShield.xml" tooltip="Ice_IceGreatShield.xml">冰盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_DefensiveStance.xml" tooltip="Ice_DefensiveStance.xml">坚冰形态</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level6_OutStandingCard.xml" tooltip="Ice_SingleAttack_Level6_OutStandingCard.xml">加强寒冰攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_PierceStance.xml" tooltip="Ice_PierceStance.xml">寒冰形态</a>
+                <br/>
+                生命
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level1.xml" tooltip="Life_SingleAttack_Level1.xml">生命攻1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level2.xml" tooltip="Life_SingleAttack_Level2.xml">生命攻2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level3.xml" tooltip="Life_SingleAttack_Level3.xml">生命攻3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHealWithHOT_Level1.xml" tooltip="Life_SingleHealWithHOT_Level1.xml">加血1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Absorb_Level3.xml" tooltip="Life_Absorb_Level3.xml">吸收盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level4.xml" tooltip="Life_SingleAttack_Level4.xml">生命攻4</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_Level4.xml" tooltip="Life_SingleHeal_Level4.xml">加血2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level6.xml" tooltip="Life_SingleAttack_Level6.xml">生命攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeGlobalAura.xml" tooltip="Life_LifeGlobalAura.xml">全场生命</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_Level0.xml" tooltip="Life_SingleHeal_Level0.xml">0点加血</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaHeal_Level3.xml" tooltip="Life_AreaHeal_Level3.xml">群体小加血</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_pwage" param1="Life_LifePrism.xml" tooltip="Life_LifePrism.xml">生命棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDamageBlade.xml" tooltip="Life_LifeDamageBlade.xml">生命加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaAccuracyBlade.xml" tooltip="Life_AreaAccuracyBlade.xml">群命中加强</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_HealBlade.xml" tooltip="Life_HealBlade.xml">补血加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHealWithHOT_Level5.xml" tooltip="Life_SingleHealWithHOT_Level5.xml">HOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_LevelX.xml" tooltip="Life_SingleHeal_LevelX.xml">补血X</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaHealWithAbsorb_Level7.xml" tooltip="Life_AreaHealWithAbsorb_Level7.xml">重生</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_ForNonLife_Level2.xml" tooltip="Life_SingleHeal_ForNonLife_Level2.xml">补血2(非生命)</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_ForLife_Level2.xml" tooltip="Life_SingleHeal_ForLife_Level2.xml">补血2(生命)</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDamageTrap.xml" tooltip="Life_LifeDamageTrap.xml">生命系陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDispellWeakness.xml" tooltip="Life_LifeDispellWeakness.xml">生命DISPEL</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeGreatShield.xml" tooltip="Life_LifeGreatShield.xml">生命盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaHealWithHOT_Level8.xml" tooltip="Life_AreaHealWithHOT_Level8.xml">天使赐福</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level6_OutStandingCard.xml" tooltip="Life_SingleAttack_Level6_OutStandingCard.xml">加强生命攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_HealingStance.xml" tooltip="Life_HealingStance.xml">生命形态</a>
+                <br/>
+                死亡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level1.xml" tooltip="Death_SingleAttack_Level1.xml">死亡攻1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level2.xml" tooltip="Death_SingleAttackWithLifeTap_Level2.xml">死亡攻2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level3.xml" tooltip="Death_SingleAttack_Level3.xml">死亡攻3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level4.xml" tooltip="Death_SingleAttackWithLifeTap_Level4.xml">死亡攻4</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level5.xml" tooltip="Death_SingleAttack_Level5.xml">死亡攻5</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SymmetryGlobalTrap.xml" tooltip="Death_SymmetryGlobalTrap.xml">死亡绝</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathGlobalAura.xml" tooltip="Death_DeathGlobalAura.xml">全场死亡</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level6.xml" tooltip="Death_SingleAttackWithLifeTap_Level6.xml">死亡攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDamageTrap.xml" tooltip="Death_DeathDamageTrap.xml">死亡陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDamageBlade.xml" tooltip="Death_DeathDamageBlade.xml">死亡加强</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathPrism.xml" tooltip="Death_DeathPrism.xml">死亡棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleHealWithImmolate_Level3.xml" tooltip="Death_SingleHealWithImmolate_Level3.xml">自杀补血</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_GlobalDamageTrap.xml" tooltip="Death_GlobalDamageTrap.xml">诅咒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithDOT_Level4.xml" tooltip="Death_SingleAttackWithDOT_Level4.xml">死亡毒</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaDamageWeakness.xml" tooltip="Death_AreaDamageWeakness.xml">群体削弱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaAttackWithLifeTap_Level7.xml" tooltip="Death_AreaAttackWithLifeTap_Level7.xml">死亡群攻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_HealWeakness.xml" tooltip="Death_HealWeakness.xml">加血削弱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDispellWeakness.xml" tooltip="Death_DeathDispellWeakness.xml">死亡DISPEL</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathGreatShield.xml" tooltip="Death_DeathGreatShield.xml">死亡盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleGuardianWithImmolate_Level8.xml" tooltip="Death_SingleGuardianWithImmolate_Level8.xml">灵魂替身</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Revive.xml" tooltip="Revive.xml">灵魂附体</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Revive_Post.xml" tooltip="Revive_Post.xml">灵魂复活</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level6_OutStandingCard.xml" tooltip="Death_SingleAttackWithLifeTap_Level6_OutStandingCard.xml">加强死亡攻6</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_VampireStance.xml" tooltip="Death_VampireStance.xml">死亡形态</a>
+
+                <br/>
+                平砍
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level0_1_20.xml" tooltip="Fire_SingleAttack_Level0_1_20.xml">火20前</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level0_1_20.xml" tooltip="Storm_SingleAttack_Level0_1_20.xml">风暴20前</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level0_1_20.xml" tooltip="Ice_SingleAttack_Level0_1_20.xml">冰20前</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level0_1_20.xml" tooltip="Life_SingleAttack_Level0_1_20.xml">生命20前</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level0_1_20.xml" tooltip="Death_SingleAttack_Level0_1_20.xml">风暴20前</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level0_80_90_adv.xml" tooltip="Fire_SingleAttack_Level0_80_90_adv.xml">火80商城</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level0_80_90_adv.xml" tooltip="Storm_SingleAttack_Level0_80_90_adv.xml">风暴80商城</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level0_80_90_adv.xml" tooltip="Ice_SingleAttack_Level0_80_90_adv.xml">冰80商城</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level0_80_90_adv.xml" tooltip="Life_SingleAttack_Level0_80_90_adv.xml">生命80商城</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level0_80_90_adv.xml" tooltip="Death_SingleAttack_Level0_80_90_adv.xml">风暴80商城</a>
+<br/>
+                战斗宠物
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_SingleAttackWithLifeTap_IronShellsPoison.xml" tooltip="Death_Pet_SingleAttackWithLifeTap_IronShellsPoison.xml">铁壳毒物</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Pet_SingleAttack_FireRockyOgresFocus.xml" tooltip="Fire_Pet_SingleAttack_FireRockyOgresFocus.xml">火鬃怪的小宇宙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Pet_SingleAttack_FireRockyOgresDominance.xml" tooltip="Fire_Pet_SingleAttack_FireRockyOgresDominance.xml">火鬃怪大王一统天下</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttack_WaterBubblesFury.xml" tooltip="Ice_Pet_SingleAttack_WaterBubblesFury.xml">水泡之怒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Pet_SingleAttack_ForestSpikyOgresPunch.xml" tooltip="Life_Pet_SingleAttack_ForestSpikyOgresPunch.xml">大力猿首领前空翻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_SingleAttack_IronBeeSting.xml" tooltip="Storm_Pet_SingleAttack_IronBeeSting.xml">金苍蝇的一蛰</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_AreaAttack_LevelX_ShadowSmashBullsSmash.xml" tooltip="Storm_Pet_AreaAttack_LevelX_ShadowSmashBullsSmash.xml">暗白魔牛</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_SingleAttack_GhostOctopusBossDoom.xml" tooltip="Death_Pet_SingleAttack_GhostOctopusBossDoom.xml">死亡章鱼</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Pet_AreaAttack_ShadowOfPhoenixsBreath.xml" tooltip="Fire_Pet_AreaAttack_ShadowOfPhoenixsBreath.xml">凤凰涅磐</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttack_IcePangolinsFreeze.xml" tooltip="Ice_Pet_SingleAttack_IcePangolinsFreeze.xml">冰兽发威</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Pet_AreaHeal_ZodiacRabbitsBlessing.xml" tooltip="Life_Pet_AreaHeal_ZodiacRabbitsBlessing.xml">超能神兔</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Pet_SingleHeal_Nymphora.xml" tooltip="Life_Pet_SingleHeal_Nymphora.xml">圣灵复活</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttackWithDOT_FrostMonkey.xml" tooltip="Ice_Pet_SingleAttackWithDOT_FrostMonkey.xml">冰刺魂体</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_SingleAttack_ManekiNeko.xml" tooltip="Storm_Pet_SingleAttack_ManekiNeko.xml">疾猫霹雳</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_AreaAttack_BananaAttack.xml" tooltip="Ice_Pet_AreaAttack_BananaAttack.xml">凛冽冰凌</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttackWithDOT_FrostScylla.xml" tooltip="Ice_Pet_SingleAttackWithDOT_FrostScylla.xml">冰魂神柱</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_IceSingleAttack_FrostFang_Boss.xml" tooltip="Ice_Pet_IceSingleAttack_FrostFang_Boss.xml">群狼袭击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_DeathSingleAttack_UndeadMonkey_Boss.xml" tooltip="Death_Pet_DeathSingleAttack_UndeadMonkey_Boss.xml">亡灵大军</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaAttack_DoomLordsWrath.xml" tooltip="Death_AreaAttack_DoomLordsWrath.xml">暗黑男爵之怒</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_SingleAttackWithDOT_Level2.xml" tooltip="Storm_Pet_SingleAttackWithDOT_Level2.xml">雷神电轮</a>
+
+
+<br/>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Rune_FireResist_MiniAura.xml" tooltip="Fire_FireResist_MiniAura.xml">火盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Rune_IceResist_MiniAura.xml" tooltip="Ice_IceResist_MiniAura.xml">冰盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_StormResist_MiniAura.xml" tooltip="Storm_StormResist_MiniAura.xml">风暴盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_LifeResist_MiniAura.xml" tooltip="Life_LifeResist_MiniAura.xml">生命盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_DeathResist_MiniAura.xml" tooltip="Death_DeathResist_MiniAura.xml">死亡盾墙</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Rune_AreaAttack_Level2.xml" tooltip="Fire_Rune_AreaAttack_Level2.xml">火群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Rune_AreaAttack_Level2.xml" tooltip="Ice_Rune_AreaAttack_Level2.xml">冰群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_AreaAttack_Level2.xml" tooltip="Storm_Rune_AreaAttack_Level2.xml">风暴群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_AreaAttack_Level2.xml" tooltip="Life_Rune_AreaAttack_Level2.xml">生命群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_AreaAttack_Level2.xml" tooltip="Death_Rune_AreaAttack_Level2.xml">死亡群击</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Rune_FireAccuracy_MiniAura.xml" tooltip="Fire_FireAccuracy_MiniAura.xml">火命中</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Rune_IceAccuracy_MiniAura.xml" tooltip="Ice_IceAccuracy_MiniAura.xml">冰命中</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_StormAccuracy_MiniAura.xml" tooltip="Storm_StormAccuracy_MiniAura.xml">风暴命中</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_LifeAccuracy_MiniAura.xml" tooltip="Life_LifeAccuracy_MiniAura.xml">生命命中</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_DeathAccuracy_MiniAura.xml" tooltip="Death_DeathAccuracy_MiniAura.xml">死亡命中</a>
+
+<br/>
+                新技能
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithDisabledHeal.xml" tooltip="Death_SingleAttackWithDisabledHeal.xml">天魔杀星</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithPercent.xml" tooltip="Death_SingleAttackWithPercent.xml">死亡契约</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttackWithSplash_Level6.xml" tooltip="Fire_DOTAttackWithSplash_Level6.xml">熔岩炸弹</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithExplode.xml" tooltip="Fire_SingleAttackWithExplode.xml">急速点燃</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield.xml" tooltip="Ice_ReflectionShield.xml">冰霜魔镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleFreeze.xml" tooltip="Ice_SingleFreeze.xml">冰封神符</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaCleanse.xml" tooltip="Life_AreaCleanse.xml">圣灵净化</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaPowerPipBoost.xml" tooltip="Life_AreaPowerPipBoost.xml">希望之光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormConversePositiveWard.xml" tooltip="Storm_StormConversePositiveWard.xml">怒风逆转</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageTrap_Standing.xml" tooltip="Storm_StormDamageTrap_Standing.xml">惊雷裂隙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_Enrage_Level1.xml" tooltip="Balance_Rune_Enrage_Level1.xml">激怒</a>
+
+<br/>
+                额外
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Fire_Splash.xml" tooltip="DoT_Fire_Splash.xml">火溅射</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield_reflection.xml" tooltip="Ice_ReflectionShield_reflection.xml">反射盾反射</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield_shieldbreak.xml" tooltip="Ice_ReflectionShield_shieldbreak.xml">反射盾破碎</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleFreeze_Break.xml" tooltip="Ice_SingleFreeze_Break.xml">冰封神符破冰</a>
+
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SchoolPick_Fire_teen.xml" tooltip="SchoolPick_Fire_teen.xml">火新手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SchoolPick_Ice_teen.xml" tooltip="SchoolPick_Ice_teen.xml">冰新手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SchoolPick_Storm_teen.xml" tooltip="SchoolPick_Storm_teen.xml">风新手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SchoolPick_Life_teen.xml" tooltip="SchoolPick_Life_teen.xml">生新手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SchoolPick_Death_teen.xml" tooltip="SchoolPick_Death_teen.xml">死新手</a>
+
+<br/>
+
+                新符文
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_PowerPipTrap_Standing.xml" tooltip="Life_Rune_PowerPipTrap_Standing.xml">超魔抑制</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleHeal_LongCD.xml" tooltip="Balance_Rune_SingleHeal_LongCD.xml">愈合符文</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_BoostPowerPipChance_Standing.xml" tooltip="Balance_BoostPowerPipChance_Standing.xml">超魔爆发</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaAttackCard_Elementary.xml" tooltip="Balance_Rune_AreaAttackCard_Elementary.xml">超能脉冲1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaAttackCard_Middle.xml" tooltip="Balance_Rune_AreaAttackCard_Middle.xml">超能脉冲2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaAttackCard_High.xml" tooltip="Balance_Rune_AreaAttackCard_High.xml">超能脉冲3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleHealWithCleanse_Lv4.xml" tooltip="Balance_Rune_SingleHealWithCleanse_Lv4.xml">愈合MAX</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleAttackWithSelfStun_Lv5.xml" tooltip="Balance_Rune_SingleAttackWithSelfStun_Lv5.xml">弑神脉冲</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleAttackWithStun_Lv5.xml" tooltip="Balance_Rune_SingleAttackWithStun_Lv5.xml">先发制人</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaAttackWithImmolate_Lv5.xml" tooltip="Balance_Rune_AreaAttackWithImmolate_Lv5.xml">狰狞</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleStealth.xml" tooltip="Balance_Rune_SingleStealth.xml">无敌斗篷</a>
+
+
+<br/>
+                杂项
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Fire.xml" tooltip="DoT_Fire.xml">火DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Ice.xml" tooltip="DoT_Ice.xml">冰DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Storm.xml" tooltip="DoT_Storm.xml">电DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Life.xml" tooltip="DoT_Life.xml">生命DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Death.xml" tooltip="DoT_Death.xml">死亡DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="HoT.xml" tooltip="HoT.xml">HOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Fire.xml" tooltip="DoT_Fire.xml">火fizzle</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Ice.xml" tooltip="DoT_Ice.xml">冰fizzle</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Storm.xml" tooltip="DoT_Storm.xml">电fizzle</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Life.xml" tooltip="DoT_Life.xml">生命fizzle</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Death.xml" tooltip="DoT_Death.xml">死亡fizzle</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Fire.xml" tooltip="DoT_Fire.xml">火pickpet</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Ice.xml" tooltip="DoT_Ice.xml">冰pickpet</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Storm.xml" tooltip="DoT_Storm.xml">电pickpet</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Life.xml" tooltip="DoT_Life.xml">生命pickpet</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Death.xml" tooltip="DoT_Death.xml">死亡pickpet</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="ItemCasting_Fire.xml" tooltip="DoT_Fire.xml">火Cast</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="ItemCasting_Ice.xml" tooltip="DoT_Ice.xml">冰Cast</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="ItemCasting_Storm.xml" tooltip="DoT_Storm.xml">电Cast</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="ItemCasting_Life.xml" tooltip="DoT_Life.xml">生命Cast</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="ItemCasting_Death.xml" tooltip="DoT_Death.xml">死亡Cast</a>
+            </pe:tab-item>
+            <pe:tab-item selected="true" text="新版本(炫彩)" name="new_gold">
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level2_gold.xml" tooltip="Life_SingleAttack_Level2_gold.xml">生命2(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level4_gold.xml" tooltip="Life_SingleAttack_Level4_gold.xml">生命4(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level4_gold.xml" tooltip="Ice_SingleAttack_Level4_gold.xml">冰4(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level3_gold.xml" tooltip="Ice_SingleAttack_Level3_gold.xml">冰3(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level3_gold.xml" tooltip="Storm_SingleAttack_Level3_gold.xml">风暴攻3(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level4_gold.xml" tooltip="Storm_SingleAttack_Level4_gold.xml">风暴攻4(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level4_gold.xml" tooltip="Death_SingleAttackWithLifeTap_Level4_gold.xml">死亡4(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level3_gold.xml" tooltip="Death_SingleAttack_Level3_gold.xml">死亡3(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithImmolate_Level4_gold.xml" tooltip="Fire_SingleAttackWithImmolate_Level4_gold.xml">烈火4(炫彩)</a>
+ <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level3_gold.xml" tooltip="Fire_SingleAttack_Level3_gold.xml">烈火3(炫彩)</a>
+                <br/>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng01.xml" tooltip="jineng01.xml">技能01</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng02.xml" tooltip="jineng02.xml">技能02</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng03.xml" tooltip="jineng03.xml">技能03</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng04.xml" tooltip="jineng04.xml">技能04</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng05.xml" tooltip="jineng05.xml">技能05</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng06.xml" tooltip="jineng06.xml">技能06</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng07.xml" tooltip="jineng07.xml">技能07</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng08.xml" tooltip="jineng08.xml">技能08</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng09.xml" tooltip="jineng09.xml">技能09</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng10.xml" tooltip="jineng10.xml">技能10</a>
+                <br/>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng11.xml" tooltip="jineng11.xml">技能11</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng12.xml" tooltip="jineng12.xml">技能12</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng13.xml" tooltip="jineng13.xml">技能13</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng14.xml" tooltip="jineng14.xml">技能14</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng15.xml" tooltip="jineng15.xml">技能15</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng16.xml" tooltip="jineng16.xml">技能16</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng17.xml" tooltip="jineng17.xml">技能17</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng18.xml" tooltip="jineng18.xml">技能18</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng19.xml" tooltip="jineng19.xml">技能19</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="jineng20.xml" tooltip="jineng20.xml">技能20</a>
+                <br/>
+				烈火
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level1_Crazy.xml" tooltip="Fire_SingleAttack_Level1_Crazy.xml">火焰爆</a>
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithDOT_Level2_Crazy.xml" tooltip="Fire_SingleAttackWithDOT_Level2_Crazy.xml">烈焰之轮</a>
+                <br/>
+				风暴
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level1_Crazy.xml" tooltip="Storm_SingleAttack_Level1_Crazy.xml">疾电术</a>
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level2_Crazy.xml" tooltip="Storm_SingleAttack_Level2_Crazy.xml">金灵盾空</a>
+                <br/>
+				寒冰
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level1_Crazy.xml" tooltip="Ice_SingleAttack_Level1_Crazy.xml">冰霜破</a>
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level2_Crazy.xml" tooltip="Ice_SingleAttack_Level2_Crazy.xml">陨落冰石</a>
+                <br/>
+				生命
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level1_Crazy.xml" tooltip="Life_SingleAttack_Level1_Crazy.xml">生灵光弧</a>
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level2_Crazy.xml" tooltip="Life_SingleAttack_Level2_Crazy.xml">灵木刺阵</a>
+                <br/>
+				死亡
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level1_Crazy.xml" tooltip="Death_SingleAttack_Level1_Crazy.xml">暗灵之咒</a>
+  <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level2_Crazy.xml" tooltip="Death_SingleAttackWithLifeTap_Level2_Crazy.xml">吸血幽灵</a>
+                <br/>
+				通用
+            </pe:tab-item>
+            <pe:tab-item text="老版本" name="old">
+                <br/>
+                金
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PowerEnhanceBlade_Metal.xml" tooltip="PowerEnhanceBlade_Metal.xml">金增强</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level1_Metal.xml" tooltip="SingleAttack_Level1_Metal.xml">金单攻1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level2_Metal.xml" tooltip="SingleAttack_Level2_Metal.xml">金单攻2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level3_Metal.xml" tooltip="SingleAttack_Level3_Metal.xml">金单攻3</a>
+                <br/>
+                木
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PowerEnhanceBlade_Wood.xml" tooltip="PowerEnhanceBlade_Wood.xml">木增强</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="AreaAttack_Level1_Wood.xml" tooltip="AreaAttack_Level1_Wood.xml">木群攻1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="AreaAttack_Level2_Wood.xml" tooltip="AreaAttack_Level2_Wood.xml">木群攻2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="AreaAttack_Level3_Wood.xml" tooltip="AreaAttack_Level3_Wood.xml">木群攻3</a>
+                <br/>
+                水
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PowerEnhanceBlade_Water.xml" tooltip="PowerEnhanceBlade_Water.xml">水增强</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level1_Water.xml" tooltip="SingleAttack_Level1_Water.xml">水单攻1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleHeal_Level1_Water.xml" tooltip="SingleHeal_Level1_Water.xml">单体回血1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleHeal_Level2_Water.xml" tooltip="SingleHeal_Level2_Water.xml">单体回血2</a>
+                <br/>
+                火
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PowerEnhanceBlade_Fire.xml" tooltip="PowerEnhanceBlade_Fire.xml">火增强</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithDOT_Level1_Fire.xml" tooltip="SingleAttackWithDOT_Level1_Fire.xml">单攻带不良属性1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithDOT_Level2_Fire.xml" tooltip="SingleAttackWithDOT_Level2_Fire.xml">单攻带不良属性2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithDOT_Level3_Fire.xml" tooltip="SingleAttackWithDOT_Level3_Fire.xml">单攻带不良属性3</a>
+                <br/>
+                土
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PowerEnhanceBlade_Earth.xml" tooltip="PowerEnhanceBlade_Earth.xml">土增强</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level1_Earth.xml" tooltip="SingleAttack_Level1_Earth.xml">土单攻1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth.xml" tooltip="DamageShieldAndThorn_Level1_Earth.xml">攻击防御并反射1</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth.xml" tooltip="DamageShieldAndThorn_Level2_Earth.xml">攻击防御并反射2</a>
+                <br/>
+                8月6日
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Charm_AreaGlobalDamageWeakness_Level1_Wood.xml" tooltip="Charm_AreaGlobalDamageWeakness_Level1_Wood.xml">范围虚弱</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level2_Earth.xml" tooltip="SingleAttack_Level2_Earth.xml">土单攻2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithLifeTap_Level2_Water.xml" tooltip="SingleAttackWithLifeTap_Level2_Water.xml">水吸血2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ward_EarthDamageTrap_Level1_Fire.xml" tooltip="Ward_EarthDamageTrap_Level1_Fire.xml">土陷阱</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ward_WaterDamageTrap_Level1_Metal.xml" tooltip="Ward_WaterDamageTrap_Level1_Metal.xml">水陷阱</a>
+                <br/>
+                8月20日
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Charm_BoostAccuracy_Metal.xml" tooltip="Charm_BoostAccuracy_Metal.xml">金成功率</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level4_Metal.xml" tooltip="SingleAttack_Level4_Metal.xml">金单攻4</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Charm_FocusPrism_Wood.xml" tooltip="Charm_FocusPrism_Wood.xml">聚能镜</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Charm_DamageWeakness_Level2_Wood.xml" tooltip="Charm_DamageWeakness_Level2_Wood.xml">木削弱2</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ward_GlobalShield_Level1_Earth.xml" tooltip="Ward_GlobalShield_Level1_Earth.xml">万能盾</a>
+                <br/>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttack_Level3_Earth.xml" tooltip="SingleAttack_Level3_Earth.xml">土单攻3</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Revive_Level1_Water.xml" tooltip="Revive_Level1_Water.xml">复活</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithDOT_Level4_Water.xml" tooltip="SingleAttackWithDOT_Level4_Water.xml">水单攻4</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="SingleAttackWithImmolate_Level4_Fire.xml" tooltip="SingleAttackWithImmolate_Level4_Fire.xml">火单攻4</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="StealCharm_Level1_Fire.xml" tooltip="StealCharm_Level1_Fire.xml">偷加强</a>
+                <br/>
+                测试
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="TestSpell_Lightning.xml">闪电</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="TestSpell_Heal.xml">治疗</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="TestSpell_Leech.xml">吸血</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Fire.xml">火DOT</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Water.xml">水DOT</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Pass.xml">Pass</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Dead.xml">Dead</a>
+                <br/>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Metal.xml">金Fizzle</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Wood.xml">木Fizzle</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Fire.xml">火Fizzle</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Water.xml">水Fizzle</a>
+                <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Earth.xml">土Fizzle</a>
+                <br/>
+            </pe:tab-item>
+            <pe:tab-item text="操作效果" name="actions">     
+                儿童版
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_MountPetTransform.xml" tooltip="Action_MountPetTransform.xml">宠物变身</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnMount.xml" tooltip="Action_OnMount.xml">骑坐骑</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnTeleport.xml" tooltip="Action_OnTeleport.xml">传送</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_QuestAcquire.xml" tooltip="Action_QuestAcquire.xml">接任务</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_QuestFinish.xml" tooltip="Action_QuestFinish.xml">完成任务</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_UseCombatPill.xml" tooltip="Action_UseCombatPill.xml">吃药丸</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_UseExpBag.xml" tooltip="Action_UseExpBag.xml">吃面包</a>
+
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnNextInstanceLevel.xml" tooltip="Action_OnNextInstanceLevel.xml">传送开始/副本下一层</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnPreviousInstanceLevel.xml" tooltip="Action_OnPreviousInstanceLevel.xml">传送结束/副本上一层</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnLevelUp.xml" tooltip="Action_OnLevelUp.xml">升级</a>
+
+
+                <br/>
+                青年版
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_MountPetTransform_teen.xml" tooltip="Action_MountPetTransform_teen.xml">宠物变身</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnMount_teen.xml" tooltip="Action_OnMount_teen.xml">骑坐骑</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnTeleport_teen.xml" tooltip="Action_OnTeleport_teen.xml">传送</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_QuestAcquire_teen.xml" tooltip="Action_QuestAcquire_teen.xml">接任务</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_QuestFinish_teen.xml" tooltip="Action_QuestFinish_teen.xml">完成任务</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_UseCombatPill_teen.xml" tooltip="Action_UseCombatPill_teen.xml">吃药丸</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_UseExpBag_teen.xml" tooltip="Action_UseExpBag_teen.xml">吃面包</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnNextInstanceLevel_teen.xml" tooltip="Action_OnNextInstanceLevel_teen.xml">传送开始/副本下一层</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnPreviousInstanceLevel_teen.xml" tooltip="Action_OnPreviousInstanceLevel_teen.xml">传送结束/副本上一层</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_OnLevelUp_teen.xml" tooltip="Action_OnLevelUp_teen.xml">升级</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Action_BearShop_teen.xml" tooltip="Action_BearShop_teen.xml">外卖熊</a>
+                 <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Player_EnterCombat_teen.xml" tooltip="Player_EnterCombat_teen.xml">人物出现</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Arena_EnterCombat_teen.xml" tooltip="Arena_EnterCombat_teen.xml">法阵出现</a>
+
+            </pe:tab-item>
+            <pe:tab-item selected="true" text="青年版" name="new">
+                <br/>
+                烈火
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level0_1_20_teen.xml" tooltip="Fire_SingleAttack_Level0_1_20_teen.xml">烈火魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level1_teen.xml" tooltip="Fire_SingleAttack_Level1_teen.xml">火_焰_爆</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level3_teen.xml" tooltip="Fire_SingleAttack_Level3_teen.xml">火鸟冲击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithDOT_Level2_teen.xml" tooltip="Fire_SingleAttackWithDOT_Level2_teen.xml">烈焰之轮</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaAttack_Level4_teen.xml" tooltip="Fire_AreaAttack_Level4_teen.xml">星火袭空</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithImmolate_Level4_teen.xml" tooltip="Fire_SingleAttackWithImmolate_Level4_teen.xml">火神之握</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaDOTAttack_Level5_teen.xml" tooltip="Fire_AreaDOTAttack_Level5_teen.xml">烈火怒吼</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttack_LevelX_teen.xml" tooltip="Fire_DOTAttack_LevelX_teen.xml">火狼咆哮</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level5_teen.xml" tooltip="Fire_SingleAttack_Level5_teen.xml">凤翼天翔</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_Level6_teen.xml" tooltip="Fire_SingleAttack_Level6_teen.xml">火魔掷石</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttackWithSplash_Level6_teen.xml" tooltip="Fire_DOTAttackWithSplash_Level6_teen.xml">熔岩炸弹</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Fire_Splash_teen.xml" tooltip="DoT_Fire_Splash_teen.xml">炸弹溅射</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Rune_AreaAttack_Level2_teen.xml" tooltip="Fire_Rune_AreaAttack_Level2_teen.xml">烈火群击</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithExplode_teen.xml" tooltip="Fire_SingleAttackWithExplode_teen.xml">急速点燃</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_ArenaAttack_Level8_teen.xml" tooltip="Fire_ArenaAttack_Level8_teen.xml">地狱爆炎</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttackWithBlind_Level9_teen.xml" tooltip="Fire_SingleAttackWithBlind_Level9_teen.xml">烈阳闪耀</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_BlazingStance_teen.xml" tooltip="Fire_BlazingStance_teen.xml">烈火形态</a>
+                <br/>
+                风暴
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level0_1_20_teen.xml" tooltip="Storm_SingleAttack_Level0_1_20_teen.xml">风暴魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level1_teen.xml" tooltip="Storm_SingleAttack_Level1_teen.xml">疾_电_术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level2_teen.xml" tooltip="Storm_SingleAttack_Level2_teen.xml">长空霹雳</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level3_teen.xml" tooltip="Storm_SingleAttack_Level3_teen.xml">暗夜雷动</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level4_teen.xml" tooltip="Storm_SingleAttack_Level4_teen.xml">雷神之剑</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level5_teen.xml" tooltip="Storm_SingleAttack_Level5_teen.xml">雷鸟飓风</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageTrap_Standing_teen.xml" tooltip="Storm_StormDamageTrap_Standing_teen.xml">惊雷裂隙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_WildBolt_Level2_teen.xml" tooltip="Storm_SingleAttack_WildBolt_Level2_teen.xml">极限暴熊</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Level6_teen.xml" tooltip="Storm_SingleAttack_Level6_teen.xml">雷猴神兵</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaAttack_LevelX_teen.xml" tooltip="Storm_AreaAttack_LevelX_teen.xml">炫雷爆击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_AreaAttack_Level2_teen.xml" tooltip="Storm_Rune_AreaAttack_Level2_teen.xml">风暴群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleStealth_teen.xml" tooltip="Storm_SingleStealth_teen.xml">风影斗篷</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_RemoveCardsInHand_teen.xml" tooltip="Storm_RemoveCardsInHand_teen.xml">遗_忘_术</a>
+                <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_ElectricStance_teen.xml" tooltip="Storm_ElectricStance_teen.xml">风暴形态</a>
+                <br/>
+                寒冰
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level0_1_20_teen.xml" tooltip="Ice_SingleAttack_Level0_1_20_teen.xml">寒冰魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level1_teen.xml" tooltip="Ice_SingleAttack_Level1_teen.xml">冰_霜_破</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level2_teen.xml" tooltip="Ice_SingleAttack_Level2_teen.xml">陨落冰石</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level3_teen.xml" tooltip="Ice_SingleAttack_Level3_teen.xml">冰剑凛空</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level4_teen.xml" tooltip="Ice_SingleAttack_Level4_teen.xml">破地冰钻</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_AreaAttack_Level4_teen.xml" tooltip="Ice_AreaAttack_Level4_teen.xml">冰魄漫天</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level6_teen.xml" tooltip="Ice_SingleAttack_Level6_teen.xml">海狮冰魄</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttackWithDOT_Level5_teen.xml" tooltip="Ice_SingleAttackWithDOT_Level5_teen.xml">冰虾夜叉</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield_teen.xml" tooltip="Ice_ReflectionShield_teen.xml">冰霜魔镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield_reflection_teen.xml" tooltip="Ice_ReflectionShield_reflection_teen.xml">魔镜反射</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_ReflectionShield_shieldbreak_teen.xml" tooltip="Ice_ReflectionShield_shieldbreak_teen.xml">魔镜破碎</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Rune_AreaAttack_Level2_teen.xml" tooltip="Ice_Rune_AreaAttack_Level2_teen.xml">寒冰群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_Level5_teen.xml" tooltip="Ice_SingleAttack_Level5_teen.xml">霜斧巨人</a>
+                 <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_PierceStance_teen.xml" tooltip="Ice_PierceStance_teen.xml">寒冰形态</a>
+                <br/>
+                死亡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level0_1_20_teen.xml" tooltip="Death_SingleAttack_Level0_1_20_teen.xml">死亡魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level1_teen.xml" tooltip="Death_SingleAttack_Level1_teen.xml">暗灵之咒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level2_teen.xml" tooltip="Death_SingleAttackWithLifeTap_Level2_teen.xml">吸血幽灵</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level3_teen.xml" tooltip="Death_SingleAttack_Level3_teen.xml">亡灵戒律</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level4_teen.xml" tooltip="Death_SingleAttackWithLifeTap_Level4_teen.xml">回光返照</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttack_Level5_teen.xml" tooltip="Death_SingleAttack_Level5_teen.xml">墓地莽石</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithDOT_Level4_teen.xml" tooltip="Death_SingleAttackWithDOT_Level4_teen.xml">死_亡_毒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithLifeTap_Level6_teen.xml" tooltip="Death_SingleAttackWithLifeTap_Level6_teen.xml">蝠王吸魂</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleHealWithImmolate_Level3_teen.xml" tooltip="Death_SingleHealWithImmolate_Level3_teen.xml">灵魂祭献</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithDisabledHeal_teen.xml" tooltip="Death_SingleAttackWithDisabledHeal_teen.xml">天魔杀星</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_AreaAttack_Level2_teen.xml" tooltip="Death_Rune_AreaAttack_Level2_teen.xml">死亡群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithPercent_teen.xml" tooltip="Death_SingleAttackWithPercent_teen.xml">死神契约</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleGuardianWithImmolate_Level8_teen.xml" tooltip="Death_SingleGuardianWithImmolate_Level8_teen.xml">灵魂替身</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Revive_teen.xml" tooltip="Revive_teen.xml">灵魂附体</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Revive_Post_teen.xml" tooltip="Revive_Post_teen.xml">灵魂复活</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleDisease_teen.xml" tooltip="Death_SingleDisease_teen.xml">虚弱之云</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaAttack_DoomLordsWrath_teen.xml" tooltip="Death_AreaAttack_DoomLordsWrath_teen.xml">群之暗伤</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_VampireStance_teen.xml" tooltip="Death_VampireStance_teen.xml">死亡形态</a>
+                <br/>
+                生命
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level0_1_20_teen.xml" tooltip="Life_SingleAttack_Level0_1_20_teen.xml">生命魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level1_teen.xml" tooltip="Life_SingleAttack_Level1_teen.xml">生灵光弧</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level2_teen.xml" tooltip="Life_SingleAttack_Level2_teen.xml">灵木刺阵</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level3_teen.xml" tooltip="Life_SingleAttack_Level3_teen.xml">莽林狂舞</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level4_teen.xml" tooltip="Life_SingleAttack_Level4_teen.xml">噬草召唤</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleAttack_Level6_teen.xml" tooltip="Life_SingleAttack_Level6_teen.xml">生命之怒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_AreaAttack_Level2_teen.xml" tooltip="Life_Rune_AreaAttack_Level2_teen.xml">生命群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaHealWithHOT_Level8_teen.xml" tooltip="Life_AreaHealWithHOT_Level8_teen.xml">天使赐福</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHealWithHOT_Level1_teen.xml" tooltip="Life_SingleHealWithHOT_Level1_teen.xml">生生不息</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_ForLife_Level2_teen.xml" tooltip="Life_SingleHeal_ForLife_Level2_teen.xml">万象回春</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_Level4_teen.xml" tooltip="Life_SingleHeal_Level4_teen.xml">生机勃发</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaHeal_Level3_teen.xml" tooltip="Life_AreaHeal_Level3_teen.xml">生命庇护</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaPowerPipBoost_teen.xml" tooltip="Life_AreaPowerPipBoost_teen.xml">希望之光</a>
+<br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHealWithHOT_Level5_teen.xml" tooltip="Life_SingleHealWithHOT_Level5_teen.xml">生命圣光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaCleanse_teen.xml" tooltip="Life_AreaCleanse_teen.xml">圣灵净化</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_SingleHeal_LevelX_teen.xml" tooltip="Life_SingleHeal_LevelX_teen.xml">精灵之舞</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_FuryStance_teen.xml" tooltip="Life_FuryStance_teen.xml">天使战魂</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_HealingStance_teen.xml" tooltip="Life_HealingStance_teen.xml">生命形态</a>
+                <br/>
+                大地
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleAttack_Level0_1_20_teen.xml" tooltip="Myth_SingleAttack_Level0_1_20_teen.xml">大地魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleAttack_Level2_teen.xml" tooltip="Myth_SingleAttack_Level2_teen.xml">飞_石_术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleAttack_Level4_teen.xml" tooltip="Myth_SingleAttack_Level4_teen.xml">巨_石_击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleRock_teen.xml" tooltip="Myth_SingleRock_teen.xml">石_化_术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleAttack_Level6_teen.xml" tooltip="Myth_SingleAttack_Level6_teen.xml">巨石之怒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SinglePipsTap_teen.xml" tooltip="Myth_SinglePipsTap_teen.xml">地心神力</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_ThreatCleanse_teen.xml" tooltip="Myth_ThreatCleanse_teen.xml">宁静之地</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_Rune_AreaAttack_Level2_teen.xml" tooltip="Myth_Rune_AreaAttack_Level2_teen.xml">大地群击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SinglePartialCleanse_teen.xml" tooltip="Myth_SinglePartialCleanse_teen.xml">净化星尘</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleAttackWithStun_Level7_teen.xml" tooltip="Myth_SingleAttackWithStun_Level7_teen.xml">岩石巨锤</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleSealWithSiblingSplash_teen.xml" tooltip="Myth_SingleSealWithSiblingSplash_teen.xml">石破天惊</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_AreaDisabledPips_Standing_teen.xml" tooltip="Myth_AreaDisabledPips_Standing_teen.xml">大地神威</a>
+                <br/>
+                平衡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleHeal_Level2_teen.xml" tooltip="Balance_SingleHeal_Level2_teen.xml">静水灵体</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleHeal_LongCD_teen.xml" tooltip="Balance_Rune_SingleHeal_LongCD_teen.xml">愈合之术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleHeal_LongCD_teen.xml" tooltip="Balance_Rune_SingleHeal_LongCD_teen.xml">天使惩戒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaAttack_Level1_teen.xml" tooltip="Balance_Rune_AreaAttack_Level1_teen.xml">能量冲击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaAttack_level1_teen.xml" tooltip="Balance_AreaAttack_level1_teen.xml">奥能冲击Lv1</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaAttack_level1_teen.xml" tooltip="Balance_AreaAttack_level1_teen.xml">奥能冲击Lv2</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaAttack_level1_teen.xml" tooltip="Balance_AreaAttack_level1_teen.xml">奥能冲击Lv3</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaPowerPipBoost_teen.xml" tooltip="Balance_Rune_AreaPowerPipBoost_teen.xml">希望之光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_Enrage_Level1_teen.xml" tooltip="Balance_Rune_Enrage_Level1_teen.xml">激_怒_卡</a>
+                <br/>
+                烈火
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDamageTrap_teen.xml" tooltip="Fire_FireDamageTrap_teen.xml">烈火陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireGreatShield_teen.xml" tooltip="Fire_FireGreatShield_teen.xml">烈 火 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Rune_FireResist_MiniAura_teen.xml" tooltip="Fire_Rune_FireResist_MiniAura_teen.xml">烈火盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDamageBlade_teen.xml" tooltip="Fire_FireDamageBlade_teen.xml">烈火专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireDispellWeakness_teen.xml" tooltip="Fire_FireDispellWeakness_teen.xml">烈火封锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireGlobalAura_teen.xml" tooltip="Fire_FireGlobalAura_teen.xml">火极力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FirePrism_teen.xml" tooltip="Fire_FirePrism_teen.xml">烈火棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_StealPositiveCharm_teen.xml" tooltip="Fire_StealPositiveCharm_teen.xml">偷天换日</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_DOTAttackWithHOT_Level2_teen.xml" tooltip="Fire_DOTAttackWithHOT_Level2_teen.xml">烈_火_链</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaStun_teen.xml" tooltip="Fire_AreaStun_teen.xml">烈火眩晕</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaAccuracyWeakness_teen.xml" tooltip="Fire_AreaAccuracyWeakness_teen.xml">烟 ___ 雾</a>
+                <br/>
+                风暴
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageTrap_teen.xml" tooltip="Storm_StormDamageTrap_teen.xml">风暴陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormGreatShield_teen.xml" tooltip="Storm_StormGreatShield_teen.xml">风 暴 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_StormResist_MiniAura_teen.xml" tooltip="Storm_Rune_StormResist_MiniAura_teen.xml">风暴盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDamageBlade_teen.xml" tooltip="Storm_StormDamageBlade_teen.xml">风暴专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormDispellWeakness_teen.xml" tooltip="Storm_StormDispellWeakness_teen.xml">风暴封锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormGlobalAura_teen.xml" tooltip="Storm_StormGlobalAura_teen.xml">风暴力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormAccuracyBlade_teen.xml" tooltip="暂缺">风暴棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormAccuracyBlade_teen.xml" tooltip="Storm_StormAccuracyBlade_teen.xml">风暴精准</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaDamageTrap_teen.xml" tooltip="Storm_AreaDamageTrap_teen.xml">暴风魔咒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_RemovePositiveCharm_teen.xml" tooltip="Storm_RemovePositiveCharm_teen.xml">厉风破运</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_RemoveNegativeCharm_teen.xml" tooltip="Storm_RemoveNegativeCharm_teen.xml">和风逐暗</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormConversePositiveWard_teen.xml" tooltip="Storm_StormConversePositiveWard_teen.xml">怒风逆转</a>
+                <br/>
+                寒冰
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDamageTrap_teen.xml" tooltip="Ice_IceDamageTrap_teen.xml">寒冰陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceGreatShield_teen.xml" tooltip="Ice_IceGreatShield_teen.xml">寒 冰 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Rune_IceResist_MiniAura_teen.xml" tooltip="Ice_Rune_IceResist_MiniAura_teen.xml">寒冰盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDamageBlade_teen.xml" tooltip="Ice_IceDamageBlade_teen.xml">寒冰专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceDispellWeakness_teen.xml" tooltip="Ice_IceDispellWeakness_teen.xml">寒冰封锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceGlobalAura_teen.xml" tooltip="Ice_IceGlobalAura_teen.xml">冰极力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IcePrism_teen.xml" tooltip="Ice_IcePrism_teen.xml">寒冰棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_GlobalShield_teen.xml" tooltip="Ice_GlobalShield_teen.xml">结界守护</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_StealPositiveWard_teen.xml" tooltip="Ice_StealPositiveWard_teen.xml">神偷之手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleStun_teen.xml" tooltip="Ice_SingleStun_teen.xml">寒冰眩晕</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Absorb_LevelX_teen.xml" tooltip="Ice_Absorb_LevelX_teen.xml">坚固壁垒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_StunAbsorb_teen.xml" tooltip="Ice_StunAbsorb_teen.xml">眩晕吸收</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleFreeze_teen.xml" tooltip="Ice_SingleFreeze_teen.xml">冰封神符</a>
+ <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_DefensiveStance_teen.xml" tooltip="Ice_DefensiveStance_teen.xml">坚冰形态</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_GlobalResist_MiniAura_teen.xml" tooltip="Ice_GlobalResist_MiniAura_teen.xml">叹息冰墙</a>
+                <br/>
+                死亡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDamageTrap_teen.xml" tooltip="Death_DeathDamageTrap_teen.xml">死亡陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathGreatShield_teen.xml" tooltip="Death_DeathGreatShield_teen.xml">死 亡 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_DeathResist_MiniAura_teen.xml" tooltip="Death_Rune_DeathResist_MiniAura_teen.xml">死亡盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDamageBlade_teen.xml" tooltip="Death_DeathDamageBlade_teen.xml">死亡专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathDispellWeakness_teen.xml" tooltip="Death_DeathDispellWeakness_teen.xml">死亡封锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathGlobalAura_teen.xml" tooltip="Death_DeathGlobalAura_teen.xml">死亡力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathPrism_teen.xml" tooltip="Death_DeathPrism_teen.xml">死亡棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_GlobalDamageTrap_teen.xml" tooltip="Death_GlobalDamageTrap_teen.xml">黑暗诅咒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SymmetryGlobalTrap_teen.xml" tooltip="Death_SymmetryGlobalTrap_teen.xml">死_亡_绝</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_HealWeakness_teen.xml" tooltip="Death_HealWeakness_teen.xml">死亡巫术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaDamageWeakness_teen.xml" tooltip="Death_AreaDamageWeakness_teen.xml">群之羁绊</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Rune_HealTrap_Standing_teen.xml" tooltip="Death_Rune_HealTrap_Standing_teen.xml">瘟神巫术</a>
+
+                <br/>
+                生命
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDamageTrap_teen.xml" tooltip="Life_LifeDamageTrap_teen.xml">生命陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeGreatShield_teen.xml" tooltip="Life_LifeGreatShield_teen.xml">生 命 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Rune_LifeResist_MiniAura_teen.xml" tooltip="Life_Rune_LifeResist_MiniAura_teen.xml">生命盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDamageBlade_teen.xml" tooltip="Life_LifeDamageBlade_teen.xml">生命专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeDispellWeakness_teen.xml" tooltip="Life_LifeDispellWeakness_teen.xml">生命封锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeGlobalAura_teen.xml" tooltip="Life_LifeGlobalAura_teen.xml">生命力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifePrism_teen.xml" tooltip="Life_LifePrism_teen.xml">生命棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Absorb_Level3_teen.xml" tooltip="Life_Absorb_Level3_teen.xml">吸_收_盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_HealBlade_teen.xml" tooltip="Life_HealBlade_teen.xml">治_疗_术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaAccuracyBlade_teen.xml" tooltip="Life_AreaAccuracyBlade_teen.xml">生命之礼</a>
+
+                <br/>
+                大地
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythDamageTrap_teen.xml" tooltip="Myth_MythDamageTrap_teen.xml">大地陷阱</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythGreatShield_teen.xml" tooltip="Myth_MythGreatShield_teen.xml">大 地 盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_Rune_MythResist_MiniAura_teen.xml" tooltip="Myth_Rune_MythResist_MiniAura_teen.xml">大地盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythDamageBlade_teen.xml" tooltip="Myth_MythDamageBlade_teen.xml">大地专注</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythGlobalAura_teen.xml" tooltip="Myth_MythGlobalAura_teen.xml">大地力场</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythPrism_teen.xml" tooltip="Myth_MythPrism_teen.xml">大地棱镜</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_GlobalDamageTrap_teen.xml" tooltip="Myth_GlobalDamageTrap_teen.xml">虚弱诅咒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_DisabledPip_Standing_teen.xml" tooltip="Myth_DisabledPip_Standing_teen.xml">魔力枷锁</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythConversePositiveWard_teen.xml" tooltip="Myth_MythConversePositiveWard_teen.xml">结界逆转</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_PowerPipTrap_Standing_teen.xml" tooltip="Myth_PowerPipTrap_Standing_teen.xml">法力禁锢</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_CounterSpellTrap_teen.xml" tooltip="Myth_CounterSpellTrap_teen.xml">法术反制</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_SingleConfusion_teen.xml" tooltip="Myth_SingleConfusion_teen.xml">混乱术</a>
+                <br/>
+                平衡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_GlobalShield_teen.xml" tooltip="Balance_GlobalShield_teen.xml">结界守护</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_BoostPowerPipChance_Standing_teen.xml" tooltip="Balance_Rune_BoostPowerPipChance_Standing_teen.xml">魔力爆发</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_SingleTaunt_teen.xml" tooltip="Balance_Rune_SingleTaunt_teen.xml">嘲讽</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaTaunt_teen.xml" tooltip="Balance_Rune_AreaTaunt_teen.xml">群体嘲讽</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_TauntStance_teen.xml" tooltip="Balance_Rune_TauntStance_teen.xml">威慑形态</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_MultipleGlobalShield_teen.xml" tooltip="Balance_Rune_MultipleGlobalShield_teen.xml">连环结界</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_PowerPipTrap_Standing_teen.xml" tooltip="Balance_Rune_PowerPipTrap_Standing_teen.xml">魔力抑制</a>
+
+                <br/>
+                其他
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Dead_Post_teen.xml" tooltip="Dead_Post_teen.xml">怪物死后</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Dead_teen.xml" tooltip="Dead_teen.xml">怪物死亡</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Dead_Player_teen.xml" tooltip="Dead_Player_teen.xml">主角死亡</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Dead_Player_multiple_teen.xml" tooltip="Dead_Player_multiple_teen.xml">主角死后</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Catchpet_success_teen.xml" tooltip="Balance_Catchpet_success_teen.xml">捉宠成功</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Catchpet_failed_teen.xml" tooltip="Balance_Catchpet_failed_teen.xml">捉宠失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Fire_teen.xml" tooltip="PickPet_Fire_teen.xml">烈火换宠</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Storm_teen.xml" tooltip="PickPet_Storm_teen.xml">风暴换宠</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Ice_teen.xml" tooltip="PickPet_Ice_teen.xml">寒冰换宠</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Death_teen.xml" tooltip="PickPet_Death_teen.xml">死亡换宠</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Life_teen.xml" tooltip="PickPet_Life_teen.xml">生命换宠</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="PickPet_Myth_teen.xml" tooltip="PickPet_Myth_teen.xml">大地换宠</a>
+                <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Fire_teen.xml" tooltip="DoT_Fire_teen.xml">烈火DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Storm_teen.xml" tooltip="DoT_Storm_teen.xml">风暴DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Ice_teen.xml" tooltip="DoT_Ice_teen.xml">寒冰DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Death_teen.xml" tooltip="DoT_Death_teen.xml">死亡DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Life_teen.xml" tooltip="DoT_Life_teen.xml">生命DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DoT_Myth_teen.xml" tooltip="DoT_Myth_teen.xml">大地DOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Hot_teen.xml" tooltip="Hot_teen.xml">生命HOT</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Fire_teen.xml" tooltip="Fizzle_Fire_teen.xml">烈火失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Storm_teen.xml" tooltip="Fizzle_Storm_teen.xml">风暴失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Ice_teen.xml" tooltip="Fizzle_Ice_teen.xml">寒冰失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Death_teen.xml" tooltip="Fizzle_Death_teen.xml">死亡失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Life_teen.xml" tooltip="Fizzle_Life_teen.xml">生命失败</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Myth_teen.xml" tooltip="Fizzle_Myth_teen.xml">大地失败</a>
+            <br/>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fizzle_Balance_teen.xml" tooltip="Fizzle_Balance_teen.xml">平衡失败</a>
+             
+            </pe:tab-item>
+            <pe:tab-item selected="true" text="宠物技能" name="new">
+                <br/>
+                烈火
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_AreaDamageShield_teen.xml" tooltip="Fire_AreaDamageShield_teen.xml">火焰之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_FireGlobalAura2_teen.xml" tooltip="Fire_FireGlobalAura2_teen.xml">火之护环</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_Pet_SingleAttack_FireRockyOgresDominance_teen.xml" tooltip="Fire_Pet_SingleAttack_FireRockyOgresDominance_teen.xml">鬃王暴怒</a>
+                <br/>
+                风暴
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_AreaDamageShield_teen.xml" tooltip="Storm_AreaDamageShield_teen.xml">疾风之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_StormGlobalAura2_teen.xml" tooltip="Storm_StormGlobalAura2_teen.xml">风之护环</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_SingleAttackWithDOT_Level2_teen.xml" tooltip="Storm_Pet_SingleAttackWithDOT_Level2_teen.xml">雷神电轮</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Pet_AreaAttack_LevelX_ShadowSmashBullsSmash_teen.xml" tooltip="Storm_Pet_AreaAttack_LevelX_ShadowSmashBullsSmash_teen.xml">连环闪电</a>
+                <br/>
+                寒冰
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_AreaDamageShield_teen.xml" tooltip="Ice_AreaDamageShield_teen.xml">冰霜之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_IceGlobalAura2_teen.xml" tooltip="Ice_IceGlobalAura2_teen.xml">冰之护环</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttack_WaterBubblesFury_teen.xml" tooltip="Ice_Pet_SingleAttack_WaterBubblesFury_teen.xml">咕噜大法</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_IceSingleAttack_FrostFang_Boss_teen.xml" tooltip="Ice_Pet_IceSingleAttack_FrostFang_Boss_teen.xml">恶狼袭击</a>
+                <br/>
+                死亡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaDamageShield_teen.xml" tooltip="Death_AreaDamageShield_teen.xml">黑暗之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_DeathGlobalAura2_teen.xml" tooltip="Death_DeathGlobalAura2_teen.xml">暗之护环</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_SingleAttackWithLifeTap_IronShellsPoison_teen.xml" tooltip="Death_Pet_SingleAttackWithLifeTap_IronShellsPoison_teen.xml">铁壳毒物</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_DeathSingleAttack_UndeadMonkey_Boss_teen.xml" tooltip="Death_Pet_DeathSingleAttack_UndeadMonkey_Boss_teen.xml">亡灵大军</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_Pet_DeathGlobalAuraDamage_teen.xml" tooltip="Death_Pet_DeathGlobalAuraDamage_teen.xml">暗黑力场</a>
+                <br/>
+                生命
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_AreaDamageShield_teen.xml" tooltip="Life_AreaDamageShield_teen.xml">神圣之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_LifeGlobalAura2_teen.xml" tooltip="Life_LifeGlobalAura2_teen.xml">神之护环</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_Pet_AreaHeal_ZodiacRabbitsBlessing_teen.xml" tooltip="Life_Pet_AreaHeal_ZodiacRabbitsBlessing_teen.xml">超能神兔</a>
+
+                <br/>
+                大地
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_AreaDamageShield_teen.xml" tooltip="Myth_AreaDamageShield_teen.xml">大地之盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Myth_MythGlobalAura2_teen.xml" tooltip="Myth_MythGlobalAura2_teen.xml">地之护环</a>
+             
+                <br/>
+                平衡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaDamageShield_Global_teen.xml" tooltip="Balance_AreaDamageShield_Global_teen.xml">奥能护盾</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaHeal_DragonLight_teen.xml" tooltip="Balance_AreaHeal_DragonLight_teen.xml">奥龙圣光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleHealWithHOT_Snake_teen.xml" tooltip="Balance_SingleHealWithHOT_Snake_teen.xml">幸运之光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_StealPositiveWard_teen.xml" tooltip="Balance_StealPositiveWard_teen.xml">盗梦之手</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_DOTAttackWithHOT_Snake_teen.xml" tooltip="Balance_DOTAttackWithHOT_Snake_teen.xml">平衡之链</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleAttack_0Pips_teen.xml" tooltip="Balance_SingleAttack_0Pips_teen.xml">平衡魔光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleAttack_2Pips_teen.xml" tooltip="Balance_SingleAttack_2Pips_teen.xml">能量弹</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleAttack_Level1_teen.xml" tooltip="Balance_SingleAttack_Level1_teen.xml">彗星冲击</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_SingleAttack_Level2_teen.xml" tooltip="Balance_SingleAttack_Level2_teen.xml">轨道炮</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_ControlAbsorb_Dragon_teen.xml" tooltip="Balance_Rune_ControlAbsorb_Dragon_teen.xml">傀儡吸收</a>
+
+
+            </pe:tab-item>
+            <pe:tab-item selected="true" text="怪物技能" name="new">
+                <br/>
+                烈火
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_ArenaAttack_ShuangRenXuanFeng_teen.xml" tooltip="Fire_ArenaAttack_ShuangRenXuanFeng_teen.xml">双刃旋风</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_HuoMao_teen.xml" tooltip="Fire_SingleAttack_HuoMao_teen.xml">火毛怒吼</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Fire_SingleAttack_HuoZong_teen.xml" tooltip="Fire_SingleAttack_HuoZong_teen.xml">火鬃光弧</a>
+
+                <br/>
+                风暴
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_SingleAttack_Kafuka_teen.xml" tooltip="Storm_SingleAttack_Kafuka_teen.xml">天诛箭雨</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_SingleAttack_KaiEn_teen.xml" tooltip="Storm_Rune_SingleAttack_KaiEn_teen.xml">疾风迅雷</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Storm_Rune_BoostDodgeChance_teen.xml" tooltip="Storm_Rune_BoostDodgeChance_teen.xml">疾风幻影</a>
+
+                <br/>
+                寒冰
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttack_ChieftainWarHammer_teen.xml" tooltip="Ice_Pet_SingleAttack_ChieftainWarHammer_teen.xml">巨鳄战锤</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_SingleAttack_BingWa_teen.xml" tooltip="Ice_SingleAttack_BingWa_teen.xml">冰蛙逆袭</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttackWithDOT_FrostMonkey_teen.xml" tooltip="Ice_Pet_SingleAttackWithDOT_FrostMonkey_teen.xml">冰刺魂体</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Ice_Pet_SingleAttackWithDOT_FrostScylla_teen.xml" tooltip="Ice_Pet_SingleAttackWithDOT_FrostScylla_teen.xml">冰魄神柱</a>
+
+
+                <br/>
+                死亡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_SingleAttackWithStun_DeathSpurt_teen.xml" tooltip="Death_SingleAttackWithStun_DeathSpurt_teen.xml">死亡冲刺</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaHealWeakness_teen.xml" tooltip="Death_AreaHealWeakness_teen.xml">暗黑巫术</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Death_AreaHeal_BlackReborn_teen.xml" tooltip="Death_AreaHeal_BlackReborn_teen.xml">黑暗复活</a>
+
+                <br/>
+                生命
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_GreatHealBlade_Level1_teen.xml" tooltip="Life_GreatHealBlade_Level1_teen.xml">治疗神符</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Life_DOTAttck_DevilStick_teen.xml" tooltip="Life_DOTAttck_DevilStick_teen.xml">恶魔毒刺</a>
+
+                <br/>
+                大地
+             
+                <br/>
+                平衡
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_GreatDamageBlade_level1_teen.xml" tooltip="Balance_GreatDamageBlade_level1_teen.xml">元素之怒</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_AreaBoostPowerPipChance_teen.xml" tooltip="Balance_AreaBoostPowerPipChance_teen.xml">群之魔力</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaDamageBlade_KaiEn_teen.xml" tooltip="Balance_Rune_AreaDamageBlade_KaiEn_teen.xml">黎明之光</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_GlobalResist_MiniAura_Iron_teen.xml" tooltip="Balance_Rune_GlobalResist_MiniAura_Iron_teen.xml">钢铁盾墙</a>
+<a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="Balance_Rune_AreaControl_Devil_teen.xml" tooltip="Balance_Rune_AreaControl_Devil_teen.xml">傀儡术</a>
+            </pe:tab-item>
+        </pe:tabs>
+
+        <hr/>
+        <div>
+        <input type="checkbox" name="checkbox_motion" checked="true" value="true"/>立即模式
+        <input type="checkbox" name="checkbox_motion_enabled" onclick="MyCompany.Aries.Combat.SpellCastViewerPage.EnableMotion()" value="false"/>应用摄影机动画
+        </div>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="MyCompany.Aries.Combat.SpellCastViewerPage.PlayCameraMotion()" text="选牌位置" name='select_spell'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="MyCompany.Aries.Combat.SpellCastViewerPage.PlayCameraMotion()" text="战斗位置" name='battle_point'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="MyCompany.Aries.Combat.SpellCastViewerPage.PlayCameraMotion()" text="战斗前" name='pre_battle'/>
+        
+    </div>
+    <!--<div style="float:left;width:400px;">
+        测试随机盾 1级
+        <br/>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_fire_earth.xml">fire_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_metal_earth.xml">metal_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_metal_fire.xml">metal_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_metal_water.xml">metal_water</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_metal_wood.xml">metal_wood</a>
+        <br/>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_water_earth.xml">water_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_water_fire.xml">water_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_wood_earth.xml">wood_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_wood_fire.xml">wood_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level1_Earth_for_wood_water.xml">wood_water</a>
+        <br/>
+        测试随机盾 2级
+        <br/>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_fire_earth.xml">fire_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_metal_earth.xml">metal_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_metal_fire.xml">metal_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_metal_water.xml">metal_water</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_metal_wood.xml">metal_wood</a>
+        <br/>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_water_earth.xml">water_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_water_fire.xml">water_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_wood_earth.xml">wood_earth</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_wood_fire.xml">wood_fire</a>
+        <a onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpellFromFile_page" param1="DamageShieldAndThorn_Level2_Earth_for_wood_water.xml">wood_water</a>
+        <br/>
+        <hr/>
+    </div>-->
+    <div style="margin-left:10px">
+        <br/>
+        <br/>
+        <hr/>
+        <div style="width:300px;height:70px;"></div>
+        
+        <br/>
+        目前比较简陋的技能演示器
+        <br/>
+        选择一个目标人物 然后选取下面的技能试验:
+        <br/>
+        <a style="width:48px;height:32px;margin:0px;" 
+            onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpell_Lightning" >
+            闪电技能
+        </a>
+        <a style="width:48px;height:32px;margin:0px;" 
+            onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpell_Heal" >
+            治疗技能
+        </a>
+        <a style="width:48px;height:32px;margin:0px;" 
+            onclick="MyCompany.Aries.Combat.SpellCastViewerPage.TestSpell_Leech" >
+            吸血技能
+        </a>
+        
+        <br/>
+       
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="EnterCombat1001()" text="加入战斗1001" name='EnterCombat1001'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="EnterCombat1002()" text="加入战斗1002" name='EnterCombat1002'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="EnterCombat1003()" text="加入战斗1003" name='EnterCombat1003'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="EnterCombat1004()" text="加入战斗1004" name='EnterCombat1004'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="EnterCombat1005()" text="加入战斗1005" name='EnterCombat1005'/>
+        <input type="button" zorder="1" style="width:64px;height:32px;" onclick="PickCard()" text="选择卡片" name='PickCard'/>
+        
+        <br/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="DumpArena1001()" text="Dump 1001" name='DumpArena1001'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="DumpArena1002()" text="Dump 1002" name='DumpArena1002'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="DumpArena1003()" text="Dump 1003" name='DumpArena1003'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="DumpArena1004()" text="Dump 1004" name='DumpArena1004'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="DumpArena1005()" text="Dump 1005" name='DumpArena1005'/>
+        
+        <br/>
+        <input type="button" zorder="1" style="width:64px;height:32px;" onclick="MarkDebugPoint()" text="标记调试点" name='MarkDebugPoint'/>
+
+        <br/>
+        <input type="button" zorder="1" style="width:64px;height:32px;" onclick="TestArena()" text="测试平台" name='TestArena'/>
+        <br/>
+        <input type="button" zorder="1" style="width:64px;height:32px;" onclick="TestSequence()" text="测试指针" name='TestSequence'/>
+        <br/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="TestCustomTarget()" text="测试指针自选" name='TestCustomTarget'/>
+        <input type="button" zorder="1" style="width:96px;height:32px;" onclick="TestPlayTurn()" text="测试指针自选1" name='TestPlayTurn'/>
+        <br/>
+        
+        
+        
+        
+        <br/>
+    </div>
+    
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,295 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/TotemLearnPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TotemLearnPage, by leio, 2013/1/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" refresh="true" src="TotemPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Combat/main.lua");
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/TotemPage.lua");
+local TotemPage = commonlib.gettable("MyCompany.Aries.Desktop.TotemPage");
+local page = document:GetPageCtrl();
+TotemPage.OnInit_LearnPage();
+
+function ClosePage()
+    page:CloseWindow();
+end
+function GetState()
+    return TotemPage.state;
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        TotemPage.OnClickFolder(node.keyname,nil,true);
+    end
+end
+function GetFolderDataSource()
+    return TotemPage.menus;
+end
+function DS_Func_Items(index)
+    return TotemPage.DS_Func_Items(index);
+end
+function HasLearned()
+    return TotemPage.HasLearned();
+end
+function GetLearnedGsid()
+    local __,node = TotemPage.HasLearned();
+    if(node)then
+        return node.gsid;
+    end
+end
+local learned_gsid = GetLearnedGsid();
+
+function IsSameGsid(gsid)
+    if(learned_gsid == gsid)then
+        return true;
+    end
+end
+
+function DS_Func_skills(index)
+    return TotemPage.DS_Func_skills(index);
+end
+function GetNode(gsid)
+    if(TotemPage.skills)then
+        local k,v;
+        for k,v in ipairs(TotemPage.skills) do
+            if(v.gsid == gsid)then
+                return v;
+            end
+        end
+    end
+end
+function DoLearn(gsid)
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+    local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+	    return
+    end
+    gsid = tonumber(gsid)
+    local node = GetNode(gsid);
+    if(not node)then
+        return
+    end
+    if(TotemPage.HasLearned()) then
+        local __,__,__,copies = hasGSItem(984);
+        copies = copies or 0;
+        if(copies < 50)then
+            _guihelper.MessageBox("学习属性需要50金币，你的金币不够啦。");
+            return
+        end
+    end
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local s = string.format("你确定要选择的强化属性为：【%s】？<br/>(首次学习免费，转换属性需要50金币)",node.name or "");
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="change_religion", gsid=gsid}});
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+function DoForget(gsid)
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+    local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+    local can_pass = DealDefend.CanPass();
+    if(not can_pass)then
+	    return
+    end
+    local __,__,__,copies = hasGSItem(984);
+    copies = copies or 0;
+    if(copies < 50)then
+        _guihelper.MessageBox("转换属性需要50金币，你的金币不够啦。");
+        return
+    end
+    gsid = tonumber(gsid)
+    local node = GetNode(gsid);
+    local __,learned_node = TotemPage.HasLearned();
+    if(node and learned_node)then
+        NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+        local s = string.format("转换属性需要50金币，你确定要把属性【%s】转换为【%s】？（转换属性后，属性等级不会发生改变，你可以自由选择自己喜欢的图腾属性）",learned_node.name or "",node.name or "");
+        _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="change_religion", gsid=gsid}});
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+    end
+end
+function GetExp()
+    local __,__,__,copies = hasGSItem(50389);
+    copies = copies or 0;
+    return copies;
+end
+local cur_level_stats,total_level, cur_level, cur_level_exp, cur_level_total_exp = Combat.GetStatsFromDragonTotemProfessionAndExp(GetLearnedGsid(), 50389, GetExp())
+total_level = total_level or 0;
+cur_level = cur_level or 0;
+cur_level_exp = cur_level_exp or 0;
+cur_level_total_exp = cur_level_total_exp or 0;
+local next_level_stats = Combat.GetStatsFromDragonTotemProfessionAndLevel(GetLearnedGsid(), cur_level + 1);
+function GetCurExp()
+    return cur_level_exp;
+end
+function GetName()
+    local __,node = TotemPage.HasLearned();
+    if(node)then
+        return node.name;
+    end
+end
+function GetLevels()
+    return cur_level;
+end
+function GetCurExp()
+    return cur_level_exp;
+end
+function GetMaxExp()
+    return cur_level_total_exp;
+end
+function GetExpStr()
+    return string.format("%d/%d",GetCurExp(),GetMaxExp());
+end
+function Get_Props_Info(stats)
+    local s="";
+    if(stats)then
+		local props_list = {};
+		local k,v;
+        for k,v in pairs(stats) do
+			table.insert(props_list,{stat_id = k, value = v});
+		end
+		table.sort(props_list,function(a,b)
+			return a.stat_id < b.stat_id;
+		end);
+        local k,v;
+        for k,v in ipairs(props_list) do
+            local str = Combat.GetStatWord_OfTypeValue(v.stat_id,v.value);
+            if(str)then
+                
+				str = string.format([[<div style="float:left">%s</div>]],str);
+				s = s .. str;
+            end
+        end
+    end
+
+    s = string.format([[<div style="float:left;">%s</div>]],s);
+    return s;
+end
+    function GetExp()
+    local __,__,__,copies = hasGSItem(50389);
+    copies = copies or 0;
+    return copies;
+end
+function Get_cur_level_stats_info(gsid)
+    local cur_level_stats,total_level, cur_level, cur_level_exp, cur_level_total_exp = Combat.GetStatsFromDragonTotemProfessionAndExp(gsid, 50389, GetExp())
+    return Get_Props_Info(cur_level_stats);
+end
+TotemPage.OnClickFolder(TotemPage.folder_key,TotemPage.subfolder_key);
+]]></script>
+<aries:window style="width:663px;height:433px;color:#022a57;font-size:12;" height="443" title='属性强化' isdeepbg="true" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/making_icon_32bits.png" >
+        <div style="position:relative;margin-left:10px;margin-top:30px;width:643px;height:405px;font-size:12;color:#022a57;" class="border_bg1_css">
+                 <div style="position:relative;float:left;font-size:12;color:#ffffff;margin-left:0px;margin-top:5px;width:645px;height:375px;">
+                     <div style="float:left;width:330px;">
+                        <pe:if condition='<%=GetState() == "tolearn"%>'>
+                         <div style="text-align:center;margin-top:40px;font-size:14;">你还没有属性强化</div>
+                        </pe:if>
+                         <pe:if condition='<%=GetState() == "forget"%>'>
+                            <div style="float:left;margin-left:10px;margin-top:10px;width:64px;height:64px;" class="block">
+                                <pe:item gsid='<%=GetLearnedGsid()%>' style="width:64px;height:64px;" isclickable="false"/>
+                            </div>
+                            <div style="float:left;margin-top:10px;">
+                                <input type="button" zorder="2" value='<%=tostring(GetLevels())%>' style="position:relative;font-weight:bold;font-size:14px;color:#ffffff;margin-left:-22px;margin-top:36px;width:36px;height:36px;background-color:#ffffffff;background:url(Texture/Aries/Inventory/dragon_level_bg_32bits.png)" />
+                                <div style="font-weight:bold;font-size:15px;base-font-size:15;color:#ffffff;margin-left:5px;margin-top:3px;">
+                                    <%=format("%s (%d阶)", GetName(), math.floor((GetLevels()-1)/3)+1)%>
+                                </div>
+                                <div style="margin-left:8px;margin-top:3px;">
+                                    <pe:progressbar class="expbar"  name='exp_bar' Minimum = "1" Maximum = '<%=GetMaxExp()%>' Value = '<%=GetCurExp()%>' Step = "1" style="width:200px;height:20px;"  />
+                                    <div style="margin-left:-20px;margin-top:-20px;text-align:center;color:#ffffff;"><%=GetExpStr()%></div>
+                                </div>
+                            </div>
+                        </pe:if>
+                     </div>
+                     <div style="float:left;margin-left:-15px;margin-top:10px;width:320px;height:80px;padding:3px;padding-right:10px;padding-left:10px;color:#9df9fd" class="border_bg4_css">
+                         <div style="font-weight:bold;">属性强化说明：</div>
+                        <div>1.在属性强化中，每次仅可选择一项属性进行增强。</div>
+                        <div>2.可更改选择强化的属性，每次需额外收取一定的费用。</div>
+                    </div>
+                     <div style="position:relative;margin-left:10px;width:627px;height:300px;">
+                        <pe:gridview DataSource="<%=DS_Func_skills%>" 
+                                name="skills_view" style="margin-top:0px;" CellPadding="1"  
+                                DefaultNodeHeight = "95" VerticalScrollBarStep="100" ItemsPerLine="3" AllowPaging="False" pagesize="18" >
+                                <Columns>
+                                    <div style="margin-top:2px;width:200px;">
+                                        <pe:if condition='<%=GetState() == "tolearn" or IsSameGsid(Eval("gsid"))%>'>
+                                            <div style="float:left;width:64px;height:64px;" class="block">
+                                                <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" isclickable="false"/>
+                                            </div>
+                                            <div style="float:left;color:#ffffff;font-weight:bold;font-size:15px;base-font-size:15;margin-left:5px;margin-top:3px;">
+                                                <%=Eval("label")  %>
+                                                <pe:if condition='<%=GetState() == "forget"%>'>
+                                                    <div style="font-size:12;font-weight:normal;base-font-size:12;color:#ffffff">
+                                                        <div>目前享有属性：</div>
+                                                        <div><%=Get_cur_level_stats_info(Eval("gsid"))%></div>
+                                                    </div>
+                                                </pe:if>
+                                            </div>
+                                        </pe:if>
+                                        <pe:if condition='<%=not (GetState() == "tolearn" or IsSameGsid(Eval("gsid")))%>'>
+                                            <div style="float:left;width:64px;height:64px;" class="block">
+                                                <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;background-color:#ffffff80" isclickable="false"/>
+                                            </div>
+                                            <div style="float:left;color:#9df9fd;font-weight:bold;font-size:15px;base-font-size:15;margin-left:5px;margin-top:3px;">
+                                                <%=Eval("label")  %>
+                                                <pe:if condition='<%=GetState() == "forget"%>'>
+                                                    <div style="font-size:12;font-weight:normal;base-font-size:12;">
+                                                        <div>转换属性后，可享有：</div>
+                                                        <div><%=Get_cur_level_stats_info(Eval("gsid"))%></div>
+                                                    </div>
+                                                </pe:if>
+                                            </div>
+                                        </pe:if>
+                                        <div>
+                                            <pe:if condition='<%=GetState() == "tolearn"%>'>
+                                                <input type="button" style="float:left;margin-left:2px;margin-top:3px;font-weight:bold;min-width:64px;" value="选择属性" onclick="DoLearn"  class="button" name='<%=Eval("gsid")%>'/>
+                                            </pe:if>
+                                            <pe:if condition='<%=GetState() == "forget"%>'>
+                                                <pe:if condition='<%=not IsSameGsid(Eval("gsid"))%>'>
+                                                    <input type="button" style="float:left;margin-left:2px;margin-top:3px;min-width:64px;" value="转换属性" onclick="DoForget"  class="button" name='<%=Eval("gsid")%>'/>
+                                                </pe:if>
+                                                <pe:if condition='<%=IsSameGsid(Eval("gsid"))%>'>
+                                                    <input type="button" style="float:left;margin-left:2px;margin-top:3px;min-width:64px;" value="转换属性" enabled="false" class="button" name='<%=Eval("gsid")%>'/>
+                                                </pe:if>
+                                            </pe:if>
+                                        </div>
+                                    </div>
+                                </Columns>
+                                <EmptyDataTemplate>
+                                </EmptyDataTemplate>
+                                <FetchingDataTemplate>
+                                    <div style="margin-left:70px;margin-top:30px;"></div>
+                                </FetchingDataTemplate>
+	                            <PagerSettings Position="Bottom" height="36" style="position:relative;width:340px;margin-left:100px;margin-top:-30px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                            <PagerTemplate>
+	                                <form>
+                                        <input type="button" name="pre" zorder=2 style="width:22px;height:22px;margin-left:5px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 21 21);"/>
+	                                    <div style="float:right;margin-top:0px;width:53px;">
+	                                        <label name="page" style="color:#FFFFFF;text-align:center;width:53px;height:18px;margin:4px"/>
+	                                    </div>
+	                                    <input type="button" name="next" zorder=2 style="width:22px;height:22px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)"/>
+	                                </form>
+	                            </PagerTemplate>
+                            </pe:gridview>
+                        </div>
+                </div>
+        </div>
+        
+</aries:window>
+
+
+
+
+</pe:mcml>
+</body>
+</html>

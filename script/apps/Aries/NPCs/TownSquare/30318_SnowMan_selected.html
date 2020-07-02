@@ -1,0 +1,114 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30318_SnowMan_selected.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30318_SnowMan_selected, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+instance = page:GetRequestParam("instance") or nil;
+name = "NPCSelection"..npc_id..(instance or "");
+
+function MyCompany.Aries.UpdateSnowManHitcount_imp(name)
+    local page = CommonCtrl.GetControl(name);
+    local hitcount = commonlib.getfield("MyCompany.Aries.Quest.NPCs.SnowMan.hitcount");
+    if(hitcount and page) then
+        local progress = page:GetNode("progressbar_snow");
+        if(progress) then
+            progress:SetAttribute("Maximum", 100)
+            progress:SetValue(hitcount);
+               
+            local max = 100;
+            if(hitcount < 10) then
+                max = 10;
+            elseif(hitcount < 20) then
+                max = 20;
+            elseif(hitcount < 30) then
+                max = 30;
+            elseif(hitcount < 50) then
+                max = 50;
+            elseif(hitcount < 100) then
+                max = 100;
+            end
+            page:SetValue("progress_text", hitcount.."/"..max);
+        end
+    end
+end
+
+function UpdateSnowManHitcount(params)
+    ParaUI.Destroy("SnowMan_hitcount_update")
+    local _this = ParaUI.CreateUIObject("container", "SnowMan_hitcount_update", 
+        params.alignment, params.left, params.top, 0,0);
+	_this.background = "";
+	params.parent:AddChild(_this);
+	
+	_this.onframemove = ";MyCompany.Aries.UpdateSnowManHitcount_imp(\""..page.name.."\");";
+end
+
+
+
+
+
+
+local hitcount = commonlib.getfield("MyCompany.Aries.Quest.NPCs.SnowMan.hitcount");
+if(hitcount) then
+    local max = 1000;
+    if(hitcount < 100) then
+        max = 100;
+    elseif(hitcount < 200) then
+        max = 200;
+    elseif(hitcount < 300) then
+        max = 300;
+    elseif(hitcount < 500) then
+        max = 500;
+    elseif(hitcount < 1000) then
+        max = 1000;
+    end
+    local progress = page:GetNode("progressbar_snow");
+    progress:SetAttribute("Maximum", max)
+    progress:SetValue(hitcount);
+    page:SetValue("progress_text", hitcount.."/"..max);
+end
+
+npc_id = tonumber(npc_id);
+if(instance) then
+    instance = tonumber(instance);
+end
+
+function TalkToNPC()
+    MyCompany.Aries.Desktop.TargetArea.TalkToNPC(npc_id, instance);
+end
+
+]]></script>
+    
+
+<div style="width:0px;height:0px;">
+    <pe:custom oncreate="UpdateSnowManHitcount" style="width:0px;height;0px"/>
+</div>
+<!--<div style="width:128px;height:512px;margin:0px;padding:0px;background:Texture/Aries/Dock/TargetArea2.png;">-->
+<div style="width:128px;height:512px;margin:0px;padding:0px;">
+    <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;">
+            <!--<pe:canvas3d name="NPCSelection" objectbinding="selection" MaskTexture="Texture/Aries/Dock/SunFlower_Mask.png" style="width:128px;height:128px" IsPortrait=true IsInteractive=false/>-->
+            <pe:player nid='<%=Eval("npc_id")%>' object="npc" name='<%=Eval("name")%>' miniscenegraphname="Aries_SelectedArea_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+            <!--IsInteractive-->
+            <div style="padding:2px;margin-left:96px;margin-top:-32px;width:125px;height:30px;background:url(Texture/Aries/Homeland/v1/progressbar_bg_0_32bits.png)">
+                <pe:progressbar name="progressbar_snow" 
+                    background = "Texture/Aries/Homeland/v1/progressbar_bg_32bits.png;0 0 112 15: 11 7 11 7" 
+                    blockimage = "Texture/Aries/Homeland/v1/progressbar_32bits.png;0 0 112 15: 11 7 11 7" 
+                    style="float:left;margin:0px;margin-left:0px;margin-bottom:0px;width:112px;height:15px;"/>
+                <div style="width:125px;font-size:12;color:#043767;text-align:center;margin-left:5px;margin-top:-16px" >
+                    <input type="button" name="progress_text" enabled="false" style="width:125px;margin-left:-10px;margin-top:-2px;background:;"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,325 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30500_Farst_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30500_Farst_dialog, by zrf, 2010/9/16</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local Farst = commonlib.gettable("MyCompany.Aries.Quest.NPCs.Farst");
+Farst.Islands = {
+	["61HaqiTown"] = {
+        ["npc_id"] = 30502,
+		["FlamingPhoenixIsland"] = { name = "火鸟岛", world_id = "FlamingPhoenixIsland", need_money = 0, need_level = 10, need_item = 20901, item_label = "火鸟岛地图", },
+		["FrostRoarIsland"] = { name = "寒冰岛", world_id = "FrostRoarIsland", need_money = 0, need_level = 20, need_item = 20902, item_label = "寒冰岛地图", },
+		["AncientEgyptIsland"] = { name = "沙漠古堡", world_id = "AncientEgyptIsland", need_money = 0, need_level = 30, need_item = 20903, item_label = "沙漠古堡地图", },
+	},
+	["FlamingPhoenixIsland"] = {
+        ["npc_id"] = 30514,
+		["61HaqiTown"] = { name = "哈奇岛", npc_id = 30502, world_id = "61HaqiTown", need_money = 0, need_level = 0,  },
+		["FrostRoarIsland"] = { name = "寒冰岛", world_id = "FrostRoarIsland", need_money = 0, need_level = 20, need_item = 20902, item_label = "寒冰岛地图", },
+		["AncientEgyptIsland"] = { name = "沙漠古堡", world_id = "AncientEgyptIsland", need_money = 0, need_level = 30, need_item = 20903, item_label = "沙漠古堡地图", },
+	},
+	["FrostRoarIsland"] = {
+        ["npc_id"] = 30608,
+		["61HaqiTown"] = { name = "哈奇岛", world_id = "61HaqiTown", need_money = 0, need_level = 0,  },
+		["FlamingPhoenixIsland"] = { name = "火鸟岛", world_id = "FlamingPhoenixIsland", need_money = 0, need_level = 10, need_item = 20901, item_label = "火鸟岛地图", },
+		["AncientEgyptIsland"] = { name = "沙漠古堡", world_id = "AncientEgyptIsland", need_money = 0, need_level = 30, need_item = 20903, item_label = "沙漠古堡地图", },
+	},
+    ["AncientEgyptIsland"] = {
+        ["npc_id"] = 30701,
+		["61HaqiTown"] = { name = "哈奇岛", world_id = "61HaqiTown", need_money = 0, need_level = 0,  },
+		["FlamingPhoenixIsland"] = { name = "火鸟岛", world_id = "FlamingPhoenixIsland", need_money = 0, need_level = 10, need_item = 20901, item_label = "火鸟岛地图", },
+		["FrostRoarIsland"] = { name = "寒冰岛", world_id = "FrostRoarIsland", need_money = 0, need_level = 20, need_item = 20902, item_label = "寒冰岛地图", },
+	},
+    ["61HaqiTown"] = {
+        ["npc_id"] = 35009,
+    }，
+};
+function getWorld()
+    local cur_path = ParaWorld.GetWorldDirectory();
+    cur_path = string.lower(cur_path);
+    local worldname,v;
+    for worldname,v in pairs(Farst.Islands) do
+        worldname = string.lower(worldname);
+        local find = string.find(cur_path,worldname);
+        if(find)then
+            Farst.world = v;
+            echo(Farst.world);
+            break;
+        end
+    end
+end
+function onInit()
+    local bean = MyCompany.Aries.Pet.GetBean();
+	if(bean)then
+		Farst.combatlevel = bean.combatlel or 0;
+	end
+	Farst.money = MyCompany.Aries.Player.GetMyJoybeanCount();
+    getWorld();
+end
+onInit();
+function Goto_imp()
+    local goto_world = getGotoWorld();
+    if(goto_world)then
+        local need_money = goto_world.need_money or 0;
+        local world_id = goto_world.world_id;
+	    MyCompany.Aries.Player.AddMoney(-need_money, function(msg)
+		    System.App.Commands.Call(System.App.Commands.GetDefaultCommand("LoadWorld"), {name = world_id});
+	    end, true);
+    end
+end
+function Goto()
+    --[[LobbyClientServicePage.LoadRoomState(function(msg)
+	    if(msg and msg.status == "match_making")then
+		    _guihelper.MessageBox("你在竞技赛场排队当中，暂时不能去其他岛屿！");
+	    else
+            Goto_imp();
+	    end
+    end)]]
+    Goto_imp();
+end
+function doSelectIndex(index)
+    Farst.selected_index = index;
+end
+--判断当前世界可以跳转的世界，可能是多个
+function haveMoney(index)
+    local world = Farst.world;
+    if(world and index)then
+        local goto_world = world[index];
+        if(goto_world)then
+            local need_money = goto_world.need_money;
+            if(not need_money)then
+                return true;
+            else
+                if(Farst.money >= need_money)then
+                    return true;
+                end
+            end
+        end
+    end
+end
+function haveLevel(index)
+    local world = Farst.world;
+    if(world and index)then
+        local goto_world = world[index];
+        if(goto_world)then
+            local need_level = goto_world.need_level
+            if(not need_level)then
+                return true;
+            else
+                if(Farst.combatlevel >= need_level)then
+                    return true;
+                end
+            end
+        end
+    end
+end
+function haveItem(index)
+    --[[
+    local world = Farst.world;
+    if(world and index)then
+        local goto_world = world[index];
+        if(goto_world)then
+            local need_item = goto_world.need_item
+            if(not need_item)then
+                return true;
+            else
+                return hasGSItem(need_item);
+            end
+           
+        end
+    end
+    --]]
+    return true;
+end
+function getGotoWorld()
+    local world = Farst.world
+    local selected_index = Farst.selected_index;
+    if(world and selected_index)then
+        local goto_world = world[selected_index];
+        return goto_world;
+    end
+end
+function needItem_label()
+    local goto_world = getGotoWorld();
+    if(goto_world)then
+        local name = goto_world.name or "";
+        local item_label = goto_world.item_label or "";
+        local s = string.format("想去%s,需要%s!",name,item_label);
+        return s;
+    end
+end
+function needLevel_label()
+    local goto_world = getGotoWorld();
+    if(goto_world)then
+        local name = goto_world.name or "";
+        local need_level = goto_world.need_level or 0;
+        local s = string.format("小哈奇,以你现在的体质去%s还太危险了,等你等级达到%d级再来找我吧!",name,need_level);
+        return s;
+    end
+end
+function readygo_label()
+   local goto_world = getGotoWorld();
+    if(goto_world)then
+        local name = goto_world.name or "";
+        local need_money = goto_world.need_money or 0;
+        local s;
+        if(need_money == 0) then
+            s = string.format(" 你确定去%s,那么坐好喽,要开船啦!",name);
+        else
+            s = string.format(" 你确定去%s,需要交纳%d奇豆,那么坐好喽,要开船啦!",name,need_money);
+        end
+        return s;
+    end
+end
+
+function hasWorldNode(worldname)
+    local world = Farst.world;
+    if(world and worldname)then
+        local goto_world = world[worldname];
+        if(goto_world)then
+            return true;
+        end
+    end
+end
+function getNpcID()
+    local world = Farst.world;
+    if(world)then
+        local npc_id = world.npc_id;
+        return npc_id;
+    end
+end
+
+function HasPandoraWand()
+    local wandsGSID = {2119,2120,2121,2122,2123};
+    local k,v;
+    for k,v in ipairs(wandsGSID) 
+        if(hasGSItem(v)) then 
+            return true;
+        end
+    end
+    return false;
+end
+
+function GetMap()
+    ItemManager.ExtendedCost(1901, nil, nil, function(msg) 
+        commonlib.echo("==========Get_10145_Pet_GreatIceBearLower ExtendedCost");
+		commonlib.echo(msg);
+		if(msg and msg.issuccess)then
+            _guihelper.MessageBox("你已经成功开启幽暗地图。<br/>幽暗岛充满危机和挑战，请小心应对。");       
+		end
+	end);
+end
+]]></script>
+
+    <pe:dialog NPC_id = "<%=getNpcID() %>" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="<%=getNpcID() %>"/>
+            <pe:placeholder id="name" source="{this}" value='法斯特'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "23"/>     <!--comment this line to return to original imp--> 
+		    </pe:answer>
+	    </pe:state>
+	    <!--<pe:state id = "1">
+		    小哈奇,你是想去以下哪个岛屿探险呢?
+            <pe:if condition="<%=hasWorldNode('61HaqiTown')%>">
+		        <pe:answer template_id="haqidao">
+                    <pe:answer-if condition = "<%=not haveItem('61HaqiTown') %>" transition="<%=doSelectIndex('61HaqiTown') %>" target_state = "20"/>
+                    <pe:answer-if condition = "<%=not haveLevel('61HaqiTown') %>" transition="<%=doSelectIndex('61HaqiTown') %>"  target_state = "21"/>
+			        <pe:answer-if condition = "<%=not haveMoney('61HaqiTown') %>" transition="<%=doSelectIndex('61HaqiTown') %>" target_state = "22"/>			    
+			        <pe:answer-if condition = "true" transition="<%=doSelectIndex('61HaqiTown') %>" target_state = "10"/>
+                </pe:answer>
+            </pe:if>
+            <pe:if condition="<%=hasWorldNode('FlamingPhoenixIsland')%>">
+		        <pe:answer template_id="huoniaodao">
+                    <pe:answer-if condition = "<%=not haveItem('FlamingPhoenixIsland') %>" transition="<%=doSelectIndex('FlamingPhoenixIsland') %>" target_state = "20"/>
+                    <pe:answer-if condition = "<%=not haveLevel('FlamingPhoenixIsland') %>" transition="<%=doSelectIndex('FlamingPhoenixIsland') %>" target_state = "21"/>
+			        <pe:answer-if condition = "<%=not haveMoney('FlamingPhoenixIsland') %>" transition="<%=doSelectIndex('FlamingPhoenixIsland') %>" target_state = "22"/>			    
+			        <pe:answer-if condition = "true" transition="<%=doSelectIndex('FlamingPhoenixIsland') %>" target_state = "10"/>
+                </pe:answer>
+            </pe:if>
+            <pe:if condition="<%=hasWorldNode('FrostRoarIsland')%>">
+		        <pe:answer template_id="hanbingdao">
+                    <pe:answer-if condition = "<%=not haveItem('FrostRoarIsland') %>" transition="<%=doSelectIndex('FrostRoarIsland') %>" target_state = "20"/>
+                    <pe:answer-if condition = "<%=not haveLevel('FrostRoarIsland') %>" transition="<%=doSelectIndex('FrostRoarIsland') %>" target_state = "21"/>
+			        <pe:answer-if condition = "<%=not haveMoney('FrostRoarIsland') %>" transition="<%=doSelectIndex('FrostRoarIsland') %>" target_state = "22"/>			    
+			        <pe:answer-if condition = "true" transition="<%=doSelectIndex('FrostRoarIsland') %>" target_state = "10"/>
+                </pe:answer>
+            </pe:if>
+            <pe:if condition="<%=hasWorldNode('AncientEgyptIsland')%>">
+		        <pe:answer template_id="shamogubao">
+                    <pe:answer-if condition = "<%=not haveItem('AncientEgyptIsland') %>" transition="<%=doSelectIndex('AncientEgyptIsland') %>" target_state = "20"/>
+                    <pe:answer-if condition = "<%=not haveLevel('AncientEgyptIsland') %>" transition="<%=doSelectIndex('AncientEgyptIsland') %>" target_state = "21"/>
+			        <pe:answer-if condition = "<%=not haveMoney('AncientEgyptIsland') %>" transition="<%=doSelectIndex('AncientEgyptIsland') %>" target_state = "22"/>			    
+			        <pe:answer-if condition = "true" transition="<%=doSelectIndex('AncientEgyptIsland') %>" target_state = "10"/>
+                </pe:answer>
+            </pe:if>
+	    </pe:state>
+        <pe:state id = "10">
+		    <%=readygo_label() %>
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" transition='<%=Goto() %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>	    
+        <pe:state id = "20">
+		    <%=needItem_label() %>
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "21">
+		    <%=needLevel_label() %>
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+         <pe:state id = "22">
+		    哎哟,你的奇豆不够了,快去攒点再出海吧!
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>-->
+        <pe:state id = "23">
+            <pe:if condition="<%=System.Item.ItemManager.IfOwnGSItem('20904')%>">
+                你确定要进入幽暗岛？我可不能让你过去送死，除非你拥有至少一件S4装备，证明你有足够的实力保护自己。
+		        <pe:answer text = "我已经获得潘多拉法杖，请帮我开启幽暗岛" template_id="ok">
+                    <pe:answer-if condition = "<%=HasPandoraWand() %>" transition="<%=GetMap() %>" target_state = "-1"/>
+                    <pe:answer-if condition = "<%=not HasPandoraWand() %>" target_state = "24"/>
+                </pe:answer>
+                <pe:answer template_id = "later_right">
+			        <pe:answer-if  condition =  'true' target_state = "-1"/>
+		        </pe:answer>
+            </pe:if>
+            <pe:if condition="<%=not System.Item.ItemManager.IfOwnGSItem('20904')%>">
+                你已经开启过幽暗岛地图，不需要再次开启了。
+		        <pe:answer template_id="ok">
+			        <pe:answer-if  condition =  'true' target_state = "-1"/>
+		        </pe:answer>
+            </pe:if>
+        </pe:state>
+        <pe:state id = "24">
+		    你没有获得一件S4装备，还不够强大，还不能去幽暗岛和黑暗势力战斗！
+		    <pe:answer text = "我会继续努力的！"  template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

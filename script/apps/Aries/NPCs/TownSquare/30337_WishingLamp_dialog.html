@@ -1,0 +1,115 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30337_WishingLamp_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30337_WishingLamp_dialog, by Andy, 2009/7/30</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+    
+    MyCompany.Aries.Quest.NPCs.WishingLamp.selected_instance = instance;
+end
+commonlib.echo("====npc_id");
+commonlib.echo(npc_id);
+commonlib.echo(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30337);
+
+Condition1 = function()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+   
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+    if(from == 10 and to == -1)then
+        MyCompany.Aries.Quest.NPCs.WishingLamp.ShowWishedPanel();
+		--System.SendMessage_obj({type = Map3DSystem.msg.OBJ_DeselectObject});
+    end
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+<pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="name" source="{this}" value='许愿灯'/>
+        <pe:placeholder id="iknow" />
+        <pe:placeholder id="later" />
+    </pe:template>            
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			<pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			<pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "1">
+		我知道你有好多愿望，但是每天只能放一盏许愿灯哦，今天你已经放过啦，明天再来吧！
+		    <pe:answer template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	</pe:state>
+	<pe:state id = "2">
+		你今天的愿望已经放在我里面了，快用<div style="float:left;color:#ff0000">炮竹</div>把我点亮吧，让我带着你亮堂堂的愿望，越飞越高。
+		<pe:answer template_id = "iknow">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "3">
+		我是许愿灯，快来写上你的新年愿望吧，然后把我点亮，让我带着你亮堂堂的愿望，越飞越高吧！
+		<pe:answer template_id="writewish">
+			<pe:answer-if condition = "true" target_state = "10"/>
+		</pe:answer>
+		<br/>
+		<pe:answer template_id = "later">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "10">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

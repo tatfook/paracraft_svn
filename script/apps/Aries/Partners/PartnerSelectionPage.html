@@ -1,0 +1,73 @@
+<!-- "script/apps/Aries/Partners/PartnerSelectionPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2012.10.25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="PartnerSelectionPage.lua"><![CDATA[
+local Platforms = commonlib.gettable("MyCompany.Aries.Partners.Platforms");
+PartnerSelectionPage = commonlib.gettable("MyCompany.Aries.Partners.PartnerSelectionPage");
+PartnerSelectionPage.OnInit();
+
+function OnClosePage()
+    Page:CloseWindow();
+end
+function GetDS()
+    local ds = {};
+    if(System.options.platforms) then
+        local _, node
+		for _, node in ipairs(System.options.platforms) do
+            local attr = node.attr;
+			if(attr and attr.name and attr.enabled~="false") then
+                ds[#ds + 1] = node.attr;
+			end
+		end
+	end
+    return ds;
+end
+
+function OnSelectPlatform(name)
+    PartnerSelectionPage.SelectedName = name;
+    OnClosePage()
+end
+]]></script>
+<pe:container class="window" style="width:520px;height:260px;margin-left:-260px;margin-top:-130px" alignment="_ct">
+    <div class="titlebar" width="100%">
+      <div class="windowlabel" >请选择登录方式</div>
+      <input type="button" style="margin-top:1px;margin-right:5px" onclick="OnClosePage" class="closewindow"/>
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div style="margin-left:-1px;margin-bottom:2px;height:25px;padding-left:10px;padding-top:2px;" width="100%" class="inborder2">
+            下列平台帐号都可以登录游戏, 请选择.
+	    </div>
+        <div style="margin-top:20px;margin-left:25px;">
+            <pe:gridview name="pegvwPlats" ItemsPerLine="4" AllowPaging="false" DataSource='<%=GetDS() %>' DefaultNodeHeight="64" >
+				<Columns>
+                    <div style="margin:10px;">
+                    <pe:if condition='<%=Eval("name") == "KEEPWORK"%>' >
+                        <input type="button" name="KEEPWORK" value="KEEPWORK" class="button_highlight" style="width:128x;height:128px;" onclick="OnSelectPlatform"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("name") == "taomee"%>' >
+                        <img zorder="1" enabled="false" style="position:relative;margin-left:7px;margin-top:40px;width:113px;height:48px;background:url(Texture/Aries/Login/Login/taomee_32bits.png# 0 0 113 48)" />
+                        <input type="button" name="taomee" value="淘米" class="button_highlight" style="width:128x;height:128px;" onclick="OnSelectPlatform"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("name") == "QQ"%>' >
+                        <img zorder="1" enabled="false" style="position:relative;margin-left:24px;margin-top:25px;width:79px;height:77px;background:url(Texture/Aries/Login/Login/tencent_32bits.png# 0 0 79 77)" />
+                        <input type="button" name="QQ" value="腾讯" class="button_highlight" style="width:128x;height:128px;" onclick="OnSelectPlatform"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("name") == "FB"%>' >
+                        <img zorder="1" enabled="false" style="position:relative;margin-left:12px;margin-top:45px;width:104px;height:38px;background:url(Texture/Aries/Login/Login/facebook_32bits.png# 0 0 104 38)" />
+                        <input type="button" name="FB" value="Facebook" class="button_highlight" style="width:128x;height:128px;" onclick="OnSelectPlatform"/>
+                    </pe:if>
+                    </div>
+				</Columns>	
+			</pe:gridview>
+        </div>
+    </div>
+</pe:container>
+</pe:mcml>
+</body>
+</html>
+

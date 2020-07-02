@@ -1,0 +1,745 @@
+﻿<!-- "script/apps/Aries/Quest/QuestTrackerPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestWeeklyPage.lua");
+local QuestWeeklyPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Quest/NPCList.lua");
+local NPCList = commonlib.gettable("MyCompany.Aries.Quest.NPCList");
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestListPage.lua");
+local QuestListPage = commonlib.gettable("MyCompany.Aries.Quest.QuestListPage");
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPage.lua");
+local QuestTrackerPage = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPage");
+QuestTrackerPage.OnInit()
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    QuestTrackerPage.ClosePage();
+end
+function goalProgress(id,key)
+    if(not id or not key)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+    local template = templates[id];
+    if(template)then
+        local q_item = provider:GetQuest(id);
+        local req_p = template[key];
+        if(req_p)then
+            local cur_p;
+            if(q_item  and key == "Goal")then
+                cur_p = q_item.Cur_Goal;
+            elseif(q_item  and key == "GoalItem")then
+                cur_p = q_item.Cur_GoalItem;
+            elseif(q_item  and key == "ClientGoalItem")then
+                cur_p = q_item.Cur_ClientGoalItem;
+            elseif(q_item  and key == "ClientExchangeItem")then
+                cur_p = q_item.Cur_ClientExchangeItem;
+            elseif(q_item  and key == "FlashGame")then
+                cur_p = q_item.Cur_FlashGame;
+            elseif(q_item  and key == "ClientDialogNPC")then
+                cur_p = q_item.Cur_ClientDialogNPC;
+              elseif(q_item  and key == "CustomGoal")then
+                cur_p = q_item.Cur_CustomGoal;
+            elseif(key == "RequestAttr")then
+                 cur_p = provider:GetUserRequestAttr(template.RequestAttr);
+            end
+            local condition = req_p.condition;
+            local result = { condition = condition };
+            local k,v;
+            for k,v in ipairs(req_p) do
+                local id = v.id;
+                local value = v.value;
+                --任务还没有接取
+                if(not cur_p)then
+                    local item = { id = id, cur_value = 0, req_value = value};
+                    table.insert(result,item);    
+                else
+                    local kk,vv;
+                    for kk,vv in ipairs(cur_p) do
+                        local cur_id = vv.id;
+                        local cur_value = vv.value;
+                        local producer_id = vv.producer_id;
+                        if(id == cur_id)then
+                            local item = { id = id, cur_value = cur_value, req_value = value, producer_id = producer_id,};
+                            table.insert(result,item);    
+                        end
+                    end                
+                end
+            end
+            return result;
+        end
+    end
+end
+function showQuestInListPage(id)
+    id = tonumber(id);
+    if(QuestHelp.IsKidsVersion())then
+        if(QuestHelp.HasTimeStamp(id))then
+            QuestWeeklyPage.ShowPage(id)
+        else
+            QuestListPage.ShowPage(id);
+        end
+    else
+        NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+        local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+        local provider = QuestClientLogics.GetProvider();
+        if(provider and id)then
+            local hasAccept = provider:HasAccept(id);
+            local type = "accepted_quest";
+            if(not hasAccept)then
+                type = "can_accept_quest";
+            end
+            QuestPane.ShowPage(type,id);
+        end
+    end
+    
+end
+function getTitleBtn(id,state)
+    if(not id)then return end
+    local s;
+    if(state == "not_finished")then
+        s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" style="width:18px;height:18px;background:url(Texture/Aries/Quest/QuestList/progressing_tile_32bits.png#0 0 18 18);"/>]],id)
+    else
+        s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" style="width:18px;height:18px;background:url(Texture/Aries/Quest/QuestList/canfinished_tile_32bits.png#0 0 18 18);"/>]],id)
+    end
+    return s;
+end
+function goalProgressInfo(id,key)
+    if(not id or not key)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+    local template = templates[id];
+    local result = goalProgress(id,key);
+    if(result and template)then
+        local quest_title = template.Title or "";
+        local condition = result.condition or 0;
+        local condition_info="";
+        local info="";
+        if(condition == 0)then
+            --condition_info="同时";
+            condition_info="";
+        else
+            --condition_info="或者";
+            condition_info="";
+        end
+
+        if(key == "Goal")then
+            local __,map = QuestHelp.GetGoalList()
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local mobid = v.id;
+                local goto_str = "";
+                local s = string.format([[<div>消灭【%s】(%d/%d)%s</div><br/>]],label,v.cur_value or 0,v.req_value or 0,goto_str);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+        elseif(key == "GoalItem")then
+            local __,map = QuestHelp.GetQuestItemList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local mobid = v.id;
+                local goto_str = "";
+                local s = string.format([[<div>找回%d个【%s】(%d/%d)%s</div><br/>]],v.req_value or 0,label,v.cur_value or 0,v.req_value or 0,goto_str);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+        elseif(key == "ClientGoalItem")then
+            local __,map = QuestHelp.GetClientItemList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format([[<div>收集%d个【%s】(%d/%d)</div><br/>]],v.req_value or 0,label,v.cur_value or 0,v.req_value or 0);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+        elseif(key == "ClientExchangeItem")then
+            local __,map = QuestHelp.GetClientExchangeItemList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format([[<div>合成【%s】%d次(%d/%d)</div><br/>]],label,v.req_value or 0,v.cur_value or 0,v.req_value or 0);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b  style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+         elseif(key == "FlashGame")then
+            local __,map = QuestHelp.GetFlashGameList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format([[<div>玩小游戏【%s】%d次(%d/%d)</div><br/>]],label,v.req_value or 0,v.cur_value or 0,v.req_value or 0);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+         elseif(key == "ClientDialogNPC")then
+            local __,map = QuestHelp.GetNpcList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format([[<div>对话【%s】%d次(%d/%d)</div><br/>]],label,v.req_value or 0,v.cur_value or 0,v.req_value or 0);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+         elseif(key == "CustomGoal")then
+            local __,map = QuestHelp.GetCustomGoalList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format([[<div>完成【%s】%d次(%d/%d)</div><br/>]],label,v.req_value or 0,v.cur_value or 0,v.req_value or 0);
+                info = info .. s;
+            end
+            local btn_str = getTitleBtn(id,"not_finished");
+            info = string.format([[<div><b style="color:#feff01;">%s%s：%s</b></div><br/><div>%s</div>]],btn_str,quest_title,condition_info,info)
+         elseif(key == "RequestAttr")then
+            local __,map = QuestHelp.GetAttrList();
+            local k,v;
+            for k,v in ipairs(result)do
+                local item = map[v.id]
+                local label = "";
+                if(item)then
+                    label = item.label;
+                end
+                local s = string.format("<div>%s:%d</div><br/>",label,v.req_value or 0);
+                info = info .. s;
+            end
+            info = string.format([[<div><b  style="color:#feff01;">前提条件：%s</b></div><br/><div>%s</div>]],condition_info,info)
+        end
+        return info,result;
+    end
+end
+function tableHasValue(id,key)
+    if(not id or not key)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+    local template = templates[id];
+    if(template)then
+        local v = template[key];
+        if(v)then
+            local len = #v;
+            if(len > 0)then
+                return true;
+            end
+        end
+    end
+end
+function showLine(index)
+    if(index > QuestTrackerPage.max_size)then return end
+    local id = QuestTrackerPage.list[index];
+    if(not id)then return end;
+    local provider = QuestClientLogics.GetProvider();
+     local templates = provider:GetTemplateQuests();
+    local template = templates[id];
+    local q_item = provider:GetQuest(id);
+   
+    if(q_item and provider:IsActivedState(q_item) and template)then
+         local quest_title = template.Title or "";
+         local quest_detail = template.Detail or "";
+		local canFinished = provider:CanFinished(id);
+        --正在进行中
+        if(not canFinished)then
+            if(tableHasValue(id,"Goal"))then
+                local s = getLineInfo(id,"Goal");
+                return s;
+            end
+            if(tableHasValue(id,"GoalItem"))then
+                local s = getLineInfo(id,"GoalItem");
+                return s;
+            end
+            if(tableHasValue(id,"ClientGoalItem"))then
+                local s = getLineInfo(id,"ClientGoalItem");
+                return s;
+            end
+            if(tableHasValue(id,"ClientExchangeItem"))then
+                local s = getLineInfo(id,"ClientExchangeItem");
+                return s;
+            end
+            if(tableHasValue(id,"FlashGame"))then
+                local s = getLineInfo(id,"FlashGame");
+                return s;
+            end
+            if(tableHasValue(id,"ClientDialogNPC"))then
+                local s = getLineInfo(id,"ClientDialogNPC");
+                return s;
+            end
+            if(tableHasValue(id,"CustomGoal"))then
+                local s = getLineInfo(id,"CustomGoal");
+                return s;
+            end
+        else
+            --可以完成
+		    local EndNPC = template.EndNPC;
+            local npc, worldname = NPCList.GetNPCByIDAllWorlds(EndNPC);
+            local sameworld = QuestHelp.InSameWorldByKey(worldname);
+            if(sameworld)then
+                local end_pos = npc.position;
+                if(end_pos)then
+                    local position_str = commonlib.serialize_compact(end_pos);
+                    local tracker_info = getTracker("canfinished",position_str)
+                    
+                    local btn_str = getTitleBtn(id,"finished");
+                    --可以完成
+                    local s = string.format([[<b style="color:#feff01;">%s%s</b><br/>%s]],btn_str,quest_title,"")
+                    --s = string.format([[<div style="float:left;width:32px;height:50px;margin-left:10px;">%s</div><div style="float:left;margin-left:10px;width:155px;">%s</div>]],tracker_info or "",s or "");
+                    s = string.format([[<div style="float:left;margin-left:10px;width:155px;">%s</div>]],s or "");
+                    return s;
+                end
+            else
+                local tracker_info = getTracker("none")
+                local btn_str = getTitleBtn(id,"finished");
+                --可以完成
+                local s = string.format([[<b style="color:#feff01;">%s%s</b><br/>%s]],btn_str,quest_title,"")
+                --s = string.format([[<div style="float:left;width:32px;height:50px;margin-left:10px;">%s</div><div style="float:left;margin-left:10px;width:155px;">%s</div>]],tracker_info or "",s or "");
+                s = string.format([[<div style="float:left;margin-left:10px;width:155px;">%s</div>]],tracker_info or "",s or "");
+                return s;
+            end
+        end
+    end
+end
+function getTracker(state,position_str)
+    local tracker_info ;
+    if(state == "canfinished" and position_str)then
+        tracker_info = string.format([[<pe:locationtracker reach_text="到达"  reach_dist="8" dest='%s'  style="width:32px;height:32px;margin:0px;background:url(Texture/Aries/MapHelp/tracker/circle_32bits.png)"
+                                        arrow_bg="Texture/Aries/MapHelp/tracker/arrow_32bits.png" dest_bg="Texture/Aries/MapHelp/tracker/greenico_32bits.png">
+	                                    <pe:label name="distance" style="color:#bbf4ff;font-weight:bold;text-align:center;width:64px;height:16px;margin-top:30px;" />
+                                        </pe:locationtracker>]],position_str or "");
+
+        return tracker_info;
+    elseif(state == "none")then
+        tracker_info = [[<div style="width:32px;height:32px;margin:0px;background:url(Texture/Aries/MapHelp/tracker/circle_32bits.png)" />]]
+    elseif(state == "progressing" and position_str)then
+        tracker_info = string.format([[<pe:locationtracker reach_text="到达" reach_dist="8"   dest='%s' style="width:32px;height:32px;margin:0px;background:url(Texture/Aries/MapHelp/tracker/circle_32bits.png)"
+                                        arrow_bg="Texture/Aries/MapHelp/tracker/arrow_32bits.png" dest_bg="Texture/Aries/MapHelp/tracker/redico_32bits.png">
+                                    	<pe:label name="distance" style="color:#bbf4ff;font-weight:bold;text-align:center;width:64px;height:16px;margin-top:30px;" />
+                                        </pe:locationtracker>]],position_str);
+    end
+    return tracker_info;
+end
+function getLineInfo(id,key)
+    if(not id or not key)then return end
+    local s,result_list = goalProgressInfo(id,key);
+    local tracker_info = getTrackerInfo(result_list,key);
+    --s = string.format([[<div style="float:left;width:32px;height:50px;margin-left:10px;">%s</div><div style="float:left;margin-left:10px;width:155px;">%s</div>]],tracker_info or "",s or "");
+    s = string.format([[<div style="float:left;margin-left:10px;width:155px;">%s</div>]],s or "");
+    return s;
+end
+function getPos(position)
+    if(not position)then return end
+    local pos;
+    local x,y,z;
+    for pos_str in string.gfind(position,"([^\#]+)") do
+        if(string.find(pos_str,"|"))then
+            x,y,z = string.match(pos_str,"(.+),(.+),(.+)|(.+),(.+),(.+)");
+        else
+            x,y,z = string.match(pos_str,"(.+),(.+),(.+)");
+        end
+        x = tonumber(x);
+        y = tonumber(y);
+        z = tonumber(z);
+        if(x and y and z)then
+            pos = {x,y,z};
+        end
+        return pos;
+    end
+end
+--@param result:goalProgress 返回的值
+function getInternal_TrackerInfo(result,map,isGoalItem)
+    if(not result or not map)then return end
+    local info;
+    local k,v;
+    local bHasPos;
+    local position_str;
+    for k,v in ipairs(result)do
+        local id = v.id;
+        if(isGoalItem)then
+            id = v.producer_id;
+        end
+        local canpush = false;
+        if(v.cur_value and v.req_value and v.cur_value < v.req_value)then
+            canpush = true;
+        end
+        local item = map[id]
+        if(item and canpush)then
+            local pos = item.position;
+                    
+            pos = getPos(pos);
+            local world = item.world or 0;
+            local sameworld = QuestHelp.InSameWorldByNum(world);
+            if(pos and sameworld)then
+                bHasPos = true;
+                local _str = commonlib.serialize_compact(pos);
+                if(not position_str)then
+                    position_str = _str;
+                else
+                    position_str = position_str .. "," .. _str;
+                end
+            end
+        end
+    end
+    if(bHasPos)then
+        info = getTracker("progressing",position_str)
+    else
+        info = getTracker("none")
+    end
+    return info;
+end
+function getInternal_TrackerInfo_FindNPC(result,map)
+    if(not result or not map)then return end
+    local info;
+    local k,v;
+    local bHasPos;
+    local position_str;
+    for k,v in ipairs(result)do
+        local id = v.id;
+        local npc, worldname = NPCList.GetNPCByIDAllWorlds(id);
+        local sameworld = QuestHelp.InSameWorldByKey(worldname);
+        local pos = npc.position;
+        local canpush = false;
+        if(v.cur_value and v.req_value and v.cur_value < v.req_value)then
+            canpush = true;
+        end
+        if(pos and sameworld and canpush)then
+            bHasPos = true;
+            local _str = commonlib.serialize_compact(pos);
+            if(not position_str)then
+                position_str = _str;
+            else
+                position_str = position_str .. "," .. _str;
+            end
+        end
+    end
+    if(bHasPos)then
+        info = getTracker("progressing",position_str)
+    else
+        info = getTracker("none")
+    end
+    return info;
+end
+function getTrackerInfo(result,key)
+    if(not result or not key)then return end
+    local position = {};
+    local info;
+    if(key == "Goal")then
+        local __,map = QuestHelp.GetGoalList()
+        info = getInternal_TrackerInfo(result,map);
+    elseif(key == "GoalItem")then
+        --local __,map = QuestHelp.GetQuestItemList();
+        local __,map = QuestHelp.GetGoalList()
+        info = getInternal_TrackerInfo(result,map,true);
+    elseif(key == "ClientGoalItem")then
+        local __,map = QuestHelp.GetClientItemList();
+        info = getTracker("none");
+    elseif(key == "ClientExchangeItem")then
+        local __,map = QuestHelp.GetClientExchangeItemList();
+        info = getTracker("progressing","{ 19975.367188, 0.454175, 19705.109375, }")
+    elseif(key == "FlashGame")then
+        local __,map = QuestHelp.GetFlashGameList();
+        info = getInternal_TrackerInfo(result,map);
+    elseif(key == "ClientDialogNPC")then
+        local __,map = QuestHelp.GetNpcList();
+        info = getInternal_TrackerInfo_FindNPC(result,map);
+    elseif(key == "CustomGoal")then
+        local __,map = QuestHelp.GetCustomGoalList();
+        info = getTracker("none");
+    end
+    return info;
+end
+function isExpanded()
+    return QuestTrackerPage.is_expanded;
+end
+function doExpanded()
+    if(QuestTrackerPage.is_expanded)then
+        QuestTrackerPage.is_expanded = false;
+    else
+        QuestTrackerPage.is_expanded = true;
+    end
+    QuestTrackerPage.SaveState();
+    QuestTrackerPage.Refresh();
+end
+function isEmpty()
+    return QuestTrackerPage.IsEmpty();
+end
+function CanShow(index)
+    index = tonumber(index);
+    if(index > QuestTrackerPage.max_size)then return end
+    local id = QuestTrackerPage.list[index];
+    if(id)then
+        return true;
+    end
+end
+function getQuestID(index)
+    index = tonumber(index);
+    if(index > QuestTrackerPage.max_size)then return end
+    local id = QuestTrackerPage.list[index];
+    return id;
+end
+function HasAccept(index)
+     index = tonumber(index);
+    local provider = QuestClientLogics.GetProvider();
+    local id = QuestTrackerPage.list[index];
+    if(provider and id)then
+        local hasAccept = provider:HasAccept(id);
+        return hasAccept,id
+    end
+end
+function CanAccpet(index)
+     index = tonumber(index);
+    local provider = QuestClientLogics.GetProvider();
+    local id = QuestTrackerPage.list[index];
+    if(provider and id)then
+        local canAccept = provider:CanAccept(id);
+        return canAccept,id
+    end
+end
+function CanFinished(index)
+     index = tonumber(index);
+    local provider = QuestClientLogics.GetProvider();
+    local id = QuestTrackerPage.list[index];
+    if(provider and id)then
+        local canFinished = provider:CanFinished(id);
+        return canFinished,id
+    end
+end
+function getBtn(index)
+     local canFinished,id = CanFinished(index)
+    if(id)then
+        local s;
+        if(not canFinished)then
+            s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" tooltip="点击查看详细" style="width:18px;height:18px;background:url(Texture/Aries/Quest/QuestList/progressing_tile_32bits.png#0 0 18 18);"/>]],id)
+        else
+            s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" tooltip="点击查看详细" style="width:18px;height:18px;background:url(Texture/Aries/Quest/QuestList/canfinished_tile_32bits.png#0 0 18 18);"/>]],id)
+        end
+        return s;
+    end
+end
+
+function CanShowAutoTip()
+    if(System.options.version == "kids") then
+        local bean = MyCompany.Aries.Pet.GetBean();
+        if(bean and bean.combatlel <= 3) then
+	        return true;
+        end
+    end
+end
+function HasItems()
+    if(QuestTrackerPage.list)then
+        local len = #QuestTrackerPage.list;
+        if(len > 0)then
+            return true;
+        end
+    end
+end
+
+function ClearAll()
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("确认要取消所有的任务追踪吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            QuestTrackerPage.ClearData();
+            QuestTrackerPage.Refresh();
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+
+function getState(index)
+    if(CanAccpet(index))then
+        return "(可接)";
+    elseif(HasAccept(index) and CanFinished(index))then
+        return "(完成)";
+    elseif(HasAccept(index) and not CanFinished(index))then
+        return "(进行)";
+    end
+end
+]]></script>
+<div style="width:222px;height:240px;font-size:12px;color:#cdfffe;">
+    <pe:container ClickThrough="true" name="canvas" style="width:222px;height:22px;background:;">
+        <pe:if condition="<%=isExpanded() %>">
+            <div style="width:222px;height:22px;background:url(Texture/Aries/MapHelp/tracker/bg2_32bits.png#0 0 218 22:15 10 15 10);">
+                <div style="float:left;width:12px;height:10px;margin-left:5px;margin-top:5px;background:url(Texture/Aries/MapHelp/tracker/ico1_32bits.png#0 0 12 10);" />
+                <div style="float:left;margin-left:5px;font-weight:bold;color:#ffffff">任务追踪</div>
+                <pe:if condition="<%=HasItems() %>">
+                    <input  type="button" onclick="ClearAll" style="position:relative;margin-left:40px;margin-top:0px;color:#cdfffe;font-size:12px;background:" value="取消追踪" />
+                </pe:if>
+                <input  type="button" tooltip="隐藏任务追踪" onclick="doExpanded" style="float:left;width:10px;height:5px;margin-left:110px;margin-top:10px;background:url(Texture/Aries/MapHelp/tracker/arrow1_32bits.png#0 0 10 5);" />
+            </div>
+        </pe:if>
+        <pe:if condition="<%=not isExpanded() %>">
+            <div style="margin-left:110px;width:112px;height:22px;background:url(Texture/Aries/MapHelp/tracker/bg2_32bits.png#0 0 218 22:15 10 15 10);">
+                <div style="float:left;width:12px;height:10px;margin-left:5px;margin-top:5px;background:url(Texture/Aries/MapHelp/tracker/ico1_32bits.png#0 0 12 10);" />
+                <div style="float:left;margin-left:5px;font-weight:bold;color:#ffffff">任务追踪</div>
+                <input  type="button" tooltip="显示任务追踪" onclick="doExpanded" style="float:left;width:10px;height:5px;margin-left:0;margin-top:10px;background:url(Texture/Aries/MapHelp/tracker/arrow2_32bits.png#0 0 10 5);" />
+            </div>
+        </pe:if>
+    </pe:container>
+    <pe:if condition="<%=isExpanded() and not isEmpty()%>">
+    <pe:container name="canvas_content" ClickThrough="true" style='background-color:#00000060;background:url(Texture/whitedot.png)' >
+       <div style="width:222px;font-size:12px;color:#cdfffe;">
+<!--           <%=showLine(1) %><br/>
+           <%=showLine(2) %><br/>
+            <%=showLine(3) %><br/>-->
+        <pe:if condition = "<%=CanShow(1) %>">
+            <aries:quest questid="<%=getQuestID(1)%>" style="color:#bbf4ff;">
+                <div>
+                    <div style="float:left"><%=getBtn(1) %></div>
+                    <aries:quest_item property="Title_Track" style="float:left;margin-left:2px;color:#00fefa;"/>
+                </div>
+                <br />
+                <pe:if condition = "<%=CanAccpet(1) %>">
+                     <aries:quest_item property="StartNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_1_a" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+
+                <pe:if condition = "<%=not CanFinished(1) and HasAccept(1) %>">
+                    <aries:quest_item property="Goal" />
+                    <br />
+                    <aries:quest_item property="GoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientGoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientExchangeItem" />
+                    <br />
+                    <aries:quest_item property="FlashGame" />
+                    <br />
+                    <aries:quest_item property="ClientDialogNPC" />
+                    <br />
+                    <aries:quest_item property="CustomGoal" />
+                     
+                </pe:if>
+                 <pe:if condition = "<%=CanFinished(1)  and HasAccept(1) %>">
+                     <aries:quest_item property="EndNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_1_b" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+            </aries:quest>
+                <br />
+        </pe:if>
+        <pe:if condition = "<%=CanShow(2) %>">
+            <aries:quest questid="<%=getQuestID(2)%>" style="color:#bbf4ff;">
+                <div>
+                    <div style="float:left"><%=getBtn(2) %></div>
+                    <aries:quest_item property="Title_Track" style="float:left;margin-left:2px;color:#00fefa;"/>
+                </div>
+                <br />
+                <pe:if condition = "<%=CanAccpet(2) %>">
+                     <aries:quest_item property="StartNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_2_a" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+
+                <pe:if condition = "<%=not CanFinished(2) and HasAccept(2) %>">
+                    <aries:quest_item property="Goal" />
+                    <br />
+                    <aries:quest_item property="GoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientGoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientExchangeItem" />
+                    <br />
+                    <aries:quest_item property="FlashGame" />
+                    <br />
+                    <aries:quest_item property="ClientDialogNPC" />
+                    <br />
+                    <aries:quest_item property="CustomGoal" />
+                </pe:if>
+                 <pe:if condition = "<%=CanFinished(2)  and HasAccept(2) %>">
+                     <aries:quest_item property="EndNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_2_b" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+            </aries:quest>
+                <br />
+        </pe:if>
+         <pe:if condition = "<%=CanShow(3) %>">
+            <aries:quest questid="<%=getQuestID(3)%>" style="color:#bbf4ff;">
+                <div>
+                    <div style="float:left"><%=getBtn(3) %></div>
+                    <aries:quest_item property="Title_Track" style="float:left;margin-left:2px;color:#00fefa;"/>
+                </div>
+                <br />
+                <pe:if condition = "<%=CanAccpet(3) %>">
+                     <aries:quest_item property="StartNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_3_a" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+
+                <pe:if condition = "<%=not CanFinished(3) and HasAccept(3) %>">
+                    <aries:quest_item property="Goal" />
+                    <br />
+                    <aries:quest_item property="GoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientGoalItem" />
+                    <br />
+                    <aries:quest_item property="ClientExchangeItem" />
+                    <br />
+                    <aries:quest_item property="FlashGame" />
+                    <br />
+                    <aries:quest_item property="ClientDialogNPC" />
+                    <br />
+                    <aries:quest_item property="CustomGoal" />
+                </pe:if>
+                 <pe:if condition = "<%=CanFinished(3)  and HasAccept(3) %>">
+                     <aries:quest_item property="EndNPC" />
+                     <pe:if condition="<%= CanShowAutoTip()%>">
+                        <pe:arrowpointer name="quest_tip_3_b" direction="1" style="float:left;position:relative;margin-left:10px;margin-top:-45px;width:32px;height:32px;" />
+                    </pe:if>
+                </pe:if>
+            </aries:quest>
+                <br />
+        </pe:if>
+        </div>
+    </pe:container>
+    </pe:if>
+</div>
+<%=MyCompany.Aries.Quest.QuestTrackerPage.OnCanvasCreated()%>
+</pe:mcml> 
+</body>
+</html>

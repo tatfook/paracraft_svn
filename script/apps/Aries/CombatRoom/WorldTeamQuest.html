@@ -1,0 +1,397 @@
+﻿<!-- "script/apps/Aries/CombatRoom/WorldTeamQuest.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="WorldTeamQuest.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestDetailPage.lua");
+local QuestDetailPage = commonlib.gettable("MyCompany.Aries.Quest.QuestDetailPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+local provider = QuestClientLogics.GetProvider();
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+local page = document:GetPageCtrl();
+local WorldTeamQuest = commonlib.gettable("MyCompany.Aries.CombatRoom.WorldTeamQuest");
+WorldTeamQuest.OnInit();
+
+function ClosePage()
+    page:CloseWindow();
+end
+function DS_Func(index)
+    return WorldTeamQuest.DS_Func(index);
+end
+function OnSelected(index)
+    WorldTeamQuest.OnSelected(index);
+end
+function GetCatalogTitle(index)
+    local node = WorldTeamQuest.GetCatalogNode(index);
+    if(node and node.attr)then
+        local name = node.attr.name;
+        if(node.attr.filter_text) then
+            name = name.."\r\n"..node.attr.filter_text
+        end
+        return name;
+    end
+end
+
+function IsLocked(index)
+    local node = WorldTeamQuest.GetCatalogNode(index);
+    if(node and node.attr and node.attr.locked)then
+        return true;
+    end
+    return false;
+end
+
+function GetQuestID()
+    return WorldTeamQuest.nearest_id;
+end
+function GetValue(key)
+    local id = GetQuestID();
+	local templates = provider:GetTemplateQuests();
+    local template = templates[id];
+    if(template)then
+        return template[key];
+    end
+end
+function DoTrack(name, mcmlNode)
+    QuestTrackerPane.DoTrack(name, mcmlNode);
+end
+function HasHelpFunc(s)
+    if(s and s ~= "")then
+        return true;
+    end
+end
+function DoJump(name,mcmlNode)
+     QuestTrackerPane.DoJump_InPage(name,mcmlNode);
+end
+function GetSource()
+	return WorldTeamQuest.quest_treeview_data;
+end
+function GetQuestState()
+    return provider:GetState(GetQuestID());
+end
+function DoAcceptQuest()
+    local msg = {
+		id = GetQuestID(),
+    }
+     QuestClientLogics.TryAccept(msg, function(msg)
+		if(msg and msg.issuccess) then
+			WorldTeamQuest.RefreshPage();
+		end
+	end);
+end
+function DoFinishedQuest()
+    QuestDetailPage.ShowPage(GetQuestID(),1);
+end
+function DS_Func_room_list(index)
+    return WorldTeamQuest.DS_Func_room_list(index);
+end
+function DoJoin(index)
+    WorldTeamQuest.DoJoin(index);
+end
+function IsSelected(index)
+    if(WorldTeamQuest.selected_index == index)then
+        return true;
+    end
+end
+
+function GetCurrentGameTitle()
+    local node = WorldTeamQuest.GetCatalogNode(WorldTeamQuest.selected_index);
+    if(node and node.attr)then
+        local worldname = node.attr.keyname;
+        local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+        local worldinfo = WorldManager:GetWorldInfo(worldname);
+        return worldinfo.world_title;
+    end
+end
+
+function IsSelectedGame(id)
+    if(WorldTeamQuest.selected_room_id and WorldTeamQuest.selected_room_id == id)then
+        return true;
+    end
+end
+function OnSelectGame(id)
+    id = tonumber(id);
+    WorldTeamQuest.selected_room_id = id;
+    WorldTeamQuest.RefreshPage();
+end
+function BuildBtnStr(s,width,height)
+    if(not s)then
+        return
+    end
+    local s = string.format([[<input type="button" value="%s" enabled="false" style="font-size:12px;margin-top:-2px;width:%dpx;height:%dpx;background:"/>]],s,width,height);
+    return s;
+end
+function GetModeStr(mode)
+    if(not mode or mode == 1)then
+        return "简单"
+    elseif(mode == 2)then
+        return "普通"
+    elseif(mode == 3)then
+        return "精英"
+    end
+    return "简单"
+end
+function IsFull(count,max_players)
+    if(count and max_players and count >= max_players)then
+        return true;
+    end
+end
+function DoCreate()
+    WorldTeamQuest.DoCreate();
+end
+function getRequestQuestString()
+    local pe_aries_quest_item = commonlib.gettable("MyCompany.Aries.mcml_controls.pe_aries_quest_item");
+    local id = GetQuestID();
+    local provider = QuestClientLogics.GetProvider();
+	local templates = provider:GetTemplateQuests();
+    return pe_aries_quest_item.getRequestQuestString(id,templates,provider,true);
+end
+function HasRequestAttr_and_RequestQuest()
+    local id = GetQuestID();
+    return QuestPane.HasRequestAttr_and_RequestQuest(id);
+end
+function ShowInfo(nid)
+    if(not nid)then return end
+	System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+end
+
+local attach_info_text;
+function GetAttachInfo()
+    if(not attach_info_text) then
+        NPL.load("(gl)script/apps/Aries/Combat/main.lua");
+        local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+        local role_str = Combat.GetSchool();
+	    local damage = Combat.GetStats(role_str, "damage");
+        local nearest_node;
+        local k,v;
+        for k,v in ipairs(WorldTeamQuest.catalog_list) do
+            v.attr.locked = false;
+            if(v.attr and v.attr.min_attack and v.attr.max_attack)then
+                local min_attack = tonumber(v.attr.min_attack);
+                local max_attack = tonumber(v.attr.max_attack);
+                if(damage >= min_attack and damage <= max_attack)then
+                    nearest_node = v;
+                    -- automatically select the nearest node. 
+                    WorldTeamQuest.selected_index = k;
+                else
+                    v.attr.locked = true;
+                end
+            end
+        end
+        local s = string.format("你的本系攻击力:%d%%",damage);
+        if(nearest_node)then
+            s = string.format("<div>%s</div><div>推荐悬赏工作:<div>【%s】</div></div>",s,nearest_node.attr.name);
+        end
+        attach_info_text = s;
+    end
+    return attach_info_text;
+end
+
+function GetTicketTooltip()
+    local ItemManager = System.Item.ItemManager;
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(17454);
+    return string.format("每人每天发放%d张",gsItem.maxdailycount);
+end
+
+function DoRefresh()
+    WorldTeamQuest.ReSelected();
+end 
+]]></script>
+<div class="window" style="width:850px;height:490px;">
+<div class="titlebar" width="100%">
+    <div class="windowlabel" >组队悬赏</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="clientarea" style="padding-left:0px;">
+    <div style="float:left;width:180px;height:440px;" class="panel">
+        <div class="bordertext" style="color:#eeee00;margin-left:20px;margin-top:10px;background:;">
+            <%=GetAttachInfo()%>
+        </div>
+        <div style="margin:7px;margin-top:10px;margin-bottom:10px;">
+         <pe:gridview name="catalogs_view" DataSource="<%=DS_Func%>"  ItemsPerLine="1" AllowPaging="false" pagesize="16">
+                <Columns>
+                    <div style="padding:3px;">
+                        <pe:if condition='<%=IsSelected(Eval("index"))%>'>
+                            <input type="button" style="font-size:12px;font-weight:bold;text-singleline:false;margin-top:0px;width:160px;height:50px;background:url(Texture/Aries/HaqiShop/bg_light.png:6 6 6 6)"
+                                onclick="OnSelected" value='<%=GetCatalogTitle(Eval("index"),"name")%>' name='<%=Eval("index")%>' />
+                        </pe:if>
+                        <pe:if condition='<%=not IsSelected(Eval("index"))%>'>
+                            <input type="button" style="font-size:12px;text-singleline:false;margin-top:0px;width:160px;height:50px;background:url(Texture/Aries/HaqiShop/bg.png:6 6 6 6)"
+                                onclick="OnSelected" value='<%=GetCatalogTitle(Eval("index"),"name")%>' name='<%=Eval("index")%>' />
+                        </pe:if>
+                        <!--<pe:if condition='<%=IsLocked(Eval("index"))%>'>
+                            <input type="button" enabled="false" style="position:relative;margin-top:-25px;background:url;" value="[锁定]"/>
+                        </pe:if>-->
+                    </div>
+                </Columns>
+            </pe:gridview>
+        </div>
+    </div>
+    <div style="float:left;margin-left:5px;width:350px;height:440px;" class="panel">
+        <div style="margin-top:10px;">
+            <div style="text-align:center;font-weight:bold;font-size:16px;base-font-size:16;color:#eeee00" class="bordertext">
+                悬赏告示
+            </div>
+        </div>
+        <div style="margin:10px;height:350px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)" width="100%">
+            <div style="height:260px;padding-right:20px;padding-top:10px;">
+                 <pe:treeview DefaultNodeHeight="25" CellPadding="0" VerticalScrollBarStep="20" DataSource="<%=GetSource()%>" class="defaulttreeview">
+                        <NodeTemplates>
+                        <NodeTemplate DataType="Title">
+                            <pe:if condition="<%=not System.options.isAB_SDK%>">
+                                <div ><b>任务名称:</b><div style="float:left;"><%=GetValue("Title")%></div></div>
+                            </pe:if>
+                            <pe:if condition="<%=System.options.isAB_SDK%>">
+                                <div ><b>任务名称:</b><div style="font-size:12px;float:left;"><%=GetValue("Title")%>(<%=GetQuestID()%>)</div></div>
+                            </pe:if>
+                        </NodeTemplate>
+                            <NodeTemplate DataType="Detail">
+                            <div ><b>任务描述:</b><div style="font-size:12px;float:left;"><%=GetValue("Detail")%></div></div>
+                        </NodeTemplate>
+                             <NodeTemplate DataType="RequestQuest_RequestAttr">
+                                <pe:if condition='<%=HasRequestAttr_and_RequestQuest() %>'>
+                                    <div class="defaultcolor" ><b>领取条件:</b><div style="font-size:12px;float:left;"><%=getRequestQuestString()%></div></div>                     
+                                </pe:if>
+                            </NodeTemplate>
+                            <NodeTemplate DataType="GoalListTitle">
+                            <div ><b>任务目标:</b></div>
+                        </NodeTemplate>
+                            <NodeTemplate DataType="Goal_Item">
+                            <div>
+                                <input type="button" style="font-size:12px;float:left;margin-left:2px;text-align:left;height:18px;background:;" value='<%=XPath("this|internal_label") %>'/>
+                            </div>
+                        </NodeTemplate>
+                    </NodeTemplates>
+                </pe:treeview>
+                <div style="margin-left:15px;">
+                    <aries:quest questid="<%=GetQuestID()%>" >
+                            <div style="color:#000000;"><aries:quest_item property="Reward_0" style="float:left;font-size:12;"/></div>        
+                            <div style="color:#000000;"><aries:quest_item property="Reward_1" style="float:left;font-size:12;"/></div>        
+                    </aries:quest>
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:20px;margin-top:-5px;">
+            <pe:if condition='<%=GetQuestState() == 2%>'>
+                <img zorder="1" enabled="false" style="position:relative;color:#ffffffff" class="animated_btn_overlay" width="100" height="26"/>
+                <input type="button" value="接受任务" style="width:100px;height:26px;font-weight:bold;font-size:14px;" class="button_highlight" onclick="DoAcceptQuest"/>
+                <div  style="float:left;margin-left:5px;margin-top:5px;color:#a00100">接受任务以后才可以打开组队面板</div>
+            </pe:if>
+            <pe:if condition='<%=GetQuestState() == 0%>'>
+                <img zorder="1" enabled="false" style="position:relative;color:#ffffffff" class="animated_btn_overlay" width="100" height="26"/>
+                <input type="button" value="完成任务" style="width:100px;height:26px;font-weight:bold;font-size:14px;"  class="button_highlight"  onclick="DoFinishedQuest"/>
+            </pe:if>
+            <pe:if condition='<%=GetQuestState() == 1%>'>
+                <input type="button" value="任务正在进行中" enabled="false"  style="width:180px;height:26px;font-weight:bold;font-size:14px;background:;" />
+            </pe:if>
+            <pe:if condition='<%=GetQuestState() == 9%>'>
+                <input type="button" value="锁定 (你不能接受这个任务)" enabled="false"  style="width:180px;height:26px;font-weight:bold;font-size:14px;background:;" />
+            </pe:if>
+            <pe:if condition='<%=GetQuestState() == 10%>'>
+                <div style="font-weight:bold;">今天的悬赏已经完成，明天再来吧</div>
+            </pe:if>
+        </div>
+   </div>
+   <div style="float:left;margin-left:5px;height:440px;" width="100%" class="panel">
+        <div style="margin-top:10px;">
+            <div style="position:relative;margin-left:190px;margin-top:3px;color:#ffffff" tooltip = '<%=GetTicketTooltip() %>'>
+               <div style="float:left;">剩余门票:</div>
+               <div style="float:left;"><pe:slot type="count" gsid="17454" style="float:left;" /></div>
+               <img style="float:left;margin-top:2px;width:14px;height:14px;background:url(Texture/Aries/Common/ThemeTeen/others/mark5_32bits.png);" />
+            </div>
+            <div style="text-align:center;font-weight:bold;font-size:16px;base-font-size:16;color:#eeee00" class="bordertext">
+                勇士召集
+            </div>
+            <!--<pe:if condition='<%=GetQuestState() == 0 or GetQuestState() == 1%>'>
+                <div style="text-align:center;"><%=format("副本名称:%s", GetCurrentGameTitle() or "") %></div>
+            </pe:if>-->
+        </div>
+        <div style="margin:10px;margin-bottom:0px;height:350px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5)" width="100%">
+            <pe:if condition='<%=GetQuestState() == 0 or GetQuestState() == 1%>'>
+                <div style="font-weight:bold;text-align:center;"><%=format("%s", GetCurrentGameTitle() or "") %></div>
+            </pe:if>
+            <pe:if condition='<%=GetQuestState() == 0 or GetQuestState() == 1%>'>
+                <div style="font-weight:bold;margin-left:5px;margin-top:2px;font-size:12px;">
+                    <div style="float:left;width:120px;text-align:center">队长</div>
+                    <div style="float:left;width:60px;text-align:center">等级</div>
+                    <div style="float:left;width:40px;text-align:center">人数</div>
+                    <hr />
+                </div>
+                <pe:gridview name="gvRooms" style="width:700px;" DataSource="<%=DS_Func_room_list%>"  ItemsPerLine="1" AllowPaging="true" pagesize="12">
+                    <Columns>
+                    <div style="font-size:12px;margin-left:1px;">
+                        <div style="position:relative;">
+                            <pe:if condition='<%=IsSelectedGame(Eval("game_id"))%>' >
+                            <input type="button" style="margin-top:0px;width:120px;height:22px;background:url(Texture/Aries/LobbyService/selected_bg_32bits.png)"
+                                    onclick="OnSelectGame" name='<%=Eval("game_id")%>'/>
+                            </pe:if>
+                            <pe:if condition='<%=not IsSelectedGame(Eval("game_id"))%>' >
+                                <input type="button" Normal_BG = ""MouseOver_BG = "Texture/Aries/LobbyService/selected_bg2_32bits.png" style="margin-top:0px;width:120px;height:22px;background:"
+                                    onclick="OnSelectGame" name='<%=Eval("game_id")%>'/>
+                            </pe:if>
+                        </div>
+                        <div style="float:left;width:120px;">
+                            <pe:if condition='<%=Eval("owner_nid") ~= nil%>'>
+                                <a onclick="ShowInfo()" name='<%=Eval("owner_nid")%>' param1='<%=Eval("owner_nid")%>' >
+                                    <pe:name nid='<%=Eval("owner_nid")%>' style="text-align:center;width:120px;" useyou="false" linked="false" ></pe:name>
+                                </a>
+                            </pe:if>
+                        </div>
+                        <div style="float:left;position:relative;margin-left:-5px;">
+                            <aries:vip-sign nid='<%=Eval("owner_nid")%>' style="width:20px;height:20px;" vip_icon="Texture/Aries/Friends/MagicStarMid_32bits.png"/>
+                            <div style="float:left;margin-left:-5px;margin-top:5px;width:20px;"><aries:mountpet-status2 name="mlel" nid='<%=Eval("owner_nid") %>' type="mlel" hideifnotvip="true" showzero="true"/></div>
+                        </div>
+                        <div style="float:left;width:60px;text-align:center;"><aries:mountpet-status2 name='<%=Eval("owner_nid")%>' nid='<%=Eval("owner_nid")%>' type="combatlel" style="text-align:center;"/></div>
+                        <div style="float:left;width:40px;text-align:center;"><%=BuildBtnStr(Eval("count_str"),40,22)%></div>
+                        <div style="float:left;">
+                            <pe:if condition='<%=not IsFull(Eval("count"),Eval("max_players"))%>'>
+                                <input type="button" name='<%=Eval("index")%>'  tooltip="马上加入" class="button_highlight" style="margin-left:2px;margin-top:1px;font-size:12px;width:40px;height:20px;" value="加入"  onclick="DoJoin"/>
+                            </pe:if>
+                        </div>
+                    </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="padding:10px;">
+                            <b>没有符合条件的副本！</b>
+                        </div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>请稍等 ... </b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" height="1"/>
+                    <PagerTemplate AutoHidePager="true">
+                        <form>
+                            <div style="margin-left:-120px;margin-top:-30px;">
+                            <input type="button" name="pre" style="margin-top:4px;margin-left:205px;width:18px;height:18px;background:url(Texture/Aries/common/themekid/cards/left_arrow_32bits.png#0 0 18 22)" class="button" zorder=2 />
+                            <label name="page" style="float:left;margin-top:4px;text-align:center;width:60px;height:20px;"/>
+                            <input type="button" name="next" zorder=2 style="margin-top:4px;width:18px;height:18px;background:url(Texture/Aries/common/themekid/cards/right_arrow_32bits.png#0 0 21 21)" class="button" />
+                            </div>
+                        </form>
+                    </PagerTemplate>
+                </pe:gridview>
+            </pe:if>
+        </div>
+        <pe:if condition='<%=GetQuestState() == 0 or GetQuestState() == 1%>'>
+            <div style="margin-left:20px;margin-top:5px;">
+                <input type="button" value="创建队伍" style="margin-left:30px;height:20px;width:70px;font-size:12px;" class="button" onclick="DoCreate"/>
+                <input type="button" value="刷新" style="float:left;margin-left:40px;height:20px;width:70px;font-size:12px;" class="button" onclick="DoRefresh"/>
+            </div>
+        </pe:if>
+    </div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

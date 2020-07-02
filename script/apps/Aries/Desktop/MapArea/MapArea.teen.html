@@ -1,0 +1,313 @@
+﻿<!-- "script/apps/Aries/Desktop/MapArea/MapArea.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="MapArea.teen.lua"><![CDATA[
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+MapArea = commonlib.gettable("MyCompany.Aries.Desktop.MapArea");
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Gift/ExtraGiftPage.lua");
+ExtraGiftPage = commonlib.gettable("MyCompany.Aries.Gift.ExtraGiftPage");
+MapArea.OnInit();
+
+function on_btn_teleport()
+    Dock.FireCmd("Aries.LocalMapMCML");
+end
+
+function DS_Func_tex(index)
+    return MapArea.DS_Func_MapTexture(index);
+end
+
+function DoShowLobbyPage(name)
+    if(name == "openPvEBtn")then
+        System.App.Commands.Call("Profile.Aries.ShowLobbyPage",{game_type="PvE"});
+    elseif(name == "openPvPBtn")then
+        System.App.Commands.Call("Profile.Aries.ShowLobbyPage",{game_type="PvP"});
+    end
+end
+
+function zoom_map(fScaleFactor)
+    local radius = Page:CallMethod("aries_mini_map", "GetClipRadius") or 500;
+    radius = radius*fScaleFactor;
+    if(radius > 2000) then
+        radius = 2000;
+    elseif(radius < 200) then
+        radius = 200;
+    end
+    Page:CallMethod("aries_mini_map", "SetClipRadius", radius, true);
+end
+
+function OnMapScaleDown()
+    zoom_map(1.1)
+end
+
+function OnMapScaleUp()
+    zoom_map(0.9)
+end
+
+function OnToggleCameraMode(bChecked, mcmlNode)
+    local value = if_else(bChecked, "3d", "2d");
+    MyCompany.Aries.AutoCameraController:ApplyStyle(value);
+    MyCompany.Aries.Player.SaveLocalData("CameraMode", value);
+end
+
+function GetMapClipCircle()
+    local cur_world = WorldManager:GetCurrentWorld();
+	if(cur_world and cur_world.local_map_settings) then
+        local full_map = cur_world.local_map_settings
+		return {center_x = full_map.center_x,  center_y = full_map.center_y, radius = full_map.view_radius or full_map.radius,};
+	else
+		return "20000,20000,850";
+	end
+end
+function OnQuit()
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local world_info = WorldManager:GetCurrentWorld()
+    local s = string.format("确认要离开【%s】吗？",world_info.world_title or "");
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+		    WorldManager:TeleportBack();
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+
+    --NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/ArrowPointer.lua");
+    --local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");
+    --ArrowPointer.HideArrow(653426); -- 653426 is a specific id for leave instance arrow pointer
+end
+function GetMode()
+    if(LobbyClientServicePage.mode_cur_worldinstance)then
+        local mode = LobbyClientServicePage.mode_cur_worldinstance;
+        local label="";
+        if(mode == 1)then
+            label="单人";
+        elseif(mode == 2)then
+            label="普通";
+        elseif(mode == 3)then
+            label="精英";
+        elseif(mode == 4)then
+            label="英雄";
+        elseif(mode == 5)then
+            label="炼狱";
+        end
+        local s = string.format("难度:%s\r\n离开副本",label);
+        return s;
+    else
+        return "离开副本";
+    end
+end
+
+function IsInInstanceWorld()
+    return WorldManager:IsInInstanceWorld()
+end
+
+function GetWorldTitle()
+    return MyCompany.Aries.WorldManager:GetCurrentWorld().world_title or "地图";
+end
+
+function on_btn_switchserver()
+    MyCompany.Aries.Desktop.Dock.OnSwitchServer();
+end
+
+function GetServerName()
+    return format("(%s%s)", "", MyCompany.Aries.WorldServerName or "")
+end
+
+function IsRealName()
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    return Player.IsRealName();
+end
+
+function AntiIndulgenceTips()
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    local tips = "剩余战斗时间(点击参与实名验证)";
+    local _adult = Player.IsAdult();
+    if (_adult == 2) then
+        tips = "剩余战斗时间（你还未满18岁，请注意游戏时间）"
+    end    
+    return tips;
+end
+
+function DoClick()
+    local Player = commonlib.gettable("MyCompany.Aries.Player");
+    local _adult = Player.IsAdult();
+    if (_adult == 0) then
+        MyCompany.Aries.ExternalUserModule:SetRealname()
+    end
+end
+
+function onclick_elfgift()
+    MyCompany.Aries.Desktop.MiJiuHuLu.ShowPage(2);
+end
+
+function onclick_newsupdate()
+    local HelpMainList = commonlib.gettable("MyCompany.Aries.Desktop.HelpMainList");
+    HelpMainList.ShowPage("HelpBook")
+end
+
+function IsShowElfGiftIcon() 
+    return MapArea.showhulu
+end
+
+function BounceElfGiftIcon()    
+    UIAnimManager.PlayCustomAnimation(300, function(elapsedTime)
+	    if(elapsedTime == 300) then
+            NPL.load("(gl)script/apps/Aries/Desktop/Dock/LoopTips.lua");
+            local LoopTips = commonlib.gettable("MyCompany.Aries.Desktop.LoopTips");
+            LoopTips.BounceLower_Static_Icon("ElfGift",page,"bouncelower");
+            --MapArea.Bounce_Static_Icon("ElfGift","bounce");
+	    end
+    end);    
+end
+function NeedShow_ExtraGiftPage()
+    return ExtraGiftPage.NeedShow()
+end
+function onclick_extra_gift()
+    local animator = Page:FindControl("gift_animator");
+    if(animator) then
+        animator.visible = false;
+        ExtraGiftPage.has_shown_once = true;
+    end
+    ExtraGiftPage.ShowPage();
+end
+
+function ClosetTip()
+    page:SetValue("TooltipsPPT", nil)
+end
+function GoLink()
+    DoClick();
+    ClosetTip();
+end
+
+function onclick_cc()
+    NPL.load("(gl)script/apps/Aries/Desktop/LinksArea/LinksAreaPage.lua");
+    local LinksAreaPage = commonlib.gettable("MyCompany.Aries.Desktop.LinksAreaPage");
+    LinksAreaPage.OnClickCreativeSpace()
+end
+
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:0px;margin-left:0px;width:170px;height:220px;">
+	<div name="tip_1">
+        <pe:div style="position:relative;margin-left:-90px;margin-top:45px;width:241px;height:100px;background:;">
+          <pe:block style="position:relative;margin-left:150px;margin-top:103px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png);" />
+          <pe:block style="position:relative;margin-left:46px;margin-top:49px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">进行实名验证可以解除防沉迷限制</pe:block>
+          <pe:button onclick="GoLink" style="position:relative;margin-left:155px;margin-top:74px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="马上解除" />
+        </pe:div>
+	</div>
+</pe:powerpoint>
+<div style="width:170px;height:220px;">
+    <!--<div style="position:relative;margin-left:-14px;width:204px;height:48px;background:url(Texture/Aries/WorldMaps/common/minimap_deco.png#0 0 204 48)"></div>-->
+    <div style="width:130px;height:23px;" align="center">
+        <input name="currentWorldBtn" tooltip='<%=format("当前服务器:%s\n%s", GetServerName(), "(点击切换服务器)") %>' onclick="on_btn_switchserver" type="button" value='<%=GetWorldTitle() %>' style="position:relative;font-size:12px;color:#ffffff;margin-left:5px;margin-top:2px;width:120px;background:url(Texture/Aries/Common/Teen/map/map_text_bg_32bits.png#0 0 32 24:10 10 10 10)" />
+        <div style="position:relative;">
+            <input name="EnableSound" type="checkbox" checked="true" style="margin-left:128px;margin-top:4px;width:23px;height:23px;" iconsize="23" CheckedBG="Texture/Aries/Common/Teen/map/sound_enabled_32bits.png;0 0 23 23" UncheckedBG="Texture/Aries/Common/Teen/map/sound_disabled_32bits.png;0 0 23 23" tooltip="打开|关闭声音" onclick="MapArea.OnClickToggleMusic"/>
+        </div>
+    </div>
+    <pe:if condition='<%=IsInInstanceWorld() %>'>
+        <!--"离开副本" -->
+        <div align="center" style="position:relative;text-align:center;width:70px;">
+            <input name="btnQuit" class="defaultbutton" type="button" tooltip="<%=GetMode() %>" style="position:relative;width:70px;height:20px;background:url(Texture/Aries/WorldMaps/common/leave_world_32bits.png#0 0 70 20)" onclick="OnQuit"/>
+        </div>
+        <pe:if condition='<%=MapArea.HighLightLeaveWorldBtn%>'>
+            <pe:container name="leaveworld_tip" zorder="1" enabled="false" class="anchor_tooltip_bg" style="position:relative;margin-top:55px;margin-left:20px;width:130px;height:45px;">
+                <input type="button" class="anchor_tooltip_downarrow" style="position:relative;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png);margin-top:-31px;margin-left:50px;" />
+                点击离开副本
+            </pe:container>
+            <% 
+            local parent = Page:FindControl("leaveworld_tip")
+            if(parent) then
+                local fileName = "script/UIAnimation/CommonIcon.lua.table";
+			    UIAnimManager.LoadUIAnimationFile(fileName);
+			    UIAnimManager.PlayUIAnimationSequence(parent, fileName, "BounceLower", true);
+            end
+            %>
+        </pe:if>
+    </pe:if>
+    
+    <div zorder="-2" style="margin-left:9px;background:url(Texture/Aries/Common/Teen/map/minimap_bg.png#0 0 159 160);width:159px;height:160px;">
+        <div style="position:relative;">
+            <!--other misc buttons around the mini map-->
+            <div style="position:relative;">
+                <input name="btnWorldMap" type="button" tooltip="世界地图(M)" style="margin-left:118px;margin-top:3px;width:32px;height:32x;background:url(Texture/Aries/Common/Teen/map/map_32bits.png)" onclick="on_btn_teleport"/>
+            </div>
+            <div style="position:relative">
+                <pe:if condition='<%=MapArea.IsShowCameraTip %>'>
+                    <pe:arrowpointer name="tip" direction="6" style="margin-left:100px;margin-top:60px;position:relative;width:32px;height:32px;" />
+                </pe:if>
+                <input name="btnCameraMode" type="checkbox" iconsize="24" CheckedBG="Texture/Aries/Common/Teen/map/camera_3d_32bits.png;0 0 24 24" UncheckedBG="Texture/Aries/Common/Teen/map/camera_2d_32bits.png;0 0 24 24" tooltip="切换2D/3D操作模式" style="position:relative;margin-left:142px;margin-top:65px;width:24px;height:24px;" onclick="OnToggleCameraMode"/>
+            </div>
+            
+            <pe:if condition="<%=MyCompany.Aries.ExternalUserModule:GetConfig().is_lock_ranking ~= true%>">
+                <input name="btnRanking" type="button" tooltip="排行榜" style="position:relative;color:#ffffff;margin-left:0;margin-top:105px;width:29px;height:30px;background:url(Texture/Aries/Common/Teen/map/ranking_32bits.png#0 0 29 30)" onclick="MapArea.ShowRank"/>
+            </pe:if>
+            
+            
+            <input name="btnMail" type="button" tooltip="邮箱" style="position:relative;color:#ffffff;margin-left:19px;margin-top:127px;width:29px;height:30px;background:url(Texture/Aries/Common/Teen/map/mail_32bits.png#0 0 29 30)" onclick="MapArea.ShowMailBox"/>
+            <input name="MailCount" visible="false" enabled="false" type="button" tooltip="你有未读邮件" style="position:relative;color:#000000;margin-left:31px;margin-top:127px;width:20px;height:20px;background-color:#ffffff;background:url(Texture/Aries/Dock/UnreadNum_32bits.png#0 0 32 32)"/>
+
+            <input name="News" type="button" tooltip="帮助" style="position:relative;margin-left:136px;margin-top:35px;width:28px;height:29px;background:url(Texture/Aries/Common/Teen/map/help_32bits.png#0 0 28 29)"  onclick="onclick_newsupdate"/>
+            <input name="btnScaleDown" type="button" value="" tooltip="缩小地图" style="position:relative;margin-left:118px;margin-top:130px;width:18px;height:19px;background:url(Texture/Aries/Common/Teen/map/map_minimize.png#0 0 18 19)" onclick="OnMapScaleDown"/>
+            <input name="btnScaleUp" type="button" value="" tooltip="放大地图" style="position:relative;margin-left:132px;margin-top:115px;width:18px;height:19px;background:url(Texture/Aries/Common/Teen/map/map_enlarge.png#0 0 18 19)" onclick="OnMapScaleUp"/>
+            <div style="position:relative;">
+                <input name="btnTogglePlayers" type="checkbox" checked="true" iconsize="22" CheckedBG="Texture/Aries/Common/Teen/map/players_shown_32bits.png;0 0 22 22" UncheckedBG="Texture/Aries/Common/Teen/map/players_hidden_32bits.png;0 0 22 22" tooltip="显示|隐藏远处人物(Ctrl+Y). 隐藏可使画面流畅" style="position:relative;margin-left:142px;margin-top:88px;width:22px;height:22px;" onclick="MapArea.ToggleRenderPlayers"/>
+            </div>
+            <div style="position:relative;margin-left:-20px;margin-top:75px;width:32px;height:32px;">
+               <input type="button" tooltip="活动" name="btnCal" onclick="MapArea.ShowCalendar" style="margin-left:10px;margin-top:0px;width:32px;height:32px;background:url(Texture/Aries/Common/Teen/map/cal_32bits.png#0 0 32 32)"/>
+            </div>            
+<!--            <div style="position:relative;margin-left:-15px;margin-top:30px;width:32px;height:32px;">                
+                <pe:if condition='<%=IsShowElfGiftIcon() %>'>
+                   <input zorder="1" enabled="false" name="MiJiuHuLuTips" type="button" value='00:01' style="position:relative;text-shadow:true;shadow-quality:8;shadow-color:#2a2a2e27;font-size:10px;margin-left:-10px;margin-top:23px;width:60px;background:;"/>
+                   <input type="button" tooltip="精灵使者的礼物" name="ElfGift" onclick="onclick_elfgift" style="margin-left:10px;margin-top:0px;width:28px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/ElfGift/elfgift_ico_32bits.png#0 0 32 32)"/>
+               </pe:if>
+            </div>
+-->
+<!--
+             <div style="position:relative;margin-left:-15px;margin-top:30px;width:32px;height:32px;">                
+                <pe:if condition='<%=ExtraGiftPage.has_shown_once == nil and NeedShow_ExtraGiftPage()%>'>
+                    <div style="position:relative;margin-left:28px;margin-top:-27px;width:28px;height:28px;background:" >
+                        <img name="gift_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="32" height="32"/>
+                    </div>
+                </pe:if>
+                <input type="button" tooltip="礼包大派送" onclick="onclick_extra_gift" style="margin-left:30px;margin-top:-25px;width:28px;height:28px;background:url(Texture/Aries/Common/Teen/gifts/gift_2_32bits.png)"/>
+            </div>
+-->
+            <div style="position:relative;margin-left:-15px;margin-top:30px;width:64px;height:64px;">
+                <input type="button" tooltip="创意空间" onclick="onclick_cc" style="margin-left:20px;margin-top:-30px;width:48px;height:48px;background:url(Texture/Aries/Common/ThemeTeen/Links/free_space_32bits.png)"/>
+            </div>
+        </div>
+        <pe:container zorder="-1" style="margin-left:5px;margin-top:6px;width:145px;height:145px;background:;">
+            <pe:aries_map name="aries_mini_map" style="width:145px;height:145px;background:"
+                update_interval="200"
+                flip_vertical = "true"
+                ClipCircle='<%=GetMapClipCircle()%>'
+                center_on_player = "true"
+                show_camera  = "true"
+                show_player = "true"
+                show_team = "true"
+                show_friends = "true"
+                show_opc = "true" 
+                hide_names = "true"
+                map_boundary = '<%=DS_Func_tex(1)%>'
+                mask_texture="Texture/Aries/Common/circular_mask.png" 
+                >
+                <pe:texture_grid>
+                    <pe:textureassemble name="tex" DataSource='<%=DS_Func_tex %>' />
+                </pe:texture_grid>
+            </pe:aries_map>
+        </pe:container>
+    </div>
+    <div style="position:relative;margin-top:-10px;">
+        <!--<pe:if condition='<%=IsRealName() %>'>
+            <input type="button" value="实名" style="font-size:12px;margin-left:60px;width:60px;height:24px;color:#ffffff;background:url(Texture/Aries/Common/Teen/map/map_text_bg_32bits.png#0 0 32 24:10 10 10 10)" />
+        </pe:if>-->
+        <pe:if condition='<%=not IsRealName() %>'>
+            <input name="timeBtn" onclick="DoClick" tooltip='<%=AntiIndulgenceTips() %>' type="button" value="5:00" style="font-size:12px;margin-left:60px;width:60px;height:24px;color:#ffffff;background:url(Texture/Aries/Common/Teen/map/map_text_bg_32bits.png#0 0 32 24:10 10 10 10)" />
+        </pe:if>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

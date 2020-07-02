@@ -1,0 +1,166 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30341_HaqiGroupBlackList.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local HaqiGroupManage = MyCompany.Aries.Quest.NPCs.HaqiGroupManage;
+
+function ClosePage()
+    if(pageCtrl)then
+        pageCtrl:CloseWindow();
+    end
+end
+
+local list = {
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},{ nid = 168511580,},
+}
+
+local group_info = HaqiGroupManage.group_info or {};
+local blacklist = group_info.blacklist or {};
+--clone
+blacklist = commonlib.deepcopy(blacklist);
+
+function GetBlackList_DS()
+    local ds_blacklist = {};
+    local k,v;
+    for k,v in ipairs(blacklist) do
+        table.insert(ds_blacklist,{nid = v});
+    end
+    return ds_blacklist;
+end
+local ds_blacklist = GetBlackList_DS();
+
+function DS_Func_BlackList(index)
+    if(not ds_blacklist)then return 0 end
+    if(index == nil) then
+		return #(ds_blacklist);
+	else
+		return ds_blacklist[index];
+	end
+end
+function getMouseOverBG()
+    return "Texture/Aries/MiniGame/rank_over_bg.png;0 0 545 28";
+end
+
+function HasBlackMember(nid)
+    local k,v;
+    for k,v in ipairs(blacklist) do
+        if(nid == v)then
+            return true;
+        end
+    end
+end
+function DoAddMember()
+    local nid = pageCtrl:GetValue("nid_txt");
+    nid = tonumber(nid);
+    if(not nid)then return end
+
+    if(HasBlackMember(nid))then
+        local s = string.format([[<pe:name nid='%s'/>(%s)已经在黑名单中了！]],tostring(nid),tostring(nid));
+        _guihelper.MessageBox(s);
+        return;
+    end
+    local myself = Map3DSystem.User.nid;
+    if(nid == myself)then
+        _guihelper.MessageBox("你不需要把自己加入到黑名单！");
+        return;
+    end
+    local len = #blacklist;
+    if(len >=10)then
+        _guihelper.MessageBox("黑名单最多可以加10名！");
+        return;
+    end
+    table.insert(blacklist,nid);
+    pageCtrl:CallMethod("BlackList_View", "SetDataSource", GetBlackList_DS());
+    pageCtrl:CallMethod("BlackList_View","DataBind");
+end
+function DoRemoveMember(nid)
+    if(not nid)then return end
+    if(not HasBlackMember(nid))then
+        local s = string.format([[<pe:name nid='%s'/>(%s)不在黑名单中！]],tostring(nid),tostring(nid));
+        _guihelper.MessageBox(s);
+        return;
+    end
+    local k,v;
+    for k,v in ipairs(blacklist) do
+        if(nid == v)then
+            table.remove(blacklist,k);
+            pageCtrl:CallMethod("BlackList_View", "SetDataSource", GetBlackList_DS());
+            pageCtrl:CallMethod("BlackList_View","DataBind");
+        end
+    end
+end
+function DoSave()
+    HaqiGroupManage.SaveBlackListInfo(blacklist);
+    ClosePage();
+    MyCompany.Aries.Quest.NPCs.HaqiGroupManage.DoRefresh();
+end
+]]></script>
+<div style="width:300px;height:495px;font-size:12px;margin-left:0px;margin-top:0px;background:Texture/Aries/NPCs/CombatPet/bg_32bits.png# 0 0 64 445 : 30 80 30 80" >
+<input style="margin-left:270px;margin-top:-10px;width:40px;height:40px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+<div style="margin-left:10px;margin-top:-15px;">
+    <div>请输入米米号:</div>
+    <input type="text" name="nid_txt" style="float:left;width:200px;height:25px;"/>
+    <input type="button" value="加入" onclick="DoAddMember" style="float:left;width:80px;font-size:12px;"/>
+</div>
+    <div style="margin-left:10px;margin-top:0px;">黑名单(避免恶意用户重复发送家族申请):</div>
+<div style="float:left;margin-left:20px;margin-top:0px;width:260px;height:380px;background:url(Texture/Aries/Common/tile_2_bg_32bits.png#0 0 64 420: 30 100 30 100);">
+<pe:gridview DataSource="<%=DS_Func_BlackList%>" name="BlackList_View" style="margin-left:10px;margin-top:10px;" 
+        VerticalScrollBarStep="30" CellPadding="0" DefaultNodeHeight = "20"  ItemsPerLine="1" AllowPaging="false" pagesize="12">
+        <Columns>
+            <div style="margin-top:2px;width:260px;height:25px;">
+             <div style="float:left;margin-left:2px;margin-top:2px;width:220px;height:25px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                    <a  onclick = "MyCompany.Aries.Desktop.Profile.ViewFullProfile"   tooltip='点击查看个人资料' param1='<%=Eval("nid")%>' style="background:">
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=getMouseOverBG()%>' alwaysmouseover="true" style="margin-top:0px;margin-left:0px;width:220px;height:25px;background:"/>
+                            <div style="float:left;margin-top:-25px;margin-left:10px;width:287px;font-size:12;color:#000000;text-align:center;">
+                                <pe:name nid='<%=Eval("nid") %>' linked="false" customformat="%s(%d)" style="text-align:left;color:#000000"/>
+                            </div>
+                    </a>
+             </div>
+              <div style="float:left;margin-left:1px;margin-top:1px;width:19px;">
+                <input type="button" tooltip="从黑名单移除" name='<%=Eval("nid") %>' onclick = "DoRemoveMember" style="width:16px;height:20px;background:Texture/Aries/NPCs/HaqiGroup/group_appoint_assistant_32bits.png#0 0 16 20;"/>
+            </div>
+            </div>
+            
+        </Columns>
+        <EmptyDataTemplate>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+        </FetchingDataTemplate>
+	   <PagerSettings Position="Bottom" height="36" style="margin-left:60px;margin-top:-10px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	            <input type="button" name="pre" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="上一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageleft_32bits.png#0 0 42 41)"/>
+	            <div style="float:right;margin-top:4px;width:40px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" invisibleondisabled="false" zorder=2 animstyle="23" tooltip="下一页" style="width:42px;height:41px;background:url(Texture/Aries/Quest/pageright_32bits.png#0 0 42 41)"/>
+	             </form>
+	        </PagerTemplate>
+    </pe:gridview>
+</div>
+<div>
+<input type="button" style="margin-left:200px;margin-top:5px;width:80px;font-size:12px;" value="保存" onclick="DoSave()"/>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

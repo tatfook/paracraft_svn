@@ -1,0 +1,157 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30011_WishLevel1_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30011_WishLevel1_status, by Andy, 2009/7/29</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local clientdata = "";
+local bHas, guid = hasGSItem(50013);
+local step1 = false;
+local step2 = false;
+
+if(bHas == true) then
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+	    clientdata = item.clientdata;
+	end
+end
+
+if(clientdata~="")then
+    local flag;
+    local flags={};
+	for flag in string.gfind(clientdata, "([%w_]+)," ) do
+		if( flag and flag~="")then
+			table.insert(flags,flag);
+		end
+	end
+    local i;
+    for i=1, #flags do
+        if(flags[i]=="1")then
+            step1 = true;
+        elseif(flags[i]=="2")then
+            step2 = true;
+        end
+    end
+end
+
+if(step1) then
+    step1_status = "on"
+else
+    step1_status = "off"
+end
+
+if(step2) then
+    step2_status = "on"
+else
+    step2_status = "off"
+end 
+
+local arrow_norm = "Texture/Aries/Quest/arrow_right_32bits.png";
+local arrow_grey = "Texture/Aries/Quest/arrow_right_grey_32bits.png";
+local slot_norm = "Texture/Aries/Quest/object_slot_32bits.png";
+local slot_grey = "Texture/Aries/Quest/object_slot_grey_32bits.png";
+
+function DS_Func_30011_WishLevel1_status(index)
+    if(index == nil) then
+        return 2;
+    elseif(index == 1) then
+        if(step1) then
+            return {gsid = 16003, slot_bg = slot_norm, tooltip = "龙龙乐园"};
+        else
+            return {gsid = 16003, slot_bg = slot_grey, tooltip = "龙龙乐园"};
+        end
+    elseif(index == 2) then
+        if(step2) then
+            return {gsid = 16005, slot_bg = slot_norm, tooltip = "龙龙乐园"};
+        else
+            return {gsid = 16005, slot_bg = slot_grey, tooltip = "龙龙乐园"};
+        end
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="width:820px;height:512px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:260px;margin-top:70px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:512px;height:32px;background:url(texture/Aries/Quest/Dragon/Wish1Head_32bits.png)">
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Wish1Body_32bits.png)">
+        
+            <aries:questobjectivestatus gsids=""
+                force_status = '<%=Eval("step1_status")%>'
+                on_bg = "texture/Aries/Quest/Dragon/LevelSeries/WishLevel1_1_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/LevelSeries/WishLevel1_1_grey_32bits.png"
+                on_tooltip = "龙龙乐园"
+                off_tooltip = "龙龙乐园"
+                style="left:102px;top:165px;position:relative;width:256px;height:256px;"/>
+            <aries:questobjectivestatus gsids=""
+                force_status = '<%=Eval("step2_status")%>'
+                on_bg = "texture/Aries/Quest/Dragon/LevelSeries/WishLevel1_2_32bits.png"
+                off_bg = "texture/Aries/Quest/Dragon/LevelSeries/WishLevel1_2_grey_32bits.png"
+                on_tooltip = "龙龙乐园"
+                off_tooltip = "龙龙乐园"
+                style="left:409px;top:120px;position:relative;width:512px;height:256px;"/>
+        </div>
+        <input style="margin-left:725px;margin-top:-457px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin-left:350px;margin-top:-100px;width:100px;height:65px">
+            <div style="margin-top:0px;width:132px;height:65px;">
+                <input type="button" onclick="OnClose();" style="margin:0px;width:132px;height:65px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" />
+            </div>
+    </div>
+    <!--<div style="margin-left:130px;margin-top:40px;font-size:14;font-weight:bold;color:#FFFFFF">贪吃的抱抱龙喜欢泡泡浴液</div>
+    <div style="float:right;margin-left:407px;margin-top:-39px;">
+        <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin:40px;margin-top:20px">
+        抱抱龙想要吃香草果冻，并用柔滑泡泡浴液洗个澡哦！
+    </div>
+    <div style="margin-left:44px;margin-top:-10px;height:150px;">
+        <pe:gridview DataSource="<%=DS_Func_30011_WishLevel1_status%>" name="WishLevel1_status" CellPadding="16"  DefaultNodeHeight = "90" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+            <Columns>
+                <div style="float:right;width:64px;height:64px;">
+                </div>
+                <div style="float:right;width:64px;height:64px;">
+                    <img style="width:64px;height:64px" src='<%=Eval("slot_bg")%>'/>
+                    <pe:item gsid='<%=Eval("gsid")%>' isclickable=false tooltip='<%=Eval("tooltip")%>' style="margin-left:-56px;margin-top:8px;width:48px;height:48px;"/>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>Empty Items</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>Data Fetching, Please wait ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </div>
+    
+    <div style="margin-left:40px;margin-top:-20px;margin-right:40px">
+    温馨小提示：<br/>
+    抱抱龙吃的很饱以及特别干净时不能再给他使用哦；<br/>
+    可以先带它玩半个小时再来给他喂食洗澡，它会更开心的！<br/>
+    </div>
+    <div style="margin-left:200px;margin-top:30px;width:100px;height:30px">
+        <a target="_self" href="script/apps/Aries/Quest/QuestStatusDragon.html" style="color:#FFFFFF">
+        返回列表
+        </a>
+    </div>-->
+  </div>
+</pe:mcml>
+</body>
+</html>

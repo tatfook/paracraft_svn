@@ -1,0 +1,249 @@
+<!-- "script/apps/Aries/Desktop/Dock/Dock.kids.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="Dock.kids.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/Dock/DockTip.lua");
+local DockTip = commonlib.gettable("MyCompany.Aries.Desktop.DockTip");
+
+local page = document:GetPageCtrl();
+local Dock = commonlib.gettable("MyCompany.Aries.Desktop.Dock");
+        
+local left_btn_nodes = {
+    {name="ProfilePane.ShowPage", tooltip="人物", goalpointer="open_character", icon="Texture/Aries/Dock/kids/character_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/character_text_32bits.png#0 0 36 18)", onclick="MyCompany.Aries.Desktop.CombatCharacterFrame.ShowMainWnd();"},
+    {name="CombatCardTeen", tooltip="卡牌 (C)", goalpointer="open_carddeck", icon="Texture/Aries/Dock/kids/card_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/card_text_32bits.png#0 0 36 18)",onclick = "MyCompany.Aries.Desktop.Dock.ShowCharPage(2);"},
+    {name="CharacterBagPage.ShowPage", tooltip="装备 (B)", goalpointer="open_inventory", icon="Texture/Aries/Dock/kids/inventory_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/inventory_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.ShowCharPage(3);",},
+    {name="collectable", tooltip="背包", goalpointer="open_collectable", icon="Texture/Aries/Dock/kids/collectable_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/collectable_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.ShowCharPage(4);",},
+    {name="CombatPetPane.ShowPage", tooltip="宠物 (P)", goalpointer="open_pet", icon="Texture/Aries/Dock/kids/pet_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/pet_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.DoShowPetManager();",},
+    {name="MountPet.ShowMenu", tooltip="坐骑", goalpointer="open_mount", icon="Texture/Aries/Dock/kids/mount_btn_32bits.png;0 0 45 45", text_icon="width:46px;height:18px;background:url(Texture/Aries/Dock/kids/mount_text_32bits.png#0 0 46 18)", onclick="MyCompany.Aries.Desktop.Dock.OnClickDragon_Menu();", },
+};
+
+function ds_LeftBtns(index)
+ if(not index) then
+        return #left_btn_nodes;
+    else
+        return left_btn_nodes[index];
+    end
+end
+
+local right_btn_nodes = {
+    --{name="ranking", tooltip="排行", icon="Texture/Aries/Dock/kids/ranking_btn_32bits.png;0 0 45 45", text_icon="width:46px;height:18px;background:url(Texture/Aries/Dock/kids/ranking_text_32bits.png#0 0 46 18)", onclick = "MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMainWnd();"},
+    {name="FriendsPage.ShowPage", tooltip="朋友", goalpointer="open_friend_list", icon="Texture/Aries/Dock/kids/friend_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/friend_text_32bits.png#0 0 36 18)", onclick = "System.App.Commands.Call(\"Profile.Aries.FriendsWnd\");"},
+    {name="FamilyMembersPage.ShowPage", tooltip="家族 (J)", goalpointer="open_family", icon="Texture/Aries/Dock/kids/family_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/family_text_32bits.png#0 0 36 18)", onclick = "System.App.Commands.Call(\"Profile.Aries.MyFamilyWnd\");"},
+    {name="home", tooltip="家园", goalpointer="open_home", icon="Texture/Aries/Dock/kids/home_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/home_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.OnClickHomeland();"},
+    {name="magicstar", tooltip="魔法星 (V)", goalpointer="open_vip", icon="Texture/Aries/Dock/kids/magicstar_btn_32bits.png;0 0 45 45", text_icon="width:46px;height:18px;background:url(Texture/Aries/Dock/kids/magicstar_text_32bits.png#0 0 46 18)", onclick = "MyCompany.Aries.Desktop.Dock.ShowCharPage(5);",},
+    --{name="shop", tooltip="商城", goalpointer="open_haqishop", icon="Texture/Aries/Dock/kids/shop_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/shop_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.HaqiShop.ShowMainWnd();"},
+    {name="skill", tooltip="生活技能", goalpointer="open_skillpage", icon="Texture/Aries/Dock/kids/skill_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/skill_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.OnClickSkill();"},
+    {name="system", tooltip="系统", icon="Texture/Aries/Dock/kids/system_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/system_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.OnClickSettings();"},
+};
+
+function ds_RightBtns(index)
+    if(not index) then
+        return #right_btn_nodes;
+    else
+        return right_btn_nodes[index];
+    end
+end
+
+local ext_btn_nodes = {
+    {name="firstaid", tooltip="药箱", goalpointer="open_pillbox", icon="Texture/Aries/Dock/kids/firstaid_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/firstaid_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.OnClickQuickDockButton();"},
+    {name="throw", tooltip="投掷", goalpointer="open_throw", icon="Texture/Aries/Dock/kids/throw_btn_32bits.png;0 0 45 45", text_icon="width:46px;height:18px;background:url(Texture/Aries/Dock/kids/throw_text_32bits.png#0 0 46 18)", onclick = "System.App.Commands.Call(\"Profile.Aries.ThrowableWnd\");"},
+    {name="action", tooltip="动作", goalpointer="open_action", icon="Texture/Aries/Dock/kids/action_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/action_text_32bits.png#0 0 36 18)", onclick = "MyCompany.Aries.Desktop.Dock.OnClickAction();"},
+    {name="screenshot", tooltip="截图分享(免费得仙豆哦)", goalpointer="open_screenshot", icon="Texture/Aries/Dock/kids/screenshot_btn_32bits.png;0 0 45 45", text_icon="width:36px;height:18px;background:url(Texture/Aries/Dock/kids/screenshot_text_32bits.png#0 0 36 18)", onclick="MyCompany.Aries.Desktop.Dock.DoSharePhotos()"},
+};
+
+local hidden_btn_nodes = {
+    {name="Aries.LocalMapMCML", goalpointer="open_screenshot", tooltip="地图", icon="", text_icon="", onclick = "System.App.Commands.Call(\"Profile.Aries.LocalMap\");"},
+};
+function ds_ExtBtns(index)
+ if(not index) then
+        return #ext_btn_nodes;
+    else
+        return ext_btn_nodes[index];
+    end
+end
+
+function FindNodeByName(table_obj, name)
+    local _, item
+    for _, item in ipairs(table_obj) do
+        if(item.name == name) then
+            return item;
+        end
+    end
+end
+
+function DoShowPage_StaticBtn(name)
+    local  node = FindNodeByName(left_btn_nodes, name)or FindNodeByName(right_btn_nodes, name) or FindNodeByName(ext_btn_nodes,name) or FindNodeByName(hidden_btn_nodes,name)
+    if(node and node.onclick) then
+        DockTip.GetInstance():DeleteNodeByName("DockTip."..name);
+		DockTip.GetInstance():ShowPage(true);
+        local onclick = node.onclick;
+        if(type(onclick) == "string") then
+           NPL.DoString(onclick);
+        elseif(type(onclick) == "function") then
+            onclick();
+        end
+
+    end
+end
+
+bShowExtensionBar = MyCompany.Aries.Player.GetLevel()>=10;
+function OnClickExtentionBar(bChecked)
+    bShowExtensionBar = not bShowExtensionBar;
+    Page:SetValue("extended_bar", bShowExtensionBar)
+    Page:Refresh(0);
+end
+
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+function OnclickDealButton()
+    MyCompany.Aries.Desktop.Dock.OnClickDealPage();
+end
+
+--已经发送过重置申请
+function HasResetTime()
+    return DealDefend.HasResetPassword();
+end
+function GetResetTime()
+    local date1,date2 = DealDefend.GetTime();
+    local a_1 = commonlib.GetMillisecond_Date(date1);
+	local a_2 = commonlib.GetMillisecond_Date(date2);
+    local s;
+    if(DealDefend.ResetPassword_Successful_InMemory())then
+        s = "你的交易密码已经清空,请重新登录设置新的密码";
+    else
+        local day,hours,minutes,seconds,time_str,total_mill = commonlib.GetTimeStr_BetweenToDate(date1,date2)
+        s = string.format("重置交易密码时间:%s<br/>生效剩余时间:%d天%d小时",date1,day or 0,hours or 0);
+    end
+    return s;
+end
+
+function OnCloseDealTip()
+    local dealtip = Page:FindControl("dealtip")
+    if (dealtip) then
+        dealtip.visible = false;
+    end
+end
+
+function GetPlayerLevel()
+    return MyCompany.Aries.Player.GetLevel();
+end
+
+]]></script>
+<pe:container style="height:111px;width:776px;background:;" ClickThrough="true">
+<pe:if condition='<%= HasResetTime() %>'>
+    <pe:container name="dealtip" ClickThrough="true" class="anchor_tooltip_bg" style="font-size:12px;position:relative;margin-top:0px;margin-left:-50px;width:270px;height:46px;">
+        <input type="button" onclick="OnCloseDealTip" class="anchor_tooltip_close"/>
+        <div type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:40px;margin-left:61px;" />
+        <%= GetResetTime() %>
+    </pe:container>
+</pe:if>
+<pe:container style="position:relative;height:65px;width:776px;margin-top:51px;background:;" ClickThrough="true">
+<div style="position:relative;margin-top:7px;">
+    <div zorder="-1" style="float:left;width:119px;height:55px;background:url(Texture/Aries/Dock/kids/dock_left_32bits.png#0 0 64 55:46 24 10 14)"></div>
+    <div zorder="-1" style="float:left;width:532px;margin-top:12px;height:43px;background:url(Texture/Aries/Dock/kids/dock_bg_32bits.png#0 0 512 43:250 15 250 15)"></div>
+    <div zorder="-1" style="float:left;width:125px;height:55px;background:url(Texture/Aries/Dock/kids/dock_right_32bits.png#0 0 64 55:10 24 46 14)"></div>
+</div>
+<div style="height:70px;margin-left:6px;width:752px;">
+    <div style="float:left;position:relative;margin-top:26px;margin-left:31px;">
+        <input name="DealButton" type="button" onclick="OnclickDealButton" style="width:16px;height:19px;background:url(Texture/Aries/Common/unlock_32bits.png# 0 0 16 19)"/>
+    </div>
+    <div style="float:left;margin-left:47px;">
+        <pe:gridview style="width:296px;height:58px;" name="leftBtnsBar" AllowPaging="false" ItemsPerLine="6" DefaultNodeHeight = "58" pagesize="6"
+            OnPageIndexChanged="PageIndexChanged()"
+            DataSource='<%=ds_LeftBtns%>'>
+	        <Columns>
+                <div style="width:47px;">
+                <div align="center" style="width:45px;position:relative;">
+                    <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:45px;height:45px;"></pe:goalpointer>
+                    <input type="button" name='<%=Eval("name")%>' tooltip='<%=Eval("tooltip")%>' 
+                        onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:45px;height:45px;" />
+                </div>
+                <div zorder="1" align="center" style='<%=format("position:relative;margin-top:38px;%s", Eval("text_icon") or "") %>'></div>
+                </div>
+	        </Columns>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+        </pe:gridview>
+    </div>
+    <div style="float:left;margin-left:5px;margin-top:-8px;width:64px;height:64px;">
+        <div align="center" style="width:64px;position:relative;">
+            <pe:goalpointer listen='open_map' style="position:relative;width:64px;height:64px;"></pe:goalpointer>
+            <input type="button" name='Aries.LocalMapMCML' tooltip='地图 (M)' 
+                onclick="DoShowPage_StaticBtn" background='Texture/Aries/Dock/kids/map_btn_32bits.png' style="width:64px;height:64px;" />
+        </div>
+        <div zorder="1" align="center" style="position:relative;margin-top:45px;width:37px;height:19px;background:url(Texture/Aries/Dock/kids/map_text_32bits.png#0 0 37 19)"></div>
+    </div>
+    <div style="float:left;margin-left:20px;">
+        <pe:gridview style="width:290px;height:58px;" name="rightBtnsBar" AllowPaging="false" ItemsPerLine="6" DefaultNodeHeight = "58" pagesize="6"
+            OnPageIndexChanged="PageIndexChanged()"
+            DataSource='<%=ds_RightBtns%>'>
+	        <Columns>
+                <pe:if condition='<%= GetPlayerLevel()<15 %>'>
+                    <pe:if condition='<%= Eval("name") == "FamilyMembersPage.ShowPage" or Eval("name") == "skill" %>'>
+                        <div style="width:47px;">  
+                            <div align="center" style="width:45px;position:relative;">
+                                <div style="float:left;width:45px;height:45px;background:url(Texture/Aries/Dock/kids/blank_btn_bg_32bits.png#0 0 45 45)">
+                                </div>
+                            </div>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%= not(Eval("name") == "FamilyMembersPage.ShowPage" or Eval("name") == "skill") %>'>
+                        <div style="width:47px;">                  
+                            <div align="center" style="width:45px;position:relative;">
+                                <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:45px;height:45px;"></pe:goalpointer>
+                                <input type="button" name='<%=Eval("name")%>' tooltip='<%=Eval("tooltip")%>' 
+                                    onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:45px;height:45px;" />
+                            </div>
+                            <div zorder="1" align="center" style='<%=format("position:relative;margin-top:38px;%s", Eval("text_icon") or "") %>'></div>
+                        </div>
+                    </pe:if>
+                </pe:if>
+                <pe:if condition='<%= GetPlayerLevel()>=15 %>'>
+                    <div style="width:47px;">
+                        <div align="center" style="width:45px;position:relative;">
+                            <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:45px;height:45px;"></pe:goalpointer>
+                            <input type="button" name='<%=Eval("name")%>' tooltip='<%=Eval("tooltip")%>' 
+                                onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:45px;height:45px;" />
+                        </div>
+                        <div zorder="1" align="center" style='<%=format("position:relative;margin-top:38px;%s", Eval("text_icon") or "") %>'></div>
+                    </div>
+                </pe:if>
+	        </Columns>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+        </pe:gridview>
+    </div>
+    <div style="float:left;margin-left:-8px;margin-top:25px;position:relative;">
+        <pe:goalpointer listen="open_extrabuttons" style="position:relative;width:16px;height:22px;"></pe:goalpointer>
+        <input type="checkbox" name='extended_bar' tooltip='扩展条' iconsize="16" checked='false'
+                onclick="OnClickExtentionBar"
+                CheckedBG="Texture/Aries/Dock/kids/down_btn_32bits.png;0 0 16 22" UncheckedBG="Texture/Aries/Dock/kids/up_btn_32bits.png;0 0 16 22"
+                style="width:16px;height:22px;" />
+    </div>
+</div>
+</pe:container>
+<pe:if condition='<%=Eval("bShowExtensionBar")%>'> 
+    <pe:container style="position:relative;height:46px;width:330px;margin-top:10px;background:" ClickThrough="true" alignment="_rt">
+        <div style="position:relative;height:16px;margin-top:29px;margin-right:35px;width:295x;background:url(Texture/Aries/Dock/kids/ext_bar_bg_32bits.png);"></div>
+        <pe:gridview style="margin-left:100px;width:190px;height:45px;" name="extBtnsBar" AllowPaging="false" ItemsPerLine="6" DefaultNodeHeight = "45" pagesize="6"
+            OnPageIndexChanged="PageIndexChanged()"
+            DataSource='<%=ds_ExtBtns%>'>
+	        <Columns>
+                <div style="width:45px;">
+                <div align="center" style="width:43px;position:relative;">
+                    <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:43px;height:43px;"></pe:goalpointer>
+                    <input type="button" name='<%=Eval("name")%>' tooltip='<%=Eval("tooltip")%>' 
+                        onclick="DoShowPage_StaticBtn" background='<%=Eval("icon") or ""%>' style="position:relative;width:43px;height:43px;" />
+                </div>
+                <!--<div zorder="1" align="center" style='<%=format("position:relative;margin-top:32px;%s", Eval("text_icon") or "") %>'></div>-->
+                </div>
+	        </Columns>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+        </pe:gridview>
+    </pe:container>
+</pe:if>
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

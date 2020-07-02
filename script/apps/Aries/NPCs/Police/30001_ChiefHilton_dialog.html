@@ -1,0 +1,229 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30001_ChiefHilton_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30001_ChiefHilton_dialog, by Andy, 2009/7/22</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- GSID: 10106: police dog
+
+Condition1 = function()
+    -- hasn't accepted the quest yet
+    return (not hasGSItem(50001));
+end;
+Condition2 = function()
+    -- has accepted the quest yet, but not with a police dog
+    return (hasGSItem(50001) and not hasGSItem(50002) and not equipGSItem(10106));
+end;
+Condition3 = function()
+    -- has accepted the quest yet and with a police dog
+    return (hasGSItem(50001) and not hasGSItem(50002) and equipGSItem(10106));
+end;
+
+--Condition4 = function()
+    -- has complete the quest
+--    return (hasGSItem(50002));
+--end;
+
+function EntryAction(from, to)
+    if(from == 1 and to == 5) then
+        -- accept the quest
+	    ItemManager.PurchaseItem(50001, 1, function(msg) end, function(msg)
+		    if(msg) then
+			    log("+++++++Accept Police Inaugural Quest return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+			        -- flash the quest icon and append quest status
+			        MyCompany.Aries.Desktop.QuestArea.FlashQuestMedalIcon();
+			        MyCompany.Aries.Quest.NPCs.ChiefHilton.RefreshStatus();
+			    end
+		    end
+	    end);
+    elseif(from == 0 and to == 3) then
+        -- finish the quest
+        -- exid 19: Police_InauguralQuestComplete
+        -- TODO: ============== this function is called twice ==============
+        ItemManager.ExtendedCost(19, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 19: Police_InauguralQuestComplete return: +++++++\n")
+		    commonlib.echo(msg);
+		    MyCompany.Aries.Quest.NPCs.ChiefHilton.RefreshStatus();
+		    if(msg.issuccess == true) then
+		        MyCompany.Aries.Quest.NPCs.StandGuardPost.RefreshStatus();
+		    end
+        end);
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+NPL.load("(gl)script/apps/Aries/Quest/NPCAIMemory.lua");
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30002);
+
+ConditionDuty1 = function()
+	if(not hasGSItem(50002)) then
+		memory.dialog_state = 1;
+        return true;
+    else
+		-- 50003_StandGuardPost_DailyQuestAccept
+		local gsObtain = ItemManager.GetGSObtainCntInTimeSpanInMemory(50003);
+        local bHas, guid = hasGSItem(50003)
+        if(gsObtain and gsObtain.inday == 0 and bHas) then
+	        -- destroy the item if the quest is not obtained today
+	        ItemManager.DestroyItem(guid, 1, function() end);
+        end
+		if(gsObtain and gsObtain.inday > 0 and not hasGSItem(50003)) then
+			memory.dialog_state = 3;
+			-- reward for diffenent medals
+			if(hasGSItem(20008)) then
+				memory.reward = 1800;
+			elseif(hasGSItem(20007)) then
+				memory.reward = 1200;
+			elseif(hasGSItem(20006)) then
+				memory.reward = 800;
+			elseif(hasGSItem(20004)) then
+				memory.reward = 500;
+			else
+				memory.reward = 400;
+			end
+		else
+			memory.dialog_state = 2;					
+			NPL.load("(gl)script/apps/Aries/NPCs/Police/30006_StandGuardPost.lua");
+			memory.zonename = MyCompany.Aries.Quest.NPCs.StandGuardPost.GetPostZoneName();			
+			memory.zoneAssigned = true;
+		end	
+    end
+    return false;
+end;
+ConditionDuty2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+ConditionDuty3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+
+zonename = memory.zonename or "";
+reward = memory.reward or "";
+
+dialog2_text = "你今天的执勤任务是在"..zonename.."片区巡逻，具体的巡逻的线路在"..zonename.."片区的巡逻亭上有，赶紧去看看吧。";
+
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30001" />
+            <pe:placeholder id="name" source="{this}" value="希尔警长" />
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+	<!--		    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/> -->
+
+			    <pe:answer-if condition = '<%=Eval("ConditionDuty1")%>' target_state = "21"/>
+			    <pe:answer-if condition = '<%=Eval("ConditionDuty2")%>' target_state = "22"/>
+			    <pe:answer-if condition = '<%=Eval("ConditionDuty3")%>' target_state = "23"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    维护哈奇小镇的安定与和平是我们的警官的职责！只有勇敢聪明的小哈奇才能胜任！<br/>
+            你想成为哈奇小镇的一名警官吗？
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "5"/>
+		    </pe:answer>
+		    <br/>
+	    </pe:state>
+	    <pe:state id = "2">
+		    每一名警官，都一只汪汪狗，你去魔法密林神奇的浆果树附近看看吧，汪汪狗最喜欢浆果！带上你的汪汪狗过来，你才能成为警察！
+		    <pe:answer text="知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		   恭喜你成为了一名警官，送你全套警服，记得穿上它们，带着旺旺狗多去巡逻！别忘记在门口的徽章框中领一枚徽章，巡逻中不明白的问题，可以问问小勇！
+		    <pe:answer text="确定" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+<!--	    <pe:state id = "4">
+		    春回大地，春暖花开，大家可以去外面舒服的晒太阳了。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state> -->
+	    <pe:state id = "5">
+		    每个警官都需要一个好帮手——警犬；<br/>
+            <div style="float:left;color:#FF0000">汪汪狗</div>，可以成为优秀的警犬，快去寻找属于你的警犬吧！
+
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "21">
+	        真遗憾，你还不是一名哈奇小镇的警官，不能参与巡逻值勤。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "22">
+		    <%=Eval("dialog2_text")%>
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "23">
+		    你今天的巡逻执勤任务已经完成，并且领取过工资啦，请明天再来吧！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

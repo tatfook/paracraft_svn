@@ -1,0 +1,86 @@
+<!-- "script/apps/Aries/Family/FamilySearchResultPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Family/FamilyHelper.lua");
+local FamilyHelper = commonlib.gettable("Map3DSystem.App.Family.FamilyHelper");
+NPL.load("(gl)script/apps/Aries/Family/FamilyListPage.lua");
+local FamilyListPage = commonlib.gettable("Map3DSystem.App.Family.FamilyListPage");
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+function GetValue(key)
+    if(FamilyListPage.search_result_node)then
+        local v = FamilyListPage.search_result_node[key];
+        return v;
+    end
+end
+function DoJoin()
+    if(FamilyListPage.search_result_node)then
+        FamilyHelper.DoRequest(FamilyListPage.search_result_node.id);
+    end
+end
+function GetMemberCnt()
+    if(FamilyListPage.search_result_node)then
+        local members = FamilyListPage.search_result_node.members;
+        if(members)then
+            local len = #members;
+            local s = string.format("%d/%d",len,FamilyListPage.search_result_node.maxcontain or 0);
+            return s;
+        end
+    end
+end
+]]></script>
+  <div style="width:330px;height:470px;" class="window">
+    <div class="titlebar">
+      <div class="windowicon"><div style="width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/wintitle/family_icon_32bits.png)" /></div>
+      <div class="windowiconlabel">家族信息</div>
+      <input type="button" onclick="ClosePage()" class="closebutton" align="right" style="position:relative;margin-right:5px;" />
+    </div>
+    <div style="margin:5px;" class="clientarea">
+        <div style="float:right;margin-top:10px;margin-left:110px;width:300px;" class="defaultcolor">
+            <pe:name nid='<%=GetValue("admin")%>' linked=true/>的家族
+        </div>
+        <div style="width:310px;height:370px;margin-top:5px;" class="inborder">
+        <div style="margin-top:10px;">
+            <div style="float:left;width:150px;height:25px;text-align:center">家族名称:</div>
+            <div style="float:left;width:150px;height:25px;"><%=GetValue("name")%></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族编号:</div>
+            <div style="float:left;width:150px;height:25px;"><%=GetValue("id")%></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族等级:</div>
+            <div style="float:left;width:150px;height:25px;"><%=GetValue("level")%></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族人数:</div>
+            <div style="float:left;width:150px;height:25px;"><%=GetMemberCnt()%></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">活跃度:</div>
+            <div style="float:left;width:150px;height:25px;"><%=GetValue("activity")%></div>
+        </div>
+         <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族宣言:</div>
+            <div style="float:left;width:150px;">
+            <%=GetValue("desc")%>
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:255px;margin-top:5px;">
+        <input type="button" value="申请加入" class="defaultbutton" onclick="DoJoin()"/>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

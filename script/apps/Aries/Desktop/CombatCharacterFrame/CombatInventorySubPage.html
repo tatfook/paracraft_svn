@@ -1,0 +1,138 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatInventorySubPage, by zrf, 2010/9/6</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" refresh="false" src="CombatInventorySubPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local CombatInventorySubPage = MyCompany.Aries.Desktop.CombatInventorySubPage;
+CombatInventorySubPage.curpage = 1; -- force first page
+CombatInventorySubPage.Init();
+
+function OnRadioClick(value)
+    CombatInventorySubPage.curpage = tonumber(value);
+    page:CallMethod("AriesInventoryAvatarSubView" .. CombatInventorySubPage.curpage, "Refresh", 0.01);
+end
+
+function onGotoNextPage()
+    Page:SetValue("TooltipsPPT", "next")
+end
+function onGotoStartPage()
+    if(CombatInventorySubPage.GetPage()~=2) then
+        OnRadioClick("2");
+    end
+    Page:SetValue("TooltipsPPT", "inventory1")
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+end
+--[[local ArrowPointer = commonlib.gettable("MyCompany.Aries.Desktop.GUIHelper.ArrowPointer");
+if(ArrowPointer.IsArrowShown("InventoryUI_Arrow")) then
+    ArrowPointer.RemoveArrow("InventoryUI_Arrow");
+    onGotoStartPage();
+end]]
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:0px;margin-left:-10px;width:660px;height:390px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:334px;margin-top:37px;width:59px;height:59px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="8" style="float:left;position:relative;margin-left:350px;margin-top:115px;width:32px;height:32px;" />
+        <div style="margin-left:250px;margin-top:218px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			这些是你已获得的装备，用鼠标点击一下就可以穿到身上！
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+    <div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:21px;margin-top:65px;width:38px;height:38px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+		<pe:arrowpointer name="ui_tip" direction="4" style="float:left;position:relative;margin-left:80px;margin-top:66px;width:32px;height:32px;" />
+        <div style="margin-left:250px;margin-top:156px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			这些是你已经穿在身上的装备，用鼠标点击一下就能把它再放回背包里
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="full" style="margin-left:5px;margin-top:280px;width:353px;height:132px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <div style="margin-left:250px;margin-top:162px;width:300px;padding:8px;color:#d58302;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31)">
+			好了，穿和脱装备就这么简单，其他衣服和鞋子也都是一样，以后自己多试试吧！
+            <input type="button" onclick="onGotoNextPage" name="next" style="width:139px;height:32px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 32);" />
+		</div>
+	</div>
+</pe:powerpoint>
+<pe:if condition='<%=true or System.options.isAB_SDK%>'>
+    <div style="position:relative;margin-left:275px;margin-top:13px;">
+        <input type="button" zorder="1" name="whatisthis" tooltip="点击看帮助" style="color:#003399;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark5_32bits.png);" value="" onclick="onGotoStartPage" />
+    </div>
+</pe:if>
+<div style="position:relative;margin-top:5px;width:645px;height:375px;">
+    <div style="position:relative;float:left;margin-left:0px;margin-top:0px;width:308px;height:375px;background:url(Texture/Aries/Common/ThemeKid/pannel_bg2_32bits.png:5 5 8 8);">
+        <iframe name="AriesInventoryAvatarView" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatAvatarView.html"/>
+    </div>
+    <div style="position:relative;margin-left:308px;margin-top:0px;">
+            <pe:tabs class="tabs" name="tabs" style="width:345px;height:375px;" ItemSpacing="1" onclick ="OnRadioClick"> 
+                <pe:tab-item name="1" text="全部" style="padding-left:0px;width:35px;" selected="true">
+                    <form name="frmAll">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView1" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="2" text="帽子"  style="padding-left:0px;width:35px;">
+                    <form name="frmHat">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView2" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="3" text="衣服"  style="padding-left:0px;width:35px;">
+                    <form name="form3">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView3" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="4" text="鞋子"  style="padding-left:0px;width:35px;">
+                    <form name="form4">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView4" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="5" text="饰品" style="padding-left:0px;width:35px;">
+                    <form name="form5">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView5" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="6" text="背部"  style="padding-left:0px;width:35px;">
+                    <form name="form6">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView6" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="7" text="手持"  style="padding-left:0px;width:35px;">
+                    <form name="form7">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView7" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>
+                <pe:tab-item name="8" text="卡片包"  style="padding-left:0px;width:45px;">
+                    <form name="form8">
+                    <div style="position:relative;margin-left:0px;margin-top:0px;width:345px;height:375px;">
+                        <iframe name="AriesInventoryAvatarSubView8" src="script/apps/Aries/Desktop/CombatCharacterFrame/CombatInventorySubPage_view.html"/>
+                    </div>
+                    </form>
+                </pe:tab-item>                
+            </pe:tabs>             
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

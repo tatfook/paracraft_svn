@@ -1,0 +1,160 @@
+﻿<!-- "script/apps/Orion/Desktop/LoggedInHomePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LoggedInHomePage file, by LiXizhi, 2008/10/27</title>
+</head>
+<body>
+<pe:mcml style="max-width: 640px" align="center" trans="ParaworldMCML">
+<script type="text/npl" src="LoggedInHomePage.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local uid = pageCtrl:GetRequestParam("uid") or Map3DSystem.App.profiles.ProfileManager.GetUserID();
+if(uid and uid~="") then
+    pageCtrl:SetNodeValue("uid", uid);
+end
+
+hostuid = pageCtrl:GetNodeValue("uid")
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsStoryFeed = Eval("dsStoryFeed") or {status=nil, };
+     
+function DS_Func_ActionFeed_Story(index)
+    return Map3DSystem.App.ActionFeed.DataSourceFunc(index, dsStoryFeed, hostuid, "Story", pageCtrl)
+end
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsMsgFeed = Eval("dsMsgFeed") or {status=nil, };
+
+function DS_Func_ActionFeed_Message(index)
+    return Map3DSystem.App.ActionFeed.DataSourceFunc(index, dsMsgFeed, hostuid, "Message", pageCtrl)
+end
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsRequestFeed = Eval("dsRequestFeed") or {status=nil, };
+
+function DS_Func_ActionFeed_Request(index)
+    return Map3DSystem.App.ActionFeed.DataSourceFunc(index, dsRequestFeed, hostuid, "Request", pageCtrl)
+end
+
+local nStoryCount = DS_Func_ActionFeed_Story();
+if(nStoryCount) then
+    local node = pageCtrl:GetNode("StoryTab")
+    if(node) then
+        node:SetAttribute("text", string.format(CommonCtrl.Locale("ParaworldMCML")"新鲜事(%d)", nStoryCount))
+    end
+end
+
+local nMessageCount = DS_Func_ActionFeed_Message();
+if(nMessageCount) then
+    local node = pageCtrl:GetNode("MessageTab")
+    if(node) then
+        node:SetAttribute("text", string.format(CommonCtrl.Locale("ParaworldMCML")"悄悄话(%d)", nMessageCount))
+    end
+end
+
+local nRequestCount = DS_Func_ActionFeed_Request();
+if(nRequestCount) then
+    local node = pageCtrl:GetNode("RequestTab")
+    if(node) then
+        node:SetAttribute("text", string.format(CommonCtrl.Locale("ParaworldMCML")"请求(%d)", nRequestCount))
+    end
+end
+
+]]></script>
+<input type="hidden" name="uid"/>
+<div style="padding:5px" class="box">
+    <div>
+        <div style="float:left;">
+            <a tooltip="编辑头像" href="script/kids/3DMapSystemApp/profiles/ProfileRegPage.html?tab=uploadphoto" target="_self">
+                <pe:profile-photo uid="loggedinuser" width="120" height="90"/>
+            </a>
+        </div>
+        <div style="float:left;margin-left:10px">
+            <a tooltip="编辑你的档案, 头像图片等"  href="script/kids/3DMapSystemApp/profiles/ProfileRegPage.html" target="_self"><pe:name uid="loggedinuser" useyou="false" linked="false" style="font-weight:bold;"/>(编辑档案)</a><span style="margin:5px">欢迎回来!</span><br />
+            <span style="font-weight:bold;">欢迎体验3D聊天、交友平台!</span><br />
+            <hr />
+            <a tooltip="看看你的朋友的最新动态" href="script/kids/3DMapSystemApp/profiles/FriendsPage.html" target="_self"><img style="background:url(Texture/3DMapSystem/common/Users_Group.png);width:16px;height:16px;margin:3px" />好友列表</a>
+        </div>
+    </div>
+    <div style="float:left;" width="70%">
+    <pe:tabs name="Feeds" style="margin-right:5px">
+    <pe:tab-item name="StoryTab" text="新鲜事" selected="true" style="padding:5px">
+        <img style="margin-top:1px;margin-right:10px; background:url(Texture/3DMapSystem/common/feed.png);width:16px;height:16px;" />新鲜事
+        <div style="float:left;margin-left:10px">
+            <a onclick="Map3DSystem.App.Commands.Call" param1="Profile.ActionFeed.Add" tooltip="发消息给你的朋友们"><img style="margin-top:2px;margin-right:5px; background:url(Texture/3DMapSystem/common/feed_add.png);width:16px;height:16px;" />发迷你消息</a>
+            <a tooltip="将所有的新鲜事清空" name="clearStoryFeed" onclick="MyCompany.Orion.LoggedInHomePage.ClearFeed" param1='Story'><img style="background:url(Texture/3DMapSystem/common/Trash.png);width:16px;height:16px;margin:3px" />清空记录</a>
+        </div>
+        <br />
+        <pe:gridview DataSource="<%=DS_Func_ActionFeed_Story%>" name="gvwActionFeeds" CellPadding="5"  DefaultNodeHeight = "25">
+            <Columns>
+                <%=Eval("mcml")%>
+                <hr />
+            </Columns>
+            <EmptyDataTemplate>
+	            <b><pe:name uid='<%=Eval("hostuid")%>' linked="false" />的周围,最近没有发生新鲜事</b>
+	            <div style="color:#808080;">同过交朋友, 玩游戏, 创造或访问世界等行为, 你将会从你的好友和访问者那里获得他们的新鲜事, 
+	            同时你也为你的好友提供了新鲜事.</div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在获取, 请稍候 ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item name="MessageTab" text="悄悄话"  style="padding:5px">
+        <img style="margin-top:1px;margin-right:10px; background:url(Texture/3DMapSystem/common/comment.png);width:16px;height:16px;" />悄悄话
+        <a tooltip="将所有的悄悄话清空" name="clearMessageFeed" onclick="Map3DSystem.App.Login.LoggedInHomePage.ClearFeed" param1='Message'><img style="background:url(Texture/3DMapSystem/common/Trash.png);width:16px;height:16px;margin:3px" />清空记录</a>
+        <br />
+        <pe:gridview DataSource="<%=DS_Func_ActionFeed_Message%>" name="gvwActionFeeds_message" CellPadding="5"  DefaultNodeHeight = "25">
+            <Columns>
+                <%=Eval("mcml")%>
+                <hr />
+            </Columns>
+            <EmptyDataTemplate>
+                <b>最近没有人给<pe:name uid='<%=Eval("hostuid")%>' linked="false" />留言</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在获取, 请稍候 ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item name="RequestTab" text="请求"  style="padding:5px">
+        <img style="margin-top:1px;margin-right:10px; background:url(Texture/3DMapSystem/common/information.png);width:16px;height:16px;" />请求
+        <a tooltip="将所有的请求清空" name="clearRequestFeed" onclick="Map3DSystem.App.Login.LoggedInHomePage.ClearFeed" param1='Request'><img style="background:url(Texture/3DMapSystem/common/Trash.png);width:16px;height:16px;margin:3px" />清空记录</a>
+        <br />
+        <pe:gridview DataSource="<%=DS_Func_ActionFeed_Request%>" name="gvwActionFeeds_request" CellPadding="5"  DefaultNodeHeight = "25">
+            <Columns>
+                <%=Eval("mcml")%>
+                <hr />
+            </Columns>
+            <EmptyDataTemplate>
+                <b>最近没有人给<pe:name uid='<%=Eval("hostuid")%>' linked="false" />留言</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在获取, 请稍候 ... </b>
+            </FetchingDataTemplate>
+        </pe:gridview>
+    </pe:tab-item>
+    </pe:tabs>
+    </div>
+    <div style="float:left;padding:5px;" class="box">
+        <div style="font-weight:bold;">找朋友</div>
+        <div style="margin-top:5px">
+            <img style="margin-right:10px;background:url(Texture/3DMapSystem/common/search.png);width:16px;height:16px;" />
+            <a href="script/kids/3DMapSystemApp/profiles/FriendsFinder.html" target="_self">查找你认识的朋友</a><font style="color:#808080;">通过好友的姓名或邮件地址, 搜索你认识的朋友.</font>
+        </div>
+        <hr />
+        <div style="margin-top:5px">
+            <img style="margin-right:10px;background:url(Texture/3DMapSystem/common/user_add.png);width:16px;height:16px;" />
+            <a href="script/kids/3DMapSystemApp/profiles/InviteFriends.html" target="_self">邀请你的朋友</a><font style="color:#808080;">发电子邮件给你的好友</font>
+        </div>
+        <hr />
+        <div style="margin-top:5px">
+            <img style="margin-right:10px;background:url(Texture/3DMapSystem/common/help.png);width:16px;height:16px;" />
+            <a href="script/kids/3DMapSystemApp/profiles/FriendsFinder.html?tab=support" target="_self">询问热心居民</a><font style="color:#808080;">从我们的热心居民获得帮助</font>
+        </div>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>

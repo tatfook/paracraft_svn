@@ -1,0 +1,358 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListSub_battlefield_contest.html" -->
+<!-- "script/apps/Aries/GoldRankingList/GoldRankingListSub_common.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListSub_2, by zrf, 2011/1/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GoldRankingListMain.lua" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/GoldRankingList/ranking_server.lua");
+local RankingServer = commonlib.gettable("MyCompany.Aries.GoldRankingList.RankingServer");
+
+GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+
+local page = document:GetPageCtrl();
+
+listname = GoldRankingListMain.cur_item.listname;
+rankname = GoldRankingListMain.cur_item.rank_id or GoldRankingListMain.cur_item.listname;
+is_boss = if_else(GoldRankingListMain.cur_item.is_boss, true, false);
+local rankdata = RankingServer.GetRankByName(rankname, GoldRankingListMain.cur_item.school, MyCompany.Aries.ExternalUserModule:GetRegionID());
+
+function GetRankName()
+    if (listname=="family_level") then
+        return "家族"
+    else
+        return "昵称"
+    end
+end
+
+function GetRankValue()
+    if (listname=="popularity") then
+        return "人气"
+    elseif (listname=="homevisit") then
+        return "家园热度"
+    elseif (listname=="family_level") then
+        return "家族活跃度"
+    elseif (listname=="dragon_level") then
+        return "等级"
+    elseif (is_boss) then
+        return "回合数"
+    elseif (rankdata and rankdata.gsid) then
+        return "分数"
+    else    	
+    	return "本月总积分"
+    end
+end
+
+function GetRankValue2()
+    if (listname=="dragon_level") then
+        return "当前经验"
+    elseif (rankdata) then
+        return "提交日期"
+    else
+    	return "战斗等级"
+    end
+end
+
+function GetList2Title()
+    if (listname=="family_level") then
+        return "族长"
+    else
+    	  return "所在家族"
+    end
+end
+
+function BottomTips()
+    local chkListName=string.find(listname,"all");
+    local chkBoss=string.find(listname,"boss");
+    local chkPKWinner=string.find(listname,"winner");
+    local s="";
+    if (listname=="family_pk") then
+        local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+        local rk_id = ExternalUserModule:GetRankID();
+        if (rk_id==0) then
+            s="温馨提示: 家族总积分 = 本家族所有成员赛场各项目的积分总和。每赛季积分从每月1日起计算，优胜家族的主力将获得飞龙坐骑！家族活跃度大于800才可排名！";
+        else
+            s="温馨提示: 家族总积分 = 本家族所有成员赛场各项目的积分总和。每赛季积分从每月1日起计算，优胜家族的主力将获得飞龙坐骑！家族活跃度大于100才可排名！";
+        end
+    elseif (listname=="boss_family") then
+        local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+        local rk_id = ExternalUserModule:GetRankID();
+        if (rk_id==0) then
+            s="温馨提示: 家族成员挑战所有BOSS总积分。每人积分=(600-该成员总回合数)*等级系数。每赛季积分从每月1日起计算，优胜家族的族长和主力将在月底获得大奖！家族活跃度大于800才可排名！";
+        else
+            s="温馨提示: 家族成员挑战所有BOSS总积分。每人积分=(600-该成员总回合数)*等级系数。每赛季积分从每月1日起计算，优胜家族的族长和主力将在月底获得大奖！家族活跃度大于800才可排名！";
+        end
+    elseif (listname=="popularity") then
+        return "找朋友投票！"
+    elseif (listname=="homevisit") then
+        return "把家园布置漂亮些，邀请朋友去你家看看，可以增加家园热度呢！"
+    elseif (listname=="family_level") then
+        return "把家族里的族员都动员起来吧，每天都来家族看看，提升家族活跃度！所在家族的活跃度大于800才可以参加每赛季的赛场家族榜排名哦！"
+    elseif (listname=="pets") then
+        return "温馨提示: 使用战宠口粮可以是战宠快速升级！"
+    elseif (chkBoss) then
+        s="去接受挑战Boss吧，精彩对决!";
+    elseif (chkPKWinner) then
+        s="温馨提示: 本月总积分 = 本项目的积分 * 自己所处等级段对应的修正系数。每赛季排名积分从每月1日起计算";
+    elseif (string.match(listname,"^pk")) then
+        s="温馨提示: 每月1号积分清零, 开始新的赛季, 同时上赛季用户可以领奖.";
+    elseif (rankdata and (rankdata.gsid or RankingServer.IsSpecialRankingName(rankname))) then
+        s="温馨提示: 为了保护您的隐私, 您需要手工提交您的分数才能上榜哦！先提交者名次靠前！";
+    end
+    return s;
+end
+
+function ShowMLevel(mlvl)
+	mlvl = tonumber(mlvl);
+	if(mlvl >= 0 )then
+		return "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/" .. mlvl .. "_32bits.png;0 0 16 10";
+	end
+	return "";
+end
+
+function FamilySignIn()
+    page:CloseWindow();
+    local FamilyMembersPage = commonlib.gettable("Map3DSystem.App.Family.FamilyMembersPage");
+    FamilyMembersPage.ShowPage();
+end
+
+function GotoMatch()
+    page:CloseWindow();
+	NPL.load("(gl)script/apps/Aries/CombatRoom/BattleFieldTeam.lua");
+    local BattleFieldTeam = commonlib.gettable("MyCompany.Aries.CombatRoom.BattleFieldTeam");
+    BattleFieldTeam.ShowPage();
+end
+
+function IsPK()
+	local ispk=string.find(string.lower(listname),"pk_");
+	if (ispk) then
+		return true;
+	else
+		return false;
+	end
+end
+
+function IsBoss()
+	return is_boss;
+end
+
+function IsGsid()
+    if(rankdata and rankdata.gsid) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetGsidBag()
+    if(rankdata and rankdata.bag) then
+        return rankdata.bag;
+    end
+end
+
+function GetGsid()
+    if(rankdata and rankdata.gsid) then
+        return rankdata.gsid;
+    end
+end
+
+function IsSpecialName()
+    if(rankdata and RankingServer.IsSpecialRankingName(rankname)) then
+        return true;
+    else
+        return false;
+    end
+end
+
+function GetSpecialScore()
+    if(RankingServer.IsSpecialRankingName(rankname)) then
+        return RankingServer.GetClientCombatScore(rankname, GoldRankingListMain.cur_item.school)
+    end
+end
+
+function SubmitScore()
+    GoldRankingListMain.SubmitScore(listname);
+end
+
+function GetLastReward()
+    if(true or System.options.isAB_SDK) then
+        GoldRankingListMain.GetLastReward(rankname, rankdata);
+    else
+        _guihelper.MessageBox("领奖即将开放, 请期待!");
+    end
+end
+
+function ToggleRankDate()
+    if(rankdata) then
+        if(rankdata.last_rank_date and rankdata.rank_date) then
+            if(GoldRankingListMain.rankdate_selected) then
+                GoldRankingListMain.rankdate_selected = nil;
+            else
+                GoldRankingListMain.rankdate_selected = rankdata.last_rank_date;
+                local date = commonlib.timehelp.get_next_date_str(rankdata.last_rank_date, -1);
+                GoldRankingListMain.GetRankingData(GoldRankingListMain.curpage, date, nil, "access plus 1 year");
+            end
+            Page:Refresh(0.01);
+        end
+    end
+end
+
+function GetRankDateRangeText()
+    if(rankdata) then
+        if(rankdata.last_rank_date and rankdata.rank_date) then
+            local rank_date_mcml; 
+            local last_rank_date = string.gsub(tostring(rankdata.last_rank_date), "^(%d%d%d%d)(%d%d)(%d%d)", "%1-%2-%3") ;
+            local rank_date = string.gsub(tostring(rankdata.rank_date), "^(%d%d%d%d)(%d%d)(%d%d)", "%1-%2-%3") ;
+            if(GoldRankingListMain.rankdate_selected) then
+                rank_date_mcml = "上赛季"
+                rank_date_mcml = rank_date_mcml.."<input type='button' class='button' style='margin-right:10px;margin-top:-2px;font-size:12px' value='领奖' onclick='GetLastReward'/><input type='button' value='查看本赛季' class='button' style='margin-top:-2px;' onclick='ToggleRankDate'/>";
+                --rank_date_mcml = rank_date_mcml.."<input type='button' value='查看本赛季' style='font-size:12px' class='button' onclick='ToggleRankDate'/>";
+            else
+                if(rankdata.weekly) then
+                    rank_date_mcml = format("每周排行榜：%s - %s", last_rank_date, rank_date)
+                elseif(rankdata.monthly) then
+                    rank_date_mcml = format("每月排行榜：%s - %s", last_rank_date, rank_date)
+                elseif(rankdata.seasonly) then
+                    rank_date_mcml = format("赛季排行榜：%s - %s", last_rank_date, rank_date)
+                elseif(rankdata.daily == "true") then
+                    rank_date_mcml = format("每日排行榜：%s", last_rank_date)
+                end
+                rank_date_mcml = rank_date_mcml..format("<input type='button' class='button' value='查看上赛季' tooltip='%s' style='font-size:12px;margin-top:-1px;' onclick='ToggleRankDate'/>",  "");
+            end
+            return rank_date_mcml;
+        end
+    end
+end
+
+function GetRankFullName()
+    if(rankdata) then
+        return rankdata.fullname;
+    end
+end
+
+function GetSelfFinghtingSpiritCount()
+    local ItemManager = commonlib.gettable("System.Item.ItemManager");
+    local behas,_,_,copies = ItemManager.IfOwnGSItem(52102);
+    copies = if_else(copies,copies,0);
+    return "本月最高战魂值:"..tostring(copies);
+end
+]]></script>
+<div style="position:relative;margin-left:20px;width:575px;height:365px;background:url(Texture/Aries/GoldRankingList/battlefield_rank_bg.png#0 0 64 64:24 24 24 24);">
+    <div style="width:565px;height:34px;margin-top:3px;margin-left:3px;background:url(Texture/Aries/GoldRankingList/battlefield_btn_bg.png#0 0 32 32:15 15 15 15);" >
+        <div style="margin-top:6px;font-size:16;base-font-size:16;font-weight:bold;">
+            <div style="float:left;margin-left:20px;">
+            名次
+            </div>
+            <div style="float:left;margin-left:35px;">
+            昵称
+            </div>
+            <div style="float:left;margin-left:45px;">
+            本月最高战魂值
+            </div>
+            <!--<pe:if condition='<%=Eval("listname") ~= "family_level"  %>'>
+            <div style="position:relative;margin-left:325px;">
+            <%=GetRankValue2() %>
+            </div>
+            </pe:if> -->
+            <div style="float:left;margin-left:25px;">
+            提交日期
+            </div>
+            <div style="float:left;margin-left:55px;">
+            奖品
+            </div>
+        </div>
+        
+    </div>
+    <div style="position:relative;margin-left:6px;margin-top:3px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:36px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:69px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:102px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:135px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:168px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:201px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;margin-left:6px;margin-top:234px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" />
+    <div style="position:relative;width:450px;height:264px;" >
+        <pe:gridview DataSource="<%=MyCompany.Aries.GoldRankingList.GoldRankingListMain.DS_Func_Sub%>" 
+        name="GoldRankingListSub" CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="8">
+            <Columns>
+                <!--<div style="margin-left:6px;margin-top:3px;width:430px;height:30px;background:url(Texture/Aries/GoldRankingList/battlefield_every_rank_bg.png#0 0 32 32:15 15 15 15);" >-->
+                <div style="margin-left:6px;margin-top:3px;width:430px;height:30px;" >
+                    <div style='<%=if_else(Eval("index")<=5, "color:#ff0000", "color:#000000") %>'>
+                        <div style="position:relative;margin-left:10px;margin-top:2px;width:41px;height:30px;text-align:center;">
+                            <%=Eval("index") %>
+                        </div>
+                        <div style="position:relative;margin-left:18px;margin-top:2px;width:196px;height:30px;text-align:center;">
+                            <pe:name nid='<%=Eval("nid") %>' value='<%=Eval("name") %>' a_style="width:190px;text-align:center;"/>    
+                        </div>
+                        <div style="position:relative;margin-left:208px;margin-top:2px;width:80px;height:30px;text-align:center;font-size:12px;">
+                            <pe:if condition='<%=IsBoss()%>'>
+                                <%=10000-Eval("field1") %>
+                            </pe:if>
+                            <pe:if condition='<%=not IsBoss()%>'>
+                                <%=Eval("field1") %>
+                            </pe:if>
+                        </div>
+                        <div style="position:relative;margin-left:300px;margin-top:2px;width:130px;height:30px;text-align:center;">
+                            <%=Eval("field2") %>
+                        </div>
+                    </div>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                    <div style="text-align:center;margin-top:10px" class="default">暂时没有排行榜数据</div>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                    <div style="text-align:center;margin-top:20px" class="default">正在加载中...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:0px;margin-top:-5px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+                <form>
+                    <div style="margin-top:10px;width:600px;font-size:12px;color:#FCEA98">
+                        <div style="float:left;width:300px;margin-left:10px;margin-right:10px;margin-top:3px;" class="default">
+                            <%=GetRankDateRangeText()%>
+                        </div>
+                        <div style="float:left;">
+	                        <input type="button" name="pre" zorder="2" value="上一页" class="pagerbuttonleft" />
+	                        <div style="float:left;margin-top:-2px;width:64px;">
+	                            <label name="page" style="color:#FFFFFF;text-align:center;width:64px;height:18px;margin:4px;margin-left:-2px;"/>
+	                        </div>
+	                        <input type="button" name="next" zorder="2" value="下一页" class="pagerbuttonleft"  style="margin-left:-8px;"/>
+                        </div>
+                    </div>
+                </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </div>
+    <div style="position:relative;margin-left:440px;height:262px;"  class="default">
+        <pe:if condition='<%=GoldRankingListMain.GetRankingRewardMCML()~=""%>' >
+            <div style="background:url(Texture/Aries/HaqiShop/bg3_32bits.png:10 10 10 10);background-color:#ff2240;width:125px;padding:5px;" class="default">
+            <pe:treeview ItemToggleRightSpacing="0" DefaultIconSize="0" DefaultIndentation="0" style="background:;">
+                <%=GoldRankingListMain.GetRankingRewardMCML()%>
+            </pe:treeview>
+            </div>
+        </pe:if>
+    </div>
+    <div style="position:relative;font-size:12;margin-left:3px;margin-top:303px;width:552px;height:60px;color:#FCEA98;" class="border_bg2_css">
+        <div style="margin-left:10px;margin-top:3px;"><%=BottomTips() %>
+            <pe:if condition='<%=System.options.isAB_SDK%>'>
+                <pe:container zorder="2" ClickThrough="true" class="default" style="position:relative;margin-left:10px;margin-top:20px;background:;">SDK rank_id: <%=GetRankFullName() %></pe:container>
+            </pe:if>
+        </div>    
+    </div>
+    
+    <div style="position:relative;margin-left:500px;margin-top:268px;">
+        <input type="button" onclick="GotoMatch()" zorder="2" style="width:64px;height:25px;background:url(Texture/Aries/GoldRankingList/battlefield_to_match.png#0 0 64 25);" />
+    </div>
+
+    <div style="position:relative;margin-left:10px;margin-top:295px;font-size:16;base-font-size:16;font-weight:bold;color:#FCEA98;">
+        <%=GetSelfFinghtingSpiritCount() %>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

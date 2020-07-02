@@ -1,0 +1,198 @@
+﻿<!-- "script/apps/Aries/Combat/UI/MyPets_teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+MyCards = MyCompany.Aries.Combat.MyCards;
+MyCards.OnInit();
+
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+
+local CardPickerFollowPetHistoryList = MsgHandler.CardPickerFollowPetHistoryList;
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatFollowPetPane.lua");
+local CombatFollowPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatFollowPetPane");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetConfig.lua");
+local CombatPetConfig = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetConfig");
+
+local all_pet_list = CombatFollowPetPane.Load();
+local list = {};
+if(all_pet_list)then
+    local k,v;
+    for k,v in ipairs(all_pet_list) do
+        local gsid = v.gsid;
+        if(gsid)then
+			local bHas,guid = hasGSItem(gsid);
+            if(bHas and guid)then
+                v.bAvailable = not CardPickerFollowPetHistoryList[guid];
+                v.guid = guid;
+                v.level = 0;
+                v.pet_name = "";
+                v.school_icon = "";
+                
+                local item = ItemManager.GetItemByGUID(guid)
+                if(item and item.guid > 0 and item.GetExp) then
+                    local exp = item:GetExp() or 0;
+	                local pet_config = CombatPetConfig.GetInstance_Client();
+	                local levels_info = pet_config:GetLevelsInfo(item.gsid, exp);
+                    if(levels_info and levels_info.cur_level) then
+                        v.level = levels_info.cur_level;
+                    end
+                    local row = pet_config:GetRow(item.gsid);
+                    if(row and row.school) then
+                        local school_str = tostring(row.school)
+                        if(school_str == "6") then
+                            v.school_icon = "Texture/Aries/Team/fire_32bits.png";
+                        elseif(school_str == "7") then
+                            v.school_icon = "Texture/Aries/Team/ice_32bits.png";
+                        elseif(school_str == "8") then
+                            v.school_icon = "Texture/Aries/Team/storm_32bits.png";
+                        elseif(school_str == "9") then
+                            v.school_icon = "Texture/Aries/Team/myth_32bits.png";
+                        elseif(school_str == "10") then
+                            v.school_icon = "Texture/Aries/Team/life_32bits.png";
+                        elseif(school_str == "11") then
+                            v.school_icon = "Texture/Aries/Team/death_32bits.png";
+                        elseif(school_str == "12") then
+                            v.school_icon = "Texture/Aries/Team/balance_32bits.png";
+                        end
+                    end
+                end
+                if(item and item.guid > 0 and item.GetName_client) then
+                    v.pet_name = item:GetName_client() or "";
+                end
+                v.level_txt = "等级:"..tostring(v.level);
+
+                table.insert(list, v);
+            end
+        end
+    end
+end
+
+table.sort(list, function(a, b) return a.level > b.level end);
+
+
+function DS_Func_FollowPets(index)
+    if(index == nil) then
+        return #list;
+    else
+        return list[index];
+    end
+end
+
+function OnPickPet(gsid, instname, guid)
+    local item = ItemManager.GetItemByGUID(guid)
+    if(item and item.guid > 0) then
+        MsgHandler.OnPickPet(item);
+    end
+end
+
+function OnPickPet_Unavailable(gsid, instname, guid)
+    NPL.load("(gl)script/ide/TooltipHelper.lua");
+    local BroadcastHelper = commonlib.gettable("CommonCtrl.BroadcastHelper");
+    BroadcastHelper.PushLabel({id="HasPickedThisPet_before_tip", label = "这个宠物已经出战过了，请选一个其他宠物", max_duration=10000, color = "255 0 0", scaling=1.1, bold=true, shadow=true,});
+end
+
+function OnPickPet_Cancel()
+    MsgHandler.OnClickClosePetPicker();
+end
+
+function GetPetTip(guid)
+    if(not guid) then
+        return;
+    end
+    local item = ItemManager.GetItemByGUID(guid)
+    if(item and item.guid > 0) then
+        local s = string.format("page://script/apps/Aries/Combat/UI/PickPetTip.html?guid=%d", guid);
+        return s;
+    end
+end
+
+function GetPetTip_Unavailable(guid)
+    if(not guid) then
+        return;
+    end
+    local item = ItemManager.GetItemByGUID(guid)
+    if(item and item.guid > 0) then
+        local s = string.format("page://script/apps/Aries/Combat/UI/PickPetTip.html?guid=%d&bAvailable=false", guid);
+        return s;
+    end
+end
+
+]]></script>
+<pe:container alignment="_ct" ClickThrough="true" style="position:relative;margin-left:-380px;margin-top:-100px;width:800px;height:340px;background:">
+<div style="margin-left:0px;width:762px;height:200px;background:url(Texture/Aries/Combat/MyCardsTeen/card_deck_bg_32bits.png:8 20 7 24);"/>
+<div style="margin-top:-250px;width:720px;height:450px;background:;">
+    <pe:gridview DataSource="<%=DS_Func_FollowPets%>" name="HomelandStoreItemView" style="margin-left:45px;margin-top:24px;" 
+            CellPadding="0"  DefaultNodeHeight = "70" ItemsPerLine="8" AllowPaging="True" pagesize="8">
+        <Columns>
+            <div style="margin-top:50px;width:85px;height:120px">
+                <div style="width:85px;height:80px;padding:8px;background:;">
+                    <pe:if condition='<%=Eval("bAvailable") == true%>'>
+                        <div style="width:66px;height:66px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53:8 8 8 8);">
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" param1='<%=Eval("guid")%>' tooltip_is_lock_position="true" tooltip_offset_x="-39" tooltip_offset_y="87" animstyle="12" isclickable="true" onclick="OnPickPet" />
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("bAvailable") == false and (Eval("gsid") ~= 0 )%>'>
+                        <div style="width:66px;height:66px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_unslotting_32bits.png#1 1 53 53:8 8 8 8);">
+                            <pe:item gsid='<%=Eval("gsid")%>' style="width:64px;height:64px;" param1='<%=Eval("guid")%>' tooltip_is_lock_position="true" tooltip_offset_x="-39" tooltip_offset_y="87"  isclickable="true" onclick="OnPickPet_Unavailable" />
+                            <input type="button" enabled="false" style="margin-left:1px;margin-top:-63px;width:64px;height:64px;background:url(Texture/bg_black.png);"/>
+                        </div>
+                    </pe:if>
+                </div>
+
+                <div class="highbluecolor" zorder="10"  style="width:32px;height:32px;padding:2px;margin-top:-80px;text-align:center;background:Texture/Aries/Combat/CombatStateTeen/followpet_frame_32bits.png;">
+                    <img src='<%=Eval("school_icon")%>' zorder="11" style="margin-left:6px;margin-top:5px;width:16px;height:16px;"/>
+                </div>
+                <div class="highbluecolor" style="width:85px;height:20px;padding:2px;text-align:center;background:;">
+                    <%=Eval("pet_name")%>
+                </div>
+                <div class="highbluecolor" style="width:85px;height:20px;padding:2px;text-align:center;background:;">
+                    <%=Eval("level_txt")%>
+                </div>
+                
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <!--<b>你没有装备任何卡片</b>-->
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:50px;margin-top:86px;color:#ffffff;text-shadow:true;">数据加载中，请稍等.....</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="56" style="margin-left:40px;margin-top:-232px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate >
+	        <form>
+	            <div style="height:0px;margin-left:-70px;margin-top:-60px;">
+	                <input type="button" name="pre" zorder=2 
+                        Normal_BG="Texture/Aries/Login/UserSelect_PageLeft2_32bits.png; 0 0 40 40"
+                        MouseOver_BG="Texture/Aries/Login/UserSelect_PageLeft2_light_32bits.png; 0 0 40 40"
+                        Disabled_BG="Texture/Aries/Login/UserSelect_PageLeft2_grey_32bits.png; 0 0 40 40"
+                        style="width:32px;height:32px;background:Texture/Aries/Homeland/arrow_left_32bits.png;"/>
+	            </div>
+	            <div style="height:0px;margin-left:640px;margin-top:-60px;">
+	                <input type="button" name="next" zorder=2 
+                        Normal_BG="Texture/Aries/Login/UserSelect_PageRight2_32bits.png; 0 0 40 40"
+                        MouseOver_BG="Texture/Aries/Login/UserSelect_PageRight2_light_32bits.png; 0 0 40 40"
+                        Disabled_BG="Texture/Aries/Login/UserSelect_PageRight2_grey_32bits.png; 0 0 40 40"
+                        style="width:32px;height:32px;background:Texture/Aries/Homeland/arrow_right_32bits.png;"/>
+	            </div>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+
+    <input type="button" class="default_button" zorder="2" style="margin-left:344px;margin-top:-250px;width:77px;height:28px;color:#bdfdfb;shadow-quality:8;shadow-color:#80133f48;text-shadow:true;background:url(Texture/Aries/Combat/MyCardsTeen/card_button_32bits.png#0 0 32 24:11 10 11 10)" onclick="OnPickPet_Cancel" name='PickPet' text="回到卡片"/>
+</div>
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

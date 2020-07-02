@@ -1,0 +1,214 @@
+﻿<!-- "script/apps/Aries/Combat/UI/MyCards_catchpet_teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Homeland store, by Andy, 2009/6/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+MyCards = MyCompany.Aries.Combat.MyCards;
+MyCards.OnInit();
+
+Combat = MyCompany.Aries.Combat;
+
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local MsgHandler = commonlib.gettable("MyCompany.Aries.Combat.MsgHandler");
+
+mob_id = page:GetRequestParam("mob_id");
+if(mob_id) then
+    mob_id = tonumber(mob_id);
+end
+
+level = page:GetRequestParam("level");
+if(level) then
+    level = tonumber(level);
+end
+
+current_hp = page:GetRequestParam("current_hp");
+if(current_hp) then
+    current_hp = tonumber(current_hp);
+end
+
+max_hp = page:GetRequestParam("max_hp");
+if(max_hp) then
+    max_hp = tonumber(max_hp);
+end
+
+function OnCatchPetItem_Cancel()
+    MsgHandler.OnClickCatchPetItemPicker();
+end
+
+
+function ShowPurchase_12055()
+    if(not DealDefend.CanPass())then
+        return
+    end
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(12055);
+	if(gsItem) then
+		local name = gsItem.template.name;
+		local price = gsItem.ebuyprice;
+		if(name and price) then
+		    _guihelper.MessageBox(string.format([[消耗%d银币购买%s？]], price, name), function(res)
+			    if(res and res == _guihelper.DialogResult.Yes) then
+                    ItemManager.PurchaseItem(12055, 1, function(msg) end, function(msg) 
+                        MsgHandler.ShowCatchPetItemPicker(mob_id, level, current_hp, max_hp);
+                    end);
+			    end
+		    end, _guihelper.MessageBoxButtons.YesNo);
+        end
+    end
+end
+function ShowPurchase_12056()
+    if(not DealDefend.CanPass())then
+        return
+    end
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(12056);
+	if(gsItem) then
+		local name = gsItem.template.name;
+		local price = gsItem.count;
+		if(name and price) then
+		    _guihelper.MessageBox(string.format([[消耗%d金币购买%s？]], price, name), function(res)
+			    if(res and res == _guihelper.DialogResult.Yes) then
+                    ItemManager.PurchaseItem(12056, 1, function(msg) end, function(msg) 
+                        MsgHandler.ShowCatchPetItemPicker(mob_id, level, current_hp, max_hp);
+                    end);
+			    end
+		    end, _guihelper.MessageBoxButtons.YesNo);
+        end
+    end
+end
+
+function OnUseCatchPetItem_12055()
+    if(not hasGSItem(12055)) then
+		ShowPurchase_12055();
+        return;
+    end
+    if(mob_id) then
+		-- first hide card picker
+		MsgHandler.HideCardPicker();
+		MsgHandler.PickedCardKey = nil;
+		MsgHandler.PickedCardSeq = nil;
+		-- pick card
+        MsgHandler.OnPickCard("CatchPet_12055", 0, true, mob_id);
+    end
+end
+function OnUseCatchPetItem_12056()
+    if(not hasGSItem(12056)) then
+		ShowPurchase_12056();
+        return;
+    end
+    if(mob_id) then
+		-- first hide card picker
+		MsgHandler.HideCardPicker();
+		MsgHandler.PickedCardKey = nil;
+		MsgHandler.PickedCardSeq = nil;
+		-- pick card
+        MsgHandler.OnPickCard("CatchPet_12056", 0, true, mob_id);
+    end
+end
+
+function Purchase_12055()
+    ShowPurchase_12055();
+end
+
+function Purchase_12056()
+	ShowPurchase_12056();
+end
+
+local _, __, ___, count_12055 = hasGSItem(12055);
+count_12055 = count_12055 or 0;
+local _, __, ___, count_12056 = hasGSItem(12056);
+count_12056 = count_12056 or 0;
+
+count_12055_txt = tostring(count_12055);
+count_12056_txt = tostring(count_12056);
+
+
+btn_name_12055 = "";
+btn_name_12056 = "";
+
+local gsItem = ItemManager.GetGlobalStoreItemInMemory(12055);
+if(gsItem) then
+	local price = gsItem.ebuyprice;
+    btn_name_12055 = price.."银币";
+end
+local gsItem = ItemManager.GetGlobalStoreItemInMemory(12056);
+if(gsItem) then
+	local price = gsItem.count;
+    btn_name_12056 = price.."金币";
+end
+
+base_catch_chance = 0;
+
+local mylevel = Combat.GetMyCombatLevel() or 1;
+
+---- 捕捉成功率=130% / 開根號(1+(怪物等級-1)*0.15) -0.3 + (玩家等級-怪物等級)*0.5%+5%
+--base_catch_chance = 1.3 / math.sqrt(1+(level-1)*0.15) - 0.3 + (mylevel-level)*0.005 + 0.05;
+
+--蒲东宏(Leon) 11:17:03
+--捕捉成功率=Min(1/sqrt(怪物等级)*1.5/剩余血量百分比,100%)
+base_catch_chance = 1 / math.sqrt(level) * 1.5 / (current_hp / max_hp);
+
+base_catch_chance = math.ceil(base_catch_chance * 100);
+if(base_catch_chance > 100) then
+    base_catch_chance = 100;
+elseif(base_catch_chance < 0) then
+    base_catch_chance = 0;
+end
+
+base_catch_chance = tostring(base_catch_chance);
+
+base_catch_chance_txt = "当前宠物捕捉成功率是"..base_catch_chance.."%";
+
+]]></script>
+<pe:container alignment="_ct" ClickThrough="true" style="position:relative;margin-left:-380px;margin-top:-100px;width:800px;height:340px;background:">
+<div style="margin-left:190px;width:340px;height:280px;background:url(Texture/Aries/Combat/MyCardsTeen/card_deck_bg_32bits.png:8 20 7 24);">
+<div style="margin-left:30px;margin-top:30px;width:720px;height:450px;background:;">
+    <div class="block" style="float:left;margin-left:10px;margin-top:0px;width:120px;height:180px;">
+        <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:80px;background:;">
+            <pe:item gsid="12055" style="margin-left:8px;margin-top:15px;width:64px;height:64px;" animstyle="12" isclickable="true" onclick="OnUseCatchPetItem_12055" />
+        </div>
+        <div zorder="1" style="float:left;margin-left:72px;margin-top:-28px;font-weight:bold;text-align:center;width:40px;height:32px;background:;">
+            <input type="button" class="numbgbutton" enabled="false" zorder="2" name='count' value='<%=Eval("count_12055_txt")%>' style="width:32px;height:32px;font-weight:bold;"/>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:5px;width:100px;height:40px;text-align:center;background:;">
+            <%=Eval("base_catch_chance_txt")%>
+        </div>
+        <div style="float:left;margin-left:24px;margin-top:5px;width:100px;height:20px;text-align:center;background:;">
+            
+            <input type="button" zorder="2" onclick="Purchase_12055" name='purchase' value='<%=Eval("btn_name_12055")%>' style="width:77px;height:28px;;color:#bdfdfb;shadow-quality:8;shadow-color:#80133f48;text-shadow:true;background:url(Texture/Aries/Combat/MyCardsTeen/card_button_32bits.png#0 0 32 24:11 10 11 10)"/>
+        </div>
+        <!--<pe:item gsid="12055" style="width:64px;height:64px;" animstyle="12" isclickable="true" onclick="OnPickPet" />-->
+    </div>
+    <div class="block" style="float:left;margin-left:20px;margin-top:0px;width:120px;height:180px;">
+        <div style="float:left;margin-left:20px;margin-top:5px;width:80px;height:80px;background:;">
+            <pe:item gsid="12056" style="margin-left:8px;margin-top:15px;width:64px;height:64px;" animstyle="12" isclickable="true" onclick="OnUseCatchPetItem_12056" />
+        </div>
+        <div zorder="1" style="float:left;margin-left:72px;margin-top:-28px;font-weight:bold;text-align:center;width:40px;height:32px;background:;">
+            <input type="button" class="numbgbutton" enabled="false" zorder="2" name='count' value='<%=Eval("count_12056_txt")%>' style="width:32px;height:32px;font-weight:bold;"/>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:5px;width:100px;height:40px;text-align:center;background:;">
+            捕捉任何宠物必然成功
+        </div>
+        <div style="float:left;margin-left:24px;margin-top:5px;width:100px;height:20px;text-align:center;background:;">
+            
+            <input type="button" zorder="2" onclick="Purchase_12056" name='purchase' value='<%=Eval("btn_name_12056")%>' style="width:77px;height:28px;;color:#bdfdfb;shadow-quality:8;shadow-color:#80133f48;text-shadow:true;background:url(Texture/Aries/Combat/MyCardsTeen/card_button_32bits.png#0 0 32 24:11 10 11 10)"/>
+        </div>
+        <!--<pe:item gsid="12056" style="width:64px;height:64px;" animstyle="12" isclickable="true" onclick="OnPickPet" />-->
+    </div>
+    
+    <br/>
+    <input type="button" class="default_button" zorder="2" style="margin-left:100px;margin-top:20px;width:77px;height:28px;color:#bdfdfb;shadow-quality:8;shadow-color:#80133f48;text-shadow:true;background:url(Texture/Aries/Combat/MyCardsTeen/card_button_32bits.png#0 0 32 24:11 10 11 10)" onclick="OnCatchPetItem_Cancel" name='PickPet' text="回到卡片"/>
+</div>
+</div>
+</pe:container>
+</pe:mcml> 
+</body>
+</html>

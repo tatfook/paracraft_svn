@@ -1,0 +1,43 @@
+﻿<!-- "script/apps/Aries/Quest/QuestDetailPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2010/9/12</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestDetailPage.lua" refresh="false"><![CDATA[
+local QuestDetailPage = commonlib.gettable("MyCompany.Aries.Quest.QuestDetailPage");
+
+local pageCtrl = document:GetPageCtrl();
+local id = pageCtrl:GetRequestParam("id");
+local isdebug = pageCtrl:GetRequestParam("debug");
+local showbutton = pageCtrl:GetRequestParam("showbutton");
+id = tonumber(id) or 0;
+isdebug = tonumber(isdebug) or 0;
+showbutton = tonumber(showbutton) or -1;
+
+QuestDetailPage.OnInit();
+function ShowFirstURL()
+	local url = string.format("script/apps/Aries/Quest/QuestDetailFramePage.html?id=%d&showbutton=%d",id,showbutton or -1);
+    return url;        
+end
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+<div style="width:422px;height:450px;background:url(Texture/Aries/Quest/QuestList/task_bg.png#0 0 256 232:198 142 27 27);">
+<input style="margin-left:360px;margin-top:20px;width:29px;height:32px;background:url(Texture/Aries/common/close_brown_32bits.png#0 0 29 32);" type="button" name="close" onclick="ClosePage()" value=""/>
+<div>
+    <div style="float:left;">
+        <iframe style ="width:400px;height:550px;margin-left:0px;margin-top:0px;"name="detailInfo" src='<%=ShowFirstURL()%>'/>
+    </div>
+</div>
+</div>
+
+
+</pe:mcml> 
+
+</body>
+</html>

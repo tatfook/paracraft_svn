@@ -1,0 +1,222 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30205_AquaHorse_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30205_AquaHorse_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+    preferedAcinus = 21000 + instance;
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30205);
+memory[instance] = memory[instance] or {};
+memory = memory[instance];
+
+-- 10108: FollowPetXM
+
+r = math.random(0, 100);
+memory.random = memory.random or r;
+
+local hasBe,_,_,num = System.Item.ItemManager.IfOwnGSItem(50404);
+
+Condition1 = function()
+    return (not hasGSItem(10108));
+end;
+Condition2 = function()
+    return (hasGSItem(10108) and (memory.random >= 0 and memory.random <= 10) and hasBe);
+end;
+Condition3 = function()
+    return (hasGSItem(10108) and (memory.random >= 11 and memory.random <= 70) and hasBe);
+end;
+Condition4 = function()
+    return (hasGSItem(10108) and (memory.random >= 71 and memory.random <= 100) and hasBe);
+end;
+Condition5 = function()
+    return (hasGSItem(10108) and (not hasBe));
+end;
+
+function EntryAction(from, to)
+    if(from == 1 and to == 10) then
+	    ItemManager.PurchaseItem(10108, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 10108_FollowPetXM return: +++++++\n")
+			    commonlib.echo(msg);
+			    if(msg.issuccess == true) then
+                    local horse = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(npc_id, instance);
+                    if(horse and horse:IsValid() == true) then
+	                    local horseChar = horse:ToCharacter();
+	                    horseChar:Stop();
+	                    -- remove the mushroom from scene
+		                local params = {
+			                asset_file = "character/v5/09effect/Disappear/Disappear.x",
+			                binding_obj_name = horse.name,
+			                start_position = nil,
+			                duration_time = 1500,
+			                force_name = nil,
+			                begin_callback = function() end,
+			                end_callback = nil,
+			                stage1_time = 800,
+			                stage1_callback = function()
+                                    MyCompany.Aries.Quest.NPC.DeleteNPCCharacter(30205, instance);
+	                                local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30205);
+		                            memory[instance] = memory[instance] or {};
+		                            memory = memory[instance];
+		                            memory.stage = 1;
+		                            memory.shrinkCountDown = nil;
+		                            memory.shrinkStartTime = nil;
+		                            memory.isShrinking = nil;
+		                            memory.random = nil;
+		                            memory.isFull = nil;
+				                end,
+			                stage2_time = nil,
+			                stage2_callback = nil,
+		                };
+		                local EffectManager = MyCompany.Aries.EffectManager;
+		                EffectManager.CreateEffect(params);
+                    end
+			    end
+		    end
+	    end);
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 2 and to == -1) then
+        -- 500
+        -- exid 22: AquaHorse_JoyBean_500
+       ItemManager.ExtendedCost(1907, nil, nil, function(msg)
+		    log("+++++++ExtendedCost 1907:  return: +++++++\n")
+		    commonlib.echo(msg);
+			if(msg.issuccess == true) then
+				if(msg.obtains[50402]) then
+					System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="FarmerAngryDemonHammer"}});
+				end
+			end
+        end);
+		memory.isFull = nil;
+        --memory.isRewarded = true;
+    elseif(from == 3 and to == -1) then
+        -- 300
+        -- exid 21: AquaHorse_JoyBean_300
+        ItemManager.ExtendedCost(1907, nil, nil, function(msg)
+		    log("+++++++ExtendedCost 1907:  return: +++++++\n")
+		    commonlib.echo(msg);
+			if(msg.issuccess == true) then
+				if(msg.obtains[50402]) then
+					System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="FarmerAngryDemonHammer"}});
+				end
+			end
+        end);
+		memory.isFull = nil;
+        --memory.isRewarded = true;
+    elseif(from == 4 and to == -1) then
+        -- 80
+        -- exid 20: AquaHorse_JoyBean_80
+        ItemManager.ExtendedCost(1907, nil, nil, function(msg)
+		    log("+++++++ExtendedCost 1907:  return: +++++++\n")
+		    commonlib.echo(msg);
+			if(msg.issuccess == true) then
+				if(msg.obtains[50402]) then
+					System.GSL_client:SendRealtimeMessage("sPowerAPI", {name="PowerExtendedCost", params={exid="FarmerAngryDemonHammer"}});
+				end
+			end
+        end);
+		memory.isFull = nil;
+        --memory.isRewarded = true;
+    elseif(from == 5 and to == -1) then
+        NPL.load("(gl)script/apps/Aries/Pet/LittleGame.lua");
+        local LittleGame = commonlib.gettable("MyCompany.Aries.Pet.LittleGame");
+        LittleGame.ShowPage();
+        memory.isFull = nil;
+        --memory.isRewarded = true;
+    end
+    if(from ~= 10 and to == -1) then
+	    MyCompany.Aries.Quest.NPCs.AquaHorse.On_Shrink(instance);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30205" />
+            <pe:placeholder id="name" source="{this}" value='小蓝马'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+                <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    你的果冻真好吃，谢谢你！我很喜欢你，你愿意经常给我喂果冻的话，就带我回家吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    果冻真好吃，真羡慕你们家的小蓝马！这些好东西送给你，下次记得多买点果冻来喂我！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    谢谢你的果冻，不过我还是喜欢这里，这些好东西送给你，你也快回家看看你的小蓝马吧！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    我不去你家了，你家的小蓝马太能吃，我抢不过它！我今天没带多少东西出来，就全给你了！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "5">
+		    你的小游戏奖励次数已经用尽了，在小游戏页面可以购买获得奖励的次数哦！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30369_WatermelonHouse_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30369_WatermelonHouse.lua" ><![CDATA[
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+Condition1 = function()
+    return MyCompany.Aries.Quest.NPCs.WatermelonHouse.HasHouse()
+end;
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.WatermelonHouse.ItemSatisfied();
+end;
+GiveItem = function()
+    MyCompany.Aries.Quest.NPCs.WatermelonHouse.DoFinished();
+end
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30369' />
+            <pe:placeholder id="name" source="{this}" value='西瓜小屋'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = 'true' target_state = "2"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		    嘿嘿，你家的西瓜小屋住着还舒服吧，西瓜的清香沁人心脾呢。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "2">
+		    我是西瓜小屋，如果你已经从呼噜大叔那里获得了西瓜闹钟，西瓜电话，西瓜凳子，西瓜沙发这一整套西瓜家具，就可以把我也带回家了。
+		    <pe:answer template_id = "takeyouhome">
+			    <pe:answer-if condition =  '<%=Eval("Condition2")%>' target_state = "3"/>
+			    <pe:answer-if condition =  'true' target_state = "4"/>
+		    </pe:answer>
+
+		    <pe:answer template_id = "later">
+	        	<pe:answer-if condition = "true" target_state = "-1"/>
+    		</pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "3">
+	        看来你的西瓜家具都已经齐全了嘛！不错，我这就去你家，你可以回家把我摆出来入住了。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GiveItem")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "4">
+		    哎呀，你还没有得到全部的西瓜家具呢，你要有配套的西瓜家具我才跟你走呀，快去呼噜大叔那里看看吧。
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>   
+    
+</pe:mcml>
+</body>
+</html>

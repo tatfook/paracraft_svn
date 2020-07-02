@@ -1,0 +1,348 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/PetPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/ServerObjects/Gatherer/GathererBarPage.lua");
+local GathererBarPage = commonlib.gettable("MyCompany.Aries.ServerObjects.GathererBarPage");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local LOG = LOG;
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+NPL.load("(gl)script/apps/Aries/Inventory/PetPage.lua");
+local PetPage = commonlib.gettable("MyCompany.Aries.Inventory.PetPage");
+PetPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    PetPage.ClosePage();
+end
+function GetNid()
+    return Map3DSystem.User.nid;
+end
+name2 = "mountpetview"..tostring(GetNid());
+function GetNidStr()
+    local nid_str = MyCompany.Aries.ExternalUserModule:GetNidDisplayForm(GetNid())
+    return nid_str;
+end
+function DS_Func_Items(index)
+    return PetPage.DS_Func_Items(index);
+end
+function CanShow(state)
+    local gsid = GetGsid();
+    local s = PetPage.WhereAmI() or "";
+    if(s ~= state and gsid)then
+        return true;
+    end
+    return false;
+end
+function DoRid()
+    GathererBarPage.Start({duration = 1000,},cancelCallback,function()
+        PetPage.DoRid()
+        NPL.load("(gl)script/apps/Aries/Combat/SpellCast.lua");
+		local SpellCast = commonlib.gettable("MyCompany.Aries.Combat.SpellCast");
+		local spell_file = "config/Aries/Spells/Action_OnMount.xml";
+		local current_playing_id = ParaGlobal.GenerateUniqueID();
+		SpellCast.EntitySpellCast(0, ParaScene.GetPlayer(), 1, ParaScene.GetPlayer(), 1, spell_file, nil, nil, nil, nil, nil, function()
+		end, nil, true, current_playing_id, true);
+    end)
+    pageCtrl:CloseWindow();
+end
+function DoHome()
+    GathererBarPage.Start({duration = 1000,},cancelCallback,function()
+        PetPage.DoHome()
+    end)
+    pageCtrl:CloseWindow();
+end
+function DoFollow()
+    GathererBarPage.Start({duration = 1000,},cancelCallback,function()
+        PetPage.DoFollow()
+        NPL.load("(gl)script/apps/Aries/Combat/SpellCast.lua");
+		local SpellCast = commonlib.gettable("MyCompany.Aries.Combat.SpellCast");
+		local spell_file = "config/Aries/Spells/Action_OnMount.xml";
+		local current_playing_id = ParaGlobal.GenerateUniqueID();
+		SpellCast.EntitySpellCast(0, ParaScene.GetPlayer(), 1, ParaScene.GetPlayer(), 1, spell_file, nil, nil, nil, nil, nil, function()
+		end, nil, true, current_playing_id, true);
+    end)
+    pageCtrl:CloseWindow();
+end
+
+function GetGsid()
+	local item = ItemManager.GetItemByBagAndPosition(0, 33);
+    local gsid;
+    if(item)then
+		gsid = item.gsid;
+	end
+    return gsid;
+end
+function getStatExpireDays()
+    local gsid = GetGsid();
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        if(gsItem.template.expiretype == 1 and gsItem.template.expiretime) then
+            return tostring(gsItem.template.expiretime);
+        end
+    end
+    return 0;
+end
+function getPetName()
+    local gsid = GetGsid();
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem)then
+        return gsItem.template.name;
+    end
+end
+function GetTransformRemaining_Days_Text()
+    return Player.transform_remaining_days or 0;
+end
+
+-----------PPT tips
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local key = string.format("mountpettips_%s",System.User.nid);
+local mountpettips = true;
+
+function onGotoNextPage()
+    pageCtrl:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage(hstate)
+    if (not hstate) then
+        local _pet1 = ItemManager.GetItemByBagAndOrder(0,33);
+        local _pet2 = ItemManager.GetItemByBagAndOrder(26,1);
+        local IsPetInBag;
+    
+        if (PetPage.DS_Func_Items) then
+	        local firstItem = PetPage.DS_Func_Items(1);
+    --        commonlib.echo(firstItem)
+            if (firstItem) then
+                if (firstItem.gsid~=0) then
+	                local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	                if (gsItem.template.class ==2 and gsItem.template.subclass == 6) then -- judge item is pet pills or not
+                        IsPetInBag = true;
+                    else
+                        IsPetInBag = false;
+	                end
+                else
+                    IsPetInBag = false;
+                end
+            end
+        else
+            IsPetInBag = false;
+        end
+
+        if (_pet1 or _pet2) then
+            if (not IsPetInBag) then
+                pageCtrl:SetValue("TooltipsPPT", "inventory2")
+            else
+                pageCtrl:SetValue("TooltipsPPT", "inventory1")
+            end
+        elseif (not IsPetInBag) then
+            _guihelper.MessageBox("你背包里还没有坐骑，等你拥有了新坐骑再告诉你怎么用吧");
+            return
+        else
+            pageCtrl:SetValue("TooltipsPPT", "inventory1")
+        end
+    else
+        pageCtrl:SetValue("TooltipsPPT", "inventory1")
+    end
+
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+
+    local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+    if (not system_looptip.mountpet_tip) then
+	    system_looptip.mountpet_tip=true;
+    end
+    if (not mountpettips) then
+        mountpettips = true;
+        Player.SaveLocalData(key, true);
+    end
+end
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local myCombatLevel = 0;
+if(bean) then
+	myCombatLevel = bean.combatlel or 0;
+end
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+
+if (not system_looptip.mountpet_tip) then
+	system_looptip.mountpet_tip=true;
+    mountpettips = Player.LoadLocalData(key, false) or false;
+end
+
+if (myCombatLevel<10 and (not mountpettips)) then
+    local _pet1 = ItemManager.GetItemByBagAndOrder(0,33);
+    local _pet2 = ItemManager.GetItemByBagAndOrder(26,1);
+    local IsPetInBag;
+    
+    if (PetPage.DS_Func_Items) then
+	    local firstItem = PetPage.DS_Func_Items(1);
+        if (firstItem and type(firstItem)=="table") then
+            if (firstItem.gsid~=0) then
+	            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	            if (gsItem.template.class ==2 and gsItem.template.subclass == 6) then -- judge item is equip or not
+                    IsPetInBag = true;
+                else
+                    IsPetInBag = false;
+	            end
+            else
+                IsPetInBag = false;
+            end
+        end
+    else
+        IsPetInBag = false;
+    end
+    if (IsPetInBag) then
+        onGotoStartPage(1);
+    end
+end
+]]></script>
+
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:750px;height:455px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:330px;margin-top:55px;width:52px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:350px;margin-top:122px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			点击使用坐骑召唤石，好了，召唤坐骑就这么简单
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:100px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:370px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+	<div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:130px;margin-top:255px;width:35px;height:35px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:140px;margin-top:312px;width:250px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			当你召唤了多个坐骑时，鼠标点击这里可以切换坐骑
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:100px;margin-top:5px;" />
+		</div>        
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:150px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:678px;margin-top:0px;width:24px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:500px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:670px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+
+  <div style="width:760px;height:470px;" class="pane">
+    <div style="height:19px;">
+      <div class="windowlabel">坐骑</div>
+      <input type="button" onclick="onGotoStartPage()" class="helpbutton" style="position:relative;margin-top:1px;margin-left:683px;" />
+      <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:713px;" />
+    </div>
+    <div style="margin-left:5px;margin-top:5px;width:750px;height:440px;" class="border">
+        <div style="float:left;">
+             <div class="inborder" style="width:310px;height:430px;margin-top:5px;">
+                 <div style="position:relative;margin-left:0px;margin-top:0px;text-align:center;" class="usernamecolor">
+                 <%=getPetName() %>
+                </div>
+                <div style="position:relative;margin-left:210px;margin-top:5px;"><!--<input type="button" tooltip="改名" class="change_name_button" onclick="DoRename()"/>--></div>
+                 <div style="position:relative;margin-left:55px;margin-top:20px;">
+                    <div style="margin-top:0px;margin-left:0px;width:200px;height:200px;">
+                        <pe:if condition='<%=not MyCompany.Aries.Player.IsMounted() %>' >
+                            <div style="position:relative;margin:10px">
+                                你目前没有驾驭坐骑, 请点击右侧的坐骑召唤石切换坐骑
+                            </div>
+                        </pe:if>
+                        <div style="position:relative;width:256px;height:256px;margin-left:-28px;">
+                            <aries:mountpet nid='<%=GetNid()%>' object="mount" RenderTargetSize="256" style="width:256px;height:256px;" name='<%=Eval("name2")%>' miniscenegraphname='<%=Eval("name2")%>' MaskTexture="Texture/Aries/Quest/NPCDialogMask.teen.dds" background="" IsPortrait=true IsInteractive=true/>
+                        </div>
+                    </div>
+                    <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateleft" zorder="2" style="float:left;margin-left:-50px;margin-top:-20px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                    <aries:miniscenecameramodifier miniscenename='<%=Eval("name2")%>' type="rotateright" zorder="2" style="float:left;margin-left:200px;margin-top:-20px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                </div>
+                <pe:slot bag="0" position="33" style="position:relative;margin-left:240px;margin-top:20px;width:64px;height:64px;"/>
+                <div style="margin-left:5px;margin-top:150px;width:300px;height:160px;" class="static_block">
+                    <div style="margin-left:5px;" class="highbluecolor">
+                        <div >
+                            <div style="float:left;width:140px;">HP:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="4" stat="101" /></div></div>
+                            <div style="float:left;width:140px;">敏捷:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="220"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用命中:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="103"/></div></div>
+                            <div style="float:left;width:140px;">闪避:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="118"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用攻击:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="151"/></div></div>
+                            <div style="float:left;width:140px;">暴击:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="196"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">通用防御:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="159"/></div></div>
+                            <div style="float:left;width:140px;">韧性:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="204"/></div></div>
+                        </div>
+                       <div>
+                            <div style="float:left;width:140px;">双倍魔力生成率:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="102"/></div></div>
+                            <div style="float:left;width:140px;">移动速度:<div style="float:left;"><aries:statslabel gsid='<%=GetGsid()%>' showstyle="3" stat="59"/></div></div>
+                        </div>
+                        <div>
+                            <div style="float:left;width:140px;">最大有效期:<div style="float:left;"><%=getStatExpireDays() %>天</div></div>
+                            <div style="float:left;width:140px;">剩余时间:<div style="float:left;"><%=GetTransformRemaining_Days_Text() %>天</div></div>
+                        </div>
+                    </div>
+                </div>
+                 <div style="position:relative;float:left;margin-left:75px;margin-top:5px;">
+                 <pe:if condition='<%=CanShow("mount")%>'>
+                    <input type="button" value="驾驭" style="width:60px;margin-left:15px;" onclick="DoRid" />
+                    <input type="button" value="跟随" enabled="false" style="width:60px;margin-left:15px;" onclick="DoFollow" />
+                 </pe:if>
+                 <pe:if condition='<%=CanShow("follow")%>'>
+                    <input type="button" value="驾驭" enabled="false" style="width:60px;margin-left:15px;" onclick="DoRid" />
+                    <input type="button" value="跟随" style="width:60px;margin-left:15px;" onclick="DoFollow" />
+                 </pe:if>
+                    <!--<input type="button" value="收起" style="width:60px;margin-left:15px;" onclick="DoHome" />-->
+                </div>
+            </div>
+        </div>
+        <div style="float:left;">
+                <div style="position:relative;margin-left:-10px;margin-top:0px;">
+				    <pe:tabs name="tabs_show_type_1" ItemSpacing="0" class="default_tabs" >
+					    <pe:tab-item text="坐骑召唤石" name="0" selected="true" zorder="2" />
+				    </pe:tabs>
+			    </div>
+                <div style="position:relative;width:500px;height:500px;margin-left:10px;margin-top:30px;" > 
+                        <pe:gridview name="item_list_view" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="6" AllowPaging="true" pagesize="30">
+				            <Columns>
+						    <div class="block" style="margin-left:4px;margin-top:2px;width:64px;height:64px;">
+                                <pe:if condition='<%=Eval("is_marker") == 1%>'>
+                                    <div style="width:0px;height:0px;">
+                                        <img zorder="2" src="Texture/Aries/Combat/BagPack/DragonBag/is_marker_32bits.png" style="margin-top:45px;padding-top:8px;padding-left:8px;width:64px;height:16px;"/>
+                                    </div>
+                                </pe:if>
+                                <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;"/>
+				            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+					            <b>空</b>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+					            <b>请稍等 ... </b>
+				            </FetchingDataTemplate>
+				            <PagerSettings Position="Bottom" style="margin-left:125px;margin-top:-105px;width:260px;height:25px;"/>
+				            <PagerTemplate>
+					            <form>
+						            <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+							            <input type="button" name="page" class="pagerbuttontext" /> 
+						            <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	                            </form>
+				            </PagerTemplate>
+			            </pe:gridview>
+                </div>
+                
+                <div style="position:relative;width:427px;height:405px;margin-left:3px;margin-top:27px;"  class="inborder">
+                </div>
+                
+        </div>
+    </div>   
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,66 @@
+<!-- "script/apps/Aries/Profile/FullProfile_TownChiefRodd.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Full profile for Aries by Andy 2009/6/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FullProfile.lua"><![CDATA[
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+MyCompany.Aries.FullProfilePage.OnInit(nid);
+nid_str = tostring(nid);
+isminifamilyview = page:GetRequestParam("minifamilyview");
+
+miniscenename = "fullprofile_avatar_"..nid..ParaGlobal.GenerateUniqueID();
+name = "fullprofile_avatar_miniscene_"..nid..ParaGlobal.GenerateUniqueID();
+name2 = "fullprofile_avatar_miniscene2_"..nid..ParaGlobal.GenerateUniqueID();
+
+
+function OnClose()
+	page:CloseWindow();
+    MyCompany.Aries.FullProfilePage.SetEditState(false);
+end
+
+function OnWriteToRod()
+    --pageCtrl:CloseWindow();
+    
+    NPL.load("(gl)script/kids/3DMapSystemUI/PENote/Pages/LiteMailPage.lua");
+    Map3DSystem.App.PENote.LiteMailPage.ShowPage(1);
+end
+
+]]></script>
+<div style="margin-left:314px;margin-top:6px;position:relative;">
+    <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+</div>
+<div style="width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="margin-left:148px;margin-top:20px;width:150px;height:40px;">
+        <div style="width:200px;height:40px;margin-top:6px;font-size:14pt;font-weight:bold;color:#FFFFFF">
+            罗德镇长
+        </div>
+        <div style="width:256px;height:256px;margin-left:-66px;margin-top:18px;background:url(Texture/Aries/Profile/TownChiefRodd/RoddPortrait_32bits.png);"/>
+        <!--<div style="float:right;margin-left:174px;margin-top:-56px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+        </div>-->
+    </div>
+    <div style="float:right;margin-left:25px;margin-top:0px;width:310px;height:280px;padding-left:14px;padding-top:34px;background:url(Texture/Aries/Profile/medal_bg_32bits.png:104 120 23 119);">
+        <div style="width:150px;height:100px;">
+        </div>
+    </div>
+    
+    <!--<div style="float:right;margin-left:88px;margin-top:60px;width:90px;height:92px;background:texture/alphadot.png">
+        <pe:avatar miniscenegraphname='<%=Eval("miniscenename")%>' uid='<%=Eval("nid")%>' IsFacePortrait=true IsInteractive='false'/>
+    </div>-->
+    <br/>
+    <input type="button" animstyle="23" style="margin-left:40px;margin-top:28px;width:64px;height:64px;background:url(Texture/Aries/Profile/TownChiefRodd/WriteToRodd_btn_32bits.png)" tooltip="给罗德镇长写信" onclick="OnWriteToRod()"/>
+    <div style="width:256px;height:64px;float:left;margin-left:0px;margin-top:26px;background:url(Texture/Aries/Profile/TownChiefRodd/WriteToRodd_word_32bits.png);"/>
+    <div style="float:right;margin-left:67px;margin-top:-4px;padding:8px;width:400px;height:64px;"> 
+            
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

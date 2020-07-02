@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="Lua_Run_File">
+      <Targets>_Lua_Run_File</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="Lua_Run_File"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="_Lua_Run_File"
+    BeforeTargets="$(Lua_Run_FileBeforeTargets)"
+    AfterTargets="$(Lua_Run_FileAfterTargets)"
+    Condition="'@(Lua_Run_File)' != ''"
+    DependsOnTargets="$(Lua_Run_FileDependsOn);ComputeLua_Run_FileOutput"
+    Outputs="%(Lua_Run_File.Outputs)"
+    Inputs="%(Lua_Run_File.Identity);%(Lua_Run_File.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <Lua_Run_File
+        Remove="@(Lua_Run_File)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <Lua_Run_File_tlog
+        Include="%(Lua_Run_File.Outputs)"
+        Condition="'%(Lua_Run_File.Outputs)' != '' and '%(Lua_Run_File.ExcludedFromBuild)' != 'true'">
+        <Source>@(Lua_Run_File, '|')</Source>
+      </Lua_Run_File_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(Lua_Run_File.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(Lua_Run_File_tlog)' != '' and '%(Lua_Run_File_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(Lua_Run_File_tlog.Source);@(Lua_Run_File_tlog-&gt;'%(Fullpath)')" />
+    <Lua_Run_File
+      Condition="'@(Lua_Run_File)' != '' and '%(Lua_Run_File.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(Lua_Run_File.CommandLineTemplate)"
+      AdditionalOptions="%(Lua_Run_File.AdditionalOptions)"
+      Inputs="%(Lua_Run_File.Identity)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeLua_Run_FileOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeLua_Run_FileOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeLua_Run_FileOutput"
+    Condition="'@(Lua_Run_File)' != ''">
+    <ItemGroup>
+      <Lua_Run_FileDirsToMake
+        Condition="'@(Lua_Run_File)' != '' and '%(Lua_Run_File.ExcludedFromBuild)' != 'true'"
+        Include="%(Lua_Run_File.Outputs)" />
+      <Link
+        Include="%(Lua_Run_FileDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(Lua_Run_FileDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(Lua_Run_FileDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(Lua_Run_FileDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

@@ -1,0 +1,41 @@
+﻿<!-- "script/kids/3DMapSystemUI/CCS/AnimationPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>character animation Page 2008.6.13 lixizhi</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="AnimationPage.lua">
+    Map3DSystem.App.CCS.AnimationPage.OnInit();
+</script>
+<pe:tabs name="AnimsTabs">
+    <pe:tab-item text="常用动作" name="common">
+        <a onclick="Map3DSystem.App.Commands.Call" param1="Profile.CCS.FaceCamera"><img style="background:url(Texture/3DMapSystem/common/action.png);width:16px;height:16px;margin:3px" />面向摄影机</a><br />
+        <pe:gridview ItemsPerLine="2" name="gvwAnims" DataSource='<%=Map3DSystem.App.CCS.AnimationPage.DS_Anims_Func%>' CellPadding="0" DefaultNodeHeight="85">
+            <Columns>
+	            <a onclick="Map3DSystem.App.CCS.AnimationPage.PlayAnimFile" param1='<%=Eval("file")%>'>
+	                <div style="width:64px;">
+	                <img src='<%=Eval("bg")%>'width="64" height="64"/>
+	                <div style="text-align:center"><%=Eval("text")%></div>
+	                </div>
+	            </a>
+            </Columns>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item text="从动作文件" name="file" selected="true">
+       <div style="margin:5px">
+           <div><font style="color:#808080;">提示: 请双击动画文件</font></div>
+            文件:<select name="filepath" style="width:120px"><option value="" selected="true"></option></select><br/>
+            类别:
+          <select name="CurFolder" onclick="Map3DSystem.App.CCS.AnimationPage.OnSelectFolder()">
+              <option value="character/Animation/v3">官方动作_V3</option>
+              <option selected="true" value="character/Animation">全部</option>
+          </select>
+      </div>
+      <pe:filebrowser name="AnimFileBrowser" AllowFolderSelection="false" filter="*.x;*.bvh;" rootfolder="character/Animation/v3" onclick="Map3DSystem.App.CCS.AnimationPage.OnSelectAnimFile()" ondoubleclick="Map3DSystem.App.CCS.AnimationPage.OnDoubleClickAnimFile()" />
+    </pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>

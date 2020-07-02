@@ -1,0 +1,268 @@
+﻿<!-- "script/apps/Aries/Login/DailyCheckin.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DailyCheckIn, by spring, 2012/9/5</title>
+</head>
+
+<body>
+<pe:mcml>
+<script type="text/npl" src="DailyCheckin.lua"><![CDATA[
+local page = document:GetPageCtrl();
+
+DailyCheckin = commonlib.gettable("MyCompany.Aries.DailyCheckin");
+DailyCheckin.OnInit();
+
+local ItemManager = System.Item.ItemManager;
+local userinfo = System.App.profiles.ProfileManager.GetUserInfoInMemory();
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+
+function Confirm()
+    System.User.pop_daily_checkedin = true;
+    page:CloseWindow();
+
+    -- 如果没有弹出过更新日志，弹出本次更新日志
+    if (not System.User.pop_UpdateLog) then
+        local _key = string.format("MyCardsManager.pop_UpdateLog_%s",System.User.nid);
+        local Player = commonlib.gettable("MyCompany.Aries.Player");
+        local is_pop_UpdateLog = Player.LoadLocalData(_key, "0.0") or "0.0";
+
+        NPL.load("(gl)script/apps/Aries/Login/ClientUpdaterPage.lua");
+        local ClientUpdaterPage = commonlib.gettable("MyCompany.Aries.Login.ClientUpdaterPage");
+        local _verbuild = ClientUpdaterPage.GetClientVersion();
+        local _ver = string.match(_verbuild,"(.*)Build");
+
+        if (is_pop_UpdateLog == _ver) then
+            System.User.pop_UpdateLog = true;
+        else
+            NPL.load("(gl)script/apps/Aries/Gift/ExcitingActivityPage.lua");
+            local ExcitingActivityPage = commonlib.gettable("MyCompany.Aries.Gift.ExcitingActivityPage");
+            ExcitingActivityPage.ShowPage(1,_ver);
+        end
+    end 
+
+	local AutoTips = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips");
+	AutoTips.ShowAutoTips(true);
+end
+
+local daily_ds = MyCompany.Aries.DailyCheckin.GetDailyAwards();
+local sumdaily_ds = MyCompany.Aries.DailyCheckin.GetSumDailyAwards();
+
+function GetDailyCheckinStatus()
+    local i,ds;
+    local chkin_ds={};
+    for i,ds in ipairs(daily_ds) do
+        local _icon;
+        _icon=string.format("width:64px;height:64px;margin-top:0px;background:url(Texture/Aries/Common/ThemeTeen/SignIn/%d_32bits.png);",ds.gsid);
+        dis_icon=string.format("width:64px;height:64px;margin-top:0px;background:url(Texture/Aries/Common/ThemeTeen/SignIn/%d_gray_32bits.png);",ds.gsid);
+        local _ds = {gsid=ds.gsid, icon=_icon,disable_icon=dis_icon, cnt=ds.cnt};
+        table.insert(chkin_ds,_ds);
+    end 
+    return chkin_ds;
+end
+
+function GetSumDailyCheckinStatus()
+    local i,ds;
+    local chkin_ds={};
+    for i,ds in ipairs(sumdaily_ds) do
+        local _icon;
+        _icon=string.format("width:64px;height:64px;margin-top:0px;background:url(Texture/Aries/Common/ThemeTeen/SignIn/%d_32bits.png);",ds.gsid);
+        dis_icon=string.format("width:64px;height:64px;margin-top:0px;background:url(Texture/Aries/Common/ThemeTeen/SignIn/%d_gray_32bits.png);",ds.gsid);
+        local _ds = {gsid=ds.gsid, icon=_icon,disable_icon=dis_icon, cnt=ds.cnt, needlvl=ds.needlvl};
+        table.insert(chkin_ds,_ds);
+    end 
+    return chkin_ds;
+end
+
+function vTitle()
+    return "连续登录可领取"
+end
+
+function vsumTitle()
+    return "累计登录可领取"
+end
+
+function CanSumCheckedIn(v)
+    local day = sumdaily_ds[v].logindays;
+    local needlvl = sumdaily_ds[v].needlvl;
+    local mylvl = MyCompany.Aries.Player.GetLevel();
+
+    if ((day<=DailyCheckin.GetSumCheckedinTimes(v)) and (not hasSumCheckin(v)) and (mylvl>=needlvl)) then
+        return true
+    else
+        return false
+    end
+end 
+
+function hasCheckin(day)
+    if(DailyCheckin.HasCheckedin()) then
+        return day <= DailyCheckin.GetCheckedinTimes()
+    else
+        return day < DailyCheckin.GetCheckedinTimes();
+    end
+end
+
+function hasSumCheckin(v)
+    local day = sumdaily_ds[v].logindays;
+    if(DailyCheckin.HasSumCheckedin()==day) then
+        return true
+    else
+        return false;
+    end
+end
+
+function GetDayText(day)
+    return string.format("连续 %d 天", day or 1);    
+end
+
+function GetSumDayText(v)
+    return string.format("( %d / %d ) 天", DailyCheckin.GetSumCheckedinTimes(v),sumdaily_ds[v].logindays);   
+end
+
+function Gettips(gsid,day,takeid)
+    if (day==DailyCheckin.GetCheckedinTimes() and takeid) then
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=今天已领取",gsid,day or 1);
+    elseif (day<DailyCheckin.GetCheckedinTimes() and takeid) then
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=第%d天登录已领取",gsid,day or 1);
+    else
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=连续登录%d天可领取",gsid,day or 1);
+    end
+end
+
+function GetSumTips(gsid,v,takeid)
+    local day = sumdaily_ds[v].logindays;
+    local needlvl = sumdaily_ds[v].needlvl;
+    local mylvl = MyCompany.Aries.Player.GetLevel();
+    local condition = "";
+    if (mylvl>=needlvl) then
+        condition = string.format(", 需要等级%d以上",needlvl);
+    else
+        condition = string.format(", 需要等级%d以上, 你的等级不够，快努力升级吧. 完成任务是最快的升级方式",needlvl);
+    end
+    if (CanSumCheckedIn(v) and takeid) then
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=今天已领取",gsid);
+    elseif (CanSumCheckedIn(v) and takeid) then
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=累计%d天登录已领取",gsid,day);
+    else
+        return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%d&hdr=累计登录%d天可领取%s",gsid,day,condition);
+    end
+end
+
+
+function OnClickAds(index)
+    if(MyCompany.Aries.Player.GetLevel() <= 8) then
+		_guihelper.MessageBox("你的等级不够，9级以上才可以参加这个活动<br/>快努力升级吧. 完成任务是最快的升级方式");
+		return;
+    end
+    DailyCheckin.ClickAds(index);
+end
+
+]]></script>
+<aries:window title="连续登录的奖励" width="695" onhelp="" onclose="Confirm()" icon="Texture/Aries/Common/ThemeTeen/ElfGift/elf_ico_32bits.png" >
+
+    <pe:container class="blockpane" style="margin-left:7px;margin-top:50px;width:480px;height:160px;">
+       <div style="margin-left:5px;">
+           <div  style="margin-left:10px;margin-top:10px;color:#ffff00" class="bordertext"><font><%=vTitle() %></font></div>
+           <pe:repeat DataSource="<%=GetDailyCheckinStatus()%>">
+                <pe:repeatitem >
+                    <div style="float:left;">
+                        <div zorder="-1" style="margin-left:3px;width:90px;height:90px;background:url(Texture/Aries/Common/ThemeTeen/ElfGift/gift_bg_32bits.png# 0 0 124 156)">
+
+                            <div style="padding-left:12px;padding-top:12px;width:76px;height:76px;">    
+
+                                <pe:if condition='<%=Eval("index")==DailyCheckin.GetCheckedinTimes() and not hasCheckin(Eval("index"))%>'>
+                                    <input type="button" zorder="1" onclick="DailyCheckin.DoCheckin" style='<%=Eval("icon")%>' tooltip='<%=Gettips(Eval("gsid"),Eval("index")) %>' />
+                                </pe:if>
+
+                                <pe:if condition='<%=((Eval("index")~=DailyCheckin.GetCheckedinTimes()) or hasCheckin(Eval("index")))%>'>
+                                    <input type="button" zorder="1" style='<%=Eval("icon")%>' tooltip='<%=Gettips(Eval("gsid"),Eval("index"),true) %>' />
+                                </pe:if>
+                            </div>
+                            <div style="position:relative;margin-top:-10px;margin-left:55px;width:34px;text-align:right;">
+                                <input type="button" zorder="1" value='<%="x"..tostring(Eval("cnt") or 1)%>' style="background:;width:40px;height:30px;margin-top:-5px;color:#ffff00;font-weight:bold" /> 
+                            </div>
+                            
+                            <pe:if condition='<%=hasCheckin(Eval("index")) or (Eval("index")~=DailyCheckin.GetCheckedinTimes()) %>'>                               
+                                <div zorder="2" style="position:relative;margin-top:-76px;margin-left:1px;width:88px;height:88px;background:url(Texture/Aries/Advertisement/DailyCheckin/grey_bg.png:6 6 6 6)" >
+                                </div>                                
+                            </pe:if>
+                            
+                            <pe:if condition='<%=(not DailyCheckin.HasCheckedin()) and Eval("index") == DailyCheckin.GetCheckedinTimes()%>'>
+                                <div style="position:relative;margin-top:-78px;margin-left:1px;width:89px;height:89px;background:" >
+                                     <img zorder="1" enabled="false" class="animated_btn_overlay" width="89" height="89"/>
+                                </div>                                 
+                            </pe:if>
+
+                            <input zorder="1" type="button" value='<%=GetDayText(Eval("index"))%>' style="margin-left:2px;margin-top:15px;width:86px;height:22px;background:url(Texture/Aries/Common/ThemeTeen/ElfGift/txt_bg_32bits.png# 0 0 8 22: 3 2 3 3)"/>
+                        </div>                      
+                    </div>
+
+                </pe:repeatitem>
+            </pe:repeat>
+       </div>
+    </pe:container>
+    <pe:container class="blockpane" style="margin-left:490px;margin-top:-160px;width:200px;height:160px;">
+       <div style="margin-left:5px;">
+           <div  style="margin-left:10px;margin-top:10px;color:#ffff00" class="bordertext"><font><%=vsumTitle() %></font></div>
+           <pe:repeat DataSource="<%=GetSumDailyCheckinStatus()%>">
+                <pe:repeatitem >
+                    <div style="float:left;">
+                        <div zorder="-1" style="margin-left:3px;width:90px;height:90px;background:url(Texture/Aries/Common/ThemeTeen/ElfGift/gift_bg_32bits.png# 0 0 124 156)">
+
+                            <div style="padding-left:12px;padding-top:12px;width:76px;height:76px;">    
+                                <pe:if condition='<%=CanSumCheckedIn(Eval("index"))%>'>
+                                    <input type="button" zorder="1" name='<%=string.format("sumChkIn_%d",Eval("index")) %>' onclick="DailyCheckin.DoSumCheckin" style='<%=Eval("icon")%>' tooltip='<%=GetSumTips(Eval("gsid"),Eval("index")) %>' />
+                                </pe:if>
+
+                                <pe:if condition='<%=not CanSumCheckedIn(Eval("index"))%>'>
+                                    <input type="button" zorder="1" style='<%=Eval("icon")%>' tooltip='<%=GetSumTips(Eval("gsid"),Eval("index"),true) %>' />
+                                </pe:if>
+                            </div>
+                            <div style="position:relative;margin-top:-10px;margin-left:55px;width:34px;text-align:right;">
+                                <input type="button" zorder="1" value='<%="x"..tostring(Eval("cnt") or 1)%>' style="background:;width:40px;height:30px;margin-top:-5px;color:#ffff00;font-weight:bold" /> 
+                            </div>
+                            
+                            <pe:if condition='<%=not CanSumCheckedIn(Eval("index"))%>'>
+                                <div zorder="2" style="position:relative;margin-top:-76px;margin-left:1px;width:88px;height:88px;background:url(Texture/Aries/Advertisement/DailyCheckin/grey_bg.png:6 6 6 6)" >
+                                </div>                                
+                            </pe:if>
+                            
+                            <pe:if condition='<%=CanSumCheckedIn(Eval("index")) or DailyCheckin.OutlineSumLogin%>'>
+                                <div style="position:relative;margin-top:-78px;margin-left:1px;width:89px;height:89px;background:" >
+                                     <img zorder="3" enabled="false" class="animated_btn_overlay" width="89" height="89"/>
+                                </div>                                 
+                            </pe:if>
+
+                            <input zorder="1" type="button" value='<%=GetSumDayText(Eval("index"))%>' style="margin-left:2px;margin-top:15px;width:86px;height:22px;background:url(Texture/Aries/Common/ThemeTeen/ElfGift/txt_bg_32bits.png# 0 0 8 22: 3 2 3 3)"/>
+                        </div>                      
+                    </div>
+
+                </pe:repeatitem>
+            </pe:repeat>
+       </div>
+    </pe:container>
+
+    <pe:container class="blockpane" style="margin-left:7px;margin-top:1px;width:682px;height:235px;">
+       <div style="margin-left:15px;">
+
+            <div class="panel" style="margin-top:15px;padding:0px;padding-right:1px" >
+                <pe:gridview DataSource="<%=DailyCheckin.LoginAd_DS_Func%>" name="LoginAd_DS"  ItemsPerLine="4" AllowPaging="false" pagesize="4" style="margin-left:0px;margin-top:0px;width:660px;height:240px;" CellPadding="0">
+                <Columns>  
+                        <div name='<%=Eval("index") %>' style='<%=Eval("ad_style")%>' tooltip='<%=Eval("tips")%>' onclick='<%=OnClickAds() %>'>                            
+                        </div>                        
+                        <div style="margin-left:1px;font-size:14;width:162px;height:200px;">
+                            <div class="windowlabel" style="text-align:left;margin-left:16px;margin-top:12px;width:125px;"><%=Eval("tips") %></div>
+                        </div>                        
+                </Columns>
+                </pe:gridview>
+            </div>
+        </div>
+    </pe:container>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

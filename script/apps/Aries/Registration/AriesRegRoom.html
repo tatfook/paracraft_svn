@@ -1,0 +1,87 @@
+﻿<!-- "script/apps/Aries/Registration/AriesRegRoom.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by LiXizhi, 2008/11/4</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+function OnSelectTag(name, value)
+    local page = document:GetPageCtrl();
+    local tag = page:GetUIValue("tag", "");
+    if(not string.match(tag, value..";")) then
+        if(tag ~= "" and not string.match(tag, ";$")) then
+            page:SetUIValue("tag", tag..";"..tostring(value)..";")
+        else
+            page:SetUIValue("tag", tag..tostring(value)..";")
+        end    
+    end
+end
+
+function OnSelectWorld(name, value)
+    local page = document:GetPageCtrl();
+    page:SetUIValue("worldpath", value);
+end
+
+function OnCreateRoom(name, values)
+    local page = document:GetPageCtrl();
+    page:Redirect(System.localserver.UrlHelper.BuildURLQuery("script/apps/Aries/Registration/RoomWebPage.html", values), nil, nil, 0)
+end
+
+]]></script>
+<div style="width:500px;padding:5px" class="box">
+<img src="Texture/3DMapSystem/AppIcons/NewWorld_64.dds" width="48" height="48"/>
+<div style="float:left;margin:10px;">申请我的3D社区, 让你的网站动起来. 开始聚合用户并盈利</div>
+<hr />
+<form name="regroom">
+  <span style="font-weight:bold;font-size:14px">立即开通你的社区</span>
+  <input type="hidden" name="referrer" value="paraworldviewer" />
+  <div style="float:left;margin-left:11px;margin-top:2px;">它是免费的,可购买源代码 </div><br />
+  <div style="width:120px;float:left;text-align:right">* 电子邮箱:</div>
+    <div style="float:left"><input name="username" style="width:160px;margin-right:10px" type="text"/><span color="#808080">您注册时的邮箱</span></div><br/>
+  <div style="width:120px;float:left;text-align:right">* 密码:</div>
+    <div style="float:left">
+        <input name="password" type="password" style="width:160px;margin-right:10px"/>
+        <span color="#808080">您注册时的密码</span><a onclick="System.App.Commands.Call" param1="Profile.Aries.Register">还没注册?</a>
+    </div>   
+  <hr />
+  <div style="width:120px;float:left;text-align:right">世界的宣言:</div>
+    <div style="float:left"><input name="worldslogan" type="text"/><br /><span color="#808080">一句话描述世界的主题</span></div><br/>
+  <div style="width:120px;float:left;text-align:right">关键字与URL:</div>
+    <div style="float:left"><input name="tag" type="text" style="width:160px;margin-right:10px"/>添加:
+    <select AllowUserEdit="false" name="tabList" style="width:100px" onselect="OnSelectTag">
+        <option value="闲聊">闲聊</option>
+        <option value="游戏">游戏</option>
+        <option value="交友">交友</option>
+        <option value="电影">电影</option>
+        <option value="新闻">新闻</option>
+        <option value="虚拟世界">虚拟世界</option>
+        <option value="博客">博客</option>
+        <option value="经济">经济</option>
+    </select>
+    <br />
+    <span color="#808080">可以是你的网站地址, 也可以是一些关键字。热门的关键词将为你的社区聚合来自同类社区的用户。</span></div><br/>  
+  <div style="width:120px;float:left;text-align:right">世界:</div>
+    <div style="float:left"><input name="worldpath" style="width:160px;margin-right:10px" type="text"/>模板:
+    <select AllowUserEdit="false" name="worldlist" style="width:100px" onselect="OnSelectWorld">
+        <option selected="true" value="">当前世界</option>
+        <option value="worlds/MyWorlds/KongFuChat">官方世界</option>
+        <option value="worlds/MyWorlds/chat01">海边</option>
+        <option value="worlds/MyWorlds/chat02">小岛</option>
+    </select>
+    <span color="#808080">选择一个世界模板, 缺省为当前的世界</span></div><br/>  
+  <div style="width:120px;float:left;text-align:right">世界服务器:</div>
+    <div style="float:left"><input name="server" type="text"/><br /><span color="#808080">缺省为官方自动分配的服务器</span></div><br/> 
+  <div style="width:120px;float:left;text-align:right">电影名称:</div>
+    <div style="float:left"><input name="movie" type="text"/><br /><span color="#808080">进入世界时可以播放一段您制作的3D电影, 缺省为不播放</span></div><br/>
+  <div style="margin-left:120px;float:left;">
+    <input tooltip="需要连接互联网" type="submit" DefaultButton="true" class="defaultbutton" name="register" value="接受条款并申请!" style="height:26px" onclick="OnCreateRoom"/>
+  </div>
+  <div>点击以上的注册按钮，我们将认为您已阅读并同意遵守<a tooltip="查看服务条款" href="%WIKI%/Main/TermsOfUse" target="_blank">服务条款</a></div>
+</form>
+</div>
+</pe:mcml> 
+</body>
+</html>

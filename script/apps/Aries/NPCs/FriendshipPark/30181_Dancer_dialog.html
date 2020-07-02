@@ -1,0 +1,97 @@
+﻿<!-- "script/apps/Aries/NPCs/FriendshipPark/30181_Dancer_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30181_Dancer_dialog, by LiXizhi, 2009/12/25</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+name = "NPCDialog_"..tostring(npc_id);
+
+-- 30093_MusicBox
+-- 50235_HasExchangedMusicBox
+local musicbox_gsid = 30093;
+function HasMusicBox()
+    return hasGSItem(50235);
+end
+
+function HasLearntAllSkills()
+    -- 9010_ThomasDance
+    -- most_difficult_dance
+    return hasGSItem(9010);
+end
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+    if(to == 4) then
+        -- get gift
+        -- exid 186: Get_30093_DancerMusicBox
+        ItemManager.ExtendedCost(186, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 186: Get_30093_DancerMusicBox return: +++++++\n")
+	        commonlib.echo(msg);
+        end);
+    end
+end
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30181" />
+            <pe:placeholder id="name" source="{this}" value='超级舞者-丹瑟'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+        <pe:state id = "0">
+		    <pe:answer autoexec = "true" style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+	        想和我一样跳各种又酷又带劲的舞吗？先看看旁边的课表吧！循序渐进的刻苦练习，你一定也能成为超级舞者的！学会所有的舞蹈，我还有份礼物给你哦！
+		    <pe:answer text="领取礼物" template_id="getgift">
+	            <pe:answer-if condition = '<%=HasMusicBox()%>' target_state = "2"/>
+	            <pe:answer-if condition = '<%=not HasLearntAllSkills()%>' target_state = "3"/>
+		        <pe:answer-if condition = 'true' target_state = "4"/>
+	        </pe:answer>
+	        <br/>
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "2">
+	        音乐盒我已经送过给你了，别太贪心哦，记得把它摆在家园中吧！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "3">
+            <!--do not have music box, but does not have all dance skills-->
+	        你还没有学会所有的舞蹈，不能领取美妙音乐盒哦！点击我旁边的木牌，上面有舞蹈的课程安排，快去好好学吧！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "4">
+            <!--do not have music box, but have all dance skills-->
+	        恭喜你成为和我一样的超级舞者，这个音乐盒送给你，快把它摆在家园中吧，它会让你的家园飘扬出动听的音乐！
+		    <pe:answer text="确定" template_id="ok">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

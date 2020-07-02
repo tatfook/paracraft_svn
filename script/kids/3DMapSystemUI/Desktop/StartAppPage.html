@@ -1,0 +1,125 @@
+﻿<!-- "script/kids/3DMapSystemUI/Desktop/StartAppPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Start app page by LiXizhi 2008.5.28 </title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="StartAppPage.lua"/>
+<div style="height:75px;color:#C8E3F1">
+<pe:container style="float:right;vertical-align:top;background:;">
+    <div style="margin-left:30px;">
+        <a href="%WIKI%/Main/WebHome" class="a_inverse">
+            <img style="background:url(Texture/3DMapSystem/brand/pedn_white_alpha.png);width:70px;height:35px"/>
+        </a>
+    </div>
+    <div style="margin-top:0px">
+    <a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="" param2="File.Logout"><img style="background:url(Texture/3DMapSystem/common/key.png);width:16px;height:16px;margin:3px" />注销</a>
+    <a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="" param2="File.Exit"><img style="background:url(Texture/3DMapSystem/common/shutdown.png);width:16px;height:16px;margin:3px" />退出</a>
+    </div>
+</pe:container>
+<div style="float:left;">
+    <pe:if-is-user uid="notloggedinuser">
+        <div style="float:left;margin:5px; margin-top:10px">
+            <b>您尚未登陆.</b><a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="" param2="Profile.Login">点击这里登陆</a>
+            <div style="margin-top:5px">大多数程序会正常工作在离线模式下</div>
+        </div>
+    </pe:if-is-user> 
+    <pe:if-is-user uid="loggedinuser">
+        <div style="float:left;margin-top:5px;margin-left:8px">
+            <pe:profile-photo uid="loggedinuser" width="80" height="60"/>
+        </div>
+        <div style="float:left;margin-left:10px;margin-top:10px">
+            <div style="font-weight:bold;">
+            <a class="a_inverse"  target="_mcmlblank" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="profiles_GUID" param2="Profile.HomePage"><pe:name linked="false" uid="loggedinuser" useyou="false" />的首页</a><br />
+            <a class="a_inverse" style="font-weight:normal;" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="profiles_GUID" param2="Profile.EditProfile">编辑档案</a></div>
+        </div>
+    </pe:if-is-user> 
+</div>
+<div style="float:left;margin-left:10px; margin-top:42px">
+    <a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="EditApps_GUID" param2="Profile.EditApps"><img style="background:url(Texture/3DMapSystem/common/plugin.png);width:16px;height:16px;margin:3px" />添加/删除程序</a>
+    <a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="profiles_GUID" param2="Friends.AllFriends"><img style="background:url(Texture/3DMapSystem/common/user.png);width:16px;height:16px;margin:3px" />我的好友</a>
+    <a class="a_inverse" onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1="Settings_GUID" param2="File.Settings"><img style="background:url(Texture/3DMapSystem/common/Configure.png);width:16px;height:16px;margin:3px" />系统设置</a>
+</div>
+</div>
+<div style="float:left;width:250px;">
+   <pe:gridview DataSource="<%=Map3DSystem.UI.Desktop.StartAppPage.DS_Func_Official%>" name="gvwOfficialAppList" CellPadding="5" DefaultNodeHeight = "50">
+        <Columns>
+            <a onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1='<%=Eval("appkey")%>'param2='<%=Eval("OnClick")%>'>
+                <div style="float:left"><img src='<%=Eval("Icon")%>'width="48" height="48"/></div>
+                <div style="float:left;margin-top:3px;margin-left:5px">
+                    <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                    <div><%=Eval("SubTitle")%></div>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有安装任何此类的应用程序</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+<div style="float:left;width:250px;">
+    <pe:gridview DataSource="<%=Map3DSystem.UI.Desktop.StartAppPage.DS_Func_Social%>" name="gvwSocialAppList" CellPadding="5" DefaultNodeHeight = "50">
+        <Columns>
+            <a onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1='<%=Eval("appkey")%>'param2='<%=Eval("OnClick")%>'>
+                <div style="float:left"><img src='<%=Eval("Icon")%>'width="48" height="48"/></div>
+                <div style="float:left;margin-top:3px;margin-left:5px">
+                    <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                    <div><%=Eval("SubTitle")%></div>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有安装任何此类的应用程序</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+<div style="float:left;width:250px">
+    <pe:gridview DataSource="<%=Map3DSystem.UI.Desktop.StartAppPage.DS_Func_Game%>" name="gvwGameAppList" CellPadding="5" DefaultNodeHeight = "50">
+        <Columns>
+            <a onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1='<%=Eval("appkey")%>'param2='<%=Eval("OnClick")%>'>
+                <div style="float:left"><img src='<%=Eval("Icon")%>'width="48" height="48"/></div>
+                <div style="float:left;margin-top:3px;margin-left:5px">
+                    <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                    <div><%=Eval("SubTitle")%></div>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有安装任何此类的应用程序</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+<div style="float:left;width:250px">
+    <pe:gridview DataSource="<%=Map3DSystem.UI.Desktop.StartAppPage.DS_Func_Others%>" name="gvwOthersAppList" CellPadding="5" DefaultNodeHeight = "50">
+        <Columns>
+            <a onclick="Map3DSystem.UI.Desktop.StartAppPage.OnClickApp" param1='<%=Eval("appkey")%>'param2='<%=Eval("OnClick")%>'>
+                <div style="float:left"><img src='<%=Eval("Icon")%>'width="48" height="48"/></div>
+                <div style="float:left;margin-top:3px;margin-left:5px">
+                    <div style="font-weight:bold;"><%=Eval("Title")%></div>
+                    <div><%=Eval("SubTitle")%></div>
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>没有安装任何此类的应用程序</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <b>正在搜索, 请稍候 ... </b>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+</pe:mcml>
+</body>
+</html>
+

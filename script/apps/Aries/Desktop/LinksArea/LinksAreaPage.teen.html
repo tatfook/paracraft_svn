@@ -1,0 +1,221 @@
+<!-- "script/apps/Aries/Desktop/LinksArea/LinksAreaPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+NPL.load("(gl)script/apps/Aries/Desktop/LinksArea/LinksAreaPage.lua");
+local LinksAreaPage = commonlib.gettable("MyCompany.Aries.Desktop.LinksAreaPage");
+local page = document:GetPageCtrl();
+
+function Ds_Func(index)
+    return LinksAreaPage.Ds_Func(index);
+end
+
+function DoClick(index)
+    index = tonumber(index);
+    if(LinksAreaPage.links_view and LinksAreaPage.links_view[index])then
+        local node = LinksAreaPage.links_view[index];
+        local keyname = node.keyname;
+        if(keyname == "hero")then
+            NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	        local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	        goal_manager.finish("open_herocopy");
+
+            NPL.load("(gl)script/apps/Aries/CombatRoom/CreateRoomPage.lua");
+            local CreateRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.CreateRoomPage");
+            CreateRoomPage.ShowPage(nil,2);
+        elseif(keyname == "free_space")then
+            LinksAreaPage.OnClickCreativeSpace();
+        elseif(keyname == "discount")then
+            NPCShopPage.ShowPage(31087,"menu1");
+            LinksAreaPage.click_map[keyname] = true;
+            page:Refresh(0);
+        elseif(keyname == "fb")then
+            ParaGlobal.ShellExecute("open", "https://www.facebook.com/pages/%E9%AD%94%E5%8D%A1%E5%A4%A7%E4%BA%82%E9%AC%A5/441500589263781", "", "", 1);
+        elseif(keyname == "code")then
+            NPL.load("(gl)script/apps/Aries/Gift/ExtraGiftPage.lua");
+            local ExtraGiftPage = commonlib.gettable("MyCompany.Aries.Gift.ExtraGiftPage");
+            ExtraGiftPage.ShowPage(2);
+        elseif(keyname == "pvp")then
+            NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+            local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+            LobbyClientServicePage.ShowPagePvP();
+        elseif(keyname == "minor")then
+            local MinorSkillPage = commonlib.gettable("MyCompany.Aries.Desktop.MinorSkillPage");
+            MinorSkillPage.ShowPage()
+        elseif(keyname == "cafe")then
+            NPCShopPage.ShowPage(-10,"menu1");
+        elseif(keyname == "activity")then
+            LinksAreaPage.FlashBtn("activity",false);
+            NPL.load("(gl)script/apps/Aries/Gift/ExcitingActivityPage.lua");
+            local ExcitingActivityPage = commonlib.gettable("MyCompany.Aries.Gift.ExcitingActivityPage");
+            ExcitingActivityPage.ShowPage();
+        elseif(keyname == "recharge_act")then
+            LinksAreaPage.FlashBtn("recharge_act",false);
+            NPL.load("(gl)script/apps/Aries/Gift/RechargeActivityPage.lua");
+            local RechargeActivityPage = commonlib.gettable("MyCompany.Aries.Gift.RechargeActivityPage");
+            RechargeActivityPage.ShowPage();
+        elseif(keyname == "recharge_first")then
+            LinksAreaPage.FlashBtn("recharge_first",false);
+            NPL.load("(gl)script/apps/Aries/Gift/RechargeActivityPage.lua");
+            local RechargeActivityPage = commonlib.gettable("MyCompany.Aries.Gift.RechargeActivityPage");
+            RechargeActivityPage.ShowPage_FirstRecharge();
+        elseif(keyname == "world_team")then
+            NPL.load("(gl)script/apps/Aries/CombatRoom/WorldTeamQuest.lua");
+            local WorldTeamQuest = commonlib.gettable("MyCompany.Aries.CombatRoom.WorldTeamQuest");
+            WorldTeamQuest.ShowPage();
+        elseif(keyname == "story")then
+            NPL.load("(gl)script/apps/Aries/Quest/QuestLinksViewPage.lua");
+            local QuestLinksViewPage = commonlib.gettable("MyCompany.Aries.Quest.QuestLinksViewPage");
+            QuestLinksViewPage.ShowPage();
+         elseif(keyname == "login")then
+            NPL.load("(gl)script/apps/Aries/Login/DailyCheckin.lua");
+            local DailyCheckin = commonlib.gettable("MyCompany.Aries.DailyCheckin");
+            DailyCheckin.ShowPage();
+        elseif(keyname == "online")then
+            NPL.load("(gl)script/apps/Aries/Desktop/MiJiuHuLu.teen.lua");
+            MyCompany.Aries.Desktop.MiJiuHuLu.ShowPage();
+        elseif(keyname == "auction_house_sell")then
+            NPL.load("(gl)script/apps/Aries/HaqiShop/AuctionHouse.lua");
+            local AuctionHouse = commonlib.gettable("MyCompany.Aries.AuctionHouse");
+            AuctionHouse.ShowPage("sell");
+        elseif(keyname == "weekly")then            
+            NPL.load("(gl)script/apps/Aries/Quest/QuestWeeklyLinksViewPage.lua");
+            local QuestWeeklyLinksViewPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyLinksViewPage");
+            QuestWeeklyLinksViewPage.ShowPage();
+            if (not IsShowWeeklyTaskFlash()) then
+                LinksAreaPage.FlashBtn("weekly",false);
+            end
+        elseif(keyname == "upgrade")then
+            NPL.load("(gl)script/apps/Aries/Gift/TiroGiftPackPage.teen.lua");
+            local TiroGiftPackPage = commonlib.gettable("MyCompany.Aries.Gift.TiroGiftPackPage");
+            TiroGiftPackPage.ShowPage(); 
+        elseif(keyname == "paracraft")then
+            NPL.load("(gl)script/apps/Aries/Creator/Game/Login/InternetLoadWorld.lua");
+		    local InternetLoadWorld = commonlib.gettable("MyCompany.Aries.Creator.Game.Login.InternetLoadWorld");
+		    InternetLoadWorld.ShowPage(true)   
+        end
+    end
+end
+function IsClicked(keyname)
+    if(not keyname)then
+        return
+    end
+    return LinksAreaPage.click_map[keyname];
+end
+function HasIcon(icon)
+    if(icon)then
+        return true;
+    end
+end
+
+function IsShowWeeklyTaskFlash()
+    NPL.load("(gl)script/apps/Aries/Quest/QuestWeeklyLinksViewPage.lua");
+    local QuestWeeklyLinksViewPage = commonlib.gettable("MyCompany.Aries.Quest.QuestWeeklyLinksViewPage");
+    return QuestWeeklyLinksViewPage.tips_enable
+end
+
+function IsShowElfGiftIcon()
+    local MapArea = commonlib.gettable("MyCompany.Aries.Desktop.MapArea");
+    return MapArea.showhulu
+end
+
+function IsUpgradeFlash()
+    NPL.load("(gl)script/apps/Aries/Gift/TiroGiftPackPage.teen.lua");
+    local TiroGiftPackPage = commonlib.gettable("MyCompany.Aries.Gift.TiroGiftPackPage");
+    local _id = TiroGiftPackPage.CanGetUpgradeGift();
+    return _id
+end
+]]></script>
+<div >
+    <div>
+        <pe:gridview style="width:512px;height:200px;" name="links_view" ItemsPerLine="6" AllowPaging="false" DefaultNodeHeight = "64" pagesize="12"
+            DataSource='<%=Ds_Func%>'>
+	        <Columns>
+                    <pe:goalpointer listen='<%=Eval("goalpointer")%>' style="position:relative;width:64px;height:64px;"></pe:goalpointer>
+                    <div>
+                        <pe:if condition='<%=not HasIcon(Eval("icon")) %>'>
+                            <div style="width:64px;height:64px;" />
+                        </pe:if>
+                        <pe:if condition='<%=HasIcon(Eval("icon")) %>'>
+                            <input type="button" background='<%=Eval("icon")%>' style="width:64px;height:64px;" tooltip='<%=Eval("tooltip")%>' name='<%=Eval("index")%>' onclick="DoClick" />
+                            <pe:if condition='<%=Eval("keyname")=="discount"  %>'>
+                                <pe:if condition='<%=not IsClicked(Eval("keyname"))%>'>
+                                    <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                        <img name="gift_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                    </div>
+                                </pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="activity"  %>'>
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <img uiname="activity_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                </div>                             
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="recharge_act"  %>'>
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <img uiname="recharge_act_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                </div>                             
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="recharge_first"  %>'>
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <img uiname="recharge_first_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                </div>                             
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="upgrade"  %>'>
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <pe:if condition='<%=IsUpgradeFlash()  %>'>
+                                        <img uiname="upgrade_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not IsUpgradeFlash()  %>'>
+                                        <img uiname="upgrade_animator" zorder="1" enabled="false" class="" width="64" height="64"/>
+                                    </pe:if>
+                                </div>                             
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="online"  %>'>
+                                <pe:if condition='<%=IsShowElfGiftIcon() %>'>
+                                    <input zorder="1" enabled="false" uiname="MiJiuHuLuTips" type="button" value="00:01" style="position:relative;text-shadow:true;shadow-quality:8;shadow-color:#2a2a2e27;font-size:10px;margin-left:-60px;margin-top:50px;width:60px;background:;"/>
+                                </pe:if>
+                                
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <img uiname="online_animator" zorder="1" enabled="false" class="" width="64" height="64"/>
+                                </div>                             
+                                
+                            </pe:if>
+                            <pe:if condition='<%=Eval("keyname")=="weekly"  %>'>
+                                <div style="position:relative;margin-left:0px;margin-top:-64px;width:64px;height:64px;background:" >
+                                    <pe:if condition='<%=IsShowWeeklyTaskFlash() %>'>
+                                        <img uiname="weekly_animator" zorder="1" enabled="false" class="animated_btn_overlay" width="64" height="64"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=not IsShowWeeklyTaskFlash() %>'>
+                                        <img uiname="weekly_animator" zorder="1" enabled="false" class="" width="64" height="64"/>
+                                    </pe:if>
+
+                                </div>                             
+
+                            </pe:if>
+                        </pe:if>
+                    </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+	        <PagerTemplate>
+                <div style="position:relative;margin-left:335px;">
+                   <!-- <form>
+                        <input zorder="1" style="margin-top:-4px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_up.png)" type="button" name="pre"/><br />
+                        <input type="button" name="text" value="1" style="color:#01d9ff;position:relative;margin-top:-7px;margin-left:-4px;background-color:#ffffff;background:url(Texture/Aries/Dock/teen/number_bg_32bits.png#0 0 23 23);height:23px;width:23px;" />
+                        <input zorder="1" style="margin-top:13px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_down.png)" type="button" name="next"/>
+                    </form>-->
+                </div>
+            </PagerTemplate>
+        </pe:gridview>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!-- "script/apps/Aries/Login/EnterVerificationCodePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="EnterVerificationCodePage.lua"><![CDATA[
+CommonCtrl.OneTimeAsset.Unload("temp/last_validation_image.png");
+local UserLoginProcess = commonlib.gettable("MyCompany.Aries.Login.UserLoginProcess");
+local page = document:GetPageCtrl();
+local errorcode = tonumber(page:GetRequestParam("errorcode"));
+local callback = page:GetRequestParam("callback");
+local errmsg = "";
+
+if(errorcode == 407) then
+    errmsg = "用户名或密码错误";
+elseif(errorcode == 413) then
+    errmsg = "账号被锁定, 可能由于您输入太多次错误密码, 请联系客服";
+elseif(errorcode == 419) then
+    errmsg = MyCompany.Aries.ExternalUserModule:GetConfig().account_name.."不存在。";
+elseif(errorcode == 500) then
+    errmsg = "夜深了，哈奇小镇已经关闭了，小哈奇也早点休息吧！";
+elseif(errorcode == 426) then
+    errmsg = "密码连续输入错误的次数太多，请15秒后再试";
+elseif(errorcode == 444) then
+    errmsg = "验证码输入错误";
+elseif(errorcode == 446) then
+	errmsg = "登录失败并且错误次数过多，请输入验证码后再登录";
+elseif(errorcode == 447) then
+	errmsg = "密码错误尝试次数过多，请输入验证码后再登陆";
+else
+    errmsg = "服务器繁忙，请稍后重试";
+end
+
+page:SetValue("text", errmsg);
+
+function OnClickOK()
+    local veriCode = page:GetValue("txtVeriCode", "");
+    local l = string.len(veriCode);
+    if(l == 4) then
+        UserLoginProcess.last_veri_code = veriCode;
+        if(System.User.last_login_msg) then
+            System.User.last_login_msg.valicode = veriCode;
+            System.User.last_login_msg.sessionid = System.User.sessionid;
+        end
+        
+        page:CloseWindow();
+        
+        if(errorcode == 444 or errorcode == 446 or errorcode == 447) then
+        	if (callback=="familyserver") then
+        		local FamilyServerSelect = commonlib.gettable("MyCompany.Aries.FamilyServer.FamilyServerSelect");
+        		local world = System.User.params;
+        		FamilyServerSelect.SwitchWorldServer(world,true);
+        	elseif (callback=="pay") then
+        		local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+        		local ctype = System.User.params;
+        		PurchaseMagicBean.Pay(ctype);
+        	else
+                UserLoginProcess.Proc_Authentication();
+            end
+        else
+            UserLoginProcess.Fail(errmsg);
+        end
+    else
+        _guihelper.MessageBox("验证码输入错误！");
+    end
+end
+]]></script>
+<div style="padding:30px;padding-bottom:40px;background:url(Texture/Aries/Creator/bg_32bits.png:20 25 20 30);">
+    <pe:label name="text" style="color:#990000;height:20px;margin-bottom:20px;"></pe:label>
+    <div>密码错误太多，请输入验证码：</div>
+    <img src="temp/last_validation_image.png" style="width:52px;height:20px;margin-right:10px;"/>
+    <input type="text" name="txtVeriCode" style="width:60px;height:25px;margin-right:5px;background:url(Texture/Aries/Creator/border_bg_32bits.png:2 2 2 2)"/>
+    <input type="button" DefaultButton="true" name="btnOK" style="margin-top:0px;height:25px;width:60px;background:url(Texture/Aries/Button_Highlight_Large.png: 15 15 15 15)" value="确定" onclick="OnClickOK"/>
+</div>
+</pe:mcml>
+
+</body>
+</html>

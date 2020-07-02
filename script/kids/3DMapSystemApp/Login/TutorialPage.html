@@ -1,0 +1,78 @@
+﻿<!-- "script/kids/3DMapSystemApp/Login/TutorialPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Tutorial Page</title>
+</head>
+<body>
+<pe:mcml style="max-width: 640px" align="center" trans="ParaworldMCML">
+<script type="text/npl" src="TutorialPage.lua"><![CDATA[
+Map3DSystem.App.Login.TutorialPage.OnInit();
+]]></script>
+<pe:tabs name="TutorialPageTabs">
+    <pe:tab-item name="offline" text="单机教程" style="padding-left:5px">
+        <img style="background:url(Texture/3DMapSystem/AppIcons/Intro_64.dds);width:64px;height:64px;"/>
+        <div style="float:left;margin-left:5px;"><b>欢迎来到帕拉巫世界</b><br/>
+        如果您初次使用帕拉巫平台, 我们建议你先完成这里的单机版教程, 然后是联网教程<br />
+        <img style="background:url(Texture/3DMapSystem/common/exclamation.png);width:16px;height:16px;"/><div style="margin-left:5px;float:left;color:#808080">在预览版中, 您可以使用基础创造和社交等平台功能. 更多有趣的内容将在正式上线后开放</div>
+        </div>
+        <hr />
+        <div>点击进入教程世界</div>
+        <pe:gridview AllowPaging="True" pagesize="3" ItemsPerLine="3" name="gvwOfflineTutorialWorlds" DataSource='<%=Map3DSystem.App.Login.TutorialPage.DS_OfflineTutorial_Func%>' DefaultNodeHeight="200" CellPadding="5">
+            <Columns>
+                <pe:world worldpath='<%=Eval("worldpath")%>' role="poweruser">
+                    <div style="width:160px">
+                        <img src='<%=Eval("preview")%>'width="160" height="90"/><br />
+                        <div style="font-weight:bold;text-align:center"><%=Eval("Title")%></div>
+                        <div><%=Eval("SubTitle")%></div>
+                    </div>
+                </pe:world>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>没有安装任何单机教程</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Top"/>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item name="online" text="联网教程" selected="true" style="padding-left:5px">
+        <pe:if-is-user uid="notloggedinuser">
+            <b>您尚未登陆.</b>联网教程只有在你注册成为帕拉巫居民并且成功登陆后才能使用
+        </pe:if-is-user> 
+        <pe:if-is-user uid="loggedinuser">
+            <img style="background:url(Texture/3DMapSystem/Desktop/Startup/OfficalWeb.png);width:64px;height:64px;"/>
+            <div style="float:left;margin-left:5px;"><b>帕拉巫新手村 -- 联网教程</b><br/>
+            我们建议你先完成单机版教程, 然后开始联网教程. 这里你将遇到帕拉巫世界中的其他居民<br />
+            <img style="background:url(Texture/3DMapSystem/common/exclamation.png);width:16px;height:16px;"/><div style="margin-left:5px;float:left;color:#808080">预览版处于内测阶段, 服务器可能会比较慢. 如果您无法登陆, 请隔天再试.</div>
+            </div>
+            <hr />
+            <div>点击进入联网教程世界</div>
+            <pe:gridview AllowPaging="True" pagesize="3" ItemsPerLine="3" name="gvwOnlineTutorialWorlds" DataSource='<%=Map3DSystem.App.Login.TutorialPage.DS_OnlineTutorial_Func%>' DefaultNodeHeight="200" CellPadding="5">
+                <Columns>
+                    <pe:world worldpath='<%=Eval("worldpath")%>' role="poweruser" autolobby="true">
+                        <div style="width:160px">
+                            <img src='<%=Eval("preview")%>'width="160" height="90"/><br />
+                            <div style="font-weight:bold;text-align:center"><%=Eval("Title")%></div>
+                            <div><%=Eval("SubTitle")%></div>
+                        </div>
+                    </pe:world>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>没有安装任何单机教程</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在搜索, 请稍候 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Top"/>
+            </pe:gridview>
+        </pe:if-is-user> 
+    </pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>
+
+
+

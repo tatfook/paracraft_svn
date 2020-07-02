@@ -1,0 +1,41 @@
+﻿<!-- "script/apps/Aquarius/Profile/house.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>a read-only user profile page</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="house.lua">
+</script>
+<div style="color:#808080">房屋系统此版本暂未开放，敬请期待</div>
+<hr />
+<div>
+<pe:gridview AllowPaging="false" ItemsPerLine="1" name="gvwHouses" DataSource='<%=MyCompany.Aquarius.housePage.DS_Func%>' DefaultNodeHeight="100">
+    <Columns>
+        <div>
+            <div style="float:left;width:64px;">
+                <img src='<%=Eval("preview")%>'width="64" height="64"/>
+            </div>
+            <div style="float:left;margin-left:5px">
+                <div style="float:left;width:200px">名字: <%=Eval("name")%></div><a href="#" tooltip="">修改</a><a onclick="MyCompany.Aquarius.housePage.OnVisitHomeZone" tooltip="">查看</a><a onclick="MyCompany.Aquarius.housePage.OnEditHomeZone" tooltip="">编辑</a><br />
+                <div style="float:left;width:200px">名字: <%=Eval("name")%></div><a href="#" tooltip="">修改</a><br />
+                <div style="float:left;width:200px">坐落: <%=Eval("location")%></div><a href="#" tooltip="">搬家</a><br />
+                <div style="float:left;width:200px">户型: <%=Eval("type")%></div><div style="float:left;width:200px">面积: <%=Eval("size")%></div><br />
+                <div style="float:left;width:200px">购价: <%=Eval("price")%></div><div style="float:left;width:200px">稀有度: <%=Eval("rareness")%></div><br />
+            </div>
+        </div>
+        <hr />
+    </Columns>
+    <EmptyDataTemplate>
+        <b>您没有住宅, 请到公共世界申请</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>正在搜索, 请稍候 ... </b>
+    </FetchingDataTemplate>
+</pe:gridview>
+</div>    
+</pe:mcml>
+</body>
+</html>
+

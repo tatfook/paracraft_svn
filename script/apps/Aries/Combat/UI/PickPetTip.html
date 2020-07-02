@@ -1,0 +1,129 @@
+﻿<!-- script/apps/Aries/Combat/UI/PickPetTip.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+
+local guid = page:GetRequestParam("guid");
+local state = page:GetRequestParam("state");
+local bAvailable = page:GetRequestParam("bAvailable");
+
+if(bAvailable == "false") then
+    bAvailable = false;
+end
+
+bgpos = page:GetRequestParam("bg") or "0";
+bgpos = tonumber(bgpos);
+
+guid = tonumber(guid) or 0;
+
+local item = ItemManager.GetItemByGUID(guid)
+
+gsid = tonumber(item.gsid) or 0;
+state = tonumber(state) or 1;
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+local props = item:GetCurLevelProps();
+
+text_color = if_else(System.options.version == "teen", "#52dff4", "#000000");
+
+prop_lines = "";
+
+local t, value;
+for t, value in pairs(props) do
+    local word = Combat.GetStatWord_OfTypeValue(t, value)
+    if(word) then
+        prop_lines = prop_lines..string.format([[<div style="color:%s">%s</div><br/>]], text_color, word);
+    end
+end
+
+name = item:GetName_client();
+
+card_lines = "";
+
+local cards = item:GetCurLevelCards();
+
+local t, value;
+for t, value in pairs(cards) do
+    card_lines = card_lines..string.format([[<pe:item style="width:40px;height:40px;margin-right:2px;" gsid="%d"/>]], value);
+end
+
+if(card_lines ~= "") then
+    card_lines = string.format([[<div style="margin-bottom:5px;color:%s">附带卡片:</div><br/>%s]], text_color, card_lines)
+end
+
+current_level = 0;
+max_level = 0;
+
+if(item.GetServerData)then
+	local serverdata = item:GetServerData();
+	exp = serverdata.exp;
+	local level,cur_exp,total_exp,isfull;
+    NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+    local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+    local provider = CombatPetHelper.GetClientProvider();
+	if(provider)then
+		is_combat,isvip = provider:IsCombatPet(gsid);
+		level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid, exp);
+        current_level = level;
+        level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid, 99999999);
+        max_level = level;
+    end
+end
+
+if(current_level <= 0) then
+    current_level = 0;
+end
+
+if(max_level <= 0) then
+    max_level = 0;
+end
+
+if_not_available = "";
+if(bAvailable == false) then
+    if_not_available = [[<div style="margin-bottom:0px;color:#FF0000">已出战过</div>]]
+end
+
+version = System.options.version;
+
+
+]]></script>
+<pe:if condition='<%=Eval("version") == "kids"%>'>
+    <div style="background:url(Texture/Aries/Common/my_tooltip_border_bg.png:3 3 3 3);">
+        <div style="font-size:12px;margin:10px;width:128px;">
+           <div style="color:#000000"><%=Eval("name")%></div>
+           <pe:item gsid='<%=Eval("gsid")%>' style="margin-top:-20px;margin-left:84px;width:40px;height:40px;"/>
+           <%=Eval("if_not_available")%>
+           <div style="margin-bottom:0px;color:#000000">当前等级: <%=Eval("current_level")%></div>
+           <div style="margin-bottom:5px;color:#000000">最高等级: <%=Eval("max_level")%></div>
+           <%=Eval("prop_lines")%>
+           <%=Eval("card_lines")%>
+        </div>
+    </div>
+</pe:if>
+<pe:if condition='<%=Eval("version") == "teen"%>'>
+    <div class="tooltip">
+        <div style="font-size:12px;margin:10px;width:128px;">
+           <div style="color:#52dff4;"><%=Eval("name")%></div>
+           <pe:item gsid='<%=Eval("gsid")%>' style="margin-top:-20px;margin-left:84px;width:48px;height:48px;"/>
+           <%=Eval("if_not_available")%>
+           <div style="margin-bottom:0px;color:#52dff4;">当前等级: <%=Eval("current_level")%></div>
+           <div style="margin-bottom:5px;color:#52dff4;">最高等级: <%=Eval("max_level")%></div>
+           <%=Eval("prop_lines")%>
+           <%=Eval("card_lines")%>
+        </div>
+    </div>
+</pe:if>
+</pe:mcml>
+</body>
+</html>

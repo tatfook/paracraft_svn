@@ -1,0 +1,754 @@
+<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/CharacterBagPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CharacterBagPage.lua" refresh="false">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/UserBag/BagHelper.lua");
+local BagHelper = commonlib.gettable("MyCompany.Aries.Inventory.BagHelper");
+NPL.load("(gl)script/apps/Aries/UserBag/EquipHelper.lua");
+EquipHelper = commonlib.gettable("MyCompany.Aries.Inventory.EquipHelper");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local LOG = LOG;
+
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+CharacterBagPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+------------------
+
+function ClosePage()
+    local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+    if (MyCardsManager.equipNum==0 and MyCardsManager.cardNum>0) then
+         _guihelper.MessageBox("你当前战斗背包中没有魔法卡片哦！快打开技能背包，选择卡片吧！");
+         MyCardsManager.ShowPage();        
+    end
+    CharacterBagPage.ClosePage();
+end
+
+function GetNid()
+    return Map3DSystem.User.nid;
+end
+function GetNidStr()
+    -- local nid_str = MyCompany.Aries.ExternalUserModule:GetNidDisplayForm(GetNid())
+    return tostring(GetNid());
+end
+function Get_account_name()
+    return MyCompany.Aries.ExternalUserModule:GetConfigByNid(nid).account_name
+end
+function DS_Func_Items(index)
+    return CharacterBagPage.DS_Func_Items(index);
+end
+function GetFolderDataSource()
+    return CharacterBagPage.folder_menu;
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        CharacterBagPage.DoChangeFolder(node.keyname);
+    end
+end
+function OnSelectFashionPreview()
+    
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(false);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", false);
+    System.Item.ItemManager.RefreshMyself();
+    pageCtrl:Refresh(0.1);
+end
+
+function OnSelectCombatPreview()
+    MyCompany.Aries.Pet.SetSkipFashionItemMode(true);
+    MyCompany.Aries.app:WriteConfig("bSkipFashionItemMode", true);
+    System.Item.ItemManager.RefreshMyself();
+    pageCtrl:Refresh(0.1);
+end
+function SkipFashionItemMode()
+    return MyCompany.Aries.Pet.GetSkipFashionItemMode();
+end
+function GetCopies(gsid)
+    gsid = tonumber(gsid);
+    if(not gsid)then return 0 end
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+
+function GetMagicBean()
+    local __,__,__,copies = hasGSItem(984);
+    copies = copies or 0;
+    return copies;
+end
+function LessMaxBagSize()
+    local itemCnt = CharacterBagPage.GetItemCnt() or 0;
+    local max_size = CharacterBagPage.GetBagSize();
+    if(itemCnt <= max_size)then
+        return true;
+    end
+end
+function GetBagSizeString()
+    local itemCnt = CharacterBagPage.GetItemCnt() or 0;
+    local max_size = CharacterBagPage.GetBagSize();
+    local s = string.format("背包容量:%d/%d", itemCnt, max_size)
+	return s;
+end
+function DoShop()
+    NPL.load("(gl)script/apps/Aries/NPCs/Commons/CommonNPCs.teen.lua");
+    local CommonNPCs = commonlib.gettable("MyCompany.Aries.Quest.NPCs.CommonNPCs");
+    CommonNPCs.ShowBear(function()
+        NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+        local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+        NPCShopPage.ShowPage(-1);
+    end,true);
+    ClosePage();
+end
+function DoExtendBagSize()
+    NPL.load("(gl)script/apps/Aries/DealDefend/DealDefend.lua");
+	local DealDefend = commonlib.gettable("MyCompany.Aries.DealDefend.DealDefend");
+	if(not DealDefend.CanPass())then
+		return
+	end
+    local magic_bean = GetMagicBean();
+	local cur_node,next_node,is_full = CharacterBagPage.GetCurBagLevelNode();
+    if(is_full)then
+		_guihelper.MessageBox("你的背包已到极限，无法再扩展。");
+		return
+    end
+    if(cur_node and next_node)then
+        if(magic_bean < next_node.price)then
+            local s = string.format([[<div>这是你第<span style="color:#ff0000">%d</span>次扩展背包,扩展<span style="color:#ff0000">%d</span>格,需要消耗<span style="color:#ff0000">%d</span>金币,你的金币不够！是否充值？<div>]],next_node.level,(next_node.bag_size - cur_node.bag_size),next_node.price);
+            -- _guihelper.MessageBox(s);
+            _guihelper.Custom_MessageBox(s,function(result)
+	            if(result == _guihelper.DialogResult.Yes)then
+                    NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.teen.lua");
+                    local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+                    PurchaseMagicBean.Show()                    
+	            end
+            end,_guihelper.MessageBoxButtons.YesNo);            
+            return
+        end
+         local s = string.format([[<div>这是你第<span style="color:#ff0000">%d</span>次扩展背包,扩展<span style="color:#ff0000">%d</span>格,需要消耗<span style="color:#ff0000">%d</span>金币,确认需要扩展吗?</div>]],next_node.level,(next_node.bag_size - cur_node.bag_size),next_node.price);
+        _guihelper.Custom_MessageBox(s,function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+                CharacterBagPage.DoBagExtend();
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo);
+    end
+end
+
+function LessMaxBagSizeByIndex(index)
+    local max_size = CharacterBagPage.GetBagSize();
+    if(index and index <=max_size )then
+        return true;
+    end
+end
+function DoClick(guid)
+    local result = CommonClientService.OnClick_Slot_Special(guid,function(msg)
+    end);
+    return result;
+end
+--装备升级
+function CanUpgrade(gsid)
+    return EquipHelper.CanUpgrade(gsid)
+end
+--宝石镶嵌
+function CanAttachGem(gsid)
+    return EquipHelper.CanAttachGem(gsid,CharacterBagPage.gems_list);
+end
+--装备平移
+function CanTranslation(gsid)
+    return EquipHelper.CanTranslation(gsid,CharacterBagPage.translation_list);
+end
+
+function CanShowExtraButton(gsid)
+    if(CanUpgrade(gsid) or CanAttachGem(gsid) or CanTranslation(gsid))then
+        return true;
+    end
+end
+
+function IsBetterEquipment(gsid)
+    return EquipHelper.IsBetterEquipment(gsid, true);
+end
+
+function OnHandleItemOperation(name, gsid)
+    if(name == "upgrade")then
+        pageCtrl:CloseWindow();
+        EquipHelper.DoUpgrade(gsid);
+    elseif(name == "attach_gem")then
+        pageCtrl:CloseWindow();
+        NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemAttachPage.lua");
+        local GemAttachPage = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemAttachPage");
+        GemAttachPage.ShowPage(gsid);
+    elseif(name == "translation")then
+        pageCtrl:CloseWindow();
+        NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemTranslationPage.lua");
+        local GemTranslationPage = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemTranslationPage");
+        GemTranslationPage.ShowPage(gsid)
+    end
+end
+
+function OnClickAddonlevel()
+    OnHandleItemOperation("upgrade", nil);
+end
+
+function OnClickAddGem()
+    OnHandleItemOperation("attach_gem", nil);
+end
+function OnClickBuildGem()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+    local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+    ItemBuildPage.ShowPage("gem");
+end
+function MenuClick(node)
+    if(node and node.Name and node.gsid)then
+        OnHandleItemOperation(node.Name, node.gsid);
+    end
+end
+function ShowExtraMenu(gsid)
+    local can_upgrade = CanUpgrade(gsid);
+    local can_attachgem= CanAttachGem(gsid);
+    local can_translate_gem = CanTranslation(gsid);
+    if(can_upgrade and not can_attachgem and not can_translate_gem)then
+        OnHandleItemOperation("upgrade", gsid);
+    elseif(not can_upgrade and can_attachgem and not can_translate_gem)then
+        OnHandleItemOperation("attach_gem", gsid);
+    elseif(not can_upgrade and not can_attachgem and can_translate_gem)then
+        OnHandleItemOperation("translation", gsid);
+    else
+        -- multi-operation available. 
+	    local ctl = CommonCtrl.ContextMenu:new{
+            width = 100,
+	    };
+    
+	    local root_node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "root_node", Type = "Group", NodeHeight = 0 });
+        if(can_upgrade)then
+	        root_node:AddChild(CommonCtrl.TreeNode:new({Text = "装备强化", Name = "upgrade", Type = "Menuitem", gsid = gsid, onclick = MenuClick, }));
+        end
+        if(can_attachgem)then
+	        root_node:AddChild(CommonCtrl.TreeNode:new({Text = "宝石镶嵌", Name = "attach_gem", Type = "Menuitem", gsid = gsid, onclick = MenuClick, }));
+        end
+        if(can_translate_gem)then
+	        root_node:AddChild(CommonCtrl.TreeNode:new({Text = "装备平移", Name = "translation", Type = "Menuitem", gsid = gsid, onclick = MenuClick, }));
+        end
+        local x, y, width, height = _guihelper.GetLastUIObjectPos();
+	    if(x and y)then
+		    ctl:Show(x, y+height+2);
+	    end
+    end
+end
+function GetGsid(bag,position)
+    local item = ItemManager.GetItemByBagAndPosition(bag, position);
+    if(item)then
+        return item.gsid;
+    end
+end
+
+inventory_durability = MyCompany.Aries.Combat.GetLowestDurabilityPercent();
+]]></script>
+
+<script type="text/npl" refresh="true">
+<![CDATA[
+----------
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+local CharacterBagPage = commonlib.gettable("MyCompany.Aries.Inventory.CharacterBagPage");
+local system_looptip = commonlib.gettable("MyCompany.Aries.Desktop.AutoTips.system_looptip");
+
+function onGotoNextPage()
+    Page:SetValue("TooltipsPPT", "next")
+end
+
+function onGotoStartPage(hstate)    
+    
+    if (not hstate) then
+        CharacterBagPage.DoChangeFolder(nil);
+        if (CharacterBagPage.DS_Func_Items) then
+	        local firstItem = CharacterBagPage.DS_Func_Items(1);
+            if (firstItem and type(firstItem) == "table") then
+	            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	            if (gsItem and gsItem.template.class~=1) then -- judge item is equip or not
+                    _guihelper.MessageBox("你背包里还没有装备，等你拥有了新装备再告诉你怎么用");
+                    return
+	            end
+            end
+        else
+            _guihelper.MessageBox("你背包里还没有装备，等你拥有了新装备再告诉你怎么用");
+            return
+        end
+    end
+
+    Page:SetValue("TooltipsPPT", "inventory1")
+    local btnHelp = Page:FindControl("whatisthis");
+    if(btnHelp) then
+        btnHelp.visible = false;
+    end
+
+    if(not system_looptip.inventoryhelp_tip) then
+        system_looptip.inventoryhelp_tip = true;
+        Player.SaveLocalData("MyCardsManager.inventorytips", true);
+    end
+end
+--[[
+if (not system_looptip.inventoryhelp_tip) then
+	local bean = MyCompany.Aries.Pet.GetBean();
+    local myCombatLevel = 0;
+    if(bean) then
+	    myCombatLevel = bean.combatlel or 0;
+    end
+
+    -- 当背包第1格为装备时，才启动 PPT 帮助
+    if (myCombatLevel<10 ) then
+        if(system_looptip.inventoryhelp_tip == nil) then
+            system_looptip.inventoryhelp_tip = Player.LoadLocalData("MyCardsManager.inventorytips", false);
+        end
+        if (not system_looptip.inventoryhelp_tip) then
+	        local firstItem = CharacterBagPage.DS_Func_Items(1);
+            if (firstItem and type(firstItem) == "table") then
+	            local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(firstItem.gsid);
+	            if (gsItem and gsItem.template.class==1) then -- judge item is equip or not
+                    onGotoStartPage(1);		
+	            end
+            end
+        end
+    else
+        system_looptip.inventoryhelp_tip = true;
+    end
+end
+]]
+
+local VIP = commonlib.gettable("MyCompany.Aries.VIP");
+function IsVip()
+    return VIP.IsVIP();
+end
+function IsAllType()
+    if(not CharacterBagPage.selected_folder)then
+        return true;
+    end
+end
+function IsCardType()
+    if(CharacterBagPage.selected_folder == "CombatCard")then
+        return true;
+    end
+end
+function CardFilter_Toggle(index)
+    CharacterBagPage.CardFilter_Toggle(index);
+    CharacterBagPage.RefreshPage();
+end
+function OnClickGemTrans()
+    NPL.load("(gl)script/apps/Aries/ApparelTranslation/GemTranslationPage.lua");
+    local GemTranslationPage = commonlib.gettable("MyCompany.Aries.ApparelTranslation.GemTranslationPage");
+    GemTranslationPage.ShowPage();
+end
+function DoSortBag()
+    CharacterBagPage.DoSortBag();
+end
+function DS_Func_Card_Filter(index)
+    return CharacterBagPage.DS_Func_Card_Filter(index);
+end
+function DoCardSelectedAll()
+    if(CharacterBagPage.CardFilter_IsSelectedAll())then
+        CharacterBagPage.CardFilter_SelectedAll(false);
+    else
+        CharacterBagPage.CardFilter_SelectedAll(true);
+    end
+    CharacterBagPage.RefreshPage();
+end
+function OnShowMinorPage()
+    local MinorSkillPage = commonlib.gettable("MyCompany.Aries.Desktop.MinorSkillPage");
+    MinorSkillPage.ShowPage()
+    ClosePage();
+end
+function OnShowTotemPage()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/TotemPage.lua");
+    local TotemPage = commonlib.gettable("MyCompany.Aries.Desktop.TotemPage");
+    if(not TotemPage.HasLearned())then
+        TotemPage.ShowLearnPage();
+    else
+        TotemPage.ShowPage()
+    end
+    ClosePage();
+end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:2px;margin-left:5px;width:800px;height:470px;">
+	<div name="inventory1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:323px;margin-top:55px;width:52px;height:52px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+<!--        <div style="margin-left:310px;margin-top:113px;width:330px;padding:8px;color:#98fffc;background:url(Texture/Aries/Common/ThemeTeen/rookiehelp_bg_32bits.png#0 0 16 16: 3 3 3 3)">-->
+        <div style="margin-left:330px;margin-top:123px;width:330px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+			这些是你已获得的装备，用鼠标点击一下就可以穿到身上！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:200px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:340px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+        <!--<input type="button" style="float:left;width:12px;height:13px;margin-top:-78px;margin-left:340px;background:url(Texture/Aries/Common/ThemeTeen/rookiehelp_upleftarrow_32bits.png#0 0 12 13)" />-->
+
+	</div>
+    <div name="inventory2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:5px;margin-top:158px;width:49px;height:50px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <!--<div style="margin-left:30px;margin-top:168px;width:300px;padding:8px;color:#98fffc;background:url(Texture/Aries/Common/ThemeTeen/rookiehelp_bg_32bits.png#0 0 16 16: 3 3 3 3)">-->
+        <div style="margin-left:50px;margin-top:188px;width:300px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			这些是你已经穿在身上的装备，用鼠标点击一下就能把它再放回背包里
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:100px;margin-top:5px;" />
+		</div>
+        <!--<input type="button" style="float:left;width:12px;height:13px;margin-top:-83px;margin-left:40px;background:url(Texture/Aries/Common/ThemeTeen/rookiehelp_upleftarrow_32bits.png#0 0 12 13)" />-->
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-88px;margin-left:60px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_leftup_32bits.png#0 0 32 32)" />
+	</div>
+    <div name="inventory3">
+		<pe:maskarea zorder="-1" method="full" style="margin-left:5px;margin-top:280px;width:353px;height:132px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <!--<div style="margin-left:250px;margin-top:162px;width:300px;padding:8px;color:#98fffc;background:url(Texture/Aries/Common/ThemeTeen/rookiehelp_bg_32bits.png#0 0 16 16: 3 3 3 3)">-->
+        <div style="margin-left:250px;margin-top:162px;width:300px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			好了，穿和脱装备就这么简单，其他衣服和鞋子也都是一样，以后自己多试试吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:40px;margin-top:5px;" />
+		</div>
+	</div>
+    <div name="inventory4">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:752px;margin-top:3px;width:20px;height:20px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>        
+        <div style="margin-left:620px;margin-top:42px;width:200px;padding:8px;color:#98fffc;"  class="anchor_tooltip_bg">
+			如果想再看一次帮助就点这里吧！
+            <input type="button" class="defaultbutton" value="知道了" onclick="onGotoNextPage" name="next" style="width:70px;height:28px;margin-left:0px;margin-top:5px;" />
+		</div>
+        <input type="button" style="float:left;width:21px;height:26px;margin-top:-89px;margin-left:745px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png#0 0 32 32)" />
+	</div>
+</pe:powerpoint>
+<aries:window width="800" height="470" title="背包" onhelp="onGotoStartPage" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/bag_icon_32bits.png" >
+    <pe:goalpointer listen="close" class="closewindow_tip"></pe:goalpointer>
+    <pe:block style="float:left;margin-left:6px;margin-top:28px;background:;" zorder="-11">
+        <div class="border_bg1_css" style="width:310px;height:431px;margin-top:5px;">
+        <div style="width:310px;height:30px;">
+                <div class="highbluecolor" style="text-align:center;margin-top:5px;">
+                    <pe:name name="FullProfileUserName" nid='<%=GetNid()%>' useyou="false" linked="false" />
+                </div>
+        </div>
+        <div style="position:relative;margin-left:60px;margin-top:10px;">
+            <aries:vip-sign nid='<%=GetNid()%>' style="width:64px;height:64px;" vip_icon="Texture/Aries/Common/ThemeTeen/magic/star_32bits.png" vip_icon_gray="Texture/Aries/Common/ThemeTeen/magic/star_gray_32bits.png"/>
+            <aries:mountpet-status2 name="mlel" nid='<%=GetNid()%>' showzero="true"  type="mlel" style="margin-left:-38px;margin-top:0px;width:16px;height:16px;color:#003366;font-weight:bold;text-align:center;background:url(Texture/Aries/Common/ThemeTeen/magic/number_bg_32bits.png);"/>
+        </div>
+        <div style="position:relative;margin-left:170px;margin-top:10px;font-weight:norm;padding-left:20px;padding-top:10px;width:180px;height:100px;color:#000000;background:;">
+            <div style="margin-top:-6px;width:64px;height:32px;background:" class="highbluecolor">
+                <aries:mountpet-combatschool name="combat_school" nid='<%=GetNid()%>' style="margin-left:8px;margin-top:1px;"/>
+            </div>
+            <br/>
+            <div style="margin-top:-8px;width:64px;height:32px;background:" class="highbluecolor">
+                <aries:mountpet-status2 name="combat_level" nid='<%=GetNid()%>' type="combatlel" hideifnotvip="true" style="margin-left:12px;margin-top:1px;"/>
+                <div style="margin-left:-36px;float:left;">级</div>
+            </div>
+            <!--<div style="margin-top:-8px;width:64px;height:32px;background:" class="highbluecolor">
+                <aries:mountpet-status2 type="luck_text" nid='<%=GetNid()%>' style="margin-left:8px;margin-top:1px;"/>
+            </div>-->
+        </div>
+                 
+            <div style="position:relative;margin-left:0px;margin-top:0px;width:344px;height:385px;background:;">
+            <div style="position:relative;float:left;margin-left:3px;margin-top:-5px;width:48px;height:228px;">
+                    <!-- TODO: find a better place, I have moved this to ProfilePane.teen.html
+                    <div style="position:relative;margin-left:205px;margin-top:148px;width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="54" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" onclick="OnShowMinorPage" ShowSlotNameIfEmpty="符印"/>
+                    </div>
+                    <div style="position:relative;margin-left:205px;margin-top:198px;width:48px;height:48px;padding:4px;" class="block">
+                        <pe:slot nid='<%=GetNid()%>' bag="0" position="52" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" onclick="OnShowTotemPage" ShowSlotNameIfEmpty="强化"/>
+                    </div>
+                    -->
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="2" zorder=2 style = "width:40px;height:40px;" class="highbluecolor" HideVIPTag="true" ShowSlotNameIfEmpty="帽子"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,2))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,2) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="8" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="背部"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,8))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,8) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="5" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="衣服"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,5))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,5) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="9" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手套"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,9))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,9) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="7" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="鞋子"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,7))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,7) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="11" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="主手"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,11))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,11) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                    
+            </div>
+            <div style="position:relative;float:left;margin-top:30px;margin-left:24px;width:256px;height:256px;">
+                <pe:player nid='<%=GetNid()%>' name="AriesPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:256px;height:256px;" IsInteractive="false"/>
+            </div>
+            <div style="position:relative;margin-left:30px;margin-top:60px;">
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateleft" zorder="2" style="float:left;margin-left:35px;margin-top:210px;width:36px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                <aries:miniscenecameramodifier miniscenename="AvatarMyselfTabCharacter" type="rotateright" zorder="2" style="float:left;margin-left:105px;margin-top:210px;width:36px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+            </div>
+            <div style="position:relative;margin-left:50px;">
+                    <img src="Texture/Aries/Common/ThemeTeen/others/profile_highlight_1_32bits.png;0 0 256 100" enabled="false" style="background-color:#ffffffff;margin-left:28px;margin-top:250px;width:200px;height:50px;" />
+                </div>
+            <div style="position:relative;float:left;margin-left:255px;margin-top:-9px;width:48px;height:228px;">
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="17" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="项链"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,17))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,17) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="14" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="耳环"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,14))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,14) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="15" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="手镯"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,15))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,15) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="16" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="戒指"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,16))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,16) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="12" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="腰带"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,12))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,12) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+                <div style="width:48px;height:48px;padding:4px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="10" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="副手"/>
+                    <pe:if condition='<%=CanShowExtraButton(GetGsid(0,10))%>'>
+                        <!--<img style="position:relative;margin-left:2px;margin-top:-46px;width:45px;height:45px;" zorder="5" enabled="false" class="animated_btn_overlay" />-->
+                        <input type="button" name='<%=GetGsid(0,10) %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" class="upgrade_btn" style="position:relative;margin-left:24px;margin-top:-15px;" />
+                    </pe:if>    
+                </div>
+            </div>
+            <div style="margin-left:5px;margin-top:300px;width:248px;height:42px;font-size:12px;" class="border_bg5_css">
+            <div style="float:left;width:70px;margin-top:2px;">
+                <pe:if condition='<%=not SkipFashionItemMode()%>'>
+                    <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                    <input type="button" value="炫彩装" style="float:left;width:40px;height:20px;" class="highlight_btn_css"/>
+                    <br />
+                    <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectCombatPreview" />
+                    <input type="button" value="战斗装" style="float:left;width:40px;height:20px;" class="default_btn_css" onclick="OnSelectCombatPreview" />
+                </pe:if>
+                <pe:if condition='<%=SkipFashionItemMode()%>'>
+                    <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_32bits.png)" onclick="OnSelectFashionPreview" />
+                    <input type="button" value="炫彩装" style="float:left;width:40px;height:20px;" class="default_btn_css" onclick="OnSelectFashionPreview" />
+                    <br />
+                    <input type="button" value="" style="margin-left:10px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/radio_selected_32bits.png)" />
+                    <input type="button" value="战斗装" style="float:left;width:40px;height:20px;" class="highlight_btn_css" />
+                </pe:if>
+            </div>
+            <div style="float:left;margin-left:2px;margin-top:2px;" >
+                <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="72" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="玩具"/>
+                </div>
+                <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="18" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="炫帽"/>
+                </div>
+                <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="19" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="炫衣"/>
+                </div>
+                <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="70" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="炫背"/>
+                </div>
+                <div zorder="2" style="float:left;width:32px;height:32px;" class="block">
+                    <pe:slot nid='<%=GetNid()%>' bag="0" position="71" zorder=2 style = "width:32px;height:32px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="炫鞋"/>
+                </div>
+            </div>
+            </div>
+            <div style="position:relative;margin-left:257px;margin-top:-48px;width:48px;height:48px;padding:4px;" class="block">
+                <pe:slot nid='<%=GetNid()%>' bag="0" position="33" zorder=2 style = "width:40px;height:40px;" class="highbluecolor"  HideVIPTag="true" ShowSlotNameIfEmpty="坐骑"/>
+            </div>
+        </div>
+        <div style="margin-left:5px;margin-top:345px;width:300px;height:50px;" class="border_bg1_css">
+            <div style="margin-left:5px;margin-top:5px;" class="highbluecolor">
+                <div style="float:left;min-width:140px;">家族:<div style="float:left;"><aries:userinfo nid='<%=GetNid()%>' field="family" /></div></div>
+                <div style="float:left;min-width:140px;">人气值:<div style="float:left;"><aries:userinfo nid='<%=GetNid()%>' field="popularity" /></div></div>
+            </div>
+            <div style="margin-left:5px;margin-top:5px;" class="highbluecolor">
+                <div style="float:left;min-width:140px;">帐号:<div style="float:left;"><%=GetNidStr()%></div></div>
+                <div style="float:left;position:relative;font-weight:bold" class="highbluecolor">
+                    战斗力:<%=format("%d", MyCompany.Aries.Player.GetGearScore())%>
+                </div>
+            </div>
+        </div>
+    </div>
+    </pe:block>
+    <pe:block style="float:left;margin-top:28px;width:480px;height:800px;background:;" zorder="15">
+			<div style="position:relative;margin-left:10px;margin-top:3px;" >
+                <pe:togglebuttons name="folder_menu"  DataSource='<%=GetFolderDataSource() %>' 
+                ItemSpacing="0"
+                ButtonWidth="45"
+                ButtonHeight="25"
+                onclick='OnClickFolder'/>
+			</div>
+            <div style="position:relative;width:500px;height:500px;margin-left:13px;margin-top:30px;" > 
+                    <pe:gridview name="bags_view" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="9" AllowPaging="true" RememberScrollPos="true" RememberLastPage="true" pagesize="54">
+				        <Columns>
+                        <pe:if condition='<%=LessMaxBagSizeByIndex(Eval("index"))%>'>
+						    <div class="block" style="margin-left:2px;margin-top:2px;width:48px;height:48px;padding:4px;">
+                                <pe:slot guid='<%=Eval("guid")%>' style="width:40px;height:40px;" onclick="DoClick" isdragable="true"/>
+				            </div>
+                        </pe:if>
+                        <pe:if condition='<%=not LessMaxBagSizeByIndex(Eval("index"))%>'>
+                             <div class="block" style="margin-left:2px;margin-top:2px;width:48px;height:48px;padding:4px;">
+						        <div style="position:relative;margin-left:0px;margin-top:0px;width:48px;height:48px;padding:4px;background:url(Texture/Aries/Common/ThemeTeen/shop/locked_32bits.png#0 0 48 48)" />
+                                <pe:slot guid='<%=Eval("guid")%>' style="width:40px;height:40px;" onclick="DoClick" isdragable="true"/>
+				            </div>
+                        </pe:if>
+                        <pe:if condition='<%=IsBetterEquipment(Eval("gsid"))%>'>
+                            <img style="position:relative;margin-left:4px;margin-top:-46px;width:45px;height:45px;" enabled="false" class="animated_btn_overlay" />
+                        </pe:if>
+                        <!--<pe:if condition='<%=CanShowExtraButton(Eval("gsid"))%>'>
+                            <input type="button" name='<%=Eval("gsid") %>' onclick="ShowExtraMenu" tooltip="提升属性" zorder="5" style="position:relative;width:16px;height:16px;margin-left:35px;margin-top:-14px;background:url(Texture/Aries/Common/ThemeTeen/others/extra_btn_32bits.png)" />
+                        </pe:if>-->
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <b>空</b>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:180px;margin-top:-150px;width:260px;height:25px;"/>
+				        <PagerTemplate AutoHidePager="true">
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>
+            </div>
+            <div style="position:relative;margin-left:5px;padding-left:5px;margin-top:380px;width:470px;height:50px;" class="border_bg1_css">
+                <div>
+                    <div tooltip="打怪、做任务获得，可用于购买物品、强化装备等。" style="float:left;width:250px;margin-top:5px;" class="highbluecolor" >
+                        <pe:item is_container="true" isclickable="false" gsid="0" style="float:left;width:250px;margin-top:2px;height:20px" class="highbluecolor" >
+                            <pe:item gsid="0" isenabled="false" style="width:20px;height:20px;"/>
+                            <div style="float:left;margin-left:2px;">银币:</div><pe:slot type="count" gsid="0" style="float:left;" />
+                        </pe:item>
+                    </div>
+                </div>
+                <div>
+                    <pe:item is_container="true" isclickable="false" gsid="984" style="float:left;width:250px;margin-top:2px;height:20px" class="highbluecolor" >
+                        <pe:item gsid="984" isenabled="false" style="width:20px;height:20px;"/>
+                        <div style="float:left;margin-left:2px;">金币:</div><pe:slot type="count" gsid="984" style="float:left;" />
+                    </pe:item>
+                </div>
+            </div>
+            <div style="position:relative;margin-left:12px;margin-top:332px;">
+                <pe:if condition="<%=IsCardType()%>">
+                    <div style="float:left">
+                        <input type="button" value="全部" onclick="DoCardSelectedAll" class="defaultbutton" />
+                    </div>
+                    <div style="float:left;margin-top:4px;">
+                        <pe:gridview name="card_filter_view" DataSource="<%=DS_Func_Card_Filter%>"  ItemsPerLine="20" AllowPaging="false" pagesize="500">
+                            <Columns>
+                                <div >
+                                    <div style="float:left;width:16px;height:16px;">
+                                        <pe:if condition='<%=Eval("selected")%>'>
+                                            <input type="button" name='<%=Eval("index")%>' onclick="CardFilter_Toggle" background='Texture/Aries/Common/ThemeTeen/checkbox_32bits.png' style="width:16px;height:16px;"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=not Eval("selected")%>'>
+                                            <input type="button" name='<%=Eval("index")%>' onclick="CardFilter_Toggle" background='Texture/Aries/Common/ThemeTeen/uncheckbox_32bits.png' style="width:16px;height:16px;"/>
+                                        </pe:if>
+                                    </div>
+                                    <div style="float:left;"><%=Eval("label")%></div>
+                                </div>
+                            </Columns>
+                            <EmptyDataTemplate>
+                            </EmptyDataTemplate>
+                            <FetchingDataTemplate>
+                            </FetchingDataTemplate>
+                        </pe:gridview>
+                    </div>
+                </pe:if>
+            </div>
+            <div style="position:relative;">
+                <pe:if condition="<%=IsAllType()%>">
+                    <input type="button" value="整理背包" class="default_btn_css" onclick="DoSortBag" style="margin-left:310px;margin-top:354px;"/>
+                </pe:if>
+            </div>
+            <div style="position:relative;">
+                <input type="button" value="扩展背包" class="default_btn_css" onclick="DoExtendBagSize" style="margin-left:390px;margin-top:354px;"/>
+            </div>
+<!--            <div style="position:relative;margin-left:220px;margin-top:380px;">
+                <div style="float:left;margin-top:2px;">
+                    <div style="">
+                        <pe:goalpointer listen="select_any_addon_equipment" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+                        <input type="button" value="装备强化" onclick="OnClickAddonlevel" class="defaultbutton" style="margin-top:2px;width:80px;"/>
+                    </div>
+                    <div style="">
+                        <pe:goalpointer listen="" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+                        <input type="button" value="装备平移" onclick="OnClickGemTrans" style="margin-top:0px;width:80px;"/>
+                    </div>
+                </div>
+            </div>-->
+            <div style="position:relative;margin-left:300px;margin-top:380px;">
+<!-- 
+                <pe:if condition='<%=inventory_durability and inventory_durability<=30 %>'>
+                    <pe:container zorder="4" ClickThrough="true" style="position:relative;margin-left:-40px;margin-top:-80px;width:150px;height:60px;padding:8px;color:#98fffc;" class="anchor_tooltip_bg">
+                        <input type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:45px;margin-left:30px;" />
+			            你的装备已经严重破损, 点击这里修理全部装备
+		            </pe:container>
+                </pe:if>
+               <div style="float:left;margin-top:2px;color:#ffffff" >
+                    <input type="button" value="装备修理" onclick="CharacterBagPage.DoRepairAllItems" style="margin-top:2px;width:80px;"/>
+                    
+                    <div style="">
+                        <pe:goalpointer listen="select_any_gem_equipment" style="position:relative;width:80px;height:26px;"></pe:goalpointer>
+                        <input type="button" value="宝石镶嵌" onclick="OnClickAddGem" style="margin-top:0px;width:80px;"/>
+                    </div>
+                </div>
+                <div style="float:left;margin-top:2px;color:#ffffff" >
+                    <input type="button" value="宝石合成" onclick="OnClickBuildGem" style="margin-top:2px;width:80px;"/>
+                </div>-->
+            </div>
+            <div style="position:relative;margin-left:410px;margin-top:380px;">
+                <!--<div style="float:left;">
+                    <input type="button"  tooltip="召唤外卖商人巴巴多" onclick="DoShop"  style="margin-left:0px;margin-top:0px;width:55px;height:55px;background:url(Texture/Aries/Common/ThemeTeen/wintitle/xiong_32bits.png#0 0 55 55);"/>
+                </div>-->
+            </div>
+            <div style="position:relative;">
+                <pe:if condition='<%=LessMaxBagSize()%>'>
+                    <input type="button" value='<%=GetBagSizeString()%>' class="labelbutton" style="margin-left:15px;margin-top:355px;min-width:100px;text-align:left;color:#99ffff;" enabled="false"/>
+                </pe:if>
+                <pe:if condition='<%=not LessMaxBagSize()%>'>
+                    <input type="button" value='<%=GetBagSizeString()%>' class="labelbutton" style="margin-left:15px;margin-top:355px;min-width:100px;text-align:left;color:#ff0000;" tooltip="物品太多, 战斗力减半. &#10;右键点击物品出售物品, 或者扩展背包容量"/>
+                </pe:if>
+            </div>
+            <div style="position:relative;width:477px;height:409px;margin-left:1px;margin-top:27px;"  class="border_bg1_css">
+            </div>
+    </pe:block>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,95 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30418_GreatIceBear_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30418_GreatIceBear.lua" ><![CDATA[
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function hasPet()
+    return hasGSItem(10145);
+end
+function hasDoughnut()
+    local bHas,__,__,copies = hasGSItem(17168);
+    copies = copies or 0;
+    if(copies >= 99)then
+        return true;
+    end
+end
+function getPet()
+    ItemManager.ExtendedCost(712, nil, nil, function(msg) 
+        commonlib.echo("==========Get_10145_Pet_GreatIceBearLower ExtendedCost");
+		commonlib.echo(msg);
+		if(msg and msg.issuccess)then
+               
+		end
+	end);
+end
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("30418")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30418' />
+            <pe:placeholder id="name" source="{this}" value='贪吃的暴熊'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		   看什么看，再看我就扁你！哇，你有没有99个甜甜圈啊，有的话你就是我的老大，小弟马上跟你走哇！
+		    <pe:answer template_id = "doughnut">
+			    <pe:answer-if condition =  '<%=hasPet() %>' target_state = "4"/>
+			    <pe:answer-if condition =  '<%=not hasDoughnut() %>' target_state = "2"/>
+			    <pe:answer-if condition =  'true' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "2">
+		  没有99个甜甜圈找我干嘛？每天整点，财神宝箱会在各个岛屿出现，里面的甜甜圈一大堆啊！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition =  'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "3">
+		  太好了，老大你有这么多甜甜圈啊，以后我就跟着你混了！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if  condition =  'true' transition =  '<%=getPet() %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "4">
+		   行了，已经有兄弟跟你走了，也别太贪心，虽然我愿意当小弟，也不想当小弟的小弟！  
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition =  'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

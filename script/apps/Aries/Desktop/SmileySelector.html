@@ -1,0 +1,40 @@
+﻿<!-- "script/apps/Aries/Desktop/SmileySelector.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SmileySelector, by Andy, 2009/4/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="SmileySelector.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+function DS_Func_Smileys(index)
+    return MyCompany.Aries.Desktop.SmileySelectorPage.DS_Func_Smileys(index);
+end
+]]></script>
+
+<div style="padding-left:14px;padding-top:17px;padding-bottom:16px;background:Texture/Aries/Dock/Action_Panel_32bits.png:62 29 65 34">
+    <pe:gridview DataSource="<%=DS_Func_Smileys%>" name="SmileysSelector" 
+        VerticalScrollBarStep="45" CellPadding="2"  DefaultNodeHeight = "41" ItemsPerLine="5" AllowPaging="false" pagesize="250">
+        <Columns>
+            <a width="44" height="41" style="padding:0px;background:Texture/Aries/Dock/Action_MouseOver_32bits.png:7 7 7 7;"
+                onclick="MyCompany.Aries.Desktop.SmileySelectorPage.Show" param1='<%=Eval("ID")%>' tooltip='<%=Eval("tooltip")%>'>
+                <div style="margin:1px;padding-left:2px;width:42px;height:39px;background:Texture/Aries/Dock/Action_Slot_32bits.png:3 3 4 4;">
+                    <img width="38" height="38" src='<%=Eval("background")%>'/>
+                    <!--<%=Eval("background")%>-->
+                </div>
+            </a>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+    </pe:gridview>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

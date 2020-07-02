@@ -1,0 +1,48 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/ManualDock.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Leio, 2011/11/17</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="ManualDock.lua" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/Dock/ManualDock.lua");
+local ManualDock = commonlib.gettable("MyCompany.Aries.Desktop.ManualDock");
+ManualDock.OnInit();
+function ds_DockNodes(index)
+    if(not ManualDock.gridview_list)then return 0 end
+    if(not index) then
+        return #ManualDock.gridview_list;
+    else
+        return ManualDock.gridview_list[index];
+    end
+end
+function DoRemoveNode(a,b,uid)
+    ManualDock.DestroyNode({uid = uid});
+end
+]]></script>
+<div style="width:200px;height:100px;">
+    <pe:gridview style="width:200px;height:100px;" ClickThrough="true" name="areaBar" ItemsPerLine="5" AllowPaging="true" DefaultNodeHeight = "40" pagesize="10"
+            DataSource='<%=ds_DockNodes%>'>
+	        <Columns>
+                    <div style="width:32px;height:32px;" class="block">
+                        <pe:item gsid='<%=Eval("gsid") %>' param1='<%=Eval("uid") %>' isdragable="false"  onclick="DoRemoveNode()" showdefaulttooltip="true" style="width:32px;height:32px;"/>
+                    </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+	        <PagerTemplate>
+                <div style="position:relative;margin-left:335px;">
+                </div>
+            </PagerTemplate>
+        </pe:gridview>
+</div>
+</pe:mcml> 
+
+</body>
+</html>

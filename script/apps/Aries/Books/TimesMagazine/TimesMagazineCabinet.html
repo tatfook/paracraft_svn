@@ -1,0 +1,87 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazine/TimesMagazineCabinet.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazineCabinet, by Leio, 2009/12/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TimesMagazineCabinet.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function DS_Func_Items(index)
+    return MyCompany.Aries.Books.TimesMagazineCabinet.DS_Func_Items(index)
+end
+function getPageLen()
+    if(MyCompany.Aries.Books.TimesMagazineCabinet.items)then
+        return #MyCompany.Aries.Books.TimesMagazineCabinet.items;
+    end
+end
+function getTooltip(index,label)
+    local len = getPageLen();
+    if(not index or not label or not len)then return end
+    index = len + 1 - index;
+    local s = string.format("哈奇时报第%s期，%s",index,label);
+    return s;
+end
+function getPageIcon(label)
+    local len = getPageLen();
+    if(not index or not label or not len)then return end
+    local s = string.format("Texture/Aries/Books/TimesMagazineCabinet/%s_32bits.png;0 0 189 125",label);
+    return s;
+end
+
+function getPageLabel(index)
+    local len = getPageLen();
+    if(not index or not label or not len)then return end
+    index = len - index + 1;
+    return index;
+end
+function closePage()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<div style="width:950px;height:512px;background:url(Texture/Aries/Books/TimesMagazineCabinet/bg_32bits.png#0 0 950 512);">
+
+    <pe:gridview DataSource="<%=DS_Func_Items%>" name="DS_Func_AlmightyComposer_panel" 
+        VerticalScrollBarStep="30" CellPadding="0" DefaultNodeHeight = "152"  ItemsPerLine="4" AllowPaging="true" pagesize="12"
+        style="margin-left:22px;margin-top:25px;padding:0px;">
+        <Columns>
+            <pe:if condition='<%=Eval("label") ~= nil%>'>
+            <div style="width:213px;height:152px;margin-left:2px;margin-top:2px;padding:0px;float:left;">
+                <input type="button" name="<%=Eval('index') %>" tooltip="<%=getTooltip(Eval('index'),Eval('label')) %>"  Replace_BG = "<%=getPageIcon(Eval('label')) %>" style="float:left;margin-left:15px;margin-top:10px;width:189px;height:125px;background:" onclick="MyCompany.Aries.Books.TimesMagazineCabinet.OpenBook()"/>
+                <div style="float:left;margin-left:168px;margin-top:-32px;width:46px;height:46px;background:Texture/Aries/Books/TimesMagazineCabinet/index_bg_32bits.png#0 0 46 46">
+                    <div style="color:#ffffff;font-weight:bold;text-align:center;margin-left:20px;margin-top:28px;"><%=getPageLabel(Eval('index')) %></div>
+                </div>
+                <input type="button" name="<%=Eval('index') %>" value="<%=getTooltip(Eval('index'),Eval('label')) %>"  style="margin-left:15px;margin-top:-20px;width:165px;height:26px;font-size:12;background:Texture/Aries/Books/TimesMagazineCabinet/timebar_bg_32bits.png#0 0 165 26" onclick="MyCompany.Aries.Books.TimesMagazineCabinet.OpenBook()"/>
+            </div>
+            </pe:if>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="25" style="margin-left:-4px;margin-top:-10px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" zorder=2 style="margin-left:875px;margin-top:-230px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_up_32bits.png#0 0 34 34;"/>
+               
+                <input type="button" name="next" zorder=2 style="margin-left:875px;margin-top:-180px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_down_32bits.png#0 0 34 34;"/>
+            </form>
+        </PagerTemplate>
+    </pe:gridview>
+</div>
+
+<input type="button" style="width:54px;height:54px;margin-left:910px;margin-top:-520px;background:Texture/Aries/Common/Close_Big_54_32bits.png;0 0 54 54" 
+                    zorder="2" onclick="closePage()" />
+</pe:mcml> 
+</body>
+</html>

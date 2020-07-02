@@ -1,0 +1,1034 @@
+<!-- "script/apps/Aries/CombatPet/CombatPetPane.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" refresh="false">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp2.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetPane.lua");
+local CombatPetPane = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetPane");
+--CombatPetPane.OnInit();
+local pageCtrl = document:GetPageCtrl();
+CombatPetPane.page = pageCtrl;
+function ClosePage()
+    CombatPetPane.ClosePage();
+end
+function DS_Func_Items(index)
+	return CombatPetPane.DS_Func_Items(index);
+end
+
+function GetLevelInfo()
+    return CombatPetPane.GetLevelInfo();
+end
+function GetSeniorLevelInfo()
+    return CombatPetPane.GetSeniorLevelInfo();
+end
+function IsRightLevel_ForGridview(level)
+    local cur_level,__,__,isfull = GetLevelInfo();
+    local senior_cur_level,__,__,senior_isfull = GetSeniorLevelInfo();
+    if(CombatPetPane.show_grow_type == "junior")then
+        if(cur_level == level)then
+            return true;
+        end
+    else
+        if(senior_cur_level == level)then
+            return true;
+        end
+    end
+end
+function LevelIsFull()
+	local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(provider and node)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(node.gsid,node.exp or 0);
+        if(isfull and provider:HasSeniorLevel(node.gsid))then
+		    level,cur_exp,total_exp,isfull = provider:GetSeniorLevelInfo(node.gsid,node.exp or 0);
+	    end
+        return isfull;
+    end
+end
+
+function GetModelValue()
+	local provider = CombatPetHelper.GetClientProvider();
+    if(CombatPetPane.selected_node)then
+        local node = CombatPetPane.selected_node;
+        --model
+        local assetfile = provider:GetCurLevelAssetFile(node.gsid,node.exp or 0);
+        if(assetfile)then
+            assetfile = string.gsub(assetfile," ","");
+        end
+	    local asset = Map3DSystem.App.Assets.asset:new({filename = assetfile})
+	    local objParams = asset:getModelParams()
+        if(objParams ~= nil) then
+            objParams.facing = 0;
+            if(node.gsid == 10135)then
+			    objParams.scaling = 0.5;
+            end
+            return commonlib.serialize_compact(objParams);
+	    end
+    end
+end
+function GetID()
+    if(CombatPetPane.selected_node)then
+        return CombatPetPane.selected_node.gsid;
+    end
+end
+
+function IsCombatPet()
+    local node = CombatPetPane.selected_node;
+    if(node and node.is_combat_pet and node.is_combat_pet == 1)then
+       return true;
+    end
+end
+function IsRequireMagicLevel()
+    local node = CombatPetPane.selected_node;
+    if(node and node.req_magic_level and node.req_magic_level > -1)then
+       return true;
+    end
+end
+function GetPetIcon(icon,bg_color)
+    local s = string.format([[<img src="%s" style="margin-left:2px;width:26px;height:26px;background-color:%s"/>]],icon or "",bg_color or "#ffffff");
+    return s;
+end
+function GetPetItem()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        local gsid = node.gsid;
+        if(gsid) then
+		    local hasGSItem = ItemManager.IfOwnGSItem;
+		    local bHas, guid = hasGSItem(gsid);
+		    if(bHas == true) then
+			    local item = ItemManager.GetItemByGUID(guid);
+			    if(item and item.guid > 0) then
+                    return item;
+			    end
+		    end
+        end
+    end
+end
+function IsFollowing()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        local gsid = node.gsid;
+        return CombatPetPane.IsFollowing(gsid)
+    end
+end
+function DoToggleHome()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        local gsid = node.gsid;
+        CombatPetPane.DoToggleHome(gsid);
+        local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+	    HPMyPlayerArea.UpdateUI(true);
+        ClosePage();
+    end
+end
+function DoFree()
+   local item = GetPetItem();
+   if(item and item.guid > 0) then
+		local item_gsid = item.gsid;
+		local guid = item.guid;
+		local gsItem = ItemManager.GetGlobalStoreItemInMemory(item.gsid)
+		if(gsItem) then
+			local name = gsItem.template.name;
+			_guihelper.MessageBox("你确认要把你的"..name.."放生吗？", function(result)
+				if(_guihelper.DialogResult.Yes == result) then
+					System.Item.ItemManager.DestroyItem(guid, 1, function() 
+						log("+++++++ Destroy "..name.." guid:"..guid.." return: +++++++\n")
+						commonlib.echo(msg);
+                        ClosePage();
+					end);
+				elseif(_guihelper.DialogResult.No == result) then
+					-- do nothing
+				end
+			end, _guihelper.MessageBoxButtons.YesNo);
+		end
+	end
+end
+
+function GetPetNodeByIndex(index)
+    local pet_list = CombatPetPane.pet_list;
+    if(pet_list and index)then
+        local node = pet_list[index];
+        return node;
+    end
+end
+function HasPet(index)
+    local node = GetPetNodeByIndex(index);
+    if(node)then
+        local hasItem,guid = hasGSItem(node.gsid);
+        return hasItem; 
+    end
+end
+function Locate_SeniorLevel(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        return provider:Locate_SeniorLevel(node.gsid,node.exp);
+    end
+end
+function GetPetLevelStr(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local gsid = node.gsid;
+        local p = provider:GetPropertiesByID(gsid);
+        if(p)then
+			local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,node.exp or 0);
+            local max_level= p.max_level or 0;
+            --TODO:最大索引错位
+            local s = string.format("%d",level,max_level - 1)
+            if(isfull)then
+                s = string.format("%d",level-1,max_level - 1)
+            end
+            if(isfull and provider:HasSeniorLevel(gsid))then
+				level,cur_exp,total_exp,isfull = provider:GetSeniorLevelInfo(gsid,node.exp or 0);
+                local senior_max_level = p.senior_max_level or 0;
+                s = string.format("%d",level,senior_max_level - 1)
+                if(isfull)then
+                    s = string.format("%d",level-1,senior_max_level - 1)
+                end
+			end
+            return s;
+        end
+    end
+end
+function GetPetExpStr(index)
+    local node = GetPetNodeByIndex(index);
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            local isfull = node.isfull;
+            local s;
+            if(isfull)then
+                s = "满级"
+            else
+                local cur_exp = node.cur_exp or 0;
+                local total_exp = node.total_exp or 0;
+                if(cur_exp == 0)then
+                    s = string.format("%d/%d",cur_exp,total_exp);
+                else
+                s = string.format([[
+                <div style="margin-left:10px;">
+                                <div style="float:left;"><pe:progressbar name="progress_%d" Minimum = "0" Value = "%d" Maximum = "%d" Step = "1" style="width:80px;float:left;" /></div>
+                                <div style="float:left;color:#ffffff;margin-left:5px;margin-top:-18px;width:80px;text-align:center;">%d/%d</div>
+                            </div>]],index,cur_exp,total_exp,cur_exp,total_exp);
+                end
+            end
+            return s;
+        end
+    end
+end
+function GetTabTitle_MyPet()
+    if(CombatPetPane.pet_list_mypet)then
+        local len = #CombatPetPane.pet_list_mypet;
+        local s = string.format("我的宠物(%d)",len);
+        return s;
+    end
+end
+function GetTabTitle_PetTemplate()
+    if(CombatPetPane.pet_list_templates)then
+        local len = #CombatPetPane.pet_list_templates;
+        local s = string.format("宠物大全(%d)",len);
+        return s;
+    end
+end
+function OnClickItem(index)
+    CombatPetPane.Update(CombatPetPane.show_type,index,CombatPetPane.show_grow_type)
+end
+function DoChangeShowType(ds,index,node)
+    if(node and node.value)then
+        CombatPetPane.Update(node.value,nil,nil,true)
+    end
+end
+function DoChangeShow_GrowType(ds,index,node)
+    if(node and node.value)then
+        CombatPetPane.Update(CombatPetPane.show_type,CombatPetPane.selected_index,node.value)
+    end
+end
+function DS_Func_combine_props_list(index)
+    return CombatPetPane.DS_Func_combine_props_list(index)
+end    
+function HasSeniorLevel()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:HasSeniorLevel(node.gsid);
+        return r;
+    end
+end
+function DS_Func_foods_list(index)
+    return CombatPetPane.DS_Func_foods_list(index)
+end
+function DoShop(gsid,mcmlnode,index)
+    ClearTooltip();
+    if(CombatPetPane.foods_list and CombatPetPane.foods_list[index])then
+        local node = CombatPetPane.foods_list[index];
+        if(node.can_buy and node.gsid)then
+            local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	        if(command) then
+		        command:Call({gsid = node.gsid});
+	        end
+        end
+    end
+end
+function DoClick_Slot(guid)
+    ClearTooltip();
+    guid = tonumber(guid);
+    local item = ItemManager.GetItemByGUID(guid);
+    local node = CombatPetPane.selected_node;
+	if(node and item)then
+        if(LevelIsFull())then
+            local s = string.format([[%s已经长到满级，不需要再喂食啦！]],node.name);
+			    _guihelper.Custom_MessageBox(s,function(result)
+			    end,_guihelper.MessageBoxButtons.OK,{ok = "Texture/Aries/Common/IKnow_32bits.png; 0 0 153 49"});
+            return
+        end
+        local cur_feed_num = node.cur_feed_num or 0;
+        
+        if(cur_feed_num >= 15)then
+            _guihelper.MessageBox(string.format("%s今天已经没有喂养次数了！",node.name));
+            return;
+        end
+        local food_gsid = item.gsid;
+        QuestClientLogics.DoFeed_FollowPet(node.gsid,food_gsid)
+    end
+end
+function GetDataSource_ShowType()
+    return CombatPetPane.show_type_menu;
+end
+function GetDataSource_ShowGrowType()
+    return CombatPetPane.show_grow_type_menu;
+end
+function DoNothing()
+    ClearTooltip();
+end
+function GetCurLevelCards()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:GetCurLevelCards(node.gsid,node.exp);
+        return commonlib.serialize_compact(r);
+    end
+end
+function GetCurLevelProps()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local r = provider:GetCurLevelProps(node.gsid,node.exp);
+        return commonlib.serialize_compact(r);
+    end
+end
+----------------------------------------------------------------------------------------
+function OnSelectLevel(name,index)
+    if(CombatPetPane.all_level_list)then
+        local k,v;
+        local label=""
+        for k,v in ipairs(CombatPetPane.all_level_list) do
+            if(k == index)then
+                v.selected = "true";
+                label = v.text;
+            else
+                v.selected = "false";
+            end
+        end 
+        CombatPetPane.UpdateTemplateLevelShow();
+        CombatPetPane.UpdateTemplateFoodList();
+        pageCtrl:Refresh(0);
+        pageCtrl:SetUIValue("level_list",label);
+
+    end
+end
+function DoSelectLevel(index)
+    if(CombatPetPane.all_level_list)then
+        local k,v;
+        for k,v in ipairs(CombatPetPane.all_level_list) do
+            if(k == index)then
+                v.checked = true;
+            else
+                v.checked = false;
+            end
+        end 
+        CombatPetPane.UpdateTemplateLevelShow();
+        CombatPetPane.UpdateTemplateFoodList();
+        pageCtrl:Refresh(0);
+    end
+end
+function ShowCurPropsByIndex(index)
+    if(CombatPetPane.prop_selected_level)then
+        local node = CombatPetPane.prop_selected_level[index];
+        if(node)then
+            return node.label;
+        end
+    end
+end
+function ShowTemplatePropsByIndex(index)
+    if(CombatPetPane.prop_selected_level)then
+        local node = CombatPetPane.template_prop_selected_level[index];
+        if(node)then
+            return node.label;
+        end
+    end
+end
+function CurCards_func(index)
+    if(not CombatPetPane.card_selected_level)then return 0 end
+	if(index == nil) then
+		return #(CombatPetPane.card_selected_level);
+	else
+		return CombatPetPane.card_selected_level[index];
+	end
+end
+function TemplateCards_func(index)
+    if(not CombatPetPane.template_card_selected_level)then return 0 end
+	if(index == nil) then
+		return #(CombatPetPane.template_card_selected_level);
+	else
+		return CombatPetPane.template_card_selected_level[index];
+	end
+end
+----------------------------------------------------------------------------------------
+function DS_Func_all_level_list(index)
+    return CombatPetPane.DS_Func_all_level_list(index)
+end
+
+function GetSelectedNodeName()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+        return node.name;
+    end
+end
+function GetSelectedNodeDesc()
+	local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(node)then
+		local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            return p.desc or "";
+        end
+    end
+end
+function IsMyPet_SelectedNode()
+    local node = CombatPetPane.selected_node;
+    if(node and node.is_my_pet and node.is_my_pet == 1)then
+       return true; 
+    end
+end
+function GetSelectedNodeLevel()
+    return CombatPetPane.GetSelectedNodeLevel();
+end
+function GetSelectedNodeGrownState()
+    return CombatPetPane.GetSelectedNodeGrownState();
+end
+function GetSelectedNodeProps()
+    return CombatPetPane.GetSelectedNodeProps();
+end
+function GetSelectedNodeCards()
+    return CombatPetPane.GetSelectedNodeCards();
+end
+function GetSelectedProgress()
+    local node = CombatPetPane.selected_node;
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider and node)then
+        local p = provider:GetPropertiesByID(node.gsid);
+        if(p)then
+            local isfull = node.isfull;
+            local cur_exp = node.cur_exp or 0;
+            local total_exp = node.total_exp or 0;
+            local s;
+            local blockimage = "Texture/Aries/Common/ThemeTeen/combatpet/junior_bar_32bits.png;0 0 16 8:5 5 3 3";
+            if(GetSelectedNodeGrownState() == "senior")then
+                blockimage = "Texture/Aries/Common/ThemeTeen/combatpet/senior_bar_32bits.png;0 0 16 8:5 5 3 3";
+            end
+            if(isfull)then
+                s = string.format([[
+                <div style="width:470px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/progress_bar_bg_32bits.png#0 0 16 12 :7 7 4 4)">
+                    <pe:progressbar name="progress_bar" Minimum = "0" Value = "100" Maximum = "100" Step = "1" style="margin-left:1px;margin-top:1px;width:470px;height:8px;" blockimage="%s" background=""/>
+                    <div style="color:#ffffff;margin-top:-13px;width:470px;text-align:center;">满级</div>
+                </div>]],blockimage);
+            else
+                s = string.format([[
+                <div style="width:470px;height:12px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/progress_bar_bg_32bits.png#0 0 16 12 :7 7 4 4)">
+                    <pe:progressbar name="progress_bar" Minimum = "0" Value = "%d" Maximum = "%d" Step = "1" style="margin-left:1px;margin-top:1px;width:470px;height:8px;" blockimage="%s" background=""/>
+                    <div style="color:#ffffff;margin-top:-13spx;width:470px;text-align:center;">%d/%d</div>
+                </div>]],cur_exp,total_exp,blockimage,cur_exp,total_exp);
+            end
+            return s;
+        end
+    end
+end
+if(CombatPetPane.anchor_tip)then
+    pageCtrl:SetValue("TooltipsPPT", "howtouse_petfood")
+end
+function ClearTooltip()
+    if(CombatPetPane.anchor_tip)then
+        CombatPetPane.anchor_tip = false;
+        pageCtrl:SetValue("TooltipsPPT", nil);
+    end
+end
+function GetLevelList()
+    return CombatPetPane.all_level_list;
+end
+function DoHelpPane()
+    local node = CombatPetPane.selected_node;
+    if(node and node.gsid)then
+        NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+        local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+        ItemGuides.OnClickViewItem(node.gsid);
+    end
+end
+
+function GetSchool(gsid)
+    local provider = CombatPetHelper.GetClientProvider();
+    local node = CombatPetPane.selected_node;
+    if(node)then
+		local p = provider:GetPropertiesByID(gsid);
+        if(p)then
+            local school = p.school;
+            local s;
+            local label;
+            if(school == "6")then
+                s = "Texture/Aries/Team/fire_32bits.png";
+                label = "烈火系";
+            elseif(school == "7")then
+                s = "Texture/Aries/Team/ice_32bits.png";
+                label = "寒冰系";
+            elseif(school == "8")then
+                s = "Texture/Aries/Team/storm_32bits.png";
+                label = "风暴系";
+            elseif(school == "9")then
+                s = "Texture/Aries/Team/myth_32bits.png";
+                label = "神秘系";
+            elseif(school == "10")then
+                s = "Texture/Aries/Team/life_32bits.png";
+                label = "生命系";
+            elseif(school == "11")then
+                s = "Texture/Aries/Team/death_32bits.png";
+                label = "死亡系";
+            elseif(school == "12")then
+                s = "Texture/Aries/Team/balance_32bits.png";
+                label = "平衡系";
+            end
+            return s,label;
+        end
+    end
+    
+end
+function GetSchoolTip(gsid)
+    local s,label = GetSchool(gsid);
+    return label;
+end
+------------------------
+function CanEdit()
+  local node = CombatPetPane.selected_node;
+  if(node)then
+    return (node.is_my_pet == 1)
+  end
+end
+function IsEdit()
+    if(CombatPetPane.is_edit == 1)then
+        return true;
+    end
+end
+function GetPetColorName()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+      return node.color_name;
+    end
+end
+function GetPetName()
+    local node = CombatPetPane.selected_node;
+    if(node)then
+      return node.name;
+    end
+end
+function ChangeName()
+    CombatPetPane.is_edit = 1;
+    pageCtrl:Refresh(0);
+    
+    pageCtrl:SetValue("edit_pet_name",GetPetName() or "")
+end
+function SaveName()
+    local maxlen = 24;
+    local nickname = pageCtrl:GetValue("edit_pet_name") or "";
+    local txt_len = string.len(nickname);
+	if(txt_len <=0)then
+			_guihelper.MessageBox("名称不能为空！");
+			return;
+	elseif(txt_len  > maxlen)then
+			--_guihelper.MessageBox(string.format("名称太长了，换一个吧！"..txt_len,maxlen));
+            _guihelper.MessageBox("名称太长了，换一个吧！");
+			return;
+	else
+    local node = CombatPetPane.selected_node;
+      if(node)then
+          if(node.name and node.name == nickname)then
+            _guihelper.MessageBox("名字没有变化，不需要更改！");
+            return
+          end
+          local name_cnt = node.name_cnt;
+          if(name_cnt > 0)then
+            local __,__,__,copies = hasGSItem(984);
+              copies = copies or 0;
+              if(copies < 10)then
+                _guihelper.MessageBox("改名需要10金币，你的金币不够了！");
+                return
+              end
+          end
+          if(name_cnt == 0 )then
+            s = string.format("这是你第一次改名，第一次改名免费，以后每次改名需要10金币，确定要修改吗？",name_cnt);
+          else
+            s = string.format("改名需要10金币，确定要修改吗？",name_cnt);
+          end
+          NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+          _guihelper.Custom_MessageBox(s,function(result)
+	          if(result == _guihelper.DialogResult.Yes)then
+               local gsid = node.gsid;
+                local bHas,guid = hasGSItem(gsid);
+                if(bHas)then
+                    QuestClientLogics.DoChangeName_FollowPet(gsid,nickname)
+                    CombatPetPane.is_edit = 0;
+                    pageCtrl:Refresh(0);
+                    local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+	                HPMyPlayerArea.UpdateUI(true);
+                end
+	          end
+          end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+      end
+   end
+end
+
+function StepShowHelp(name)
+    if(not name or name == "exit")then
+        name = nil;
+    end
+    pageCtrl:SetValue("TooltipsPPT", name)
+end
+function CheckShowHelp()
+    local key = "HadViewed_CombatpetHelp_Cnt";
+	local cnt = MyCompany.Aries.Player.LoadLocalData(key,0);
+    if(CombatPetPane.my_pet_len and CombatPetPane.my_pet_len > 0 and cnt < 1)then
+        StepShowHelp("pet_help_1");
+	    MyCompany.Aries.Player.SaveLocalData(key, cnt + 1);
+    end
+end
+function OnHelp()
+    StepShowHelp("pet_help_1")
+end
+CheckShowHelp();
+]]>
+</script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:0px;margin-left:0px;width:800px;height:470px;">
+	<div name="pet_help_1">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:15px;margin-top:88px;width:280px;height:25px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:14px;margin-top:87px;width:241px;height:100px;background:;">
+          <pe:block style="position:relative;margin-left:101px;margin-top:24px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png);" />
+          <pe:block style="position:relative;margin-left:46px;margin-top:49px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">宠物名字亮起，表示已经拥有该宠物</pe:block>
+          <pe:button name="pet_help_2" onclick="StepShowHelp" style="position:relative;margin-left:158px;margin-top:74px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+        </pe:div>
+	</div>
+    <div name="pet_help_2">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:322px;margin-top:40px;width:269px;height:192px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:263px;margin-top:228px;width:182px;height:81px;background:;" >
+          <pe:block style="position:relative;margin-left:1px;margin-top:25px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">宠物形象展示区</pe:block>
+          <pe:button name="pet_help_3" onclick="StepShowHelp" style="position:relative;margin-left:113px;margin-top:50px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:56px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png);" />
+        </pe:div>
+    </div>
+    <div name="pet_help_3">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:598px;margin-top:144px;width:40px;height:40px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:530px;margin-top:184px;width:182px;height:81px;background:;">
+          <pe:block style="position:relative;margin-left:1px;margin-top:25px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">点击宠物口粮图标可以直接喂养宠物</pe:block>
+          <pe:button name="pet_help_4" onclick="StepShowHelp" style="position:relative;margin-left:113px;margin-top:50px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:56px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png);" />
+        </pe:div>
+	</div>
+    <div name="pet_help_4">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:323px;margin-top:238px;width:235px;height:205px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:216px;margin-top:159px;width:181px;height:81px;background:;" >
+          <pe:block style="position:relative;margin-left:0px;margin-top:0px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">宠物当前等级及其属性</pe:block>
+          <pe:button name="pet_help_5" onclick="StepShowHelp" style="position:relative;margin-left:110px;margin-top:25px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:104px;margin-top:53px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png);" />
+        </pe:div>
+	</div>
+    <div name="pet_help_5">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:558px;margin-top:238px;width:235px;height:205px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+	    <pe:div style="position:relative;margin-left:453px;margin-top:159px;width:181px;height:81px;background:;" >
+          <pe:block style="position:relative;margin-left:0px;margin-top:0px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">宠物各个等级所附加的属性及卡片展示区</pe:block>
+          <pe:button name="pet_help_6" onclick="StepShowHelp" style="position:relative;margin-left:110px;margin-top:25px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:104px;margin-top:53px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png);" />
+        </pe:div>
+    </div>
+    <div name="pet_help_6">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:697px;margin-top:192px;width:80px;height:35px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:592px;margin-top:112px;width:181px;height:81px;background:;">
+          <pe:block style="position:relative;margin-left:0px;margin-top:0px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">点击实现宠物加入战斗操作</pe:block>
+          <pe:button name="pet_help_7" onclick="StepShowHelp" style="position:relative;margin-left:110px;margin-top:25px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:104px;margin-top:53px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightdown_32bits.png);" />
+        </pe:div>
+	</div>
+    <div name="pet_help_7">
+		<pe:maskarea zorder="-1" method="substract" style="margin-left:755px;margin-top:5px;width:24px;height:23px;background:Texture/whitedot.png;background-color:#00000080;position:relative;"/>
+        <pe:div style="position:relative;margin-left:621px;margin-top:28px;width:182px;height:81px;background:;">
+          <pe:block style="position:relative;margin-left:1px;margin-top:25px;width:180px;height:60px;color:#98fffc;padding:5px;padding-left:5px;padding-top:2px;padding-right:2px;padding-bottom:2px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_bg_32bits.png:10 10 10 10);">如果想再看一次帮助就点这里吧！</pe:block>
+          <pe:button name="exit" onclick="StepShowHelp" style="position:relative;margin-left:113px;margin-top:50px;width:60px;height:26px;background:url(Texture/Aries/Common/ThemeTeen/btn3_highlight_32bits.png#0 0 32 26:10 10 10 10);" value="知道了" />
+          <pe:block style="position:relative;margin-left:119px;width:32px;height:32px;background:url(Texture/Aries/Common/ThemeTeen/tip/tip_arrow_rightup_32bits.png);" />
+        </pe:div>
+	</div>
+</pe:powerpoint>
+<aries:window width="800" height="470" title="宠物" onhelp="OnHelp" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/pet_icon_32bits.png" >
+ <pe:block style="margin-top:28px;background:;">
+    <div style="position:relative;">
+       <pe:togglebuttons name="toggle_showtype" style="margin-left:60px;margin-top:3px;" 
+       ItemSpacing="0"
+       ButtonWidth="107"
+       ButtonHeight="21"
+       onclick="DoChangeShowType" DataSource='<%=GetDataSource_ShowType() %>' />
+    </div>
+    <div style="margin-left:6px;margin-top:23px;">
+        <div style="float:left;width:309px;height:413px;" class="border_bg1_css" >
+            <div style="margin-left:3px;margin-top:3px;width:303px;height:407px;padding:2px;" class="border_bg2_css">
+                <div style="margin-left:1px;margin-top:1px;width:297px;" class="border_bg3_css">
+                    <input type="button" value="" class="titlebutton" style="float:left;width:26px;" enabled="false"/>
+                    <input type="button" value="名称" class="titlebutton" style="float:left;width:110px;" enabled="false"/>
+                    <input type="button" value="等级" class="titlebutton" style="float:left;width:30px;" enabled="false"/>
+                    <input type="button" value="战力" class="titlebutton" style="float:left;width:30px;" enabled="false"/>
+                    <input type="button" value="系别" class="titlebutton" style="float:left;width:30px;" enabled="false"/>
+                </div>
+                 <div >
+                    <pe:gridview name="pet_view" DataSource="<%=DS_Func_Items%>" RememberScrollPos="true"  VerticalScrollBarStep="28"  DefaultNodeHeight="28" ItemsPerLine="1" AllowPaging="false" pagesize="2000">
+				        <Columns>
+                            <div style="width:297px;height:28px;">
+                                <div style="position:relative">
+						            <pe:if condition='<%=Eval("checked") %>' >
+							            <input type="button" class="listbutton_selected" onclick="OnClickItem" enabled="false"  name='<%=Eval("index")%>'
+								            style="margin-left:1px;margin-top:0px;width:297px;height:25px;" />
+						            </pe:if>
+						            <pe:if condition='<%=not Eval("checked") %>' >
+							            <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								            style="margin-left:1px;margin-top:0px;width:297px;height:25px;" />
+						            </pe:if>
+		
+					            </div>
+					            <div style="position:relative;margin-top:1px;height:26px;">
+                                            <pe:if condition='<%=Eval("is_my_pet")== 1 %>'>
+                                                <div class="list_color">
+                                                    <div style="float:left;margin-top:-1px;width:30px;text-align:center;"><aries:combatpet gsid='<%=Eval("gsid")%>' click_teleport="true" show_icon="true" use_trans="true" style="width:26px;height:26px;" /></div>
+						                            <div style="float:left;padding-left:2px;width:110px;"><%=Eval("color_name") %></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=GetPetLevelStr(Eval("index"))%></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=Eval("quality_level")%></div>
+                                                    <img style="float:left;margin-left:10px;margin-top:3px;width:16px;height:16px;" src='<%=GetSchool(Eval("gsid")) %>' tooltip='<%=GetSchoolTip(Eval("gsid")) %>'/>
+                                                </div>
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("is_my_pet")== 0 %>'>
+                                                <div style="color:#999999">
+                                                    <div style="float:left;margin-top:-1px;width:30px;text-align:center;"><aries:combatpet gsid='<%=Eval("gsid")%>' click_teleport="true" show_icon="true" use_trans="true" style="width:26px;height:26px;background-color:#ffffff50;" /></div>
+						                            <div style="float:left;padding-left:2px;width:110px;"><%=Eval("name") %></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=GetPetLevelStr(Eval("index"))%></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=Eval("quality_level")%></div>
+                                                    <img style="float:left;margin-left:10px;margin-top:3px;width:16px;height:16px;background-color:#ffffff50;" src='<%=GetSchool(Eval("gsid")) %>' tooltip='<%=GetSchoolTip(Eval("gsid")) %>'/>
+                                                </div>
+                                            </pe:if>
+						               <!-- <pe:if condition='<%=Locate_SeniorLevel(Eval("index")) %>'>
+                                            <pe:if condition='<%=Eval("is_my_pet")== 1 %>'>
+                                                <div style="color:#ec950a">
+                                                    <div style="float:left;margin-top:-1px;width:30px;text-align:center;"><aries:combatpet gsid='<%=Eval("gsid")%>' click_teleport="true" show_icon="true" use_trans="true" style="width:26px;height:26px;" /></div>
+						                            <div style="float:left;padding-left:2px;width:110px;"><%=Eval("name") %></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=GetPetLevelStr(Eval("index"))%></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=Eval("quality_level")%></div>
+                                                    <img style="float:left;margin-left:10px;margin-top:3px;width:16px;height:16px;" src='<%=GetSchool(Eval("gsid")) %>' tooltip='<%=GetSchoolTip(Eval("gsid")) %>'/>
+                                                </div>
+                                            </pe:if>
+                                            <pe:if condition='<%=Eval("is_my_pet")== 0 %>'>
+                                                <div style="color:#999999">
+                                                    <div style="float:left;margin-top:-1px;width:30px;text-align:center;"><aries:combatpet gsid='<%=Eval("gsid")%>' click_teleport="true" show_icon="true" use_trans="true" style="width:26px;height:26px;background-color:#ffffff50;" /></div>
+						                            <div style="float:left;padding-left:2px;width:110px;"><%=Eval("name") %></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=GetPetLevelStr(Eval("index"))%></div>
+    						                        <div style="float:left;margin-left:0px;width:30px;text-align:center;"><%=Eval("quality_level")%></div>
+                                                    <img style="float:left;margin-left:10px;margin-top:3px;width:16px;height:16px;background-color:#ffffff50;" src='<%=GetSchool(Eval("gsid")) %>' tooltip='<%=GetSchoolTip(Eval("gsid")) %>'/>
+                                                </div>
+                                            </pe:if>
+                                        </pe:if>-->
+					            </div>
+                                <div style="position:relative;margin-top:26px;width:297px;height:1px;" class="black_line"/>
+					        </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+					        <div class="defaultcolor" style="margin:10px;">
+                                你还没有宠物呢<br />战斗时，使用捕获卡有一定几率获得宠物
+                            </div>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+					        <b>请稍等 ... </b>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:50px;margin-top:-5px;width:260px;height:25px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="pagerbuttonleft" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" class="pagerbuttonright" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>                
+                </div>
+            </div>
+        </div>
+        <div style="float:left;margin-left:1px;margin-top:-18px;width:478px;height:431px;" class="border_bg1_css">
+            <!-- 成长阶段 -->
+            <div>
+            <div style="margin-left:3px;margin-top:3px;width:472px;height:196px;" class="border_bg2_css">
+                <div style="float:left;margin-left:20px;margin-top:0px;">
+                        <div style="position:relative;margin-left:-18px;margin-top:2px;width:270px;height:193px;" class="spark_bg" />
+                        <div style="position:relative;margin-left:-10px;margin-top:-40px;width:256px;height:256px;" >
+                            <pe:canvas3d name="FollowPetCanvas"  style="width:256px;height:256px;" DefaultRotY="-1.5" FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="<%=GetModelValue() %>" MaskTexture="Texture/Aries/Quest/previewmask.dds" />
+                        </div>
+                        <div style="position:relative;margin-left:-15px;margin-top:168px;">
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateleft" zorder="2" style="float:left;margin-left:16px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#0 0 51 21)"/>
+                            <aries:miniscenecameramodifier miniscenename="FollowPetInfoInHomeland" type="rotateright" zorder="2" style="float:left;margin-left:128px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+                        </div>
+                       
+                </div>
+                <!--改名-->
+                 <div style="position:relative;margin-left:330px;margin-top:5px;width:300px;">
+                    <pe:if condition='%%=not CanEdit() %%'>
+                        <div style="float:left;margin-left:0px;width:110px;height:32px;" class="defaultcolor">
+                            <pe:code>%%=GetPetColorName() %%</pe:code>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='%%=CanEdit() %%'>
+                        <div style="float:left;margin-left:0px;width:110px;height:32px;" class="defaultcolor">
+                        <pe:if condition='%%= not IsEdit()%%'>
+                            <div style="float:left;">
+                                <pe:code>%%=GetPetColorName()%%</pe:code>
+                            </div>
+                        </pe:if>
+                        <pe:if condition='%%=IsEdit()%%'>
+                            <input type="text" name="edit_pet_name" zorder="2" style="width:110px;height:25px;"/>
+                        </pe:if>
+                        </div>
+                        <pe:if condition='%%= not IsEdit()%%'>
+                        <input type="button" zorder="3" style="margin-left:15px;margin-top:5px;"
+                        class="change_name_button" onclick="ChangeName();" tooltip="改名字" value=""/>
+                        </pe:if>
+                        <pe:if condition='%%=IsEdit()%%'>
+                        <input type="button" zorder="3" style="margin-left:15px;margin-top:5px;"
+                            class="save_name_button" onclick="SaveName();" tooltip="保存" value=""/>
+                        </pe:if>
+                    </pe:if>
+                </div>
+                <div style="float:left;">
+                <div style="padding-left:5px;margin-left:272px;margin-top:2px;width:198px;height:75px;" class="spark_bg" >
+                    <div style="margin-left:0px;margin-top:5px;">
+                    <pe:if condition='<%= GetSelectedNodeGrownState()== "junior" %>'>
+                        <div tooltip="成长阶段" style="float:left;">
+                            <div style="width:47px;height:17px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/junior_lv_bg_32bits.png#0 0 47 17);"/>
+                            <div style="margin-top:-18px;">
+                                <div style="float:left;color:#000000;width:25px;text-align:center;"></div>
+                                <div style="float:left;color:#651502;width:25px;text-align:center;"><%= GetSelectedNodeLevel()%></div>
+                            </div>
+                        </div>
+                        <div style="float:left;">
+                        <!--<%= GetSelectedNodeName()%>-->
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%= GetSelectedNodeGrownState()== "senior" %>'>
+                        <div tooltip="进化阶段" style="float:left;">
+                            <div style="width:47px;height:17px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/senior_lv_bg_32bits.png#0 0 47 17);"/>
+                            <div style="margin-top:-18px;">
+                                <div style="float:left;color:#000000;width:25px;text-align:center;"></div>
+                                <div style="float:left;color:#651502;width:25px;text-align:center;"><%= GetSelectedNodeLevel()%></div>
+                            </div>
+                        </div>
+                        <div style="float:left;">
+                        <!--<%= GetSelectedNodeName()%>-->
+                        </div>
+                    </pe:if>
+                    </div>
+                    <div>
+                        <aries:combatpet pet_gsid="<%=GetID() %>" >
+                            <!--<div>
+                                <input type="button" value="单场战斗最大经验值:" class="labelbutton" style="float:left;width:120px;text-align:left" />
+                                <aries:combatpet_item property="add_exp_max_default" style="float:left;margin-top:5px;"/>
+                            </div>-->
+                            <pe:if condition='<%=IsRequireMagicLevel() %>'>
+                                <div>
+                                    <input type="button" value="饲养要求:" class="labelbutton" style="float:left;margin-top:2px;text-align:left" />
+                                    <aries:combatpet_item property="req_magic_level" style="float:left;margin-top:5px;width:15px;"/>
+                                    <div style="float:left;margin-top:5px;">级魔法星</div>
+                                </div>
+                            </pe:if>
+                            <div>出现地点:<aries:combatpet_item property="place" params_place_index="1" style="float:left;margin-left:-4px;"/></div>
+
+                        </aries:combatpet>
+                    </div>
+                </div>
+                <div style="padding-left:5px;margin-left:272px;margin-top:0px;width:198px;height:75px;" class="spark_bg" >
+                        <aries:combatpet pet_gsid="<%=GetID() %>" >
+                            <div style="height:30px;">
+                                <input type="button" value="点击喂养:本日剩余" class="labelbutton" style="float:left;margin-left:0px;text-align:left" />
+                                <aries:combatpet_item property="left_feed_num" style="float:left;margin-top:4px;color:#fdde07;"/>
+                                <div style="float:left;margin-top:4px;">次</div>
+                            </div>
+                            <pe:gridview style="margin-left:-2px;width:385;height:85px" name="food_list_view" DataSource="<%=DS_Func_foods_list%>"  ItemsPerLine="4" AllowPaging="false" pagesize="4">
+                                <Columns>
+                                    <div style="margin-left:2px;margin-top:0px;width:40px;height:40px;padding:4px;" class="block">
+                                        <pe:if condition='<%=Eval("guid") and Eval("guid") > 0%>'>
+                                            <pe:slot guid='<%=Eval("guid")%>' style="width:32px;height:32px;" onclick="DoClick_Slot"/>
+                                        </pe:if>
+                                        <pe:if condition='<%=not Eval("guid") or Eval("guid") == 0%>'>
+                                            <pe:if condition='<%=Eval("gsid") and Eval("gsid") > 0%>'>
+                                                <pe:item gsid='<%=Eval("gsid")%>' style="width:32px;height:32px;" showdefaulttooltip="true" param1='<%=Eval("index")%>' onclick="DoShop"/>
+                                            </pe:if>
+                                        </pe:if>
+                                    </div>
+                                </Columns>
+	                            <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				                        <PagerTemplate>
+					                        <form>
+						                        <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							                        <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						                        <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                                        </form>
+				                        </PagerTemplate>
+                            </pe:gridview>
+                        </aries:combatpet>
+                    </div>
+                <div style="padding-left:5px;margin-left:272px;margin-top:0px;width:198px;height:43px;" class="spark_bg" >
+                    <div>
+                        <input type="button"  style="width:79px;height:37px;margin-left:0px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/button_1_32bits.png#0 0 79 37)" onclick="DoHelpPane" />
+                        <div style="position:relative;margin-left:38px;margin-top:-28px;background:;font-size:14;font-weight:bold;" class="shop_btn_css">百科</div>
+                    </div>
+                    <div style="margin-left:105px;margin-top:-37px;">
+                        <pe:if condition='<%=IsMyPet_SelectedNode()%>'>
+                            <pe:if condition='<%=IsFollowing()%>'>
+                                    <input type="button" style="width:79px;height:37px;margin-left:0px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/button_3_32bits.png#0 0 79 37)" onclick="DoToggleHome" />
+                                    <div style="position:relative;margin-left:38px;margin-top:-28px;background:;font-size:14;font-weight:bold;" class="shop_btn_css">休息</div>
+                            </pe:if>
+                            <pe:if condition='<%=not IsFollowing()%>'>
+                                <input type="button" style="width:79px;height:37px;margin-left:0px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/button_2_32bits.png#0 0 79 37)" onclick="DoToggleHome" />
+                                <div style="position:relative;margin-left:38px;margin-top:-28px;background:;font-size:14;font-weight:bold;" class="shop_btn_css">出战</div>
+                            </pe:if>                    
+                        </pe:if>
+                        <pe:if condition='<%=not IsMyPet_SelectedNode()%>'>
+                                <input type="button" enabled="false" style="width:79px;height:37px;margin-left:0px;background:url(Texture/Aries/Common/ThemeTeen/combatpet/button_2_32bits.png#0 0 79 37)" />
+                                <div style="position:relative;margin-left:38px;margin-top:-28px;background:;font-size:14;font-weight:bold;" class="shop_btn_css">出战</div>
+                        </pe:if>     
+                    </div>
+                </div>
+                </div>
+               
+               <!-- <div style="float:left;margin-left:1px;margin-top:0px;padding:5px;width:450px;height:52px;" class="border2">
+                    <%=GetSelectedNodeDesc() %>
+                </div>-->
+            </div>
+            <div style="margin-left:3px;margin-top:2px;width:472px;height:208px;" class="border_bg2_css">
+                <div style="float:left;margin-left:2px;margin-top:2px;padding:5px;width:234px;height:205px;" class="spark_bg">
+                    <div>
+                        <pe:if condition='<%=IsMyPet_SelectedNode() %>'>
+                            <div style="color:#5bf00f;float:left;">当前属性:</div>
+                            <div style="color:#5bf00f;float:left;">
+                                <pe:if condition='<%= GetSelectedNodeGrownState()== "junior" %>'>
+                                    成长:<div style="float:left;color:#fdde07;font-weight:bold;"><%= GetSelectedNodeLevel()%></div>级
+                                </pe:if>                
+                                <pe:if condition='<%= GetSelectedNodeGrownState()== "senior" %>'>
+                                    进化:<div style="float:left;color:#fdde07"><%= GetSelectedNodeLevel()%></div>级
+                                </pe:if>                
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%=not IsMyPet_SelectedNode() %>'>
+                            <div style="margin-left:20px;margin-top:30px;">
+                                你还没有捕获到这个宠物！
+                                <br />
+                                <a onclick="DoHelpPane()">点击百科</a>可以查看详细。
+                            </div>
+                        </pe:if>                
+                    </div>
+                    <pe:if condition='<%=IsMyPet_SelectedNode() %>'>
+                        <div style="margin-top:4px;">
+                            <div style="padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(1) %></div>
+                                <div style="float:left;"><%=ShowCurPropsByIndex(2) %></div>
+                            </div>
+                            <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(3) %></div>
+                                <div style="float:left;"><%=ShowCurPropsByIndex(4) %></div>
+                            </div>
+                            <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowCurPropsByIndex(5) %></div>
+                                <div style="float:left;"><%=ShowCurPropsByIndex(6) %></div>
+                            </div>
+                           <div >
+                                <div style="color:#5bf00f;">附带卡片:</div>
+                                <div>
+                                     <pe:gridview style="margin-left:-2px;width:385;height:85px" name="cards_list_view" DataSource="<%=CurCards_func%>"  ItemsPerLine="5" AllowPaging="false" pagesize="10">
+                                        <Columns>
+                                           <div style="width:38px;height:38px;margin-left:4px;padding:4px;" class="block">
+                                                    <pe:item isclickable="false" bSkipRequireLevelInTooltip="true" style="width:30px;height:30px;" gsid='<%=Eval("gsid") %>'/>
+                                            </div>
+                                        </Columns>
+                                    </pe:gridview>
+                                </div>
+                            </div>
+                        </div>
+                    </pe:if>
+                </div>
+                <div style="float:left;margin-left:1px;margin-top:2px;padding:5px;width:233px;height:205px;" class="spark_bg">
+                    <div >
+                        <div style="color:#5bf00f;float:left;">查看属性:</div>
+                        <!-- 等级列表 -->
+                        <select style="float:left;width:165px;height:22px;font-size:12px;" name="level_list" AllowUserEdit="false" onselect="OnSelectLevel" DataSource='<%=GetLevelList() %>' />
+                    </div>
+                    
+                        <div>
+                            <div style="padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowTemplatePropsByIndex(1) %></div>
+                                <div style="float:left;"><%=ShowTemplatePropsByIndex(2) %></div>
+                            </div>
+                            <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowTemplatePropsByIndex(3) %></div>
+                                <div style="float:left;"><%=ShowTemplatePropsByIndex(4) %></div>
+                            </div>
+                            <div style="margin-top:2px;padding-left:2px;width:225px;height:22px;" class="textfieldbutton">
+                                <div style="width:120px;float:left;"><%=ShowTemplatePropsByIndex(5) %></div>
+                                <div style="float:left;"><%=ShowTemplatePropsByIndex(6) %></div>
+                            </div>
+                            <div style="color:#5bf00f;">附带卡片:</div>
+                            <div>
+                                <pe:gridview style="margin-left:-2px;width:385;height:85px" name="template_cards_list_view" DataSource="<%=TemplateCards_func%>"  ItemsPerLine="5" AllowPaging="false" pagesize="10">
+                                    <Columns>
+                                        <div style="width:38px;height:38px;margin-left:4px;padding:4px;" class="block">
+                                                <pe:item isclickable="false" bSkipRequireLevelInTooltip="true" style="width:30px;height:30px;" gsid='<%=Eval("gsid") %>'/>
+                                        </div>
+                                    </Columns>
+                                </pe:gridview>
+                            </div>
+                              
+                        </div>
+                        
+                    </div>
+                     <div style="margin-left:1px;margin-top:5px;">
+                        <%=GetSelectedProgress() %>
+                    </div>
+            </div>
+            </div>
+        </div>
+        
+    </div>
+    </pe:block>
+  </aries:window>
+</pe:mcml>
+</body>
+</html>
+

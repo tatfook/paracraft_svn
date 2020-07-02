@@ -1,0 +1,73 @@
+﻿<!-- "script/mobile/paracraft/Areas/TexturePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/TextureModPage.lua");
+local TextureModPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.TextureModPage");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Materials/TexturePackageList.lua");
+local TexturePackageList = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.TexturePackageList");
+NPL.load("(gl)script/mobile/paracraft/Areas/SettingPage.lua");
+SettingPage = commonlib.gettable("ParaCraft.Mobile.Desktop.SettingPage");
+
+function GetTextureDS()
+    local ds = TexturePackageList.GetTotalDS()
+    return ds;
+end
+
+function SelectTexture(name,mcmlNode)
+    local package = mcmlNode:GetPreValue("this", true);
+    SettingPage.select_texture_index = package.new_index;
+	if(package:IsDownloaded()) then
+		TextureModPage.OnApplyTexturePack(nil,nil,nil,package,nil, function ()
+			--SettingPage.page:CallMethod("gvwTexture", "DataBind"); 
+            SettingPage.page:Refresh(0.01);
+		end);
+	else
+		_guihelper.MessageBox(string.format(L"官方材质包【%s】还没有下载，是否现在下载？",package.text),function(res)
+			if(res == _guihelper.DialogResult.Yes) then
+				package:DownloadRemoteFile(function (bSuccess)
+					if(bSuccess) then
+						_guihelper.MessageBox(string.format(L"官方材质包【%s】下载完成",package.text));
+					else
+						_guihelper.MessageBox(string.format(L"官方材质包【%s】下载失败",package.text));
+					end	
+				end);
+			end
+		end,_guihelper.MessageBoxButtons.YesNo);
+	end
+end
+
+function ClosePage()
+    Page:CloseWindow();
+end
+
+]]></script>
+<div style="height:570px;color:#ffffff;font-size:40px;base-font-size:40;font-weight:bold;">
+    <div class="mobile_panel_black" style="margin-left:0px;margin-top:0px;height:572px;background-color:#ffffff60" width="100%">
+        <pe:gridview name="gvwTexture"  VerticalScrollBarOffsetX="5" style="margin-top:12px;margin-bottom:8px;" VerticalScrollBarStep="110" AllowPaging="false" ItemsPerLine="1" DefaultNodeHeight = "110" 
+            DataSource='<%=GetTextureDS()%>'>
+            <Columns>
+                <div style="height:110px;">
+                    <pe:if condition='<%=SettingPage.select_texture_index == Eval("new_index")%>'>
+                        <input type="button" style="float:left;color:#ffffff;margin-left:50px;margin-top:10x;width:600px;height:80px;text-align:left;font-size:20px;text-align:center;" textscale="2" value='<%=Eval("text")%>' enabled="false" class="mobile_panel_green"/>
+                    </pe:if>
+                    <pe:if condition='<%=SettingPage.select_texture_index ~= Eval("new_index")%>'>
+                        <input type="button" style="float:left;color:#ffffff;margin-left:50px;margin-top:10px;width:600px;height:80px;text-align:left;font-size:20px;text-align:center;" textscale="2" value='<%=Eval("text")%>' name='<%=Eval("index")%>' onclick="SelectTexture" class="mobile_panel_grey"/>
+                    </pe:if>                   
+                </div>    
+            </Columns>
+            <EmptyDataTemplate>
+            </EmptyDataTemplate>
+        </pe:gridview> 
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

@@ -1,0 +1,125 @@
+﻿<!-- "script/apps/Aries/Inventory/CurrentFollowPetInfo.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TabMount, by Andy, 2009/7/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="CurrentFollowPetInfo.lua"><![CDATA[
+local page = document:GetPageCtrl();
+--nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+
+local item = System.Item.ItemManager.GetItemByBagAndPosition(0, 32);
+if(item and item.guid > 0) then
+	-- valid follow item
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(item.gsid);
+    if(gsItem) then
+	    name = gsItem.template.name;
+	    description = gsItem.template.description;
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+
+function DoGoHome()
+
+    local item = System.Item.ItemManager.GetItemByBagAndPosition(0, 32);
+    if(item and item.guid > 0) then
+		local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(item.gsid)
+		if(gsItem) then
+			local name = gsItem.template.name;
+		    _guihelper.MessageBox("现在跟随你的是"..name.."，你确认需要让它先回家吗？ ", function(result)
+			    if(_guihelper.DialogResult.Yes == result) then
+			        NPL.load("(gl)script/kids/3DMapSystemUI/HomeLand/HomeLandGateway.lua");
+			        --恢复宠物列表的初始状态
+					Map3DSystem.App.HomeLand.HomeLandGateway.Before_ReloadFollowPetItems()
+					
+                    item:OnClick("left");
+                    page:CloseWindow();
+                    
+	                --重新加载宠物列表的数据结构
+					Map3DSystem.App.HomeLand.HomeLandGateway.ReloadFollowPetItems()
+			    elseif(_guihelper.DialogResult.No == result) then
+				    -- do nothing
+			    end
+		    end, _guihelper.MessageBoxButtons.YesNo);
+	    end
+    end
+end
+
+function DoFollow()
+end
+
+function DoFree()
+end
+
+]]></script>
+<pe:editor style="margin:0px;padding:0px;background:;">
+    <div style="float:right;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+        <!--<div style="float:right;margin-left:50px;margin-top:15px;width:260px;height:60px;background:Texture/alphadot.png">-->
+        <div style="float:right;margin-left:50px;margin-top:15px;width:260px;height:48px;">
+            <div style="float:right;width:50px;height:16px;">
+            </div>
+            <br/>
+            <div style="float:right;width:50px;height:16px;">
+            </div>
+            <div style="float:right;margin-left:50px;width:110px;height:32px;font-size:14pt;font-weight:bold;color:#FFFFFF">
+                <%=Eval("name")%>
+            </div>
+           
+        </div>
+        <div style="float:right;margin-left:1px;margin-top:8px;">
+            <input style="width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="OnClose()" value=""/>
+        </div>
+        <div style="float:right;margin-left:30px;margin-top:-60px;width:300px;height:200px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20)">
+        
+            <div style="float:right;margin-left:22px;margin-top:17px;width:256px;height:156px;">
+                <div style="float:right;margin-left:8px;margin-top:8px;width:36px;height:130px;">
+                    <!--<div style="margin-top:6px;padding:2px;width:36px;height:36px;background:url(Texture/Aries/Inventory/ItemSlot_bg.png:15 15 15 15)">
+                        <pe:slot bag="0" position="41" style = "width:32px;height:32px;"/>
+                    </div>
+                    <div style="margin-top:6px;padding:2px;width:36px;height:36px;background:url(Texture/Aries/Inventory/ItemSlot_bg.png:15 15 15 15)">
+                        <pe:slot bag="0" position="42" style = "width:32px;height:32px;"/>
+                    </div>-->
+                </div>
+                <div style="float:right;margin-top:10px;margin-left:16px;margin-right:16px;width:133px;height:130px;">
+                    <pe:player nid = "loggedinuser" name="AriesFollowPet" object="follow" miniscenegraphname="CurrentFollowPetInfo" style="width:128px;height:128px;"/>
+                </div>
+                <div style="float:right;margin-left:0px;margin-top:8px;width:36px;height:130px;">
+                    <!--<div style="margin-top:6px;padding:2px;width:36px;height:36px;background:url(Texture/Aries/Inventory/ItemSlot_bg.png:15 15 15 15)">
+                        <pe:slot bag="0" position="43" style = "width:32px;height:32px;"/>
+                    </div>
+                    <div style="margin-top:6px;padding:2px;width:36px;height:36px;background:url(Texture/Aries/Inventory/ItemSlot_bg.png:15 15 15 15)">
+                        <pe:slot bag="0" position="44" style = "width:32px;height:32px;"/>
+                    </div>-->
+                </div>
+            </div>
+            <br/>
+            <aries:miniscenecameramodifier miniscenename="CurrentFollowPetInfo" type="rotateleft" style="float:right;margin-left:-12px;margin-top:8px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_left_32bits.png#0 0 36 36)"/>
+            <aries:miniscenecameramodifier miniscenename="CurrentFollowPetInfo" type="rotateright" style="float:right;margin-left:276px;margin-top:-36px;width:36px;height:36px;background:url(Texture/Aries/Inventory/rotate_right_32bits.png#0 0 36 36)"/>
+        </div>
+        <br/>
+        <div style="margin-left:40px;margin-top:20px;width:280px;height:115px;">
+            <div style="padding:16px;margin-top:5px;width:280px;height:115px;background:url(Texture/Aries/Inventory/PurchaseItem/count_input_32bits.png#0 0 119 40: 20 20 20 19)">
+                <%=Eval("description")%>
+            </div>
+        </div>
+        <div style="margin-top:27px;">
+            <input type="button" style="margin-left:100px;width:153;height:49px;background:url(Texture/Aries/Profile/SendMeHome_32bits.png#0 0 153 49)" 
+                        onclick="DoGoHome" name="btn_accept" />
+        </div>
+        <!--<div style="margin-top:27px;">
+            <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Common/OK_32bits.png#0 0 153 49)" 
+                        onclick="DoFollow" name="btn_accept" />
+            <input type="button" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Common/Cancel_32bits.png#0 0 153 49)" 
+                        onclick="DoFree" name="btn_refuse" />
+        </div>-->
+    </div>
+</pe:editor>
+</pe:mcml> 
+</body>
+</html>

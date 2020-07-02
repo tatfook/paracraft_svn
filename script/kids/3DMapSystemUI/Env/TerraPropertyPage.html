@@ -1,0 +1,44 @@
+﻿<!-- "script/kids/3DMapSystemUI/Env/TerraPropertyPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="TerraPropertyPage.lua"><![CDATA[
+Map3DSystem.App.Env.TerraPropertyPage.OnInit();
+]]></script>
+<div style="float:left" tooltip="基层贴图每个地块只有1张,不重复使用,与其他通道的颜色相乘, 最大尺寸8192*8192, 引擎会将其切成8*8=64张小图渲染">基层:</div>
+<div style="float:left">
+    <a tooltip="点击切换" onclick="Map3DSystem.App.Env.TerraPropertyPage.OnChangeMainTexture">
+        <img name="MainTexture" src="" width="32" height="32"/>
+    </a>
+</div>
+<div style="float:left;margin-left:10px" tooltip="缺省贴图和通道贴图是一类的, 它会被重复使用">缺省:</div>
+<div style="float:left">
+    <a tooltip="点击切换" onclick="Map3DSystem.App.Env.TerraPropertyPage.OnChangeDefaultTexture">
+        <img name="DefaultTexture" src="" width="32" height="32"/>
+    </a>
+</div><br />
+<div>
+地表Mask尺寸:
+<select name="TextureMaskWidth" AllowUserEdit="false" onselect="Map3DSystem.App.Env.TerraPropertyPage.OnChangeTextureMaskWidth">
+    <option value="16">16</option>
+    <option value="32">32</option>
+    <option value="64">64</option>
+    <option value="128" selected = "true" >128(推荐)</option>
+    <option value="256">256</option>
+    <option value="512">512</option>
+</select>
+</div>
+<hr />
+<input type="button" name="RefreshBtn" onclick="Map3DSystem.App.Env.TerraPropertyPage.OnRefresh()" value="刷新"/>
+<hr />
+<pe:treeview style="background:;">
+    <pe:treenode text="全局地形" expanded="false" AttributeBind='<%=Map3DSystem.App.Env.TerraPropertyPage.GlobalProperty%>'>
+    </pe:treenode>
+    <pe:treenode text="当前地块" expanded="false" AttributeBind='<%=Map3DSystem.App.Env.TerraPropertyPage.TileProperty%>'>
+    </pe:treenode>
+</pe:treeview>
+</pe:mcml>
+</body>
+</html>
+

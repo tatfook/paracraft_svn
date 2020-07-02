@@ -1,0 +1,224 @@
+﻿<!-- "script/apps/Aries/NPCs/LifeSpring/30123_Woody_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30123_Woody_dialog, by Andy, 2009/9/11</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+    preferedAcinus = 21000 + instance;
+end
+
+local GameObject = MyCompany.Aries.Quest.GameObject;
+local NPC = MyCompany.Aries.Quest.NPC;
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local pet_id = MyCompany.Aries.Pet.GetPetID();
+
+local isDead = false;
+--if(bean)then
+--    if(bean.health == 2)then
+--        isDead = true;
+--    end
+--end
+
+-- 17011_MemoryCrystal
+-- 17012_ReviveElixar
+-- 50049_Woody_ReviveQuestStarted
+
+Condition1 = function()
+    return (isDead == false);
+end;
+Condition2 = function()
+    return (isDead == true and not hasGSItem(50049));
+end;
+Condition3 = function()
+    return (isDead == true and hasGSItem(50049) and not (hasGSItem(17011) and hasGSItem(17012)));
+end;
+Condition4 = function()
+    return (isDead == true and hasGSItem(50049) and (hasGSItem(17011) and hasGSItem(17012)));
+end;
+
+function EntryAction(from, to)
+    if(from == 2 and to == 10) then
+	    ItemManager.PurchaseItem(50049, 1, function(msg)
+		    if(msg) then
+			    log("+++++++Purchase 50049_Woody_ReviveQuestStarted return: +++++++\n")
+			    commonlib.echo(msg);
+			end
+	    end);
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 4 and to == -1) then
+        local bHas, guid = hasGSItem(50049);
+        if(bHas and guid) then
+            ItemManager.DestroyItem(guid, 1, function(msg) 
+		        log("+++++++Destroy 50049_Woody_ReviveQuestStarted return: +++++++\n")
+		        commonlib.echo(msg);
+		        if(msg.issuccess == true) then
+                    local bHas, guid = hasGSItem(17011);
+                    if(bHas and guid) then
+                        ItemManager.DestroyItem(guid, 1, function(msg) 
+		                    log("+++++++Destroy 17011_MemoryCrystal return: +++++++\n")
+		                    commonlib.echo(msg);
+	                    end);
+	                end
+                    local bHas, guid = hasGSItem(17012);
+                    if(bHas and guid) then
+                        ItemManager.DestroyItem(guid, 1, function(msg) 
+		                    log("+++++++Destroy 17012_ReviveElixar return: +++++++\n")
+		                    commonlib.echo(msg);
+	                    end);
+	                end
+	                ItemManager.PurchaseItem(16011, 1, function(msg)
+		                if(msg) then
+			                log("+++++++Purchase 16011_Revive return: +++++++\n")
+			                commonlib.echo(msg);
+			                if(msg.issuccess == true) then
+                                local bHas, guid = hasGSItem(16011);
+                                if(bHas and guid) then
+                                    local item = ItemManager.GetItemByGUID(guid);
+                                    if(item and item.guid > 0) then
+                                        item:OnClick("left", true);
+                                    end
+	                            end
+			                end
+			            end
+	                end, nil, nil, "none");
+		        end
+	        end);
+	    end
+	end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+GiveLaBaZhouToday = function()
+    return MyCompany.Aries.Quest.NPCs.Woody.GiveLaBaZhouToday();
+end
+
+NotGiveLaBaZhouTodayAndHaveLaBaZhou = function()
+    return MyCompany.Aries.Quest.NPCs.Woody.NotGiveLaBaZhouTodayAndHaveLaBaZhou();
+end
+
+GiveLaBaZhou = function()
+    MyCompany.Aries.Quest.NPCs.Woody.GiveLaBaZhou();
+end
+
+reward_name = MyCompany.Aries.Quest.NPCs.Woody.GetRandomRewardName();
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30123" />
+            <pe:placeholder id="name" source="{this}" value="伍迪" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+	<!--		    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/> -->
+			    <pe:answer-if condition = 'true' target_state = "5"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    春光照耀，好暖和呀！真希望我的抱抱龙可以和我一起享受这股春意。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+<!--	    <pe:state id = "2">
+		    小哈奇，我知道你是来找我帮你复活你的抱抱龙的，如果你想让抱抱龙复活，就去找到记忆水晶和回魂草，带这两样物品来找我吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    没有记忆水晶和回魂草，我是不能复活你的抱抱龙的。再去仔细找找吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    太好了，有了记忆水晶和回魂草，我就可以复活你的抱抱龙了，自此以后你应该善待你的抱抱龙。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state> -->
+	    <pe:state id = "5">
+		    error
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    我是伍迪，曾经由于我的自私和疏忽，失去了我最心爱的抱抱龙，所以现在只有孤苦伶仃的一个人。
+		    <pe:answer text="给你腊八粥" template_id="giveyoulabazhou">
+			    <pe:answer-if condition = '<%=Eval("GiveLaBaZhouToday")%>' target_state = "7"/>
+			    <pe:answer-if condition = '<%=Eval("NotGiveLaBaZhouTodayAndHaveLaBaZhou")%>' target_state = "9"/>
+			    <pe:answer-if condition = "true" target_state = "8"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    我今天已经吃过你送的腊八粥了，如果明天还能吃到你送的粥，我会很高兴的。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "8">
+		    好心的哈奇，你还没有腊八粥呢，呼噜大叔很会做腊八粥，找他问问看。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    <%=string.format("你的腊八粥真是香，一股暖流，回味良久，我也送你一个%s，希望你把它摆出来哦。", Eval("reward_name"))%>
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GiveLaBaZhou")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

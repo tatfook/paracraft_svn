@@ -1,0 +1,134 @@
+﻿    <!-- "script/mobile/paracraft/Areas/SystemMenuPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script refresh="false" type="text/npl" src="SystemMenuPage.lua"><![CDATA[
+SystemMenuPage = commonlib.gettable("ParaCraft.Mobile.Desktop.SystemMenuPage");
+SystemMenuPage.OnInit();
+
+function SwitchSystemMenuState()
+    SystemMenuPage.SwitchMenuPage();
+end
+
+function OnClickBtn(name)
+    if(name == "btn_save") then
+        SystemMenuPage.SaveWorld();
+    elseif(name == "btn_exit") then
+        SystemMenuPage.Exit();
+    elseif(name == "btn_help") then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BuildQuestTask.lua");
+	    local BuildQuest = MyCompany.Aries.Game.Tasks.BuildQuest;
+	    if(BuildQuest.IsTaskUnderway()) then
+		    local task = BuildQuest.GetCurrentQuest().task;
+		    if(task) then
+			    _guihelper.MessageBox(string.format(L"【%s】正在建造中，是否放弃？",task.name),function(msg)
+				    if(msg == _guihelper.DialogResult.Yes)then
+						    BuildQuest.EndEditing();
+					    else
+					    end
+			    end,_guihelper.MessageBoxButtons.YesNo)
+		    end
+		    return;
+	    end
+
+        --BuildQuest.ShowPage();
+
+        NPL.load("(gl)script/mobile/paracraft/GUI/HelpPage.lua");
+        local HelpPage = commonlib.gettable("ParaCraft.Mobile.GUI.HelpPage");
+        HelpPage.ShowPage()
+    elseif(name == "btn_setting") then
+        NPL.load("(gl)script/mobile/paracraft/Areas/SettingPage.lua");
+        local SettingPage = commonlib.gettable("ParaCraft.Mobile.Desktop.SettingPage");
+        SettingPage.ShowPage(true)
+    elseif(name == "btn_message") then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ChatSystem/ChatWindow.lua");
+		MyCompany.Aries.ChatSystem.ChatWindow.ShowAllPage(true);
+    elseif(name == "btn_view") then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
+        local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic");
+        GameLogic.ToggleCamera();
+    elseif(name == "btn_volume") then
+        SystemMenuPage.OnClickEnableSound();
+    elseif(name == "btn_mode") then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
+        local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
+        GameLogic.ToggleGameMode();
+        Page:Refresh(0.1);
+    end
+    --_guihelper.MessageBox(name);
+end
+
+function ModeIsEditor()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
+    local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
+    local value;
+    if(Desktop.mode=="editor") then
+        value = true;
+    else
+        value = false;
+    end
+    return value;
+end
+
+]]></script>
+<pe:if condition="<%= not SystemMenuPage.bExpanded %>">
+    <pe:container alignment="_rt" ClickThrough="true" style="width:95px;height:90px;margin-top:5px;background:;">
+        <div style="width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:23px;margin-top:17px;width:43px;height:42px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#68 69 43 42)"/>
+            <input type="button" style="position:relative;width:89px;height:76px;background:;" onclick="SwitchSystemMenuState"/>
+        </div>
+    </pe:container>
+</pe:if>
+<pe:if condition="<%= SystemMenuPage.bExpanded %>">
+    <pe:container alignment="_rt" ClickThrough="true" style="margin-top:5px;width:757px;height:90px;background:;">
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:23px;margin-top:18px;width:42px;height:39px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#78 114 42 39)"/>
+            <input type="button" name="btn_save" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:26px;margin-top:19px;width:37px;height:37px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#460 73 37 37)"/>
+            <input type="button" name="btn_setting" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:33px;margin-top:20px;width:23px;height:35px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#50 116 23 35)"/>
+            <input type="button" name="btn_help" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:24px;margin-top:22px;width:41px;height:32px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#416 79 41 32)"/>
+            <input type="button" name="btn_message" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:23px;margin-top:26px;width:42px;height:23px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#369 81 42 23)"/>
+            <input type="button" name="btn_view" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <pe:if condition='<%=ModeIsEditor() %>'>
+                <div style="position:relative;margin-left:22px;margin-top:20px;width:25px;height:16px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#436 123 25 16)"/>
+                <div style="position:relative;margin-left:27px;margin-top:21px;width:34px;height:34px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#393 127 34 34)"/>
+                <div style="position:relative;margin-left:43px;margin-top:37px;width:22px;height:21px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#437 145 22 21)"/>
+            </pe:if>
+            <pe:if condition='<%=not ModeIsEditor() %>'>
+                <div style="position:relative;margin-left:22px;margin-top:20px;width:25px;height:16px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#436 123 25 16)"/>
+                <div style="position:relative;margin-left:27px;margin-top:21px;width:34px;height:34px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#393 127 34 34)"/>
+                <div style="position:relative;margin-left:43px;margin-top:37px;width:22px;height:21px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#437 145 22 21)"/>
+            </pe:if>
+            <input type="button" name="btn_mode" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff30;" class="mobile_button">
+            <div style="position:relative;margin-left:23px;margin-top:19px;width:43px;height:38px;background-color:#ffffff50;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#2 114 43 38)"/>
+            <input type="button" name="btn_exit" style="position:relative;width:89px;height:76px;background:;" onclick="OnClickBtn"/>
+        </div>
+        <div style="float:left;margin-left:5px;width:89px;height:76px;background-color:#ffffff60;" class="mobile_button">
+            <div style="position:relative;margin-left:23px;margin-top:17px;width:43px;height:42px;background:url(Texture/Aries/Creator/Mobile/blocks_UI_32bits.png#68 69 43 42)"/>
+            <input type="button" style="position:relative;width:89px;height:76px;background:;" onclick="SwitchSystemMenuState"/>
+        </div>
+    </pe:container>
+</pe:if>
+</pe:mcml>
+</body>
+</html>

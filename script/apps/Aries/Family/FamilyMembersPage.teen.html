@@ -1,0 +1,586 @@
+<!-- "script/apps/Aries/Family/FamilyMembersPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/FamilyServer/FamilyServerSelect.teen.lua");
+NPL.load("(gl)script/apps/Aries/FamilyServer/FamilyServerSet.teen.lua");
+local FamilyServerSelect = commonlib.gettable("MyCompany.Aries.FamilyServer.FamilyServerSelect");
+
+NPL.load("(gl)script/apps/Aries/Family/FamilyMembersPage.lua");
+local FamilyMembersPage = commonlib.gettable("Map3DSystem.App.Family.FamilyMembersPage");
+local FamilyManager = commonlib.gettable("Map3DSystem.App.Family.FamilyManager");
+FamilyMembersPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+--家族成员列表
+function GetMembersList()
+    local manager = FamilyManager.CreateOrGetManager();
+    return manager:GetMembers(FamilyMembersPage.only_show_online);
+end
+--家族基础信息
+function GetFamilyInfo()
+    local manager = FamilyManager.CreateOrGetManager();
+    return manager:GetFamilyInfo();
+end
+function GetFamilyInfoByKey(key)
+    local info = GetFamilyInfo();
+    if(info)then
+        local v = info[key]
+        return tostring(v);
+    end
+end
+--自己在家族中的信息
+function GetUserInfoAboutFamily()
+    local manager = FamilyManager.CreateOrGetManager();
+    return manager:GetUserInfoAboutFamily();
+end
+function GetRoleStatus()
+    local role_status = 2;
+    local m = GetUserInfoAboutFamily()
+    if(m and m.role_status)then
+        role_status = m.role_status;
+    end
+    return role_status;
+end
+function DS_Func_Items(index)
+    local list = GetMembersList();
+	if(not list)then return 0 end
+	if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+
+function DS_Func_Front_PVP_Items(index)
+    local manager = FamilyManager.CreateOrGetManager();
+    local list = manager:GetFrontPVPMembers();
+    if(not list)then return 0 end
+	if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+
+function DS_Func_Front_PVE_Items(index)
+    local manager = FamilyManager.CreateOrGetManager();
+    local list = manager:GetFrontPVEMembers();
+    if(not list)then return 0 end
+	if(index == nil) then
+		return #(list);
+	else
+		return list[index];
+	end
+end
+
+function OnClickFrontItem(index)
+    local list = GetMembersList();
+    FamilyMembersPage.selected_node = nil;
+    if(list)then
+        local node = list[index];
+        if(not node) then return; end
+        if(mouse_button == "right") then
+		    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+		    MyCompany.Aries.NewProfileMain.OnShowContextMenu(node.nid);
+	    end
+    end
+end
+
+function OnClickItem(index)
+    local list = GetMembersList();
+    FamilyMembersPage.selected_node = nil;
+   if(list)then
+       local node = list[index];
+        if(not node) then return; end
+        if(mouse_button == "right") then
+		    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+		    MyCompany.Aries.NewProfileMain.OnShowContextMenu(node.nid);
+	    end
+       local k,v;
+       for  k,v in ipairs(list)do
+		    v.checked = false;
+       end
+       if(node)then
+		    if(node.checked)then
+			    node.checked = false;
+		    else
+			    node.checked = true;
+                FamilyMembersPage.selected_node = node;
+		    end
+		    pageCtrl:Refresh(0);
+       end
+   end
+end
+function GetContainStr()
+    local list = GetMembersList();
+    local info = GetFamilyInfo();
+    if(list and info)then
+       local s=  string.format("%d/%d",#list,info.maxcontain or 0);
+       return s;
+    end
+end
+function GetActivityStr()
+    local info = GetFamilyInfo();
+    if(info)then
+       local s=  string.format("%d/%d",info.activity or 0,info.nextup or 0);
+       return s;
+    end
+end
+function GetRoleStr(role_status)
+    if(role_status == 0)then
+        return "族长";
+    elseif(role_status == 1)then
+        return "副族长";
+    elseif(role_status == 2)then
+        return "成员";
+    end
+end
+function GetMyRole()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+	    local role_status = manager:GetMyRole();
+        return role_status;     
+    end
+end
+function DoRefresh()
+   FamilyMembersPage.RefreshPage();
+end
+function DoInvite()
+    FamilyMembersPage.ShowPage_InviteBox();
+end
+function DoFire()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+         if(FamilyMembersPage.selected_node)then
+            local nid = FamilyMembersPage.selected_node.nid;
+            manager:DoFire(nid,function()
+               FamilyMembersPage.RefreshPage(true)
+            end)
+        end
+    end
+end
+function DoDisband()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+        manager:DoDisband(function()
+            ClosePage();
+        end)
+    end
+end
+function DoAppoint_Assistant()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+         if(FamilyMembersPage.selected_node)then
+            local nid = FamilyMembersPage.selected_node.nid;
+            manager:DoAppoint_Assistant(nid,function()
+               FamilyMembersPage.RefreshPage()
+            end)
+        end
+    end
+end
+function DoQuit_Assistant()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+         if(FamilyMembersPage.selected_node)then
+            local nid = FamilyMembersPage.selected_node.nid;
+            manager:DoQuit_Assistant(nid,function()
+               FamilyMembersPage.RefreshPage()
+            end)
+        end
+    end
+end
+function DoHand_Headman()
+    if(System.options.isAB_SDK) then
+        local manager = FamilyManager.CreateOrGetManager();
+        if(manager)then
+             if(FamilyMembersPage.selected_node)then
+                local nid = FamilyMembersPage.selected_node.nid;
+                manager:DoHand_Headman(nid,function()
+                   FamilyMembersPage.RefreshPage()
+                end)
+            end
+        end
+    end
+end
+function DoViewProfile()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+         if(FamilyMembersPage.selected_node)then
+            local nid = FamilyMembersPage.selected_node.nid;
+            System.App.Commands.Call("Profile.Aries.ShowFullProfile", {nid = nid});
+        end
+    end
+end
+function DoQuit()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+        local nid = Map3DSystem.User.nid;
+        manager:DoQuit(nid,function()
+            ClosePage();
+        end)
+    end
+end
+function DoSignIn()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+        manager:DoSignIn(function()
+            FamilyMembersPage.RefreshPage()
+        end)
+    end
+end
+function IsEditState()
+    return FamilyMembersPage.is_edit_state;
+end
+function DoChange()
+    local desc = GetFamilyInfoByKey("desc");
+    pageCtrl:SetValue("content_info",desc);
+    FamilyMembersPage.is_edit_state = true;
+    pageCtrl:Refresh(0);
+end
+function DoSave()
+    local manager = FamilyManager.CreateOrGetManager();
+    if(manager)then
+        local content_info = pageCtrl:GetValue("content_info");
+        manager:SaveGroupInfo(content_info,function()
+            FamilyMembersPage.is_edit_state = nil;
+            FamilyMembersPage.RefreshPage()
+        end)
+    end
+end
+function DoShowFS()
+    ClosePage();
+    MyCompany.Aries.FamilyServer.FamilyServerSet.ShowPage();
+end
+function getFamilyServerName() 
+    if(MyCompany.Aries.Friends.familyworld and MyCompany.Aries.Friends.familyworld ~= "" )then
+        return FamilyServerSelect.familyworldname or "无";
+    else
+        return "族长未设定";
+    end
+end
+function DoShowOnlineUser()
+    if(FamilyMembersPage.only_show_online)then
+        FamilyMembersPage.only_show_online = false;
+    else
+        FamilyMembersPage.only_show_online = true;
+    end
+    pageCtrl:Refresh(0);
+end
+function GetOnlineStr(is_online,gender)
+    local s;
+    local icon;
+    if(gender == "male")then
+		if(is_online == 1)then
+			icon = "Texture/Aries/Common/ThemeTeen/others/boy_32bits.png;"
+		else
+			icon = "Texture/Aries/Common/ThemeTeen/others/boy_offline_32bits.png;"
+		end
+	else
+		if(is_online ==  1)then
+			icon = "Texture/Aries/Common/ThemeTeen/others/girl_32bits.png;"
+		else
+			icon = "Texture/Aries/Common/ThemeTeen/others/girl_offline_32bits.png;"
+		end
+	end
+    s = string.format([[<img src="%s" style="margin-top:-6px;width:32px;height:32px;"/>]],icon);
+    return s;
+end
+function DoChat()
+    MyCompany.Aries.ChatSystem.ChatWindow.OnClickWndRestore();
+    ClosePage();
+end
+function DoOthers()
+    NPL.load("(gl)script/apps/Aries/Family/FamilyListPage.lua");
+    local FamilyListPage = commonlib.gettable("Map3DSystem.App.Family.FamilyListPage");
+    FamilyListPage.ShowPage();
+end
+function DoDonate()
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+    NPCShopPage.ShowPage(31061);
+    ClosePage();
+end
+function DoShop()
+    NPL.load("(gl)script/apps/Aries/Family/FamilyShopPage.lua");
+    local FamilyShopPage = commonlib.gettable("Map3DSystem.App.Family.FamilyShopPage");
+    FamilyShopPage.ShowPage();
+end
+
+function GetIndex(index)
+    return index;
+end
+
+function HasCompleteMembersInfo()
+    return FamilyManager.complete_members_info;
+end
+
+pageCtrl:SetValue("online_checkbox",not FamilyMembersPage.only_show_online);
+]]></script>
+
+<aries:window width="760" height="470" title="家族" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/family_icon_32bits.png" >
+    <pe:block class="border_bg1_css" style="position:relative;margin-top:28px;margin-left:5px;width:750px;height:438px;" zorder="-2"/>
+    <pe:block style="margin-top:28px;background:;">
+        <div style="margin-left:0px;margin-top:5px;">
+             <div style="float:left;margin-left:60px;">
+                 <input type="button" value="家族名称:" class="labelbutton" style="float:left;width:60px;text-align:right;" enabled="false"/>
+                <input type="button" value='<%=GetFamilyInfoByKey("name") %>' class="property_bg_css" style="float:left;width:350px;" enabled="false"/>
+            </div>
+           <!-- <div style="float:left;">
+                 <input type="button" value="家族服务器:" class="labelbutton" style="float:left;width:70px;text-align:right;" enabled="false"/>
+                <input type="button" value='<%=getFamilyServerName() %>' class="property_bg_css" style="float:left;width:140px;" enabled="false"/>
+            </div>-->
+            <div style="float:left;">
+                 <input type="button" value="等级:" class="labelbutton" style="float:left;width:30px;text-align:right;" enabled="false"/>
+                <input type="button" value='<%=GetFamilyInfoByKey("level") %>' class="property_bg_css" style="float:left;width:50px;" enabled="false"/>
+            </div>
+            <div style="float:left;">
+                 <input type="button" value="活跃度:" class="labelbutton" style="float:left;width:50px;text-align:right;" enabled="false"/>
+                <div style="float:left;margin-left:10px;margin-top:5px;">     
+                    <pe:progressbar name="progress" isshowtooltip="true" Minimum = "0" Maximum = '<%=GetFamilyInfoByKey("nextup") %>' Value = '<%=GetFamilyInfoByKey("activity") %>' Step = "1" style="width:100px;float:left;" />
+                    <br />
+                    <input type="button" style="position:relative;margin-left:0px;margin-top:-20px;text-align:center;color:#ffffff;width:100px;" class="labelbutton" value='<%=GetActivityStr()%>'/>
+                </div>
+            </div>
+            <div style="float:left;margin-left:5px;">
+                <!--<input type="button" value="投人气" onclick="DoSignIn()" class="defaultbutton" style="width:70px;"/>-->
+            </div>
+        </div>
+        <div style="margin-left:10px;margin-top:5px;width:740px;height:30px;padding:5px;"  class="border_bg2_css">
+            <pe:if condition='<%=IsEditState()%>'>
+                <input type="text" name="content_info" zorder="2" value = "" class="defaulttextfield" style="margin-top:-2px;width:680px;height:25px;"/>
+            </pe:if>
+            <pe:if condition='<%=not IsEditState()%>'>
+                <%=GetFamilyInfoByKey("desc") %> 
+            </pe:if>
+        </div>
+        <div style="position:relative;margin-left:700px;margin-top:-28px;">
+            <pe:if condition='<%=GetMyRole() == 0 %>'>
+                <pe:if condition='<%=IsEditState()%>'>
+                    <input type="button" value="保存" onclick="DoSave()" class="defaultbutton" style="width:40px;"/>
+                </pe:if>
+                <pe:if condition='<%=not IsEditState()%>'>
+                    <input type="button" value="修改" onclick="DoChange()" class="defaultbutton" style="width:40px;"/>
+                </pe:if>
+            </pe:if>
+        </div>
+        <div style="height:110px;">
+            <div style="float:left;margin-left:10px;margin-top:3px;width:365px;height:110px;"  class="border_bg2_css">
+                <div>
+                    <div style="float:left;margin-left:10px;font-size:14;margin-top:2px;">家族挑战先锋</div>
+                    <!--<div style="float:left;margin-left:0px;margin-top:2px;width:150px;text-align:center;">挑战积分</div>-->
+                </div>
+                <div style="width:360px;height:1px;margin-left:2px;margin-top:2px;" class="black_line"/>
+                <div>
+                    <pe:if condition='<%=not HasCompleteMembersInfo()%>'>
+                        <div style="margin-left:150px;font-size:14;margin-top:30px;">数据加载中</div>
+                    </pe:if>
+                    <pe:if condition='<%=HasCompleteMembersInfo()%>'>
+                        <pe:gridview style="margin-top:-2px;" name="front_pve_list" DataSource="<%=DS_Func_Front_PVE_Items%>" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="false" pagesize="3">
+				            <Columns>
+                                <div style="width:365px;height:26px;">
+                                    <!--<div>
+						                <pe:if condition='<%=Eval("checked") %>' >
+							                <input type="button" class="listbutton_selected" onclick="OnClickItem" name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+						                </pe:if>
+						                <pe:if condition='<%=not Eval("checked") %>' >
+							                <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+						                </pe:if>
+			
+					                </div>-->
+                                    <input type="button" class="listbutton_unselected" onclick="OnClickFrontItem"  name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+					                <div style="margin-top:-20px;">
+                                        <div style="float:left;margin-left:0px;width:20px;font-size:12;color:#52dff4;text-align:center;"><%=GetOnlineStr(Eval("is_online"),Eval("gender")) %></div>
+                                        <div style="float:left;margin-left:0px;width:55px;font-size:12;color:#52dff4;text-align:center;"><aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' is_img="true" style="margin-left:15px;margin-top:1px;width:16px;height:16px;"/></div>
+                                        <div style="float:left;margin-left:0px;width:120px;text-align:center;font-size:12;color:#52dff4;" ><aries:mountpet-status2 name="nickname" nid='<%=Eval("nid")%>' type="nickname" hideifnotvip="true"/></div>
+                                        <div style="float:left;margin-left:0px;width:150px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("boss") %></div>
+					                </div>
+                                     <div style="width:360px;height:1px;margin-left:2px;margin-top:-2px;" class="black_line"/>
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+					            <b>空</b>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+					            <b>请稍等 ... </b>
+				            </FetchingDataTemplate>
+			            </pe:gridview>                
+                    </pe:if>
+                    
+                </div>
+            </div>
+            <div style="float:left;margin-left:10px;margin-top:3px;width:365px;height:110px;"  class="border_bg2_css">
+                <div>
+                    <div style="float:left;margin-left:10px;font-size:14;margin-top:2px;">家族赛场先锋</div>
+                    <!--<div style="float:left;margin-left:0px;margin-top:2px;width:150px;text-align:center;">赛场积分</div>-->
+                </div>
+                <div style="width:360px;height:1px;margin-left:2px;margin-top:2px;" class="black_line"/>
+                <div>
+                    <pe:if condition='<%=not HasCompleteMembersInfo()%>'>
+                        <div style="margin-left:150px;font-size:14;margin-top:30px;">数据加载中</div>
+                    </pe:if>
+                    <pe:if condition='<%=HasCompleteMembersInfo()%>'>
+                        <pe:gridview style="margin-top:-2px;" name="front_pve_list" DataSource="<%=DS_Func_Front_PVP_Items%>" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="false" pagesize="3">
+				            <Columns>
+                                <div style="width:365px;height:26px;">
+                                    <!--<div>
+						                <pe:if condition='<%=Eval("checked") %>' >
+							                <input type="button" class="listbutton_selected" onclick="OnClickItem" name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+						                </pe:if>
+						                <pe:if condition='<%=not Eval("checked") %>' >
+							                <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+						                </pe:if>
+			
+					                </div>-->
+                                    <input type="button" class="listbutton_unselected" onclick="OnClickFrontItem"  name='<%=Eval("index")%>'
+								                style="margin-left:2px;margin-top:0px;width:360px;height:26px;" />
+					                <div style="margin-top:-20px;">
+                                        <div style="float:left;margin-left:0px;width:20px;font-size:12;color:#52dff4;text-align:center;"><%=GetOnlineStr(Eval("is_online"),Eval("gender")) %></div>
+                                        <div style="float:left;margin-left:0px;width:55px;font-size:12;color:#52dff4;text-align:center;"><aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' is_img="true" style="margin-left:15px;margin-top:1px;width:16px;height:16px;"/></div>
+                                        <div style="float:left;margin-left:0px;width:120px;text-align:center;font-size:12;color:#52dff4;" ><aries:mountpet-status2 name="nickname" nid='<%=Eval("nid")%>' type="nickname" hideifnotvip="true"/></div>
+                                        <div style="float:left;margin-left:0px;width:150px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("pvp") %></div>
+					                </div>
+                                     <div style="width:360px;height:1px;margin-left:2px;margin-top:-2px;" class="black_line"/>
+					            </div>
+				            </Columns>
+				            <EmptyDataTemplate>
+					            <b>空</b>
+				            </EmptyDataTemplate>
+				            <FetchingDataTemplate>
+					            <b>请稍等 ... </b>
+				            </FetchingDataTemplate>
+			            </pe:gridview>     
+                    </pe:if>           
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-left:10px;margin-top:7px;width:740px;height:220px;"  class="border_bg2_css">
+            <div>
+                <input type="button" value="" class="titlebutton" style="float:left;width:20px;" enabled="false"/>
+                <input type="button" value="系别" class="titlebutton" style="float:left;width:55px;" enabled="false"/>
+                <input type="button" value="战斗等级" class="titlebutton" style="float:left;width:55px;" enabled="false"/>
+                <input type="button" value="魔法星" class="titlebutton" style="float:left;width:55px;" enabled="false"/>
+                <input type="button" value="用户名" class="titlebutton" style="float:left;width:200px;" enabled="false"/>
+                <input type="button" value="挑战" class="titlebutton" style="float:left;width:50px;" enabled="false"/>
+                <input type="button" value="赛场" class="titlebutton" style="float:left;width:50px;" enabled="false"/>
+                <input type="button" value="贡献度" class="titlebutton" style="float:left;width:50px;" enabled="false"/>
+                <input type="button" value="职位" class="titlebutton" style="float:left;width:50px;" enabled="false"/>
+                <input type="button" value="签到时间" class="titlebutton" style="float:left;width:150px;" enabled="false"/>
+            </div>
+            <div style="width:736px;height:1px;margin-left:2px;margin-top:-2px;" class="black_line"/>
+             <div>
+                <pe:gridview name="test_list_2" style="margin-top:-2px;" DataSource="<%=DS_Func_Items%>" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="true" pagesize="6">
+				    <Columns>
+                        <div style="width:740px;height:26px;">
+                            <div>
+						        <pe:if condition='<%=Eval("checked") %>' >
+							        <input type="button" class="listbutton_selected" onclick="OnClickItem" name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:736px;height:26px;" />
+						        </pe:if>
+						        <pe:if condition='<%=not Eval("checked") %>' >
+							        <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:736px;height:26px;" />
+						        </pe:if>
+			
+					        </div>
+					        <div style="margin-top:-22px;">
+                                <div style="float:left;margin-left:0px;width:20px;font-size:12;color:#52dff4;text-align:center;"><%=GetOnlineStr(Eval("is_online"),Eval("gender")) %></div>
+                                <div style="float:left;margin-left:0px;width:55px;font-size:12;color:#52dff4;text-align:center;"><aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' is_img="true" style="margin-left:15px;margin-top:1px;width:16px;height:16px;"/></div>
+                                <div style="float:left;margin-left:0px;width:55px;font-size:12;color:#52dff4;text-align:center;"><aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true" /></div>
+                                <div style="float:left;margin-left:0px;width:55px;font-size:12;color:#52dff4;text-align:center;"><aries:mountpet-status2 name="mlel" nid='<%=Eval("nid")%>' type="mlel" showzero="true" hideifnotvip="true"/></div>
+                                <div style="float:left;margin-left:0px;width:200px;text-align:center;font-size:12;color:#52dff4;" ><aries:mountpet-status2 name="nickname" nid='<%=Eval("nid")%>' type="nickname" hideifnotvip="true"/></div>
+                                <div style="float:left;margin-left:0px;width:50px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("boss") %></div>
+                                <div style="float:left;margin-left:0px;width:50px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("pvp") %></div>
+                                <div style="float:left;margin-left:0px;width:50px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("contribute") %></div>
+						        <div style="float:left;margin-left:0px;width:50px;font-size:12;color:#52dff4;text-align:center;"><%=GetRoleStr(Eval("role_status")) %></div>
+						        <div style="float:left;margin-left:0px;width:150px;font-size:12;color:#52dff4;text-align:center;"><%=Eval("last") %></div>
+					        </div>
+                             <div style="width:736px;height:1px;margin-left:2px;margin-top:-4px;" class="black_line"/>
+					    </div>
+				    </Columns>
+				    <EmptyDataTemplate>
+					    <b>空</b>
+				    </EmptyDataTemplate>
+				    <FetchingDataTemplate>
+					    <b>请稍等 ... </b>
+				    </FetchingDataTemplate>
+				    <PagerSettings Position="Bottom" style="margin-left:520px;margin-top:-3px;width:260px;height:25px;"/>
+				    <PagerTemplate>
+					    <form>
+						    <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="default_btn_css" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						    <input type="button" name="next" invisibleondisabled="false" value="下一页" class="default_btn_css" />
+	                    </form>
+				    </PagerTemplate>
+			    </pe:gridview>                
+            </div>
+        </div>
+     <div style="position:relative;margin-left:14px;margin-top:-25px;color:#ffffff">
+            <div style="float:left;">
+                <input type="checkbox" onclick="DoShowOnlineUser" name="online_checkbox"/>显示离线人员
+            </div>
+            <div style="float:left;margin-left:10px;margin-top:-5px;">
+                 <input type="button" value="人数:" class="labelbutton" style="float:left;width:30px;text-align:right;" enabled="false"/>
+                <input type="button" value='<%=GetContainStr()%>' class="property_bg_css" style="float:left;width:90px;" enabled="false"/>
+            </div>
+           <!-- <pe:if condition='<%=GetMyRole() == 0 %>'>
+                <input type="button" value="更换家族服务器" onclick="DoShowFS" class="highlightbutton" style="float:left;width:90px;margin-left:5px;margin-top:-2px;"/>
+            </pe:if>-->
+            <div style="float:left;margin-left:10px;margin-top:-5px;">
+                 <!--<input type="button" value="家族仓库" onclick="DoShop" class="defaultbutton" style="width:70px" />-->
+                <input type="button" value="家族捐献" onclick="DoDonate" class="defaultbutton" style="width:70px;margin-left:5px" />
+            </div>
+     </div>
+     <div style="margin-left:5px;margin-top:5px;">
+            <pe:if condition='<%=GetMyRole() == 0 %>'>
+                <input type="button" value="刷新列表" onclick="DoRefresh" style="width:70px;margin-left:5px"/>
+                <input type="button" value="邀请成员" onclick="DoInvite" style="width:70px;margin-left:5px"/>
+                <input type="button" value="开除成员" onclick="DoFire" style="width:70px;margin-left:5px"/>
+                <input type="button" value="解散家族" onclick="DoDisband" style="width:70px;margin-left:5px"/>
+                <input type="button" value="任命副族长" onclick="DoAppoint_Assistant" style="width:70px;margin-left:5px"/>
+                <input type="button" value="撤销副族长" onclick="DoQuit_Assistant" style="width:70px;margin-left:5px"/>
+
+                <pe:if condition='<%=System.options.isAB_SDK%>'>
+                    <input type="button" value="转让族长" onclick="DoHand_Headman" style="width:70px;margin-left:5px"/>
+                </pe:if>
+                <!--<input type="button" value="转让族长" onclick="DoHand_Headman" style="width:70px;margin-left:5px"/>-->
+                <input type="button" value="查看资料" onclick="DoViewProfile" style="width:70px;margin-left:5px"/>
+                <!--<input type="button" value="其他家族" onclick="DoOthers" style="width:70px;margin-left:5px"/>-->
+                <!--<input type="button" value="家族聊天" onclick="DoChat" class="defaultbutton" style="width:70px;margin-left:5px"/>-->
+            </pe:if>
+            <pe:if condition='<%=GetMyRole() == 1 %>'>
+                <input type="button" value="刷新列表" onclick="DoRefresh" style="width:70px;margin-left:5px"/>
+                <input type="button" value="邀请成员" onclick="DoInvite" style="width:70px;margin-left:5px"/>
+                <input type="button" value="退出家族" onclick="DoQuit" style="width:70px;margin-left:5px"/>
+                <input type="button" value="查看资料" onclick="DoViewProfile" style="width:70px;margin-left:5px"/>
+                <!--<input type="button" value="其他家族" onclick="DoOthers" style="width:70px;margin-left:5px"/>-->
+                <!--<input type="button" value="家族聊天" onclick="DoChat" class="defaultbutton" style="width:70px;margin-left:5px"/>-->
+            </pe:if>
+            <pe:if condition='<%=GetMyRole() == 2 %>'>
+                <input type="button" value="刷新列表" onclick="DoRefresh" style="width:70px;margin-left:5px"/>
+                <input type="button" value="退出家族" onclick="DoQuit" style="width:70px;margin-left:5px"/>
+                <input type="button" value="查看资料" onclick="DoViewProfile" style="width:70px;margin-left:5px"/>
+                <!--<input type="button" value="其他家族" onclick="DoOthers" style="width:70px;margin-left:5px"/>-->
+                <!--<input type="button" value="家族聊天" onclick="DoChat" class="defaultbutton" style="width:70px;margin-left:5px"/>-->
+            </pe:if>
+        </div>
+    </pe:block>   
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

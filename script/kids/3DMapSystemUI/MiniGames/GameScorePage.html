@@ -1,0 +1,67 @@
+﻿<!-- "script/kids/3DMapSystemUI/MiniGames/GameScorePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="GameScorePage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Login/ExternalUserModule.lua");
+local ExternalUserModule = commonlib.gettable("MyCompany.Aries.ExternalUserModule");
+
+Map3DSystem.App.MiniGames.GameScorePage.OnInit()
+
+local msg = Map3DSystem.App.MiniGames.GameScorePage.gamemsg or { score = 0 };
+--得分
+function GetScore()
+    if(not msg)then return 0 end
+    return msg.score;
+end
+function DS_Func_GameScorePage(index)
+  return Map3DSystem.App.MiniGames.GameScorePage.DS_Func_GameScorePage(index);
+end
+]]></script>
+<div style="width:500px;height:350px;background:url(Texture/Aries/MiniGame/messagebox_blue_32bits.png# 0 0 445 495:50 50 50 50)">
+    <div style="margin-left:52px;margin-top:30px;width:394px;height:208px;background:url(Texture/Aries/MiniGame/game_score_32bits.png# 0 0 394 208)">
+        <div style="width:200px;text-align:center;margin-left:185px;margin-top:20px;font-weight:bold;font-size:14px;"><%=GetScore() %></div>
+        
+        <pe:gridview style="margin-left:81px;margin-top:70px;width:540;height:150px" DataSource="<%=DS_Func_GameScorePage%>"  ItemsPerLine="1" AllowPaging="false" pagesize="10">
+                <Columns>
+                <div style="width:238px;height:31px;margin-top:5px;background:url(Texture/Aries/MiniGame/score_bg_32bits.png# 0 0 238 31)">
+                    <div style="float:left;width:135px;margin-top:5px;text-align:center;"><%=Eval("num") %></div>
+                    <div style="float:left;width:100px;margin-top:5px;text-align:center;color:#ff0000;font-weight:bold;font-size:14;"><%=Eval("label") %></div>
+                </div>
+             
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>空</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>请稍等 ... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:440px;margin-top:30px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+                        <div style="float:right;margin-top:4px;width:0px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="width:0px;height:0px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+                    </form>
+                </PagerTemplate>
+        </pe:gridview>
+    </div>
+    <pe:if condition="<%=MyCompany.Aries.ExternalUserModule:GetRegionID() == 0 %>">
+        <input style="margin-left:12px;margin-top:70px;width:147px;height:42px;background:url(Texture/Aries/MiniGame/rank_submit_32bits.png#0 0 147 42)" type="submit" name="ok" value="" onclick="Map3DSystem.App.MiniGames.GameScorePage.OnClick"/>    
+        <input style="margin-left:12px;margin-top:70px;width:147px;height:42px;background:url(Texture/Aries/MiniGame/rank_submit_32bits.png#0 42 147 42)" type="submit" name="send" value="" onclick="Map3DSystem.App.MiniGames.GameScorePage.OnClick"/>    
+        <input style="margin-left:12px;margin-top:70px;width:147px;height:42px;background:url(Texture/Aries/MiniGame/rank_submit_32bits.png#0 84 147 42)" type="submit" name="view" value="" onclick="Map3DSystem.App.MiniGames.GameScorePage.OnClick"/>    
+    </pe:if>
+    <pe:if condition="<%=MyCompany.Aries.ExternalUserModule:GetRegionID() ~= 0 %>">
+        <input style="margin-left:177px;margin-top:70px;width:147px;height:42px;background:url(Texture/Aries/MiniGame/rank_submit_32bits.png#0 0 147 42)" type="submit" name="ok" value="" onclick="Map3DSystem.App.MiniGames.GameScorePage.OnClick"/>    
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

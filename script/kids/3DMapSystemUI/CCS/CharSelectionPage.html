@@ -1,0 +1,37 @@
+﻿<!-- "script/kids/3DMapSystemUI/CCS/CharSelectionPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Character selection Page</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" src="CharSelectionPage.lua"/>
+<form name="avatarTab">
+  <div style="margin:10px;float:left;">
+      <h2>请选择你的人物外型</h2>
+      <pe:gridview ItemsPerLine="2" style="width:160px;height:300px" name="CharSelectionPageAvatars" DataSource='<%=Map3DSystem.App.CCS.CharSelectionPage.DS_Avatar_Func%>' DefaultNodeHeight="70">
+        <Columns>
+            <a type="button" tooltip='<%=Eval("desc")%>' onclick="Map3DSystem.App.CCS.CharSelectionPage.UpdateChar" param1='<%=Eval("index")%>'>
+                <img src='<%=Eval("bg")%>'width="64" height="64"/>
+            </a>
+        </Columns>
+       </pe:gridview>
+  </div>
+  <div style="margin:10px;float:left;">
+    <div><font style="font-weight:bold">3D 预览:</font><font style="color:#808080;">用鼠标左键或中键拖拽可以改变视角</font></div>
+    <label name="desc" style="font-weight:bold;height:20px">尚未选择</label>
+    <div>
+      <pe:canvas3d name="avatar" style="width:256px;height:256px;"/>
+      <hr />
+    </div>
+    <div>
+        <input type="submit" style="height:26px" class="defaultbutton" name="Accept" value="确认选择" onclick="Map3DSystem.App.CCS.CharSelectionPage.OnAccept"/>
+        <input type="button" style="margin-left:5px" onclick="Map3DSystem.App.CCS.CharSelectionPage.TakeAvatarSnapshot" value="快照"/>
+        <br/><label name="SubmitMSG" style="font-weight:bold;height:20px"></label>
+    </div>
+  </div>
+</form>
+</pe:mcml>
+</body>
+</html>

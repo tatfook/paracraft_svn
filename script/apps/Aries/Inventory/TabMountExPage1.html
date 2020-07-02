@@ -1,0 +1,211 @@
+﻿<!-- "script/apps/Aries/Inventory/TabMountExPage1.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TabMountExPage.lua"><![CDATA[
+
+local page = document:GetPageCtrl();
+--初始化
+MyCompany.Aries.Inventory.TabMountExPage.OnInit();
+local TabMountExPage = MyCompany.Aries.Inventory.TabMountExPage;
+TabMountExPage.TabValue = TabMountExPage.TabValue or "1";
+
+function GetMountPetIFrame_URL()
+    local health = 0;
+    local level = 0;
+    if(bean) then
+        health = bean.health or 0;
+        level = bean.level or 0;
+    end
+    local s = string.format("script/apps/Aries/Inventory/MountPetView1.html?nid=%s&health=%d&level=%d", 
+        tostring(System.App.profiles.ProfileManager.GetNID()), health, level);
+    return s;
+end
+
+function OnRadioClick(value, mcmlNode)
+    TabMountExPage.ShowItemView1(value);
+end
+
+
+local bean = MyCompany.Aries.Pet.GetBean();
+local pet_id = MyCompany.Aries.Pet.GetPetID();
+local pet_name;
+if(bean) then
+    pet_name = bean.petname;
+end
+
+function GetName()
+    if(not pet_name or pet_name=="")then
+        pet_name = "抱抱龙";
+    end
+    return pet_name;
+end
+
+function IsEdit()
+    local s = MyCompany.Aries.Inventory.TabMountExPage.GetEditState();
+    if(s)then
+        return s;
+    end
+end
+
+function IsNotEdit()
+    local s = MyCompany.Aries.Inventory.TabMountExPage.GetEditState();
+    if(not s)then
+        return true;
+    end
+end
+
+function ChangeName()
+    MyCompany.Aries.Inventory.TabMountExPage.SetEditState(true);
+    page:Refresh(0.1);
+    page:SetValue("edit_pet_name",tostring(pet_name))
+end
+
+function SaveName()
+    local maxlen = Map3DSystem.App.HomeLand.HomeLandConfig.HomeNameMax;
+    local nickname = page:GetValue("edit_pet_name") or "";
+    local txt_len = string.len(nickname);
+	if(txt_len <=0)then
+			_guihelper.MessageBox("名称不能为空！");
+			return;
+	elseif(txt_len  > maxlen)then
+			_guihelper.MessageBox(string.format("名称太长了，换一个吧！",maxlen));
+			return;
+	else
+        local msg = {
+            sessionkey = Map3DSystem.User.sessionkey,
+            id = pet_id,
+            nickname = nickname,
+        }
+         commonlib.echo("before save dragon pet name：");
+         commonlib.echo(msg);
+        paraworld.homeland.petevolved.Update(msg,"pet",function(msg)
+             commonlib.echo("after saved dragon pet name:");
+             commonlib.echo(msg);
+             if(msg and msg.issuccess)then
+                -- pet name changed
+                local hook_msg = { aries_type = "PetNameChanged", changed_name = nickname, wndName = "main"};
+                CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+                local hook_msg = { aries_type = "onPetNameChanged_MPD", changed_name = nickname, wndName = "main"};
+                CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", hook_msg);
+
+                MyCompany.Aries.Pet.SetBean(nil,msg)
+                 MyCompany.Aries.Inventory.TabMountExPage.SetEditState(false);
+                --page:Refresh(0.1);
+                page:Goto("script/apps/Aries/Inventory/TabMountExPage1.html");
+             end
+        end,"access plus 0 minutes");
+   end
+end
+
+
+function isDead_Func()
+--    if(bean)then
+--        if(bean.health == 2)then
+--            return true;
+--        end
+--    end
+    return false;
+end
+
+function isNotDead_Func()
+    return not isDead_Func()
+end
+
+
+function btnGoHome_click()
+    NPL.load("(gl)script/apps/Aries/Desktop/Dock.lua");
+    MyCompany.Aries.Desktop.Dock.DoHome();
+end
+
+function btnRide_click()
+    NPL.load("(gl)script/apps/Aries/Desktop/Dock.lua");
+    MyCompany.Aries.Desktop.Dock.DoRid();
+end
+
+function btnFollow_click()
+    NPL.load("(gl)script/apps/Aries/Desktop/Dock.lua");
+    MyCompany.Aries.Desktop.Dock.DoFollow();
+end
+
+function HasLanguage()
+    if(MyCompany.Aries.Inventory.TabMountExPage.language and MyCompany.Aries.Inventory.TabMountExPage.language ~= "")then
+        return true;
+    end
+end
+function GetPetLanguage()
+    return MyCompany.Aries.Inventory.TabMountExPage.language or "";
+end
+
+function ViewHelp()
+    NPL.load("(gl)script/apps/Aries/Help/CombatHelp/CombatHelpPage.lua");
+    MyCompany.Aries.Help.CombatHelpPage.ShowPage();
+end
+
+function OnClose()
+   MyCompany.Aries.Inventory.TabMountExPage.ClosePage();
+end
+
+]]></script>
+
+<div class="window" style="color:#022a57;width:704px;height:480px;" align="center" valign="center">
+    <div style="position:relative;margin-left:706px;width:50px;margin-top:52px;">
+        <pe:tabs name="combatchartab" TabPosition="right" onclick="OnRadioClick" DefaultNodeHeight="62" ItemSpacing="1" style="height:360px;width:26px;margin-right:6px;padding-right:26px;">
+            <pe:tab-item name="1"  selected="true" SelectedMenuItemBG="Texture/Aries/Combat/BagPack/Card/tab_beibao1.png;0 0 26 62" 
+            UnSelectedMenuItemBG="Texture/Aries/Combat/BagPack/Card/tab_beibao0.png;0 0 26 62"  style="width:26px;height:62px;" >    
+            </pe:tab-item>
+            <pe:tab-item name="2"  SelectedMenuItemBG="Texture/Aries/Combat/BagPack/Card/tab_jinen1.png;0 0 26 62" 
+            UnSelectedMenuItemBG="Texture/Aries/Combat/BagPack/Card/tab_jinen0.png;0 0 26 62"  style="width:26px;height:62px;" >
+            </pe:tab-item>
+        </pe:tabs>
+    </div>
+    <div style="position:relative;width:573px;height:64px;margin-top:-8px;margin-left:59px;background:url(texture/aries/common/themekid/character/bg_caption_32bits.png#0 0 512 64:250 21 260 32);">
+        <div style="position:relative;width:128px;height:32px;margin-left:242px;margin-top:13px;background:url(Texture/Aries/Combat/BagPack/Card/bag_tit.png#0 0 128 32);"/>
+    </div>  
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:33px;background:url(texture/aries/common/themekid/character/help_32bits.png#0 0 28 28);" onclick="ViewHelp()" />
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="OnClose()" />
+
+    <div style="position:relative;margin-left:20px;margin-top:42px;width:306px;" >
+        <pe:if condition='<%=IsNotEdit()%>'>
+            <div style="color:#FFFFFF;font-size:14;font-weight:bold;text-align:center;"><div style="float:left;"><%=GetName()%></div></div>
+        </pe:if>
+        <pe:if condition='<%=IsEdit()%>'>
+            <div style="margin-left:78px"><input type="text" name="edit_pet_name" style="width:130px;height:25px;"/></div>
+        </pe:if>
+        <pe:if condition='<%=IsNotEdit()%>'>
+                <input type="button" zorder="3" style="margin-left:210px;margin-top:-25px;width:32px;height:32px;background:url(Texture/Aries/Profile/Modify_32bits.png);"
+                onclick="ChangeName();" tooltip="改名字" value=""/>
+        </pe:if>
+        <pe:if condition='<%=IsEdit()%>'>
+            <input type="button" zorder="3" style="margin-left:210px;margin-top:-26px;width:32px;height:32px;background:url(Texture/Aries/Profile/Save_32bits.png);"
+                onclick="SaveName();" tooltip="保存" value=""/>
+        </pe:if>
+        <pe:if condition='<%=HasLanguage()%>'>
+            <div style="position:relative;margin-left:30px;margin-top:-10px;">
+                <pe:container zorder = "2" style="float:left;padding:5px;text-align:center;padding-left:15px;padding-right:15px;font-size:12px;width:200px;height:70px;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41)">
+                    <%=GetPetLanguage()%>
+                </pe:container>
+            </div>
+        </pe:if>
+        <iframe src='<%=GetMountPetIFrame_URL()%>'/>
+    </div>
+
+    <div style="position:relative;margin-left:350px;margin-top:42px;width:335px">
+        <pe:if condition='<%=isNotDead_Func()%>'>
+            <iframe name="AriesInventoryMountItemView" style="height:395px" src="script/apps/Aries/Inventory/DragonBags/DragonBagsSelectionPage1.html"/>
+            <div style="text-align:center">
+                <input type="button" name="btnGoHome" value="回家" onclick="btnGoHome_click" class="defaultbtn" style="width:64px;height:28px;margin-left:45px"/><input type="button" name="btnRide" value="驾驶" onclick="btnRide_click" class="defaultbtn" style="width:64px;height:28px;margin-left:22px"/><input type="button" name="btnFollow" value="跟随" onclick="btnFollow_click" class="defaultbtn" style="width:64px;height:28px;margin-left:22px"/>
+            </div>
+        </pe:if>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

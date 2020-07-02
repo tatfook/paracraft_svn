@@ -1,0 +1,106 @@
+﻿<!-- "script/apps/Aries/NPCs/DrDoctor/30376_CrystalBunny_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+Condition1 = function()
+    return MyCompany.Aries.Quest.NPCs.CrystalBunny.IsOpened();
+end
+Condition2 = function()
+    return not MyCompany.Aries.Quest.NPCs.CrystalBunny.IsOpened();
+end
+Condition3 = function()
+    return MyCompany.Aries.Quest.NPCs.CrystalBunny.ExchangeFinishedFromDrDoctor();
+end
+DoOpenQuest = function()
+    MyCompany.Aries.Quest.NPCs.CrystalBunny.DoOpenQuest();
+end
+GiveBunny = function()
+    MyCompany.Aries.Quest.NPCs.CrystalBunny.GiveBunny();
+end
+name = "NPCDialog_"..tostring(npc_id);
+
+function EntryAction(from, to)
+end
+function ExitAction(from, to)
+end
+]]></script>
+<pe:dialog NPC_id = '<%=Eval("npc_id")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='30376' />
+        <pe:placeholder id="name" source="{this}" value='水晶兔'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+    </pe:template>  
+
+     <pe:state id = "0">
+	    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		    <pe:answer-if condition = '<%=Condition3() %>' target_state = "3"/>
+		    <pe:answer-if condition = '<%=Condition1() %>' target_state = "1"/>
+		    <pe:answer-if condition = '<%=Condition2() %>' target_state = "2"/>
+	    </pe:answer>
+    </pe:state>
+
+    <pe:state id = "1">
+      多克特博士在制作怪怪蛋的时候放了黄色颜料，紫色颜料，红色颜料，蓝色颜料，棕色颜料和一个跳蚤鸡蛋，找齐了这些材料交给多克特博士，他要是收了就代表原谅我了。
+	    <pe:answer template_id = "iknow">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+
+    <pe:state id = "2">
+	     我，我，我不是偷偷跑出来的，我没做什么坏事，真的没有，怪怪蛋是自己跑出来的，跟我没关系，千万千万别跟多克特博士说看见我在这。。。
+	    <pe:answer template_id = "goon">
+		    <pe:answer-if condition = "true" target_state = "4"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+
+    <pe:state id = "3">
+	      太开心了，多克特博士原谅我了，太谢谢你了，让我到你家里天天给你变点小玩意儿吧！
+	    <pe:answer template_id = "ok">
+		    <pe:answer-if condition = "true" transition = '<%=GiveBunny()%>' target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+
+    <pe:state id = "4">
+	      好吧，我承认怪怪蛋是我放出来的，但是我真的真的不是故意的，虽然我知道多克特博士制作怪怪蛋的秘方，但是我看也无济于事，他这么凶，肯定不会原谅我的。。。
+	    <pe:answer template_id = "letmehelpyou">
+		    <pe:answer-if condition = "true" target_state = "5"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+
+    <pe:state id = "5">
+	     多克特博士在制作怪怪蛋的时候放了黄色颜料，紫色颜料，红色颜料，蓝色颜料，棕色颜料和一个跳蚤鸡蛋，找齐了这些材料交给多克特博士，他要是收了就代表原谅我了。
+	    <pe:answer template_id = "ok">
+		    <pe:answer-if condition = "true" transition = '<%=DoOpenQuest() %>'  target_state = "-1"/>
+	    </pe:answer>
+
+	    <pe:answer template_id = "later">
+		    <pe:answer-if condition = "true" target_state = "-1"/>
+	    </pe:answer>
+    </pe:state>
+
+</pe:dialog>
+</pe:mcml>
+</body>
+</html>

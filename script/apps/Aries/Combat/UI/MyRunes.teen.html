@@ -1,0 +1,174 @@
+﻿<!-- "script/apps/Aries/Combat/UI/MyRunes.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CombatCard Teen Page, by spring, 2011/7/27</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardManager.teen.lua");
+local MyCardsManager = commonlib.gettable("MyCompany.Aries.Inventory.Cards.MyCardsManager");
+
+MyCardsManager.my_runes_page = pageCtrl;
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+local Player = commonlib.gettable("MyCompany.Aries.Player");
+
+state = pageCtrl:GetRequestParam("state");
+if(state) then
+    state = tonumber(state);
+end
+
+function  BigCardMode()
+   return false;
+   --return MyCardsManager.GetBigCardMode();
+end
+
+function DS_Func_Rune(index)
+    local ds = MyCardsManager.GetRuneList();
+    if(not index) then
+		return #ds;
+	else
+		return ds[index];
+	end
+end
+
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+
+function CheckRuneLvl(vgsid)
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(vgsid);
+	if(gsItem)then
+		local needlevel=gsItem.template.stats[138];
+        if (needlevel) then
+            needlevel=tonumber(needlevel);
+        else
+            needlevel=0;
+        end
+        local bean = MyCompany.Aries.Pet.GetBean();
+        local myCombatLevel = 0;
+        if(bean) then
+	        myCombatLevel = bean.combatlel or 0;
+        end
+        if (myCombatLevel>=needlevel) then
+            return true
+        else
+            return false
+        end
+	end    
+end
+
+function getCardTipCardBag(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    return string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",templategsid);
+end
+
+function ClickRune(gsid,node,param1)
+    ClosePage();
+    MyCompany.Aries.Combat.MyCards.OnClickCard(gsid,node,param1)
+end
+
+function GetAbsoluteX()
+    local x;
+    if(state == 0)  then
+        x = -175
+    elseif(state == 1)  then
+        x = -187
+    end
+    return x;
+end
+
+function GetAbsoluteY()
+    local y;
+    if(state == 0)  then
+        y = 0
+    elseif(state == 1)  then
+        y = -280    
+    end
+    return 0;
+end
+
+function GetWndName()
+    return pageCtrl.name;
+end
+]]>
+</script>
+<aries:window width="430" height="454" mode="lite" onclose="ClosePage()" title="符文" icon="Texture/Aries/Common/ThemeTeen/wintitle/friend_icon_32bits.png">
+    <div style="width:415px;height:404px;margin-left:1px;margin-top:6px;" class="border_bg3_css"> 
+        <pe:if condition='<%=not BigCardMode()%>'>
+            <pe:gridview name="cardsdeck_icon" DataSource="<%=DS_Func_Rune%>"  ItemsPerLine="8" AllowPaging="false" pagesize="64" DefaultNodeHeight="50" VerticalScrollBarStep="50" RememberScrollPos="true">
+				<Columns>
+						<div class="block" style="margin-left:5px;margin-top:2px;width:45px;height:45px;">
+                            <div style="width:40px;height:40px;">
+                            <!-- 如果拥有卡片模板 -->
+                                <pe:if condition='<%=(Eval("gsid") ~= 0)%>'>
+                                    <pe:if condition='<%=(state == 0)%>'>
+                                        <pe:if condition='<%=CheckRuneLvl(Eval("gsid"))%>'>                                                    
+                                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' isclickable="false" ShowNumBg = "false" name='<%=Eval("gsid") %>' tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_is_lock_position="true" tooltip_offset_x="45" tooltip_offset_y="-25" tooltip_absolute_x='<%=GetAbsoluteX() %>' tooltip_absolute_y='<%=GetAbsoluteY() %>' target_parent_name='<%= GetWndName() %>' style="width:40px;height:40px;margin-left:2px;margin-top:2px;" animstyle="12" /></div>
+                                        </pe:if>
+                                        <pe:if condition='<%=not CheckRuneLvl(Eval("gsid"))%>'>
+                                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' isclickable="false" ShowNumBg = "false" name='<%=Eval("gsid") %>' style="width:40px;height:40px;margin-left:2px;margin-top:2px;" /></div>
+                                            <input type="button" style="position:relative;width:40px;height:40px;margin-left:2px;margin-top:2px;color:#ff0000;background:url(Texture/Aries/Desktop/ItemOutline/redmask_cannot_use_32bits.png# 0 0 16 16);" zorder="2" tooltip='<%=getCardTipCardBag(Eval("gsid")) %>' tooltip_offset_x="5" tooltip_offset_y="-55" tooltip_absolute_x='<%=GetAbsoluteX() %>' tooltip_absolute_y='<%=GetAbsoluteY() %>' target_parent_name='<%= GetWndName() %>'  animstyle="0" />
+                                        </pe:if>
+                                        <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:26px;margin-left:26px;;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' /> 
+                                    </pe:if>
+                                    <pe:if condition='<%=(state == 1)%>'>
+                                        <pe:if condition='<%=Eval("bAvailable") == true%>'>
+                                            <div style="position:relative;">
+                                                <pe:item gsid='<%=Eval("gsid")%>' style="width:40px;height:40px;margin-left:2px;margin-top:2px;" param1='<%=Eval("seq")%>' bFromInCombatDeck="true" tooltip="<%=MyCompany.Aries.Combat.MyCards.getCardTip(Eval('gsid')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87" tooltip_absolute_x='<%=GetAbsoluteX() %>' tooltip_absolute_y='<%=GetAbsoluteY() %>' target_parent_name='<%= GetWndName() %>'  isclickable="true" onclick="ClickRune" />
+                                            </div>
+                                            
+                                            <!--
+                                            <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:0px;margin-top:-96px;width:64px;height:64px"/>
+                                            <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                                            <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                                            <div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("copies")%></div>
+                                            -->
+                                        </pe:if>
+                                        <pe:if condition='<%=Eval("bAvailable") == false and (Eval("gsid") ~= 0 )%>'>
+                                            <div style="position:relative;">
+                                                <pe:item gsid='<%=Eval("gsid")%>' style="position:relative;width:40px;height:40px;margin-left:2px;margin-top:2px;" param1='<%=Eval("seq")%>' bFromInCombatDeck="true" tooltip="<%=MyCompany.Aries.Combat.MyCards.getCardTipUnavailable(Eval('gsid'), Eval('cooldown')) %>" tooltip_is_lock_position="true" tooltip_offset_x="-74" tooltip_offset_y="-87" tooltip_absolute_x='<%=GetAbsoluteX() %>' tooltip_absolute_y='<%=GetAbsoluteY() %>' target_parent_name='<%= GetWndName() %>'  isclickable="true" onclick="MyCompany.Aries.Combat.MyCards.OnClickCardUnavailable" />
+                                                <input type="button" enabled="false" style="position:relative;width:40px;height:40px;margin-left:2px;margin-top:2px;background:url(Texture/Aries/Combat/CardComponents/CardUnavailableMask_32bits.png: 7 7 7 7);" name='<%=Eval("gsid")%>'/>
+                                                <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="position:relative;width:40px;height:40px;margin-left:2px;margin-top:2px;"/>
+                                                <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="position:relative;margin-left:-2px;margin-top:6px;width:30px;height:30px"/>
+                                                <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="position:relative;margin-left:16px;margin-top:6px;width:30px;height:30px"/>
+                                            </div>
+                                            
+                                            <!--
+                                            <input type="button" enabled="false" style="margin-left:0px;margin-top:-117px;width:77px;height:117px;background:url(Texture/Aries/Combat/CardComponents/CardUnavailableMask_32bits.png: 7 7 7 7);" name='<%=Eval("gsid")%>'/>
+                                            <img src='<%=Eval("cooldown_pic")%>' zorder="101" enabled="false" style="margin-left:6px;margin-top:-96px;width:64px;height:64px"/>
+                                            <img src='<%=Eval("cooldown_pic_digit1")%>' zorder="101" enabled="false" style="margin-left:-10px;margin-top:-96px;width:64px;height:64px"/>
+                                            <img src='<%=Eval("cooldown_pic_digit2")%>' zorder="101" enabled="false" style="margin-left:24px;margin-top:-96px;width:64px;height:64px"/>
+                                            <div style="margin-left:9px;margin-top:-24px;text-align:center;width:110px;height:24px;font-weight:bold;color:#FFFFFF;"><%=Eval("copies")%></div>
+                                            -->
+                                        </pe:if>
+                                        <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:26px;margin-left:26px;;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' /> 
+                                        
+                                    </pe:if>
+                                </pe:if>
+                            </div>
+				        </div>
+				</Columns>
+				<EmptyDataTemplate>
+					<b>空</b>
+				</EmptyDataTemplate>
+				<FetchingDataTemplate>
+					<b>请稍等 ... </b>
+				</FetchingDataTemplate>
+			</pe:gridview>
+        </pe:if>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

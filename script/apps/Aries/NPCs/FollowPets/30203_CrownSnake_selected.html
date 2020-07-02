@@ -1,0 +1,57 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30203_CrownSnake_selected.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30203_CrownSnake_selected, by Andy, 2009/9/21</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+name = "30203_CrownSnake_selected";
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30203);
+
+local progress = page:GetNode("progressbar_mood");
+progress:SetValue((memory.hp or 8) * 1);
+progress:SetAttribute("Maximum", 8);
+
+function TalkToNPC()
+    MyCompany.Aries.Desktop.TargetArea.TalkToNPC(npc_id, instance);
+end
+
+function IsFlee()
+    if(memory.isFlee == true) then
+        return true;
+    end
+    return false;
+end
+
+]]></script>
+
+<!--is loggedin user, show the avatar selected page-->
+<pe:if-is-user nid="loggedinuser">
+    <!--<div style="width:128px;height:512px;margin:0px;padding:0px;background:Texture/Aries/Dock/TargetArea2.png;">-->
+    <div style="width:128px;height:512px;margin:0px;padding:0px;">
+        <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;background:Texture/Aries/Dock/SunFlowerInner_32bits.png;" class="box">
+                <!--<pe:canvas3d name="NPCSelection" objectbinding="selection" MaskTexture="Texture/Aries/Dock/SunFlower_Mask.png" style="width:128px;height:128px" IsPortrait=true IsInteractive=false/>-->
+                <pe:player nid='30203' instance='1' object="npc" name='<%=Eval("name")%>' miniscenegraphname="NPCDialog_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+                <!--IsInteractive-->
+                <pe:if condition='<%=IsFlee()%>'>
+                    <div style="margin-left:8px;margin-top:-12px;width:120px;">
+                        <pe:progressbar name="progressbar_mood"  isshowtooltip = "true" 
+                            background = "Texture/Aries/Inventory/Empty_slot_32bits.png;0 0 32 26: 14 13 14 12" 
+                            blockimage = "Texture/Aries/Inventory/orange_fill_32bits.png;0 0 32 26: 14 13 14 12" 
+                            style="float:right;margin:6px;margin-left:0px;margin-bottom:0px;width:120px;height:26px;"/>
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+    </div>
+</pe:if-is-user> 
+
+</pe:mcml> 
+</body>
+</html>

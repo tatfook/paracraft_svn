@@ -1,0 +1,75 @@
+<!-- "script/apps/Aries/CombatRoom/RoomFilterPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="RoomFilterPage.lua"><![CDATA[
+
+local RoomFilterPage = commonlib.gettable("MyCompany.Aries.CombatRoom.RoomFilterPage");
+RoomFilterPage.OnInit();
+
+function DS_Func_Items(index)
+   return RoomFilterPage.DS_Func_Items(index);
+end
+function ClosePage()
+    RoomFilterPage.ClosePage();
+end
+function OnClickItem(name)
+    RoomFilterPage.DoCheck(name)
+end
+function OnClickCheckBox(bChecked, mcmlNode)
+    RoomFilterPage.DoCheck(tostring(mcmlNode:GetAttribute("name")))
+end
+function DoCheckAll()
+    RoomFilterPage.DoCheckAll(true);    
+end
+function DoUnCheckAll()
+    RoomFilterPage.DoCheckAll(false);    
+end
+]]></script>
+<div style="width:240px;height:370px;background:url(Texture/Aries/LobbyService/box_bg_5_32bits.png: 7 7 7 7)">
+<pe:gridview name="view" style="margin-left:0px;margin-top:0px;width:300;height:370px" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="1" AllowPaging="true" pagesize="14">
+    <Columns>
+    <div style="font-size:12px;">
+            <div style="position:relative;">
+            <pe:if condition='<%=Eval("checked")%>' >
+                    <input type="button" Normal_BG = "" MouseOver_BG = "Texture/Aries/LobbyService/selected_bg_32bits.png" style="margin-top:0px;width:240px;height:22px;background:"
+                    onclick="OnClickItem" name='<%=Eval("index")%>'/>
+            </pe:if>
+            <pe:if condition='<%=not Eval("checked")%>' >
+                <input type="button" Normal_BG = "" MouseOver_BG = "Texture/Aries/LobbyService/selected_bg2_32bits.png" style="margin-top:0px;width:240px;height:22px;background:"
+                    onclick="OnClickItem" name='<%=Eval("index")%>'/>
+            </pe:if>
+        </div>
+        <input type="checkbox" onclick="OnClickCheckBox()" style="float:left;margin-left:2px;" checked='<%=Eval("checked") %>' name='<%=Eval("index") %>' />
+        <div style="float:left"><%=Eval("name") %></div>
+    </div>
+    </Columns>
+    <EmptyDataTemplate>
+        <b>空</b>
+    </EmptyDataTemplate>
+    <FetchingDataTemplate>
+        <b>请稍等 ... </b>
+    </FetchingDataTemplate>
+    <PagerSettings Position="Bottom" style="margin-left:180px;margin-top:-5px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+    <PagerTemplate>
+        <form>
+            <input type="button" name="pre" zorder=2 style="width:25px;height:25px;background:Texture/Aries/homeland/arrow_left_32bits.png;"/>
+            <div style="float:right;margin-top:4px;width:0px;">
+                <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+            </div>
+            <input type="button" name="next" zorder=2 style="width:25px;height:25px;background:Texture/Aries/homeland/arrow_right_32bits.png;"/>
+        </form>
+    </PagerTemplate>
+</pe:gridview>
+</div>
+<input type="button" style="position:relative;margin-left:5px;margin-top:-25px;width:70px;height:21px;font-size:12px;" value="选择全部" onclick="DoCheckAll" />
+<input type="button" style="position:relative;margin-left:75px;margin-top:-25px;width:70px;height:21px;font-size:12px;" value="取消全部" onclick="DoUnCheckAll" />
+</pe:mcml> 
+</body>
+</html>

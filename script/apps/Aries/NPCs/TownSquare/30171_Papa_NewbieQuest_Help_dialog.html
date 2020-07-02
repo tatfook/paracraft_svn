@@ -1,0 +1,254 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30171_Papa_NewbieQuest_Help_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30171_Papa_NewbieQuest_Help_dialog, by Andy, 2009/8/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+forcestate = page:GetRequestParam("forcestate") or nil;
+if(forcestate) then
+    forcestate = tonumber(forcestate);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- hide all existing arrows
+local Desktop = MyCompany.Aries.Desktop;
+Desktop.GUIHelper.ArrowPointer.HideAllArrows();
+
+
+-- 50042_DoneMouseTutorial
+-- 50043_NewbieQuest_Acquire
+-- 50044_NewbieQuest_Complete
+-- 50045_NewbieQuest_HasReadTimeMagazine
+-- 50046_NewbieQuest_HasReadCitizenHandbook
+-- 50047_NewbieQuest_HasUsedLocalMap
+
+Condition1 = function()
+    if(forcestate == 1) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return hasGSItem(50043) and not hasGSItem(50045);
+end;
+
+Condition2 = function()
+    if(forcestate == 2) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return hasGSItem(50043) and hasGSItem(50045) and not hasGSItem(50046);
+end;
+
+Condition3 = function()
+    if(forcestate == 3) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return hasGSItem(50043) and hasGSItem(50045) and hasGSItem(50046) and not hasGSItem(50047);
+end;
+
+Condition4 = function()
+    if(forcestate == 4) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return hasGSItem(50043) and hasGSItem(50045) and hasGSItem(50046) and hasGSItem(50047) and not hasGSItem(50044);
+end;
+
+
+local dragonFetched = MyCompany.Aries.Pet.IsMyDragonFetchedFromSophie();
+
+Condition5 = function()
+    if(forcestate == 5) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return (dragonFetched == false);
+end;
+
+Condition6 = function()
+    if(forcestate == 6) then
+        return true;
+    elseif(forcestate) then
+        return false;
+    end
+    return (dragonFetched == true);
+end;
+
+
+Condition10 = function()
+    if(hasGSItem(50045) and hasGSItem(50046) and hasGSItem(50047)) then
+        return (dragonFetched == false);
+    end
+    return false;
+end;
+
+Condition11 = function()
+    if(hasGSItem(50045) and hasGSItem(50046) and hasGSItem(50047) and (dragonFetched == true)) then
+        return true;
+    end
+    return false;
+end;
+
+function EntryAction(from, to)
+    if(from == -1 and to == 1) then
+    end
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 1 and to == -1) then
+		---- CitizenHandbook
+		--local ItemManager = System.Item.ItemManager;
+		--ItemManager.PurchaseItem(19002, 1, function(msg) end, function(msg)
+			--log("+++++++Purchase item #19002 CitizenHandbook return: +++++++\n")
+			--commonlib.echo(msg);
+		--end);
+    elseif((from == 5 or from == 7) and to == -1) then
+        -- directly teleport to sophie
+		local params = {
+			asset_file = "character/v5/temp/Effect/LoyaltyDown_Impact_Base.x",
+			binding_obj_name = ParaScene.GetPlayer().name,
+			start_position = nil,
+			duration_time = 800,
+			force_name = nil,
+			begin_callback = function() 
+					local player = ParaScene.GetPlayer();
+					if(player and player:IsValid() == true) then
+						player:ToCharacter():Stop();
+					end
+				end,
+			end_callback = nil,
+			stage1_time = 600,
+			stage1_callback = function()
+					local player = ParaScene.GetPlayer();
+					if(player and player:IsValid() == true) then
+					    if(from == 5) then
+						    player:SetPosition(19972.052734375, 0.55891191959381, 19850.23046875);
+						    player:SetFacing(1.2302478551865);
+							local att = ParaCamera.GetAttributeObject();
+							att:SetField("CameraObjectDistance", 8.857349395752);
+							att:SetField("CameraLiftupAngle", 0.42512863874435);
+							att:SetField("CameraRotY", 1.2302478551865);
+					    elseif(from == 7) then
+						    player:SetPosition(20070.921875, 0.49290800094604, 19745.103515625);
+						    player:SetFacing(-1.0256477594376);
+							local att = ParaCamera.GetAttributeObject();
+							att:SetField("CameraObjectDistance", 8.857349395752);
+							att:SetField("CameraLiftupAngle", 0.37049001455307);
+							att:SetField("CameraRotY", -1.0256488323212);
+					    end
+					end
+				end,
+			stage2_time = nil,
+			stage2_callback = nil,
+		};
+		local EffectManager = MyCompany.Aries.EffectManager;
+		EffectManager.CreateEffect(params);
+    end
+    if(to == -1) then
+        MyCompany.Aries.Quest.NPCs.Papa.RefreshQuestStatus();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30171" />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='帕帕'/>
+        </pe:template>
+
+        <pe:state id = "0">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+		        <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+		        <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		        <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		        <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+		        <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "1">
+	        送给你一本公民手册，已经放入你的背包中了。屏幕上下的这些按钮，能使你在哈奇小镇生活的更方便，你会慢慢学会使用它们。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "2">
+	        你已经学会了阅读时报。真棒！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = '<%=Eval("Condition10")%>' target_state = "5"/>
+		        <pe:answer-if condition = '<%=Eval("Condition11")%>' target_state = "7"/>
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "3">
+	        你已经阅读过公民手册了。好样的！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = '<%=Eval("Condition10")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition11")%>' target_state = "7"/>
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "4">
+            你已经学会使用地图了。真聪明！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = '<%=Eval("Condition10")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition11")%>' target_state = "7"/>
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "5">
+	        你的抱抱龙正在<div style="float:left;margin-left:-8px;color:#FF0000">龙龙乐园</div><div style="float:left;margin-left:-4px;">，</div>快去找<div style="float:left;color:#FF0000">苏菲</div>领回它吧。
+		    <pe:answer text="马上过去" template_id="goimmediately">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "6">
+	        你已经领回了自己的抱抱龙。太好了！
+		    <pe:answer text="我知道了" template_id="iknow">
+		        <pe:answer-if condition = '<%=Eval("Condition11")%>' target_state = "7"/>
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "7">
+            你已经完成了入任务，快来小镇广场找我吧！
+		    <pe:answer text="马上过去" template_id="goimmediately">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+        </pe:state>
+        <pe:state id = "10">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "11">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

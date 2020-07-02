@@ -1,0 +1,47 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/091218/KnitChirstmasSock_Acquire.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>KnitChirstmasSock_Acquire, by Andy, 2009/7/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local QuestArea = MyCompany.Aries.Desktop.QuestArea;
+
+function Confirm()
+    page:CloseWindow();
+    
+    QuestArea.FlashQuestDragonIcon();
+    MyCompany.Aries.Quest.NPCs.KnitChirstmasSock.RefreshStatus();
+end
+
+time = ParaGlobal.GetDateFormat("yyyy+M-d=");
+time = string.gsub(time, "+", "年")
+time = string.gsub(time, "-", "月")
+time = string.gsub(time, "=", "日")
+]]></script>
+    
+    <div width = "920" height = "512" style="background:url(Texture/Aries/Quest/MailPaper_bg.png# 0 0 920 512)">
+	    <div style="padding:210px;padding-right:310px;padding-bottom:25px;width:920px;height:512px;background:url(Texture/Aries/Quest/Dragon/MailContent_32bits.png# 0 0 920 512)">
+            亲爱的<pe:name linked=false/>，<br/>
+            听说圣诞老人每天晚上都会把礼物放进圣诞袜里，我们也去编一只漂亮的圣诞袜吧。<br/>
+            <div style="margin-left:280px;margin-top:80px;width:380px;float:left;">你的<div style="float:right;margin-left:-9px;"><aries:mountpetname/></div></div><br/>
+            <div style="margin-left:280px;width:380px;float:left;"><%=Eval("time")%></div>
+        </div>
+        <div style="margin-left:650px;margin-top:-470px;">
+            <input type="button" style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/Quest/MailPaper_close_32bits.png;" 
+                    onclick="Confirm()" value=""/>
+        </div>
+    </div>
+    
+</pe:mcml>
+</body>
+</html>
+

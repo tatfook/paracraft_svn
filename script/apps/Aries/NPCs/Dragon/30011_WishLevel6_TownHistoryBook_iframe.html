@@ -1,0 +1,64 @@
+<!-- "script/apps/Aries/NPCs/Dragon/30011_WishLevel6_TownHistoryBook_iframe.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30011_WishLevel6_TownHistoryBook_iframe, by Andy, 2009/7/28</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local QuestArea = MyCompany.Aries.Desktop.QuestArea;
+
+function Confirm()
+    page:CloseWindow();
+    if(hasGSItem(50028)) then
+        -- finish the quest
+        -- exid 89: DragonQuestGrow_Level6
+        ItemManager.ExtendedCost(89, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 89: DragonQuestGrow_Level6 return: +++++++\n")
+	        commonlib.echo(msg);
+		    --50030_WishLevel6_RewardFriendliness
+		    if(msg.issuccess == true) then
+			    -- use the item 50030 to increase pet friendliness
+                local bHas, guid = hasGSItem(50030);
+                if(bHas and guid) then
+                    local item = ItemManager.GetItemByGUID(guid);
+                    if(item and item.guid > 0) then
+                        item:OnClick("left");
+                    end
+                end
+			    --WishLevel0.RefreshStatus();
+		    end
+        end);
+    end
+end
+time = ParaGlobal.GetDateFormat("yyyy+M-d=");
+time = string.gsub(time, "+", "年")
+time = string.gsub(time, "-", "月")
+time = string.gsub(time, "=", "日")
+]]></script>
+    
+    <div width = "316" height = "284" style="background:url(Texture/Aries/Quest/Props/Lollipop_Sticker_32bits.png#0 0 316 284)">
+	    <!--<div style="margin:45px;margin-bottom:25px;height:250px;">
+            亲爱的<pe:name linked=false/>：<br/>
+    你的<div style="float:right;margin-left:-6px;"><aries:mountpetname/></div>缠了我好久，<br/>就是要在我的书里<br/>
+    放一个棒棒糖，说是要给你一个惊喜。虽然我非常心疼这本书，但还是被XX对你的心意感动了！
+所以，虽然这个棒棒糖尺寸大的不能吃，只能拿在手里当扇子用了，但我还是要说，你是一个幸福的小哈奇，赶紧收起这个幸福的棒棒糖吧！<br/>
+                            <br/>
+            <div style="width:210px;float:left;text-align:right">镇长:罗德</div>
+            <div style="width:210px;float:left;text-align:right"><%=Eval("time")%></div>
+        </div>-->
+        <input type="button" style="width:64px;height:32px;margin-left:120px;margin-top:234px;background:url(Texture/Aries/Quest/Props/Lollipop_OK_32bits.png);" 
+                onclick="Confirm()" value=""/>
+    </div>
+    
+</pe:mcml>
+</body>
+</html>
+

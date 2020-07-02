@@ -1,0 +1,127 @@
+﻿<!-- "script/apps/Aries/Desktop/AvatarBag.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AvatarBag,add by WD, 2011/11/24</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+NPL.load("(gl)script/apps/Aries/Dialog/Dialog_SelectionGoods.lua");
+local Dialog_SelectionGoods = commonlib.gettable("MyCompany.Aries.Dialog.Dialog_SelectionGoods");
+local AvatarBag = commonlib.gettable("MyCompany.Aries.Desktop.AvatarBag");
+AvatarBag.PageSize = 56;
+AvatarBag:Init();
+
+function GetItemTooltip(gsid)
+    if(gsid) then
+        local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+        if(gsItem and gsItem.template.class == 18 and (gsItem.template.subclass == 1 or gsItem.template.subclass == 2)) then
+            return "page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?state=7&gsid="..gsid;
+        end
+    end
+    local guid = AvatarBag:getGuid(gsid)
+    return string.format("page://script/apps/Aries/Desktop/GenericTooltip_InOne.html?gsid=%s&guid=%s",gsid,guid);    
+end
+
+function GetDataSource(arg)
+    return AvatarBag:GetDataSource(arg);
+end
+
+function OnClickItem(arg,mcmlNode)
+    local copies;
+    NPL.load("(gl)script/apps/Aries/Desktop/GenericTooltip.lua");
+    local GenericTooltip = CommonCtrl.GenericTooltip:new();
+    if(GenericTooltip:CheckBinding(arg))then 
+        if(AvatarBag.ParentTable.name == "Mail")then
+            _guihelper.MessageBox("该物品已绑定，不能邮寄给他人！");
+        elseif(AvatarBag.ParentTable.name == "ItemsConsignment")then
+            _guihelper.MessageBox("该物品已绑定，不能出售给他人！");
+        end
+        return 
+    end
+
+    if(not AvatarBag:CanSell(tonumber(arg)))then 
+        if(AvatarBag.ParentTable.name == "Mail")then
+            _guihelper.MessageBox("该物品不能邮寄给他人！");
+        else
+            _guihelper.MessageBox("该物品不能出售给他人！");
+        end
+        return 
+    end
+    
+    if(AvatarBag.ParentTable.name == "Mail")then
+        local ctrl = MyCompany.Aries.Mail.ViewMail.page:FindControl("MyTextArea2");
+	
+	    if(ctrl and ctrl.GetText)then
+		    MyCompany.Aries.Mail.ViewMail.Text(ctrl:GetText())
+	    end
+    end
+
+    if(AvatarBag.ParentTable.name == "Mail")then
+        local hold,idx = AvatarBag:ContainItemByGsid(arg)
+        if(#AvatarBag.Items == AvatarBag.slots and not hold)then return
+        end
+    end
+
+    if(mouse_button == "right")then
+        local items_count = AvatarBag:GetItemsCountById(arg);
+        Dialog_SelectionGoods.ShowPage(items_count,function(incoming_items_count)
+            AvatarBag:OnClickItem(arg,tonumber(incoming_items_count));
+            --copies = tonumber(incoming_items_count)
+            end);
+            
+        return
+    end
+    
+    AvatarBag:OnClickItem(arg,copies);
+end
+
+function HideBag()
+    if(AvatarBag.ParentTable.name == "Mail")then
+        MyCompany.Aries.Mail.ViewMail.SetMailContent()
+    end
+    MyCompany.Aries.Desktop.AvatarBag.Hide()
+end
+
+]]></script>
+<div zorder="3"style="">
+    <pe:block class="title_txt_css" style="position:relative;width:432;height:32px;background:;padding-top:2px;">背包</pe:block>
+          <pe:button class="close_btn_css" style="position:relative;margin-left:408px;margin-top:5px;width:20px;height:20px;" value="" onclick="HideBag()" />
+
+    <pe:div style="padding:1px;width:422px;height:390px;margin-left:5px;margin-top:30px;background:;" >
+        <pe:gridview  name="pvw1" DataSource="<%=GetDataSource %>"  RememberScrollPos="true" RememberLastPage="true"
+            CellPadding="2" ItemsPerLine="8" AllowPaging="true" pagesize="56" DefaultNodeHeight="50" >
+            <Columns>
+                <div style="margin-left:2px;margin-top:2px;width:48px;height:48px;" class="block">
+                    <pe:if condition='<%=#MyCompany.Aries.Desktop.AvatarBag.DisplayItems ~= 0 %>'>
+                    <pe:item onclick='<% OnClickItem %>' gsid='<%=Eval("gsid")%>' HideCnt= "true" tooltip='<%=GetItemTooltip(Eval("gsid")) %>' style="width:48px;height:48px;"/>
+                    <pe:if condition='<%=Eval("copies") ~= 1 %>'>
+                    <div style="margin-top:-15px;text-align:right;"><%= Eval("copies")%></div>
+                    </pe:if>
+                    </pe:if>
+                </div>
+            </Columns>
+            <!--<EmptyDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">没有对应数据。</div>
+            </EmptyDataTemplate>-->
+            <FetchingDataTemplate>
+            <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:200px;margin-top:-22px;width:300px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+                    <input type="button" zorder="1" name="pre" class="default_btn_css" value="上一页"/>
+                    <input type="button" name="page" class="pagertext" style="margin-top:-1px"/>
+                    <input type="button" zorder="1" name="next" class="default_btn_css" value="下一页"/>
+	            </form>
+	        </PagerTemplate>
+        </pe:gridview>
+    </pe:div>
+    <input type="button" enabled="false" style="margin-top:-25px;margin-left:10px;position:relative;color:#808080;background:" tooltip="右键点击堆叠物品可以批量输入数量" value="帮助:右键堆叠物品"/>     
+</div>  
+</pe:mcml> 
+</body>
+</html>

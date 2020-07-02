@@ -1,0 +1,108 @@
+﻿<!-- "script/apps/Aries/Books/DragonSkillHandbook.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DragonEncyclopedia, by zhangruofei, 2010/7/8</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+--50028_WishLevel6_Acquire
+--50029_WishLevel6_Complete
+
+local hasLollipop = false;
+
+if(hasGSItem(50028) and not hasGSItem(50029)) then
+    hasLollipop = true;
+end
+
+function DS_Func_DragonSkillHandbook(index)
+    -- 因技能手册还未修改正确适合魔法哈奇，关闭部分页面
+    if(index == nil) then
+        --  return 12;
+        return 3; 
+--    elseif(index <= 12) then
+    elseif(index <= 3) then
+        local data = {}
+        local idx;
+        if (index==3) then
+            data.img = "Texture/Aries/Books/DragonSkillHandbook/12_32bits.png;0 0 680 512";
+        else
+            data.img = "Texture/Aries/Books/DragonSkillHandbook/" .. index .. "_32bits.png;0 0 680 512";
+        end
+                
+        if(index<=5) then
+            idx = index;
+        elseif(index==6) then
+            idx = 5;
+        elseif(index==7) then
+            idx = 6;            
+        elseif(index>=6) then
+            idx = 2;
+        end
+
+        data.bg = "Texture/Aries/Books/DragonSkillHandbook/bg" .. idx .. "_32bits.png;0 0 734 518";
+        return data;
+    end
+end
+
+function GoFirst()
+    pageCtrl:CallMethod("DragonSkillHandbook", "GotoPage", 1);
+end
+function Confirm()
+    pageCtrl:CloseWindow();
+end
+]]></script>
+
+<div style="width:758px;height:570px;margin-top:35px;margin-left:40px;">
+    <pe:gridview DataSource="<%=DS_Func_DragonSkillHandbook%>" name="DragonSkillHandbook" 
+        VerticalScrollBarStep="30" CellPadding="0"  DefaultNodeHeight = "518" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="width:758px;height:518px;">
+                <img src='<%=Eval("bg")%>' style="width:734px;height:518px;" /> 
+
+                <div style="margin-left:0px;margin-top:-513px;">
+                    <img src='<%=Eval("img")%>' style="margin-left:0px;margin-top:0px;width:680px;height:512px;" />                               
+                </div>
+                <pe:if condition='<%=Eval("index") ~= 1 %>'>
+                    <div style="margin-left:0px;margin-top:-518px;width:70px;height:48px;">
+                        <a tooltip="回到首页" style="margin-left:0px;margin-top:-518px;width:70px;height:48px;background:url()" name="c" onclick="GoFirst" param1='4'><div style="width:400px;height:350px;"/></a>
+                    </div>
+                </pe:if>
+            </div>
+
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="44" style="margin-left:90px;margin-top:-55px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 style="margin-left:-38px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/left_arrow_32bits.png;"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 style="margin-left:570px;margin-top:10px;width:26px;height:26px;background:Texture/Aries/Books/right_arrow_32bits.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<input type="button" onclick="Confirm()" style="margin-left:683px;margin-top:-550px;width:32px;height:32px;background:Texture/Aries/Books/DragonSkillHandbook/close_32bits.png;"/>
+
+<div style="float:left;margin-left:115px;margin-top:-550px;width:300px;text-align:center;color:#9a6f32;" >
+----抱抱龙技能手册----
+</div>
+<div style="float:left;margin-left:415px;margin-top:-550px;width:300px;text-align:center;color:#9a6f32;" >
+----抱抱龙技能手册----
+</div>
+
+</pe:mcml> 
+</body>
+</html>

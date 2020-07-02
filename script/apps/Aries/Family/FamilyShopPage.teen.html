@@ -1,0 +1,334 @@
+<!-- "script/apps/Aries/Family/FamilyMembersPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Family/FamilyManager.lua");
+local FamilyManager = commonlib.gettable("Map3DSystem.App.Family.FamilyManager");
+NPL.load("(gl)script/apps/Aries/Family/FamilyShopPage.lua");
+local FamilyShopPage = commonlib.gettable("Map3DSystem.App.Family.FamilyShopPage");
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+function ClosePage()
+  pageCtrl:CloseWindow();
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+    end
+end
+function GetMenu()
+    return FamilyShopPage.GetMenus();
+end
+function DS_Func_Items(index)
+	return FamilyShopPage.DS_Func_Items(index);
+end
+function DS_Func_Members(index)
+	return FamilyShopPage.DS_Func_Members(index);
+end
+function GetName(gsid)
+    if(not gsid)then return end
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+	if(gsItem) then
+		local name = gsItem.template.name;
+        return name;
+    end
+end
+function DoBuy(index)
+    local manager = FamilyManager.CreateOrGetManager();
+	local family_info = manager:GetFamilyInfo();
+    if(family_info and FamilyShopPage.list and FamilyShopPage.list[index])then
+        local node = FamilyShopPage.list[index];
+        local guid = node.guid;
+        local pricegsid = node.pricegsid;
+        local pricecnt = node.pricecnt or 0;
+        local admin = family_info.admin;
+        local __,__,__,copies = hasGSItem(pricegsid);
+        copies = copies or 0;
+        if(copies < pricecnt)then
+            _guihelper.MessageBox(string.format("你的%s不够，不能购买%s。",GetName(pricegsid),GetName(node.gsid)));
+            return
+        end
+        if(pricecnt <= 0)then
+            return
+        end
+        local buy_cnt = 1;
+        local gsItem = ItemManager.GetGlobalStoreItemInMemory(node.gsid);
+        if(gsItem)then
+            local __,__,__,copies = hasGSItem(node.gsid);
+            copies = copies or 0;
+            local maxcount = gsItem.template.maxcount or 0;
+            if((buy_cnt + copies) > maxcount)then
+                _guihelper.MessageBox(string.format("你不能拥有过多的%s。",GetName(node.gsid)));
+                return;
+            end
+        end
+        _guihelper.MessageBox(string.format("确认要购买%s？",GetName(node.gsid)),function(result)
+	        if(result == _guihelper.DialogResult.Yes)then
+		         local args = {
+                    tonid = admin,
+                    bag = 50100,
+                    guid = guid,
+                    cnt = buy_cnt,
+                }
+                paraworld.inventory.PurchaseFromBag(args,"",function(msg)
+                    FamilyShopPage.LoadAdminBag(function()
+                        pageCtrl:Refresh(0);
+                    end)
+                end);
+	        end
+        end,_guihelper.MessageBoxButtons.YesNo);
+    end
+end
+function DoSavePrice(index)
+    local manager = FamilyManager.CreateOrGetManager();
+	local family_info = manager:GetFamilyInfo();
+    if(family_info and FamilyShopPage.list and FamilyShopPage.list[index])then
+        local node = FamilyShopPage.list[index];
+        local gsid = node.gsid;
+        local guid = node.guid;
+        local pricegsid = node.pricegsid;
+        local pricecnt = node.pricecnt or 0;
+        local admin = family_info.admin;
+
+        if(FamilyShopPage.is_editing_index == index)then
+            local price_txt = FamilyShopPage.temp_edit_cnt;
+            if(price_txt <= 0 or price_txt >1000000)then
+                _guihelper.MessageBox("价格不合理，换个其他的价格吧！");
+                return
+            end
+            FamilyShopPage.is_editing_index = -1;
+            node.pricecnt = price_txt;
+            pageCtrl:Refresh(0);
+            if(pricecnt == price_txt)then
+                return
+            end
+            local args = {
+                tonid = admin,
+                bag = 50100,
+                guid = guid,
+                pricegsid = pricegsid,
+                pricecnt = price_txt,
+            }
+            paraworld.inventory.ChangeItemPriceInBag(args,"",function(msg)
+                FamilyShopPage.LoadAdminBag(function()
+                    pageCtrl:Refresh(0);
+                end)
+            end);
+        end
+    end
+end
+function DoChangePrice(index)
+    local manager = FamilyManager.CreateOrGetManager();
+	local family_info = manager:GetFamilyInfo();
+    if(family_info and FamilyShopPage.list and FamilyShopPage.list[index])then
+        local node = FamilyShopPage.list[index];
+        local gsid = node.gsid;
+        local guid = node.guid;
+        local pricegsid = node.pricegsid;
+        local pricecnt = node.pricecnt or 0;
+        local admin = family_info.admin;
+
+        FamilyShopPage.temp_edit_cnt = pricecnt;
+        FamilyShopPage.is_editing_index = index;
+        pageCtrl:Refresh(0);
+    end
+end
+function GetOnlineStr(is_online,gender)
+    local s;
+    local icon;
+    if(gender == "male")then
+		if(is_online == 1)then
+			icon = "Texture/Aries/Common/ThemeTeen/others/boy_32bits.png;"
+		else
+			icon = "Texture/Aries/Common/ThemeTeen/others/boy_offline_32bits.png;"
+		end
+	else
+		if(is_online ==  1)then
+			icon = "Texture/Aries/Common/ThemeTeen/others/girl_32bits.png;"
+		else
+			icon = "Texture/Aries/Common/ThemeTeen/others/girl_offline_32bits.png;"
+		end
+	end
+    s = string.format([[<img src="%s" style="margin-top:-6px;width:32px;height:32px;"/>]],icon);
+    return s;
+end
+function GetRoleStr(role_status)
+    if(role_status == 0)then
+        return "族长";
+    elseif(role_status == 1)then
+        return "副族长";
+    elseif(role_status == 2)then
+        return "成员";
+    end
+end
+function OnClickItem_Member(index)
+    local list = FamilyShopPage.members;
+   if(list)then
+       local node = list[index];
+        if(not node) then return; end
+        if(mouse_button == "right") then
+		    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+		    MyCompany.Aries.NewProfileMain.OnShowContextMenu(node.nid);
+	    end
+       local k,v;
+       for  k,v in ipairs(list)do
+		    v.checked = false;
+       end
+       if(node)then
+		    if(node.checked)then
+			    node.checked = false;
+		    else
+			    node.checked = true;
+		    end
+		    pageCtrl:Refresh(0);
+       end
+   end
+end
+function IsAdmin()
+    return FamilyShopPage.IsAdmin();
+end
+function IsEditing(index)
+    if(FamilyShopPage.is_editing_index == index)then
+        return true;
+    end
+end
+function OnKeyUp(sName,mcmlNode,uiobj)
+    if(uiobj)then
+        FamilyShopPage.temp_edit_cnt = tonumber(uiobj.text) or 0
+    end
+end
+]]></script>
+<aries:window width="760" height="470" title="家族奖品仓库" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/family_icon_32bits.png" >
+    <div class="border_bg1_css"  style="width:750px;height:438px;margin-left:5px;margin-top:28px;" >
+        <div style="float:left;width:460px;">
+            <div style="height:25px;margin-top:5px;">
+                <pe:togglebuttons style="margin-left:100px;" ButtonWidth="60" DataSource='<%=GetMenu() %>' onclick='OnClickFolder'/>
+            </div>
+            <div style="width:450px;height:380px;margin-left:5px;margin-top:-2px;" class="border_bg2_css">
+                 <div style="margin-left:2px;">
+                        <pe:gridview name="shop_view" DataSource="<%=DS_Func_Items%>"  ItemsPerLine="2" AllowPaging="true" pagesize="8">
+				        <Columns>
+                            <div class="border_bg10_css" style="margin-left:5px;margin-top:5px;width:215px;height:82px;" >
+                                <div style="text-align:center;height:25px;" class="bordertext"><%=GetName(Eval("gsid")) %></div>
+                                <div >
+					                <div class="block" style="float:left;margin-left:5px;margin-top:2px;width:48px;height:48px;padding:4px;">
+                                        <pe:item onclick="OnClickItem" isdragable="false" gsid='<%=Eval("gsid")%>'showdefaulttooltip="true" ShowCount='<%=Eval("cnt")%>' style="width:40px;height:40px;" />
+                                    </div>
+                                    <div style="float:left;margin-left:2px;margin-top:4px;">
+                                        <div>
+                                            <pe:item isclickable="false" isdragable="false" gsid='<%=Eval("pricegsid")%>'showdefaulttooltip="true" style="float:left;width:22px;height:22px;" />
+                                            <div style="float:left;margin-left:2px;width:90px;height:25px;">
+                                                <pe:if condition='<%=IsEditing(Eval("index"))%>'>
+                                                    <input type="text" style="width:130px;height:25px;float:left;" name='<%="price_txt"..Eval("index")%>' onkeyup="OnKeyUp" value='<%=tostring(Eval("pricecnt")) %>' enable_ime="false" class="edit_txt_css"/>
+                                                </pe:if>     
+                                                <pe:if condition='<%=not IsEditing(Eval("index"))%>'>
+                                                    <%=Eval("pricecnt")%>
+                                                </pe:if>                                           
+                                            </div>
+                                           
+                                        </div>
+                                        <div style="margin-top:4px;">
+                                             <pe:if condition='<%=IsAdmin()%>'>
+                                                <pe:if condition='<%=IsEditing(Eval("index"))%>'>
+                                                    <input type="button" value="保存" style="float:left;width:60px;" name='<%=Eval("index") %>'  onclick="DoSavePrice()" />
+                                                </pe:if>     
+                                                <pe:if condition='<%=not IsEditing(Eval("index"))%>'>
+                                                    <input type="button" value="调价" style="float:left;width:60px;" name='<%=Eval("index") %>'  onclick="DoChangePrice()" />
+                                                </pe:if>
+                                            </pe:if>
+                                                <input type="button" value="购买" class="bordertext" onclick="DoBuy()" name='<%=Eval("index") %>' style="width:60px;margin-left:10px;"/>
+                                        </div>
+                                    </div>
+                                </div>
+					        </div>
+				        </Columns>
+				        <EmptyDataTemplate>
+                            <div style="color:#ffffff;">暂无家族奖品</div>
+				        </EmptyDataTemplate>
+				        <FetchingDataTemplate>
+				        </FetchingDataTemplate>
+				        <PagerSettings Position="Bottom" style="margin-left:120px;margin-top:-2px;width:260px;height:25px;"/>
+				        <PagerTemplate AutoHidePager="true">
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							        <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                        </form>
+				        </PagerTemplate>
+			        </pe:gridview>   
+                </div>
+                <div style="margin-top:2px;">
+                    <div style="float:left;">
+                         <div style="float:left;margin-left:2px;">我的赛场荣誉:</div><pe:slot type="count" gsid="20055" style="float:left;" />
+                    </div>
+                    <div style="float:left;margin-left:40px;">
+                         <div style="float:left;margin-left:2px;">我的挑战功勋:</div><pe:slot type="count" gsid="20057" style="float:left;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="float:left;">
+            <input type="button" class="tab_selected_bg_css" style="margin-left:10px;width:90px;margin-top:5px;" value="家族成员贡献" />
+            <div class="border_bg2_css" style="width:285px;height:405px;">
+                <div class="border_bg3_css" style="margin-left:2px;margin-top:2px;width:281px;">
+                    <div style="float:left;margin-left:0px;margin-top:4px;width:40px;text-align:center;">职位</div>
+                    <div style="float:left;margin-left:0px;margin-top:4px;width:140px;text-align:center;">用户名</div>
+                    <div style="float:left;margin-left:0px;margin-top:4px;width:50px;text-align:center;">赛场</div>
+                    <div style="float:left;margin-left:0px;margin-top:4px;width:50px;text-align:center;">挑战</div>
+                </div>
+                 <pe:gridview name="members_view" DataSource="<%=DS_Func_Members%>" DefaultNodeHeight="27" ItemsPerLine="1" AllowPaging="false" pagesize="1000">
+				    <Columns>
+                        <div style="width:280px;height:26px;">
+                            <div>
+						        <pe:if condition='<%=Eval("checked") %>' >
+							        <input type="button" class="listbutton_selected" onclick="OnClickItem_Member" name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:280px;height:26px;" />
+						        </pe:if>
+						        <pe:if condition='<%=not Eval("checked") %>' >
+							        <input type="button" class="listbutton_unselected" onclick="OnClickItem_Member"  name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:280px;height:26px;" />
+						        </pe:if>
+			
+					        </div>
+					        <div style="margin-top:-22px;">
+						        <div style="float:left;margin-left:0px;width:20px;font-size:12;color:#52dff4;text-align:center;"><%=GetOnlineStr(Eval("is_online"),Eval("gender")) %></div>
+						        <div style="float:left;position:relative;margin-left:10px;width:50px;font-size:12;color:#52dff4;text-align:center;"><%=GetRoleStr(Eval("role_status")) %></div>
+						        <div style="float:left;margin-left:30px;width:140px;text-align:center;font-size:12;color:#52dff4;" ><aries:user nid='<%=Eval("nid")%>' key="nickname" /></div>
+						        <div style="float:left;margin-left:0px;width:40px;font-size:12;color:#52dff4;text-align:center;"><aries:user nid='<%=Eval("nid")%>' group="bag" gsid="20055" /></div>
+						        <div style="float:left;margin-left:0px;width:40px;font-size:12;color:#52dff4;text-align:center;"><aries:user nid='<%=Eval("nid")%>' group="bag" gsid="20057" /></div>
+					        </div>
+                             <div style="width:280px;height:1px;margin-left:2px;margin-top:-4px;" class="black_line"/>
+					    </div>
+				    </Columns>
+				    <EmptyDataTemplate>
+					    <b>空</b>
+				    </EmptyDataTemplate>
+				    <FetchingDataTemplate>
+					    <b>请稍等 ... </b>
+				    </FetchingDataTemplate>
+				    <PagerSettings Position="Bottom" style="margin-left:520px;margin-top:-3px;width:260px;height:25px;"/>
+				    <PagerTemplate>
+					    <form>
+						    <input type="button" name="pre" invisibleondisabled="false" value="上一页" class="default_btn_css" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						    <input type="button" name="next" invisibleondisabled="false" value="下一页" class="default_btn_css" />
+	                    </form>
+				    </PagerTemplate>
+			    </pe:gridview>            
+            </div>
+        </div>
+    </div>
+</aries:window>
+    
+</pe:mcml>
+</body>
+</html>
+

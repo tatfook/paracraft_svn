@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/Mail/MailTemplate/Mail_Template_Default.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local mail_id = page:GetRequestParam("id") or 0;
+mail_id = tonumber(mail_id);
+local mail_info = MyCompany.Aries.Quest.Mail.MailList.SystemTimerMails[mail_id] or {};
+mail_info = MyCompany.Aries.Quest.Mail.MailManager.GetCurMail() or mail_info;
+function ClosePage()
+    page:CloseWindow();
+end
+
+local page = document:GetPageCtrl();
+
+function getFromName()
+    return mail_info.sender or "";
+end
+function getContent()
+    return mail_info.content or "";
+end
+function getDate()
+    return ParaGlobal.GetDateFormat("yyyy-MM-dd");
+end
+function getTitleBg()
+    local s = mail_info.title_bg or "";
+    return s;
+end
+function getNPCBg()
+    local s = mail_info.npc_bg or ""
+   return s;
+end
+function CanGoto()
+    if(mail_info.gotoPosition)then
+        return true;
+    end
+end
+function Goto()
+    local position = mail_info.gotoPosition;
+    local camera = mail_info.cameraPosition;
+    if(not position or not camera)then return end
+    local msg = { aries_type = "OnMapTeleport", 
+		    position = position, 
+		    camera = camera, 
+		    wndName = "map", 
+	    };
+    CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+    ClosePage();
+end
+]]></script>
+<div style="width:920px;height:512px;background:url(Texture/Aries/PENote/penote_bg2.png# 0 0 920 512)">
+    <div style="margin-left:650px;margin-top:40px;">
+    <input type="button" zorder=2 style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/PENote/penote_close_32bits.png# 0 0 31 30" 
+    onclick="ClosePage()" />
+    </div>
+
+    <div style="float:left;width:800px;height:128px;margin-left:200px;margin-top:0px;" >
+        <%=getTitleBg() %>
+    </div>
+    <div style="margin-left:550px;margin-top:-80px;width:500px;height:500px;">
+        <div style="margin-top:0px;">
+        <%=getNPCBg() %>
+        </div>
+    </div>
+    <div style="margin-left:170px;margin-top:-420px;width:370px;height:320px;">
+        <div style="height:200px;">
+            <pe:name customformat="亲爱的%s" linked="false"/>
+            <br/>
+            <%=getContent() %>
+        </div>
+        <br/>
+        <div style="text-align:left;margin-left:300px;margin-top:0px;width:280px;">
+            <%=getFromName() %>
+            <br/>
+            <%=getDate()%>
+            <br/>
+            <pe:if condition='<%=CanGoto()%>'>
+                <input type="button" style="width:100px;height:31px;margin-left:0px;margin-top:2px;background:Texture/Aries/Common/Coming_32bits.png# 0 0 150 46" 
+                    onclick="Goto()" />
+            </pe:if>
+        </div>
+    </div>
+    
+</div>
+</pe:mcml>
+</body>
+</html>
+

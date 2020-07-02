@@ -1,0 +1,69 @@
+<!-- "script/apps/Aries/EmuUsers/StressTestPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi, 2009/11/3</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="StressTestPage.lua"><![CDATA[
+MyCompany.Aries.StressTestPage.OnInit()
+]]></script>
+<pe:tabs name="EmuUsers">
+<pe:tab-item text="完整压力测试"><div style="padding:5px">
+<form name="stress_test_Form">
+测试内容: 模拟从登录开始的全部行为，直到进入世界，并一直保持。 <br/>
+选择压测文件: 
+<select name="stressTestFilepath" style="width:350px">
+    <option selected="true">config/Aries.StressTest.EmuUsersDB.xml</option>
+    <option>config/Aries.StressTest.EmuUsersDB_300.xml</option>
+</select><br />
+<input type="submit" class="defaultbutton" name="start" value="启动" onclick="MyCompany.Aries.StressTestPage.OnClickStart"/>
+<pe:label name="result"></pe:label>
+</form>
+</div></pe:tab-item>
+<pe:tab-item text="生成压测文件" selected="true"><div style="padding:5px">
+<form name="stress_test_gen_Form">
+<b>输入新的用户</b><br />
+导入CSV账户文件: <select name="accountFileName">
+    <option selected="true">config/haqi_intranet.csv</option>
+    <option>config/haqi_internet.csv</option>
+</select><div style="float:left;color:#808080">csv格式为nid, password, nickname</div><br />
+<div style="float:left;">
+登录的世界: <select name="worldpath">
+    <option selected="true">worlds/MyWorlds/0919_test/</option>
+</select>
+</div>
+<div style="float:left;margin-left:10px">
+人物形象: <select name="assetfile">
+    <option selected="true">character/v3/Elf/Female/ElfFemale.xml</option>
+</select><br />
+</div>
+<b>number, user_nid, password, _nickname,(__pos_x, __pos_z)</b><br />
+<pe:gridview style="margin-bottom:10px;margin-left:10px;height:250px" name="gvwTableEmuUsers" DataSource="<%=MyCompany.Aries.StressTestPage.DS_Func_EmuUsers%>" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "20" pagesize="10">
+	<Columns>
+		<b><%=Eval("number")%>:</b><%=Eval("nid")%>,<%=Eval("password")%>,<%=Eval("nickname")%>(<%=tostring(Eval("pos_x"))%>, <%=tostring(Eval("pos_z"))%>)
+	</Columns>
+	<EmptyDataTemplate>
+		<b>NO MATCHING USER IS FOUND</b>
+	</EmptyDataTemplate>
+	<FetchingDataTemplate>
+		<b>Please wait while fetching data</b>
+	</FetchingDataTemplate>
+	<PagerSettings Position="Bottom"/>
+</pe:gridview>
+<input type="button" name="btnCreateNewUser" onclick = "MyCompany.Aries.StressTestPage.OnClickCreateNewUser" tooltip="在当前人物位置创建新人物，并使用CSV列表中的下一个账户" value="在当前位置添加"/>
+<input type="button" name="btnClearAll" onclick = "MyCompany.Aries.StressTestPage.OnClickClearAllUsers" value="清空用户"/>
+<hr />
+压测文件输出到: 
+<select name="stressTestOutputPath" style="width:350px">
+    <option selected="true">config/Aries.StressTest.EmuUsersDB.xml</option>
+    <option>config/Aries.StressTest.EmuUsersDB_300.xml</option>
+</select>
+<input type="submit" class="defaultbutton" name="genFile" value="生成" onclick="MyCompany.Aries.StressTestPage.OnClickGenerate"/>
+</form></div></pe:tab-item>
+</pe:tabs>
+</pe:mcml>
+</body>
+</html>

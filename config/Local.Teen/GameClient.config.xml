@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ParaEngine game client configuration file -->
+<GameClient>
+  <!-- if use_game_server is true, the client will use game server for all REST request; otherwise it will use HTTP get. -->
+  <config use_compression="false" use_game_server="true" public_files="config/NPLPublicFiles.xml">
+    <!--this is only for debugging, set is_enabled to true to run NPLRouter on this process-->
+    <npl_router_config is_enabled="false">script/apps/GameServer/test/local.NPLRouter.config.xml</npl_router_config>
+    <!--this is only for debugging, set is_enabled to true to run DBServer on this process-->
+    <db_server_config is_enabled="false">script/apps/GameServer/test/local.DBServer.config.xml</db_server_config>
+    <!--this is only for debugging, set is_enabled to true to run GameServer on this process-->
+    <game_server_config is_enabled="false">script/apps/GameServer/test/local.GameServer.config.xml</game_server_config>
+  </config>
+  <!--all supported login platforms-->
+  <platforms>
+    <!--only trusted domain can be used as callback. -->
+    <platform name="taomee" enabled="true" ></platform>
+    <platform name="QQ" enabled="true" client_id="100302176" auth_callback_url = "http://share.paraengine.com/qq_callback.htm"></platform>
+    <platform name="FB" enabled="true" client_id="122316571254636" auth_callback_url = "http://share2.paraengine.com/fb_callback.htm"></platform>
+  </platforms>
+  <!--default locale -->
+  <locale default="zhCN"></locale>
+  
+  <!--all known NPCs and their class files-->
+  <npc_files>
+    <npc_file version="kids" npc_file="config/Aries.AllClientNPC.xml"/>
+    <npc_file version="teen" npc_file="config/Aries.AllClientNPC.teen.xml"/>
+    <!--<npc_file worldfilter="^worlds/MyWorlds/61HaqiTown/$" npc_file="config/Aries.HaqiTown.NPC.xml"/>
+    <npc_file worldfilter="^worlds/MyWorlds/FlamingPhoenixIsland/$" npc_file="config/Aries.FlamingPhoenixIsland.NPC.xml"/>
+    <npc_file worldfilter="^worlds/Instances/Instance_Test/$" npc_file="config/Aries.Instance_Test.NPC.xml"/>-->
+  </npc_files>
+
+  <!--the asset server-->
+  <asset_server_addresses bg_loader_list ="http://update.61.com/haqi/assetupdate">
+    <address host="http://update.pala5.com/assetdownload/update/"/>
+  </asset_server_addresses>
+
+  <!--the core engine patch server -->
+  <patch_server_addresses>
+    <address host="http://update.pala5.com/" version_host="http://192.168.0.228/"/>
+  </patch_server_addresses>
+
+  <!--the global instance messaging server -->
+  <chat_server_addresses api_file="config/JabberAPI.config.xml" domain="test.pala5.cn">
+    <address host="jb1.test.pala5.cn" port="8080"/>
+    <address host="jb2.test.pala5.cn" port="8080"/>
+  </chat_server_addresses>
+
+  <!--REST based WEB server addresses-->
+  <web_domain domain="test.pala5.cn">
+    <log_server host="http://192.168.0.51:84"/>
+    <!--<file_server host="http://192.168.0.51:81"/>-->
+    <file_server host="http://tmland.paraengine.com"/>
+    <!--<login_news_page host="http://192.168.0.51/HaqiNewsPage.php"/>-->
+  </web_domain>
+
+  <!--known game server addresses. may need to update this list on startup -->
+  <world_server_addresses>
+   <address host="127.0.0.1" port="800" nid="1003" allow_login="true"/>
+  </world_server_addresses>
+</GameClient>

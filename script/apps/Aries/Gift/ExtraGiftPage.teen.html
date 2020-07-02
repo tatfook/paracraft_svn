@@ -1,0 +1,259 @@
+<!-- "script/apps/Aries/Gift/ExtraGiftPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Gift/ExtraGiftPage.lua");
+local ExtraGiftPage = commonlib.gettable("MyCompany.Aries.Gift.ExtraGiftPage");
+ExtraGiftPage.OnInit();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    pageCtrl:CloseWindow();
+end
+function DS_Func_gifts(index)
+    return ExtraGiftPage.DS_Func_gifts(index)
+end
+function DS_Func_exid_gifts(index)
+    return ExtraGiftPage.DS_Func_exid_gifts(index)
+end
+function DoSelected(index)
+   ExtraGiftPage.DoSelected(index);
+end
+function GetLabel(index)
+    if(ExtraGiftPage.exid_gifts)then
+        local node = ExtraGiftPage.exid_gifts[index];
+        if(node)then
+            local gsid = node.key;
+            local value = node.value or 0;
+            local name = "";
+			local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+            if(gsItem)then
+                name = gsItem.template.name;
+            end
+            local s = string.format("%sx%d",name,value);
+            return s; 
+        end
+    end
+end
+function IsSelected(name)
+    if(ExtraGiftPage.gift_name == name)then
+        return true;
+    end
+end
+function DoOpenGift()
+    if(ExtraGiftPage.gift_name == "media" or ExtraGiftPage.gift_name == "sun_gift" or ExtraGiftPage.gift_name == "moon_gift")then
+        
+        local code_text = pageCtrl:GetValue("code_text_"..ExtraGiftPage.gift_name);	
+
+	    local len = string.len(code_text);
+	    if(len == 0 ) then
+            _guihelper.MessageBox("激活码不能为空！");
+            return
+	    end
+        local node = ExtraGiftPage.GetGift(ExtraGiftPage.gift_name);
+        if(node and node.exid)then
+            ItemManager.UseVoucherCode(code_text,node.exid,function(msg)
+                if(msg.issuccess)then
+                    pageCtrl:Refresh(0);
+                else
+                    if(msg.errorcode == 421)then
+                        _guihelper.MessageBox("无效的激活码！");
+                    else
+                        _guihelper.MessageBox("领取失败！");
+                    end            
+                end
+            end);
+        end
+    elseif(ExtraGiftPage.gift_name == "first_pay" or ExtraGiftPage.gift_name == "client")then
+        if(ExtraGiftPage.gift_name == "first_pay")then
+            NPL.load("(gl)script/kids/3DMapSystemApp/profiles/ProfileManager.lua");
+			local user = Map3DSystem.App.profiles.ProfileManager.GetUserInfoInMemory();
+            if(user)then
+                if(not user.accummodou or user.accummodou < 100)then
+                    _guihelper.MessageBox("充值100金币才能领取这个礼包！");
+                    return
+                end
+            end
+        end
+        local node = ExtraGiftPage.GetGift(ExtraGiftPage.gift_name);
+        if(node and node.exid)then
+	        ItemManager.ExtendedCost(node.exid,nil,nil,function(msg)
+                if(msg.issuccess)then
+                    pageCtrl:Refresh(0);
+                else
+                    _guihelper.MessageBox("领取失败！");
+                end
+            end)        
+        end
+    end
+end
+function IsOpened()
+    local node = ExtraGiftPage.GetGift(ExtraGiftPage.gift_name);
+    if(node)then
+        local check_gsid = node.check_gsid;
+        if(check_gsid)then
+            return not hasGSItem(check_gsid);
+        end
+    end
+    return true;
+end
+
+function OnClickDownloadClient()
+    ParaGlobal.ShellExecute("open", "http://cc.paraengine.com/twiki/bin/view/HaqiTeen/WebHome", "", "", 1);
+end
+]]>
+</script>
+<aries:window width="742" height="450" title="礼包大派送" icon="Texture/Aries/Common/ThemeTeen/ElfGift/elf_ico_32bits.png" isdeepbg="true" onclose="ClosePage()">
+    <div style="margin-left:5px;margin-top:25px;width:735px;height:150px;" class="border_bg7_css">
+        <div style="margin-left:120px;margin-top:5px;">
+            <pe:gridview name="grid_view_item_info" DataSource="<%=DS_Func_gifts%>" ItemsPerLine="10" AllowPaging="false" pagesize="10">
+	            <Columns>
+                    <div name='<%=Eval("index")%>' onclick="DoSelected" style="margin-left:20px;margin-top:10px;width:100px;height:120px;" class="border_bg10_css">
+                        <pe:if condition='<%=IsSelected(Eval("name"))%>'>
+                            <input zorder="1" enabled="false" type="button" value='<%=Eval("label")%>' class="highlight_btn_css" style="position:relative;background-color:#ffffff;margin-top:0px;width:100px;height:25px;"/>
+                        </pe:if>
+                        <pe:if condition='<%=not IsSelected(Eval("name"))%>'>
+                            <input zorder="1" enabled="false" type="button" value='<%=Eval("label")%>' class="highlight_btn_css" style="position:relative;background-color:#ffffff;margin-top:0px;width:100px;height:25px;background:;"/>
+                        </pe:if>
+                        <input zorder="1" enabled="false" type="button" background='<%=Eval("icon")%>' style="margin-left:18px;background-color:#ffffff;margin-top:40px;width:64px;height:64px;"/>
+                    </div>
+	            </Columns>
+	            <EmptyDataTemplate>
+                    <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	            </EmptyDataTemplate>
+	            <FetchingDataTemplate>
+	            </FetchingDataTemplate>
+                    <PagerSettings Position="Bottom" />
+			    <PagerTemplate AutoHidePager="true">
+                        <form >
+						    <input type="button" style="margin-left:-22px;margin-top:-60px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						    <input type="button" style="margin-left:348px;margin-top:-60px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                    </form>
+			    </PagerTemplate>
+            </pe:gridview>      
+        </div>
+    </div>
+    <div style="margin-left:5px;margin-top:2px;width:735px;text-align:center" class="border_bg3_css">礼包内含物品</div>
+    <div style="margin-left:5px;margin-top:-5px;width:735px;height:150px;" class="border_bg7_css">
+        <div style="position:relative;margin-left:15px;height:200px;">
+         <pe:gridview name="grid_view_exid_gifts" DataSource="<%=DS_Func_exid_gifts%>" ItemsPerLine="7" AllowPaging="true" pagesize="14">
+	        <Columns>
+                <div style="margin-left:5px;margin-top:5px;width:95px;height:65px;" class="border_bg1_css">
+                    <pe:item gsid='<%=Eval("key")%>' style="margin-left:27px;margin-top:5px;width:40px;height:40px;" isclickable="false"/>
+                    <input type="button" value='<%=GetLabel(Eval("index"))%>' style="margin-top:-5px;width:90px;text-align:center;background:;"/>
+                </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+                <div class="defaultcolor" style="margin-left:5px;margin-top:5px;"></div>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" />
+			<PagerTemplate AutoHidePager="true">
+                    <form >
+						<input type="button" style="margin-left:-22px;margin-top:-60px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						<input type="button" style="margin-left:348px;margin-top:-60px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                </form>
+			</PagerTemplate>
+        </pe:gridview>  
+        </div>
+    </div>
+    <div style="margin-left:5px;margin-top:2px;width:735px;height:95px;color:#ffffff;padding-left:10px;" class="border_bg7_css">
+         <pe:if condition='<%=MyCompany.Aries.Gift.ExtraGiftPage.gift_name == "first_pay"%>'>
+            <pe:if condition='<%=IsOpened()%>'>
+                <div style="margin-top:5px;">
+                    <div style="float:left;margin-top:2px;">首次充值100金币即可领取“首次充值大礼包哦”，赶快行动吧。</div>
+                    <input type="button" value="领取礼包" style="float:left;width:120px;margin-left:5px;margin-top:2px;" onclick="DoOpenGift" class="highlight_btn_css"/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not IsOpened()%>'>
+                <div style="margin-top:2px;">你已经领取过首次充值礼包了。</div>
+            </pe:if>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.Gift.ExtraGiftPage.gift_name == "media"%>'>
+            <pe:if condition='<%=IsOpened()%>'>
+                <div style="margin-top:2px;">媒体礼包领取方式：</div>
+                <div style="margin-top:2px;">
+                    <a href="http://www.61.com/haqi2/active/16170.html">点击这里</a>
+                    选择任一媒体网站领取，将生成的礼包激活码复制粘贴至下方输入框内，点击领取即刻尊享100元豪礼！<span style="margin-let:5px;">注：每个媒体的激活码数量有限哦，猎人们赶快行动了！</span></div>
+                <div style="margin-top:2px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_media" enable_ime="false"  style="float:left;width:260px;height:23px;" />
+                    <input type="button" value="领取礼包" style="float:left;margin-left:5px;" onclick="DoOpenGift" class="highlight_btn_css"/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not IsOpened()%>'>
+                <div style="margin-top:2px;">你已经领取过媒体礼包了。</div>
+            </pe:if>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.Gift.ExtraGiftPage.gift_name == "sun_gift"%>'>
+            <pe:if condition='<%=IsOpened()%>'>
+                <div style="margin-top:2px;">快乐分享包领取方式：</div>
+                <div style="margin-top:2px;">
+                    提示：请参阅官网活动公告，会有领取连结喔。  <a href="http://www.primo168.tw/MAGIC/#view%2Findex.aspx%3Fpage%3D1895">进入『快乐分享包』领取页面</a>
+                </div>
+                <div style="margin-top:2px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_sun_gift" enable_ime="false"  style="float:left;width:260px;height:23px;" />
+                    <input type="button" value="领取礼包" style="float:left;margin-left:5px;" onclick="DoOpenGift" class="highlight_btn_css"/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not IsOpened()%>'>
+                <div style="margin-top:2px;">你已经领取过媒体礼包了。</div>
+            </pe:if>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.Gift.ExtraGiftPage.gift_name == "moon_gift"%>'>
+            <pe:if condition='<%=IsOpened()%>'>
+                <div style="margin-top:2px;">月亮礼包领取方式：</div>
+                <div style="margin-top:2px;">
+                    提示：请到相关网站领取激活码。
+                </div>
+                <div style="margin-top:2px;">
+                    <div style="float:left;">请输入激活码：</div>
+                    <input type="text" name="code_text_moon_gift" enable_ime="false"  style="float:left;width:260px;height:23px;" />
+                    <input type="button" value="领取礼包" style="float:left;margin-left:5px;" onclick="DoOpenGift" class="highlight_btn_css"/>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=not IsOpened()%>'>
+                <div style="margin-top:2px;">你已经领取过媒体礼包了。</div>
+            </pe:if>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.Gift.ExtraGiftPage.gift_name == "client"%>'>
+            <pe:if condition='<%=IsOpened()%>'>
+                <pe:if condition='<%=System.options.IsWebBrowser%>'>
+                    <div style="margin-top:2px;">温馨提示：</div>
+                    <div style="margin-top:2px;">你现在使用的是网页版，登录进行游戏有时会存在等待加载的情况，我们建议您下载微型客户端，能更好的保证游戏的流畅性。</div>
+                    <div style="margin-top:2px;">首次使用微端登录后即可领取“微端登录大礼包哦”，赶快行动吧。</div>
+                    <div style="margin-top:2px;">
+                        <input type="button" value="下载微型客户端" onclick="OnClickDownloadClient" style="width:120px;margin-left:5px;margin-top:2px;" class="highlight_btn_css"/>
+                        <input type="button" value="领取礼包" enabled="false" style="width:120px;margin-left:5px;margin-top:2px;" class="highlight_btn_css"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=not System.options.IsWebBrowser%>'>
+                    <div style="margin-top:5px;">
+                        <div style="float:left;margin-top:2px;">首次使用微端登录后即可领取“微端登录大礼包哦”，赶快行动吧。</div>
+                        <input type="button" value="领取礼包" style="float:left;width:120px;margin-left:5px;margin-top:2px;" onclick="DoOpenGift" class="highlight_btn_css"/>
+                    </div>
+                    
+                </pe:if>
+            </pe:if>
+            <pe:if condition='<%=not IsOpened()%>'>
+                <div style="margin-top:2px;">你已经领取过微端登录礼包了。</div>
+            </pe:if>
+        </pe:if>
+       
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+

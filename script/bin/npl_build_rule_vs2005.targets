@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="NPL">
+      <Targets>_NPL</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="NPL"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="_NPL"
+    BeforeTargets="$(NPLBeforeTargets)"
+    AfterTargets="$(NPLAfterTargets)"
+    Condition="'@(NPL)' != ''"
+    DependsOnTargets="$(NPLDependsOn);ComputeNPLOutput"
+    Outputs="@(NPL-&gt;'%(Outputs)')"
+    Inputs="@(NPL);%(NPL.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <NPL
+        Remove="@(NPL)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <NPL_tlog
+        Include="%(NPL.Outputs)"
+        Condition="'%(NPL.Outputs)' != '' and '%(NPL.ExcludedFromBuild)' != 'true'">
+        <Source>@(NPL, '|')</Source>
+      </NPL_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(NPL.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(NPL_tlog)' != '' and '%(NPL_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(NPL_tlog.Source);@(NPL_tlog-&gt;'%(Fullpath)')" />
+    <Exec 
+      Condition="'@(NPL)' != '' and '%(NPL.ExcludedFromBuild)' != 'true'"
+      Command="%(NPL.CommandLineTemplate)"/>
+    <!--<NPL
+      Condition="'@(NPL)' != '' and '%(NPL.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(NPL.CommandLineTemplate)"
+      AdditionalOptions="%(NPL.AdditionalOptions)"
+      Inputs="@(NPL)" />-->
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeNPLOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeNPLOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeNPLOutput"
+    Condition="'@(NPL)' != ''">
+    <ItemGroup>
+      <NPLDirsToMake
+        Condition="'@(NPL)' != '' and '%(NPL.ExcludedFromBuild)' != 'true'"
+        Include="%(NPL.Outputs)" />
+      <Link
+        Include="%(NPLDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(NPLDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(NPLDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(NPLDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

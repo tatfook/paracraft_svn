@@ -1,0 +1,61 @@
+﻿<!-- script/apps/Aries/Desktop/MagicStarArea.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+
+NPL.load("(gl)script/apps/Aries/VIP/PurChaseEnergyStone.lua");
+local PurchaseEnergyStone = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseEnergyStone");
+
+NPL.load("(gl)script/apps/Aries/Pet/main.lua");
+local Pet = commonlib.gettable("MyCompany.Aries.Pet");
+
+NPL.load("(gl)script/apps/Aries/Desktop/MagicStarArea.lua");
+local MagicStarArea = commonlib.gettable("MyCompany.Aries.Desktop.MagicStarArea");
+
+local page = document:GetPageCtrl();
+
+function doGetStone()
+    -- PurchaseEnergyStone.Show();
+    local gsid=998;
+    Map3DSystem.mcml_controls.pe_item.OnClickGSItem(gsid,true);
+    MagicStarArea.DoHideTooltip();
+end
+function GetTooltip()
+    local bean = Pet.GetBean();
+	local s = "";
+	if(bean)then
+		local m = bean.m or 0;
+		local energy = bean.energy or 0;
+		local mlel = bean.mlel or 0;
+		if(m == 0 and energy == 0)then
+			s = [[魔法星拥有神奇的本领，快用能量石激活魔法星的魔力吧！<br/><input type="button" onclick="doGetStone"  value="点击购买能量石充能" style="margin-left:-5px;font-size:12px;color:#cc3300;background:;"
+                  Normal_BG = ""
+                  MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20" />]];
+		else
+			s = string.format([[魔法星:%d级<br/>能量值剩余:%d天<br/><input type="button" onclick="doGetStone" value="点击购买能量石充能" style="margin-left:-5px;font-size:12px;color:#cc3300;background:;"
+                  Normal_BG = ""
+                  MouseOver_BG = "Texture/Aries/Desktop/CombatCharacterFrame/MagicStar/fontbg_32bits.png; 0 0 110 20"/>]],mlel,energy);
+		end
+	end
+	return s;
+end
+]]></script>
+<div style="font-size:12;margin-top:0px;margin-left:10px;width:180px;height:110px;background:url(Texture/Aries/NPCs/MagicSchool/moveover_bg3_32bits.png#0 0 56 58: 20 20 20 20);">
+        <div style="margin-left:20px;margin-top:10px;width:160px;"><%=GetTooltip() %></div>
+</div>
+
+
+
+
+</pe:mcml>
+</body>
+</html>
+
+
+

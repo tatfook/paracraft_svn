@@ -1,0 +1,205 @@
+﻿<!-- "script/apps/Aries/Mail/MailBox.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MailBox teen version, create by WD, 2011/11/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Mail/ViewMail.lua");
+NPL.load("(gl)script/apps/Aries/Mail/MailBox.lua");
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+local ViewMail = commonlib.gettable("MyCompany.Aries.Mail.ViewMail");
+local MailBox = commonlib.gettable("MyCompany.Aries.Mail.MailBox");
+
+NPL.load("(gl)script/apps/Aries/Chat/BadWordFilter.lua");
+local BadWordFilter = commonlib.gettable("MyCompany.Aries.Chat.BadWordFilter");
+
+MailBox:Init();
+
+function ClosePage()
+    MailBox:CloseWindow();
+end
+
+function FilterItems(arg)
+    return MailBox:FilterItems(arg);
+end
+
+local last_click_time;
+
+function OnClickItem(arg)
+MailBox:OnClickItem(arg);
+    --local cur_time = ParaGlobal.timeGetTime();
+
+--    if(MailBox.CurrentMail.eid == arg and last_click_time and (cur_time - last_click_time) < 500) then
+--        MailBox.ViewMail();
+--    else
+--        MailBox:OnClickItem(arg);
+--    end
+--    last_click_time = cur_time;
+end
+
+function GetDataSource(arg)
+    return MailBox:GetDataSource(arg);
+end
+function GetGifts(arg)
+    return MailBox:GetGifts(arg);
+end
+
+function GetIdAndTitle(id,title)
+   if(id ~= "")then
+    if(id == 0)then
+        id = "系统"
+    end
+    
+    local filtered_title = BadWordFilter.FilterString(title);
+    
+    return string.format("%s - %s", id, filtered_title);
+    else
+    return ""
+    end
+end
+function DummyFunc()
+
+end
+]]></script>
+
+<div style="width:791px;height:470px;">
+    <pe:if condition='<%=not MyCompany.Aries.Desktop.AvatarBag.Visible %>'>
+    <div style="float:left;width:358px;height:470px;" class="pane">
+        <div style="height:19px;margin-top:-5px;">
+          <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:313px;" />
+        </div>
+
+    <div style="position:relative;width:64px;height:32px;margin-top:-5px;background:url(Texture/Aries/common/themekid/mail/minimail_32bits.png)" valign="top" align="center"/>   
+    <div style="width:348px;height:443px;margin-top:3px;" class="border">
+        <div style="float:left;margin-top:2px;" class="defaultcolor">
+            <!-- <div style="height:27px;">
+                <pe:tabs name="tabsMailBx"  onclick="FilterItems" class="default_tabs" >
+                <pe:tab-item name="0" text="收件箱"  selected='true' />
+                <pe:tab-item name="1" text="发件箱"/>
+                <pe:tab-item name="2" text="撰写信件"/>
+                </pe:tabs>
+            </div>-->
+
+            <div style="width:338px;padding:3px;height:382px;margin-top:27px;margin-left:10px;" class="inborder">
+                <pe:if condition='<%=MyCompany.Aries.Mail.MailBox.filter ~= 2 %>'>
+                <div style="width:332px;height:382px;">
+                    <pe:if condition='<%=MyCompany.Aries.Mail.MailBox.filter == 0 %>'>
+                        <div style="margin-left:1px;margin-top:1px;width:332px;height:25px;" class="title_line">
+                            <input type="button" value="选择" class="titlebutton" style="float:left;font-weight:bold;width:70px;color:#022a57;font-size:12px;text-align:center;background:;" enabled="false"/>
+                            <input type="button" value="邮件标题" class="titlebutton" style="float:left;font-weight:bold;width:150px;color:#022a57;font-size:12px;background:;" enabled="false"/>
+                            <input type="button" value="邮件剩余天数" class="titlebutton" style="float:left;font-weight:bold;text-align:right;color:#022a57;font-size:12px;width:85px;background:;" enabled="false"/>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.Mail.MailBox.filter == 1 %>'>
+                        <div style="margin-left:1px;margin-top:1px;width:332px;height:25px;" class="title_line">
+                            <input type="button" value="选择" class="titlebutton" style="float:left;width:30px;text-align:left;margin-left:2px;" enabled="false"/>
+                            <input type="button" value="邮件标题" class="titlebutton" style="float:left;width:220px;" enabled="false"/>
+                            <!--<input type="button" value="邮件剩余天数" class="titlebutton" style="float:left;text-align:left;width:80px;" enabled="false"/>-->
+                        </div>
+                    </pe:if>
+                    <pe:gridview DataSource="<%=GetDataSource %>" name="pegvwMailList" RememberScrollPos="true" RememberLastPage="true" 
+                        CellPadding="2" ItemsPerLine="1" AllowPaging="false" pagesize="9"
+                        style="width:332px;height:353px;" >
+                        <Columns>
+                            <div style="height:32px;margin-top:1px;margin-left:5px;" >
+                            <pe:if condition='<%=Eval("is_selected") and Eval("id") ~= ""%>'>
+                                <div style="position:relative;background:url(Texture/Aries/Common/RowMouseDown.png#0 0 2 22);padding-left:0px;width:320px;height:32px;">
+                                    <!--<input type="button"  zorder="0" style="position:relative;font-size:12px;width:187px;height:32px;color:#022a57;background:"
+                                    onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>' />-->
+                                    <input type="button" zorder="0"   style="position:relative;font-size:12px;text-align:left;color:#022a57;margin-left:60px;width:187px;height:32px;background:"
+                                    onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'value='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'/>
+                                    <input type="button"  zorder="0" style="position:relative;margin-left:5px;margin-top:10px;width:16px;height:16px;background:url(texture/aries/common/themekid/checkbox_32bits.png)"
+                                    onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'  />
+                                </div>
+                            </pe:if>
+
+
+                            <pe:if condition='<%=not Eval("is_selected") and Eval("id") ~= ""%>'>
+                                <input type="button"  zorder="0" style="position:relative;color:#022a57;font-size:12px;text-align:left;width:187px;margin-left:60px;height:32px;background:"
+                                onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'  
+                                value='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'/>
+
+                                <!--<input type="button" zorder="0"  Normal_BG=""  MouseOver_BG = "Texture/Aries/Common/RowMouseHover.png;0 0 2 22" style="font-size:12px;position:relative;width:320px;height:32px;background:"
+                                onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'/>-->
+                                <input type="button"  zorder="0" style="position:relative;margin-left:5px;margin-top:10px;width:16px;height:16px;background:url(texture/aries/common/themekid/uncheckbox_32bits.png)"
+                                onclick="OnClickItem" name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>'  />
+                            </pe:if>
+                            
+                            <!-- mail status -->
+                            <div style="float:left;margin-left:20px;margin-top:2px;width:16px;height:16px;"  >
+                            <pe:if condition='<%=Eval("mail_status") == 1 %>'>
+                            <input type="button"  zorder="0" style="position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/mail/newmail_32bits.png)"
+                                onclick="OnClickItem"  name='<%=Eval("eid")%>'tooltip='新到朋友的邮件'  />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("mail_status") == 2 %>'>
+                            <input type="button"  zorder="0" style="position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/mail/sysnewmail_32bits.png)"
+                                onclick="OnClickItem"  name='<%=Eval("eid")%>'tooltip='新到系统的邮件'  />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("mail_status") == 3 %>'>
+                            <input type="button"  zorder="0" style="position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/mail/mailread_32bits.png)"
+                                onclick="OnClickItem"  name='<%=Eval("eid")%>'tooltip='已查阅朋友的邮件'  />
+                            </pe:if>
+                            <pe:if condition='<%=Eval("mail_status") == 4 %>'>
+                            <input type="button"  zorder="0" style="position:relative;width:32px;height:32px;background:url(Texture/Aries/Common/themekid/mail/sysmailread_32bits.png)"
+                                onclick="OnClickItem"  name='<%=Eval("eid")%>'tooltip='已查阅系统的邮件'  />
+                            </pe:if>
+                            </div>
+
+                            <input type="button"  zorder="0" style="position:relative;margin-left:210px;width:44px;height:32px;background:;"
+                                onclick="OnClickItem"  name='<%=Eval("eid")%>' tooltip='<%=GetIdAndTitle(Eval("id"),XPath("title")) %>' value='<%=tostring(Eval("expire_days")) %>' />
+                            <br />
+                            </div>
+                        </Columns>
+                        <EmptyDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">暂时没有新邮件</div>
+                        </EmptyDataTemplate>
+                        <FetchingDataTemplate>
+                        <div style="text-align:center;" class="defaultstyle">正在更新邮件...</div>
+                        </FetchingDataTemplate>
+	                    <PagerSettings Position="Bottom" height="0" style="margin-left:90px;margin-top:-30px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                    <PagerTemplate>
+
+	                    </PagerTemplate>
+                    </pe:gridview>
+
+                    <div style="margin-left:90px;margin-top:-30px;">
+                    <input type="button" name="0"  onclick="MyCompany.Aries.Mail.MailBox.getofpage" style="width:20px;margin-left:25px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 19 19);"/>
+                    <input type="button" name="pagecode" style="background:;color:#02469B;text-align:center;font-size:12px;width:50px;height:18px;margin:4px" value='<%= string.format("%s/%s",MyCompany.Aries.Mail.MailBox.pindex + 1,MyCompany.Aries.Mail.MailBox.pcnt)%>' />
+                    <input type="button" name="1"  onclick="MyCompany.Aries.Mail.MailBox.getofpage" style="margin-left:0px;width:20px;height:20px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 22 19)"/>
+                    </div>
+                </div>
+                <!--<input type="button" name="" zorder="2" text="GetMailList"
+                    onclick="<%=MyCompany.Aries.Mail.MailBox.GetMail %>" 
+                style="position:relative;margin-left:0px;" />-->
+
+                    <!--<input type="button" name="btnViewMail" zorder="2" text="查看邮件"
+                    onclick="<%=MyCompany.Aries.Mail.MailBox.ViewMail %>" 
+                style="margin-left:26px;width:85px;height:25px;font-size:12px;margin-top:3px;color:#660033;" class="defaultbutton"/>-->
+
+                    <input type="button" name="btnSendMail" zorder="2" text="写邮件"
+                    onclick="<%=MyCompany.Aries.Mail.MailBox.WriteMail %>" 
+                    style="margin-left:78px;width:85px;height:25px;font-size:12px;color:#660033;margin-top:3px;" class="defaultbutton"/>
+
+                    <input type="button"  zorder="2" text="关闭"
+                    onclick="<%=ClosePage() %>" 
+                style="margin-left:12px;width:85px;height:25px;font-size:12px;color:#660033;margin-top:3px;" class="defaultbutton"/>
+                </pe:if>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    </pe:if>
+    <pe:if condition='<%=MyCompany.Aries.Mail.ViewMail.Visible %>'>
+    <div style="float:left;height:470px;">
+        <iframe name="MailSubPage" src='script/apps/Aries/Mail/ViewMail.kids.html'></iframe>
+    </div>
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

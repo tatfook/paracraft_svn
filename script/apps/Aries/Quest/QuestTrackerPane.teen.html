@@ -1,0 +1,378 @@
+﻿<!-- "script/apps/Aries/Quest/QuestTrackerPane.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Quest/QuestLinksViewPage.lua");
+local QuestLinksViewPage = commonlib.gettable("MyCompany.Aries.Quest.QuestLinksViewPage");
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPane.lua");
+local QuestTrackerPane = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPane");
+NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	        
+local pageCtrl = document:GetPageCtrl();
+VIP = commonlib.gettable("MyCompany.Aries.VIP");
+QuestTrackerPane.OnInit();
+function GetSource()
+    return QuestTrackerPane.tree_view_data;
+end
+function GetTooltipString(questid,state)
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        local state_label="";
+        if(state == 0)then
+            state_label = "可以完成"
+        elseif(state == 1)then
+            state_label = "进行中"
+        elseif(state == 2)then
+            state_label = "可接"
+        elseif(state == 9)then
+            state_label = "锁定"
+        end
+        if(System.options.isAB_SDK)then
+            desc = string.format("<b>点击查看详情</b><br/><b>任务标题:</b>%s(%d)<br/><b>任务描述:</b>%s<br/><b>任务状态:</b>%s",template.Title,questid,template.Detail,state_label);
+        else
+            desc = string.format("<b>点击查看详情</b><br/><b>任务标题:</b>%s<br/><b>任务描述:</b>%s<br/><b>任务状态:</b>%s",template.Title,template.Detail,state_label);
+        end
+    end
+    return CommonClientService.GetTooltipString(desc)
+end
+function ShowQuestInListPage(questid)
+    questid = tonumber(questid);
+    local provider = QuestClientLogics.GetProvider();
+   
+    if(provider and questid)then
+        local state = provider:GetState(questid);
+        if(state == 0 or state == 1)then
+            QuestPane.ShowPage("accepted_quest",questid);
+        elseif(state == 2)then
+            QuestPane.ShowPage("can_accept_quest",questid);
+        else
+            QuestPane.ShowPage("template_quest",questid);
+        end
+    end
+end
+function GetName(internal_questid,internal_track_id,goal_type)
+    return string.format("%d_%d_%s",internal_questid,internal_track_id,goal_type);
+end
+function ParseName(name)
+    local internal_questid,internal_track_id,goal_type = string.match(name,"(.+)_(.+)_(.+)");
+    internal_questid = tonumber(internal_questid);
+    internal_track_id = tonumber(internal_track_id);
+    return internal_questid,internal_track_id,goal_type;
+end
+function IsTracked(questid,goalid)
+    local is_active = QuestTrackerPane.FindPath_IsActive(questid,goalid);
+    return is_active;     
+end
+
+function DoTrack(name, mcmlNode)
+    local params = mcmlNode:GetPreValue("this", true);
+    local provider = QuestClientLogics.GetProvider();
+
+    if(params and QuestLinksViewPage.HasInclude_QuestIds(params.internal_questid))then
+        local questid = params.internal_questid;
+        local state = provider:GetState(questid);
+        if(state == 1)then
+            QuestLinksViewPage.ShowPage(questid);
+            goal_manager.finish("teleport_quest");
+            return
+        end
+    end
+    QuestTrackerPane.DoTrack(name, mcmlNode);
+    --QuestTrackerPane.DoJump_InPage(name, mcmlNode);
+end
+function DoJump(name,mcmlNode)
+    QuestTrackerPane.DoJump_InPage(name,mcmlNode);
+end
+
+function DoHelpFunc(internal_help_func, mcmlNode)
+    if(not internal_help_func)then return end
+    local params = mcmlNode:GetPreValue("this", true);
+    if(params) then
+        QuestTrackerPane.TrackCurrentGoal(params.internal_track_id);
+    end
+	NPL.DoString(internal_help_func);
+end
+
+function IsExpanded() 
+    return QuestTrackerPane.is_expanded;
+end
+function DoExpanded() 
+    if(QuestTrackerPane.is_expanded)then
+        QuestTrackerPane.is_expanded = false;
+    else
+        QuestTrackerPane.is_expanded = true;
+    end
+    QuestTrackerPane.SaveState();
+    pageCtrl:Refresh(0);
+end
+function OnSize()
+    pageCtrl:Refresh();
+end
+function DoChangeShowState_1()
+    QuestTrackerPane.DoChangeShowState(1);
+end
+function DoChangeShowState_2()
+    QuestTrackerPane.DoChangeShowState(2);
+end
+
+function OnCanvasCreated()
+    QuestTrackerPane.is_fade_out = true;
+end
+function HasHelpFunc(s)
+    if(s and s ~= "")then
+        return true;
+    end
+end
+function GetQuestGroup1(questid)
+    if(not questid)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        return template.QuestGroup1 or 0;
+    end
+end
+function GetRecommendMembers(questid)
+    if(not questid)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        local arr = commonlib.split(template.RecommendMembers,"#")
+		if(arr)then
+            local RecommendMembers  = tonumber(arr[1]);
+            local RecommendMembers_Max  = tonumber(arr[2]);
+            if(RecommendMembers and RecommendMembers_Max)then
+                local s = string.format([[<input type="button" class="greyroundbtn" style="width:45px;height:18px;background-color:#80ffff" tooltip="推荐人数" value='%d-%d人'/>]],RecommendMembers,RecommendMembers_Max);
+                return s;
+            elseif(RecommendMembers and RecommendMembers > 1)then
+                local s = string.format([[<input type="button" class="greyroundbtn" style="width:45px;height:18px;background-color:#80ffff" tooltip="推荐人数" value='%d人'/>]],RecommendMembers);
+                return s;
+            end
+		end
+    end
+end
+function NeedShowFilterMenu()
+    return QuestTrackerPane.NeedShowFilterMenu();
+end
+function GetMenu()
+    return QuestTrackerPane.filter_menus;
+end
+function OnClickMenu(datasource,index)
+    if(datasource and index)then
+        QuestTrackerPane.ReloadPage();
+    end
+end
+function GetCanAcceptButtonTxt()
+    if(QuestTrackerPane.tree_view_data_2)then
+        local len = #QuestTrackerPane.tree_view_data_2;
+        if(len > 0)then
+            return string.format("可接(%d)",len);
+        else
+            return "可接";
+        end
+    end
+end
+function GetGroupMenu()
+    return QuestTrackerPane.group_filter_menus;
+end
+function OnClickGroupMenu(datasource,index)
+    if(datasource and index)then
+		local group_menu_node = QuestTrackerPane.GetSelectedGroupMenuNode();	
+        if(group_menu_node)then
+			local keyname = group_menu_node.keyname;		
+            QuestTrackerPane.SaveTrackState(keyname);
+        end
+        QuestTrackerPane.ReloadPage();
+    end
+end
+]]></script>
+<div style="width:270px;max-height:400px;">
+    <pe:container ClickThrough="true" name="canvas" style="margin-left:-40px;width:350px;height:22px;background:;" zorder="2">
+        <pe:if condition="<%=IsExpanded() %>">
+            <div style="position:relative;margin-left:82px;margin-top:0px;padding-left:5px;height:23px;background:url(Texture/Aries/Common/Teen/quest/left_line_32bits.png#0 0 8 23:6 7 1 9)">
+                <div style="margin-top:-1px;">
+                        <pe:togglebuttons
+                            SelectedMenuItemBG="Texture/Aries/Common/Teen/control/quest_btn_32bits.png;0 0 51 24:10 10 10 10" 
+                            UnSelectedMenuItemBG="Texture/Aries/Common/Teen/control/quest_btn2_32bits.png;0 0 51 24:10 10 10 10" 
+                            ButtonWidth="40" 
+                            ButtonHeight="31"
+                            ItemSpacing="0"
+                            DataSource='<%=GetGroupMenu() %>' 
+                            onclick='OnClickGroupMenu'/>
+                 </div>
+             </div>
+           <!-- <input type="button" name="QuestPane.ShowPage" tooltip="查看全部任务" value="任务" class="quest_btn2_css" onclick="MyCompany.Aries.Desktop.Dock.FireCmd" style="float:left;position:relative;margin-top:0px;width:65px;height:24px;margin-left:85px;" />
+            <pe:if condition='<%=MyCompany.Aries.Quest.QuestTrackerPane.show_state == 1 %>'>
+                <input type="button" value="追踪" tooltip="追踪" class="quest_btn_css"  style="float:left;margin-top:0px;width:65px;height:24px;margin-left:152px;" />
+                <input type="button" value='<%=GetCanAcceptButtonTxt()%>' tooltip='<%=GetCanAcceptButtonTxt()%>' class="quest_btn2_css"   onclick="DoChangeShowState_2"  style="float:left;margin-top:0px;width:65px;height:24px;margin-left:2px;" />
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Quest.QuestTrackerPane.show_state == 2 %>'>
+                <input type="button" value="追踪" tooltip="追踪" class="quest_btn2_css" onclick="DoChangeShowState_1"  style="float:left;margin-top:0px;width:65px;height:24px;margin-left:152px;" />
+                <input type="button" value='<%=GetCanAcceptButtonTxt()%>' tooltip='<%=GetCanAcceptButtonTxt()%>' class="quest_btn_css" style="float:left;margin-top:0px;width:65px;height:24px;margin-left:2px;" />
+            </pe:if>-->
+            <input type="button" onclick="DoExpanded" tooltip="隐藏任务追踪" style="float:left;margin-left:287px;margin-top:0px;width:22px;height:24px;background:url(Texture/Aries/Common/Teen/quest/right_arrow2_teen_32bits.png#0 0 22 24);" />
+        </pe:if>
+        <pe:if condition="<%=not IsExpanded() %>">
+            <!--<input type="button" name="QuestPane.ShowPage" tooltip="查看全部任务" value="任务" class="quest_btn2_css" onclick="MyCompany.Aries.Desktop.Dock.FireCmd" style="float:left;margin-left:219px;margin-top:0px;width:65px;height:24px;" />-->
+            <input  type="button" onclick="DoExpanded" tooltip="显示任务追踪" style="float:left;margin-left:287px;width:22px;height:24px;background:url(Texture/Aries/Common/Teen/quest/left_arrow2_teen_32bits.png#0 0 22 24);" />
+        </pe:if>
+    </pe:container>
+    <pe:if condition="<%=IsExpanded()%>">
+    <pe:container name="size_change_detector" onsize="OnSize" alignment="_fi" enabled="false" style='position:relative;background:;' />
+    <pe:container name="canvas_content" ClickThrough="<%=not System.options.IsMobilePlatform%>"  style='background:url(Texture/Aries/Common/Teen/chat/bg_32bits.png:10 10 4 4);colormask:#ffffff00' >
+    <pe:treeview DefaultNodeHeight="20" ClickThrough="true" VerticalScrollBarStep="20" name="view_questtrack" DataSource='<%=GetSource()%>' RememberScrollPos="true" style="margin-left:-10px;width:280px;margin-bottom:22px;background:;" >
+        <NodeTemplates>
+            <NodeTemplate DataType="folder">
+                <div >
+                    <div style="height:20px;">
+                        <div style="float:left;width:200px;">
+                            <!-- 标题 完成-->
+                            <pe:if condition='<%=XPath("this|state")== 0%>'>
+                                <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-290" tooltip_offset_y="-110"  style="float:left;margin-top:0px;width:20px;height:20px;background:url(Texture/Aries/Common/Teen/quest/mark2_32bits.png#0 0 20 20);" />
+                                <div style="position:relative;float:left;">
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;font-size:13px;color:#40dd2a;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;font-size:13px;color:#40dd2a;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            <!-- 标题 进行中-->
+                            <pe:if condition='<%=XPath("this|state")== 1%>'>
+                                <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-290" tooltip_offset_y="-110"  style="float:left;margin-top:0px;width:20px;height:20px;background:url(Texture/Aries/Common/Teen/quest/mark7_32bits.png#0 0 20 20);" />
+                                <div style="position:relative;float:left;">
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;font-size:13px;color:#ffffff;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;font-size:13px;color:#ffffff;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            <!-- 标题 可接-->
+                            <pe:if condition='<%=XPath("this|state")== 2%>'>
+                                <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-290" tooltip_offset_y="-110"  style="float:left;margin-top:0px;width:20px;height:20px;background:url(Texture/Aries/Common/Teen/quest/mark1_32bits.png#0 0 20 20);" />
+                                <div style="position:relative;float:left;">
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;font-size:13px;color:#fce80f;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;font-size:13px;color:#fce80f;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                            <!-- 标题 锁定-->
+                            <pe:if condition='<%=XPath("this|state")== 9%>'>
+                                <input type="button" onclick="ShowQuestInListPage()" name='<%=XPath("this|questid")%>' tooltip='<%=GetTooltipString(XPath("this|questid"),XPath("this|state"))%>' tooltip_offset_x="-290" tooltip_offset_y="-110"  style="float:left;margin-top:0px;width:20px;height:20px;background:url(Texture/Aries/Common/Teen/quest/mark1_32bits.png#0 0 20 20);" />
+                                <div style="position:relative;float:left;">
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) ~= 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="float:left;text-align:left;font-size:13px;color:#ff0000;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                    <pe:if condition='<%=GetQuestGroup1(XPath("this|questid")) == 0%>'>
+                                        <input type="button" class="bordertext" enabled="false" style="font-weight:bold;float:left;text-align:left;font-size:13px;color:#ff0000;background:;" value='<%=XPath("this|label")%>'/>
+                                    </pe:if>
+                                </div>
+                            </pe:if>
+                        </div>
+                        <div style="float:left;">
+                            <%=GetRecommendMembers(XPath("this|questid"))%>
+                        </div>
+                    </div>
+                </div>
+            </NodeTemplate>
+            <NodeTemplate DataType="item">
+                <div style="height:20px;margin-left:20px;">
+                    <pe:if condition='<%=MyCompany.Aries.Player.GetLevel()<6%>'>
+                        <pe:goalpointer listen="teleport_quest" style="position:relative;width:64px;height:25px;margin-left:0px;margin-top:-5px;"></pe:goalpointer>
+                    </pe:if>
+                    <!-- 追踪按钮 激活-->
+                    <!--<pe:if condition='<%=IsTracked(XPath("this|internal_questid"),XPath("this|internal_track_id"))%>'>
+                        <input type="button" tooltip="点击切换追踪目标" onclick='DoTrack' name='btnTrack' style="margin-top:1px;width:19px;height:21px;background:url(Texture/Aries/Common/Teen/quest/quest_track_32bits.png#0 0 19 21)"/>
+                    </pe:if>-->
+                    <!-- 追踪按钮 未激活-->
+                    <!--<pe:if condition='<%=not IsTracked(XPath("this|internal_questid"),XPath("this|internal_track_id"))%>'>
+                        <input type="button" tooltip="点击切换追踪目标" onclick='DoTrack' name='btnTrack' style="background-color:#ffffff80;margin-top:1px;width:19px;height:21px;background:url(Texture/Aries/Common/Teen/quest/quest_track_2_32bits.png#0 0 19 21)"/>
+                    </pe:if>-->
+                    <!-- 任务目标 标题 可完成-->
+                    <pe:if condition='<%=XPath("this|internal_state")== 0%>'>
+                        <div style="float:left;width:190px;">
+                            <div style="position:relative;width:260px;">
+                                <input type="button" class="bordertext linkbutton2" tooltip="点击追踪目标" onclick='DoTrack' name='btnTrackTitle' style="float:left;margin-left:2px;color:#40dd2a;text-align:left;height:18px;background2-color:#40dd2a;" value='<%=XPath("this|internal_label") %>'/>
+                            </div>
+                        </div>
+                    </pe:if>
+                    <!-- 任务目标 标题 进行中-->
+                    <pe:if condition='<%=XPath("this|internal_state")== 1%>'>
+                        <div style="float:left;width:190px;">
+                            <div style="position:relative;width:260px;">
+                                    <input type="button" class="bordertext linkbutton2" tooltip="点击追踪目标" onclick='DoTrack' name='btnTrackTitle' style="float:left;margin-left:2px;color:#ffffff;text-align:left;height:18px;background2-color:#ffffff;" value='<%=XPath("this|internal_label") %>'/>
+                            </div>
+                        </div>
+                    </pe:if>
+                    <!-- 任务目标 标题 可接-->
+                    <pe:if condition='<%=XPath("this|internal_state")== 2%>'>
+                        <div style="float:left;width:190px;">
+                            <div style="position:relative;width:260px;">
+                                <input type="button" class="bordertext linkbutton2" tooltip="点击追踪目标" onclick='DoTrack' name='btnTrackTitle' style="float:left;margin-left:2px;color:#fce80f;text-align:left;height:18px;background2-color:#fce80f;" value='<%=XPath("this|internal_label") %>'/>
+                            </div>
+                        </div>
+                    </pe:if>
+                    <!-- 任务目标 标题 锁定-->
+                    <pe:if condition='<%=XPath("this|internal_state")== 9%>'>
+                        <div style="float:left;width:190px;">
+                            <div style="position:relative;width:260px;">
+                                <input type="button" class="bordertext linkbutton2" tooltip="点击追踪目标" onclick='DoTrack' name='btnTrackTitle' style="float:left;margin-left:2px;color:#ff0000;text-align:left;height:18px;background2-color:#fce80f;" value='<%=XPath("this|internal_label") %>'/>
+                            </div>
+                        </div>
+                    </pe:if>
+                    <!-- 按钮-->
+                    <!--<pe:if condition='<%=HasHelpFunc(XPath("this|internal_help_func")) or VIP.CanTeleportFree()%>'>
+                        <input type="button" tooltip="跳转" onclick='DoJump' name='btnJump'  style="margin-top:3px;width:16px;height:16px;background:url(Texture/Aries/Common/Teen/quest/quest_jump_stone_32bits.png)" />
+                    </pe:if>-->
+                    <!-- 帮助按钮-->
+                    <!--<pe:if condition='<%=HasHelpFunc(XPath("this|internal_help_func"))%>'>
+                        <input type="button" onclick='DoHelpFunc'  name='<%=XPath("this|internal_help_func")%>'  style="margin-top:3px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_stone_32bits.png)" />
+                    </pe:if>-->
+                </div>
+            </NodeTemplate>
+        </NodeTemplates>
+    </pe:treeview>
+    </pe:container>
+   <!-- <div style="margin-left:100px;margin-top:-22px;">
+        <pe:if condition='<%=NeedShowFilterMenu()%>'>
+            <pe:togglebuttons
+                SelectedMenuItemBG="Texture/Aries/Common/Teen/control/quest_btn_32bits.png;0 0 51 24:10 10 10 10" 
+                UnSelectedMenuItemBG="Texture/Aries/Common/Teen/control/quest_btn2_32bits.png;0 0 51 24:10 10 10 10" 
+                ButtonWidth="40" 
+                ButtonHeight="25"
+                DataSource='<%=GetMenu() %>' 
+                onclick='OnClickMenu'/>
+        </pe:if>
+     </div>-->
+    <%=OnCanvasCreated()%>
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

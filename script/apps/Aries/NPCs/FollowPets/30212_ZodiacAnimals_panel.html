@@ -1,0 +1,124 @@
+<!-- "script/apps/Aries/NPCs/FollowPets/30212_ZodiacAnimals_panel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30212_ZodiacAnimals_panel, by Andy, 2010/2/7</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 17079_CatchingNet_Level0
+-- 17080_CatchingNet_Level1
+-- 17081_CatchingNet_Level2
+-- 17082_CatchingNet_Level3
+
+local bHas_17079, guid_17079 = hasGSItem(17079);
+local bHas_17080, guid_17080 = hasGSItem(17080);
+local bHas_17081, guid_17081 = hasGSItem(17081);
+local bHas_17082, guid_17082 = hasGSItem(17082);
+
+function DS_Func_CatchingNet(index)
+    if(index == nil) then
+        return 4;
+    elseif(index == 1) then
+        if(bHas_17079) then
+            return {guid = guid_17079, isEmpty = false};
+        else
+            return {gsid = 17079, tooltip="简易捕兽网 x 0", src="Texture/Aries/NPCs/ZodiacAnimals/17079_CatchingNet_Level0_grey.png", isEmpty = true};
+        end
+    elseif(index == 2) then
+        if(bHas_17080) then
+            return {guid = guid_17080, isEmpty = false};
+        else
+            return {gsid = 17080, tooltip="1级捕兽网 x 0", src="Texture/Aries/NPCs/ZodiacAnimals/17080_CatchingNet_Level1_grey.png", isEmpty = true};
+        end
+    elseif(index == 3) then
+        if(bHas_17081) then
+            return {guid = guid_17081, isEmpty = false};
+        else
+            return {gsid = 17081, tooltip="2级捕兽网 x 0", src="Texture/Aries/NPCs/ZodiacAnimals/17081_CatchingNet_Level2_grey.png", isEmpty = true};
+        end
+    elseif(index == 4) then
+        if(bHas_17082) then
+            return {guid = guid_17082, isEmpty = false};
+        else
+            return {gsid = 17082, tooltip="3级捕兽网 x 0", src="Texture/Aries/NPCs/ZodiacAnimals/17082_CatchingNet_Level3_grey.png", isEmpty = true};
+        end
+    end
+end
+
+function OnClickCatchingNet(guid)
+    local OnClickCatchingNet = commonlib.getfield("MyCompany.Aries.Quest.NPCs.ZodiacAnimals.OnClickCatchingNet");
+    if(type(OnClickCatchingNet) == "function") then
+        OnClickCatchingNet(guid);
+    end
+end
+
+function OnClickEmptyNet(gsid)
+    gsid = tonumber(gsid);
+    local netname = "捕兽网";
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+    if(gsItem) then
+        netname = gsItem.template.name;
+    end
+    _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:20px;">你没有%s，快让你的抱抱龙去购物街的织布机上建造一些吧！</div>]], netname));
+end
+
+]]></script>
+    
+<pe:editor style="background:;">
+    <div style="margin-left:0px;margin-top:0px;padding:0px;width:120px;background:url(Texture/Aries/Homeland/homeseed_bg_32bits.png#0 0 109 447:40 40 40 40);">
+        <div style="float:right;margin-left:10px;margin-top:10px;width:180;height:430px;">
+            <pe:gridview DataSource="<%=DS_Func_CatchingNet%>" name="CatchingNetItemView" style="margin-left:12px;margin-top:60px;" CellPadding="0"  DefaultNodeHeight = "65" ItemsPerLine="1" AllowPaging="true" pagesize="4">
+                <Columns>
+                    <div style="width:75px;height:75px;">
+                        <div style="padding-left:4px;padding-top:2px;width:82px;height:82px;background:url(Texture/Aries/Homeland/homeseed_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                            <pe:if condition='<%=Eval("isEmpty") == false%>'>
+                                <pe:slot guid='<%=Eval("guid")%>' style="width:64px;height:64px;" onclick="OnClickCatchingNet()"/>
+                            </pe:if>
+                            <pe:if condition='<%=Eval("isEmpty") == true%>'>
+                                <img src='<%=Eval("src")%>' style="width:64px;height:64px;"/>
+                                <input type="button" style="margin-left:-64px;width:64px;height:64px;background:;" tooltip='<%=Eval("tooltip")%>' name='<%=Eval("gsid")%>' onclick="OnClickEmptyNet()"/>
+                                <div style="margin-left:48px;margin-top:-26px;width:30px;height:30px;">0</div>
+                            </pe:if>
+                        </div>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>Empty Items</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <div style="margin-left:0px;margin-top:10px;">数据加载中<br/>请稍等......</div>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:-4px;margin-top:-10px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="margin-left:20px;margin-top:-370px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_up_32bits.png#0 0 34 34;"/>
+                        <div style="float:right;margin-top:4px;width:32px;">
+                            <label name="page" style="text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" zorder=2 style="margin-left:-60px;margin-top:-10px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_down_32bits.png#0 0 34 34;"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </div>
+</pe:editor>
+    
+</pe:mcml>
+</body>
+</html>

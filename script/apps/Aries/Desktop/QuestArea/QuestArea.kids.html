@@ -1,0 +1,353 @@
+<!-- "script/apps/Aries/Desktop/QuestArea/QuestArea.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestArea.kids.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/EXPBuffArea.lua");
+EXPBuffArea = commonlib.gettable("MyCompany.Aries.Desktop.EXPBuffArea");
+
+local QuestArea = commonlib.gettable("MyCompany.Aries.Desktop.QuestArea");
+local page = document:GetPageCtrl();
+QuestArea.page = page;
+function Ds_func_buff(index)
+    return QuestArea.Ds_func_buff(index)
+end
+function GetTooltip(s)
+    if(s and s~= "")then
+        s = string.format("script/apps/Aries/Desktop/QuestArea/QuestArea.tooltip.html?s=%s",s);
+        return s;
+    end
+end
+function CanShowNum(num)
+    if(num and num > 1)then
+        return true;
+    end
+end
+
+function onclick_hulu() 
+    MyCompany.Aries.Desktop.MiJiuHuLu.ShowPage(2);
+end
+
+function onclick_teamplay() 
+    MyCompany.Aries.Desktop.EXPBuffArea.ShowLobbyPage();
+end
+
+function onclick_calender() 
+    MyCompany.Aries.Desktop.Calendar.ShowPage()
+end
+
+function onclick_advanced_lottery()
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemLuckyPage.lua");
+    local ItemLuckyPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemLuckyPage");
+    ItemLuckyPage.ShowPage();
+end
+
+function oncreate_expbuff_btn(name, mcmlNode)
+    if(name == "exp_btnbuff") then
+        EXPBuffArea.CreateBuff(mcmlNode.uiobject_id);
+    elseif(name == "exp_btnbuff_holiday") then
+        EXPBuffArea.CreateBuff_Holiday(mcmlNode.uiobject_id);
+    elseif(name == "exp_btn_double_exp_buff") then
+        EXPBuffArea.CreateBuff_global_double_exp(mcmlNode.uiobject_id);
+    elseif(name == "damage_boost_pill_buff") then
+        EXPBuffArea.CreateBuff_damage_boost_pill(mcmlNode.uiobject_id);
+    elseif(name == "resist_boost_pill_buff") then
+        EXPBuffArea.CreateBuff_resist_boost_pill(mcmlNode.uiobject_id);
+    elseif(name == "HP_boost_pill_buff") then
+        EXPBuffArea.CreateBuff_HP_boost_pill(mcmlNode.uiobject_id);
+    elseif(name == "criticalstrike_boost_pill_buff") then
+        EXPBuffArea.CreateBuff_criticalstrike_boost_pill(mcmlNode.uiobject_id);
+    elseif(name == "resilience_boost_pill_buff") then
+        EXPBuffArea.CreateBuff_resilience_boost_pill(mcmlNode.uiobject_id);
+    elseif(name == "lobby_service") then
+        EXPBuffArea.Create_LobbyBtn_V2(mcmlNode.uiobject_id)
+    end
+end
+
+function ShowGift()
+    NPL.load("(gl)script/apps/Aries/Gift/ExtraGiftPage.lua");
+    local ExtraGiftPage = commonlib.gettable("MyCompany.Aries.Gift.ExtraGiftPage");
+    ExtraGiftPage.ShowPage();
+end
+
+function ShowAnanasCoin()
+    NPL.load("(gl)script/apps/Aries/Gift/GiftingForRechargeInHoliday.lua");
+    local GiftingForRechargeInHoliday = commonlib.gettable("MyCompany.Aries.Gift.GiftingForRechargeInHoliday");
+    GiftingForRechargeInHoliday.ShowPage();
+end
+
+function ShowLittleGame()
+    NPL.load("(gl)script/apps/Aries/Pet/LittleGame.lua");
+    local LittleGame = commonlib.gettable("MyCompany.Aries.Pet.LittleGame");
+    LittleGame.ShowPage();
+end
+
+function OnClickFateIcon()
+    NPL.load("(gl)script/apps/Aries/Desktop/Functions/FateCard.lua");
+    local FateCard = commonlib.gettable("MyCompany.Aries.Desktop.FateCard");
+    FateCard.OnClickFateIcon();
+end
+
+function GetFateCardIcon()
+    NPL.load("(gl)script/apps/Aries/Desktop/Functions/FateCard.lua");
+    local FateCard = commonlib.gettable("MyCompany.Aries.Desktop.FateCard");
+    NPL.load("(gl)script/apps/Aries/Desktop/AntiIndulgenceArea.lua")
+    local time = MyCompany.Aries.Desktop.AntiIndulgenceArea.GetUsedSec(); 
+    FateCard.UpdataTime(time);
+    if(FateCard.state ~= 1) then
+        icon = "Texture/Aries/Common/ThemeKid/fatecard/fatecard_icon.png;0 0 41 41"
+    else
+        icon = "Texture/Aries/Common/ThemeKid/fatecard/fatecard_grey_icon.png;0 0 41 41";
+    end
+
+    return icon;
+end
+
+function GetFateCardBtnTips()
+    NPL.load("(gl)script/apps/Aries/Desktop/Functions/FateCard.lua");
+    local FateCard = commonlib.gettable("MyCompany.Aries.Desktop.FateCard");
+    NPL.load("(gl)script/apps/Aries/Desktop/AntiIndulgenceArea.lua")
+    local time = MyCompany.Aries.Desktop.AntiIndulgenceArea.GetUsedSec(); 
+    FateCard.UpdataTime(time);
+    return FateCard.remaintime;
+end
+
+function GetPillNum(own_num,total_num)
+    if(own_num and total_num and tonumber(own_num) and tonumber(total_num)) then
+        return string.format("%d/%d",tonumber(own_num),tonumber(total_num));
+    end
+end
+
+function ShowHandbook()
+    NPL.load("(gl)script/apps/Aries/Pet/MonsterHandBook/MonsterHandBook.lua");
+    local MonsterHandBook = commonlib.gettable("MyCompany.Aries.Pet.MonsterHandBook");
+    MonsterHandBook.ShowPage();
+end
+
+function OpenBattleFieldTeam()
+    NPL.load("(gl)script/apps/Aries/CombatRoom/BattleFieldTeam.lua");
+    local BattleFieldTeam = commonlib.gettable("MyCompany.Aries.CombatRoom.BattleFieldTeam");
+    BattleFieldTeam.ShowPage();
+end
+
+function OpendChristmasLottery()
+    local params = {
+		url = "script/apps/Aries/Desktop/Functions/Christmas_lottery.html",
+		name = "ChristmasLottery.ShowPage",
+		app_key = MyCompany.Aries.app.app_key,
+		isShowTitleBar = false,
+		DestroyOnClose = true,
+		enable_esc_key = true,
+		style = CommonCtrl.WindowFrame.ContainerStyle,
+		allowDrag = true,
+		zorder = 10,
+		directPosition = true,
+			align = "_ct",
+			x = -330/2,
+			y = -494/2,
+			width = 330,
+			height = 494,
+		cancelShowAnimation = true,
+	};
+	System.App.Commands.Call("File.MCMLWindowFrame",params);
+end
+
+function OpendNewYearDayLottery()
+    local params = {
+		url = "script/apps/Aries/Desktop/Functions/NewYearDay_lottery.html",
+		name = "NewYearDay_lottery.ShowPage",
+		app_key = MyCompany.Aries.app.app_key,
+		isShowTitleBar = false,
+		DestroyOnClose = true,
+		enable_esc_key = true,
+		style = CommonCtrl.WindowFrame.ContainerStyle,
+		allowDrag = true,
+		zorder = 10,
+		directPosition = true,
+			align = "_ct",
+			x = -330/2,
+			y = -300/2,
+			width = 330,
+			height = 300,
+		cancelShowAnimation = true,
+	};
+	System.App.Commands.Call("File.MCMLWindowFrame",params);
+end
+
+function OpenParacraftPage()
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/InternetLoadWorld.lua");
+    local InternetLoadWorld = commonlib.gettable("MyCompany.Aries.Creator.Game.Login.InternetLoadWorld");
+    InternetLoadWorld.ShowPage(true)
+end
+
+]]></script>
+<div>
+<div style="width:454px;height:55px;margin-left:15px;" >
+    <!--<div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <input type="button" tooltip = "日常任务" name="QuestWeekly" onclick="MyCompany.Aries.Quest.QuestWeeklyPage.ShowPage" style="align:center;margin-top:7px;width:49px;height:44px;background:url(Texture/Aries/Dock/kids/weekly_btn_32bits.png#0 0 49 44)"/>
+    </div>-->
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <pe:container name="lobby_service" oncreate="oncreate_expbuff_btn" style="float:left;width:54px;height:54px;background:;" >
+        </pe:container>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <pe:goalpointer listen="open_auctionhouse" style="position:relative;margin-top:5px;width:41px;height:45px;"></pe:goalpointer>
+        <input type="button" tooltip = "寄售行" name="btnConsignment" onclick="MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.ShowPage" style="align:center;margin-top:5px;width:41px;height:45px;background:url(Texture/Aries/Dock/kids/auction_32bits.png#0 0 41 45)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <input zorder="1" enabled="false" visible="false" name="MailCount" type="button" value='0' style="position:relative;color:#000000ff;margin-left:30px;margin-top:0px;width:24px;height:24px;background-color:#ffffff;background:url(Texture/Aries/Dock/UnreadNum_32bits.png#0 0 32 32)"/>
+        <input type="button" tooltip = "邮件" name="email" onclick="MyCompany.Aries.Desktop.NotificationArea.OnClickNote" style="align:center;margin-top:5px;width:37px;height:45px;background:url(Texture/Aries/Dock/kids/email_32bits.png#0 0 37 45)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+       <input zorder="1" enabled="false" name="MiJiuHuLuTips" type="button" value='00:00' style="position:relative;text-shadow:true;shadow-quality:8;shadow-color:#60ffffff;height:30px;font-size:10px;margin-left:-3px;margin-top:40px;width:60px;background:;"/>
+       <pe:goalpointer listen="open_mijiuhulu" style="position:relative;margin-left:10px;margin-top:0px;width:37px;height:51px;"></pe:goalpointer>
+       <input type="button" tooltip="米酒葫芦" name="MiJiuHuLu" onclick="onclick_hulu" style="margin-left:10px;margin-top:0px;width:37px;height:51px;background:url(Texture/Aries/Dock/kids/hulu_32bits.png#0 0 37 51)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+       <!--<input type="button" tooltip = "活动日历" name="NewActivities" onclick="onclick_calender" style="margin-left:7px;margin-top:5px;width:38px;height:45px;background:url(Texture/Aries/Dock/kids/calender_32bits.png#0 0 38 45)"/>-->
+       <input type="button" tooltip = "卡牌大乐透" name="AdvancedLottery" onclick="onclick_advanced_lottery" style="margin-left:7px;margin-top:3px;width:41px;height:48px;background:url(Texture/Aries/Dock/kids/lottery_32bits.png#0 0 41 48)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <!--<input zorder="1" enabled="false" visible="false" name="QuestActivedCount" type="button" value='0' style="position:relative;color:#000000ff;margin-left:30px;margin-top:0px;width:24px;height:24px;background-color:#ffffff;background:url(Texture/Aries/Dock/UnreadNum_32bits.png#0 0 32 32)"/>
+        <input type="button" tooltip = "任务列表 (L)" name="QuestList" onclick="MyCompany.Aries.Desktop.QuestArea.ShowQuestListPage" style="align:center;margin-top:7px;width:49px;height:44px;background:url(Texture/Aries/Dock/kids/quest_32bits.png#0 0 49 44)"/>-->
+        <input type="button" tooltip = "组队悬赏" name="btnTeamQuest" onclick="MyCompany.Aries.CombatRoom.WorldTeamQuest.ShowPage" style="align:center;width:34px;height:51px;background:url(Texture/Aries/Dock/kids/teamquest_32bits.png#0 0 34 51)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+        <pe:goalpointer listen="open_ranking" style="position:relative;margin-top:6px;width:32px;height:45px;"></pe:goalpointer>
+        <input type="button" tooltip = "排行榜" name="Goldranking" onclick="MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMainWnd" style="align:center;margin-top:6px;width:32px;height:45px;background:url(Texture/Aries/Dock/kids/goldranking_btn_32bits.png#0 0 32 45)"/>
+    </div>
+    <div style="float:left;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+       <input type="button" tooltip = "哈奇时报(左键打开网页, 右键看旧版)" name="news" onclick="MyCompany.Aries.Desktop.NotificationArea.OnClickMagazine" style="align:center;margin-top:2px;width:41px;height:48px;background:url(Texture/Aries/Dock/kids/news_32bits.png#0 0 41 48)"/>
+    </div>
+</div>
+<!--<div name="EXPBuffArea" style="margin-top:5px;width:330px;height:40px;" align="right">
+    <pe:if condition='<%=EXPBuffArea.CanCreateBuff()%>'>
+        <pe:container name="exp_btnbuff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+        </pe:container>
+    </pe:if>
+    <pe:if condition='<%=EXPBuffArea.CanCreateBuff_Holiday()%>'>
+        <pe:container name="exp_btnbuff_holiday" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+        </pe:container>
+    </pe:if>
+    <pe:container name="exp_btn_double_exp_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+    <pe:container name="damage_boost_pill_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+    <pe:container name="resist_boost_pill_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+    <pe:container name="HP_boost_pill_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+    <pe:container name="criticalstrike_boost_pill_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+    <pe:container name="resilience_boost_pill_buff" oncreate="oncreate_expbuff_btn" style="float:left;width:40px;height:40px;background:;" >
+    </pe:container>
+</div>-->
+    <div style="margin-top:0px;width:400px;height:40px;" >
+        <div style="position:relative;margin-left:50px;width:400px;height:80px;">
+        <pe:gridview name="buffview" ItemsPerLine="12" AllowPaging="true" DefaultNodeHeight = "46" pagesize="12"
+            DataSource='<%=Ds_func_buff%>'>
+	        <Columns>
+                    <div>
+                        <pe:if condition='<%=Eval("is_null") %>'>
+                            <div style="width:32px;height:32px;" />
+                        </pe:if>
+                        <pe:if condition='<%=not Eval("is_null") %>'>
+                            <pe:if condition='<%=Eval("guid") == nil %>'>
+                                <div style="width:32px;height:32px;" >
+                                    <pe:if condition='<%=Eval("click_action") == nil %>'>
+                                        <img src='<%=Eval("icon") %>' bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-top:0px;width:32px;height:32px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "pillbuff" %>'>
+                                        <img src='<%=Eval("icon") %>' bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-top:3px;width:32px;height:32px" />
+                                        <div style="position:relative;margin-left:-7px;margin-top:-12px;font-weight:bold;" class="defaultcolor">
+                                                <!--<%=Eval("own_num") %>/<%=Eval("total_num") %>-->
+                                                <%=GetPillNum(Eval("own_num"),Eval("total_num")) %>
+                                        </div>
+                                    </pe:if>
+                                    <!--<pe:if condition='<%=Eval("click_action") == "happy_summer" %>'>
+                                        <img src='<%=Eval("icon") %>' bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-top:0px;width:34px;height:34px" />
+                                    </pe:if>-->
+                                    <pe:if condition='<%=Eval("click_action") == "Bag" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="MyCompany.Aries.Desktop.QuestArea.OpenUserBag" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-top:0px;width:32px;height:32px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "gift" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="ShowGift" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-10px;width:40px;height:40px" />
+                                        <div style="position:relative;margin-left:-10px;margin-top:-40px;background:" >
+                                            <img zorder="1" enabled="false" class="animated_btn_overlay" width="40" height="40"/>
+                                        </div> 
+                                    </pe:if>
+                                    <!--<pe:if condition='<%=Eval("click_action") == "ananascoin" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="ShowAnanasCoin" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-20px;margin-top:2px;width:40px;height:40px" />
+                                    </pe:if>-->
+                                    <pe:if condition='<%=Eval("click_action") == "playlittlegame" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="ShowLittleGame" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-20px;margin-top:2px;width:41px;height:41px" />
+                                    </pe:if>
+                                    <!--<pe:if condition='<%=Eval("click_action") == "monsterhandbook" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="ShowHandbook" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-40px;margin-top:2px;width:41px;height:41px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "fatecard" %>'>
+                                        <img uiname = "FateCard" src='<%=GetFateCardIcon()%>' onclick="OnClickFateIcon" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-52px;margin-top:2px;width:41px;height:41px" />
+                                        <input zorder="1" enabled="false" uiname="DockFateCardTips" type="button" value='<%=GetFateCardBtnTips()%>' style="text-shadow:true;shadow-quality:8;shadow-color:#60ffffff;height:30px;font-size:12px;margin-left:-63px;margin-top:-12px;width:60px;background:;"/>
+                                    </pe:if>-->
+                                    <pe:if condition='<%=Eval("click_action") == "fatecard" %>'>
+                                        <img uiname = "FateCard" src='<%=GetFateCardIcon()%>' onclick="OnClickFateIcon" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-32px;margin-top:2px;width:41px;height:41px" />
+                                        <input zorder="1" enabled="false" uiname="DockFateCardTips" type="button" value='<%=GetFateCardBtnTips()%>' style="text-shadow:true;shadow-quality:8;shadow-color:#60ffffff;height:30px;font-size:12px;margin-left:-43px;margin-top:-12px;width:60px;background:;"/>
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "battlefieldranking" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="MyCompany.Aries.GoldRankingList.GoldRankingListMain.ShowMainWnd_BattleField" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-47px;margin-top:4px;width:41px;height:41px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "battlefieldqueue" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="OpenBattleFieldTeam" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-62px;margin-top:4px;width:41px;height:41px" />
+                                    </pe:if>
+                                    <pe:if condition='<%=Eval("click_action") == "paracraft" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="OpenParacraftPage" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-82px;margin-top:2px;width:52px;height:45px" />
+                                    </pe:if>
+                                    <!--<pe:if condition='<%=Eval("click_action") == "christmas" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="OpendChristmasLottery" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-77px;margin-top:4px;width:41px;height:41px" />
+                                        <div style="position:relative;margin-left:-77px;margin-top:-41px;background:" >
+                                            <img zorder="1" enabled="false" class="animated_btn_overlay" width="41" height="41"/>
+                                        </div> 
+                                    </pe:if>-->
+                                    <!--<pe:if condition='<%=Eval("click_action") == "newyearday" %>'>
+                                        <img src='<%=Eval("icon") %>' onclick="OpendNewYearDayLottery" bindtooltip='<%=GetTooltip(Eval("tooltip"))%>' tooltip_offset_x="-124" tooltip_offset_y="32" is_lock_position="true" use_mouse_offset="false" style="margin-left:-90px;margin-top:4px;width:41px;height:41px" />
+                                    </pe:if>-->
+                                </div>
+                                <div style="margin-left:18px;margin-top:-18px;position:relative;font-weight:bold;" class="defaultcolor">
+                                    <pe:if condition='<%=CanShowNum(Eval("copies")) %>'>
+                                        <%=Eval("copies") %>
+                                    </pe:if>
+                                </div>
+                                <div style="width:32px;height:12px;text-shadow:true;text-align:center;margin-left:5px;margin-top:-2px;position:relative;color:#fee11c;" ><%=Eval("extra_info") %></div>
+                            </pe:if>
+                            <!-- slot -->
+                            <pe:if condition='<%=Eval("guid") ~= nil %>'>
+                                <div style="width:32px;height:32px;" >
+                                    <pe:slot guid='<%=Eval("guid") %>' isclickable="false" style="margin-top:0px;width:32px;height:32px" />
+                                </div>
+                            </pe:if>
+                        </pe:if>
+                    </div>
+	        </Columns>
+	        <EmptyDataTemplate>
+	        </EmptyDataTemplate>
+	        <FetchingDataTemplate>
+	        </FetchingDataTemplate>
+	        <PagerSettings Position="Top" height="0" PreviousPageText="" NextPageText=""/>
+            <PagerTemplate>
+                <div style="position:relative;margin-left:335px;">
+                   <!-- <form>
+                        <input zorder="1" style="margin-top:-4px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_up.png)" type="button" name="pre"/><br />
+                        <input type="button" name="text" value="1" style="color:#01d9ff;position:relative;margin-top:-7px;margin-left:-4px;background-color:#ffffff;background:url(Texture/Aries/Dock/teen/number_bg_32bits.png#0 0 23 23);height:23px;width:23px;" />
+                        <input zorder="1" style="margin-top:13px;width:16px;height:16px;background:url(Texture/Aries/Dock/teen/page_down.png)" type="button" name="next"/>
+                    </form>-->
+                </div>
+            </PagerTemplate>
+        </pe:gridview>
+        </div>
+       
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

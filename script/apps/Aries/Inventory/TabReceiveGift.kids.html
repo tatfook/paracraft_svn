@@ -1,0 +1,269 @@
+﻿<!-- "script/apps/Aries/Inventory/TabReceiveGift.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TabReceiveGift, by Andy, 2009/7/10</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TabReceiveGift.lua" refresh="true"><![CDATA[
+MyCompany.Aries.Inventory.TabReceiveGiftPage.OnInit()
+
+function getNID()
+    return MyCompany.Aries.Inventory.TabReceiveGiftPage.giftfromnid;
+end
+function isOverview()
+    return MyCompany.Aries.Inventory.TabReceiveGiftPage.gift_state == "overview";
+end
+function isDetail()
+    return MyCompany.Aries.Inventory.TabReceiveGiftPage.gift_state == "detail";
+end
+function DS_Func_Aries_Items(index)
+    return MyCompany.Aries.Inventory.TabReceiveGiftPage.DS_Func_Items(index);
+end
+--礼物的描述
+function getItemDes()
+    local s = MyCompany.Aries.Inventory.TabReceiveGiftPage.item_tooltip;
+    if(not s or s == "")then
+        s = "礼物";
+    end
+    s = string.format("送你的%s",s);
+    return s;
+end
+function getMasterName()
+    local s = "我收到的礼物";
+    return s;
+end
+function getGiftSender()
+    local msg = {
+				nids = MyCompany.Aries.Inventory.TabReceiveGiftPage.giftfromnid,
+				--cache_policy = "access plus 0 day",
+			};
+		paraworld.users.getInfo(msg, "TabReceiveGiftPage.GetUserInfo", function(msg)
+				if(msg and msg.users)then
+					local user_name = msg.users[1].nickname;
+					user_name = string.format("%s(%d)",user_name,MyCompany.Aries.Inventory.TabReceiveGiftPage.giftfromnid);
+					return user_name;
+				end
+		end);
+end
+function boxIsEnabled(n)
+    local bean = MyCompany.Aries.Inventory.TabReceiveGiftPage.bean;
+    if(bean and bean.giftinfo and bean.giftinfo.boxcnt)then
+        return bean.giftinfo and bean.giftinfo.boxcnt == n;
+    end
+end
+function getBoxDesc(n)
+    local s = string.format("你目前拥有%d个礼物盒。<br/>领取友情徽章后，可以增加礼物盒的数量，收到更<br/>多的礼物哦！",n);
+    return s;
+end
+]]></script>
+<pe:if condition='<%=isOverview()%>'>
+<div style="float:left;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="height:60px;">
+        <div style="float:left;margin-left:60px;margin-top:30px;width:250px;height:30px;text-align:center;color:#ffffff;font-size:14;font-weight:bold;">
+           <%=getMasterName()%>
+        </div>
+        <input style="margin-left:320px;margin-top:-50px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="MyCompany.Aries.Inventory.TabReceiveGiftPage.DoClose()" value=""/>
+    </div>
+    <!-- 3个格子-->
+    <pe:if condition='<%=boxIsEnabled(3)%>'>
+        <div style="float:left;margin-left:30px;margin-top:0px;width:300px;height:360px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="3">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("id")%>'  style="margin-left:4px;margin-top:2px;width:55px;height:55px;" onclick = "MyCompany.Aries.Inventory.TabReceiveGiftPage.OnClickItem"/>
+                        <pe:if condition='<%=math.mod(Eval("index"),3) ~= 1 and math.mod(Eval("index") - 1, 12) > 2%>'>
+                            <div style="margin-left:-17px;margin-top:-15px;width:32px;height:32px;background:url(Texture/Aries/Homeland/GiftBox_Love_32bits.png);">
+                            </div>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>还没有人送礼物哦</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+            <div style="margin-top:-256px;margin-left:15px;font-size:12px;width:275px"><%=getBoxDesc(3) %></div>
+        </div>
+    </pe:if>
+     <!-- 5个格子-->
+    <pe:if condition='<%=boxIsEnabled(5)%>'>
+        <div style="float:left;margin-left:30px;margin-top:0px;width:300px;height:360px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="5">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("id")%>'  style="margin-left:4px;margin-top:2px;width:55px;height:55px;" onclick = "MyCompany.Aries.Inventory.TabReceiveGiftPage.OnClickItem"/>
+                        <pe:if condition='<%=math.mod(Eval("index"),3) ~= 1 and math.mod(Eval("index") - 1, 12) > 2%>'>
+                            <div style="margin-left:-17px;margin-top:-15px;width:32px;height:32px;background:url(Texture/Aries/Homeland/GiftBox_Love_32bits.png);">
+                            </div>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>还没有人送礼物哦</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+            <div style="margin-top:-176px;margin-left:15px;font-size:12px;width:275px"><%=getBoxDesc(5) %></div>
+        </div>
+    </pe:if>
+    <!-- 7个格子-->
+    <pe:if condition='<%=boxIsEnabled(7)%>'>
+        <div style="float:left;margin-left:30px;margin-top:0px;width:300px;height:360px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="7">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("id")%>'  style="margin-left:4px;margin-top:2px;width:55px;height:55px;" onclick = "MyCompany.Aries.Inventory.TabReceiveGiftPage.OnClickItem"/>
+                        <pe:if condition='<%=math.mod(Eval("index"),3) ~= 1 and math.mod(Eval("index") - 1, 12) > 2%>'>
+                            <div style="margin-left:-17px;margin-top:-15px;width:32px;height:32px;background:url(Texture/Aries/Homeland/GiftBox_Love_32bits.png);">
+                            </div>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>还没有人送礼物哦</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+            <div style="margin-top:-100px;margin-left:15px;font-size:12px;width:275px"><%=getBoxDesc(7) %></div>
+        </div>
+    </pe:if>
+    <!-- 9个格子-->
+    <pe:if condition='<%=boxIsEnabled(9)%>'>
+        <div style="float:left;margin-left:30px;margin-top:0px;width:300px;height:360px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="9">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("id")%>'  style="margin-left:4px;margin-top:2px;width:55px;height:55px;" onclick = "MyCompany.Aries.Inventory.TabReceiveGiftPage.OnClickItem"/>
+                        <pe:if condition='<%=math.mod(Eval("index"),3) ~= 1 and math.mod(Eval("index") - 1, 12) > 2%>'>
+                            <div style="margin-left:-17px;margin-top:-15px;width:32px;height:32px;background:url(Texture/Aries/Homeland/GiftBox_Love_32bits.png);">
+                            </div>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>还没有人送礼物哦</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+            <div style="margin-top:-100px;margin-left:15px;font-size:12px;width:275px"><%=getBoxDesc(9) %></div>
+        </div>
+    </pe:if>
+    <!-- 12个格子-->
+    <pe:if condition='<%=boxIsEnabled(12)%>'>
+        <div style="float:left;margin-left:30px;margin-top:0px;width:300px;height:360px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+            <pe:gridview DataSource="<%=DS_Func_Aries_Items%>" name="ItemView" style="height:350px;margin-left:30px;margin-top:25px;" CellPadding="0" ItemsPerLine="3" AllowPaging="True" pagesize="12">
+                <Columns>
+                    <div style="padding:8px;width:80px;height:80px;background:url(Texture/Aries/Homeland/homeitem_slot_32bits.png#0 0 83 83:24 24 24 24)">
+                        <pe:slot guid='<%=Eval("id")%>'  style="margin-left:4px;margin-top:2px;width:55px;height:55px;" onclick = "MyCompany.Aries.Inventory.TabReceiveGiftPage.OnClickItem"/>
+                        <pe:if condition='<%=math.mod(Eval("index"),3) ~= 1 and math.mod(Eval("index") - 1, 12) > 2%>'>
+                            <div style="margin-left:-17px;margin-top:-15px;width:32px;height:32px;background:url(Texture/Aries/Homeland/GiftBox_Love_32bits.png);">
+                            </div>
+                        </pe:if>
+                    </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <b>还没有人送礼物哦</b>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>正在获取数据, 请稍候...</b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" style="margin-left:50px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageleft_32bits.png#0 0 42 41);"/>
+                        <div style="float:left;margin-top:4px;width:64px;">
+                            <label name="page" style="color:#FFFFFF;text-align:center;width:0px;height:0px;margin:4px"/>
+                        </div>
+                        <input type="button" name="next" style="width:0px;height:0px;background:url(Texture/Aries/Inventory/itemview_pageright_32bits.png#0 0 42 41)"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </pe:if>
+</div>
+</pe:if>
+<pe:if condition='<%=isDetail()%>'>
+<div style="float:left;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="height:60px;">
+        <div style="float:left;margin-left:60px;margin-top:30px;width:250px">
+            <%=getNID()%>
+            <pe:name style="float:left;margin-left:0px;margin-top:0px;width:250px;height:30px;text-align:center;color:#ffffff;font-size:14;font-weight:bold;" customformat="%s(%s)" nid='<%=getNID()%>'linked="false"/>
+            <div style="float:left;margin-left:0px;margin-top:-10px;width:250px;height:30px;text-align:center;color:#ffffff;font-size:14;font-weight:bold;">
+                    <%=getItemDes()%>
+             </div>
+        </div>
+        <input style="margin-left:3px;margin-top:10px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="MyCompany.Aries.Inventory.TabReceiveGiftPage.ClosePage_Detail()" value=""/>
+    </div>
+    <div style="float:left;margin-left:30px;margin-top:20px;width:300px;height:180px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+        <img  name = "icon" style="margin-left:86px;margin-top:26px;width:128px;height:128px;"/>
+    </div>
+     <div style="float:left;margin-left:30px;margin-top:0px;width:300px;text-align:center;font-size:12">
+            赠送留言
+        </div>
+    <div style="float:left;padding:8px;margin-left:28px;margin-top:0px;width:300px;height:140px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+        <textarea style="background:" name="send_info" ReadOnly="true" rows="6" ></textarea>
+    </div>
+    <div style="margin-top:10px;">
+        <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Homeland/v1/gift_accept32bits.png#0 0 153 49)" 
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGiftPage.DoAccept()" />
+        <input type="button" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Homeland/v1/gift_refuse32bits.png#0 0 153 49)" 
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGiftPage.DoRefuse()"  />
+    </div> 
+</div>
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

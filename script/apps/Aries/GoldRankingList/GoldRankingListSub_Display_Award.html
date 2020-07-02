@@ -1,0 +1,36 @@
+﻿<!-- "script/apps/Aries/GoldRankingList/GoldRankingListSub_Display_Award.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GoldRankingListSub_2, by zrf, 2011/1/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GoldRankingListMain.lua" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/GoldRankingList/ranking_server.lua");
+local RankingServer = commonlib.gettable("MyCompany.Aries.GoldRankingList.RankingServer");
+
+GoldRankingListMain = commonlib.gettable("MyCompany.Aries.GoldRankingList.GoldRankingListMain");
+
+local page = document:GetPageCtrl();
+
+listname = page:GetRequestParam("listname");
+function Confirm()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="background:url(Texture/Aries/HaqiShop/bg3_32bits.png:10 10 10 10);background-color:#ff2240;width:300px;height:262px;padding:5px;" class="default">
+    <div style="position:relative;margin-left:260px;margin-top:0px;width:32px;height:32px;">
+        <input type="button" onclick="Confirm()" zorder="2" style="width:32px;height:32px;background:url(Texture/Aries/common/Close_48_32bits.png#0 0 48 48);"/>
+    </div>
+    <div style = "margin-top:30px;">
+        <pe:treeview ItemToggleRightSpacing="0" DefaultIconSize="0" DefaultIndentation="0" style="background:;">
+            <%=GoldRankingListMain.GetRankingRewardMCML(listname)%>
+        </pe:treeview>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!--script/apps/Aries/Gift/GiftingForRechargeInHoliday.html-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemView, by lipeng, 2013/7/3</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="GiftingForRechargeInHoliday.lua" refresh="true"><![CDATA[
+
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local GiftingForRechargeInHoliday = commonlib.gettable("MyCompany.Aries.Gift.GiftingForRechargeInHoliday");
+GiftingForRechargeInHoliday.init();
+
+function GetAnanasCoinNum()
+    local hascoin,_,_,num = ItemManager.IfOwnGSItem(17471);
+    if(not hascoin) then
+        num = 0;
+    end
+    return num;
+end
+
+function GetGiftBag(giftbagID)
+    return GiftingForRechargeInHoliday.giftbags[giftbagID].gsid;
+end
+
+function GetGiftDes(giftbagID)
+    NPL.load("(gl)script/kids/3DMapSystemApp/profiles/ProfileManager.lua");
+    local myInfo = Map3DSystem.App.profiles.ProfileManager.GetUserInfoInMemory();
+    local combatLV = tonumber(myInfo.combatlel);
+    local needLV = tonumber(GiftingForRechargeInHoliday.giftbags[giftbagID].level);
+    if(needLV > combatLV) then
+        return string.format("<div style='font-weight:bold;font-size:14px;base-font-size:14;color:#bb0000'>%s</div>",GiftingForRechargeInHoliday.giftbags[giftbagID].des);
+    else
+        return string.format("<div style='font-weight:bold;font-size:14px;base-font-size:14;'>%s</div>",GiftingForRechargeInHoliday.giftbags[giftbagID].name);
+    end
+end
+
+function BuyGiftBag(name, mcmlNode)
+    local coinNum = GetAnanasCoinNum();
+    if(coinNum < 3) then
+    _guihelper.Custom_MessageBox("你的菠萝币还不足3枚，不能兑换礼包。每充值10元(100魔豆)就能获得1枚菠萝币哦。现在马上充值？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            NPL.load("(gl)script/apps/Aries/VIP/PurChaseMagicBean.lua");
+            local PurchaseMagicBean = commonlib.gettable("MyCompany.Aries.Inventory.PurChaseMagicBean");
+            PurchaseMagicBean.Show();     
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);  
+    return;
+    end
+    local exidList = {[17472] = 1889,[17473] = 1890,[17474] = 1891,[17475] = 1892,};
+    local id = tonumber(name);
+    local gsid = GiftingForRechargeInHoliday.giftbags[id].gsid;
+    local exid = exidList[gsid];
+    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	if(command) then
+		command:Call({gsid = gsid, exid = exid, npc_shop = true, callback = function(params, msg)
+			if(msg and msg.issuccess) then
+				page:Refresh(0.1);
+			end
+		end });
+	end
+end
+
+function DS_Func(giftbagID)
+    return GiftingForRechargeInHoliday.giftbags[giftbagID].goods;
+end
+
+function ClosePage()
+    page:CloseWindow();
+end
+]]></script>
+ <div style="width:605px;height:470px;font-size:12;" class="window_red" >
+    <div style="position:relative;width:580px;height:64px;margin-top:-8px;margin-left:10px;background:url(texture/aries/common/themekid/gift/red_bg_caption_wide.png#0 0 512 64:190 22 310 29);">
+        <div style="position:relative;width:215px;height:32px;margin-left:187px;margin-top:15px;background:url(texture/aries/common/themekid/gift/giftingforrecharge_title.png#0 0 215 32);"/>
+    </div>  
+    <input type="button" style="position:relative;align:right;width:28px;height:28px;margin-top:7px;margin-right:5px;background:url(texture/aries/common/themekid/character/close_32bits.png#0 0 28 28);" onclick="ClosePage" />
+    <div style="float:left;margin-top:55px;margin-left:10px;width:208px;height:310px;" class="panel_red">
+        <div style = "float:left;width:208px;height:310px;">
+            <div style = "margin-left:13px;margin-top:10px;width:180px;height:210px;background:url(texture/aries/common/themekid/gift/ananascoin.png# 0 0 180 210);">
+            </div>
+            <div style = "margin-left:40px;margin-top:6px;font-size:16px;base-font-size:16;font-weight:bold;font-color:#000000;">
+                你现在拥有的<br/>菠萝币数量:<span style = "color:#a00100;"><%=GetAnanasCoinNum()%>枚</span>             
+            </div>
+            <!--<input type="button" value = "我要充值" style = "float:left;margin-top:1px;margin-left:65px;width:80px;height:28px;text-align:center;font-size:12px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "MyCompany.Aries.HaqiShop.BuyMagicBean" />-->
+        </div>
+    </div>
+    <div style = "float:left;margin-top:55px;margin-left:-1px;width:365px;height:310px;" >
+        <div style = "margin-left:5px;width:365px;height:75px;" class="panel_red">
+            <div style = "width:365px;height:75px;">
+                <div style = "float:left;margin-left:8px;margin-top:5px;width:64px;height:64px;" >
+                    <pe:item gsid = "<%=GetGiftBag(1)%>" isclickable = "false" style = "width:64px;height:64px;" class="highbluecolor"/>
+                </div>
+                <div style = "float:left;margin-top:-3px;width:290px;height:75px;">
+                    <div style = "margin-top:10px;margin-left:10px;height:30px;">
+                        <div style = "float:left;width:190px;">
+                            <%=GetGiftDes(1)%>
+                        </div>
+                        <input name = "1" type="button" value = "3枚币兑换" style = "float:left;margin-top:-4px;width:85px;height:28px;text-align:center;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "BuyGiftBag" />
+                    </div>
+                    <div style="margin-left:5px;margin-top:-5px;height:37px;">
+                        <pe:gridview name="itemInGiftBag" DataSource="<%=DS_Func(1)%>" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+	                        <Columns>
+                                <div style="padding:1px;width:35px;height:35px;" class="block">
+                                    <pe:item gsid='<%=Eval("gsid")%>' ShowCount = '<%=Eval("count") %>' style="width:32px;height:32px;" isclickable="false"/>
+                                </div>            
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+        <div style = "margin-top:3px;margin-left:5px;width:365px;height:75px;" class="panel_red">
+            <div style = "float:left;margin-left:8px;margin-top:5px;width:64px;height:64px;" >
+                <pe:item gsid = "<%=GetGiftBag(2)%>" isclickable = "false" style = "width:64px;height:64px;" class="highbluecolor"/>
+            </div>
+            <div style = "float:left;margin-top:-3px;width:290px;height:75px;">
+                <div style = "margin-top:10px;margin-left:10px;height:30px;">
+                    <div style = "float:left;width:190px;">
+                        <%=GetGiftDes(2)%>
+                    </div>
+                    <input name = "2" type="button" value = "3枚币兑换" style = "float:left;margin-top:-4px;width:85px;height:28px;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "BuyGiftBag" />
+                </div>
+                <div style="margin-left:5px;margin-top:-5px;height:37px;">
+                    <pe:gridview name="itemInGiftBag" DataSource="<%=DS_Func(2)%>" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+	                    <Columns>
+                            <div style="padding:1px;width:35px;height:35px;" class="block">
+                                <pe:item gsid='<%=Eval("gsid")%>' ShowCount = '<%=Eval("count") %>' style="width:32px;height:32px;" isclickable="false"/>
+                            </div>            
+	                    </Columns>
+	                    <EmptyDataTemplate>
+	                    </EmptyDataTemplate>
+	                    <FetchingDataTemplate>
+	                    </FetchingDataTemplate>
+                    </pe:gridview>      
+                </div>
+            </div>
+        </div>
+        <div style = "margin-top:3px;margin-left:5px;width:365px;height:75px;" class="panel_red">
+            <div style = "float:left;margin-left:8px;margin-top:5px;width:64px;height:64px;" >
+                <pe:item gsid = "<%=GetGiftBag(3)%>" isclickable = "false" style = "width:64px;height:64px;" class="highbluecolor"/>
+            </div>
+            <div style = "float:left;margin-top:-3px;width:290px;height:75px;">
+                <div style = "margin-top:10px;margin-left:10px;height:30px;">
+                    <div style = "float:left;width:190px;">
+                        <%=GetGiftDes(3)%>
+                    </div>
+                    <input name = "3" type="button" value = "3枚币兑换" style = "float:left;margin-top:-4px;width:85px;height:28px;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "BuyGiftBag" />
+                </div>
+                <div style="margin-left:5px;margin-top:-5px;height:37px;">
+                    <pe:gridview name="itemInGiftBag" DataSource="<%=DS_Func(3)%>" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+	                    <Columns>
+                            <div style="padding:1px;width:35px;height:35px;" class="block">
+                                <pe:item gsid='<%=Eval("gsid")%>' ShowCount = '<%=Eval("count") %>' style="width:32px;height:32px;" isclickable="false"/>
+                            </div>            
+	                    </Columns>
+	                    <EmptyDataTemplate>
+	                    </EmptyDataTemplate>
+	                    <FetchingDataTemplate>
+	                    </FetchingDataTemplate>
+                    </pe:gridview>      
+                </div>
+            </div>
+        </div>
+        <div style = "margin-top:3px;margin-left:5px;width:365px;height:75px;" class="panel_red">
+            <div style = "float:left;margin-left:8px;margin-top:5px;width:64px;height:64px;" >
+                <pe:item gsid = "<%=GetGiftBag(4)%>" isclickable = "false" style = "width:64px;height:64px;" class="highbluecolor"/>
+            </div>
+            <div style = "float:left;margin-top:-3px;width:290px;height:75px;">
+                <div style = "margin-top:10px;margin-left:10px;height:30px;">
+                    <div style = "float:left;width:190px;">
+                        <%=GetGiftDes(4)%>
+                    </div>
+                    <input name = "4" type="button" value = "3枚币兑换" style = "float:left;margin-top:-4px;width:85px;height:28px;base-font-size:14;font-weight:bold;font-size:14px;color:#cccc00;background:url(Texture/Aries/Common/ThemeKid/purple_btn_32bits.png#0 0 32 23:10 10 10 10)" onclick = "BuyGiftBag" />
+                </div>
+                <div style="margin-left:5px;margin-top:-5px;height:37px;">
+                    <pe:gridview name="itemInGiftBag" DataSource="<%=DS_Func(4)%>" ItemsPerLine="8" AllowPaging="false" pagesize="8">
+	                    <Columns>
+                            <div style="padding:1px;width:35px;height:35px;" class="block">
+                                <pe:item gsid='<%=Eval("gsid")%>' ShowCount = '<%=Eval("count") %>' style="width:32px;height:32px;" isclickable="false"/>
+                            </div>            
+	                    </Columns>
+	                    <EmptyDataTemplate>
+	                    </EmptyDataTemplate>
+	                    <FetchingDataTemplate>
+	                    </FetchingDataTemplate>
+                    </pe:gridview>      
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style = "margin-left:20px;margin-top:10px;color:#000000;">
+        充值返利玩法说明：<br/>
+        <!--1、每充值10元(100魔豆)，即可获得1枚菠萝币。<input type="button" style = "float:left;margin-top:-3px;margin-left:5px;width:27px;height:22px;background:url(Texture/Aries/Common/ThemeKid/character/pay_32bits.png#0 0 27 22);" onclick = "MyCompany.Aries.HaqiShop.BuyMagicBean" /><br/>-->
+        1、每种礼包的售价都是3枚菠萝币，等级越高可以兑换的畅游礼包越丰富。<br/>
+        2、本次充值活动无上限，比如一次充值100元(1000魔豆)，系统会赠送10枚菠萝币。<br/>
+        3、本次充值活动时间为：2013年7月1日-8月29日
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,83 @@
+﻿<!-- "script/apps/Aries/Desktop/Dock/AutoTip.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="AutoTips.lua"><![CDATA[
+local page = document:GetPageCtrl();
+local tiptype = page:GetRequestParam("tiptype");
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+
+MyCompany.Aries.Desktop.AutoTips.OnInit(tiptype);
+
+function ClosePage()
+    page:CloseWindow();    
+end
+
+function DS_Func_AutoTip(index)
+    return MyCompany.Aries.Desktop.AutoTips.DS_Func_AutoTip(index);
+end
+
+function doClick(name)
+    MyCompany.Aries.Desktop.AutoTips.ClickBtn(name);       
+end
+
+GuideElfasset_table = {
+    name = "guideElf",
+    AssetFile="character/v3/PurpleDragonEgg/PurpleDragonEgg.xml",
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+]]></script>
+<div style="width:465px;height:165px;">
+<!--<div style="float:left;margin-left:0px;margin-top:0px;width:86px;height:106px;background:url(texture/aries/dock/babydragon_32bits.png# 0 0 86 106)" ></div>-->
+<div style="position:relative;margin-left:-10px;margin-top:40px;" >
+    <pe:canvas3d name="guideElf" style="width:100px;height:100px;" DefaultRotY="-1.27" DefaultCameraObjectDist = "2.5" IsInteractive="false" LookAtHeight="0.1" DefaultLiftupAngle="0.5" RenderTargetSize="100" miniscenegraphname='guideelf' value='<%=commonlib.serialize(Eval("GuideElfasset_table"))%>'/>
+</div>
+<div style="float:left;margin-left:20px;margin-top:55px;width:430px;height:150px;background:url(Texture/Aries/Common/bg.png#0 0 64 64: 14 14 14 14);">
+    <div style="position:relative;margin-left:400px;margin-top:-10px;">
+        <input style="width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage" value=""/>
+    </div>        
+
+    <div style="margin-left:15px;margin-top:15px;">
+     <div style="margin-left:38px;">你好，我是向导小精灵，温馨提示小哈奇：</div>
+    <pe:gridview DataSource="<%=DS_Func_AutoTip%>" name="autotips" style="margin-left:0px;margin-top:10px;margin-right:0px;margin-bottom:0px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "60" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>  
+            <div style="margin-left:80px;margin-left:0px;width:390px;height:60px;">              
+                <img style="margin-left:-5px;width:24px;height:24px;background:url(texture/aries/dock/web/Feed_32bits.png# 0 0 64 64)" /> <%=Eval("tip") %>
+                <div style="float:left;margin-left:15px;margin-top:10px;width:78px;height:30px;">
+                    <input type="button" onclick='doClick'  name='<%=Eval("index")%>' zorder="2" value='<%=Eval("tipbtn")%>' style="float:left;margin-top:0px;width:78px;height:30px;background:url(Texture/Aries/Common/btnon_bg32_32bits.png:14 14 14 14);"/>                    
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>现在没有新的提示信息哦！</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;"></div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom"  style="margin-left:300px;margin-top:-110px;width:100px;height:22px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" zorder=2 style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_left.png#0 0 21 21)"/>
+                <div style="float:left;margin-top:2px;">
+	                <label name="page" style="color:#FFFFFF;text-align:center;width:32px;height:18px;margin:0px"/>
+	            </div>
+	            <input type="button" name="next" zorder=2 style="width:21px;height:21px;background:url(Texture/Aries/Desktop/CombatCharacterFrame/common/arrow_right.png#0 0 21 21)"/>
+	        </form>
+	    </PagerTemplate>
+
+    </pe:gridview>
+</div>
+</div>
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,87 @@
+﻿<!-- "script/kids/3DMapSystemApp/Login/LoginPage.html?cmdredirect" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Login Page</title>
+</head>
+<body>
+<pe:mcml>
+  <script type="text/npl">
+    <![CDATA[
+    function OnInit()
+	    local self = document:GetPageCtrl();
+	    local bRememberPassword = Map3DSystem.App.Login.app:ReadConfig("rememberpassword", false);
+	    self:SetNodeValue("rememberpassword", bRememberPassword);
+	    if(bRememberPassword) then
+	        self:SetNodeValue("username", Map3DSystem.User.Name);
+	        self:SetNodeValue("password", Map3DSystem.User.Password);
+	    end
+    end
+    OnInit()
+    
+    function OnClickConnect(btnName, values)
+        NPL.load("(gl)script/kids/3DMapSystemApp/Login/LoginProcedure.lua");
+	    paraworld.ShowMessage("正在验证用户身份, 请等待...", function() 
+	        OnClickConnect(btnName, values)
+	    end, _guihelper.MessageBoxButtons.RetryCancel)
+    	
+    	local pageCtrl = document:GetPageCtrl();
+	    Map3DSystem.App.Login.Proc_Authentication(values, function ()
+	        if(pageCtrl) then
+	            paraworld.ShowMessage();
+	            local cmdredirect = pageCtrl:GetRequestParam("cmdredirect");
+	            pageCtrl:CloseWindow()
+	            
+	            if(cmdredirect) then
+	                Map3DSystem.App.Commands.Call(cmdredirect);
+	            end
+	        end
+	    end, true);
+    end
+    ]]>
+  </script>
+<!--user is not logged in, show some news-->
+<pe:if-is-user uid="notloggedinuser">
+  <pe:editor style="background:;">
+    <div style="margin:10px;color:#006600">请输入用户名和密码</div>
+    <hr />
+    <div style="width:120px;float:left;text-align:right">用户名:</div><input type="text" name="username" style="width:125px"/><br />
+    <div style="width:120px;float:left;text-align:right">密码:</div><input type="password" name="password" style="width:125px"/><br />
+    <div style="margin-left:120px;"><input type="checkbox" name="rememberpassword"/>记住密码</div><br />
+    <div style="width:120px;float:left;text-align:right">域名: </div><select name="domain">
+        <option selected="selected" value="pala5.com">pala5.com</option>
+        <option value="test.pala5.cn">test.pala5.cn</option>
+     </select>
+     <hr />
+     <div style="margin-left:120px;">
+         <input DefaultButton="true" class="defaultbutton" type="submit" name="login" value="登录" onclick="OnClickConnect"/>
+         <div style="float:left;margin-left:10px;"><a target="_mcmlblank" href="NewUserRegPage.html">注册新用户</a></div>
+     </div>
+     <img style="margin:5px;background:url(Texture/3DMapSystem/brand/paraworld_text_256X128.png);width:128px;height:64px;"/>
+     <div style="float:left;margin-top:40px"><a style="color:#808080;" href="http://www.pala5.com">http://www.pala5.com</a></div>
+  </pe:editor>
+</pe:if-is-user>
+
+<!--user is online, show home page-->
+<pe:if-is-user uid="loggedinuser">
+    <div style="background:;padding:10px" height="100%" width="100%" class="box">
+        <div style="float:left;">
+            <pe:profile-photo uid="loggedinuser" width="120" height="90"/>
+        </div>
+        <div style="float:left;margin-left:10px">
+            <a href="script/kids/3DMapSystemApp/profiles/ProfileRegPage.html" target="_mcmlblank"><pe:name uid="loggedinuser" useyou="false" linked="false" style="font-weight:bold;"/><span>(编辑档案)</span></a><span style="margin:5px">您已经成功登陆!</span><br />
+            <hr />
+        </div>
+        <hr />
+        <a href="LoggedInHomePage.html" target="_mcmlblank"><img style="margin-top:2px;margin-right:10px; background:url(Texture/3DMapSystem/common/rainbow.png);width:16px;height:16px;" />打开我的首页</a>
+        <hr />
+        <img style="margin:5px;background:url(Texture/3DMapSystem/brand/paraworld_text_256X128.png);width:128px;height:64px;"/>
+        <div style="float:left;margin-top:40px"><a style="color:#808080;" href="http://www.pala5.com">http://www.pala5.com</a></div>
+    </div>
+</pe:if-is-user> 
+</pe:mcml>
+</body>
+</html>
+
+
+

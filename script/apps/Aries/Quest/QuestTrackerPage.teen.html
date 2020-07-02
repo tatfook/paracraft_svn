@@ -1,0 +1,556 @@
+﻿<!-- "script/apps/Aries/Quest/QuestTrackerPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/Service/CommonClientService.lua");
+local CommonClientService = commonlib.gettable("MyCompany.Aries.Service.CommonClientService");
+NPL.load("(gl)script/apps/Aries/Quest/QuestPathfinderNavUI.lua");
+local QuestPathfinderNavUI = commonlib.gettable("MyCompany.Aries.Quest.QuestPathfinderNavUI");
+
+NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+NPL.load("(gl)script/apps/Aries/Quest/NPCList.lua");
+local NPCList = commonlib.gettable("MyCompany.Aries.Quest.NPCList");
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestListPage.lua");
+local QuestListPage = commonlib.gettable("MyCompany.Aries.Quest.QuestListPage");
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestTrackerPage.lua");
+local QuestTrackerPage = commonlib.gettable("MyCompany.Aries.Quest.QuestTrackerPage");
+QuestTrackerPage.OnInit()
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestPane.lua");
+local QuestPane = commonlib.gettable("MyCompany.Aries.Quest.QuestPane");
+	
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+    QuestTrackerPage.ClosePage();
+end
+function showQuestInListPage(id)
+    id = tonumber(id);
+    local provider = QuestClientLogics.GetProvider();
+   
+    if(provider and id)then
+        local hasAccept = provider:HasAccept(id);
+        local type = "accepted_quest";
+        if(not hasAccept)then
+            type = "can_accept_quest";
+        end
+        QuestPane.ShowPage(type,id);
+    end
+end
+function GetData()
+    return QuestTrackerPage.sort_list;
+end
+function GetSortList()
+    return QuestTrackerPage.sort_list;
+end
+function HasPos(goalid)
+    local item_info = QuestHelp.GetItemInfoByID(goalid);
+    if(item_info)then
+        return true;
+    end
+end
+--是否具有跳转函数 优先级高于跳转坐标
+function has_help_func(key,map,id)
+    if(key and map and id)then
+		if(key == "StartNPC" or key == "EndNPC" or key == "ClientDialogNPC" or key == "ClientExchangeItem")then
+			return false;
+		else
+			local item = map[id];
+			if(item)then
+				local helpfunction = item.helpfunction;
+				if(helpfunction and helpfunction ~= "")then
+					return true,helpfunction;
+				end
+			end
+		end
+	end
+end
+function do_help_func(func_str)
+	if(func_str)then
+		local func = commonlib.getfield(func_str);
+		if(func)then
+			func();
+		end
+	end
+end
+function GetNPCStr(questid,property)
+    if(not questid)then return end
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    local id = template[property];
+    local item_desc = QuestHelp.GetQuestItemDescription(id);
+    if(not item_desc)then return end
+
+    local find_path = GetFindPathStr(questid,id);
+    local jump = GetJumpStr(questid,id,property)
+
+    local worldname = item_desc.worldname;
+    if(not worldname)then
+        worldname = QuestHelp.WorldNumToWorldName(item_desc.world);
+    end
+    local world_info = WorldManager:GetWorldInfo(worldname) or {};
+
+    local same_world;
+    if(world_info.name and world_info.name == worldname)then
+        same_world = true;
+    end
+    local s = string.format("%s(%s)",item_desc.label or "",item_desc.place or "");
+    if( not same_world)then
+        s = string.format("%s(%s)",item_desc.label or "",world_info.name or "");
+    end
+    if(not HasPos(id))then
+        find_path = "";
+        jump = "";
+    end
+    local button_str = string.format([[<input type="button" value="%s" onclick="DoFindPath()" tooltip="寻路" name="%d_%d"  style="width:180px;height:18px;text-align:left;background:"/>]],s,questid,id);
+    s = string.format([[<div style="float:left;margin-left:20px;width:18px;">%s</div><div style="float:left;">%s</div><div style="float:left">%s</div>]],find_path,button_str,jump);
+    return s;
+end
+
+function GetGoalStr_GoalItem(questid,property,producer_id,id,value,max_value)
+    if(not questid or not producer_id or not id)then return end
+    local item_desc_producer = QuestHelp.GetQuestItemDescription(producer_id);
+    local item_desc = QuestHelp.GetQuestItemDescription(id);
+    if(not item_desc_producer or not item_desc)then return end
+
+    local type_str_1 = "找到";
+	local type_str_2 = "个";
+    local find_path = GetFindPathStr(questid,producer_id);
+    local jump = GetJumpStr(questid,producer_id,"None")
+    s = string.format("%s%s%d%s(%d/%d)",type_str_1,item_desc.label,max_value,type_str_2,value,max_value);
+    local enabled="true";
+    if(not HasPos(producer_id))then
+        find_path = "";
+        jump = "";
+        enabled="false";
+    end
+    local __,temp_map = QuestHelp.GetGoalList();
+    local has_help_func,func_str = has_help_func(property,temp_map,producer_id);
+    if(has_help_func)then
+        jump = GetJumpStr_HelpFunc(func_str);
+        enabled="false";
+    end
+    local button_str = string.format([[<input type="button" value="%s" enabled="%s" onclick="DoFindPath()" tooltip="寻路" name="%d_%d" style="width:180px;height:18px;text-align:left;background:"/>]],s,enabled,questid,producer_id);
+    s = string.format([[<div style="float:left;margin-left:20px;width:18px;">%s</div><div style="float:left;">%s</div><div style="float:left">%s</div>]],find_path,button_str,jump);
+    return s;
+end
+function GetGoalStr(questid,property,id,value,max_value)
+    if(not questid or not id)then return end
+    local item_desc = QuestHelp.GetQuestItemDescription(id);
+    if(not item_desc)then return end
+    local s;
+    local __,temp_map;
+
+    local type_str_1;
+	local type_str_2;
+    if(property == "Goal")then
+        type_str_1 = "消灭";
+		type_str_2 = "个";
+        __,temp_map = QuestHelp.GetGoalList();
+    elseif(property == "GoalItem")then
+        type_str_1 = "找到";
+		type_str_2 = "个";
+    elseif(property == "ClientGoalItem")then
+        type_str_1 = "收集";
+		type_str_2 = "个";
+        __,temp_map = QuestHelp.GetClientItemList();
+    elseif(property == "ClientExchangeItem")then
+        type_str_1 = "合成";
+		type_str_2 = "次";
+    elseif(property == "FlashGame")then
+        type_str_1 = "玩小游戏";
+		type_str_2 = "次";
+    elseif(property == "ClientDialogNPC")then
+        type_str_1 = "对话";
+		type_str_2 = "次";
+    elseif(property == "CustomGoal")then
+        type_str_1 = "获得";
+		type_str_2 = "个";
+        __,temp_map = QuestHelp.GetCustomGoalList();
+    end
+    if(property == "GoalItem")then
+        return
+    end
+    local find_path = GetFindPathStr(questid,id);
+    local jump = GetJumpStr(questid,id,property)
+    --自定义显示标签
+	local customlabel = item_desc.customlabel;
+    if(customlabel)then
+        customlabel = string.format(customlabel,max_value);
+        s = string.format("%s(%d/%d)",customlabel,value,max_value);
+    else
+        s = string.format("%s%s%d%s(%d/%d)",type_str_1,item_desc.label,max_value,type_str_2,value,max_value);
+    end
+    local enabled="true";
+    if(not HasPos(id))then
+        find_path = "";
+        jump = "";
+        enabled="false";
+    end
+    local has_help_func,func_str = has_help_func(property,temp_map,id);
+    if(has_help_func)then
+        jump = GetJumpStr_HelpFunc(func_str);
+        enabled="false";
+    end
+    local button_str = string.format([[<input type="button" value="%s" onclick="DoFindPath()" tooltip="寻路" name="%d_%d" style="width:180px;height:18px;text-align:left;background:"/>]],s,questid,id);
+    s = string.format([[<div style="float:left;margin-left:20px;width:18px;">%s</div><div style="float:left;">%s</div><div style="float:left">%s</div>]],find_path,button_str,jump);
+    return s;
+end
+function GetFindPathStr(questid,id)
+    local is_active = QuestTrackerPage.FindPath_IsActive(questid,id);
+    local temp_value = "";
+    local img_path = "Texture/Aries/Common/ThemeTeen/others/quest_findpath_2_32bits.png";
+    if(is_active)then
+        img_path = "Texture/Aries/Common/ThemeTeen/others/quest_findpath_32bits.png";
+    end
+    local find_path = string.format([[<input type="button" onclick="DoFindPath()" name="%d_%d" value="" tooltip="寻路" style="margin-top:2px;width:16px;height:16px;background:url(%s)"/>]],questid,id,img_path)
+    return find_path;
+end
+function GetJumpStr(questid,id,type)
+    local jump = string.format([[<input type="button" name="%d_%d_%s" onclick="DoJump()" zorder="2" tooltip="立即过去" style="float:left;width:16px;height:16px;margin-top:2px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_32bits.png)"/>]],questid,id,type);
+    return jump;
+end
+function GetJumpStr_HelpFunc(func_str)
+    local jump = string.format([[<input type="button" name="%s" onclick="do_help_func()" zorder="2" tooltip="立即过去" style="float:left;width:16px;height:16px;margin-top:2px;background:url(Texture/Aries/Common/ThemeTeen/others/quest_jump_32bits.png)"/>]],func_str or "");
+    return jump;
+end
+function DoFindPath(sName)
+    if(not sName)then return end
+    local questid,goalid = string.match(sName,"(.+)_(.+)");
+    questid = tonumber(questid);
+    goalid = tonumber(goalid);
+    if(not questid or not goalid)then return end
+    if(WorldManager:IsInInstanceWorld())then
+        _guihelper.MessageBox("你目前在副本当中，不能追踪！");
+        return
+    end
+    local is_active = QuestTrackerPage.FindPath_IsActive(questid,goalid);
+    if(false and is_active and mouse_button=="right")then
+        QuestTrackerPage.FindPath_Active(nil, nil);
+        pageCtrl:Refresh(0.1);
+    else
+        QuestTrackerPage.FindPath_Active(questid,goalid);
+	    pageCtrl:Refresh(0.1);
+    end
+end
+function DoJump(sName)
+    if(not sName)then return end
+    local questid,goalid,goaltype = string.match(sName,"(.+)_(.+)_(.+)");
+    questid = tonumber(questid);
+    goalid = tonumber(goalid);
+    if(not questid or not goalid)then return end
+    if(WorldManager:IsInInstanceWorld())then
+        _guihelper.MessageBox("你目前在副本当中，不能跳转！");
+        return
+    end
+    local item_info;
+    --同步追踪目标
+    if(QuestTrackerPage.FindPath_IsActive(questid,goalid))then
+        item_info = QuestTrackerPage.FindPath_Active(questid,goalid);
+    else
+        item_info = QuestHelp.GetItemInfoByID(goalid,true);
+    end
+    if(item_info)then
+        local worldname = item_info.worldname;
+        local Position = {item_info.x,item_info.y,item_info.z};
+		local CameraPosition = { item_info.camera_x,item_info.camera_y,item_info.camera_z};
+        local npc_id;
+        if(goaltype == "StartNPC" or goaltype == "EndNPC" or goaltype == "ClientDialogNPC")then
+            npc_id = item_info.id;
+            local facing = item_info.facing or 0;
+            facing = facing + 1.57
+            local radius = 5;
+            local  x,y,z = item_info.x,item_info.y,item_info.z;
+            x = x + radius * math.sin(facing);
+			z = z + radius * math.cos(facing);
+            Position = {x,y,z, facing+1.57};
+			CameraPosition = { 15, 0.27, facing + 1.57 - 1};
+        else
+            Position = {item_info.x,item_info.y,item_info.z};
+			CameraPosition = { item_info.camera_x,item_info.camera_y,item_info.camera_z};
+        end
+        WorldManager:GotoWorldPosition(worldname,Position,CameraPosition,nil,function()
+            local TargetArea = commonlib.gettable("MyCompany.Aries.Desktop.TargetArea");
+            QuestTrackerPage.FindPath_ReActive();
+            if(npc_id)then
+			    TargetArea.TalkToNPC(npc_id, nil, false);
+            end
+        end);
+    end
+    QuestTrackerPage.HideHelpTooltip_Jump();
+end
+function HasItems()
+    if(QuestTrackerPage.sort_list)then
+        local len = #QuestTrackerPage.sort_list;
+        if(len > 0)then
+            return true;
+        end
+    end
+end
+
+function isExpanded()
+    return QuestTrackerPage.is_expanded;
+end
+function ClearAll()
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    _guihelper.Custom_MessageBox("确认要取消所有的任务追踪吗？",function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            QuestTrackerPage.ClearData();
+            QuestTrackerPage.ClosePage();
+		    QuestTrackerPage.ShowPage();
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo,{yes = "Texture/Aries/Common/OK_32bits.png; 0 0 153 49", no = "Texture/Aries/Common/Cancel_32bits.png; 0 0 153 49"});
+end
+function doExpanded()
+    if(QuestTrackerPage.is_expanded)then
+        QuestTrackerPage.is_expanded = false;
+    else
+        QuestTrackerPage.is_expanded = true;
+    end
+    QuestTrackerPage.SaveState();
+    QuestTrackerPage.Refresh();
+end
+function isEmpty()
+    return QuestTrackerPage.IsEmpty();
+end
+function HasAccept(index)
+    index = tonumber(index);
+    local node = QuestTrackerPage.sort_list[index];
+    local id = node.questid;
+    local provider = QuestClientLogics.GetProvider();
+    if(provider and id)then
+        local hasAccept = provider:HasAccept(id);
+        return hasAccept,id
+    end
+end
+function CanAccpet(index)
+     index = tonumber(index);
+    local node = QuestTrackerPage.sort_list[index];
+    local id = node.questid;
+    local provider = QuestClientLogics.GetProvider();
+    if(provider and id)then
+        local canAccept = provider:CanAccept(id);
+        return canAccept,id
+    end
+end
+function CanFinished(index)
+     index = tonumber(index);
+    local node = QuestTrackerPage.sort_list[index];
+    local id = node.questid;
+    local provider = QuestClientLogics.GetProvider();
+    if(provider and id)then
+        local canFinished = provider:CanFinished(id);
+        return canFinished,id
+    end
+end
+
+function get_quest_tooltip(index)
+    local canAccept,id = CanAccpet(index);
+    local hasAccept,id = HasAccept(index);
+    local canFinished,id = CanFinished(index);
+    local desc="";
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[id];
+    if(template)then
+        desc = string.format("<b>任务标题:</b>%s<br/><b>任务描述:</b>%s",template.Title,template.Detail)
+    end
+    return CommonClientService.GetTooltipString(desc)
+end
+
+function get_quest_id(index)
+    local _,id = CanFinished(index);
+    return id;
+end
+
+function getBtn(index)
+    local canAccept,id = CanAccpet(index);
+    local hasAccept,id = HasAccept(index);
+    local canFinished,id = CanFinished(index);
+    local desc="";
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[id];
+    if(template)then
+        desc = string.format("<b>任务标题:</b>%s<br/><b>任务描述:</b>%s",template.Title,template.Detail)
+    end
+    local tooltip=CommonClientService.GetTooltipString(desc)
+    if(canAccept)then
+        s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" tooltip="%s" tooltip_offset_x="-180" tooltip_offset_y="-100" style="margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark1_32bits.png);"/>]],id,tooltip)
+    elseif(hasAccept and canFinished)then
+        s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" tooltip="%s" tooltip_offset_x="-180" tooltip_offset_y="-100" style="margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark2_32bits.png);"/>]],id,tooltip)
+    elseif(hasAccept and not canFinished)then
+        s = string.format([[<input type="button" onclick="showQuestInListPage()" name="%d" tooltip="%s" tooltip_offset_x="-180" tooltip_offset_y="-100" style="margin-top:2px;width:16px;height:16px;background:url(Texture/Aries/Common/ThemeTeen/others/mark7_32bits.png);"/>]],id,tooltip)
+    end
+    return s;
+end
+
+function getState(index)
+    if(CanAccpet(index))then
+        return "(可接)";
+    elseif(HasAccept(index) and CanFinished(index))then
+        return "(完成)";
+    elseif(HasAccept(index) and not CanFinished(index))then
+        return "(进行)";
+    end
+end
+function getQuestGroup1(index)
+    index = tonumber(index);
+    local node = QuestTrackerPage.sort_list[index];
+    local questid = node.questid;
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+	local template = templates[questid];
+    if(template)then
+        return template.QuestGroup1 or 0;
+    end
+end
+function OnClickOpenQuest()
+    MyCompany.Aries.Desktop.Dock.FireCmd("QuestPane.ShowPage");
+end
+]]></script>
+<pe:powerpoint name="TooltipsPPT" value="" style="position:relative;margin-top:-40px;margin-left:80px;width:150px;height:70px;">
+	<div name="howtouse">
+        <div class="anchor_tooltip_bg" style="margin-left:10px;margin-top:0px;">
+			使用传送石可以直接跳转到目的地！
+		</div>
+        <input type="button" class="anchor_tooltip_downarrow" style="float:left;margin-top:-7px;margin-left:120px;" />
+	</div>
+</pe:powerpoint>
+<div style="width:250px;height:240px;">
+    <pe:container ClickThrough="true" name="canvas" style="width:250px;height:22px;background:;">
+        
+        <!--<pe:if condition="<%=HasItems() %>">
+            <input  type="button" onclick="ClearAll" style="position:relative;margin-left:65px;margin-top:-2px;color:#cdfffe;background:" value="取消追踪" />
+        </pe:if>-->
+        <pe:if condition="<%=isExpanded() %>">
+            <input type="button" onclick="OnClickOpenQuest" tooltip="点击查看任务列表"  style="float:left;margin-top:0px;width:66px;height:22px;margin-left:165px;background:url(Texture/Aries/MapHelp/tracker/quest_tracker_text_teen_32bits.png#0 0 66 22);" />
+            <input type="button" onclick="doExpanded" tooltip="隐藏任务追踪" style="float:left;margin-top:0px;width:19px;height:22px;background:url(Texture/Aries/MapHelp/tracker/right_arrow_teen_32bits.png#0 0 19 22);" />
+        </pe:if>
+        <pe:if condition="<%=not isExpanded() %>">
+            <div style="float:left;width:66px;height:22px;margin-left:165px;" />
+            <input  type="button" onclick="doExpanded" tooltip="显示任务追踪" style="float:left;margin-top:0px;width:19px;height:22px;background:url(Texture/Aries/MapHelp/tracker/left_arrow_teen_32bits.png#0 0 19 22);" />
+        </pe:if>
+    </pe:container>
+<pe:if condition="<%=isExpanded() and not isEmpty()%>">
+<pe:container name="canvas_content" ClickThrough="true" style='background-color:#00000060;margin-left:10px;background:url(Texture/whitedot.png)' >
+<div style="width:240px;font-size:12px;padding-top:4px;padding-bottom:4px;color:#00fefa;">
+<pe:repeat DataSource="<%=GetData()%>">
+    <pe:repeatitem>
+        <div>
+            <aries:quest questid='<%=Eval("questid")%>' >
+                    <div style="float:left;margin-left:4px;"><%=getBtn(Eval("index")) %></div>
+                    <div style="float:left;" onclick="showQuestInListPage" name='<%=get_quest_id(Eval("index"))%>' tooltip='<%=get_quest_tooltip(Eval("index")) %>' >
+                        <pe:if condition='<%=getQuestGroup1(Eval("index")) == 0 %>'>
+                            <aries:quest_item class="defaultcolor" property="Title_Track" style="float:left;margin-left:4px;color:#00fefa;"/>
+                        </pe:if>
+                        <pe:if condition='<%=getQuestGroup1(Eval("index")) ~= 0 %>'>
+                            <aries:quest_item class="defaultcolor" property="Title_Track" style="float:left;margin-left:4px;color:#9aff48;"/>
+                        </pe:if>
+                    </div>
+                     <pe:if condition = '<%=CanAccpet(Eval("index")) %>'>
+                        <br />
+                        <div><%=GetNPCStr(Eval("questid"),"StartNPC") %></div>
+                    </pe:if>
+                     <pe:if condition = '<%=CanFinished(Eval("index"))  and HasAccept(Eval("index")) %>'>
+                         <br />
+                        <div><%=GetNPCStr(Eval("questid"),"EndNPC") %></div>
+                    </pe:if>
+                    <pe:if condition = '<%=not CanFinished(Eval("index")) and HasAccept(Eval("index")) %>'>
+                    
+                    <aries:quest_repeat_item property="Goal">
+                    <pe:repeatitem>
+                            <div>
+                                <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                    <%=GetGoalStr(Eval("_internal_quest_id"),"Goal",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                </pe:if>
+                            </div>
+                    </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="GoalItem">
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr_GoalItem(Eval("_internal_quest_id"),"GoalItem",Eval("producer_id"),Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                                </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="ClientGoalItem">
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr(Eval("_internal_quest_id"),"ClientGoalItem",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                            </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="ClientExchangeItem">
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr(Eval("_internal_quest_id"),"ClientExchangeItem",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                            </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="FlashGame">
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr(Eval("_internal_quest_id"),"FlashGame",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                            </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="ClientDialogNPC">
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr(Eval("_internal_quest_id"),"ClientDialogNPC",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                            </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    <aries:quest_repeat_item property="CustomGoal" >
+                        <pe:repeatitem>
+                                <div>
+                                    <pe:if condition='<%=Eval("value") < Eval("max_value") %>'>
+                                        <%=GetGoalStr(Eval("_internal_quest_id"),"CustomGoal",Eval("id"),Eval("value"),Eval("max_value")) %>
+                                    </pe:if>
+                            </div>
+                        </pe:repeatitem>
+                    </aries:quest_repeat_item>
+                    <br />
+                    </pe:if>
+                </aries:quest>
+        </div>
+    </pe:repeatitem>
+</pe:repeat>
+</div>
+</pe:container>
+</pe:if>
+</div>
+<%=MyCompany.Aries.Quest.QuestTrackerPage.OnCanvasCreated()%>
+</pe:mcml> 
+</body>
+</html>

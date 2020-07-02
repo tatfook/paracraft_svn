@@ -1,0 +1,52 @@
+<!-- "script/apps/Aquarius/Inventory/InventoryBagPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Inventory Bag Page 2009.2.10 by WangTian</title>
+</head>
+<body>
+<pe:mcml trans="ParaworldMCML">
+
+<script refresh="false" type="text/npl" src="InventoryBagPage.lua"><![CDATA[
+MyCompany.Aquarius.InventoryBagPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+class = tonumber(pageCtrl:GetRequestParam("class"));
+subclass = tonumber(pageCtrl:GetRequestParam("subclass"));
+
+-- status: nil not available, 1 fetching, 2 fetched. 
+dsItems = Eval("dsItems") or {status=nil, };
+
+function DS_Func_Items(index)
+    return MyCompany.Aquarius.InventoryBagPage.DS_Func(dsItems, index, nil, pageCtrl, class, subclass)
+end
+
+]]></script>
+    
+    <!--<pe:item guid='1' size="normal"/>
+    <pe:item guid='2' size="normal"/>
+    <pe:item guid='3' size="normal"/>
+    <pe:item guid='4' size="normal"/>
+    <pe:item guid='5' size="normal"/>
+    <pe:item guid='6' size="normal"/>
+    <pe:item guid='7' size="normal"/>-->
+    
+    <pe:gridview DataSource="<%=DS_Func_Items%>" name="DS_Func_Items" CellPadding="0" DefaultNodeHeight = "32" ItemsPerLine="8">
+        <Columns>
+            <!--<div style="float:left;padding:8px;background:url(Texture/3DMapSystem/Inventory/SlotBG.png: 8 8 8 8)">-->
+                <div style="width:40px;height:40px">
+                    <!--<pe:item bag='<%=Eval("bag")%>' slot='<%=Eval("slot")%>' size="small"/>-->
+                    <!--<pe:slot bag='<%=Eval("bag")%>' slot='<%=Eval("slot")%>' width="40" height="40" size="small"/>-->
+                    <pe:slot link='<%=Eval("slot")%>' width="40" height="40" size="small"/>
+                </div>
+            <!--</div>-->
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+    </pe:gridview>
+</pe:mcml>
+</body>
+</html>

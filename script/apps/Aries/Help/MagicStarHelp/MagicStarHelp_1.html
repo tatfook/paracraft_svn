@@ -1,0 +1,59 @@
+<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatMagicStarPage.lua");
+local CombatMagicStarPage = commonlib.gettable("MyCompany.Aries.Desktop.CombatMagicStarPage");
+local page = document:GetPageCtrl();
+local MagicStarHelpPage = commonlib.gettable("MyCompany.Aries.Help.MagicStarHelpPage");
+MagicStarHelpPage.TabValue = MagicStarHelpPage.TabValue or "1";
+
+
+function DS_Func_PropAdd(index)
+    if(index == nil) then
+        return 1;
+	else
+		return CombatMagicStarPage.SpecialList[index];
+	end	
+end
+function ShowValue(v)
+    if(not v)then return end
+    local s = string.format("%s%%",v);
+    return s;
+end
+]]></script>
+
+<div style="margin-left:-10px;margin-top:-2px;width:402px;height:372px;background:url(Texture/Aries/Common/right_bg.png#0 0 64 64: 20 20 20 20);">
+    <div style="color:#022a57;font-weight:bold;font-size:14;margin-left:40px;margin-top:10px;">魔法星能够提升战斗属性，大大增加战斗力！</div>
+    <div style="color:#022a57;font-size:12;width:364px;height:316px;margin-top:5px;margin-left:15px;background:url(Texture/Aries/MapHelp/MagicStarHelp/PropAdd_right_bg.png#0 0 364 316);">
+    <pe:gridview DataSource="<%=DS_Func_PropAdd%>" name="propAdd" style="margin-left:65px;margin-top:42px;margin-right:0px;margin-bottom:0px;width:364px;height:315px;" 
+        VerticalScrollBarStep="35" CellPadding="1"  DefaultNodeHeight = "24" ItemsPerLine="1" AllowPaging="true" pagesize="11">
+        <Columns> 
+           <div style="float:left;margin-left:5px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("HP")) %></div>
+            <div style="float:left;margin-left:10px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("attack")) %></div>
+            <div style="float:left;margin-left:10px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("guard")) %></div>
+            <div style="float:left;margin-left:10px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("cure")) %></div>
+            <div style="float:left;margin-left:20px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("becured")) %></div>
+            <div style="float:left;margin-left:15px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("hit")) %></div>
+            <div style="float:left;margin-left:15px;width:30px;text-align:center;margin-top:0px;font-size:12;" ><%=ShowValue(Eval("exp")) %></div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:-20px;margin-top:10px;width:100px;height:21px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

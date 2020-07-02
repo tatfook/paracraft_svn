@@ -1,0 +1,88 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/30419_SirBanana_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30419_SirBanana.lua" ><![CDATA[
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function hasPet()
+    return hasGSItem(10154);
+end
+function hasFourPet()
+    return hasGSItem(10150) and hasGSItem(10151) and hasGSItem(10152) and hasGSItem(10153);
+end
+function getPet()
+  ItemManager.ExtendedCost(727, nil, nil, function(msg) 
+        commonlib.echo("==========Get_10154_Pet_SirBanana ExtendedCost");
+		commonlib.echo(msg);
+		if(msg and msg.issuccess)then
+               
+		end
+	end);
+end
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("30419")%>'  entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30419' />
+            <pe:placeholder id="name" source="{this}" value='香蕉先生'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = 'true' target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+		  你想把我带回家吗?我拥有其它水果战宠没有的特殊魔法卡片哦！
+		    <pe:answer template_id = "takeyouhome">
+			    <pe:answer-if condition =  '<%=hasPet() %>' target_state = "3"/>
+			    <pe:answer-if condition =  '<%=not hasFourPet() %>' target_state = "2"/>
+			    <pe:answer-if condition =  'true' transition =  '<%=getPet() %>'target_state = "-1"/>
+		    </pe:answer>
+            <pe:answer template_id = "later">
+			    <pe:answer-if condition =  'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "2">
+		 你还没找齐香橙宝宝、鸭梨山大、菠萝菠萝蜜和草莓姑娘，我才不想跟你回家呢！鸭梨山大在幸运树里，其它的去小镇多找找吧！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition =  'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+        <pe:state id = "3">
+		  你家里已经有香蕉先生了，我就不跟你回去啦！ 
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition =  'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

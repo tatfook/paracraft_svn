@@ -1,0 +1,309 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/CastMachine.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Make Machine,add by WD, 2011/11/08</title>
+</head>
+<body> 
+<pe:mcml>
+<script refresh="false" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/CastMachine.teen.lua");
+CastMachine = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.CastMachine");
+local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+local LearnedSkill_subpage = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage");
+
+CastMachine:Init();
+local page = document.GetPageCtrl();
+function ClosePage()
+    CastMachine:CloseWindow();
+end
+
+function TeleportToMasterNPC()
+    ClosePage()
+    local worldname,position,camera = WorldManager:GetWorldPositionByNPC(CastMachine.LETHE_MASTER_ID);
+    WorldManager:GotoWorldPosition(worldname,position,camera,function()CastMachine:CloseWindow();end);
+end
+
+function OnClickLearnSkill()
+    ClosePage();
+    NPL.load("(gl)script/apps/Aries/NPCs/SnowArea/ForgetSkill.teen.lua");
+    local ForgetSkill = commonlib.gettable("MyCompany.Aries.NPCs.SnowArea.ForgetSkill");
+    ForgetSkill.ShowPage();
+end
+
+function Checkable()
+    if(not CastMachine.SPEC_ID)then return false end
+    local checkable = LearnedSkill_subpage.ItemsCates[CastMachine.SPEC_ID].checkable;
+    return checkable;
+end
+
+function GetNameValue(name,units)
+    name = name or "unknown";
+    if(not units or units == 0)then
+        return name;
+    else
+        return string.format("%s(%s)",name,units)
+    end
+end
+
+function ShowMakable(bChecked)
+    if(MyCompany.Aries.NPCs.SnowArea.MakeItem_subpage.Making)then return end
+    if(LearnedSkill_subpage.MAKABLE)then
+        LearnedSkill_subpage.MAKABLE =  false;
+    else
+        LearnedSkill_subpage.MAKABLE = true;
+    end
+
+    if(page and page.GetNode)then
+		local chkMakableItems = page:GetNode("chkMakableItems");
+		if(chkMakableItems and chkMakableItems.SetAttribute)then
+			chkMakableItems:SetAttribute("checked",LearnedSkill_subpage.MAKABLE);
+		end
+	end
+    page:SetValue("chkMakableItems", LearnedSkill_subpage.MAKABLE);
+    --LearnedSkill_subpage:BuildSpecskillList()
+    CastMachine.EquipListView()
+    CastMachine:AsyncUpdateItems()
+end
+function OnClickItem(arg,mcmlNode)
+    if(mcmlNode)then
+        local arg2 = mcmlNode:GetAttribute("param1")
+        if(arg2 and tostring(arg2) == "true")then
+            MyCompany.Aries.NPCs.SnowArea.MakeItem_subpage.canmake = true
+        else
+            MyCompany.Aries.NPCs.SnowArea.MakeItem_subpage.canmake = false
+        end
+        
+        CastMachine:OnClickItem(arg,arg2)
+    end
+end
+
+
+function GetSpec1DataSource(arg)
+    return CastMachine:GetSpec1DataSource(arg);
+end
+
+function GetSpec2DataSource(arg)
+    return CastMachine:GetSpec2DataSource(arg);
+end
+
+function DummyFunc() end
+
+function CreateSelectBtn(text,units,text,canmake,colour)
+    return string.format([[<input type="button" onclick="OnClickItem()"  value='%s'  name= '%s' param1='%s' 
+        Normal_BG="Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png" 
+        MouseOver_BG = "Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png" 
+        style="margin-left:5px;margin-top:0px;width:148px;height:22px;color:%s;font-size:12px;text-align:left;background:;" />]],GetNameValue(text,units),text,tostring(canmake),colour)
+end
+
+function CreateBtn(text,units,text,canmake,colour)
+    return string.format([[<input type="button" onclick="OnClickItem()"  value='%s'  name= '%s' param1='%s' 
+        Normal_BG="" 
+        MouseOver_BG = "Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png" 
+        style="margin-left:5px;margin-top:0px;width:148px;height:22px;color:%s;font-size:12px;text-align:left;background:;" />]],GetNameValue(text,units),text,tostring(canmake),colour)
+end
+
+function OnToggleCategory(skill_gsid)
+    CastMachine.OnToggleCategory(skill_gsid)
+end
+
+function GetMaxStamina()
+    local _, max = MyCompany.Aries.Player.GetStamina2()
+    return max;
+end
+function GetStamina()
+    local value = MyCompany.Aries.Player.GetStamina2()
+    return value;
+end
+
+function GetStaminaText()
+    local v, max = MyCompany.Aries.Player.GetStamina2()
+    return format("%d/%d", v, max);
+end
+
+local icon_map = {
+ [21106] = "Texture/Aries/Common/ThemeTeen/Spec/magic_icon_32bits.png",
+ [21107] = "Texture/Aries/Common/ThemeTeen/Spec/stuff_icon_32bits.png",
+ [21105] = "Texture/Aries/Common/ThemeTeen/Spec/cooking_icon_32bits.png",
+ [21108] = "Texture/Aries/Common/ThemeTeen/Spec/jewelry_icon_32bits.png",
+ [21109] = "Texture/Aries/Common/ThemeTeen/Spec/medic_icon_32bits.png",
+ [21110] = "Texture/Aries/Common/ThemeTeen/Spec/mineral_icon_32bits.png",
+}
+function GetSkillIcon(spec_gsid)
+    spec_gsid = spec_gsid or CastMachine.SPEC_ID;
+    return icon_map[spec_gsid];
+end
+
+function OnClickFillStamina2()
+    CastMachine.OnClickFillStamina2();
+end
+page:SetValue("skill_tabs", tostring(CastMachine.SPEC_ID));
+
+function GetSkillTitle()
+   -- return CastMachine.Spec_Skill_name ;
+   return format("%s: %d", MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage.activeSpecName or "", CastMachine.cur_spec_exp or 0)
+end
+
+function GetTabTitle(tab)
+    if(not tab or tab == 1) then
+        return format("%s(%d)", if_else(LearnedSkill_subpage.MAKABLE, "可制造", "已领悟"), GetSpec1DataSource() or 0)
+    else
+        return format("%s(%d)", if_else(LearnedSkill_subpage.MAKABLE, "不可制造", "未领悟"), GetSpec2DataSource() or 0);
+    end
+end
+]]></script>
+<aries:window width="663" height="468" title='制造' onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/making_icon_32bits.png" >
+    <pe:div class="clientarea" style="margin-left:3px;margin-top:30px;margin-bottom:3px;background:;">
+        <pe:tabs name="skill_tabs" onclick="OnToggleCategory" style="padding-left:90px;margin-left:8px;background:;height:26px;">
+            <pe:tab-item name="21105"  text="烹饪" ></pe:tab-item>
+            <pe:tab-item name="21107"  text="药剂" ></pe:tab-item>
+            <pe:tab-item name="21108"  text="珠宝" ></pe:tab-item>
+            <!--<pe:tab-item name="21106"  text="符文" ></pe:tab-item>-->
+        </pe:tabs>
+        <div class="border_bg1_css" width="100%" height="100%" style="margin-left:8px;padding:3px;margin-bottom:5px;">
+        
+        <!-- category -->
+        <div style="float:left;width:183px;margin-left:0px;padding-left:1px;" class="border_bg2_css" height="100%">
+            <input type="button" style="margin-top:3px;width:181px;font-weight:bold;text-offset-y:-2;" zorder="2" class="tree_menu"
+                name='<%=MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage.activeSpecName or "unknown"%>'  
+                value='<%=MyCompany.Aries.NPCs.SnowArea.LearnedSkill_subpage.activeSpecName or "unknown"%>'
+                onclick="<%=CastMachine.OnToggleSkillCat %>" />
+
+            <pe:if condition='<%=CastMachine.HasMakeableItems%>'>
+                <input type="button" name='view1' zorder="2"  class="sub_tree_menu"
+                    onclick="<%=CastMachine.EquipListView %>" 
+                    style="width:181px;text-offset-y:-2;" value='<%=GetTabTitle(1) %>'/>
+
+                <pe:if condition='<%=CastMachine.ShowView == "view1"%>'>
+                    <div style="padding:1px;margin-left:0px;width:180px;height:310px;" >
+                        <pe:gridview VerticalScrollBarStep="24" RememberScrollPos="true" name="gvwSpec1" 
+                            CellPadding="0" ItemsPerLine="1" AllowPaging="false" 
+                            style="width:369px;height:324px;"
+                            DataSource='<%=GetSpec1DataSource %>'DefaultNodeHeight="24" >
+		                <Columns>
+                            <div style="width:170px;">
+                                <div style="float:left;width:22px;height:22px;" ><pe:item isclickable="false" style="width:22px;height:22px;" gsid='<%=Eval("gsid") %>'></pe:item></div>
+                                <div style="float:left;width:148px;margin-top:1px;" >
+	                                <pe:if condition='<%=Eval("is_selected") %>' >
+                                        <pe:if condition='<%=Eval("canmake")%>'>
+                                            <input type="button" class="listbutton_selected" zorder="0"enabled="false"  param1='<%=Eval("gsid") %>'
+			                                    style="position:relative;margin-left:5px;margin-top:0px;width:148px;height:22px;text-align:left;font-size:12px;background:Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png;" />
+                                        </pe:if>       
+                                        <%=CreateSelectBtn(Eval("text"),Eval("units"),Eval("text"),Eval("canmake"),Eval("colour")) %>
+	                                </pe:if>
+	                                <pe:if condition='<%=not Eval("is_selected") %>' >
+		                                <%=CreateBtn(Eval("text"),Eval("units"),Eval("text"),Eval("canmake"),Eval("colour")) %>
+	                                </pe:if>
+                                </div>
+                            </div>
+		                </Columns>	
+		                </pe:gridview>
+                    </div>
+                </pe:if>
+            </pe:if>
+            <pe:if condition='<%=not CastMachine.HasMakeableItems%>'>
+                <div style="height:20px;text-align:center;">
+                    <pe:if condition='<%=CastMachine.CanLearn(CastMachine.SPEC_ID)%>'>
+                        你可以学习技能了
+                    </pe:if>
+                    <pe:if condition='<%=not CastMachine.CanLearn(CastMachine.SPEC_ID)%>'>
+                        <div style="color:#fe3333"><%=format("需要%d级才能学习", CastMachine.GetLearnLevel(CastMachine.SPEC_ID) or 0)%></div>
+                    </pe:if>
+                </div>
+            </pe:if>
+
+            <pe:if condition='<%=CastMachine.HasunMakeableItems%>'>
+                <input type="button" name='view2' zorder="2" class="sub_tree_menu" value='<%=GetTabTitle(2)%>'
+                onclick="<%=CastMachine.EquipListView %>" 
+                style="width:181px;text-offset-y:-2;" />
+
+                <pe:if condition='<%=CastMachine.ShowView == "view2"%>'>
+                    <div style="padding:1px;margin-left:0px;width:180px;height:310px;" >
+                            <pe:gridview VerticalScrollBarStep="24" RememberScrollPos="true" name="gvwSpec2" 
+                            CellPadding="0" ItemsPerLine="1" AllowPaging="false" 
+                            style="width:369px;height:324px;"
+                            DataSource='<%=GetSpec2DataSource %>'DefaultNodeHeight="24" >
+		                <Columns>
+                            <div style="width:170px;">
+                                <div style="float:left;width:22px;height:22px;" ><pe:item isclickable="false" style="width:22px;height:22px;" gsid='<%=Eval("gsid") %>'></pe:item></div>
+                                <div style="float:left;width:148px;margin-top:1px;" >
+                                    <pe:if condition='<%=Eval("is_selected") %>' >
+                                        <pe:if condition='<%=Eval("canmake")%>'>
+                                            <input type="button" class="listbutton_selected" zorder="0"enabled="false"  param1='<%=Eval("gsid") %>'
+			                                    style="position:relative;margin-left:5px;margin-top:0px;width:148px;height:22px;text-align:left;font-size:12px;background:Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png;" />
+                                        </pe:if>
+                                        <%=CreateSelectBtn(Eval("text"),Eval("units"),Eval("text"),Eval("canmake"),Eval("colour")) %>
+	                                </pe:if>
+	                                <pe:if condition='<%=not Eval("is_selected") %>' >
+                                        <%=CreateBtn(Eval("text"),Eval("units"),Eval("text"),Eval("canmake"),Eval("colour")) %>
+	                                </pe:if>
+                                </div>
+                            </div>                 
+		                </Columns>	
+		                </pe:gridview>
+                    </div>
+                </pe:if>
+            </pe:if>
+            
+            <pe:if condition='<%=Checkable() %>'>
+                <input type="checkbox" style="margin-left:8px;" name="chkMakableItems" onclick="ShowMakable" />
+                <div style="float:left" for="chkMakableItems">仅显示可以制造的物品</div>
+            </pe:if>
+            <pe:if condition='<%=not Checkable() %>'>
+                <input type="checkbox" style="margin-left:8px;" name="chkMakableItems" onclick="" checked="true" enabled="false" />
+                <div style="float:left;color:#52dff480" for="chkMakableItems">仅显示可以制造的物品</div>
+            </pe:if>
+        </div>
+
+        <div style="float:left;width:440px;" height="100%">
+            <pe:if condition='<%=CastMachine.OpMode == CastMachine.VIEW_SPEC%>'>
+                <div style="height:200px;margin:5px;">
+                    <div>
+                        <div style="float:left;margin:5px;">
+                            <img style="width:32px;height:32px;" src='<%=GetSkillIcon() %>'/>
+                        </div>
+                        <div style="float:left;">
+                            <div>
+                                <div style="font-weight:bold;height:22px;"><%=GetSkillTitle()%></div>
+                            </div>
+                            <div>
+                                <div style="float:left;">
+                                    <div style="float:left;" tooltip="制造或采集物品会消耗一定的体力值, 第二天会自动补满" class="titlebutton">
+                                        体力值:
+                                    </div>
+                                    <div style="float:left;width:150px;height:11px;margin-top:5px;">
+                                        <div style="position:relative;"><pe:progressbar name="pgbStamina2" Minimum = "0" Maximum = '<%=GetMaxStamina() %>' 
+                                            Value ='<%=GetStamina() %>' Step = "1"
+                                            style="width:150px;float:left;height:10px;" 
+                                            blockimage="Texture/Aries/Team/teen/physical_progressbar.png: 5 1 5 2"
+                                            background="Texture/Aries/Common/ThemeTeen/progress_bar_bg_32bits.png;0 1 16 15:7 6 7 6" />
+                                        </div>
+                                        <input type="button" name="btnStamina2" value = '<%=GetStaminaText() %>' onclick="OnClickFillStamina2" style="background:;color:#ffffff;text-align:center;width:150px;height:12px;margin-top:-2px;" tooltip="制造或采集物品会消耗一定的体力值, 第二天会自动补满&#10;点击补充体力值" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align:left;margin-left:6px;" >
+                        <div style="font-weight:bold">描述: </div>
+                        <div><%=CastMachine.SPEC_DESC%></div>
+                    </div>
+                </div>
+
+                <div style="width:389px;margin-left:15px;margin-top:145px;">
+                    <div>点击左侧【未领悟】学习新技能
+                    </div>
+                </div>
+            </pe:if>
+
+            <pe:if condition='<%=CastMachine.OpMode == CastMachine.MAKE_ITEM%>'>
+                <iframe name="MakeItem" src="script/apps/Aries/NPCs/SnowArea/MakeItem_subpage.teen.html"/>
+            </pe:if>
+        </div>
+        </div>
+    </pe:div>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,175 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30364_SwallowBaby.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30364_SwallowBaby.lua"><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+Condition1 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30364);
+    return not MyCompany.Aries.Quest.NPCs.SwallowBaby.IsAccepted();
+end
+Condition2 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30364);
+    return MyCompany.Aries.Quest.NPCs.SwallowBaby.HatchIsFinished() and not MyCompany.Aries.Quest.NPCs.SwallowBaby.FeedIsOpened() and not memory.feed_click;
+end
+Condition3 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30364);
+    return not MyCompany.Aries.Quest.NPCs.SwallowBaby.CanHatch() and memory.hatch_click;
+end
+Condition4 = function()
+    return MyCompany.Aries.Quest.NPCs.SwallowBaby.HatchOnceSucceed();
+end
+Condition5 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30364);
+    return not MyCompany.Aries.Quest.NPCs.SwallowBaby.CanFeed() and memory.feed_click;
+end
+Condition6 = function()
+    return MyCompany.Aries.Quest.NPCs.SwallowBaby.FeedOnceSucceed();
+end
+Condition7 = function()
+    return MyCompany.Aries.Quest.NPCs.SwallowBaby.FeedIsSaturation();
+end
+Condition8 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30364);
+    return not MyCompany.Aries.Quest.NPCs.SwallowBaby.HasEnougthBug() and not memory.feed_succeed ;
+end
+TagHatch = function()
+    MyCompany.Aries.Quest.NPCs.SwallowBaby.TagHatch();
+end
+TagFeed = function()
+    MyCompany.Aries.Quest.NPCs.SwallowBaby.TagFeed();
+end
+DoFinished = function()
+    MyCompany.Aries.Quest.NPCs.SwallowBaby.DoFinished();
+end
+function EntryAction(from, to)
+    
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30364' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='小燕子'/>
+        </pe:template> 	 
+
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <!--喂食达到最大次数-->
+			    <pe:answer-if condition = '<%=Eval("Condition7") %>' target_state = "7"/>
+			    
+		        <!--尚未开启孵化任务-->
+			    <pe:answer-if condition = '<%=Eval("Condition1") %>' target_state = "1"/>
+		        <!--孵化完成-->
+			    <pe:answer-if condition = '<%=Eval("Condition2") %>' target_state = "2"/>
+		        <!--点击调温 不可以调温-->
+			    <pe:answer-if condition = '<%=Eval("Condition3") %>' target_state = "3"/>
+		        <!--点击调温 调温成功-->
+			    <pe:answer-if condition = '<%=Eval("Condition4") %>' target_state = "4"/>
+			    
+			     <!--没有小青虫-->
+			    <pe:answer-if condition = '<%=Eval("Condition8") %>' target_state = "8"/>
+			    
+		        <!--点击喂小青虫 不是饥饿状态-->
+			    <pe:answer-if condition = '<%=Eval("Condition5") %>' target_state = "5"/>
+		        <!--点击喂小青虫 喂食成功-->
+			    <pe:answer-if condition = '<%=Eval("Condition6") %>' target_state = "6"/>	       
+			   
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		  我是小鸟蛋，还没孵化出来，外面天气好冷，我出不来呀，你能帮帮我吗？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("TagHatch") %>' target_state = "-1"/>
+		    </pe:answer>
+
+		        <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "2">
+		   哇，我终于从蛋壳里钻出来啦，你真是个有耐心的小哈奇，谢谢你！
+		   <br />
+		   不过我现在好饿，不吃小青虫我长不大呀，你能找点小青虫来喂我吗？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("TagFeed") %>' target_state = "-1"/>
+		    </pe:answer>
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	     <pe:state id = "3">
+		   现在温度是稳定的，不需要调温呢，你过会再来吧！每次调温能保持1个小时稳定的温度呢！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	     <pe:state id = "4">
+		   已经成功调温啦，接下来的1个小时里，鸟蛋会在稳定的温度里好好孵化呢！耐心的累积3次调温，鸟蛋就能孵化出来哦！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	     <pe:state id = "5">
+		   现在小燕子吃饱了，不需要喂小青虫呢，你过会再来吧！每喂一条小青虫可以让小燕子1个小时都不饿的哦！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	     <pe:state id = "6">
+		   已经成功喂了1条小虫啦，接下来的1个小时里，小燕子就不会再饿啦！耐心的喂3条小青虫，小燕子就能长大和你回家哦！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	     <pe:state id = "7">
+		   终于长大了，我现在是一只能捉虫的小燕子咯，快快带我回家吧，我要去帮你好好抓虫来报答你！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("DoFinished") %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "8">
+		   你也没有虫子呀！
+		   <br />
+		   我记得以前在蜂窝树里还有不少小青虫，要不你去摇摇蜂窝树看看？
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+
+</pe:mcml>
+</body>
+</html>

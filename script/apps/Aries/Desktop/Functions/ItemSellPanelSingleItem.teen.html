@@ -1,0 +1,128 @@
+﻿<!-- "script/apps/Aries/Desktop/Functions/ItemSellPanelSingleItem.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/ItemSellPanel.lua");
+local ItemSellPanel = commonlib.gettable("MyCompany.Aries.Desktop.ItemSellPanel");
+ItemSellPanel.Init();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+local pageCtrl = document:GetPageCtrl();
+
+local gsid = pageCtrl:GetRequestParam("gsid");
+gsid = tonumber(gsid);
+function closePage()
+    pageCtrl:CloseWindow();
+end
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid);
+local price = 0;
+local cnt = 1;
+local bHas,guid,__,copies = hasGSItem(gsid);
+local b_confirm = false;
+local state = ""
+if(gsItem) then
+	name = gsItem.template.name;
+	price =  tonumber(gsItem.esellprice);
+    local apparel_quality = gsItem.template.stats[221] or -1;
+    if(apparel_quality >= 2)then
+        b_confirm = true;  
+        state = "better_equipment"
+    end
+end
+local item = Map3DSystem.Item.ItemManager.GetItemByGUID(guid);
+if(item and item.GetSocketedGems)then
+	local cnt = #(item:GetSocketedGems() or {});
+    if(cnt > 0)then
+        b_confirm = true;
+        state = "has_socketed"
+    end
+end
+function GetState()
+    return state;
+end
+function GetGuid()
+    return guid;
+end
+function GetDesc()
+	local s = string.format("出售%d个%s可获得%d银币，你确认要出售吗？",cnt,name,cnt * price);
+    return s;
+end
+function NeedConfirm()
+    return b_confirm;
+end
+function DoSell()
+    if(not guid or not cnt or cnt <=0 )then return end
+    ItemManager.SellItem(guid, cnt, function(msg) end, function(msg)
+		if(msg and msg.issuccess)then
+            closePage();
+		end			
+	end);
+end
+function OnClickSell()
+    local value = pageCtrl:GetValue("confirm_box");
+    if(b_confirm)then
+        if(not value)then
+            _guihelper.MessageBox("请勾选确定出售这件贵重物品！");
+            return
+        end
+        DoSell();
+    else
+        DoSell();
+    end
+end
+function DoCheck()
+    local obj = pageCtrl:FindControl("btnSell");
+    local value = pageCtrl:GetValue("confirm_box");
+    if(obj and obj:IsValid())then
+        obj.enabled = value;
+    end
+end
+function CheckButtonState()
+    local obj = pageCtrl:FindControl("btnSell");
+    if(obj and obj:IsValid())then
+        obj.enabled = not b_confirm;
+    end
+end
+
+]]></script>
+<aries:window  width="466" height="220" title='<%=Eval("name")%>' mode="lite" onclose="closePage" isdeepbg="true" >
+        <div>
+            <div style="float:left;padding-left:10px;padding-top:10px;width:100px;height:100px;margin:21px;" class="panel_window">
+                <pe:slot guid='<%=GetGuid()%>' isdragable="false" style="width:80px;height:80px" isclickable="false"/>
+            </div>
+            
+            <div style="float:left;color:#ffffff;margin-top:30px;">
+                <div >
+                    <%=GetDesc()%>
+                </div>
+                <div style="margin-top:30px;color:#33ffff">
+                    <pe:if condition="<%=NeedConfirm()%>">
+                        <input type="checkbox" name="confirm_box" checked="false" onclick="DoCheck"/>
+                        <pe:if condition="<%=GetState() == 'better_equipment'%>">
+                            勾选确定出售这件贵重物品
+                        </pe:if>
+                        <pe:if condition="<%=GetState() == 'has_socketed'%>">
+                            勾选确定出售已经镶有宝石的物品
+                        </pe:if>
+                    </pe:if>
+                </div>
+            </div>
+            
+        </div>
+        <div style="width:466px;height:48px;margin-top:-10px;">
+            <input type="button" style="margin-left:140px;width:80px;height:30px;" onclick="OnClickSell()" class="defaultbutton" name="btnSell" value="出售"/>
+            <input type="button" style="margin-left:40px;width:80px;height:30px;" onclick="closePage()" value="下次再说"/>
+        </div>
+     <%=CheckButtonState()%>
+</aries:window>
+
+</pe:mcml> 
+</body>
+</html>

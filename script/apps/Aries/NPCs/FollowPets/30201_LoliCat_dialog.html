@@ -1,0 +1,157 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30201_LoliCat_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30201_LoliCat_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+    preferedAcinus = 21000 + instance;
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 10104: FollowPetXML
+
+Condition1 = function()
+    return (hasGSItem(10104));
+end;
+Condition2 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30201);
+    return (not hasGSItem(10104) and memory.isCaught ~= true);
+end;
+Condition3 = function()
+	local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30201);
+    return (not hasGSItem(10104) and memory.isCaught == true);
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 2 and to == -1) then
+	    local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30201);
+		-- NOTE: memory.startedHiding will temparorily stop the random walk AI script
+		memory.startedHiding = true;
+		memory.startedHidingTime = ParaGlobal.GetGameTime();
+		memory.lockcatCount = 15;
+		memory.mustHideCount = 6;
+    elseif(from == 4 and to == -1) then
+		ItemManager.PurchaseItem(10104, 1, function(msg)
+			if(msg) then
+				log("+++++++Purchase PickGameObject:"..tostring(gsid).." return: +++++++\n")
+				commonlib.echo(msg);
+				if(msg.issuccess == true) then
+					MyCompany.Aries.Desktop.TargetArea.ShowTarget("");
+                    local cat = MyCompany.Aries.Quest.NPC.GetNpcCharacterFromIDAndInstance(30201);
+                    if(cat and cat:IsValid() == true) then
+	                    local catChar = cat:ToCharacter();
+	                    catChar:Stop();
+                        -- remove the cat from scene
+		                local params = {
+			                asset_file = "character/v5/09effect/Disappear/Disappear.x",
+			                binding_obj_name = cat.name,
+			                start_position = nil,
+			                duration_time = 1500,
+			                force_name = "LolicatDisappearEffect",
+			                begin_callback = function() end,
+			                end_callback = nil,
+			                stage1_time = 800,
+			                stage1_callback = function()
+						            local EffectManager = MyCompany.Aries.EffectManager;
+						            EffectManager.StopBinding("LolicatDisappearEffect");
+					                MyCompany.Aries.Quest.NPC.DeleteNPCCharacter(30201);
+				                end,
+			                stage2_time = nil,
+			                stage2_callback = nil,
+		                };
+		                local EffectManager = MyCompany.Aries.EffectManager;
+		                EffectManager.CreateEffect(params);
+					    MyCompany.Aries.Quest.NPCs.LoliCat.Reset();
+                    end
+				end
+			end
+		end, function(msg) end, nil, nil);
+		--end, function(msg) end, nil, "none");
+    elseif(from == 3 and to == -1) then
+        -- reset the cat to idle state
+        MyCompany.Aries.Quest.NPCs.LoliCat.Reset();
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30201" />
+            <pe:placeholder id="name" source="{this}" value='萝莉猫'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是萝莉猫，最喜欢玩藏猫猫，可是我只跟家里没有猫的哈奇玩儿～
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+            我是可爱的罗莉猫，你要和我躲猫猫吗？<br/>
+            就在这片小树林里，5分钟内你要是能找到我6次，我就和你回家！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    我是可爱的萝莉猫，最喜欢跟哈奇玩躲猫猫了，不过既然你把我找到了，那就收养我吧。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    你真是一个好心的哈奇，以后你的家就是我的家。那我先回家等你哦，你早点回来呀。
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

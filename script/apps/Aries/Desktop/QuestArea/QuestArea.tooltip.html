@@ -1,0 +1,82 @@
+<!-- "script/apps/Aries/Desktop/QuestArea/QuestArea.tooltip.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+
+local s = page:GetRequestParam("s");
+function getStr()
+    return s;
+end
+
+function getPillStr()
+    local str = "";
+    NPL.load("(gl)script/apps/Aries/Desktop/QuestArea.lua");
+    local pill_list = MyCompany.Aries.Desktop.QuestArea.pill_list;
+    local gsid,count,behas,info;
+    for i = 1,#pill_list do
+        gsid = pill_list[i].gsid;
+        count = pill_list[i].copies;
+        behas = pill_list[i].behas;
+        info = pill_list[i].pillNote;
+        if(gsid == 40001 or gsid == 40003) then
+            if(behas) then
+                str = str..string.format("<div><pe:item style='width:32px;height:32px;' gsid = '%d' ShowCount = '%d'/><div style = 'float:left;margin-top:5px;color:#000000;'>%s</div></div>",gsid,count,info);
+            else
+                str = str..string.format("<div><pe:item style='width:32px;height:32px;' gsid = '%d' greyifnothave = 'true' /><div style = 'float:left;margin-top:5px;color:#4A4A4A;'>%s</div></div>",gsid,info);
+            end
+        else
+            if(behas) then
+                local ItemManager = System.Item.ItemManager;
+                local remain_str = "剩余:";
+                local guid = pill_list[i].guid;
+                local item = ItemManager. GetItemByGUID(guid);
+                local total_time,remain_days,remain_hours,remain_mins = ItemManager.ExpireRemainingTime(item);
+                total_time = total_time or 0;
+                if(total_time < 0) then
+                    remain_str = "已过期";
+                else
+                    if(remain_days and remain_days > 0) then
+                        remain_str = remain_str..remain_days.."天";
+                    elseif(remain_hours and remain_hours > 0) then
+                        remain_str = remain_str..remain_hours.."小时";
+                    elseif(remain_mins and remain_mins > 0) then
+                        remain_str = remain_str..remain_mins.."分钟";
+                    elseif(total_time and total_time > 0) then
+                        remain_str = remain_str.."小于1分钟";
+                    else
+                        remain_str = "已过期";
+                    end
+                end
+                
+
+                str = str..string.format("<div><pe:item style='width:32px;height:32px;' gsid = '%d' /><div style = 'float:left;margin-top:5px;width:185px;color:#000000;'>%s</div><div style = 'float:left;margin-top:5px;color:#B22222;'>%s</div></div>",gsid,info,remain_str);
+            else
+                str = str..string.format("<div><pe:item style='width:32px;height:32px;' gsid = '%d' greyifnothave = 'true'/><div style = 'float:left;margin-top:5px;width:175px;color:#4A4A4A;'>%s</div></div>",gsid,info);
+            end
+        end
+        
+    end
+    return str;
+end
+]]></script>
+<div>
+    <pe:if condition = '<%=getStr() == "pill" %>' >
+        <div class="tooltip" style="padding:10px;padding-bottom:15px;margin-top:-7px;width:290px;">
+            <%=getPillStr() %>
+        </div>
+    </pe:if>
+    <pe:if condition = '<%=getStr() ~= "pill" %>' >
+        <div class="tooltip" style="padding:10px;padding-bottom:15px;margin-top:-7px;width:180px;">
+            <%=getStr() %>
+        </div>
+    </pe:if>
+    <!--<div class="tooltip" style="padding:10px;padding-bottom:15px;margin-top:-7px;width:180px;">
+        <%=getStr() %>
+    </div>-->
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,422 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30171_Papa_MouseTutorial.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30171_Papa_MouseTutorial, by Andy, 2009/8/22</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local _, __, res_width, res_height = ParaUI.GetUIObject("root"):GetAbsPosition();
+
+-- hide all existing arrows
+local Desktop = MyCompany.Aries.Desktop;
+Desktop.GUIHelper.ArrowPointer.HideAllArrows();
+
+function ShowLeftClickMouse(params)
+    margin_mouse_left = res_width - 1020 + 670;
+    margin_mouse_top = res_height - 680 + 80 - 128;
+    local _this = ParaUI.CreateUIObject("container", "LeftClickMouse", 
+        params.alignment, params.left + margin_mouse_left, params.top + margin_mouse_top, 256, 256);
+	_this.background = "Texture/Aries/Quest/TutorialMouse_LeftClick_32bits.png";
+	params.parent:AddChild(_this);
+	
+	local x, y, width, height = _this:GetAbsPosition();
+	local Desktop = MyCompany.Aries.Desktop;
+	Desktop.GUIHelper.ArrowPointer.ShowArrow(5499, 2, "_lt", x + 64 - 16, y - 80, 64, 64);
+	
+	local _tip_cont = ParaUI.CreateUIObject("container", "MiddleMouseTip", "_lt", 150, -70, 90, 50);
+	_tip_cont.background = "Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31";
+	_tip_cont.enabled = false;
+	_this:AddChild(_tip_cont);
+	local _text = ParaUI.CreateUIObject("button", "text", "_lt", 0, 0, 90, 50);
+	_text.text = "点击左键";
+	_text.background = "";
+	_tip_cont:AddChild(_text);
+	_guihelper.SetFontColor(_text, "#d58302");
+	
+	-- hook into OnMoveToMouseCursorPick
+	CommonCtrl.os.hook.SetWindowsHook({hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 
+		callback = function(nCode, appName, msg, value)
+			if(msg.aries_type == "OnMoveToMouseCursorPick") then
+			    -- unregister hook
+	            CommonCtrl.os.hook.UnhookWindowsHook({hookName = "MouseTutorial.OnMoveToMouseCursorPick", 
+		            hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET});
+                local _dialogNode = page:GetNode("Papa_MouseTutorial");
+                Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, 5, true);
+			end
+		end, 
+		hookName = "MouseTutorial.OnMoveToMouseCursorPick", appName = "Aries", wndName = "main"});
+end
+
+
+function ShowMiddleClickMouse(params)
+    margin_mouse_left = res_width - 1020 + 670;
+    margin_mouse_top = res_height - 680 + 80 - 128;
+    local _this = ParaUI.CreateUIObject("container", "MiddleClickMouse", 
+        params.alignment, params.left + margin_mouse_left, params.top + margin_mouse_top, 256, 256);
+	_this.background = "Texture/Aries/Quest/TutorialMouse_MiddleClick_32bits.png";
+	params.parent:AddChild(_this);
+	
+    local _UD = ParaUI.CreateUIObject("container", "UpDownMouse", 
+        "_lt", 128 + 32, 4, 64, 128);
+	_UD.background = "Texture/Aries/Quest/TutorialMouse_UpDown_32bits.png";
+	_this:AddChild(_UD);
+	
+    local fileName = "script/UIAnimation/CommonBounce.lua.table";
+	UIAnimManager.PlayUIAnimationSequence(_UD, fileName, "ShakeUD", true);
+	
+	local _tip_cont = ParaUI.CreateUIObject("container", "MiddleMouseTip", "_lt", 150, -70, 130, 50);
+	_tip_cont.background = "Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31";
+	_tip_cont.enabled = false;
+	_this:AddChild(_tip_cont);
+	local _text = ParaUI.CreateUIObject("button", "text", "_lt", 0, 0, 130, 50);
+	_text.text = "滚动中键";
+	_text.background = "";
+	_tip_cont:AddChild(_text);
+	_guihelper.SetFontColor(_text, "#d58302");
+	
+	local lastCameraObjectDistance = nil;
+	local hasCameraZoomIn = false;
+	local hasCameraZoomOut = false;
+	UIAnimManager.PlayCustomAnimation(90000000, function(elapsedTime)
+	    -- detect camera mouse move
+	    
+	    local att = ParaCamera.GetAttributeObject();
+	    local CameraObjectDistance = att:GetField("CameraObjectDistance", 0);
+	    if(lastCameraObjectDistance == nil) then
+	        lastCameraObjectDistance = CameraObjectDistance;
+	    else
+	        if(lastCameraObjectDistance < CameraObjectDistance) then
+	            hasCameraZoomIn = true;
+	        elseif(lastCameraObjectDistance > CameraObjectDistance) then
+	            hasCameraZoomOut = true;
+	        end
+	        if(hasCameraZoomIn or hasCameraZoomOut) then
+                local _dialogNode = page:GetNode("Papa_MouseTutorial");
+                Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, 4, true);
+	            UIAnimManager.StopCustomAnimation("Mouse_Detect");
+	        end
+	    end
+	end, "Mouse_Detect");
+end
+
+function ShowRightClickMouse(params)
+    margin_mouse_left = res_width - 1020 + 670;
+    margin_mouse_top = res_height - 680 + 80 - 128;
+    local _this = ParaUI.CreateUIObject("container", "RightClickMouse", 
+        params.alignment, params.left + margin_mouse_left, params.top + margin_mouse_top, 256, 256);
+	_this.background = "Texture/Aries/Quest/TutorialMouse_RightClick_32bits.png";
+	params.parent:AddChild(_this);
+	
+    local fileName = "script/UIAnimation/CommonBounce.lua.table";
+	UIAnimManager.PlayUIAnimationSequence(_this, fileName, "ShakeLR", true);
+	
+    local _LR = ParaUI.CreateUIObject("container", "LeftRightMouse", 
+        "_lt", 64, -80, 128, 64);
+	_LR.background = "Texture/Aries/Quest/TutorialMouse_LeftRight_32bits.png";
+	_this:AddChild(_LR);
+	
+	local _tip_cont = ParaUI.CreateUIObject("container", "LeftRightMouseTip", "_lt", -80, -150, 400, 50);
+	_tip_cont.background = "Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31";
+	_tip_cont.enabled = false;
+	_this:AddChild(_tip_cont);
+	local _text = ParaUI.CreateUIObject("button", "text", "_lt", 0, 0, 400, 50);
+	_text.text = "现在按住鼠标右键，同时移动鼠标，直到看到自己的正面。";
+	_text.background = "";
+	_tip_cont:AddChild(_text);
+	_guihelper.SetFontColor(_text, "#d58302");
+	
+	local lastCameraRotY = nil;
+	local accum_CameraRotY = 0;
+	
+	local useImp = 1;
+	
+    local att = ParaCamera.GetAttributeObject();
+    local CameraRotY = att:GetField("CameraRotY", 0);
+    local negativeCameraRotY;
+    if(CameraRotY >= 0) then
+        negativeCameraRotY = CameraRotY - math.pi;
+    else
+        negativeCameraRotY = CameraRotY + math.pi;
+    end
+    local facing = ParaScene.GetPlayer():GetFacing();
+    if(math.abs(negativeCameraRotY - facing) < 1 or math.abs(6.28 - math.abs(negativeCameraRotY - facing)) < 1) then
+        useImp = 2;
+    else
+        useImp = 1;
+    end
+    
+	UIAnimManager.PlayCustomAnimation(90000000, function(elapsedTime)
+	    -- detect camera mouse move
+	    if(useImp == 1) then
+	        local att = ParaCamera.GetAttributeObject();
+	        local CameraRotY = att:GetField("CameraRotY", 0);
+            local negativeCameraRotY;
+            if(CameraRotY >= 0) then
+                negativeCameraRotY = CameraRotY - math.pi;
+            else
+                negativeCameraRotY = CameraRotY + math.pi;
+            end
+	        local facing = ParaScene.GetPlayer():GetFacing();
+	        if((math.abs(negativeCameraRotY - facing) < 1 or math.abs(6.28 - math.abs(negativeCameraRotY - facing)) < 1) and not ParaUI.IsMousePressed(1)) then
+                local _dialogNode = page:GetNode("Papa_MouseTutorial");
+                Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, 3, true);
+                UIAnimManager.StopCustomAnimation("Mouse_Detect");
+	        end
+	    elseif(useImp == 2) then
+            local att = ParaCamera.GetAttributeObject();
+            local CameraRotY = att:GetField("CameraRotY", 0);
+	        if(lastCameraRotY == nil) then
+	            lastCameraRotY = CameraRotY;
+	        else
+	            accum_CameraRotY = accum_CameraRotY + math.abs(CameraRotY - lastCameraRotY);
+	            lastCameraRotY = CameraRotY;
+	            if(accum_CameraRotY > 0.1 and not ParaUI.IsMousePressed(1)) then
+                    local _dialogNode = page:GetNode("Papa_MouseTutorial");
+                    Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, 3, true);
+	                UIAnimManager.StopCustomAnimation("Mouse_Detect");
+	            end
+	        end
+	    end
+	    --commonlib.echo(att:GetField("CameraObjectDistance", CameraObjectDistance));
+	end, "Mouse_Detect");
+end
+
+
+function ShowSpaceBar(params)
+    margin_mouse_left = res_width - 1020 + 650;
+    margin_mouse_top = res_height - 680 + 240 - 128;
+    local _this = ParaUI.CreateUIObject("container", "RightClickMouse", 
+        params.alignment, params.left + margin_mouse_left, params.top + margin_mouse_top, 256, 128);
+	_this.background = "Texture/Aries/Quest/Spacebar2_32bits.png:27 24 32 35";
+	params.parent:AddChild(_this);
+	
+	local x, y, width, height = _this:GetAbsPosition();
+	local Desktop = MyCompany.Aries.Desktop;
+	Desktop.GUIHelper.ArrowPointer.ShowArrow(5499, 2, "_lt", x + 110 - 16, y - 90, 64, 64);
+	
+	local _tip_cont = ParaUI.CreateUIObject("container", "LeftRightMouseTip", "_lt", 180, -90, 130, 50);
+	_tip_cont.background = "Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31";
+	_tip_cont.enabled = false;
+	_this:AddChild(_tip_cont);
+	local _text = ParaUI.CreateUIObject("button", "text", "_lt", 0, 0, 130, 50);
+	_text.text = "敲击";
+	_text.background = "";
+	_tip_cont:AddChild(_text);
+	_guihelper.SetFontColor(_text, "#d58302");
+	
+	-- hook into OnJump
+	CommonCtrl.os.hook.SetWindowsHook({hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 
+		callback = function(nCode, appName, msg, value)
+			if(msg.aries_type == "OnJump") then
+			    -- unregister hook
+	            CommonCtrl.os.hook.UnhookWindowsHook({hookName = "MouseTutorial.OnJump", 
+		            hookType = CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET});
+                local _dialogNode = page:GetNode("Papa_MouseTutorial");
+                Map3DSystem.mcml_controls.pe_dialog.SetState(_dialogNode, 6, true);
+			end
+		end, 
+		hookName = "MouseTutorial.OnJump", appName = "Aries", wndName = "main"});
+end
+
+-- 50042_DoneMouseTutorial
+-- 50043_NewbieQuest_Acquire
+-- 50044_NewbieQuest_Complete
+-- 50045_NewbieQuest_HasReadTimeMagazine
+-- 50046_NewbieQuest_HasReadCitizenHandbook
+-- 50047_NewbieQuest_HasUsedLocalMap
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 5 and to == 6) then
+        -- hide all existing arrows
+        local Desktop = MyCompany.Aries.Desktop;
+        Desktop.GUIHelper.ArrowPointer.HideAllArrows();
+		-- show all desktop areas
+		MyCompany.Aries.Desktop.ShowAllAreas();
+		-- only hide the target area to block mouse click, otherwise it will hide this npc_dialog
+		MyCompany.Aries.Desktop.TargetArea.Show(false);
+    elseif(from == 6 and to == 7) then
+		MyCompany.Aries.Desktop.TargetArea.Show(true);
+		ItemManager.PurchaseItem(50042, 1, function(msg)
+			log("+++++++Purchase item #50042_DoneMouseTutorial return: +++++++\n")
+			commonlib.echo(msg);
+			MyCompany.Aries.Quest.NPCs.Papa.RefreshQuestStatus();
+		end, function(msg) end, nil, "none", true);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' name="Papa_MouseTutorial" width = "204" height = "300" style="background:url();" 
+        entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <div style="width:128px;height:128px;margin-left:-33px;margin-top:-85px;margin-bottom:-34px;padding:0px;background:Texture/Aries/Dock/SunFlowerOuter_32bits.png;" class="box">
+            <div style="width:128px;height:128px;margin:0px;padding:0px;">
+                <pe:player nid='30171' object="npc" name='<%=Eval("name")%>' miniscenegraphname="NPCDialog_miniscene" style="margin:15px;width:98px;height:98px;" background="" MaskTexture="Texture/Aries/Dock/NewSunFlowerMask.dds" IsPortrait=true IsInteractive=false/>
+            </div>
+        </div>
+        <pe:state id = "0">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "1">
+	        <div style="width:204;height:240px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:75px;color:#d58302">
+                    欢迎来到哈奇小镇!<br/>
+                    我是帕帕，在这里迎接每一个新来的小哈奇。<br/>
+                    让我们学习一下在小镇生活的基本技能吧。<br/>
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "2"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "2">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:115px;color:#d58302">
+	                <!--按住<div style="float:left;color:#FF0000">鼠标右键</div>，同时<br/>
+	                <div style="float:left;color:#FF0000">移动</div>鼠标，可以更好的<br/>
+	                看清这个世界。
+                    试试吧！-->
+                    按住<div style="float:left;color:#FF0000">鼠标右键</div>，同时<br/>
+                    <div style="float:left;color:#FF0000">移动</div>鼠标，可以更好的<br/>
+                    看清这个世界。<br/>
+                    现在按住<div style="float:left;color:#FF0000">鼠标右键</div>，<br/>
+                    并<div style="float:left;color:#FF0000">移动</div>鼠标，直到<br/>
+                    <div style="float:left;color:#FF0000">看到自己的正面吧</div>。
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <!--<pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "3"/>
+		            </pe:answer>-->
+		            <input type="button" style="width:139px;height:38px;margin-left:32px;background:url();"/>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url()">
+                    </div>
+	                <br/>
+	                <pe:custom oncreate="ShowRightClickMouse" style="width:256px;height;256px"/>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "3">
+	        <div style="width:204;height:200px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:20px;margin-top:40px;margin-bottom:25px;height:115px;color:#d58302">
+	                滚动<div style="float:left;color:#FF0000;margin-left:-5px">鼠标中键</div><div style="float:left;margin-left:-9px;">，可以放大</div><br/>
+	                缩小视野。<br/>
+                    试试吧！
+                    使用键盘上的<br/>
+                    <div style="float:left;color:#FF0000;">Insert</div>和<div style="float:left;color:#FF0000;margin-left:-5px">Delete</div>键也可<br/>
+                    以达到一样的效果。
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <!--<pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "4"/>
+		            </pe:answer>-->
+		            <input type="button" style="width:139px;height:38px;margin-left:32px;background:url();"/>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url()">
+                    </div>
+	                <br/>
+	                <pe:custom oncreate="ShowMiddleClickMouse" style="width:256px;height;256px"/>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "4">
+	        <div style="width:204;height:140px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:115px;color:#d58302">
+                    使用<div style="float:left;margin-left:-6px;color:#FF0000">鼠标左键</div><div style="float:left;margin-left:-9px;">，点击地面，</div><br/>
+                    可以自由走动。
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <!--<pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "5"/>
+		            </pe:answer>-->
+		            <input type="button" style="width:139px;height:38px;margin-left:32px;background:url();"/>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url()">
+                    </div>
+	                <br/>
+	                <pe:custom oncreate="ShowLeftClickMouse" style="width:256px;height;256px"/>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "5">
+	        <div style="width:204;height:140px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:115px;color:#d58302">
+                    点击键盘上的<div style="float:left;margin-left:-6px;color:#FF0000">空格键</div>，<br/>可以跳起来。
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <!--<pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "5"/>
+		            </pe:answer>-->
+		            <input type="button" style="width:139px;height:38px;margin-left:32px;background:url();"/>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url()">
+                    </div>
+	                <br/>
+	                <pe:custom oncreate="ShowSpaceBar" style="width:256px;height;256px"/>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "6">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:70px;color:#d58302">
+                    你已经学会了基本的操作，真是一个聪明的小哈奇！<br/>
+                    屏幕上下的这些按钮，能使你在哈奇小镇生活的更方便，你会慢慢学会使用它们。<br/>
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "7"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "7">
+	        <div style="width:204;height:220px;background:url(Texture/Aries/Quest/Dialog_BG_32bits.png: 31 31 31 31);">
+		        <div style="margin-left:20px;margin-right:10px;margin-top:40px;margin-bottom:25px;height:70px;color:#d58302">
+                    我准备了礼物，在小镇广场等你。<br/>
+                    沿着这条黄线走动，就可以找到我了。
+                </div>
+                <div style="width:200px;height:40px;margin-top:40px;">
+		            <pe:answer style="width:139px;height:38px;margin-left:32px;background:url(Texture/Aries/Quest/IKnow_32bits.png#0 0 139 38);">
+			            <pe:answer-if condition = "true" target_state = "-1"/>
+		            </pe:answer>
+                    <div style="width:64px;height:64px;margin-left:136px;margin-top:-70px;background:url(Texture/Aries/Quest/Dialog_Leaf_32bits.png)">
+                    </div>
+                </div>
+            </div>
+        </pe:state>
+        <pe:state id = "10">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+        <pe:state id = "11">
+	        <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = "true" target_state = "-1"/>
+	        </pe:answer>
+        </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

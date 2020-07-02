@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- game server configuration file -->
+<!-- by Xizhi 2010.8.21. 
+Quick start:
+  Run alienbrain://PARA2/KidsMovie:595/ParaEngineSDK/bin/GameServerDevLocal.bat (it will start the game server as (1)127.0.0.1:800, nid=1003, worldname="别进来131" )
+  
+Manully config:
+I wrote this config file so that one can run full featured game server locally on the developer's computer. 
+The local game server will use the 229 router for DB and other infrastuctures. To avoid multiple developers 
+using the same game server nid, one need to follow following rules to create your dev game server on your own computer. 
+1. select an nid in the range 1003-1010 (basically 1003 is for Xizhi, 1004 is for Andy, 1005 for Leio, etc. )
+2. modify AriesDevLocal.GameServer.config.xml file locally to match your nid, ip and port (you can also create your own config file and commit)
+3. modify gameclient.config.xml to include your nid in the world_server_addresses section, like below 
+    <address host="127.0.0.1" port="800" nid="1003"/>
+4. add virtual world servers in the http://192.168.0.51:84/Admin/WorldServers/ServerList.aspx so that it will appear during login. or one can enter address in the quick-enter editbox of the game.
+5. launch ParaEngineServer.exe using command line config="config/AriesDevLocal.GameServer.config.xml". A bat file is on alienbrain://PARA2/KidsMovie:595/ParaEngineSDK/bin/GameServerDevLocal.bat
+
+Please note the default setting on SVN is configured for nid 1003 (别进来131), so there can only be one people in the office using that nid to run game server locally. 
+-->
+<GameServer>
+  <!--which ip and port this server listens to. As well as the nid of itself.
+  @param compress_incoming: whether to use compression for incoming connections. 
+    This must be true in order for CompressionLevel and CompressionThreshold to take effect 
+  @param CompressionLevel: -1, 0-9: Set the zlib compression level to use in case compresssion is enabled. 
+    Compression level is an integer in the range of -1 to 9. 
+		Lower compression levels result in faster execution, but less compression. Higher levels result in greater compression, 
+		but slower execution. The zlib constant -1, provides a good compromise between compression and speed and is equivalent to level 6. 
+  @param CompressionThreshold:  when the message size is bigger than this number of bytes, we will use m_nCompressionLevel for compression. 
+		For message smaller than the threshold, we will not compress even m_nCompressionLevel is not 0. 
+  @param imserver_heartbeat_interval: milliseconds to send heart beat to IM server. If this 0 or does not exist, we will not send heart beat messages to im server. which is usually the case for HomeServer, where user connections are not kept. 
+  -->
+  <config host="127.0.0.1" port="9001" nid="1615" public_files="config/NPLPublicFiles.xml"
+          compress_incoming = "true" CompressionLevel="-1" CompressionThreshold="90000" imserver_heartbeat_interval="5000"
+          TCPKeepAlive="true" KeepAlive="false" IdleTimeout="false" IdleTimeoutPeriod="10000"
+          gsl_config_filename="config/GSL.config.xml" >
+    <rest reply_file="script/apps/GameServer/rest_client.lua"
+          api_file="config/WebAPI.power.config.xml" />
+  </config>
+  
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread
+  npl state name is the world id
+  -->
+  <npl_states>
+    <npl_state name="1"/>
+    <npl_state name="2"/>
+    <npl_state name="3"/>
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="192.168.0.51" port="60001" nid="router1"/>
+    <address host="192.168.0.51" port="64001" nid="IMServer1"/>
+
+    <!--home grid for homeland with homeserver IP, port and nid -->
+    <address host="1.home.com" port="900" nid="1501"/>
+    <address host="127.0.0.1" port="9001" nid="1615"/>
+    <address host="127.0.0.1" port="800" nid="1015"/>
+    <!--<address host="192.168.0.229" port="900" nid="1501"/>-->
+
+  </npl_runtime_addresses>
+
+  <!--the runtime state names on the NPL router--> 
+  <router_states>
+    <router_state name="1"/>
+  </router_states>
+
+
+  <!--the runtime state names on the IMServer-->
+  <imserver_states>
+    <imserver_state name="1"/>
+  </imserver_states>
+  
+  <!--home world server grids: we can use game server as home server or use dedicated home server -->
+  <homegrids>
+    <homegrid address="(1)1615" id="1"/>
+    <!--<homegrid address="(2)1604" id="2"/>
+    <homegrid address="(3)1604" id="3"/>-->
+    <!--<homegrid address="(1)1501" id="1"/>
+    <homegrid address="(2)1501" id="2"/>
+    <homegrid address="(3)1501" id="3"/>
+    <homegrid address="(4)1501" id="4"/>
+    <homegrid address="(5)1501" id="5"/>
+    <homegrid address="(6)1501" id="6"/>
+    <homegrid address="(7)1501" id="7"/>
+    <homegrid address="(8)1501" id="8"/>
+
+    <homegrid address="(1)1502" id="11"/>
+    <homegrid address="(2)1502" id="12"/>
+    <homegrid address="(3)1502" id="13"/>
+    <homegrid address="(4)1502" id="14"/>
+    <homegrid address="(5)1502" id="15"/>
+    <homegrid address="(6)1502" id="16"/>
+    <homegrid address="(7)1502" id="17"/>
+    <homegrid address="(8)1502" id="18"/>-->
+
+  </homegrids>
+  
+ <!-- the lobby service 
+  @param proxy_thread_name: the name of the thread to run the lobby server proxy
+  -->
+  <LobbyService proxy_thread_name="rest" debug_stream="true">
+    <!-- 
+    @param nid: the nid of the lobby server, it may be local or remote nid, usually the game server 
+    @param thread_name:  the npl thread(state) where the lobby is running. 
+    @param persistent_games: the xml file for precreated games on the server
+    @param game_start_timeout_interval: milliseconds that a started game is timed out. we will reset the game when it is started for this mount of time. 
+    @param timer_interval: the internal timer in milliseconds. usually 3-5 second. 
+    -->
+    <LobbyServer nid="1015" thread_name="rest" game_start_timeout_interval="120000" timer_interval="1000"
+                 persistent_games="config/Aries/LobbyService/aries.lobby_persistent_games.xml" debug_stream="true"/>
+  </LobbyService>  
+</GameServer>

@@ -1,0 +1,99 @@
+<!-- "script/apps/Aries/Profile/FamilyProfile.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>leio,2011/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="FamilyProfile.lua"><![CDATA[
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+MyCompany.Aries.FamilyProfilePage.OnInit(nid);
+nid_str = tostring(nid);
+
+miniscenename = "fullprofile_avatar_"..nid..ParaGlobal.GenerateUniqueID();
+name = "fullprofile_avatar_miniscene_"..nid..ParaGlobal.GenerateUniqueID();
+
+familyname = MyCompany.Aries.FamilyProfilePage.familyname or "1";
+familyid = MyCompany.Aries.FamilyProfilePage.familyid or "2";
+familydesc = MyCompany.Aries.FamilyProfilePage.familydesc or "3";
+familyrole = MyCompany.Aries.FamilyProfilePage.familyrole or "4";
+createtime = MyCompany.Aries.FamilyProfilePage.createtime or "5";
+
+familylevel = MyCompany.Aries.FamilyProfilePage.familylevel or "0";
+membercount = MyCompany.Aries.FamilyProfilePage.membercount or "0";
+contribution = MyCompany.Aries.FamilyProfilePage.contribution or "0";
+
+page:SetValue("familyname", familyname);
+page:SetValue("familyid", tostring(familyid));
+page:SetValue("createtime", createtime);
+page:SetValue("familydesc", familydesc);
+
+page:SetValue("familylevel", tostring(familylevel));
+page:SetValue("membercount", tostring(membercount));
+page:SetValue("contribution", tostring(contribution));
+
+if(familyrole == "admin") then
+    familyrole = "族长";
+elseif(familyrole == "deputy") then
+    familyrole = "副族长";
+elseif(familyrole == "member") then
+    familyrole = "族员";
+end
+page:SetValue("familyrole", familyrole);
+
+function ClosePage()
+    page:CloseWindow()
+end
+MyCompany.Aries.FamilyProfilePage.familyid = familyid;
+]]></script>
+<aries:window width="330" height="470" mode="lite" onclose="ClosePage"  isdeepbg="true" title="家族信息">
+    
+    <div style="margin:5px;" class="clientarea">
+        <div style="float:right;margin-top:10px;margin-left:80px;width:300px;" class="defaultcolor">
+            <pe:name nid='<%=Eval("nid")%>' linked=true/>的家族
+        </div>
+        <div style="width:310px;height:330px;margin-left:-30px;margin-top:5px;" >
+        <div style="margin-top:10px;">
+            <div style="float:left;width:150px;height:25px;text-align:center">家族名称:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="familyname"/></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族编号:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="familyid"/></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族等级:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="familylevel"/></div>
+        </div>
+        <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族人数:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="membercount"/></div>
+        </div>
+         <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族贡献:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="contribution"/></div>
+        </div>
+         <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族职位:</div>
+            <div style="float:left;width:150px;height:25px;color:#ffffff"><label name="familyrole"/></div>
+        </div>
+         <div>
+            <div style="float:left;width:150px;height:25px;text-align:center">家族宣言:</div>
+            <div style="float:left;width:150px;color:#ffffff">
+            <script refresh="false">
+                document.write(familydesc)
+            </script>
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:220px;margin-top:15px;">
+        <input type="button" value="申请加入" class="defaultbutton" onclick="MyCompany.Aries.FamilyProfilePage.DoJoin()"/>
+    </div>
+</div>
+</pe:mcml>
+</body>
+</html>
+

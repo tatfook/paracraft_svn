@@ -1,0 +1,475 @@
+﻿<!-- "script/apps/Aries/NPCs/ShoppingZone/ItemsConsignment.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemsConsignment teen version, create by WD, 2011/11/18</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/ItemsConsignment.lua");
+local ItemsConsignment = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment");
+
+NPL.load("(gl)script/apps/Aries/NPCs/ShoppingZone/ItemsFilter.lua");
+local ItemsFilter = commonlib.gettable("MyCompany.Aries.NPCs.ShoppingZone.ItemsFilter");
+
+NPL.load("(gl)script/apps/Aries/Desktop/AvatarBag.lua");
+local AvatarBag = commonlib.gettable("MyCompany.Aries.Desktop.AvatarBag");
+
+ItemsConsignment:Init();
+
+function OnClickItem(arg)
+    ItemsConsignment.OnSelectRow(arg)
+end
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+function CancelIncomingItem(arg)
+    local has,guid,bag,copies = hasGSItem(arg)
+    commonlib.echo(guid)
+    ItemsConsignment.OnClickItem(arg)
+end
+
+function Buy()
+   MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.Buy();
+end
+
+function Sell()
+   MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.BeginSell();
+end
+function ClosePage()
+    ItemsConsignment:CloseWindow();
+end
+
+function comp_func(left,right)
+    if(left < right)then
+        if(ItemsConsignment.order == "ASC")then
+        return true
+        else
+        return false;
+        end
+    else
+        if(ItemsConsignment.order == "DESC")then
+        return true
+        else
+        return false;
+        end
+    end
+end
+function Sort(arg)
+    ItemsConsignment.sort_col = arg;
+    if(arg == 0 or "0")then
+        table.sort(ItemsConsignment.DisplayItems,function(tb1,tb2)
+            if(tb1 and tb2)then
+            return comp_func(tb1.name, tb2.name)
+            end
+        end);
+    elseif(arg == 1 or "1")then
+        table.sort(ItemsConsignment.DisplayItems,function(tb1,tb2)
+            if(tb1 and tb2)then
+            return comp_func(tb1.level, tb2.level)
+            end
+        end);
+    elseif(arg == 2 or "2")then
+        table.sort(ItemsConsignment.DisplayItems,function(tb1,tb2)
+            if(tb1 and tb2)then
+            return comp_func(tb1.price, tb2.price)
+            end
+        end);
+    end
+
+    commonlib.echo(ItemsConsignment.DisplayItems);
+    ItemsConsignment:Refresh();
+    
+    if(ItemsConsignment.order == "ASC")then
+        ItemsConsignment.order = "DESC";
+    else
+        ItemsConsignment.order = "ASC";
+    end
+end
+
+function GetDataSource(arg)
+    return ItemsConsignment.GetDataSource(arg);
+end
+
+function ShowBag()
+    if(not AvatarBag.Visible)then
+        AvatarBag:Show("ItemsConsignment",ItemsConsignment,1);
+    else
+        AvatarBag.Hide();
+    end
+    
+    
+end
+ItemsConsignment.page:SetValue("txtSellPrice",ItemsConsignment.goods.price or 0)
+function GenSellerName(name)
+    if(name == "" or not name)then
+        return "出售者:未知"
+    else
+        return string.format("出售者:%s", name)
+    end
+       
+end
+
+function CalcTotalPrice(arg)
+    arg = math.ceil(arg + (arg * 0.2))
+    arg = tostring(arg);
+    return arg;
+end
+
+local GenericTooltip = CommonCtrl.GenericTooltip:new();
+
+function GenEquipColorName(id,name,qty)
+    local color = GenericTooltip.GetEquipColor(qty);
+    return string.format([[<input type='button' class='titlebutton' onclick='OnClickItem' name='%s' 
+ style='float:left;width:145px;margin-top:1px;margin-left:5px;font-size:12px;text-align:left;color:%s;' 
+ value='%s'tooltip='%s'/>]],
+ id,color,name,name);
+end
+
+function GenEquipColorName2(id,name,qty)
+    local color = GenericTooltip.GetEquipColor(qty);
+    return string.format([[<input type='button' class='titlebutton' enabled='false' name='%s' 
+ style='float:left;width:145px;margin-top:1px;margin-left:5px;font-size:12px;text-align:left;color:%s;' 
+ value='%s'tooltip='%s'/>]],
+ id,color,name,name);
+end
+
+function DoSearch(name)
+    MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.Search(name, false);
+end
+
+function DummyFunc()
+
+end
+]]></script>
+
+<div style="width:730px;height:510px;" >
+    <div style="float:left;width:730px;height:505px;" class="pane">
+        <div style="height:19px;">
+          <div class="windowlabel">寄售</div>
+          <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:682px;" />
+        </div>
+
+        <div style="width:720px;height:478px;margin-top:3px;" class="border">        
+            <div style="height:27px;margin-top:3px;">
+                <pe:tabs name="tabsFilter"  onclick="MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.Filter" class="default_tabs" >
+                <pe:tab-item name="0" text="浏 览"  selected='true' />
+                <pe:tab-item name="1" text="寄 售" />
+                </pe:tabs>
+            </div>
+
+            <div style="width:710px;height:443px;margin-top:0px;" class="inborder">        
+            <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>
+            <div style="margin-top:5px;">
+                <div style="float:left;margin-top:2px;">
+                <div style="float:left;margin-left:5px;">名字:
+                </div>
+                <div style="float:left;width:152px;">
+                    <input type="text" name="txtName" style="float:left;width:152px;height:22px;" class="small_textbox" />
+                </div>
+
+                <div style="float:left;margin-left:5px;">等级:
+                </div>
+                <div style="float:left;width:28px;">
+                    <input type="text" name="txtMinLevel" style="float:left;width:28px;height:22px;" enable_ime="false" class="small_textbox" 
+                    onkeyup='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.OnPressMinLevel %>'/>
+                </div>                
+                <div style="float:left;margin-left:5px;"> - </div>
+                <div style="float:left;width:28px;">
+                    <input type="text" name="txtMaxLevel" style="float:left;width:28px;height:22px;" enable_ime="false" class="small_textbox" 
+                    onkeyup='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.OnPressMaxLevel %>'/>
+                </div>
+                
+                <div style="float:left;margin-left:5px;">品质:
+                </div>
+                <div style="float:left;">
+                    <select style="width:120px;" name="ddlQty" 
+                    DataSource='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.QtyTable %>' 
+                    onclick ='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.OnSelectQty %>'
+                    AllowUserEdit="false" >
+                    <option value='<%=Eval("value") %>'></option>
+                    </select>
+                </div>
+
+  
+                </div>
+
+                <div style="float:left;margin-left:10px;">
+                <input type="button" name="btnSearch" zorder="2"  text="搜 索"
+                onclick="<%=DoSearch %>" 
+                style="margin-left:2px;width:85px;margin-top:2px;" />
+                </div>
+
+            </div>
+            </pe:if>
+
+            <div style="margin-top:5px;">
+            <div style="float:left;width:125px;padding:2px;height:360px;" class="inborder">
+                
+                <!--buy -->
+                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>
+                
+                <div style="margin-left:40px;" valign="center" align="center">过滤器</div>
+                    <div style="width:120px;height:1px;" class="blue_line"/>
+                    <iframe src='script/apps/Aries/NPCs/ShoppingZone/ItemsFilter.html'></iframe>
+                
+                </pe:if>
+
+                <!--sell -->
+                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>
+                    <div style="margin-left:5px;">寄售物品</div>
+                    <div style=" margin-left:2px;margin-top:5px;">
+                        <div style="margin-left:2px;float:left;margin-top:2px;width:48px;height:48px;" class="block">
+                            <pe:item name="incomingItem" gsid='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.goods.gsid or -999%>' onclick='<% CancelIncomingItem %>' HideCnt="true" showdefaulttooltip="true" style="width:48px;height:48px;"/>
+                            <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.goods.copies and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.goods.copies  > 1 %>'>
+                             <div style="margin-top:-15px;text-align:right;"><%= MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.goods.copies%></div>
+                            </pe:if>
+                        </div>
+                        <input type="button" value="背包" class="defaultbutton"
+                            onclick="<%=ShowBag %>" tooltip="打开背包，就可以寄售你背包中的物品了。"
+                            style="margin-left:10px;margin-top:25px;width:40px;" /> 
+                    </div>
+                    <div style="margin-left:5px;float:left;margin-top:2px;">
+                        <%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.GetName() %>
+                    </div>
+                    <div style=" margin-left:5px;margin-top:5px;">
+                    <div >卖价</div>
+                    <img tooltip="魔豆" class="magic_bean" style="width:20px;margin-top:5px;height:20px;"/>
+                    <input type="text" name="txtSellPrice" style="float:left;width:92px;height:25px;"  enable_ime="false" class="small_textbox"
+                    onkeyup="MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.SellPrice()"/>
+                    <!--<div style="width:150px;margin-left:20px;" class="textfieldbutton" name="txtSellPrice"> 
+                    <%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.SellPrice()%>
+                    </div>-->
+                    </div>
+
+                    <div style=" margin-left:5px;margin-top:5px;">
+                    <div >寄售时间(天)</div>
+                    <select style="width:112px;margin-top:5px;" name="dllSellPeriod" AllowUserEdit="false" 
+                    DataSource='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.TimePeriodTable %>' 
+                    onclick='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.OnSelectTimePeriod() %>'>
+                    <option value='<%=Eval("value") %>'></option>
+                    </select>
+                    </div>
+
+
+                    <div style=" margin-left:5px;margin-top:5px;">
+                    <div >寄售费</div>
+                    <img tooltip="奇豆" class="stable_bean" style="width:20px;margin-top:5px;height:20px;"/>
+                    <input type="text" name="txtCommission" ReadOnly="true" style="float:left;width:92px;height:25px;"class="small_textbox" />
+                    <!--<div style="width:150px;margin-left:20px;" class="textfieldbutton" name="txtCommission"> 
+                    <%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.CalcCommission()%>
+                    </div>-->
+                    </div>
+
+                    <!--<div style=" margin-left:5px;margin-top:5px;">
+                    <div >是否显示自己姓名</div>
+                    <select style="width:112px;margin-top:5px;"
+                    DataSource='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.InfoTable %>' 
+                     name="ddlDisplaySelfInfo" AllowUserEdit="false" onclick='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.OnSelectDisplaySelfInfo() %>'>
+                    <option value='<%=Eval("value") %>'></option>
+                    </select>
+                    </div>-->
+
+                </pe:if>
+
+
+            </div>
+
+
+            <div style="float:left;width:570px;height:360px;" class="inborder">
+                <div style="margin-left:2px;margin-top:1px;width:566px;height:25px;" class="title_line">
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>
+
+
+                    <input type="button" name="0" value="名字" class="titlebutton" style="float:left;width:175px;text-align:left;margin-left:2px;"/>
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.sort_col == "0" and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.order == "ASC" %>'>
+                    <div zorder="2" style="float:left;position:relative;margin-left:-100px;margin-top:4px;width:16px;height:32px;background:url(texture/aries/common/themeteen/ascorder_32bits.png);"></div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.sort_col == "0" and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.order == "DESC" %>'>
+                    <div zorder="2" style="float:left;position:relative;margin-left:-100px;margin-top:4px;width:16px;height:32px;background:url(texture/aries/common/themeteen/descorder_32bits.png);"></div>
+                    </pe:if>
+
+                    <input type="button" value="单价" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:60px;" enabled="false"/>
+                    <input type="button" value="数量" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:48px;" enabled="false"/>
+                 
+                    <input type="button" name="2" value="总价(魔豆)" class="titlebutton" style="float:left;text-align:left;width:80px;" />
+                    
+                    <input type="button" name="1" value="等级" class="titlebutton" style="float:left;width:30px;text-align:left;" />
+                    <input type="button" value="部位" class="titlebutton" style="float:left;text-align:left;width:35px;" enabled="false"/>
+                    <input type="button" value="系别" class="titlebutton" style="float:left;text-align:left;width:50px;" enabled="false"/>
+
+                    <input type="button" value="截止时间" class="titlebutton" style="float:left;text-align:left;width:80px;" enabled="false"/>
+
+                    <!--<input type="button" name="2" value="出售者" class="titlebutton" style="float:left;text-align:left;width:50px;" />-->
+                    </pe:if>
+
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>
+                    <input type="button" name="0" value="名字" class="titlebutton" style="float:left;width:175px;text-align:left;margin-left:2px;"/>
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.sort_col == "0" and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.order == "ASC" %>'>
+                    <div zorder="2" style="float:left;position:relative;margin-left:-100px;margin-top:4px;width:16px;height:32px;background:url(texture/aries/common/themeteen/ascorder_32bits.png);"></div>
+                    </pe:if>
+                    <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.sort_col == "0" and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.order == "DESC" %>'>
+                    <div zorder="2" style="float:left;position:relative;margin-left:-100px;margin-top:4px;width:16px;height:32px;background:url(texture/aries/common/themeteen/descorder_32bits.png);"></div>
+                    </pe:if>
+
+                    <input type="button" value="单价" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:80px;" enabled="false"/>
+                    <input type="button" value="数量" class="titlebutton" style="background:;float:left;font-size:12px;text-align:left;width:60px;" enabled="false"/>
+                 
+                    <input type="button" name="2" value="售价(魔豆)" class="titlebutton" style="float:left;text-align:left;width:100px;" />
+                    
+                    <input type="button" value="截止时间" class="titlebutton" style="float:left;text-align:left;width:75px;" enabled="false"/>
+
+                    </pe:if>
+
+                </div>
+
+                <pe:gridview DataSource="<%=GetDataSource %>" name="pegvwGemsView" 
+                    CellPadding="2" ItemsPerLine="1" AllowPaging="true" pagesize="20" >
+                    <Columns>
+                        <div style="height:27px;margin-top:0px;" >
+                        <pe:if condition='<%=Eval("is_selected")%>' >
+                            <div style="width:566px;height:28px;background:url(Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png);">
+                                <div style="margin-top:1px;float:left;width:26px;height:26px;" class="block">
+                                    <pe:item onclick='<% DummyFunc %>' serverdata = '<%=Eval("serverdata")%>' gsid='<%=Eval("gsid")%>' showdefaulttooltip="true" style="width:26px;height:26px;"/>
+                                </div>
+
+                                <%=GenEquipColorName2(Eval("id"),Eval("name"),Eval("qty"))         %>     
+                                <!-- purchase -->
+                                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>  
+                                <input type="button" onclick="OnClickItem"  name='<%=Eval("id")%>' style="float:left;width:60px;text-align:left;margin-top:1px;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit")) .. "魔豆" %>'/>
+                                <input type="button" onclick="OnClickItem"  name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                                <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>'  style="float:left;width:80px;color:#52dff4;margin-top:2px;text-align:left;background:;" value='<%=CalcTotalPrice(Eval("price")) %>'tooltip='<%="总价:" .. CalcTotalPrice(Eval("price")) .. "魔豆" %>'/>
+                                <input type="button" onclick="OnClickItem"  name='<%=Eval("id")%>' style="float:left;width:26px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("level")) %>'/>
+                                <input type="button" onclick="OnClickItem"  name='<%=Eval("id")%>' style="float:left;width:35px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("typ")) %>'/>
+                                <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("class")) %>'/>
+                                <input type="button" onclick="OnClickItem"  name='<%=Eval("id")%>' style="float:left;width:70px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("time")) %>' tooltip='<%="截止时间:" .. tostring(Eval("unformattedtime")) %>'/>
+                                </pe:if>
+
+                                <!-- consignment -->
+                                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>  
+                                <input type="button" enabled="false" name='<%=Eval("id")%>' style="float:left;width:80px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit")) .. "魔豆" %>'/>
+                                <input type="button"  enabled="false" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                                <input type="button" enabled="false"style="float:left;width:82px;color:#52dff4;margin-top:2px;text-align:left;background:;" value='<%=tostring(Eval("price")) %>'tooltip='<%="售价:" .. tostring(Eval("price")) .. "魔豆" %>'/>
+                                <input type="button" enabled="false" name='<%=Eval("id")%>' style="float:left;width:150px;margin-top:1px;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unformattedtime")) %>' tooltip='<%="截止时间:" .. tostring(Eval("unformattedtime")) %>'/>
+                                </pe:if>
+
+                            </div>
+                        </pe:if>
+
+                        <pe:if condition='<%=not Eval("is_selected")%>' >
+                            <input type="button" MouseOver_BG="Texture/Aries/Common/ThemeTeen/list_mouse_default_bg_32bits.png" Normal_BG="Texture/Aries/Common/ThemeTeen/list_mouse_default_bg_32bits.png" Pressed_BG="Texture/Aries/Common/ThemeTeen/list_mouse_selected_bg_32bits.png"
+                                    style="position:relative;width:566px;height:28px;background:"
+                                    onclick="OnClickItem" name='<%=Eval("id")%>' value='<%=Eval("id")%>'/>
+                            <div style="float:left;margin-top:1px;width:26px;height:26px;" class="block">
+                                <pe:item onclick="DummyFunc" gsid='<%=Eval("gsid")%>' serverdata = '<%=Eval("serverdata")%>' showdefaulttooltip="true" style="width:26px;height:26px;"/>
+                            </div>
+                            <%=GenEquipColorName(Eval("id"),Eval("name"),Eval("qty"))         %>
+                            <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>  
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit")) .. "魔豆" %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:80px;color:#52dff4;margin-top:2px;text-align:left;background:;" value='<%=CalcTotalPrice(Eval("price")) %>'tooltip='<%="总价:" .. CalcTotalPrice(Eval("price")) .. "魔豆" %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:26px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("level")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:35px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("typ")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:50px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("class")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="text-align:left;float:left;width:70px;margin-top:1px;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("time")) %>' tooltip='<%="截止时间:" .. tostring(Eval("unformattedtime")) %>'/>
+                            </pe:if>
+
+                            <!-- consignment -->
+                            <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>  
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:80px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unit")) %>'tooltip='<%="单价:" .. tostring(Eval("unit")) .. "魔豆" %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:60px;margin-top:1px;text-align:left;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("copies")) %>'tooltip='<%="数量:" .. tostring(Eval("copies")) %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:82px;color:#52dff4;margin-top:2px;text-align:left;background:;" value='<%=tostring(Eval("price")) %>'tooltip='<%="售价:" .. tostring(Eval("price")) .. "魔豆" %>'/>
+                            <input type="button" onclick="OnClickItem" name='<%=Eval("id")%>' style="float:left;width:150px;margin-top:1px;font-size:12px;color:#52dff4;background:;" value='<%=tostring(Eval("unformattedtime")) %>' tooltip='<%="截止时间:" .. tostring(Eval("unformattedtime")) %>'/>
+                            </pe:if>
+                        </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 and  (MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.is_lastpage == false or not MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.is_lastpage) %>'>
+                        <div style="text-align:center;font-size:12px;" class="defaultstyle">
+                            按条件搜索，获取正在寄售的物品<br />
+                            请点击左侧的分类, 或输入物品的名字并点击搜索<br />
+                            可以输入名字的一部分
+                        </div>
+                        </pe:if>
+                        
+                        <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsFilter.class ~= nil and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 and  #MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.DisplayItems == 0 %>'>
+                        <div style="text-align:center;font-size:12px;" class="defaultstyle">没有搜索到指定的物品</div>
+                        </pe:if>
+                        <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.pindex ==0 and (MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.is_lastpage == false or not MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.is_lastpage) %>'>
+                        <div style="text-align:center;" class="defaultstyle">把你的物品托管到寄售行进行售卖</div>
+                        </pe:if>
+                        <!--<pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.pindex > 0 and MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.is_lastpage == false and #MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.DisplayItems == 0 %>'>
+                        <div style="text-align:center;" class="defaultstyle">没有搜索到指定的物品</div>
+                        </pe:if>-->
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>
+                        <div style="text-align:center;" class="defaultstyle">正在更新数据...</div>
+                        </pe:if>
+                    </FetchingDataTemplate>
+	                <PagerSettings Position="Bottom" height="0" style="margin-left:252px;margin-top:5px;width:368px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate>
+	                    <form>
+                           
+	                    </form>   
+	                </PagerTemplate>
+                </pe:gridview>
+
+                <div style="margin-left:230px;margin-top:10px;">
+                <input type="button" name="0" value="上一页" onclick="DoSearch" />
+                <input type="button" name="1" value="下一页" style="margin-left:5px;" onclick="DoSearch" />
+                </div>
+            </div>
+
+            <div style="margin-top:10px;margin-left:10px;">
+                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>
+                <!--<div style="float:left; margin-left:10px;">金豆</div>-->
+                <img tooltip="奇豆" class="stable_bean" style="width:20px;height:20px;"/>
+                <div style="float:left;width:150px;"><pe:slot type="count" style="margin-left:5px;"gsid='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.SELL_ID %>'/>
+                    <!--<input type="text" ReadOnly="true" name="txtGoldBean" value='<%=tostring(MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.GetItemCopies(MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.SELL_ID)) %>' style="float:left;width:152px;height:22px;font-size:12px;background:;margin-top:-2px;" class="small_textbox" />-->
+                </div>
+                <div style="float:left; margin-left:-186px;">
+                <!--<input type="button" style="position:relative;margin-top:10px;color:#606060;background:" tooltip="打开背包，就可以寄售你背包中的物品了。" value="点击背包,选择要寄售的物品. 如无人购买,物品会通过邮件返还"/>-->
+                </div>
+                </pe:if>
+                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 0 %>'>
+                <img tooltip="魔豆" class="magic_bean" style="width:20px;height:20px;"/>
+                <div style="float:left;width:150px;">
+                    <pe:slot type="count" gsid="984" style="margin-left:5px;"></pe:slot>
+                </div>
+                <input type="button" name="" zorder="2" text="购买" tooltip="选择寄售中的物品即可直接购买，或者再次购买已选择的物品，买下的物品会被邮寄到你的邮箱。"
+                    onclick="Buy" 
+                    style="margin-left:350px;width:85px;height:25px;" />  
+                <input type="button" name="" zorder="2" text="关闭"
+                onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.CloseWindow %>" 
+                style="margin-left:5px;width:85px;height:25px;" />  
+                </pe:if>
+  
+            </div>
+
+                <pe:if condition='<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.filter == 1 %>'>
+                    <input type="button" name="" zorder="2" text="开始寄售" onclick="Sell" 
+                        style="margin-left:10px;margin-top:7px;width:85px;height:25px;" />  
+
+                    <input type="button" name="" zorder="2" text="取消寄售"
+                    onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.CancelSell %>" tooltip="选择的寄售物品将被取消,取消的物品会被邮寄到你的邮箱。"
+                    style="margin-left:420px;margin-top:7px;width:85px;height:25px;" />  
+                    <input type="button" name="" zorder="2" text="关闭"
+                    onclick="<%=MyCompany.Aries.NPCs.ShoppingZone.ItemsConsignment.CloseWindow %>" 
+                    style="margin-left:10px;margin-top:7px;width:85px;height:25px;" />  
+                </pe:if>
+            </div>
+             </div>
+        </div>
+    </div>  
+    <pe:if condition='<%=MyCompany.Aries.Desktop.AvatarBag.Visible %>'>
+        <div style="float:left;margin-left:-520px;margin-top:19px;">
+            <iframe src='script/apps/Aries/Desktop/AvatarBag.html' style="width:432px;height:433px;" class="window"></iframe>
+        </div>  
+    </pe:if>
+</div>
+</pe:mcml> 
+</body>
+</html>

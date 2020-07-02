@@ -1,0 +1,127 @@
+﻿<!-- "script/apps/Aries/NPCs/SnowArea/30361_LifeBottle_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function FoundAllItems()
+    return MyCompany.Aries.Quest.NPCs.LifeBottle.FoundAllItems();
+end
+OpenQuest = function()
+    MyCompany.Aries.Quest.NPCs.LifeBottle.OpenQuest();
+end
+GiveSeed = function()
+    MyCompany.Aries.Quest.NPCs.LifeBottle.DoFinished();
+end
+Condition1 = function()
+    return not MyCompany.Aries.Quest.NPCs.LifeBottle.IsAccepted();
+end
+Condition2 = function()
+    return MyCompany.Aries.Quest.NPCs.LifeBottle.IsAccepted();
+end
+Condition3 = function()
+    return MyCompany.Aries.Quest.NPCs.LifeBottle.IsFinished();
+end
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>'  >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='30361' />
+            <pe:placeholder id="name" source="{this}" value='生机瓶'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>  
+                
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <!-- quesgt is finished -->
+			    <pe:answer-if condition = '<%=Eval("Condition3") %>' target_state = "6"/>
+	            <!-- quest is unopen-->
+			    <pe:answer-if condition = '<%=Eval("Condition1") %>' target_state = "1"/>
+	            <!-- quest is opening-->
+			    <pe:answer-if condition = '<%=Eval("Condition2") %>' target_state = "3"/>
+		    </pe:answer>
+	    </pe:state>
+	    <!-- quest is unopen-->
+	    <pe:state id = "1">
+		    我是生机瓶，里面保存着所有哈奇努力寻找到的春天气息，但现在的气息还是太少，你能帮忙寻找春天的气息，一起召唤春天吗？
+		    <br />
+		    如果12号之前收集不到足够多的春天气息，哈奇小镇将永远笼罩在寒冷中了。。。
+		    <pe:answer template_id = "iwill">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("OpenQuest")%>' target_state = "2"/>
+		    </pe:answer>
+
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "2">
+		   春天的气息被神秘怪物藏得很深，聪明勇敢的小哈奇，快快在哈奇小镇好好找找吧，提供2条线索给你：春江水暖鸭先知；谁家新燕啄春泥！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true"  target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <!-- quest is opening-->
+	    <pe:state id = "3">
+		   聪明的小哈奇，哈奇小镇中春天气息隐藏的两个东西你找到了吗？快快把它们放到我的瓶子中来哦！
+		    <pe:answer template_id = "giveyou">
+			    <pe:answer-if condition = '<%=FoundAllItems() %>' target_state = "4"/>
+			    <pe:answer-if condition = 'true' target_state = "5"/>
+		    </pe:answer>
+		        <br/>
+		    <pe:answer template_id = "later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "4">
+		    太棒了，你真是个聪明的小哈奇！谢谢你收集到的春天气息，我瓶子中的气息已经越来越多了，相信12号我们一定能把春天召唤来的！
+		    <br />
+		    送你3颗康乃馨种子吧，种出的康乃馨会有很多MM喜欢的！
+		    <pe:answer template_id = "well">
+			    <pe:answer-if condition = 'true' transition = '<%=Eval("GiveSeed") %>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+           春天的气息散布隐藏在两个重要的地方，你还没有找到，快快多留意线索，再去看看吧，我们需要你的努力，加油呀！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "6">
+          在大家的努力下，春天的气息越来越多了，相信12号我们一定能把春天召唤出来的！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = 'true' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+        
+</pe:mcml>
+</body>
+</html>

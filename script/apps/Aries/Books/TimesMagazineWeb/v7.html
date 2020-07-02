@@ -1,0 +1,118 @@
+﻿<!-- "script/apps/Aries/Books/TimesMagazineWeb/v7.html" 
+Company: ParaEnging Co. & Taomee Inc.
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TimesMagazineWeb, by zhangruofei, 2010/06/09</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Books/TimesMagazineWeb/TimesMagazineWeb.lua");
+
+--创想家家园ID号
+local homepageid = { "86155492", "49110133", "6413288", "8509696", "44041323" }
+
+--页眉信息
+local pageheadinfo = 
+{
+{ name="哈奇新闻", startpage=2, endpage=10 },
+{ name="新宠物档案", startpage=10, endpage=10 },
+{ name="镇长信箱", startpage=11, endpage=11 },
+{ name="创想家", startpage=12, endpage=12 },
+{ name="哈奇们的精彩故事", startpage=13, endpage=13 },
+{ name="不可不知的操作方法", startpage=14, endpage=14 },
+{ name="精彩预告", startpage=15, endpage=15 },
+
+}
+
+MyCompany.Aries.Books.TimesMagazineWeb.Init(homepageid,pageheadinfo);
+]]></script>
+
+
+  
+  
+<input type="button" onclick="MyCompany.Aries.Books.TimesMagazineWeb.Confirm()" zorder="2" style="position:absolute;margin-left:775px;margin-top:45px;width:32px;height:32px;background:Texture/Aries/Books/TimesMagazineWeb/close_11_20_32bits.png;"/>
+<div style="margin-top:-75px;width:960px;height:560px;background:url(Texture/Aries/Books/TimesMagazineWeb/bg.png#0 0 960 560);">
+    <pe:gridview DataSource="<%=MyCompany.Aries.Books.TimesMagazineWeb.DS_Func%>" name="TimesMagazineWeb_v7" 
+        CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="1">
+        <Columns>
+            <div style="height:560px;">
+                <div style="height:560px;margin-left:123px;margin-top:70px;">
+                    <img src='<%=Eval("background")%>' zorder="-2" style="width:680px;height:420px;" />
+                </div>
+                <div style="margin-left:68px;margin-top:-574px;width:500px;height:560px">
+
+                    <!--打印页眉-->
+                    <div style="position:relative;margin-left:95px;margin-top:30px;width:256px;height:128px;background:url();font-size:12px;">
+                        <%=MyCompany.Aries.Books.TimesMagazineWeb.GetPageHead(Eval("index")) %>
+                    </div>
+
+                    <pe:if condition='<%=Eval("index") == 1%>'>
+                        <div style="position:relative;margin-left:522px;margin-top:20px;width:256px;height:128px;background:url();font-size:12px;">
+                            2009年12月31日 第7期
+                            <br/>
+                            下期出版时间:2010年01月08日
+                        </div>
+
+                        <!--显示目录-->
+                        <%=MyCompany.Aries.Books.TimesMagazineWeb.ShowCatalog(63,153,17) %>
+
+                        <div style="position:relative;margin-left:220px;margin-top:110px;width:200px;height:120px;background:url()">
+                            <a tooltip="" style="width:300px;height:180px;background:url()" name="c" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" param1='2'><div style="width:300px;height:180px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:220px;margin-top:250px;width:300px;height:120px;background:url()">
+                            <a tooltip="" style="width:400px;height:180px;background:url()" name="c" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" param1='2'><div style="width:400px;height:180px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:440px;margin-top:110px;width:400px;height:120px;background:url()">
+                            <a tooltip="" style="width:400px;height:350px;background:url()" name="c" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" param1='8'><div style="width:400px;height:350px;"/></a>
+                        </div>
+                        <div style="position:relative;margin-left:440px;margin-top:250px;width:400px;height:120px;background:url()">
+                            <a tooltip="" style="width:400px;height:350px;background:url()" name="c" onclick="MyCompany.Aries.Books.TimesMagazineWeb.GoTo" param1='7'><div style="width:400px;height:350px;"/></a>
+                        </div>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 11%>'>
+                        <input type="button" animstyle="23" style="margin-left:406px;margin-top:75px;width:64px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png)" tooltip="给罗德镇长写信" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteToRod()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 13%>'>
+                        <input type="button" animstyle="23" style="margin-left:418px;margin-top:68px;width:64px;height:32px;background:url(Texture/Aries/Books/TimesMagazineWeb/mail_large.png)" tooltip="写信告诉帕帕" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnWriteSomeSecret()"/>
+                    </pe:if>
+                    <pe:if condition='<%=Eval("index") == 12%>'>
+                        <div style="float:right;margin-left:340px;margin-top:249px;">
+                            <input type="button" zorder="1" style="margin-left:0px;margin-top:-2px;width:80px;height:20px;background:url(Texture/Aries/Books/TimesMagazineWeb/gohome_32bits.png#0 0 80 20)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnClickHomeland()" name='1'/><br/>
+                            <input type="button" zorder="1" style="margin-left:0px;margin-top:-2px;width:80px;height:20px;background:url(Texture/Aries/Books/TimesMagazineWeb/gohome_32bits.png#0 0 80 20)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnClickHomeland()" name='2'/><br/>
+                            <input type="button" zorder="1" style="margin-left:0px;margin-top:-3px;width:80px;height:20px;background:url(Texture/Aries/Books/TimesMagazineWeb/gohome_32bits.png#0 0 80 20)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnClickHomeland()" name='3'/><br/>
+                            <input type="button" zorder="1" style="margin-left:0px;margin-top:-3px;width:80px;height:20px;background:url(Texture/Aries/Books/TimesMagazineWeb/gohome_32bits.png#0 0 80 20)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnClickHomeland()" name='4'/><br/>
+                            <input type="button" zorder="1" style="margin-left:0px;margin-top:-3px;width:80px;height:20px;background:url(Texture/Aries/Books/TimesMagazineWeb/gohome_32bits.png#0 0 80 20)" onclick="MyCompany.Aries.Books.TimesMagazineWeb.OnClickHomeland()" name='5'/><br/>
+                        </div>
+                        <br/>
+                    </pe:if>
+                </div>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            Empty
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            Searching...
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="0" style="margin-left:140px;margin-top:-100px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" invisibleondisabled="true" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:0px;width:48px;height:48px;background:url(Texture/Aries/Books/TimesMagazineWeb/previous_32bits.png# 8 8 48 48);"/>
+	            <input type="button" name="next" invisibleondisabled="true" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:588px;margin-top:10px;width:48px;height:48px;background:url(Texture/Aries/Books/TimesMagazineWeb/next_32bits.png# 8 8 48 48);"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</div>
+<div style="width:960px;height:560px;margin-top:-560px;background:url();">
+    <img src="Texture/Aries/Books/TimesMagazineWeb/Magazine_bg_12_4_Pierced_32bits.png" enabled="false" style="width:1024px;height:1024px;"/>
+</div>
+
+</pe:mcml>
+</body>
+</html>

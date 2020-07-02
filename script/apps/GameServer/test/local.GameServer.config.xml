@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- game server configuration file -->
+<GameServer>
+  <!--which ip and port this server listens to. As well as the nid of itself.-->
+  <config compress_incoming = "true" host="127.0.0.1" port="60001" nid="1001" debug = "true" public_files="config/NPLPublicFiles.xml" log_level="DEBUG">
+    <!--where the REST interface send the message response back to-->
+    <rest reply_file="script/apps/GameServer/rest_client.lua" 
+          api_file="config/WebAPI.config.xml" />
+  </config>
+  
+  <!--specify the number of NPL states used to service requests, each state matches to a physical thread
+  npl state name is the world id
+  -->
+  <npl_states>
+    <npl_state name="1"/>
+    <!--<npl_state name="2"/>
+    <npl_state name="3"/>
+    <npl_state name="4"/>-->
+  </npl_states>
+
+  <!--known runtime addresses and their nid used by the server: NPL.AddNPLRuntimeAddress(server_address);-->
+  <npl_runtime_addresses>
+    <address host="127.0.0.1" port="60001" nid="router1"/>
+    <address host="127.0.0.1" port="60001" nid="1001"/>
+    <address host="127.0.0.1" port="60001" nid="2001"/>
+    <address host="127.0.0.1" port="60001" nid="2901"/>
+  </npl_runtime_addresses>
+
+  <!--home world server grids: we can use game server as home server or use dedicated home server -->
+  <homegrids>
+    <homegrid address="(1)1001" id="1"/>
+  </homegrids>
+</GameServer>

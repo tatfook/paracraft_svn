@@ -1,0 +1,226 @@
+<!-- "script/apps/Aries/Combat/UI/AdditionalLootPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Combat/UI/AdditionalLootPage.lua")
+local AdditionalLootPage = commonlib.gettable("MyCompany.Aries.Combat.AdditionalLootPage");
+AdditionalLootPage.OnInit();
+local pageCtrl = document:GetPageCtrl();
+function ClosePage()
+     pageCtrl:CloseWindow();
+end
+function GetModelValue()
+    if(AdditionalLootPage.boss_info and AdditionalLootPage.boss_info.asset)then
+        local assetfile = AdditionalLootPage.boss_info.asset;
+        local scale = AdditionalLootPage.boss_info.scale or 1;
+        local asset = Map3DSystem.App.Assets.asset:new({filename = assetfile})
+	    local objParams = asset:getModelParams()
+        if(objParams ~= nil) then
+            objParams.facing = 0;
+            objParams.scaling = scale;
+            return commonlib.serialize_compact(objParams);
+	    end
+    end
+end
+function DS_Func(index)
+    return AdditionalLootPage.DS_Func(index);
+end
+function GetBossName()
+    if(AdditionalLootPage.boss_info)then
+        return AdditionalLootPage.boss_info.displayname;
+    end
+end
+function GetBossNameAndLevel()
+    if(AdditionalLootPage.boss_info)then
+        return string.format("%s %d级",AdditionalLootPage.boss_info.displayname or "", AdditionalLootPage.boss_info.level or 0);
+    end
+end
+function GetAdditionTitle()
+    return string.format("打开【%s】守护的宝箱可以得到额外奖励",GetBossName() or "");
+end
+function RequestAdditionalLootPlain()
+    AdditionalLootPage.RequestAdditionalLootPlain()
+end
+function RequestAdditionalLootAdv()
+    AdditionalLootPage.RequestAdditionalLootAdv()
+end
+
+function PlayCallback()
+    pageCtrl:SetUIValue("success_icon","");
+end
+function StopCallback()
+    pageCtrl:SetUIValue("success_icon","Texture/Aries/Desktop/GemMerge/tuijian_32bits.png; 0 0 40 25");
+	AdditionalLootPage.motion_is_played = true;
+end
+function LoadMovieSource()
+     return 
+    [[
+    <Motions>
+        <Motion Duration="500" >
+                <MotionLine TargetType="Mcml" RenderParent="movie_item_parent">
+                <Frame Time="0" Visible="false" X="0" Y="0" ScaleX="10" ScaleY="10" Width="120" Height="75" AssetFile="script/apps/Aries/Combat/UI/AdditionalLootMotion.html" />
+                <Frame Time="50" Visible="true" X="0" Y="0" ScaleX="10" ScaleY="10" Width="120" Height="75" AssetFile="script/apps/Aries/Combat/UI/AdditionalLootMotion.html" />
+                <Frame Time="500" Visible="true" X="0" Y="0" ScaleX="1" ScaleY="1"  Width="120" Height="75" FrameType="easeOutQuad" AssetFile="script/apps/Aries/Combat/UI/AdditionalLootMotion.html" />
+            </MotionLine>
+        </Motion>
+    </Motions>
+    ]]
+end
+function IsEnabled()
+    return AdditionalLootPage.IsEnabled();
+end
+function DoPlay()
+    if(not AdditionalLootPage.motion_is_played)then
+        pageCtrl:CallMethod("movie_player","DoPlay");
+    else
+        pageCtrl:SetUIValue("success_icon","Texture/Aries/Desktop/GemMerge/tuijian_32bits.png; 0 0 40 25");
+    end
+end
+function DS_Func_all_loots(index)
+     return AdditionalLootPage.DS_Func_all_loots(index);
+end
+function GetTooltip()
+    local s =[[
+非Vip:1次
+Vip1-3:2次
+Vip4-6:3次
+Vip7-8:4次
+    ]]
+    return s;
+end
+function GetChoicCntStr()
+    local cnt = AdditionalLootPage.GetChoicCnt();
+    return string.format("剩余%d次",cnt);
+end
+function IsInPublicWorld()
+    NPL.load("(gl)script/apps/Aries/Scene/WorldManager.lua");
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    return WorldManager:IsInPublicWorld()
+end
+function OnQuit()
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local world_info = WorldManager:GetCurrentWorld()
+    local s = string.format("确认要离开【%s】吗？",world_info.world_title or "");
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+		    WorldManager:TeleportBack();
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+end
+function GetTip_stamina()
+    return string.format("消耗:%d精力值",AdditionalLootPage.stamina_cost or 0)
+end
+function GetTip2_stamina()
+    return string.format("消耗:%d精力值 1黄金钥匙",AdditionalLootPage.stamina_cost or 0)
+end
+echo("===============AdditionalLootPage.boss_info in page");
+echo(AdditionalLootPage.boss_info);
+]]></script>
+<aries:window width="650" height="500" name="wnd" title="恭喜" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/character_icon_32bits.png" >
+    <div style="margin-top:30px;">
+         <div style="float:left;margin-left:8px;width:310px;height:450px;">
+             <div style="width:310px;height:430px;" class="border_bg1_css">
+                <div style="margin-left:2px;margin-top:2px;width:306px;height:30px;text-align:center;padding-top:4px;" class="border_bg3_css">恭喜你获得了以下奖励</div>
+                <div style="position:relative;margin-left:10px;height:400px;">
+                        <pe:gridview name="loots_view" DataSource="<%=DS_Func%>"  ItemsPerLine="6" AllowPaging="false" pagesize="12">
+                            <Columns>
+                                <div style="margin-left:2px;margin-top:2px;width:46px;height:46px;padding:4px;" class="block">
+                                    <pe:if condition='<%=Eval("gsid") and Eval("gsid") >= 0%>'>
+                                        <pe:item gsid='<%=Eval("gsid")%>' style="width:38px;height:38px;" ShowCount='<%=Eval("cnt") %>' isclickable="false"  showdefaulttooltip="true" />
+                                    </pe:if>
+                                </div>
+                            </Columns>
+	                        <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				                    <PagerTemplate>
+					                    <form>
+						                    <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							                    <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						                    <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                                    </form>
+				                    </PagerTemplate>
+                        </pe:gridview>
+                </div>
+                <div style="margin-top:100px;">
+                    <div style="margin-left:2px;margin-top:2px;width:306px;height:30px;text-align:center;padding-top:4px;" class="border_bg3_css"><%= GetAdditionTitle()%></div>
+                    <div style="float:left;margin-left:4px;margin-top:2px;width:150px;height:190px;">
+                        <div style="margin-left:0px;width:150px;height:150px;" class="spark_bg">
+                            <div tooltip="可能获得钱袋等基本掉落。"  style="position:relative;margin-left:11px;margin-top:10px;width:128px;height:128px;background:url(Texture/Aries/Common/ThemeTeen/others/silverbox_32bits.png)"/>
+                        </div>
+                        <div style="text-align:center;margin-top:10px;color:#ffffff;"><%=GetTip_stamina()%></div>
+                        <pe:if condition='<%=IsEnabled()%>'>
+                            <input type="button" style="margin-left:15px;margin-top:10px;width:120px;height:30px;" value="立即打开" onclick="RequestAdditionalLootPlain" class="defaultbutton"/>
+                        </pe:if>
+                        <pe:if condition='<%=not IsEnabled()%>'>
+                            <input type="button" style="margin-left:15px;margin-top:10px;width:120px;height:30px;" value="立即打开" enabled="false" class="defaultbutton"/>
+                        </pe:if>
+                        <div style="text-align:center;margin-top:0px;color:#ffffff;" tooltip="<%=GetTooltip()%>" ><%=GetChoicCntStr()%></div>
+                    </div>
+                    <div style="float:left;width:150px;margin-left:2px;margin-top:2px;height:190px;" >
+                        <div style="width:150px;height:150px;" class="spark_bg">
+                            <div tooltip="可能获得Boss的全部掉落。" style="position:relative;margin-left:11px;margin-top:10px;width:128px;height:128px;background:url(Texture/Aries/Common/ThemeTeen/others/goldbox_32bits.png)"/>
+                        </div>
+                         <div style="text-align:center;margin-top:10px;color:#ffffff;"><%=GetTip2_stamina()%></div>
+                        <pe:if condition='<%=IsEnabled()%>'>
+                            <input type="button" style="margin-left:15px;margin-top:10px;width:120px;height:30px;" value="立即打开" onclick="RequestAdditionalLootAdv" class="defaultbutton"/>
+                        </pe:if>
+                        <pe:if condition='<%=not IsEnabled()%>'>
+                            <input type="button" style="margin-left:15px;margin-top:10px;width:120px;height:30px;" value="立即打开" enabled="false" class="defaultbutton"/>
+                        </pe:if>
+                        <div style="text-align:center;margin-top:0px;color:#ffffff;" tooltip="<%=GetTooltip()%>" ><%=GetChoicCntStr()%></div>
+                    </div>
+                </div>
+             </div>
+             <div style="width:310px;height:33px;" class="border_bg1_css">
+                 <pe:if condition='<%=IsInPublicWorld()%>'>
+                     <input type="button" value="关闭" style="margin-left:115px;margin-top:5px;width:80px;" onclick="ClosePage()"/>
+                 </pe:if>
+                 <pe:if condition='<%=not IsInPublicWorld()%>'>
+                     <input type="button" value="离开" style="margin-left:115px;margin-top:5px;width:80px;" onclick="OnQuit()"/>
+                </pe:if>
+            </div>
+        </div>
+        <div style="float:left;margin-left:2px;width:323px;height:463px;" class="border_bg1_css">
+            <div style="margin-left:2px;margin-top:2px;width:319px;height:30px;text-align:center;padding-top:4px;" class="border_bg3_css"><%=GetBossNameAndLevel()%></div>
+            <div style="margin-left:2px;margin-top:0px;width:319px;height:280px;" class="spark_bg" >
+                <div>
+                    <pe:canvas3d name="FollowPetCanvas"  style="margin-left:31px;width:256px;height:256px;" DefaultRotY="-1.5" FieldOfView="1.047" miniscenegraphname="FollowPetInfoInHomeland" value="<%=GetModelValue() %>" MaskTexture="Texture/Aries/Quest/previewmask.dds" />
+                </div>
+                 <pe:div name="movie_item_parent" style="position:relative;margin-top:-255px;margin-left:180px;width:120px;height:75px;background:;" />
+                <aries:movie name="movie_player" begin="PlayCallback" end="StopCallback" DataSource="<%=LoadMovieSource()%>" />
+                <img name="success_icon" style="position:relative;margin-top:-255px;margin-left:180px;width:120px;height:75px;" />
+            </div>
+            <div style="margin-left:15px;">
+                  <pe:gridview name="all_loots_view" DataSource="<%=DS_Func_all_loots%>"  ItemsPerLine="6" AllowPaging="false" pagesize="18">
+                            <Columns>
+                                <div style="margin-left:2px;margin-top:2px;width:46px;height:46px;padding:4px;" class="block">
+                                    <pe:if condition='<%=Eval("gsid") and Eval("gsid") >= 0%>'>
+                                        <pe:item gsid='<%=Eval("gsid")%>' style="width:38px;height:38px;" ShowCount='<%=Eval("cnt") %>' isclickable="false"  showdefaulttooltip="true" />
+                                    </pe:if>
+                                </div>
+                            </Columns>
+	                        <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				                    <PagerTemplate>
+					                    <form>
+						                    <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							                    <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						                    <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                                    </form>
+				                    </PagerTemplate>
+                        </pe:gridview>
+            </div>
+        </div>
+       
+    </div>
+</aries:window>
+<!--    <%=DoPlay()%>-->
+</pe:mcml>
+</body>
+</html>
+

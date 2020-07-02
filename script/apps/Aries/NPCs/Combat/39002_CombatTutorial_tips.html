@@ -1,0 +1,99 @@
+﻿<!-- "script/apps/Aries/NPCs/Combat/39002_CombatTutorial_tip.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function DoOpen()
+    MyCompany.Aries.Quest.NPCs.DepressedBarth.DoOpen();
+end
+function IsOpened()
+    return MyCompany.Aries.Quest.NPCs.DepressedBarth.IsOpened();
+end
+function HasFullItems()
+    return MyCompany.Aries.Quest.NPCs.DepressedBarth.HasFullItems();
+end
+function DoExchange()
+    MyCompany.Aries.Quest.NPCs.DepressedBarth.DoExchange();
+end
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]>
+</script>
+    <pe:dialog NPC_id='<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">        
+    <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+        <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+        <pe:placeholder id="name" source="{this}" value='有心病的抱抱龙-巴斯'/>
+        <pe:placeholder id="content" source="{pe:state}" />
+        <pe:placeholder id="later" />
+        <pe:placeholder id="ok" />
+        <pe:placeholder id="thanks" />
+        <pe:placeholder id="giveyoustuff" />
+    </pe:template>
+	<pe:state id = "0">
+		<pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			<pe:answer-if condition = '<%=not IsOpened()%>' target_state = "1"/>
+            <pe:answer-if condition = '<%=IsOpened()%>' target_state = "2"/>
+		</pe:answer>
+	</pe:state>
+
+    <pe:state id = "1">
+        我是巴斯，一直病着呢，其实是心病啊！我好想我以前丢失的那个玩具人刨刨。听说小镇上有一些玩具零件，你把它们找来也许我能再做一个，你能帮我这个忙吗？
+        <pe:answer template_id="ok">
+			<pe:answer-if condition = "true" transition="<%=DoOpen() %>" target_state = "-1"/>
+		</pe:answer>
+        <pe:answer template_id="later">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+
+	<pe:state id = "2">
+		我好想念我的玩具人刨刨，你有找到那些零件吗？我看看能不能再做一个。
+		<pe:answer template_id="giveyoustuff">
+			<pe:answer-if condition = "<%=not HasFullItems() %>" target_state = "3"/>
+			<pe:answer-if condition = "true" target_state = "4"/>
+		</pe:answer>
+		<br />
+        <pe:answer template_id="later">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+    <pe:state id = "3">
+		材料还没找齐吗？要仔细找呀，我也不知道他们具体在哪，哎哟，我好想念我的刨刨！
+		<pe:answer template_id = "ok">
+			<pe:answer-if condition = "true" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+	<pe:state id = "4">
+		哇！真的被你都找到了，太好嘞，我不再忧郁了，来吧让我做一个玩具人吧，虽然不是原来那个，我还是有点小开心呐。这个玩具人就送给你当宠物吧。我也不在医院待着啦。
+		<pe:answer template_id = "thanks">
+			<pe:answer-if condition = "true" transition="<%=DoExchange() %>" target_state = "-1"/>
+		</pe:answer>
+	</pe:state>
+</pe:dialog>    
+</pe:mcml>
+</body>
+</html>

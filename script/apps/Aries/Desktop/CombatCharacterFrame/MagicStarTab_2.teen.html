@@ -1,0 +1,80 @@
+<!-- "script/kids/3DMapSystemUI/Creator/Objects/ObjectSelectPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+
+function OpenVIPshop()
+    local IsVIP = MyCompany.Aries.VIP.IsVIPAndActivated();
+    if (not IsVIP) then
+        _guihelper.MessageBox("<div style='margin-left:15px;margin-top:15px;text-align:center'>你还没有拥有魔法星，不能打开VIP精品店！</div>");
+        return
+    end
+    NPL.load("(gl)script/apps/Aries/HaqiShop/NPCShopPage.lua");
+    local NPCShopPage = commonlib.gettable("MyCompany.Aries.NPCShopPage");
+    NPCShopPage.ShowPage(-2,nil,nil,2);
+end
+
+function OpenRemoteShop()
+    local IsVIP = MyCompany.Aries.VIP.IsVIPAndActivated();
+    if (not IsVIP) then
+        _guihelper.MessageBox("<div style='margin-left:15px;margin-top:15px;text-align:center'>你还没有拥有魔法星，不能打开远程交易行！</div>");
+        return
+    end
+end
+
+function GotoMoneyBag()
+    local IsVIP = MyCompany.Aries.VIP.IsVIPAndActivated();
+    if (not IsVIP) then
+        _guihelper.MessageBox("<div style='margin-left:15px;margin-top:15px;text-align:center'>你还没有拥有魔法星，不能传送到魔法钱袋！</div>");
+        return
+    end
+    local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+    local insame_world = QuestHelp.InSameWorldByNum(0);
+	if(not insame_world)then
+			_guihelper.MessageBox("<div style='margin-left:15px;margin-top:15px;text-align:center'>魔法钱袋在彩虹岛魔法学院，不在当前岛屿，不能过去哦！回到彩虹岛魔法学院就可以找到它了！！</div>");
+		return
+	end
+
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.lua");
+    local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+    MagicStarPage.ClosePage();
+
+    local WorldManager = commonlib.gettable("MyCompany.Aries.WorldManager");
+    local worldname,position,camera = WorldManager:GetWorldPositionByNPC(30410);
+    
+    WorldManager:GotoWorldPosition(worldname,position,camera,function()
+    end,nil,true);    
+
+end
+]]></script>
+
+<div style="margin-left:-10px;margin-top:20px;width:402px;height:372px;background:;">
+  
+<!--    <input type="button" value="VIP 精品店" class="defaultbutton" style="margin-left:10px;margin-top:25px;width:80px;" onclick="OpenVIPshop"/>
+    <div style="float:left;margin-left:10px;margin-top:10px;width:50px;height:50px;background:url(Texture/Aries/Common/ThemeTeen/magicStar_ico.png#0 0 64 64)" ></div>     
+    <div style="color:#52dff4;font-size:12;margin-top:-30px;margin-left:140px;width:230px;height:80px;">
+        VIP 可以用超低价换购实用商品<br/>
+        需要魔法星等级: Lv1 以上
+    </div>-->
+
+    <input type="button" value="魔法钱袋" class="defaultbutton" style="margin-left:10px;width:80px;" onclick="GotoMoneyBag"/>
+    <div style="float:left;margin-left:10px;margin-top:-5px;width:50px;height:50px;background:url(Texture/Aries/Common/ThemeTeen/magicStar_ico.png#0 0 64 64)" ></div>     
+    <div style="color:#52dff4;font-size:12;margin-top:-45px;margin-left:140px;width:230px;height:80px;">
+        VIP 会员除了众多加成与奖励外，每周还可领取魔法学会提供的银币薪水<br/>
+        需要魔法星等级: Lv1 以上
+    </div>	
+
+<!--    <input type="button" value="远程交易行" class="defaultbutton" style="margin-left:10px;width:80px;" onclick="OpenRemoteShop"/>
+    <div style="float:left;margin-left:10px;margin-top:-5px;width:50px;height:50px;background:url(Texture/Aries/Common/ThemeTeen/magicStar_ico.png#0 0 64 64)" ></div>     
+    <div style="color:#52dff4;font-size:12;margin-top:-45px;margin-left:140px;width:230px;height:80px;">
+        VIP 会员可以免除舟车颠簸之苦，在世界中的任何地方均可打开交易行操作<br/>
+        需要魔法星等级: Lv4 以上
+    </div>-->
+</div>
+</pe:mcml>
+</body>
+</html>
+

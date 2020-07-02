@@ -1,0 +1,85 @@
+﻿<!-- "script/apps/Aries/Movie/VideoRecorder.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="VideoRecorder.lua"><![CDATA[
+MyCompany.Aries.Movie.VideoRecorder.OnInit();
+]]></script>
+<div style="background-color:#FFFFFFE0;width:480px;background:url(Texture/Aries/Profile/BasicInfo_bg_32bits.png# 0 0 64 46: 22 22 22 22)">
+<div style="padding:40px;padding-top:20px;">
+<div style="font-size:14px;font-weight:bold;margin-left:140px;">
+3D录像机
+</div>
+<hr />
+<form name="VideoRecorderForm">
+<div>常用配置：
+    <select name="ParamsSet" style="height:23px" onselect="MyCompany.Aries.Movie.VideoRecorder.OnSelectParamsSet">
+        <option value="custom" selected="true">自定义</option>
+        <option value="default" >普通默认</option>
+        <option value="Stereo720*480">3D立体</option>
+    </select>
+</div>
+<div>分辨率：
+    <select name="VideoResolution" style="height:23px">
+        <option value="300*200">宽银幕 300*200 (1.5:1)</option>
+        <option value="480*280" selected="true">宽银幕 480*280 (16:9)</option>
+        <option value="320*240">320*240</option>
+        <option value="640*480">640*480</option>
+        <option value="960*560">960*560</option>
+        <option value="current">当前分辨率</option>
+        <option value="720*480">720*480(立体)</option>
+    </select>
+</div>
+<div>帧率(FPS)：
+    <select name="FPS" style="height:23px">
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20" selected="selected">20</option>
+        <option value="29">29</option>
+        <option value="30">30</option>
+    </select>
+</div>
+<div>编码器(Codec)：
+    <div style="float:left"><input type="radio" name="Codec" value="0" />系统默认</div>
+    <div style="float:left;margin-left:5px"><input type="radio" name="Codec" value="-1" checked="true" />自选编码器</div>
+</div>
+<div><input type="checkbox" name="IsIncludeUI"/>是否包含用户界面UI</div>
+<div><input type="checkbox" name="IsIncludeHeadonText"/>是否包含头顶文字</div>
+<hr />
+<div>三维立体图像: 
+    <div style="margin-left:20px;">
+        <div>
+            立体格式:
+            <select name="StereoMode" style="height:23px">
+                <option value="0" selected="true">普通视频</option>
+                <option value="1">隔行交错</option>
+                <option value="2">左右立体</option>
+                <option value="3">上下立体</option>
+                <option value="4">隔帧交错</option>
+            </select>
+        </div>
+        <div>
+            <div style="float:left">左右眼分开距离：</div>
+            <div style="float:left">
+                <pe:sliderbar name="separationDist" style="width:250px" min="0" max="1" min_step="0.01" value="0.30"/>
+            </div>
+        </div>
+    </div>
+    <hr />
+</div>
+<div style="margin-top:5px;">
+    <input type="submit" name="OK" value="开始" style="margin-left:0px;width:60px;height:25px;background:url(Texture/Aries/Creator/btn_bg_32bits.png# 0 0 32 28:13 13 13 13)" onclick="MyCompany.Aries.Movie.VideoRecorder.OnOK()"/>
+    <input type="button" name="Cancel" value="取消" style="margin-left:50px;width:60px;height:25px;background:url(Texture/Aries/Creator/btn_bg_32bits.png# 0 0 32 28:13 13 13 13)" onclick="MyCompany.Aries.Movie.VideoRecorder.OnCancel()"/>
+    <input type="button" name="Reset" tooltip="重置到默认值" value="重置" style="margin-left:50px;width:60px;height:25px;background:url(Texture/Aries/Creator/btn_bg_32bits.png# 0 0 32 28:13 13 13 13)" onclick="MyCompany.Aries.Movie.VideoRecorder.OnReset()"/>
+</div>
+</form>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

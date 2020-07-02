@@ -1,0 +1,602 @@
+﻿<!-- "script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ItemBuildPage, by leio, 2013/1/23</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true" src="ItemBuildPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Combat/main.lua");
+local Combat = commonlib.gettable("MyCompany.Aries.Combat");
+NPL.load("(gl)script/apps/Aries/ServerObjects/Gatherer/GathererBarPage.lua");
+local GathererBarPage = commonlib.gettable("MyCompany.Aries.ServerObjects.GathererBarPage");
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/ItemBuildPage.lua");
+local ItemBuildPage = commonlib.gettable("MyCompany.Aries.Desktop.ItemBuildPage");
+local page = document:GetPageCtrl();
+ItemBuildPage.OnInit();
+function GetState()
+    return ItemBuildPage.page_state;
+end
+local learned_gsid = 50392
+local learned_exp_gsid = 50387
+if(GetState() == "rune")then
+    learned_gsid = 50392;
+    learned_exp_gsid = 50387;
+elseif(GetState() == "medicine")then
+    learned_gsid = 50397;
+    learned_exp_gsid = 50398;
+end
+function GetCopies(gsid)
+    return ItemBuildPage.GetCopies(gsid);
+end
+function GetExp()
+    return GetCopies(learned_exp_gsid);
+end
+
+
+local cur_level_stats,total_level, cur_level, cur_level_exp, cur_level_total_exp;
+
+function RefreshValues()
+
+    cur_level_stats,total_level, cur_level, cur_level_exp, cur_level_total_exp = Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, GetExp())
+    total_level = total_level or 0;
+    cur_level = cur_level or 0;
+    cur_level_exp = cur_level_exp or 0;
+    cur_level_total_exp = cur_level_total_exp or 0;
+end
+
+RefreshValues();
+function ClosePage()
+    page:CloseWindow();
+end
+function OnClickFolder(datasource,index)
+    if(datasource and index)then
+        local node = datasource[index];
+        if (node.skill_gsid==21107) then
+            NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	        local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	        goal_manager.finish("open_pill");    
+            ItemBuildPage.open_pill_click = true; 
+        else              
+            ItemBuildPage.open_pill_click = false; 
+        end
+        ItemBuildPage.OnClickFolder(node.skill_gsid);
+    end
+    
+end
+function GetMenu()
+    return ItemBuildPage.menus;
+end
+function DS_Func_Items(index)
+    return ItemBuildPage.DS_Func_Items(index);
+end
+function GetSelectedGsid()
+    return ItemBuildPage.selected_gsid;
+end
+
+function DoSelectedItem(gsid)
+    if (ItemBuildPage.open_pill_click) then
+        NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	    goal_manager.finish("select_onepill");  
+        ItemBuildPage.select_onepill_click = true;           
+    else
+        ItemBuildPage.select_onepill_click = false;           
+    end
+    ItemBuildPage.DoSelectedItem(gsid);
+end
+function GetNameByGsid(gsid)
+    local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem)then
+        return gsItem.template.name
+    end
+end
+function DoBuy(index)
+    index = tonumber(index)
+    local node = ItemBuildPage.froms[index];
+    if(not node)then
+        return
+    end
+    local gsid = node.key;
+    local need_cnt = node.value or 0;
+    need_cnt = need_cnt * ItemBuildPage.build_cnt;
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    local buy_cnt = copies - need_cnt;
+    if(buy_cnt < 0)then
+		local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+        if(gsItem and gsItem.npc_shop_items and gsItem.npc_shop_items[1])then
+            local shop = gsItem.npc_shop_items[1];
+            local npcid = shop.npcid;
+            local exid = shop.exid;
+            if(npcid and exid)then
+                local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	            command:Call({gsid = gsid, exid = exid, count = -buy_cnt, npc_shop = true, callback = function(params, msg)
+			        if(msg and msg.issuccess) then
+                        page:Refresh(1);
+			        end
+		        end });
+            end
+        else
+            _guihelper.MessageBox("这个材料不能直接购买！");
+        end
+    end
+end
+function NeedBuy(gsid,need_cnt)
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    need_cnt = need_cnt or 0;
+    need_cnt = need_cnt * ItemBuildPage.build_cnt;
+    if(need_cnt > 0 and copies < need_cnt)then
+        return true;
+    end
+end
+function GetCnt(gsid,need_cnt)
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    need_cnt = need_cnt or 0;
+    if(need_cnt > 0)then
+        local s = string.format("%d/%d",copies,need_cnt * ItemBuildPage.build_cnt);
+        return s;
+    end
+end
+function GetNeedStamina()
+    return ItemBuildPage.need_stamina * ItemBuildPage.build_cnt;
+end
+function GetNeedPoint()
+    return ItemBuildPage.need_skill_point;
+end
+function GetCopies(gsid)
+    if(not gsid)then return end
+    local __,__,__,copies = hasGSItem(gsid);
+    copies = copies or 0;
+    return copies;
+end
+function IsLocked(need_skill_point,need_skill_gsid)
+    return ItemBuildPage.IsLocked(need_skill_point,need_skill_gsid);
+end
+function IsLocked_SelectedItem()
+	return IsLocked(ItemBuildPage.need_skill_point,ItemBuildPage.skill_gsid);
+end
+function GetTooltip(need_skill_point,need_skill_gsid)
+    need_skill_point = need_skill_point or 0;
+    if(GetState() == "rune")then
+        local __,__, cur_level= Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, GetExp())
+        local __,__, need_level= Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, need_skill_point)
+        local s = string.format("封印师%d级才能合成,你现在只有%d级，不能合成。",need_level or 0,cur_level or 0); 
+        return s;
+    elseif(GetState() == "medicine" )then
+        local __,__, cur_level= Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, GetExp())
+        local __,__, need_level= Combat.GetStatsFromDragonTotemProfessionAndExp(learned_gsid, learned_exp_gsid, need_skill_point)
+        local s = string.format("炼金师%d级才能合成,你现在只有%d级，不能合成。",need_level or 0,cur_level or 0); 
+        return s;
+    else
+        if(ItemBuildPage.skill_gsid and ItemBuildPage.skill_gsid == need_skill_gsid)then
+            local copies = GetCopies(need_skill_gsid);
+            local s = string.format("需要【%s】熟练度%d才能制造,你的熟练度只有%d，不能制造。",GetNameByGsid(need_skill_gsid),need_skill_point,copies); 
+            return s;
+        end
+    end
+end
+function DoCancel()
+    DoSelectedItem(nil);
+end
+function DS_Func_item_info(index)
+    return ItemBuildPage.DS_Func_item_info(index);
+end
+function GetMaxStamina()
+    local _, max = MyCompany.Aries.Player.GetStamina2()
+    return max;
+end
+function GetStamina()
+    local value = MyCompany.Aries.Player.GetStamina2()
+    return value;
+end
+
+function GetStaminaText()
+    local v, max = MyCompany.Aries.Player.GetStamina2()
+    return format("%d/%d", v, max);
+end
+
+function GetSkillName()
+    if(ItemBuildPage.skill_gsid)then
+        local __,__,__,copies = hasGSItem(ItemBuildPage.skill_gsid);
+        copies = copies or 0;
+        return string.format("%s 熟练度:%d",GetNameByGsid(ItemBuildPage.skill_gsid) or "",copies);
+    end
+end
+function GetSkillIcon()
+    if(ItemBuildPage.skill_gsid and ItemBuildPage.all_skills[ItemBuildPage.skill_gsid])then
+        return ItemBuildPage.all_skills[ItemBuildPage.skill_gsid].icon;
+    end
+end
+function OnClickFillStamina2()
+    _guihelper.MessageBox("是否使用一个体力药剂补充体力值？" , function(result)
+			if(result == _guihelper.DialogResult.Yes)then
+				local ItemManager = commonlib.gettable("Map3DSystem.Item.ItemManager");
+				local hasGSItem = ItemManager.IfOwnGSItem;
+				local _,guid,_,copies = hasGSItem(17157); -- 精力药剂
+				if(not copies or copies <= 0)then
+					local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+					if(command) then
+						command:Call({gsid = 17157});-- 精力药剂
+					end
+				else
+					local item  = ItemManager.GetItemByGUID(guid)
+					if(item and item.OnClick) then
+						item:OnClick("left", function(msg)
+                            page:Refresh(0);
+						end);
+					end
+				end
+			end
+		end, _guihelper.MessageBoxButtons.YesNo);
+end
+function OnDecrease()
+    if(ItemBuildPage.selected_gsid and ItemBuildPage.build_cnt > 1)then
+        ItemBuildPage.build_cnt = ItemBuildPage.build_cnt - 1;
+        page:Refresh(0);
+    end
+end
+function MaxCnt()
+    if(ItemBuildPage.selected_gsid)then
+         local gsItem = ItemManager.GetGlobalStoreItemInMemory(ItemBuildPage.selected_gsid);
+        if(gsItem) then
+            return gsItem.template.maxcount or 0;
+        end
+    end
+end
+function OnIncrease()
+    if(ItemBuildPage.selected_gsid and ItemBuildPage.build_cnt < (MaxCnt() or 0))then
+        ItemBuildPage.build_cnt = ItemBuildPage.build_cnt + 1;
+        page:Refresh(0);
+    end
+end
+function UpdateBuildCnt()
+    page:SetValue("txtItemsCount",ItemBuildPage.build_cnt);
+    local _editbox = page:FindControl("txtItemsCount");
+	if(_editbox and _editbox.Focus)then
+		_editbox:Focus();
+        _editbox:SetCaretPosition(-1);
+	end
+end
+function IsEmtpy(gsid)
+    if(not gsid)then
+        return true;
+    end
+end
+function DoBuild()
+    if(ItemBuildPage.selected_gsid)then
+        if(IsLocked_SelectedItem())then
+            _guihelper.MessageBox("你的熟练度不够，不能制造！");
+            return
+        end
+        local node = ItemBuildPage.GetSelectedNode();
+        if(node)then
+            local exid = node.exid;
+    		local exTemplate = ItemManager.GetExtendedCostTemplateInMemory(exid);
+            if(exTemplate)then
+                local result = {};
+                local k,v;
+                local stamina = 0;
+                local cur_stamina = GetStamina();
+			    for k,v in ipairs(exTemplate.froms) do
+                    local gsid = v.key;
+				    local value = v.value * ItemBuildPage.build_cnt;
+                    local my_value = 0;
+                    if(gsid == -20)then
+                        stamina = value;
+                    elseif(gsid >= 0)then
+                         my_value =  GetCopies(gsid)            
+                        table.insert(result,{gsid = gsid,value = value,my_value = my_value,});
+                    end
+			    end
+                if(cur_stamina < stamina)then
+                    _guihelper.MessageBox(string.format("需要%d体力值才能制造，你今天的体力值只有%d,不够制造条件！",stamina,cur_stamina));
+                    return
+                end
+                local k,v;
+                for k,v in ipairs(result) do
+                    if(v.my_value < v.value)then
+                        local gsItem = ItemManager.GetGlobalStoreItemInMemory(v.gsid);
+                        if(gsItem)then
+                            _guihelper.MessageBox(string.format("你的材料【%s】不够，需要%d个，你只有%d个。",gsItem.template.name,v.value,v.my_value));
+                            return
+                        end
+                    end
+                end
+	                ItemBuildPage.is_pending = true;
+                    page:Refresh(0);
+                    GathererBarPage.Start({disable_shortkey = true,},function()
+					 end,function()
+                        System.Item.ItemManager.ExtendedCost2(exid, ItemBuildPage.build_cnt, nil, nil, function(msg)
+                            if(msg and msg.issuccess)then
+            	                ItemBuildPage.is_pending = nil;
+                                RefreshValues();
+                                page:Refresh(0);
+                            else
+                            end
+	                    end, function(msg) end);
+					end)
+            end
+        end
+    end
+end
+function IsPending()
+    return ItemBuildPage.is_pending;
+end
+function OnKeyUp()
+    local count = page:GetValue("txtItemsCount");
+    count = tonumber(count) or 0;
+    if(count < 0)then
+        count = 0
+    elseif(count > (MaxCnt() or 0))then
+        count = MaxCnt() or 0;
+    end
+    ItemBuildPage.build_cnt = count;
+    page:Refresh(0);
+end
+function ShowPlace(gsid)
+    NPL.load("(gl)script/apps/Aries/HaqiShop/ItemGuides.lua");
+    local ItemGuides = commonlib.gettable("MyCompany.Aries.ItemGuides");
+    ItemGuides.OnClickViewItem(gsid);
+end
+function DoLearn()
+    if(not ItemBuildPage.skill_gsid)then
+    end
+
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+	local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+	goal_manager.finish("click_add_learnpoint");    
+
+    if(not ItemBuildPage.CanLearn(ItemBuildPage.skill_gsid)) then
+		_guihelper.MessageBox(format("你的等级不够,需要%d级才能学习", ItemBuildPage.GetLearnLevel(ItemBuildPage.skill_gsid)))
+		return;
+	end
+    if(ItemBuildPage.all_skills[ItemBuildPage.skill_gsid])then
+        local exid = ItemBuildPage.all_skills[ItemBuildPage.skill_gsid].learn_exid;
+	    local command = System.App.Commands.GetCommand("Profile.Aries.PurchaseItemWnd");
+	    if(command) then
+		    command:Call({gsid = ItemBuildPage.skill_gsid, exid = exid, npc_shop = true, callback = function(params, msg)
+			    if(msg and msg.issuccess) then
+                    page:Refresh(0);
+			    end
+		    end });
+	    end
+    end
+end
+
+function Check_PillClick()
+    if (ItemBuildPage.open_pill_click) then
+        return true
+    else
+        return false
+    end
+end
+
+function Check_SelectOnePillClick()
+    if (ItemBuildPage.select_onepill_click) then
+        return true
+    else
+        return false
+    end
+end
+function GetTitle()
+    if(ItemBuildPage.page_state == "rune")then
+        return "符印合成";
+    elseif(ItemBuildPage.page_state == "medicine")then
+        return "药剂合成";
+    elseif(ItemBuildPage.page_state == "gem")then
+        return "宝石合成";
+    end
+end
+
+function GetLevels()
+    return cur_level;
+end
+function GetCurExp()
+    return cur_level_exp;
+end
+function GetMaxExp()
+    return cur_level_total_exp;
+end
+function GetExpStr()
+    return string.format("%d/%d",GetCurExp(),GetMaxExp());
+end
+]]></script>
+<aries:window width="760" height="470" title='<%=GetTitle()%>' mode="lite" isdeepbg="true" onclose="ClosePage" icon="Texture/Aries/Common/ThemeTeen/wintitle/making_icon_32bits.png" >
+    <div>
+        <div style="float:left;width:320px;height:425px;">
+            <pe:div style="position:relative;margin-left:30px;margin-top:10px;width:300px;height:300px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_polygon_32bits.png#0 0 300 300)"/>
+            <div style="margin-left:110px;margin-top:20px;padding:30px;width:118px;height:118px;background:url(Texture/Aries/Common/ThemeTeen/shop/bg_equip_32bits.png#0 0 118 118)">    
+                <div style="position:relative;width:120px;text-align:center;color:#ffffff;margin-left:-25px;margin-top:-25px;"><%=GetNameByGsid(GetSelectedGsid())%></div>
+                <pe:item gsid="<%=GetSelectedGsid()%>" onclick="DoCancel" style="width:58px;height:58px;margin-top:-2px;"/>
+                <pe:if condition='<%=not IsEmtpy(GetSelectedGsid()) and IsLocked_SelectedItem()%>'>
+                        <img src="Texture/Aries/CrazyTower/lock_32bits.png;0 0 36 41" tooltip='<%=GetTooltip(MyCompany.Aries.Desktop.ItemBuildPage.need_skill_point,MyCompany.Aries.Desktop.ItemBuildPage.skill_gsid)%>' style="position:relative;margin-left:5px;margin-top:-20px;width:16px;height:20px;"/>
+                </pe:if>
+            </div>
+            <div style="position:relative;margin-left:10px;margin-top:-20px;" class="highbluecolor">
+                消耗材料:
+            </div>
+             <pe:if condition='<%=GetState() == "gem"%>'>
+                 <div style="position:relative;margin-left:10px;margin-top:180px;" class="highbluecolor">
+                    消耗体力值:<%=GetNeedStamina()%>
+                </div>
+                <div style="position:relative;margin-left:10px;margin-top:200px;" class="highbluecolor">
+                    需要熟练度:<%=GetNeedPoint()%>
+                </div>
+            </pe:if>
+            <div style="position:relative;margin-left:180px;margin-top:180px;" class="highbluecolor">
+                <input type="button" onclick="OnDecrease" style="margin-top:5px;width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_dec_32bits.png)" />
+                <input type="text" style="float:left;width:40px;margin-left:2px;" enable_ime="false" class="textfieldbutton" name="txtItemsCount" onkeyup="OnKeyUp"/>
+                <input type="button" onclick="OnIncrease" style="margin-top:5px;margin-left:2px;width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_inc_32bits.png)"/>
+                <pe:if condition='<%=IsPending()%>'>
+                    <input type="button" style="width:60px;margin-left:2px;" value="制造" enabled="false"/>
+                </pe:if>
+                <pe:if condition='<%=not IsPending()%>'>
+                    <input type="button" style="width:60px;margin-left:2px;" value="制造" onclick="DoBuild"/>
+                </pe:if>
+            </div>
+            <div style="margin-left:0px;width:500px;height:180px;">
+                 <pe:gridview name="grid_view_item_info" DataSource="<%=DS_Func_item_info%>" ItemsPerLine="4" AllowPaging="false" pagesize="8">
+	                <Columns>
+                        <div style="margin-left:20px;margin-top:20px;">
+                            <div style="width:60px;text-align:center;color:#ffffff;margin-top:-20px;">
+                                <!--<input type="button" tooltip='<%=GetNameByGsid(Eval("key"))%>' value='<%=GetNameByGsid(Eval("key"))%>' style="background:;width:60px;text-singleline:true;text-noclip:true;text-align:center"/>-->
+                            </div>
+                            <div style="width:48px;height:48px;padding:4px;" class="block">
+                                <pe:item gsid='<%=Eval("key")%>' style="width:40px;height:40px;" onclick="ShowPlace"/>
+                            </div>
+                            <div style="width:60px;text-align:center;color:#ffffff;margin-top:0px;" ><%=GetCnt(Eval("key"),Eval("value"))%></div>
+                            <pe:if condition='<%=NeedBuy(Eval("key"),Eval("value"))%>'>
+                                <input tooltip="补充材料" style="position:relative;margin-left:50px;margin-top:-35px;width:16px;height:16px;background:url(texture/ARIES/common/themeteen/bg_inc_32bits.png)" type="button" name='<%=Eval("index") %>' onclick='DoBuy'/>
+                            </pe:if>
+                        </div>
+	                </Columns>
+	                <EmptyDataTemplate>
+                        <div class="defaultcolor" style="margin-left:30px;margin-top:10px;" >
+
+                            请从右侧选择一个你要合成的物品<br/>
+                             <pe:if condition='<%=GetState() == "rune"%>'>
+                                <div style="margin-top:5px;">
+                                封印师的等级越高能合成的物品越多
+                                </div>
+                                <div style="margin-top:5px;">
+                                    每次合成都会提升封印师的经验值哦
+                                </div>
+                            </pe:if>
+                            <pe:if condition='<%=GetState() == "medicine"%>'>
+                                <div style="margin-top:5px;">
+                                炼金师的等级越高能合成的物品越多
+                                </div>
+                                <div style="margin-top:5px;">
+                                    每次合成都会提升炼金师的经验值哦
+                                </div>
+                            </pe:if>
+                        </div>
+	                </EmptyDataTemplate>
+	                <FetchingDataTemplate>
+	                </FetchingDataTemplate>
+                        <PagerSettings Position="Bottom" />
+				    <PagerTemplate AutoHidePager="true">
+                            <form >
+						        <input type="button" style="margin-left:-22px;margin-top:-60px;" name="pre" invisibleondisabled="false" zorder="2" class="pagerleft" />
+							  
+						        <input type="button" style="margin-left:348px;margin-top:-60px;" name="next" invisibleondisabled="false" zorder="2" class="pagerright" />
+	                        </form>
+				    </PagerTemplate>
+                </pe:gridview>      
+            </div>
+            <div style="margin-left:5px;margin-top:50px;width:320px;height:58px;padding:5px;" class="border_bg2_css">
+                <pe:if condition='<%=GetState() == "gem"%>'>
+                    <img style="width:32px;height:32px;" src='<%=GetSkillIcon() %>'/>
+                    <div style="float:left;">
+                        <div style="float:left;">
+                            <%=GetSkillName()%>
+                        </div>
+                        <pe:if condition='<%=Check_SelectOnePillClick() %>' >
+                            <pe:goalpointer listen="click_add_learnpoint" style="position:relative;width:85px;height:26px;"></pe:goalpointer>
+                        </pe:if>
+                        <!--<input type="button" class="defaultbutton" style="float:left;width:85px;height:25px;font-weight:bold;font-size:14px;margin-top:0px;" onclick="DoLearn" value="提升熟练度"/>-->
+                    </div>
+                
+                   <div >
+                    <div style="float:left;" tooltip="制造或采集物品会消耗一定的体力值, 第二天会自动补满" class="titlebutton">
+                        体力值:
+                    </div>
+                    <div style="float:left;width:150px;height:11px;margin-top:5px;">
+                        <div style="position:relative;"><pe:progressbar name="pgbStamina2" Minimum = "0" Maximum = '<%=GetMaxStamina() %>' 
+                            Value ='<%=GetStamina() %>' Step = "1"
+                            style="width:150px;float:left;height:10px;" 
+                            blockimage="Texture/Aries/Team/teen/physical_progressbar.png: 5 1 5 2"
+                            background="Texture/Aries/Common/ThemeTeen/progress_bar_bg_32bits.png;0 1 16 15:7 6 7 6" />
+                        </div>
+                        <input type="button" name="btnStamina2" value = '<%=GetStaminaText() %>' onclick="OnClickFillStamina2" style="background:;color:#ffffff;text-align:center;width:150px;height:12px;margin-top:-2px;" tooltip="制造或采集物品会消耗一定的体力值, 第二天会自动补满&#10;点击补充体力值" />
+                    </div>
+                </div>
+                </pe:if>
+                <pe:if condition='<%=GetState() == "rune"%>'>
+                     <div style="float:left;margin-left:10px;margin-top:-2px;margin-left:-2px;">
+                        <pe:item gsid='50392' style="width:64px;height:64px;" isclickable="false"/>
+                    </div>
+                    <div style="float:left;">
+                        <input type="button" zorder="2" value='<%=tostring(GetLevels())%>' style="position:relative;font-weight:bold;font-size:14px;color:#ffffff;margin-left:-25px;margin-top:30px;width:36px;height:36px;background-color:#ffffffff;background:url(Texture/Aries/Inventory/dragon_level_bg_32bits.png)" />
+                        <div style="font-weight:bold;font-size:15px;base-font-size:15;color:#ffffff;margin-left:5px;margin-top:3px;">封印师</div>
+                        <div style="margin-left:8px;margin-top:3px;">
+                            <pe:progressbar class="expbar" name='exp_bar' Minimum = "1" Maximum = '<%=GetMaxExp()%>' Value = '<%=GetExp()%>' Step = "1" style="width:200px;height:20px;"  />
+                            <div style="margin-left:-20px;margin-top:-20px;text-align:center;color:#ffffff;"><%=GetExpStr()%></div>   
+                        </div>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=GetState() == "medicine"%>'>
+                     <div style="float:left;margin-left:10px;margin-top:-2px;margin-left:-2px;">
+                        <pe:item gsid='50397' style="width:64px;height:64px;" isclickable="false"/>
+                    </div>
+                    <div style="float:left;">
+                        <input type="button" zorder="2" value='<%=tostring(GetLevels())%>' style="position:relative;font-weight:bold;font-size:14px;color:#ffffff;margin-left:-25px;margin-top:30px;width:36px;height:36px;background-color:#ffffffff;background:url(Texture/Aries/Inventory/dragon_level_bg_32bits.png)" />
+                        <div style="font-weight:bold;font-size:15px;base-font-size:15;color:#ffffff;margin-left:5px;margin-top:3px;">炼金师</div>
+                        <div style="margin-left:8px;margin-top:3px;">
+                            <pe:progressbar class="expbar" name='exp_bar' Minimum = "1" Maximum = '<%=GetMaxExp()%>' Value = '<%=GetExp()%>' Step = "1" style="width:200px;height:20px;"  />
+                            <div style="margin-left:-20px;margin-top:-20px;text-align:center;color:#ffffff;"><%=GetExpStr()%></div>   
+                        </div>
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+        <div style="float:left;width:420px;height:425px;">
+            <div style="margin-left:10px;margin-top:7px;">
+                <div style="height:23px;margin-left:10px;">
+                    
+                    <pe:goalpointer listen="open_pill" style="position:relative;left:60px;width:60px;height:26px;"></pe:goalpointer>
+                    
+                    <pe:togglebuttons ButtonWidth="60" DataSource='<%=GetMenu() %>' onclick='OnClickFolder'/>
+                </div>
+                <div style="width:410px;height:395px;" class="border_bg2_css">
+                    <div style="position:relative;margin-left:20px;margin-top:10px;height:750px;">
+                        <pe:if condition='<%=Check_PillClick() %>' >
+                            <pe:goalpointer listen="select_onepill" style="position:relative;width:48px;height:48px;"></pe:goalpointer>
+                        </pe:if>
+                        <pe:gridview name="grid_view_apparel_list" DataSource="<%=DS_Func_Items%>" ItemsPerLine="7" AllowPaging="true" pagesize="49">
+	                        <Columns>                                                             
+                                <div style="margin-left:2px;">                                   
+                                    <div style="width:48px;height:48px;padding:4px;" class="block">
+                                            <pe:if condition='<%=not IsEmtpy(Eval("gsid"))%>'>
+                                                 <pe:if condition='<%=not IsLocked(Eval("need_skill_point"),Eval("need_skill_gsid"))%>'>
+                                                    <pe:item gsid='<%=Eval("gsid")%>' style="width:40px;height:40px;" onclick="DoSelectedItem"/>
+                                                </pe:if>
+                                                <pe:if condition='<%=IsLocked(Eval("need_skill_point"),Eval("need_skill_gsid"))%>'>
+                                                    <pe:item gsid='<%=Eval("gsid")%>' tooltip_headerline='<%=GetTooltip(Eval("need_skill_point"),Eval("need_skill_gsid"))%>' style="width:40px;height:40px;background-color:#80808080;" isclickable="false"/>
+                                                    <img src="Texture/Aries/CrazyTower/lock_32bits.png;0 0 36 41" enabled="false" style="position:relative;margin-left:20px;margin-top:-20px;width:16px;height:20px;background-color:#ffffffff;"/>
+                                                </pe:if>
+                                            </pe:if>
+                                    </div>
+                                </div>
+	                        </Columns>
+	                        <EmptyDataTemplate>
+	                        </EmptyDataTemplate>
+	                        <FetchingDataTemplate>
+	                        </FetchingDataTemplate>
+				            <PagerSettings Position="Bottom" style="margin-left:80px;margin-top:-370px;width:260px;height:25px;"/>
+				            <PagerTemplate >
+                                    <form>
+						                <input type="button" name="pre" invisibleondisabled="false" value="上一页" zorder="2" class="default_btn_css" />
+							                <input type="button" name="page" class="pagerbuttontext" /> 
+						                <input type="button" name="next" invisibleondisabled="false" value="下一页" zorder="2" class="default_btn_css" />
+	                                </form>
+				            </PagerTemplate>
+                        </pe:gridview>      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%=UpdateBuildCnt()%>
+</aries:window>
+</pe:mcml> 
+</body>
+</html>

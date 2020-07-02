@@ -1,0 +1,157 @@
+﻿<!-- "script/apps/Aries/NPCs/FollowPets/30212_ZodiacAnimals_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30212_ZodiacAnimals_dialog, by Andy, 2009/8/25</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or nil;
+if(instance) then
+    instance = tonumber(instance);
+end
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30212);
+
+Condition1 = function()
+    if(memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+Condition2 = function()
+    if(memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+Condition3 = function()
+    if(memory.dialog_state == 3) then
+        return true;
+    end
+    return false;
+end;
+Condition4 = function()
+    return true;
+end;
+
+local real_gsid = MyCompany.Aries.Quest.NPCs.ZodiacAnimals.Real_GSIDs[instance];
+animal_name = "";
+animal_level = MyCompany.Aries.Quest.NPCs.ZodiacAnimals.animal_levels[real_gsid];
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(real_gsid);
+if(gsItem) then
+    animal_name = gsItem.template.name;
+end
+
+local reward_gsid = memory.Rewards[instance] or 16036;
+reward_name = "";
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(reward_gsid);
+if(gsItem) then
+    reward_name = gsItem.template.name;
+end
+
+lastnet_gsid = memory.LastNetGSID;
+
+net_name = "";
+
+local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(lastnet_gsid);
+if(gsItem) then
+    net_name = gsItem.template.name;
+end
+
+
+StartCatch = function()
+    MyCompany.Aries.Quest.NPCs.ZodiacAnimals.StartCatch(instance);
+end
+
+TakeHerHome = function()
+    MyCompany.Aries.Quest.NPCs.ZodiacAnimals.TakeHerHome(instance);
+end
+
+GetReward = function()
+    MyCompany.Aries.Quest.NPCs.ZodiacAnimals.GetReward(instance);
+end
+
+RemoveAnimal = function()
+    MyCompany.Aries.Quest.NPCs.ZodiacAnimals.RemoveAnimal(instance);
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' >
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30212" />
+            <pe:placeholder id="name" source="{this}" value='百变生肖'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    (*^__^*) 嘻嘻，我是百变生肖，没那么容易抓的，先想清楚我是谁再开始哦！
+            要是你捕兽网都没有的话，先让你的抱抱龙去购物街的织布机上编制点再来吧！
+		    <pe:answer text="开始抓" template_id="startcatch">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("StartCatch")%>'  target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+            <%=string.format("我是%s，你猜到了吗？你还真是厉害，居然把我抓住了，现在就带我回家吧，我每天会给你制造一个%s药丸，让你的抱抱龙变成我的样子哦！", Eval("animal_name"), Eval("animal_name"))%>
+		    <pe:answer text="带你回家" template_id="takeyouhome">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("TakeHerHome")%>'  target_state = "-1"/>
+		    </pe:answer>
+		    <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("RemoveAnimal")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+            <%=string.format("你真厉害，都快成抓%s的专家了！不过你家里既然有我的同伴了，我就不去了，给你一个%s吧，一会放在抱抱龙的背包里，它可以让你的抱抱龙变身哦！", Eval("animal_name"), Eval("reward_name"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("GetReward")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    <%=string.format("我是%s，是%d级生肖，你用%s抓不到我的！等你多准备些%d级以上的捕兽网再来找我吧！不和你玩了，走了～～", Eval("animal_name"), Eval("animal_level"), Eval("net_name"), Eval("animal_level"))%>
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("RemoveAnimal")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "9">
+		    TODO: BUG
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

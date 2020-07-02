@@ -1,0 +1,93 @@
+﻿<!-- "script/apps/Aries/Friends/BestFriendList.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>BestFriendList, by leio, 2011/10/11</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="BestFriendList.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local BestFriendListPage = commonlib.gettable("MyCompany.Aries.Friends.BestFriendListPage");
+BestFriendListPage.OnInit();
+
+function DS_Func(index)
+    return BestFriendListPage.DS_Func(index);
+end
+function DoShowSelectPage()
+    BestFriendListPage.ShowPage_SelectFriends();
+end
+
+function DoRemoveBestFriend(value)
+    NPL.load("(gl)script/apps/Aries/Desktop/GUIHelper/CustomMessageBox.lua");
+    local s = string.format([[确定要删除赛场回避好友<pe:name nid='%s'/>吗？]],tostring(value));
+
+    _guihelper.Custom_MessageBox(s,function(result)
+	    if(result == _guihelper.DialogResult.Yes)then
+            BestFriendListPage.DoRemoveBestFriend(value)
+	    else
+	    end
+    end,_guihelper.MessageBoxButtons.YesNo);
+end
+
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30";
+]]></script>
+ <div type="box" style="float:right;margin-left:10px;margin-top:24px;width:128px;height:60px;">
+      <form name = "upper">
+        <div style="float:right;margin-top:12px;margin-left:40px">
+             赛场回避好友
+        </div>
+        <br/>
+        <div style="float:right;margin-top:4px;margin-left:50px;width:60px;color:#4c7aaa">
+            <label name="onlinecount"/>
+        </div>
+        <div style="float:right;margin-top:-24px;margin-left:25px">
+            <input type="button" style="width:32px;height:32px;background:url(Texture/Aries/Friends/FriendsWnd_Add_32bits.png#0 0 32 32)" 
+                        onclick="DoShowSelectPage()" value="" tooltip="添加名单"/>
+        </div>
+      </form>
+    </div>
+   <div style="position:relative;font-size:12px;margin-left:25px;margin-top:-20px;">功能:在赛场可以避开自己最好的朋友</div>
+    <pe:gridview RememberScrollPos="true" DataSource="<%=DS_Func%>" name="BestFriendList" style="margin-left:20px;margin-right:13px;margin-bottom:25px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="250">
+        <Columns>
+            <div style="width:196px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                    <a style="width:196px;height:30px;margin:0px;padding:0px;background:;"
+                        onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:196px;height:30px;background:;"/>
+                        <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:210px;height:30px;">
+                            <a width="32" height="26" style="padding-left:0px;padding-top:2px;background:;"
+                                onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                                <aries:onlinestatus width="32" height="26" nid='<%=Eval("nid")%>'/>
+                            </a>
+                            <div style="float:left;margin-left:0px;margin-top:3px;width:108px;font-size:12px;color:#000000">
+                                <div style="width:170px;">
+                                    <pe:if condition='<%=not MyCompany.Aries.Friends.BestFriendListPage.HasInFriend(Eval("nid")) %>'>
+                                        <input type="button" style="background:;color:#ff0000;font-size:11px;margin-top:0px;" value="[无效]" tooltip="此人已经不是你的好友,不能回避" />
+                                    </pe:if>
+                                    <pe:name nid='<%=Eval("nid")%>' linked=false useyou=false/>
+                                </div>
+                            </div>
+                            <input type="button" zorder="1" style="float:left;margin-left:15px;margin-top:-3px;width:30px;height:30px;background:Texture/Aries/Friends/FriendsWnd_RefuseAddAsFriend_32bits.png" onclick="DoRemoveBestFriend()" name='<%=Eval("nid")%>'/>
+                        </div>
+                    </a>
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>无</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+
+
+</pe:mcml>
+</body>
+</html>

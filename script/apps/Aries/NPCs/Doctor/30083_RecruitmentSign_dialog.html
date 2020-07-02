@@ -1,0 +1,164 @@
+﻿<!-- "script/apps/Aries/NPCs/Doctor/30083_RecruitmentSign_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30083_RecruitmentSign_dialog, by Andy, 2009/8/24</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+local dragonFetched = MyCompany.Aries.Pet.IsMyDragonFetchedFromSophie();
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30083);
+feed_count = memory.feed_count or 0;
+
+Condition1 = function()
+    return (memory.dialog_state == 1);
+end;
+Condition2 = function()
+    return (memory.dialog_state == 2);
+end;
+Condition3 = function()
+    return (memory.dialog_state == 3);
+end;
+Condition4 = function()
+    return (memory.dialog_state == 4);
+end;
+Condition5 = function()
+    return (memory.dialog_state == 5);
+end;
+Condition6 = function()
+    return (memory.dialog_state == 6);
+end;
+Condition7 = function()
+    return (memory.dialog_state == 7);
+end;
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 3 and to == -1) then
+        -- exid 111: Get_Doctor_AmateurClassDailyReward
+        ItemManager.ExtendedCost(111, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 111: Get_Doctor_AmateurClassDailyReward return: +++++++\n")
+		    commonlib.echo(msg);
+        end);
+    elseif(from == 4 and to == -1) then
+        -- exid 112: Get_Doctor_ThirdClassDailyReward
+        ItemManager.ExtendedCost(112, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 112: Get_Doctor_ThirdClassDailyReward return: +++++++\n")
+		    commonlib.echo(msg);
+        end);
+    elseif(from == 5 and to == -1) then
+        -- exid 113: Get_Doctor_SecondClassDailyReward
+        ItemManager.ExtendedCost(113, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 113: Get_Doctor_SecondClassDailyReward return: +++++++\n")
+		    commonlib.echo(msg);
+        end);
+    elseif(from == 6 and to == -1) then
+        -- exid 114: Get_Doctor_FirstClassDailyReward
+        ItemManager.ExtendedCost(114, nil, nil, function(msg)end, function(msg)
+		    log("+++++++ExtendedCost 114: Get_Doctor_FirstClassDailyReward return: +++++++\n")
+		    commonlib.echo(msg);
+        end);
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30083" />
+            <pe:placeholder id="name" source="{this}" value="" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+			    <pe:answer-if condition = '<%=Eval("Condition5")%>' target_state = "5"/>
+			    <pe:answer-if condition = '<%=Eval("Condition6")%>' target_state = "6"/>
+			    <pe:answer-if condition = '<%=Eval("Condition7")%>' target_state = "7"/>
+			    <pe:answer-if condition = 'true' target_state = "10"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    医生每天只能领取一次奖金，你今天已经领过一次了，想要再次领取，明天再来吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    为了表彰医生们的辛苦工作，获得天使徽章的医生每天都可以领取一份奖金，但需要穿上医生制服才能领取哦！
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    有了医生们努力工作，抱抱龙越来越健康了呢。获得天使木徽章的医生每天可以领取500奇豆奖金，这是你今天的奖金。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    相信你一定是一位好医生。获得天使铜徽章的医生每天可以领取600奇豆奖金，这是你今天的奖金。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "5">
+		    相信你一定是一位好医生。获得天使银徽章的医生每天可以领取800奇豆奖金，这是你今天的奖金。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "6">
+		    你已经拥有了医生的最高荣誉，真了不起。获得天使金徽章的医生每天可以领取1000奇豆奖金，这是你今天的奖金。
+		    <pe:answer text="谢谢" template_id="thanks">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "7">
+		    只有获得天使徽章的医生才能领取奖金，在旁边的徽章展示框领取你的徽章吧。
+		    <pe:answer text="我知道了" template_id="iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

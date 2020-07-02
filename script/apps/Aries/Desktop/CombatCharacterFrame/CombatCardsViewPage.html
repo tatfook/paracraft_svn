@@ -1,0 +1,385 @@
+﻿<!-- script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardsViewPage.html-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"  refresh="true"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatCardDeckSubPage.lua");
+local MyCardsManager=MyCompany.Aries.Inventory.Cards.MyCardsManager;
+local pageCtrl = document:GetPageCtrl();
+MyCardsManager.OnOpen()
+MyCardsManager.Set_CardsViewPageCtrl(pageCtrl)
+
+class = string.lower(pageCtrl:GetRequestParam("class"));
+local subclass = string.lower(pageCtrl:GetRequestParam("subclass"));
+local bag = pageCtrl:GetRequestParam("bag");
+pageCtrl:SetNodeValue("class", class);
+pageCtrl:SetNodeValue("subclass", subclass);
+pageCtrl:SetNodeValue("bag", bag);
+
+local card_maxnum= MyCardsManager.singlecard_maxnum;
+dsItems = MyCardsManager.dsCards;
+function Card_DS_Func_Items(index)
+    return MyCardsManager.DS_Func_Items(dsItems, index, pageCtrl,6,card_maxnum);
+end
+
+cardEquip={hasEquip=0,};
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+function isEquip(gsid)
+    return MyCardsManager.InCombatBag(gsid);
+end
+
+function getCardGuidByTemplateGsid(templategsid)
+    local gsid = templategsid;
+    local bHas,guid = hasGSItem(gsid);
+    guid = guid or 0;
+    return guid;
+end
+
+function getCardTip(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+    local s = string.format("page://script/apps/Aries/Inventory/Cards/CardsTooltip.html?gsid=%d&state=7",templategsid);
+    return s;
+end
+
+function getCardSelectNum(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+
+	local cardInCombatBag="";														
+	for i=1, #(MyCardsManager.combat_bags) do
+		cardInCombatBag=cardInCombatBag..MyCardsManager.combat_bags[i].gsid..","
+	end
+	local _,hasCardNum=string.gsub(cardInCombatBag,templategsid,"");
+
+    if (hasCardNum>card_maxnum) then
+        hasCardNum = card_maxnum;
+    end
+    return hasCardNum;
+end
+
+function getCardMaxNum(templategsid)
+    local templategsid = tonumber(templategsid);
+    if(not templategsid)then return end
+
+    local cardItem=ItemManager.GetGlobalStoreItemInMemory(templategsid);
+    local cardMaxnum=card_maxnum;
+	if (MyCardsManager.class_maxnum ~= 0 and cardItem.template.stats[136]==MyCardsManager.class_type) then
+        cardMaxnum=MyCardsManager.class_maxnum;
+	end
+    return cardMaxnum;
+end
+
+function doEquip(gsid)
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("deck_addcard");
+
+    local gsid = tonumber(gsid);
+    if(not MyCardsManager.CanEquip())then
+        _guihelper.MessageBox("您当前的卡包已经满了！<br/>点击左侧的卡牌图标从卡包中移除不要的卡。配卡决定了魔法师的能力哦！<br/>商城中有更多更好的卡包！");
+        return 
+    end
+    local cardMaxnum=card_maxnum;
+    local cardItem=ItemManager.GetGlobalStoreItemInMemory(gsid);	
+	if (MyCardsManager.class_maxnum ~= 0 and cardItem.template.stats[136]==MyCardsManager.class_type) then
+        cardMaxnum=MyCardsManager.class_maxnum;
+	end	
+	local cardInCombatBag="";														
+	for i=1, #(MyCardsManager.combat_bags) do
+		cardInCombatBag=cardInCombatBag..MyCardsManager.combat_bags[i].gsid..","
+	end
+
+    local hasCardNum,_hasCardNum_white,_hasCardNum_green,_hasCardNum_blue,_hasCardNum_violet,_hasCardNum_orange=0,0,0,0,0,0;
+    if(gsid<23000 or gsid>24000)then
+        local gsid_white,gsid_green,gsid_blue,gsid_violet,gsid_orange=0,0,0,0,0,0;    
+        if (gsid<23000) then
+            gsid_white = gsid;
+            gsid_green = gsid+19000;
+            gsid_blue  = gsid+20000;
+            gsid_violet= gsid+21000;
+            gsid_orange= gsid+22000;
+        elseif (gsid>=41001 and gsid<=41999) then
+            gsid_white = gsid-19000;
+            gsid_green = gsid;
+            gsid_blue  = gsid+1000;
+            gsid_violet= gsid+2000;
+            gsid_orange= gsid+3000;            
+        elseif (gsid>=42001 and gsid<=42999) then
+            gsid_white = gsid-20000;
+            gsid_green = gsid-1000;
+            gsid_blue  = gsid;
+            gsid_violet= gsid+1000;
+            gsid_orange= gsid+2000;               
+        elseif (gsid>=43001 and gsid<=43999) then
+            gsid_white = gsid-21000;
+            gsid_green = gsid-2000;
+            gsid_blue  = gsid-1000;
+            gsid_violet= gsid;
+            gsid_orange= gsid+1000;   
+        elseif (gsid>=44001 and gsid<=44999) then
+            gsid_white = gsid-22000;
+            gsid_green = gsid-3000;
+            gsid_blue  = gsid-2000;
+            gsid_violet= gsid-1000;
+            gsid_orange= gsid;  
+        end
+        local _,_hasCardNum_white = string.gsub(cardInCombatBag,gsid_white,"");
+        local _,_hasCardNum_green = string.gsub(cardInCombatBag,gsid_green,"");
+        local _,_hasCardNum_blue  = string.gsub(cardInCombatBag,gsid_blue,"");
+        local _,_hasCardNum_violet= string.gsub(cardInCombatBag,gsid_violet,"");
+        local _,_hasCardNum_orange= string.gsub(cardInCombatBag,gsid_orange,"");
+		_hasCardNum_white = _hasCardNum_white or 0;
+		_hasCardNum_green = _hasCardNum_green or 0;
+		_hasCardNum_blue  = _hasCardNum_blue or 0;
+		_hasCardNum_violet= _hasCardNum_violet or 0;
+		_hasCardNum_orange= _hasCardNum_orange or 0;
+        hasCardNum = _hasCardNum_white + _hasCardNum_green + _hasCardNum_blue + _hasCardNum_violet + _hasCardNum_orange;
+    else
+        local _,_hasCardNum= string.gsub(cardInCombatBag,gsid,"");
+        hasCardNum = _hasCardNum;
+    end 
+
+    if(hasCardNum>=cardMaxnum)then
+        local cardname = cardItem.template.name;
+        if(string.match(cardItem.template.name,"%(")) then
+            cardname = string.match(cardItem.template.name,"(.*)%(");
+        end
+        _guihelper.MessageBox(cardname.."卡片，你最多只能带"..cardMaxnum.."张！");
+        return 
+    end
+
+    MyCardsManager.DoAppend(gsid);
+end
+
+function IsRuneInBag(gsid)
+    local gsid = tonumber(gsid);
+    local include = MyCardsManager.InCombatBag(gsid);
+    if(include)then
+        return true
+    else
+        return false
+    end
+end
+
+function doEquipRune(gsid)
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("deck_addcard");
+
+    local gsid = tonumber(gsid);
+    local include = MyCardsManager.InCombatBag(gsid);
+    if(include)then
+        _guihelper.MessageBox("这个符文你已经放入背包了！");
+        return 
+    end
+
+    if(not MyCardsManager.CanEquipRune())then
+        _guihelper.MessageBox("你不能带太多的符文了！");
+        return 
+    end
+    MyCardsManager.DoAppend(gsid);
+end
+
+function doClick(sName)
+    local gsid = tonumber(sName);
+    if (gsid) then
+        doEquip(gsid);
+    end
+end
+
+function NoReplyClick()
+    _guihelper.MessageBox("你没有该炫彩卡的基础技能，所以这个炫彩卡还不能使用哦！")
+end
+
+
+function doClickRune(sName)
+    local gsid = tonumber(sName);
+    if(gsid)then
+         doEquipRune(gsid);
+    end
+end
+
+function GetRuneNum(gsid)
+    local gsid=tonumber(gsid);
+    local bHas,guid,_,copies = hasGSItem(gsid);
+	local gsItem = ItemManager.GetGlobalStoreItemInMemory(gsid);
+    local maxcopiesinstack=0;
+    if(gsItem and gsItem.template)then
+        maxcopiesinstack = gsItem.template.maxcopiesinstack;
+	end
+    local s;
+    s= " "..copies .. "/" .. maxcopiesinstack;
+    return s
+end
+
+function BigCardMode()
+    --return true;
+    return MyCardsManager.GetBigCardMode();
+end
+]]></script>
+<div style="position:relative;width:300px;height:310px;margin-left:0px;margin-top:0px;background:;">
+<!--<div style="position:relative;width:300px;height:260px;margin-left:0px;margin-top:0px;background:url(Texture/Aries/common/themekid/cards/bg_frame_32bits.png:5 5 5 5)"></div>-->
+<pe:goalpointer listen="deck_addcard" style="position:relative;margin-left:14px;margin-top:6px;width:83px;height:120px;"></pe:goalpointer>
+<pe:if condition='<%=BigCardMode()%>'>
+    <pe:gridview DataSource="<%=Card_DS_Func_Items%>" name="ItemViewBigCard" 
+        style="margin-top:8px;width:330px;height:256px;" CellPadding="0"  
+        DefaultNodeHeight = "120" ItemsPerLine="3" AllowPaging="false" VerticalScrollBarStep="128" VerticalScrollBarOffsetX="7" RememberScrollPos="true">
+        <Columns>
+            <div style="margin-left:7px;margin-top:8px;width:83px;height:120px;">
+                <!-- 如果拥有卡片模板 -->
+                <pe:if condition='<%=Eval("guid") ~= 0%>'>
+                    <!-- 如果没有卡片 显示背景 -->
+                    <div style="position:relative;width:83px;height:120px;background:url(Texture/Aries/common/themekid/cards/bg_cards_32bits.png:8 8 8 8)"></div>
+                    <!-- 如果有卡片 显示卡片 -->
+                    <pe:if condition='<%=Eval("guid") ~= 0 %>'>
+                        <pe:if condition='<%=Eval("class")=="combat" %>'>
+                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClick" tooltip="<%=getCardTip(Eval('gsid')) %>" style="width:83px;height:120px;margin-left:0px;" animstyle="0" /></div>
+                            <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:97px;margin-left:58px;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                        </pe:if>
+                        <pe:if condition='<%=Eval("class")=="rune" %>'>
+                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClickRune" tooltip="<%=getCardTip(Eval('gsid')) %>" style="width:83px;height:120px;" animstyle="0" /></div>
+                            <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:97px;margin-left:58px;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                        </pe:if>
+                        <!--
+                        <div style="width:15px;height:60px;margin-top:0px;margin-left:-12px;">
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=1 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<1 and getCardMaxNum(Eval("gsid"))>=1 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=2 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<2 and getCardMaxNum(Eval("gsid"))>=2 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=3 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />                                            
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<3 and getCardMaxNum(Eval("gsid"))>=3 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=4 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<4 and getCardMaxNum(Eval("gsid"))>=4 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                                        
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=5 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<5 and getCardMaxNum(Eval("gsid"))>=5 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=6 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<6 and getCardMaxNum(Eval("gsid"))>=6 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=7 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<7 and getCardMaxNum(Eval("gsid"))>=7 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                                                                                                
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=8 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<8 and getCardMaxNum(Eval("gsid"))>=8 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                                                                                                                                                                                                                         
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=9 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<9 and getCardMaxNum(Eval("gsid"))>=9 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))>=10 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/red_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>
+                            <pe:if condition='<%=getCardSelectNum(Eval("gsid"))<10 and getCardMaxNum(Eval("gsid"))>=10 %>' >
+                                <img src='Texture/Aries/Common/ThemeKid/cards/grey_dot_32bits.png;0 0 14 14' style="width:14px;height:14px;" />
+                            </pe:if>                                        
+                        </div>
+                        -->
+                    </pe:if>       
+                </pe:if>
+                <!-- 如果没有卡片 显示背景 -->
+                <pe:if condition='<%=(Eval("guid") == 0 or Eval("guid") == nil)%>'>
+                    <div style="width:83px;height:120px;background:url(Texture/Aries/common/themekid/cards/bg_cards_32bits.png:8 8 8 8)"></div>
+                </pe:if>
+            </div>
+
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:0px;margin-top:0px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</pe:if>
+<pe:if condition='<%=not BigCardMode()%>'>
+    <pe:gridview DataSource="<%=Card_DS_Func_Items%>" name="ItemViewIcon" 
+        style="margin-left:-3px;margin-top:-2px;width:330px;height:278px;" CellPadding="0"  
+        DefaultNodeHeight = "45" ItemsPerLine="6" AllowPaging="false" VerticalScrollBarStep="45" RememberScrollPos="true">
+        <Columns>
+            <div style="margin-left:4px;margin-top:2px;width:44px;height:44px;">
+                <!-- 如果拥有卡片模板 -->
+                <pe:if condition='<%=Eval("guid") ~= 0%>'>
+                    <!-- 如果没有卡片 显示背景 -->
+                    <div style="position:relative;width:44px;height:44px;background:url(Texture/Aries/common/themekid/cards/bg_cards_32bits.png:8 8 8 8)"></div>
+                    <!-- 如果有卡片 显示卡片 -->
+                    <pe:if condition='<%=Eval("guid") ~= 0 %>'>
+                        <pe:if condition='<%=Eval("class")=="combat" %>'>
+                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClick" tooltip="<%=getCardTip(Eval('gsid')) %>" style="width:38px;height:38px;margin-left:3px;margin-top:3px;" animstyle="12" /></div>
+                            <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:22px;margin-left:24px;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                        </pe:if>
+                        <pe:if condition='<%=Eval("class")=="rune" %>'>
+                            <div style="position:relative;"><pe:item gsid='<%=Eval("gsid")%>' ShowNumBg = "false" name='<%=Eval("gsid") %>' onclick="doClickRune" tooltip="<%=getCardTip(Eval('gsid')) %>" style="margin-left:2px;margin-top:2px;width:40px;height:40px;" animstyle="12" /></div>
+                            <input type="button" enabled="false" class="numbgbutton" style="width:24px;height:24px;margin-top:22px;margin-left:24px;font-weight:bold" zorder="3" value='<%=string.format("%d",Eval("copies")) %>' />
+                        </pe:if>
+                    </pe:if>       
+                </pe:if>
+                <!-- 如果没有卡片 显示背景 -->
+                <pe:if condition='<%=(Eval("guid") == 0 or Eval("guid") == nil)%>'>
+                    <div style="width:44px;height:44px;background:url(Texture/Aries/common/themekid/cards/bg_cards_32bits.png:8 8 8 8)"></div>
+                </pe:if>
+            </div>
+
+        </Columns>
+        <EmptyDataTemplate>
+            <b>Empty Items</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:0px;margin-top:0px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+    </pe:gridview>
+</pe:if>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

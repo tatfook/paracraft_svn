@@ -1,0 +1,65 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/Myself.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiXizhi.2011.5.26</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="Myself.lua">
+local TeamClientLogics = commonlib.gettable("MyCompany.Aries.Team.TeamClientLogics");
+local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+HPMyPlayerArea.UpdateUIByPage(Page, HPMyPlayerArea.cur_value, HPMyPlayerArea.max_value, true);
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    local x, y = _guihelper.GetLastUIObjectPos()
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(System.User.nid, x, y+16);
+end
+function IsTeamLeader()
+    if(TeamClientLogics.GetJC)then
+		local isleader =  TeamClientLogics:GetJC():IsTeamLeader();
+		return isleader;
+	end
+end
+</script>
+<div style="background:url(Texture/Aries/Team/teen/player_border_bg_32bits.png#0 0 229 69);width:229px;height:69px;">
+    <input type="button" name="levelBtn" value='<%=tostring(MyCompany.Aries.Player.GetLevel())%>' style="position:relative;margin-left:0px;margin-top:25px;width:30px;height:16px;font-size:12px;color:#a8d608;background:;"/>
+    <div style="float:left;margin-left:24px;margin-top:2px;">
+        <pe:player name="myself_3dview" nid = '<%=tostring(System.User.nid) %>' RenderTargetSize="64" miniscenegraphname="myself_head_display" style="width:64px;height:64px;"
+            MaskTexture = "Texture/Aries/Common/circular_mask_head.png" IsFacePortrait="true" CameraName="ElfFemaleHead"/>
+    </div>
+    <div style="float:left;position:relative;margin-left:-16px;margin-top:-1px;">
+        <div style="float:left;background:url(Texture/Aries/Team/teen/icon_frame_32bits.png#0 0 24 24);width:24px;height:24px">
+            <input type="button" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:4px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool())%>' />
+        </div>
+        <pe:if condition='<%=MyCompany.Aries.VIP.IsVIPAndActivated()%>'>
+            <div style="float:left;background:url(Texture/Aries/Team/teen/icon_frame_32bits.png#0 0 24 24);width:24px;height:24px;">
+                <input type="button" style="background:url(Texture/Aries/Team/magicstar_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:4px;margin-top:4px;" />
+            </div>
+        </pe:if>
+          <pe:if condition='<%=IsTeamLeader()%>'>
+            <div style="float:left;background:url(Texture/Aries/Team/teen/icon_frame_32bits.png#0 0 24 24);width:24px;height:24px;">
+                <input type="button" style="background:url(Texture/Aries/Team/captain_32bits.png);background-color:#ffffff;width:14px;height:14px;margin-left:8px;margin-top:5px;" />
+            </div>
+        </pe:if>
+
+    </div>
+    <div style="float:left;position:relative;margin-left:1px;margin-top:15px" tooltip="点击查看资料" onclick="OnClickShowMenu">
+        <div style="width:130px;text-align:center">
+            <pe:name style="color:#02f9ff;height:20px;margin-left:3px;" uid='loggedinuser' linked="false" />
+        </div>
+        <div style="margin-left:6px;margin-top:3px;">
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:123px;height:11px;"
+                    blockimage="Texture/Aries/Team/teen/red_progressbar.png;0 0 16 10: 7 5 8 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" type="button" style="position:relative;margin-top:-14px;margin-left:5px;width:120px;height:16px;color:#ffffff;font-size:11px;background:;" value="100/100" />
+    </div>
+    <input type="button" name="onClickMenuBtn" value="" onclick="OnClickShowMenu" style="position:relative;margin-left:121px;margin-top:12px;width:16px;height:16px;background:url(Texture/Aries/Team/teen/down_btn_32bits.png);"/>
+</div>
+</pe:mcml> 
+</body>
+</html>

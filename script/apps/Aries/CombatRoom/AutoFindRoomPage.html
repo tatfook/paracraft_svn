@@ -1,0 +1,109 @@
+﻿<!-- "script/apps/Aries/CombatRoom/AutoFindRoomPage.html" -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="AutoFindRoomPage.lua"><![CDATA[
+NPL.load("(gl)script/apps/Aries/Desktop/AntiIndulgenceArea.lua");
+local AntiIndulgenceArea = commonlib.gettable("MyCompany.Aries.Desktop.AntiIndulgenceArea");
+local page = document:GetPageCtrl();
+local AutoFindRoomPage = commonlib.gettable("MyCompany.Aries.CombatRoom.AutoFindRoomPage");
+AutoFindRoomPage.OnInit();
+
+
+NPL.load("(gl)script/apps/Aries/CombatRoom/LobbyClientServicePage.lua");
+local LobbyClientServicePage = commonlib.gettable("MyCompany.Aries.CombatRoom.LobbyClientServicePage");
+function ClosePage()
+    AutoFindRoomPage.ClosePage();
+end
+
+function DS_Func(index)
+    return AutoFindRoomPage.DS_Func(index);
+end
+function GetWorldName()
+    if(AutoFindRoomPage.find_mode == "random")then
+        return nil;
+    else
+        if(AutoFindRoomPage.selected_template)then
+            return AutoFindRoomPage.selected_template.worldname;
+        end
+    end
+end
+function DoAutoJoinRoom(mode)
+    AutoFindRoomPage.find_mode = mode;
+    LobbyClientServicePage.DoAutoJoinRoom(GetWorldName(), AutoFindRoomPage.selected_game_type);
+    ClosePage();
+end
+function DoChangeMode()
+    AutoFindRoomPage.find_mode = value;
+end
+-- page:SetValue("find_mode",AutoFindRoomPage.find_mode);
+
+local last_click_time = nil;
+local selection_index = nil;
+function OnSelectGame(index)
+    index = tonumber(index);
+    local cur_time = ParaGlobal.timeGetTime();
+    if(selection_index == index and last_click_time and (cur_time - last_click_time) < 500) then
+        -- double click to enter game
+        DoAutoJoinRoom("specification");
+    else
+        selection_index = index;
+        AutoFindRoomPage.OnSelectGame(index);
+    end
+    last_click_time = cur_time;
+end
+]]></script>
+<div class="window" style="width:680px;height:340px;">
+<div class="titlebar" width="100%">
+    <div class="windowlabel" >快速加入房间</div>
+    <input type="button" style="margin-top:1px;margin-right:5px" onclick="ClosePage" class="closewindow"/>
+</div>
+<div class="clientarea" style="">
+<div style="padding-left:5px;width:660px;height:260px;background:url(Texture/Aries/LobbyService/box_bg_4_32bits.png: 7 7 7 7)">
+        <pe:gridview name="roomTemplates" style="width:660px;height:260px;margin-top:5px;" DataSource="<%=DS_Func%>"  ItemsPerLine="3" AllowPaging="true" pagesize="30">
+            <Columns>
+                <div style="font-size:12px;width:210px;text-align:center;">
+                <div style="position:relative;">
+                    <pe:if condition='<%=Eval("is_selected")%>' >
+                        <input type="button" style="font-size:12px;margin-top:0px;width:210px;height:22px;background:url(Texture/Aries/LobbyService/selected_bg_32bits.png)" onclick="OnSelectGame" tooltip="双击加入" name='<%=Eval("index")%>' value='<%=Eval("name") %>'/>
+                    </pe:if>
+                    <pe:if condition='<%=not Eval("is_selected")%>' >
+                        <input type="button" Normal_BG = "" MouseOver_BG = "Texture/Aries/LobbyService/selected_bg2_32bits.png" style="font-size:12px;margin-top:0px;width:210px;height:22px;background:"
+                            onclick="OnSelectGame" tooltip="双击加入" name='<%=Eval("index")%>' value='<%=Eval("name") %>'/>
+                    </pe:if>
+                </div>
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+                <b>目前没有适合你等级的副本</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>请稍等 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom" height="1" style="margin-left:-180px;margin-top:5px;"/>
+            <PagerTemplate AutoHidePager="true">
+                <form>
+                    <input type="button" class="button" name="pre" style="margin-left:440px;width:52px;height:22px;font-size:12px;" zorder=2 value="上一页"/>
+                    <label name="page" style="float:left;margin-top:4px;text-align:center;width:40px;height:20px;"/>
+                    <input type="button" class="button" name="next" zorder=2 style="width:52px;height:22px;font-size:12px;" value="下一页"/>
+                </form>
+            </PagerTemplate>
+        </pe:gridview>
+    </div>
+<div>
+    <pe:if condition='<%=MyCompany.Aries.CombatRoom.AutoFindRoomPage.selected_game_type == "PvE"%>'>
+        <!--<input type="button" value="随机加入" name="random" onclick="DoAutoJoinRoom()" style="position:relative;margin-left:10px;font-size:12px;margin-top:5px;width:80px;height:22px;" />-->
+    </pe:if>
+    <input type="button" class="button_highlight" value="加入" name="specification" onclick="DoAutoJoinRoom()" style="position:relative;margin-left:570px;font-weight:bold;font-size:14px;margin-top:5px;width:80px;height:28px;" />
+</div>
+</div>
+</div>
+</pe:mcml> 
+</body>
+</html>

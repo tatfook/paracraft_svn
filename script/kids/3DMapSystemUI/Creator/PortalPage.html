@@ -1,0 +1,62 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/PortalPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>portal page by LiXizhi 2008.9.26</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="PortalPage.lua">
+Map3DSystem.App.Creator.PortalPage.OnInit();
+</script>
+<form name="portalform">
+<div style="padding:5px">
+<!--    <div>
+        <img style="background:url(Texture/3DMapSystem/Creator/BCS_Door.png);width:32px;height:32px"/>
+        <div style="float:left;margin-top:5px;margin-left:5px">Portal是链接Zones之间的门</div>
+    </div>
+    <select name="portalName" onselect="Map3DSystem.App.Creator.PortalPage.OnPortalNameSelected" style="width:150px">
+        <option>portal_000</option><option>portal_001</option><option>portal_002</option><option>portal_003</option><option>portal_004</option>
+    </select>
+<input name="btnSelectPortal" tooltip="从场景中选择" type="submit" value="选择" onclick="Map3DSystem.App.Creator.PortalPage.OnSelectPortal"/>
+    <input name="btnCreatePortal" type="submit" tooltip="在人物当前位置创建Portal" value="创建" onclick="Map3DSystem.App.Creator.PortalPage.OnCreatePortal"/><br />-->
+    <pe:tabs name="PortalTabs"> 
+     <pe:tab-item text="属性" onclick = "Map3DSystem.App.Creator.PortalPage.OnTabClick" selected="true" style="padding-left:5px;padding-right:5px">
+        <div style="float:left;text-align:right;width:80px">Portal名称:</div><input name="portal_name" style="width:120px" value=""/>
+        <div style="float:left;text-align:right;width:80px">x:</div><pe:numericupdown name="pos_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Creator.PortalPage.OnChangePosX"/><br />
+        <div style="float:left;text-align:right;width:80px">y:</div><pe:numericupdown name="pos_y" min_step="0.01" value="0" valueformat="%.2f" min="-10000" max="10000" onchange="Map3DSystem.App.Creator.PortalPage.OnChangePosY"/><br />
+        <div style="float:left;text-align:right;width:80px">z:</div><pe:numericupdown name="pos_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Creator.PortalPage.OnChangePosZ"/><br />
+        <div style="float:left;text-align:right;width:80px">旋转:</div><pe:numericupdown name="facing" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Creator.PortalPage.OnFacing"/><br />
+        <div style="float:left;text-align:right;width:80px">宽度:</div><pe:numericupdown  name="width" value="0.5" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.PortalPage.OnChangeWidth"/><br />
+        <div style="float:left;text-align:right;width:80px">高度:</div><pe:numericupdown  name="height" value="1" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.PortalPage.OnChangeHeight"/><br />
+        <div style="float:left;text-align:right;width:80px">深度:</div><pe:numericupdown  name="depth" value="0.1" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.PortalPage.OnChangeDepth"/><br />
+        <div style="margin-left:80px">
+            <!--<input name="btnUpdatePortal" type="submit" tooltip="根据包围盒更改形态" value="更新" onclick="Map3DSystem.App.Creator.PortalPage.OnUpdatePortal"/>-->
+        </div>
+     </pe:tab-item>    
+     <pe:tab-item text="点集合" onclick = "Map3DSystem.App.Creator.PortalPage.OnTabClick" style="padding-left:5px;padding-right:5px">
+        <div style="color:#808080">逆时针方向的点的集合, 构成了面</div>
+        <textarea rows="8" name="pointset"></textarea><br />
+        <input name="btnUpdatePoints" type="submit" value="更新" onclick="Map3DSystem.App.Creator.PortalPage.OnUpdatePortalPoints"/>
+        <!--<input name="btnUpdateZones" type="submit" value="返回" onclick="Map3DSystem.App.Creator.PortalPage.OnReturn"/>-->
+     </pe:tab-item>
+     <pe:tab-item text="链接" onclick = "Map3DSystem.App.Creator.PortalPage.OnTabClick" style="padding-left:5px;padding-right:5px">
+        <div style="color:#808080">Portal所连接的两个Zones</div>
+        所属房间 Home Zone: <br />
+        <input name="homeZoneName" style="width:120px" value=""/>
+        <input name="btnSelHomeZone" tooltip="从场景中选择" type="submit" value="选择" onclick="Map3DSystem.App.Creator.PortalPage.OnSelectHomeZone"/><br />
+        通向房间 Target Zone: <br />
+        <input name="targetZoneName" style="width:120px" value=""/>
+        <input name="btnSelTarZone" tooltip="从场景中选择" type="submit" value="选择" onclick="Map3DSystem.App.Creator.PortalPage.OnSelectTargetZone"/><br />
+        <div style="color:#808080">Target Zone如果为空, 表示通向外景的大世界</div>
+        <hr />
+        <input name="btnUpdateZones" type="submit" value="更新" onclick="Map3DSystem.App.Creator.PortalPage.OnUpdateZones"/>
+       <!-- <input name="btnUpdateZones" type="submit" value="返回" onclick="Map3DSystem.App.Creator.PortalPage.OnReturn"/>-->
+     </pe:tab-item>
+    </pe:tabs>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

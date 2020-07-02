@@ -1,0 +1,261 @@
+<!-- "script/apps/Aries/Login/NewAvatarDisplayPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Create new avatar Page. lixizhi  2011.8.9</title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="NewAvatarDisplayPage.lua"><![CDATA[
+
+local pageCtrl = document:GetPageCtrl();
+local NewAvatarDisplayPage = commonlib.gettable("MyCompany.Aries.NewAvatarDisplayPage")
+asset_table = NewAvatarDisplayPage.asset_table;
+NewAvatarDisplayPage.OnInit(asset_table);
+pageCtrl:SetValue("nickname",(NewAvatarDisplayPage.nickname or ""))
+
+function ShowChoiceTab(value)
+	pageCtrl:SetValue("NewAvatarTabs", value);
+    NewAvatarDisplayPage.ShowChoiceTab();
+end
+
+function DS_Func_Aries_CreateAvatar(index)
+    return NewAvatarDisplayPage.DS_Func_Aries_CreateAvatar(index, pageCtrl);
+end
+
+function DS_Func_Faces(index)
+    return NewAvatarDisplayPage.DS_Func_Faces(index);
+end
+
+function DS_Func_Hair(index)
+    return NewAvatarDisplayPage.DS_Func_Hair(index)
+end
+
+function DS_Func_SkinColor(index)
+    return NewAvatarDisplayPage.DS_Func_SkinColor(index)
+end
+
+function DS_Func_Clothes(index)
+    return NewAvatarDisplayPage.DS_Func_Clothes(index)
+end
+
+function UpdateButtonStatus(params)
+    local _this = ParaUI.CreateUIObject("container", "UpdateButtonStatus_NewAvatar", 
+        params.alignment, params.left, params.top, params.width, params.height);
+	_this.background = "";
+	params.parent:AddChild(_this);
+	
+	_this.onframemove = ";MyCompany.Aries.NewAvatarDisplayPage.UpdateButtonEnableness();";
+end
+
+function OnSelectGender(value)
+    local new_gender = if_else(value=="female", 1, 2);
+    if(new_gender ~= NewAvatarDisplayPage.UserChoice.gender) then
+        NewAvatarDisplayPage.UserChoice.gender = new_gender;
+        Page:Refresh(0.1);
+    end
+end
+
+function OnClickBack()
+    _guihelper.MessageBox("你确定要返回登录界面么?", function()
+        pageCtrl:CloseWindow();
+        local MainLogin = commonlib.gettable("MyCompany.Aries.MainLogin");
+        MainLogin:next_step({IsLocalUserSelected=false, IsAvatarCreationRequested = false, IsLoginStarted = false, IsAuthenticated = false});    
+    end)
+end
+
+
+]]></script>
+<div width="100%" height="100%" style="background:">
+    <div style="position:relative">
+        <pe:canvas3d name="CreateNewAvatar" 
+            DefaultRotY="2.79" DefaultCameraObjectDist = "6" LookAtHeight="1.2" DefaultLiftupAngle="0" 
+            ExternalSceneName="Aries_CreateNewAvatar_ingame" IgnoreExternalCamera="true"
+            value='<%=commonlib.serialize(Eval("asset_table"))%>'
+            ExternalOffsetX="20021" ExternalOffsetY="2.1" ExternalOffsetZ="20055" 
+            IsInteractive="false"/>
+            <!--ExternalSceneName="DefaultCanvas3DUI" -->
+    </div>
+    <!--3d avatar and rotate buttons-->
+    <pe:container alignment="_ctb" style="position:relative;margin-top:0px;height:100px;width:210px;padding:0px;background:;">
+        <div>
+            <aries:miniscenecameramodifier IsRotateModel="true" miniscenename="Aries_CreateNewAvatar_ingame" type="rotateleft" zorder="2" 
+                style="float:left;margin-left:20px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_left_32bits.png#1 0 51 21)"/>
+            <aries:miniscenecameramodifier IsRotateModel="true" miniscenename="Aries_CreateNewAvatar_ingame" type="rotateright" zorder="2" 
+                style="float:left;margin-left:70px;width:51px;height:21px;background:url(Texture/Aries/Common/ThemeTeen/profile_arrow_right_32bits.png#0 0 51 21)"/>
+        </div>
+        <div style="width:120px;margin-top:20px;" align="center">
+            <input type="button" name="tooltip_btn" enabled = "true" tooltip="请先为自己起个昵称吧" zorder="2"
+                style="width:120px;height:32px;background:;"/>
+        </div>
+    </pe:container>
+
+    <pe:container alignment="_ctl" style="width:250px;height:540px;margin-top:0px;margin-left:24px;background:;">
+        <div style="width:250px;height:490px;padding:10px;" class="panel_window">
+            <div class="titletext" style="margin-top:-34px;width:205px;padding-top:8px;text-align:center" align="center">角色创建</div>
+            <div style="margin-top:10px;padding-left:10px;padding-bottom:8px;" class="grouppanel" width="100%">
+                <div style="margin-top:12px;text-align:center;width:210px;" class="defaultstyle2">选择性别</div>
+                <div style="margin-top:5px;">
+                    <input type="radio" id="male" name="gender" style="margin-left:65px;"  value="male" onclick="OnSelectGender"/><div style="float:left;margin-left:3px;color:#98fffc;" for="male" >男</div>
+                    <input type="radio" id="female" name="gender" style="margin-left:10px;" value="female" checked="true" onclick="OnSelectGender"/><div style="float:left;margin-left:3px;color:#98fffc;" for="female" >女</div>
+                </div>
+
+                <div style="margin-top:12px;text-align:center;width:210px;" class="defaultstyle2">选择脸型</div>
+
+                <pe:gridview style="width:210px;height:64px;margin-left:20px;margin-top:0px;" 
+                    DataSource="<%=DS_Func_Faces%>" name="GV_Faces" ItemsPerLine="3" AllowPaging="true" CellPadding="4"  pagesize="3">
+                    <Columns>
+                        <div style="width:48px;height:48px;padding:2px;" class="block">
+                            <img style="position:relative;width:46px;height:46px;" zorder="2" src='<%=Eval("icon")%>'/>
+                            <pe:if condition='<%=Eval("is_selected")%>' >
+                                <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_selected"
+                                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="11"/>
+                                </pe:if>
+                                <pe:if condition='<%=not Eval("is_selected")%>' >
+                                <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_unselected"
+                                    onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="12"/>
+                                </pe:if>
+                        </div>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Top" height="0" style="margin-left:0px;margin-top:0px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate AutoHidePager="true">
+	                    <form>
+	                        <input type="button" name="pre" style="position:relative;margin-left:-20px;margin-top:16px;" class="pagerleft"/>
+	                        <input type="button" name="next"style="position:relative;margin-left:165px;margin-top:16px;" class="pagerright"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+
+                <div style="margin-top:0px;text-align:center;width:210px;" class="defaultstyle2">选择发型</div>
+                <pe:gridview style="width:210px;height:64px;margin-left:20px;margin-top:0px;" 
+                    DataSource="<%=DS_Func_Hair%>" name="GV_Hair" ItemsPerLine="3" AllowPaging="true" CellPadding="4"  pagesize="3">
+                    <Columns>
+                        
+                            <div style="width:48px;height:48px;padding:2px;" class="block">
+                                <img style="position:relative;width:46px;height:46px;" zorder="2" src='<%=Eval("icon")%>'/>
+                                <pe:if condition='<%=Eval("is_selected")%>' >
+                                    <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_selected"
+                                     onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="21"/>
+                                 </pe:if>
+                                 <pe:if condition='<%=not Eval("is_selected")%>' >
+                                    <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_unselected"
+                                     onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="22"/>
+                                 </pe:if>
+                            </div>
+                        
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Top" height="0" style="margin-left:0px;margin-top:0px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate AutoHidePager="true">
+	                    <form>
+	                        <input type="button" name="pre" style="position:relative;margin-left:-20px;margin-top:16px;" class="pagerleft"/>
+	                        <input type="button" name="next"style="position:relative;margin-left:165px;margin-top:16px;" class="pagerright"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+
+                <div style="margin-top:0px;text-align:center;width:210px;" class="defaultstyle2">
+                    选择肤色
+                </div>
+                <pe:gridview style="width:210px;height:64px;margin-left:20px;margin-top:0px;" DefaultNodeHeight="48"
+                    DataSource="<%=DS_Func_SkinColor%>" name="GV_SkinColor" AllowPaging="true" ItemsPerLine="3" CellPadding="4"  pagesize="3">
+                    <Columns>
+                        <div style="width:48px;height:48px;padding:2px;" class="block">
+                            <img style="position:relative;width:46px;height:46px;" zorder="2" src='<%=Eval("icon")%>'/>
+                            <pe:if condition='<%=Eval("is_selected")%>' >
+                                <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_selected"
+                                onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="31"/>
+                                </pe:if>
+                            <pe:if condition='<%=not Eval("is_selected")%>' >
+                                <input zorder="3" type="button" style="width:46px;height:46px;margin-left:-1px;margin-top:-1px;" class="preference_unselected"
+                                onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='<%=Eval("index")%>' name="32"/>
+                            </pe:if>
+                        </div>
+                    
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Top" height="0" style="margin-left:0px;margin-top:0px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	                <PagerTemplate AutoHidePager="true">
+	                    <form>
+	                        <input type="button" name="pre" style="position:relative;margin-left:-20px;margin-top:16px;" class="pagerleft"/>
+	                        <input type="button" name="next"style="position:relative;margin-left:165px;margin-top:16px;" class="pagerright"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>        
+            <!--<div style="margin-top:10px;padding-left:10px;padding-bottom:5px;" class="grouppanel" width="100%">
+                <div style="margin-top:-16px;margin-left:53px;" class="labeltitle">
+                    选择衣服
+                </div>
+                <pe:gridview style="width:210px;height:64px;margin-left:24px;margin-top:-5px;" DefaultNodeHeight="48"
+                    DataSource="<%=DS_Func_Clothes%>" name="GV_Clothes" ItemsPerLine="3" CellPadding="4"  pagesize="3">
+                    <Columns>
+                        <a style="padding:0px;background:url();"
+                            onclick="MyCompany.Aries.NewAvatarDisplayPage.OnClickItem" param1='4' param2='<%=Eval("index")%>'>
+                            <div style="width:48px;height:48px;" class="block">
+                                <img width="48" height="48" name="choice1" style="" src='<%=Eval("icon")%>'/>
+                            </div>
+                        </a>
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <b>EmptyDataTemplate</b>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <b>FetchingDataTemplate</b>
+                    </FetchingDataTemplate>
+                    <PagerSettings Position="Top" height="0"/>
+	                <PagerTemplate  AutoHidePager="true">
+	                    <form>
+	                       <input type="button" name="pre" style="position:relative;margin-left:-20px;margin-top:16px;" class="pagerleft"/>
+	                       <input type="button" name="next"style="position:relative;margin-left:168px;margin-top:16px;" class="pagerright"/>
+	                    </form>
+	                </PagerTemplate>
+                </pe:gridview>
+            </div>-->
+            <div style="margin-top:5px;">
+                <input type="button" value="随机选择" style="margin-top:5px;margin-left:70px;width:80px;" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnRandom"/>
+                    <pe:custom oncreate="UpdateButtonStatus" style="position:relative;width:16px;height:16px"/>
+            </div>
+            <div style="margin-top:8px;padding-left:10px;padding-bottom:5px;" class="grouppanel" width="100%">
+                <div style="margin-top:3px;text-align:center;width:210px;" class="defaultstyle2">
+                    人物取名
+                </div>
+                <div style="margin-top:0px;">
+                    <input type="text" name="nickname" style="width:145px;height:24px;" onkeyup="MyCompany.Aries.NewAvatarDisplayPage.OnKeyup" SkipAutoBadWordFilter="true"/>
+                    <input type="button" name="checkname" value="检查名字" tooltip="名字不能前后或全部为空字符." style="margin-left:5px;" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnCheckNickName"/>
+                </div>
+            </div>
+            <div style="margin-top:5px;">
+                <input type="button" name="selected_btn" class="defaultbutton" value="进入游戏" style="margin-left:70px;margin-top:3px;width:80px;font-size:14px;font-weight:bold;height:28px;" enabled = "false" onclick="MyCompany.Aries.NewAvatarDisplayPage.OnNext"/>
+            </div>
+            <!--comment this block when disable activation code-->
+            <!--<div style="position:relative;margin-top:12px;padding-left:10px;padding:5px;" class="block" width="100%">
+                输入体验码:<input type="text" name="ActivationCode" style="width:60px;height:24px;"/>
+                <input type="button" value="抽取体验码" tooltip="进入官网抽取体验码" style="margin-left:5px;" onclick="MyCompany.Aries.NewAvatarDisplayPage.GetActivationCode"/>
+            </div>-->
+        </div>
+        
+    </pe:container>
+    <pe:container alignment="_lb" style="position:relative;width:128px;height:120px;margin-left:10px;margin-top:-90px;background:">
+        <input type="button" name="back" value="返回"  onclick="OnClickBack"/>
+    </pe:container>
+</div>
+</pe:mcml>
+</body>
+</html>

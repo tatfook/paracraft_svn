@@ -1,0 +1,240 @@
+<!-- "script/apps/Aries/Friends/FriendsPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+local NewProfileMain = commonlib.gettable("MyCompany.Aries.NewProfileMain");
+NPL.load("(gl)script/apps/Aries/Friends/FriendsPage.lua");
+FriendsPage = commonlib.gettable("MyCompany.Aries.FriendsPage");
+local TeamMembersPage = commonlib.gettable("MyCompany.Aries.Team.TeamMembersPage");
+
+local pageCtrl = document:GetPageCtrl();
+
+local friends = commonlib.gettable("test.friends");
+
+
+FriendsPage.OnInit();
+
+function ClosePage()
+    FriendsPage.nid = nil;
+    FriendsPage.ClosePage();
+end
+
+function IsSelectFriend()
+    if(not FriendsPage.nid or FriendsPage.nid == System.App.profiles.ProfileManager.GetNID()) then
+        _guihelper.MessageBox("请先选择一个玩家！");
+        return false;
+    end
+    return true;
+end
+function OnClickMagicStar(nid)
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/MagicStarPage.lua");
+    local MagicStarPage = commonlib.gettable("MyCompany.Aries.Inventory.MagicStarPage");
+    MagicStarPage.ShowPage(nil,nid);
+end
+
+function DS_Func_Items(index)
+	return FriendsPage.DS_Func_Items(index);
+end
+
+function DoAddFriend_imp()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("addfriend");
+
+    if(IsSelectFriend())then
+        MyCompany.Aries.Friends.AddFriendByNIDWithUI(FriendsPage.nid );
+    end
+end
+
+function DoInvite()
+    if(IsSelectFriend())then
+        TeamMembersPage.InviteToTeam(FriendsPage.nid );
+    end
+end
+
+function DoChatWithFriend()
+    if(IsSelectFriend())then
+        System.App.Commands.Call("Profile.Aries.ChatWithFriendImmediate", {nid = FriendsPage.nid });
+    end
+end
+
+function DoAddBlackList() 
+    if(FriendsPage.nid)then
+        FriendsPage.AddBlackMember(FriendsPage.nid);
+    end
+end
+function DoRemoveBlackList() 
+    if(FriendsPage.nid)then
+        FriendsPage.RemoveBlackMember(FriendsPage.nid);
+    end
+end
+function DoViewProfile()
+    if(IsSelectFriend())then
+        MyCompany.Aries.Desktop.Profile.ViewFullProfile(FriendsPage.nid )
+    end
+end
+
+function DoTeleportToFriend()
+    if(IsSelectFriend())then
+        MyCompany.Aries.Friends.QueryFriendPosition(FriendsPage.nid ); 
+    end
+end
+function OnClickItem(index)
+	
+     if(FriendsPage.cur_list)then
+        local node = FriendsPage.cur_list[index];  
+        if(not node) then return; end
+        if(mouse_button == "right") then
+		    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+		    MyCompany.Aries.NewProfileMain.OnShowContextMenu(node.nid);
+	    end
+
+        if(FriendsPage.nid ~= node.nid)then
+            FriendsPage.last_click_time = nil;
+        end
+        FriendsPage.nid  = node.nid;
+
+        local k,v;
+        for  k,v in ipairs(FriendsPage.cur_list)do
+		    v.checked = false;
+        end
+		node.checked = true;
+		pageCtrl:Refresh(0);
+
+        local cur_time = ParaGlobal.timeGetTime();
+        if(FriendsPage.last_click_time and (cur_time - FriendsPage.last_click_time) < 500) then
+            DoChatWithFriend();
+        end
+        FriendsPage.last_click_time = cur_time;
+        
+    end
+end
+function DoClick(sName)
+    FriendsPage.nid  = nil;
+	FriendsPage.DoSelected(sName);
+end
+function DoAddFriend()
+    NPL.load("(gl)script/apps/Aries/mcml/pe_goal_pointer.lua");
+    local goal_manager = commonlib.gettable("MyCompany.Aries.mcml_controls.goal_manager");
+    goal_manager.finish("addfriend");
+    FriendsPage.ShowPage_AddFriend(FriendsPage.nid);
+end
+function DoRemoveFrined()
+    if(FriendsPage.nid)then
+        NewProfileMain.OnRemoveFriend(FriendsPage.nid)
+    end
+end
+function IsSelected(name)
+    if(name == FriendsPage.selected_type)then
+        return true;
+    end
+end
+]]>
+</script>
+
+<aries:window width="280" height="470" mode="lite" onclose="ClosePage()" title="好友" icon="Texture/Aries/Common/ThemeTeen/wintitle/friend_icon_32bits.png">
+    <!--work area -->
+    <div style="margin-left:5px;margin-top:5px;background:;"  class="clientarea">
+        <!-- some tabs for social contact -->
+        <pe:goalpointer listen="select_nearby" style="position:relative;margin-left:130px;width:64px;height:26px;"></pe:goalpointer>
+        <pe:tabs name="tabsSocialContact" onclick="DoClick" class="default_tabs" style="height:26px;margin-left:-2px;">
+          <pe:tab-item text="我的好友" style="max-width:60;" name="BuddyList" selected='<%=IsSelected("BuddyList") %>'/>
+          <pe:tab-item text="最近联系" style="max-width:60;" name="RecentList" selected='<%=IsSelected("RecentList") %>'/>
+          <pe:tab-item text="附近玩家" style="max-width:60;" name="NearbyList" selected='<%=IsSelected("NearbyList") %>'/>
+          <pe:tab-item text="黑名单" style="max-width:60;" name="BlackList" selected='<%=IsSelected("BlackList") %>'/>
+        </pe:tabs>
+        <div class="border_bg1_css" style="width:255px;height:370px;margin-top:2px;margin-left:0px;" >
+        <div style="margin-top:0px;width:255px;height:360px;margin-left:0px" align="center" >
+            <div style="position:relative;text-align:left;margin-left:2px;margin-top:2px;width:251px;" class="border_bg3_css">
+                <input type="button" value="名称" class="titlebutton" style="float:left;margin-left:5px;width:165px;text-align:left;" />
+                <input type="button" value="等级" class="titlebutton" style="float:left;margin-left:-12px;width:30px;" />
+                <input type="button" value="系别" class="titlebutton" style="float:left;margin-left:7px;width:50px;" />
+            </div>
+            <div style="margin-top:30px;">
+                <pe:gridview name="test_list_2" DataSource="<%=DS_Func_Items%>" style="height:345px;" ItemsPerLine="1" AllowPaging="true" pagesize="10">
+				    <Columns>
+                        <div style="width:255px;">
+                            <div>
+                                <pe:if condition='<%=Eval("checked") %>' >
+							        <input type="button" class="listbutton_selected" onclick="OnClickItem" name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:251px;height:25px;" tooltip="双击聊天" />
+						        </pe:if>
+						        <pe:if condition='<%=not Eval("checked") %>' >
+                                    <pe:if condition='<%=Eval("index") == 1 and IsSelected("NearbyList")%>'>
+                                        <pe:goalpointer listen="open_other_profile" style="position:relative;margin-left:25px;width:96px;height:25px;"></pe:goalpointer>
+                                    </pe:if>
+							        <input type="button" class="listbutton_unselected" onclick="OnClickItem"  name='<%=Eval("index")%>'
+								        style="margin-left:2px;margin-top:0px;width:251px;height:25px;" tooltip="双击聊天" />
+						        </pe:if>
+					        </div>
+					        <div style="margin-top:-20px;" class="defaultstyle">
+                            <div style="float:left;width:25px;height:25px;">
+                                <img src='<%=Eval("icon") %>' style="width:32px;height:32px;margin-top:-8px;background:;" />
+                            </div>
+						        <div style="float:left;width:132px;margin-left:5px;"><aries:mountpet-status2 name="nickname" nid='<%=Eval("nid")%>' type="nickname" hideifnotvip="true"/></div>
+						        <div style="float:left;margin-left:5px;width:20px;text-align:left;"><aries:mountpet-status2 name="combat_level" nid='<%=Eval("nid")%>' type="combatlel" hideifnotvip="true"/></div>
+
+                                <pe:if condition = '<%=Eval("isvip") == true %>'>
+                                <div style="float:left;width:16px;margin-left:16px;height:16px;background:Texture/Aries/Team/magicstar_32bits.png" onclick="OnClickMagicStar()" name='<%=Eval("nid")%>'></div>
+                                </pe:if>
+                                <pe:if condition = '<%=Eval("isvip") ~= true %>'>
+                                <div style="float:left;width:32px;margin-top:-8px;height:32px;"></div>
+                                </pe:if>
+ 
+                                 <aries:mountpet-combatschool name="combat_school" nid='<%=Eval("nid")%>' is_img="true" style="margin-left:0px;margin-top:1px;width:16px;height:16px;"/>
+					        </div>
+                             <div style="width:251px;height:1px;margin-left:2px;margin-top:-4px;" class="black_line"/>
+					    </div>
+				    </Columns>
+				    <EmptyDataTemplate>
+				    </EmptyDataTemplate>
+				    <FetchingDataTemplate>
+					    <b>正在更新数据...</b>
+				    </FetchingDataTemplate>
+				    <PagerSettings Position="Bottom" style="margin-left:80px;margin-top:-5px;"/>
+				    <PagerTemplate>
+					    <form>
+						    <input type="button" name="pre" invisibleondisabled="false" class="pagerleft" />
+							<input type="button" name="page" class="pagertext" />
+						    <input type="button" name="next" invisibleondisabled="false" class="pagerright" />
+	                    </form>
+				    </PagerTemplate>
+			    </pe:gridview>                
+            </div>
+            </div>
+        <div style="margin-top:10px;">
+                <pe:if condition='<%=FriendsPage.selected_type == "BuddyList" %>'>
+                    <input type="button" value="添加好友" class="defaultbutton" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoAddFriend()"/>
+                    <input type="button" value="删除好友" class="defaultbutton" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoRemoveFrined()"/>
+                </pe:if>
+
+                <pe:if condition='<%=FriendsPage.selected_type == "RecentList" %>'>
+                    <input type="button" value="添加好友" class="defaultbutton" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoAddFriend()"/>
+                    <input type="button" value="加入黑名单" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoAddBlackList"/>
+                </pe:if>
+                <pe:if condition='<%=FriendsPage.selected_type == "NearbyList" %>'>
+                    <pe:if condition='<%=FriendsPage.nid~=nil or DS_Func_Items() == 0%>'>
+                        <pe:goalpointer listen="addfriend" style="position:relative;width:70px;height:25px;margin-left:5px; margin-top:2px"></pe:goalpointer>
+                    </pe:if>
+                    <input type="button" value="添加好友" class="defaultbutton" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoAddFriend()"/>
+                    <input type="button" value="加入黑名单" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoAddBlackList"/>
+                </pe:if>
+                <pe:if condition='<%=FriendsPage.selected_type == "BlackList" %>'>
+                    <input type="button" value="移除黑名单" style="width:70px;margin-left:5px; margin-top:2px" onclick="DoRemoveBlackList"/>
+                </pe:if>
+            </div>
+    </div>
+    </div>
+</aries:window>
+
+</pe:mcml>
+</body>
+</html>
+

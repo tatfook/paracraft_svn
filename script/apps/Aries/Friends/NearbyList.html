@@ -1,0 +1,108 @@
+﻿<!-- "script/apps/Aries/Friends/NearbyList.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NearbyList, by Andy, 2009/5/3</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" src="NearbyList.lua"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+
+function DS_Func_NearbyList(index)
+    return MyCompany.Aries.Friends.NearbyListPage.DS_Func_NearbyList(index, pageCtrl);
+end
+
+function OnClickHomeland(value)
+    if(value) then
+        System.App.Commands.Call("Profile.Aries.GotoHomeLand", {nid = tonumber(value)});
+    end
+end
+
+function OnClickPhone(value)
+    System.App.Commands.Call("Profile.Aries.ChatWithFriendImmediate", {uid = value});
+end
+
+function OnClickMagicStar(value)
+    NPL.load("(gl)script/apps/Aries/Desktop/CombatCharacterFrame/CombatProfile.lua");
+    MyCompany.Aries.Desktop.CombatProfile.ShowPage(tonumber(value));
+end
+
+mouseover_bg = "Texture/Aries/Friends/buddy_tag_bg_selected_212_30_32bits.png;0 0 212 30";
+]]></script>
+
+    <div type="box" style="float:right;margin-left:40px;margin-top:24px;width:128px;height:60px;">
+        <div style="float:right;margin-top:12px;margin-left:40px">
+            <div style="width:77px;height:19px;background:url(Texture/Aries/Friends/nearby_title_32bits.png# 0 0 77 19)"/>
+        </div>
+        <br/>
+        <div style="float:right;margin-top:4px;margin-left:68px;color:#4c7aaa">
+            <label name="nearbycount"/>
+        </div>
+    </div>
+    <pe:gridview RememberScrollPos="true" DataSource="<%=DS_Func_NearbyList%>" name="NearbyList" style="margin-left:20px;margin-top:0px;margin-right:13px;margin-bottom:25px;" 
+        VerticalScrollBarStep="35" CellPadding="5"  DefaultNodeHeight = "30" ItemsPerLine="1" AllowPaging="false" pagesize="250">
+        <Columns>
+            <div style="width:196px;height:30px;background:url(Texture/Aries/Friends/buddy_tag_bg_32bits.png#0 0 32 30:16 15 15 14)">
+                <pe:if condition='<%=Eval("bshow")%>'>
+                    <pe:if condition='<%=Eval("index") == 1%>'>
+                        <pe:goalpointer listen="open_other_profile" style="position:relative;width:96px;height:32px;"></pe:goalpointer>
+                    </pe:if>
+                    <a style="width:196px;height:30px;margin:0px;padding:0px;background:;"
+                        onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                        <input type="button" Normal_BG="" MouseOver_BG='<%=Eval("mouseover_bg")%>' alwaysmouseover="true" style="float:right;margin-top:0px;width:196px;height:30px;background:;"/>
+                        <div style="margin-left:-1px;margin-top:-32px;padding-left:5px;padding-top:2px;width:210px;height:30px;">
+                            <a width="30" height="26" style="padding-left:0px;padding-top:1px;background:;"
+                                onclick="MyCompany.Aries.Desktop.Profile.ViewFullProfile" param1='<%=Eval("nid")%>'>
+                                <img width="32" height="26" src='<%=Eval("icon")%>'/>
+                            </a>
+                            <div style="float:right;margin-left:0px;margin-top:3px;width:108px;font-size:12pt;color:#000000">
+                                <div style="width:300px;">
+                                    <pe:name nid='<%=Eval("nid")%>' linked=false useyou=false/>
+                                </div>
+                            </div>
+                            <pe:if condition='<%=not MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                                <!--<input type="button" zorder="1" style="float:right;margin-left:-10px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="OnClickHomeland()" name='<%=Eval("nid")%>'/>-->
+                                <pe:if condition='<%=Eval("isvip") == true%>'>
+                                    <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:Texture/Aries/Friends/MagicStarMid_32bits.png" onclick="OnClickMagicStar()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("isvip") == false%>'>
+                                    <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:;" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                            </pe:if>
+                            <pe:if condition='<%=MyCompany.Aries.Desktop.Dock.IsIdleMode()%>'>
+                                <!--<input type="button" zorder="1" enabled="false" style="float:right;margin-left:-10px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/quickvisithome_32bits.png" onclick="OnClickHomeland()" name='<%=Eval("nid")%>'/>-->
+                                <pe:if condition='<%=Eval("isvip") == true%>'>
+                                    <input type="button" zorder="1" enabled="false" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:Texture/Aries/Friends/MagicStarMid_32bits.png" onclick="OnClickMagicStar()" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                                <pe:if condition='<%=Eval("isvip") == false%>'>
+                                    <input type="button" zorder="1" enabled="false" style="float:right;margin-left:-5px;margin-top:-2px;width:32px;height:32px;background:;" name='<%=Eval("nid")%>'/>
+                                </pe:if>
+                            </pe:if>
+                            <input type="button" zorder="1" style="float:right;margin-left:-5px;margin-top:-1px;width:32px;height:32px;background:Texture/Aries/Friends/FriendsWnd_Phone2_32bits.png" onclick="OnClickPhone()" name='<%=Eval("nid")%>'/>
+                        </div>
+                    </a>
+                </pe:if>       
+            </div>
+        </Columns>
+        <EmptyDataTemplate>
+            <b>无</b>
+        </EmptyDataTemplate>
+        <FetchingDataTemplate>
+            <div style="margin-left:40px;margin-top:10px;">数据加载中，请稍等</div>
+        </FetchingDataTemplate>
+	    <PagerSettings Position="Bottom" height="36" style="margin-left:50px;margin-top:-8px;width:168px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+	    <PagerTemplate>
+	        <form>
+	            <input type="button" name="pre" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageLeft.png;"/>
+	            <div style="float:right;margin-top:4px;width:64px;">
+	                <label name="page" style="text-align:center;width:64px;height:18px;margin:4px"/>
+	            </div>
+	            <input type="button" name="next" style="width:32px;height:32px;background:Texture/Aries/Inventory/PageRight.png;"/>
+	        </form>
+	    </PagerTemplate>
+    </pe:gridview>
+</pe:mcml>
+</body>
+</html>

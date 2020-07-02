@@ -1,0 +1,112 @@
+﻿<!-- "script/apps/Aries/NPCs/Police/30004_MysteryAcinusTree_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30004_MysteryAcinusTree_dialog page , by Andy, 2009/7/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+NPL.load("(gl)script/apps/Aries/Quest/NPCAIMemory.lua");
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30004);
+memory.state = memory.state or 0;
+
+function InitIfStateZero()
+    MyCompany.Aries.Quest.NPCs.MysteryAcinusTree.InitIfStateZero()
+end
+
+Condition1 = function()
+    InitIfStateZero()
+    if(memory.state == 1 and memory.prefereditem_gsid == 9501) then
+        return true;
+    else
+        return false;
+    end
+end;
+Condition2 = function()
+    InitIfStateZero()
+    if(memory.state == 1 and memory.prefereditem_gsid == 9502) then
+        return true;
+    else
+        return false;
+    end
+end;
+Condition3 = function()
+    InitIfStateZero()
+    if(memory.state == 1 and memory.prefereditem_gsid == 9503) then
+        return true;
+    else
+        return false;
+    end
+end;
+Condition4 = function()
+    InitIfStateZero()
+    if(memory.state == 2) then
+        return true;
+    else
+        return false;
+    end
+end;
+
+function EntryAction(from, to)
+end
+
+function ExitAction(from, to)
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30004" />
+            <pe:placeholder id="name" source="{this}" value="" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+	        
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我口好渴，缺少水份，长不出浆果，我想喝水!
+		    <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    我肚子好饿，没有营养，长不出浆果，我想吃果冻!
+		    <pe:answer template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+		    我精神好差，心情不好，长不出浆果，我想玩炮竹!
+		    <pe:answer template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+		    我吃饱喝足精神好好，你真是一个好心的小哈奇！
+		    <pe:answer template_id="ok" >
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+</pe:mcml>
+</body>
+</html>

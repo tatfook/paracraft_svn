@@ -1,0 +1,599 @@
+<!-- script/apps/Aries/Desktop/WorldMaps/LocalMap.html -->
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">-->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Local Map Page</title>
+</head>
+<body>
+    
+<pe:mcml trans="ParaworldMCML">
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/kids/3DMapSystemUI/MiniMap/NewMiniMap.lua");
+local page = document:GetPageCtrl();
+function OnClose()
+	local msg = { aries_type = "OnCloseLocalMap", wndName = "main"};
+	CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+	
+    page:CloseWindow();
+end
+
+function OnTeleport()
+	local msg = { aries_type = "OnCloseLocalMap", wndName = "main"};
+	CommonCtrl.os.hook.Invoke(CommonCtrl.os.hook.HookType.WH_CALLWNDPROCRET, 0, "Aries", msg);
+	
+    page:CloseWindow();
+end
+
+
+--local x,y,z = ParaScene.GetPlayer():GetPosition();
+--commonlib.echo("!!!!!!!!!!:" .. x .. ";" .. z );
+
+
+asset_table = {
+    name = "highlight_dragonpark",
+    AssetFile="character/common/walk_point/walk_point_withoutstar.x",
+    
+	IsCharacter = true,
+    x=0,y=0,z=0,
+};
+
+--Texture/Aries/Desktop/Minimap_AvatarArrow_32bits.png
+
+WorldServerName = commonlib.getfield("MyCompany.Aries.WorldServerName") or "";
+WorldServerSeqId = commonlib.getfield("MyCompany.Aries.WorldServerSeqId") or "";
+
+function IWantGame()
+    NPL.load("(gl)script/apps/Aries/Help/MapHelpPage.lua");
+    MyCompany.Aries.Help.MapHelpPage.ShowPage_ByState("find_game");
+end
+
+function IWantThing()
+    NPL.load("(gl)script/apps/Aries/Help/MapHelpPage.lua");
+    MyCompany.Aries.Help.MapHelpPage.ShowPage_ByState("find_item");
+end
+
+function IWantBuddy()
+    NPL.load("(gl)script/apps/Aries/Help/MapHelpPage.lua");
+    MyCompany.Aries.Help.MapHelpPage.ShowPage_ByState("find_npc");
+end
+
+]]></script>
+    <div style="position:relative;margin-left:120px;margin-top:40px;width:20px;height:20px;">
+        <input type="button" name="3" zorder="2"
+            Normal_BG = "Texture/Aries/MapHelp/find_npc_1_32bits.png; 0 0 94 32"
+            MouseOver_BG = "Texture/Aries/MapHelp/find_npc_2_32bits.png; 0 0 94 32"
+            Disabled_BG = "Texture/Aries/MapHelp/find_npc_1_32bits.png; 0 0 94 32"
+            style="width:94px;height:32px;background:;" onclick="IWantBuddy()"/>
+        <br/>
+        <input type="button" name="1" zorder="2"
+            Normal_BG = "Texture/Aries/MapHelp/find_game_1_32bits.png; 0 0 94 32"
+            MouseOver_BG = "Texture/Aries/MapHelp/find_game_2_32bits.png; 0 0 94 32"
+            Disabled_BG = "Texture/Aries/MapHelp/find_game_1_32bits.png; 0 0 94 32"
+            style="width:94px;height:32px;background:;" onclick="IWantGame()"/>
+        <br/>
+        <input type="button" name="2" zorder="2"
+            Normal_BG = "Texture/Aries/MapHelp/find_item_1_32bits.png; 0 0 94 32"
+            MouseOver_BG = "Texture/Aries/MapHelp/find_item_2_32bits.png; 0 0 94 32"
+            Disabled_BG = "Texture/Aries/MapHelp/find_item_1_32bits.png; 0 0 94 32"
+            style="width:94px;height:32px;background:;" onclick="IWantThing()"/>
+        <br/> 
+       
+    </div>
+    <pe:map background = "Texture/Aries/WorldMaps/HaqiTownMap/HaqiTownMap_bg.png;0 0 960 560" title = "哈奇岛" name = "haqiTownLocalMap"
+        width = "878" height = "510" 
+        RefPos1 = "(241, 291), (19998, 19881)" 
+        RefPos2 = "(317, 342), (20126, 19749)" 
+        AvatarArrow_bg = "Texture/Aries/Friends/MapAvatarMark_32bits.png"
+        AvatarArrow_size = "40"
+        isShownAvatar = true
+        isFixedFacing = true 
+        worldname = "61HaqiTown"
+        OnTeleport = "OnTeleport()">
+        
+        
+        <pe:mark background = ""
+            MapPosition = "350, 475, 300, 74"
+            enabled = "false">
+            <div style="padding:5px;padding-left:20px;padding-bottom:26px;color:#8e1f13;background:url()">
+                你所在的服务器是：<%=Eval("WorldServerSeqId")%><%=Eval("WorldServerName")%>
+                <!--<div style="float:left;margin-left:6px;padding-top:30px;color:#4f7dbb">龙龙乐园开放了！</div>-->
+            </div>
+        </pe:mark>
+
+        <pe:mark background = ""
+            MapPosition = "400, 40, 500, 44"
+            enabled = "false">
+            <div style="padding:8px;padding-left:18px;padding-bottom:26px;color:#4f7dbb;background:url(Texture/Aries/HeadOn/head_speak_bg_32bits.png#0 0 128 62:24 20 64 41)">
+                点击地图上的图标，可以直接移动到你要去的地点。
+                <!--<div style="float:left;margin-left:6px;padding-top:30px;color:#4f7dbb">龙龙乐园开放了！</div>-->
+            </div>
+        </pe:mark>
+       
+        
+        <!--魔法密林-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/MagicForest2_32bits.png; 0 0 60 52"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/MagicForest_32bits.png; 0 0 60 52" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/MagicForest_32bits.png; 0 0 60 52" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=magicforest"
+            label = "magicforest"
+            commandname = ""
+            MapPosition = "328, 202, 50, 42"
+            WorldPath = ""
+            AvatarPosition = "19909.43, 11.22, 20101.18"
+            CameraPosition = "8.71, 0.08, 2.92">
+        </pe:mark>
+        
+        <!--魔法学院-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/CyanDragon2_32bits.png; 0 0 46 40"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/CyanDragon_32bits.png; 0 0 46 40"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/CyanDragon_32bits.png; 0 0 46 40"
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=cyandragon"
+            label = "cyandragon"
+            commandname = ""
+            MapPosition = "480, 230, 42, 38"
+            WorldPath = ""
+            AvatarPosition = "20193.87, 6.15, 19990.38"
+            CameraPosition = "15.00, 0.24, -1.47">
+        </pe:mark>
+        
+        <!--青青马场-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/AquaHorse2_32bits.png; 0 0 34 30"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/AquaHorse_32bits.png; 0 0 34 30"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/AquaHorse_32bits.png; 0 0 34 30"
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=aquahorse"
+            label = "aquahorse"
+            commandname = ""
+            MapPosition = "458, 278, 34, 30"
+            WorldPath = ""
+            AvatarPosition = "20142.2890625, 0.94714260101318, 19909.12109375"
+            CameraPosition = "8, 0.27903637290001, -3.0938301086426">
+        </pe:mark>
+        
+        <!--探索号-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/Adventure2_32bits.png"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Adventure_32bits.png"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Adventure_32bits.png" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=adventure"
+            label = "adventure"
+            commandname = ""
+            MapPosition = "410, 406, 64, 64"
+            WorldPath = ""
+            AvatarPosition = "20034.55, 0.90, 19631.83"
+            CameraPosition = "7.13, 0.10, 1.86">
+        </pe:mark>
+        
+        <!--阳光海岸-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SunShineStation3_off_32bits.png"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SunShineStation3_on_32bits.png"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SunShineStation3_on_32bits.png"
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=sunshinestation"
+            label = "sunshinestation"
+            commandname = ""
+            MapPosition = "529, 370, 60, 60"
+            WorldPath = ""
+            AvatarPosition = "20207.55, 0.28, 19609.29"
+            CameraPosition = "8.86, 0.14, -1.52">
+        </pe:mark>
+        
+        <!--警察局-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/PoliceStation2_32bits.png; 0 0 48 36"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/PoliceStation_32bits.png; 0 0 48 36"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/PoliceStation_32bits.png; 0 0 48 36" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=policestation"
+            label = "policestation"
+            commandname = ""
+            alwaysmouseover = "true"
+            MapPosition = "419, 300, 38, 29"
+            WorldPath = ""
+            AvatarPosition = "20034.04, 2.93, 19818.38"
+            CameraPosition = "7.13, 0.12, -1.52">
+        </pe:mark>
+        
+        <!-------------------- 5_28 -------------------->
+        <!--<pe:mark background = ""
+            MapPosition = "417, 456, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>
+        <pe:mark background = ""
+            MapPosition = "343, 290, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>-->
+        
+        <!-------------------- 6_11 -------------------->
+        <!--<pe:mark background = ""
+            MapPosition = "280, -40, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>
+        <pe:mark background = ""
+            MapPosition = "480, 360, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>
+        <pe:mark background = ""
+            MapPosition = "542, 290, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>-->
+        
+        <!-------------------- 6_25 -------------------->
+        <pe:mark background = ""
+            MapPosition = "371, 126, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>
+        <!--<pe:mark background = ""
+            MapPosition = "221, -56, 256, 256"
+            enabled = "false">
+            <div style="padding:10px;padding-bottom:26px">
+                <pe:canvas3d name="haqitownmap" style="width:256px;height:256px;" DefaultRotY="-1.57" DefaultCameraObjectDist = "7" LookAtHeight="1.2" DefaultLiftupAngle="1.57" RenderTargetSize="256" miniscenegraphname='haqitownmap' value='<%=commonlib.serialize(Eval("asset_table"))%>'/>
+            </div>
+        </pe:mark>-->
+            
+            
+        
+        
+        <!--龙龙乐园-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/Carnival2_32bits.png; 0 0 64 60"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Carnival_32bits.png; 0 0 64 60"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Carnival_32bits.png; 0 0 64 60" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=carnival"
+            label = "carnival"
+            commandname = ""
+            alwaysmouseover = "true"
+            MapPosition = "372, 287, 52, 50"
+            WorldPath = ""
+            AvatarPosition = "20001.36, 2.81, 19879.09"
+            CameraPosition = "7.49, 0.11, -2.91">
+        </pe:mark>
+        
+        <!--跳跳农场-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/FarmHouseChick2_32bits.png; 0 0 56 56"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FarmHouseChick_32bits.png; 0 0 56 56"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FarmHouseChick_32bits.png; 0 0 56 56" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=farmhousechick"
+            label = "farmhousechick"
+            commandname = ""
+            MapPosition = "298, 290, 43, 43"
+            WorldPath = ""
+            AvatarPosition = "19908.72, 2.28, 19898.07"
+            CameraPosition = "8.29, 0.01, 2.84">
+        </pe:mark>
+        
+        <!--小镇广场-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/TownSquare2_32bits.png; 0 0 42 46"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TownSquare_32bits.png; 0 0 42 46"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TownSquare_32bits.png; 0 0 42 46" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=townsquare"
+            label = "townsquare"
+            commandname = ""
+            MapPosition = "440, 322, 38, 40"
+            WorldPath = ""
+            AvatarPosition = "20069.58, 2.79, 19741.63"
+            CameraPosition = "8.86, 0.07, -1.84">
+        </pe:mark>
+        
+        <!--购物街-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/ShoppingZone2_32bits.png; 0 0 54 64"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/ShoppingZone_32bits.png; 0 0 54 64"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/ShoppingZone_32bits.png; 0 0 54 64" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=shoppingzone"
+            label = "shoppingzone"
+            commandname = ""
+            MapPosition = "475, 332, 48, 55"
+            WorldPath = ""
+            AvatarPosition = "20168.90, 5.83, 19711.97"
+            CameraPosition = "8.29, 0.08, 2.02">
+        </pe:mark>
+        
+        <!--龙源密境-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/DragonOrien2_32bits.png; 0 0 50 35"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/DragonOrien_32bits.png; 0 0 50 35"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/DragonOrien_32bits.png; 0 0 50 35" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=dragonorien"
+            label = "dragonorien"
+            commandname = ""
+            MapPosition = "362, 235, 40, 27"
+            WorldPath = ""
+            AvatarPosition = "19927.48, 2.10, 19991.50"
+            CameraPosition = "8.29, 0.03, -1.81">
+        </pe:mark>
+        
+        <!--生命之泉-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/LifeSpring_off_32bits.png; 0 0 64 64"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/LifeSpring_on_32bits.png; 0 0 64 64"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/LifeSpring_on_32bits.png; 0 0 64 64" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=lifespring"
+            label = "lifespring"
+            commandname = ""
+            MapPosition = "402, 240, 48, 48"
+            WorldPath = ""
+            AvatarPosition = "19997.70, 1.65, 20007.54"
+            CameraPosition = "11.03, 0.09, -0.70">
+        </pe:mark>
+        
+        <!--友谊公园-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/Park2_32bits.png; 0 0 48 32"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Park_32bits.png; 0 0 48 32"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Park_32bits.png; 0 0 48 32" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=park"
+            label = "park"
+            commandname = ""
+            MapPosition = "454, 304, 40, 25"
+            WorldPath = ""
+            AvatarPosition = "20076.73, 2.80, 19829.40"
+            CameraPosition = "9.63, 0.01, -0.52">
+        </pe:mark>
+        
+        <!--凯旋广场-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/TriumphSquare2_32bits.png; 0 0 40 32"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TriumphSquare_32bits.png; 0 0 40 32"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TriumphSquare_32bits.png; 0 0 40 32" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=triumphsquare"
+            label = "triumphsquare"
+            commandname = ""
+            MapPosition = "492, 305, 35, 25"
+            WorldPath = ""
+            AvatarPosition = "20139.68, 2.66, 19794.05"
+            CameraPosition = "11.55, 0.09, -0.51">
+        </pe:mark>
+        
+        <!--图书馆-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/Library_off_32bits.png; 0 0 64 64"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Library_on_32bits.png; 0 0 64 64"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/Library_on_32bits.png; 0 0 64 64" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=library"
+            label = "library"
+            commandname = ""
+            MapPosition = "546, 328, 40, 40"
+            WorldPath = ""
+            AvatarPosition = "20251.64, 2.51, 19752.83"
+            CameraPosition = "10.09, 0.11, 1.44">
+        </pe:mark>
+        
+        <!--雪山脚下-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea1_off_32bits.png; 0 0 48 48"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea1_on_32bits.png; 0 0 48 48"
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea1_on_32bits.png; 0 0 48 48" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=snowarea1"
+            label = "snowarea1"
+            commandname = ""
+            MapPosition = "325, 157, 38, 38"
+            WorldPath = ""
+            AvatarPosition = "19812.81, 26.93, 20172.52"
+            CameraPosition = "8.86, 0.16, -1.56">
+        </pe:mark>
+        
+        <!--松鼠谷-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SquirrelValley_32bits.png; 0 0 64 60"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SquirrelValley2_32bits.png; 0 0 64 60" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SquirrelValley2_32bits.png; 0 0 64 60" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=squirrelvalley"
+            label = "squirrelvalley"
+            commandname = ""
+            MapPosition = "400, 146, 56, 52"
+            WorldPath = ""
+            AvatarPosition = "20031.93, 29.95, 20310.85"
+            CameraPosition = "8.86, 0.30, -0.62">
+        </pe:mark>
+        
+        <!--冰封雪域-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea3_off_32bits.png; 0 0 45 37"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea3_on_32bits.png; 0 0 45 37" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea3_on_32bits.png; 0 0 45 37" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=snowarea3"
+            label = "snowarea3"
+            commandname = ""
+            MapPosition = "337, 92, 35, 27"
+            WorldPath = ""
+            AvatarPosition = "19755.04, 77.37, 20382.95"
+            CameraPosition = "11.79, 0.13, -2.58">
+        </pe:mark>
+        
+        <!--技能学院-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea4_off_32bits.png; 0 0 64 48"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea4_on_32bits.png; 0 0 64 48" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SnowArea4_on_32bits.png; 0 0 64 48" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=snowarea4"
+            label = "snowarea4"
+            commandname = ""
+            MapPosition = "322, 47, 48, 32"
+            WorldPath = ""
+            AvatarPosition = "19949.96, 130.52, 20460.89"
+            CameraPosition = "8.86, 0.19, -0.05">
+        </pe:mark>
+        
+        <!--绿野郊外-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/RockyForest2_off_32bits.png; 0 0 45 48"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/RockyForest2_on_32bits.png; 0 0 45 48" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/RockyForest2_on_32bits.png; 0 0 45 48" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=rockyforest"
+            label = "rockyforest"
+            commandname = ""
+            MapPosition = "245, 212, 35, 38"
+            WorldPath = ""
+            AvatarPosition = "19739.62109375, 7.4952321052551, 20077.69921875"
+            CameraPosition = "14.264848709106, 0.27389225363731, -2.7889859676361">
+        </pe:mark>
+        
+        <!--魔法学院-->
+        <!--<pe:mark background = "Texture/Aries/WorldMaps/TownMap/MagicSchool_off_32bits.png; 0 0 45 37"
+            highlight_bg = "Texture/Aries/WorldMaps/TownMap/MagicSchool_on_32bits.png; 0 0 45 37" 
+            pressed_bg = "Texture/Aries/WorldMaps/TownMap/MagicSchool_on_32bits.png; 0 0 45 37" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=magicschool"
+            commandname = ""
+            MapPosition = "412, 40, 45, 37"
+            WorldPath = ""
+            AvatarPosition = "19856.142578125, 162.77471923828, 20412.736328125"
+            CameraPosition = "14.264848709106, 0.071887344121933, 0.96341675519943">
+        </pe:mark>-->
+        
+        <!--家族管理处-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/FamilyManagement_32bits.png; 0 0 32 30"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FamilyManagement2_32bits.png; 0 0 32 30" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FamilyManagement2_32bits.png; 0 0 32 30" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=familymanagement"
+            label = "familymanagement"
+            commandname = ""
+            MapPosition = "576, 324, 25, 23"
+            WorldPath = ""
+            AvatarPosition = "20306.578125, 0.76866102218628, 19737.48046875"
+            CameraPosition = "10.090210914612, 0.24644485116005, 0.37368360161781">
+        </pe:mark>
+        
+        <!--星星游乐场-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/StarCarnival_32bits.png; 0 0 64 64"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/StarCarnival2_32bits.png; 0 0 64 64" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/StarCarnival2_32bits.png; 0 0 64 64" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=starcarnival"
+            label = "starcarnival"
+            commandname = ""
+            MapPosition = "563, 278, 54, 54"
+            WorldPath = ""
+            AvatarPosition = "20313.939453125, -1.1199127435684, 19839.361328125"
+            CameraPosition = "8.857349395752, 0.17472568154335, -0.20043946802616">
+        </pe:mark>
+        
+        <!--休闲空地-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/RelaxArea_32bits.png; 0 0 46 56"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/RelaxArea2_32bits.png; 0 0 46 56" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/RelaxArea2_32bits.png; 0 0 46 56" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=relaxarea"
+            label = "relaxarea"
+            commandname = ""
+            MapPosition = "529, 275, 40, 50"
+            WorldPath = ""
+            AvatarPosition = "20259.41, 2.35, 19790.60"
+            CameraPosition = "8.86, 0.14, -1.30">
+        </pe:mark>
+        
+        <!--西瓜田-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/WatermelonField_32bits.png; 0 0 38 38"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/WatermelonField2_32bits.png; 0 0 38 38" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/WatermelonField2_32bits.png; 0 0 38 38" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=watermelonfield"
+            label = "watermelonfield"
+            commandname = ""
+            MapPosition = "265, 322, 30, 30"
+            WorldPath = ""
+            AvatarPosition = "19784.04, 1.26, 19881.61 "
+            CameraPosition = "9.74, -0.01, 2.38">
+        </pe:mark>
+        
+        <!--种子田-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/SeedField_32bits.png; 0 0 38 38"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SeedField2_32bits.png; 0 0 38 38" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/SeedField2_32bits.png; 0 0 38 38" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=seedfield"
+            label = "seedfield"
+            commandname = ""
+            MapPosition = "230, 318, 30, 30"
+            WorldPath = ""
+            AvatarPosition = "19698.51, 2.45, 19845.02"
+            CameraPosition = "8.86, 0.16, 2.93">
+        </pe:mark>
+        
+        <!--星光小道-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/StarryLane_32bits.png; 0 0 38 50"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/StarryLane2_32bits.png; 0 0 38 50" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/StarryLane2_32bits.png; 0 0 38 50" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=starrylane"
+            label = "starrylane"
+            commandname = ""
+            MapPosition = "235, 265, 32, 44"
+            WorldPath = ""
+            AvatarPosition = "19682.0546875, 7.6968379020691, 19994.015625"
+            CameraPosition = "12.838363647461, 0.18041907250881, -3.0624129772186">
+        </pe:mark>
+        
+        <!--水车湖畔-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/WaterMill_32bits.png; 0 0 48 48"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/WaterMill2_32bits.png; 0 0 48 48" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/WaterMill2_32bits.png; 0 0 48 48" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=watermill"
+            label = "watermill"
+            commandname = ""
+            MapPosition = "354, 358, 38, 38"
+            WorldPath = ""
+            AvatarPosition = "19956.92, 1.40, 19804.40"
+            CameraPosition = "9.74, 0.18, 2.15">
+        </pe:mark>
+        
+        <!--时空门-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/TimePortal_32bits.png; 0 0 62 46"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TimePortal2_32bits.png; 0 0 62 46" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/TimePortal2_32bits.png; 0 0 62 46" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=timeportal"
+            label = "timeportal"
+            commandname = ""
+            MapPosition = "604, 378, 62, 46"
+            WorldPath = ""
+            AvatarPosition = "20429.7890625, -4.0694437026978, 19607.931640625"
+            CameraPosition = "8.857349395752, 0.22463424503803, 1.5258833169937">
+        </pe:mark>
+        
+        <!--密林深处-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/ForestOgre_off_32bits.png; 0 0 62 46"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/ForestOgre_on_32bits.png; 0 0 62 46" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/ForestOgre_on_32bits.png; 0 0 62 46" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=forestogre"
+            label = "forestogre"
+            commandname = ""
+            MapPosition = "190, 218, 62, 46"
+            WorldPath = ""
+            AvatarPosition = "19532.130859375, 11.226890563965, 20116.494140625"
+            CameraPosition = "13.099036216736, 0.32069116830826, -0.97978645563126">
+        </pe:mark>
+        
+        <!--火焰山洞-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/FireOgre_off_32bits.png; 0 0 62 52"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FireOgre_on_32bits.png; 0 0 62 52" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/FireOgre_on_32bits.png; 0 0 62 52" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=fireogre"
+            label = "fireogre"
+            commandname = ""
+            MapPosition = "540, 187, 62, 52"
+            WorldPath = ""
+            AvatarPosition = "20372.44, 0.95, 20139.88"
+            CameraPosition = "15.00, 0.08, -0.83">
+        </pe:mark>
+        
+        <!--岩浆沙漠-->
+        <pe:mark background = "Texture/Aries/WorldMaps/HaqiTownMap/BlazingDesert_off_32bits.png; 0 0 62 46"
+            highlight_bg = "Texture/Aries/WorldMaps/HaqiTownMap/BlazingDesert_on_32bits.png; 0 0 62 46" 
+            pressed_bg = "Texture/Aries/WorldMaps/HaqiTownMap/BlazingDesert_on_32bits.png; 0 0 62 46" 
+            tooltip = "page://script/apps/Aries/Desktop/WorldMaps/LocalMapTooltip.html?zone=blazingdesert"
+            label = "blazingdesert"
+            commandname = ""
+            MapPosition = "515, 154, 62, 46"
+            WorldPath = ""
+            AvatarPosition = "20355.18, -1.49, 20294.25"
+            CameraPosition = "11.91, 0.26, -1.18">
+        </pe:mark>
+        
+
+
+
+    </pe:map>
+    <div style="position:relative;">
+        <input style="width:43px;height:43px;margin-left:810px;margin-top:-500px;background:url(Texture/Aries/Common/Close_RedCross_32bits.png);" type="button" name="close" 
+                onclick="OnClose()" value=""/>
+    </div>
+</pe:mcml>
+</body>
+</html>
+

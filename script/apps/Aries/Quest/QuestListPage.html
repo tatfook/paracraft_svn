@@ -1,0 +1,268 @@
+﻿<!-- "script/apps/Aries/Quest/QuestListPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="QuestListPage.lua" refresh="false"><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/Quest/QuestClientLogics.lua");
+local QuestClientLogics = commonlib.gettable("MyCompany.Aries.Quest.QuestClientLogics");
+local QuestListPage = commonlib.gettable("MyCompany.Aries.Quest.QuestListPage");
+QuestListPage.OnInit();
+
+NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
+
+pageCtrl:SetValue("QuestTypes", tostring(QuestListPage.quest_types_index) or "1");
+function GetTileBg(state)
+    state = tonumber(state);
+    local s = "";
+    if(state == 0)then
+        --"可以完成";
+        s = "Texture/aries/quest/questlist/canfinished_32bits.png;0 0 36 37";
+    elseif(state == 1)then
+        state_str = "进行中";
+        s = "Texture/aries/quest/questlist/progressing_32bits.png;0 0 36 37";
+    elseif(state == 2)then
+        --state_str = "可以接";
+        s = "Texture/aries/quest/questlist/canaccept_32bits.png;0 0 36 37";
+    elseif(state == 9)then
+        --state_str = "锁定中";
+        s = "Texture/aries/quest/questlist/lock_32bits.png;0 0 36 37";
+     elseif(state == 10)then
+        --state_str = "已经完成";
+        s = "Texture/aries/quest/questlist/complete_32bits.png;0 0 36 37";
+    end
+    return s;
+end
+function GetInfo(label,state)
+    questid = tonumber(questid);
+    state = tonumber(state);
+    local state_str = "";
+    if(state == 0)then
+        state_str = "可以完成";
+    elseif(state == 1)then
+        state_str = "进行中";
+    elseif(state == 2)then
+        state_str = "可以接";
+    elseif(state == 3)then
+        state_str = "锁定中";
+     elseif(state == 10)then
+        state_str = "已经完成";
+    end
+    --local s = string.format("  %s:%s",label or "", state_str)
+    local s = string.format("  %s",label or "")
+    return s;
+end
+function ClosePage()
+    QuestListPage.ClosePage();
+end
+function DS_Func(index)
+     return QuestListPage.DS_Func(index);
+end
+function DoChange(value)
+    value = tonumber(value);
+    if(not value)then return end
+    QuestListPage.quest_types_index = value;
+    pageCtrl:SetValue("QuestTypes", tostring(value));
+    pageCtrl:SetValue("detailInfo", "");
+    pageCtrl:Refresh(0);
+    QuestListPage.SelectedFirstNode();
+end
+function GetSource()
+    local source = QuestListPage.GetSource();
+    return source;
+end
+function OnClickNode(treenode)
+    if(treenode)then
+        local t = treenode.mcmlNode:GetPreValue("this");
+        if(t and t.show_index)then
+            local menu_expanded = QuestListPage.menu_state[QuestListPage.quest_types_index];
+            if(menu_expanded)then
+                local expanded = menu_expanded[t.show_index];
+                if(expanded)then
+                    menu_expanded[t.show_index] = false;
+                   
+                else
+                    menu_expanded[t.show_index] = true;
+                    
+                end
+               
+            end
+        end
+    end
+end
+function GetExpanded(show_index)
+    local menu_expanded = QuestListPage.menu_state[QuestListPage.quest_types_index];
+    if(menu_expanded)then
+        local expanded = menu_expanded[show_index];
+        return expanded;
+    end
+end
+function GetTooltip(questid)
+    local provider = QuestClientLogics.GetProvider();
+    local templates = provider:GetTemplateQuests();
+    if(templates)then
+        local template = templates[questid];
+        if(template)then
+            local str = "";
+            --前置条件
+            local str_attr = nil;
+            --前置任务
+            local str_quest = nil;
+
+            local RequestAttr = template.RequestAttr;
+            if(RequestAttr)then
+                local len = #RequestAttr;
+                
+                if(len > 0)then
+                 local k,v;
+                    for k,v in ipairs(RequestAttr)do
+                        local id = v.id;
+                        local value = v.value;
+                        id = tonumber(id)
+                        value = tonumber(value) or 0
+                        if(id == 214)then
+                            --目前前置条件只判断 等级
+                            str_attr = string.format("%d级",value);
+                            break;
+                        end
+                    end
+                end
+            end
+            local RequestQuest = template.RequestQuest;
+            if(RequestQuest)then
+                local len = #RequestQuest;
+                local __,map = QuestHelp.GetAttrList();
+                if(len > 0)then
+                 local k,v;
+                    for k,v in ipairs(RequestQuest)do
+                        local id = v.id;
+                        local value = v.value;
+                        id = tonumber(id)
+                        value = tonumber(value) or 0
+
+                        local pre_template = templates[id];
+                        if(pre_template)then
+                            --目前前置任务 只判断一个
+                            str_quest = string.format("完成%s任务",pre_template.Title or "");
+                            break;
+                        end
+                    end
+                end
+            end
+            if(str_attr and str_quest)then
+                str = string.format("领取条件:%s\r\n%s",str_attr,str_quest);
+            elseif(str_attr)then
+                str = string.format("领取条件:%s",str_attr);
+            elseif(str_quest)then
+                str = string.format("领取条件:%s",str_quest);
+            end
+            return str;
+        end
+    end
+end
+function GetTooltip__(questid)
+    questid = tonumber(questid);
+    if(questid)then
+        local provider = QuestClientLogics.GetProvider();
+        local templates = provider:GetTemplateQuests();
+        if(templates)then
+            local template = templates[questid];
+            if(template)then
+                local RequestAttr = template.RequestAttr;
+                if(RequestAttr)then
+                    local len = #RequestAttr;
+                    if(len > 0)then
+                        return string.format("page://script/apps/Aries/Quest/QuestTooltip.html?questid=%d",questid);
+                    end
+                end
+            end
+        end
+    end
+end
+function GetNodeBg(questid)
+    questid = tonumber(questid);
+    if(QuestListPage.last_selected_questid and QuestListPage.last_selected_questid == questid)then
+        return "Texture/aries/quest/questlist/fontbg1_32bits.png"
+    else
+        return "Texture/aries/quest/questlist/fontbg_32bits.png"
+	end
+end
+]]></script>
+<pe:editor style="width:931px;height:508px;background:url(Texture/aries/quest/questlist/bg_32bits.png#0 0 931 508);">
+<div style="float:left;position:relative;margin-left:100px;margin-top:30px;width:54px;height:54px;background:url(Texture/Aries/Dock/kids/quest_area_btn_bg_32bits.png#0 0 54 54)">
+    <input type="button" tooltip = "点击查看日常任务" name="QuestWeekly" onclick="MyCompany.Aries.Quest.QuestWeeklyPage.ShowPage" style="align:center;margin-top:7px;width:49px;height:44px;background:url(Texture/Aries/Dock/kids/weekly_btn_32bits.png#0 0 49 44)"/>
+</div>
+<div style="margin-left:360px;margin-top:-30px;width:212px;height:120px;background:url(Texture/aries/quest/questlist/logo_32bits.png#0 0 212 120);" />
+<input style="margin-left:810px;margin-top:-60px;width:29px;height:32px;background:url(Texture/Aries/common/close_brown_32bits.png#0 0 29 32);" type="button" name="close" onclick="ClosePage()" value=""/>
+<div>
+    <div style="float:left;margin-left:140px;margin-top:-25px;width:240px;height:315px;">
+    <pe:treeview name="questTreeView" DataSource='<%=GetSource()%>'
+            ItemOpenBG="Texture/aries/quest/questlist/close_32bits.png;0 0 20 20"
+            ItemCloseBG="Texture/aries/quest/questlist/open_32bits.png;0 0 20 20"
+            style="background:"
+            RememberScrollPos="true"
+            ItemToggleSize="20"
+            VerticalScrollBarStep="40" 
+		    DefaultNodeHeight="40">
+
+	    <NodeTemplates>
+             <NodeTemplate DataType="folder">
+                <pe:treenode  can_select = "true" OnClick="OnClickNode()"  text='<%=XPath("this|label")%>' 
+                expanded='<%=GetExpanded(XPath("this|show_index"))%>'
+            MouseOverBG=""
+                style="font-weight:bold;color:#b74312;font-size:14;"
+                />
+            </NodeTemplate>
+            <NodeTemplate DataType="item">
+                <div style="width:250px;">
+                    <input type="button" style="float:left;width:203px;height:40;margin-top:5px;text-align:left;font-size:12;color:#96450e;background:"
+                        value='<%=GetInfo(XPath("this|label"),XPath("this|state"))%>'
+                        Normal_BG='<%=GetNodeBg(XPath("this|questid")) %>'
+                        MouseOver_BG="Texture/aries/quest/questlist/fontbg1_32bits.png"
+                        Pressed_BG="Texture/aries/quest/questlist/fontbg_32bits.png"
+                        onclick="MyCompany.Aries.Quest.QuestListPage.DoClick"
+                        name='<%=XPath("this|questid") %>'
+                        param1='<%=XPath("this|parent_show_index") %>'
+                        param2='<%=XPath("this|show_index") %>'
+                        param3='<%=XPath("this|questid") %>'
+                        tooltip='<%=GetTooltip(XPath("this|questid")) %>'
+                        tooltip_offset_x="150" tooltip_offset_y="-50"
+                    />
+                    <img src='<%=GetTileBg(XPath("this|state")) %>' style="float:left;margin-left:-40px;margin-top:5px;width:36px;height:37px;" />
+                </div>
+            </NodeTemplate>
+	    </NodeTemplates>
+           <DataNodePlaceholder xpath="//folder"/>
+    </pe:treeview>
+    </div>
+    <div style="float:left;width:410px;height:350px;">
+        <iframe style ="width:410px;margin-left:0px;margin-top:-20px;"name="detailInfo" src=''/>
+    </div>
+    <div style="float:left;width:100px;height:350px;">
+        <input type="radio" name="QuestTypes" id="Radio1" value="1" style="width:105px;height:70px;margin-left:35px;"
+                CheckedBG="Texture/Aries/quest/questlist/title1_32bits.png;0 0 105 70" 
+                UncheckedBG="Texture/Aries/quest/questlist/title1_u_32bits.png;0 0 105 70"
+                onclick="DoChange()"/>
+        <input type="radio" name="QuestTypes" id="Radio2" value="2" style="width:90px;height:84px;margin-left:35px;"
+                CheckedBG="Texture/Aries/quest/questlist/title2_32bits.png;0 0 90 84" 
+                UncheckedBG="Texture/Aries/quest/questlist/title2_u_32bits.png;0 0 90 84"
+                onclick="DoChange()"/>    
+         <input type="radio" name="QuestTypes" id="Radio3" value="3" style="width:90px;height:84px;margin-left:35px;"
+                CheckedBG="Texture/Aries/quest/questlist/title3_32bits.png;0 0 90 84" 
+                UncheckedBG="Texture/Aries/quest/questlist/title3_u_32bits.png;0 0 90 84"
+                onclick="DoChange()"/>  
+    </div>
+</div>
+</pe:editor>
+
+
+</pe:mcml> 
+
+</body>
+</html>

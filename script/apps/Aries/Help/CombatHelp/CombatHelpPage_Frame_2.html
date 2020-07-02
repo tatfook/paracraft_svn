@@ -1,0 +1,80 @@
+﻿<!-- "script/apps/Aries/Help/CombatHelp/CombatHelpPage_Frame_1.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+local page = document:GetPageCtrl();
+local CombatHelpPage = commonlib.gettable("MyCompany.Aries.Help.CombatHelpPage");
+CombatHelpPage.TabValue = CombatHelpPage.TabValue or "1";
+function getPic()
+    local v = tonumber(CombatHelpPage.TabValue) or 1;
+    local s = string.format("Texture/Aries/MapHelp/CombatHelp/cards_%d_32bits.png;0 0 680 490",v)
+    return s;
+end
+function ShowItemView(value, mcmlNode)
+    if(value) then
+        CombatHelpPage.TabValue = value;
+        page:SetValue("Level2Tabs", value);
+        local path = getPic();
+        page:SetValue("pic",path);
+        page:Refresh(0.1);
+    end
+end
+
+if(page:GetValue("Level2Tabs") ~= CombatHelpPage.TabValue) then
+    page:SetValue("Level2Tabs", CombatHelpPage.TabValue);
+    ShowItemView(CombatHelpPage.TabValue);
+    page:Refresh(0.1);
+end
+
+function ClosePage()
+    page:CloseWindow();
+    CombatHelpPage.TabValue = "1";
+end
+]]></script>
+<pe:editor  style="width:680px;height:490px;background:">
+    <input zorder="1" style="margin-left:635px;margin-top:-15px;width:48px;height:48px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="ClosePage()" value=""/>
+<img  name="pic"  style="margin-left:-5px;margin-top:-40px;width:680px;height:490px;"/>
+<div style="margin-left:230px;margin-top:-90px;width:370px;height:60px;">
+     <input type="radio" name="Level2Tabs" id="Radio12" value="1" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/1up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/1on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio1" value="2" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/2up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/2on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio2" value="3" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/3up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/3on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio3" value="4" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/4up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/4on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+         <input type="radio" name="Level2Tabs" id="Radio4" value="5" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/5up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/5on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+
+         <input type="radio" name="Level2Tabs" id="Radio5" value="6" style="width:32px;height:32px;margin-left:9px;margin-top:-6px;"
+        CheckedBG="Texture/Aries/MapHelp/CombatHelp/6up_32bits.png;" 
+        UncheckedBG="Texture/Aries/MapHelp/CombatHelp/6on_32bits.png;"
+        animstyle = "22" 
+        onclick="ShowItemView()"/>
+</div>
+</pe:editor>
+</pe:mcml> 
+
+</body>
+</html>

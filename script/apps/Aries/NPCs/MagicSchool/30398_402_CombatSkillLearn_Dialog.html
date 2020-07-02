@@ -1,0 +1,116 @@
+﻿<!-- "script/apps/Aries/NPCs/MagicSchool/30398_402_CombatSkillLearn_Dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="30398_402_CombatSkillLearn_Dialog.lua"><![CDATA[
+
+local pageCtrl = document:GetPageCtrl();
+
+npc_id = pageCtrl:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+Condition1 = function()
+    -- no skill learned
+    local memory={};
+    if (npc_id==30398) then 
+	    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30398);
+	    if (memory) then
+   		    gossip_text_1 = "我是风暴系法师-高登，风暴拥有着最强大而狂暴的力量，无坚不摧！你来找我有何事？";
+            npc_name = "风暴系魔法师-高登";
+	    end
+    elseif (npc_id==30399) then
+	    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30399);
+	    if (memory) then
+	   	    gossip_text_1 = "我是生命系魔法师-爱丽丝，你也是来学编制树叶的吗？可惜我昨天编的一团乱，到现在还没解开；对了，你有事找我？";
+            npc_name = "生命系魔法师-爱丽丝";
+	    end	
+    elseif (npc_id==30400) then
+	    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30400);
+	    if (memory) then
+	   	    gossip_text_1 = "我，死亡系的磊奥；你，有何事？";
+            npc_name = "死亡系魔法师-磊奥";
+	    end;	
+    elseif (npc_id==30401) then
+	    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30401);
+	    if (memory) then
+	   	    gossip_text_1 = "我是寒冰系魔法师-艾米娜，哦，天呐，哪里来的蟑螂，快，快，快赶走它，我最讨厌这种脏东西了！你找我有事吗？";
+            npc_name = "寒冰系魔法师-艾米娜";
+	    end;	
+    elseif (npc_id==30402) then
+	    memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30402);
+        if (memory) then
+	   	    gossip_text_1 = "火系魔法师-伏尔坎就是我了，我自己研究的时间都不够的；说吧，来找我到底什么事？";
+            npc_name = "火系魔法师-伏尔坎";
+	    end;	
+    end
+	
+    if(memory) then
+   	    return true;
+    end
+    return false;				  
+end;
+
+LearnSkill = function()
+    MyCompany.Aries.Quest.NPCs.CombatSkillLearn_Dialog.LearnSkill(npc_id);
+end
+
+function EntryAction(from, to)   
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+       
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="name" source="{this}" value='<%=Eval("npc_name")%>'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="learnmagic_ok" />
+            <pe:placeholder id="later" />
+        </pe:template>        
+
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+
+		        <!--no skill learned-->
+			    <pe:answer-if condition = '<%=Eval("Condition1") %>' target_state = "1"/>
+		        <!--skill learning -->
+			    <!--<pe:answer-if condition = '<%=Eval("Condition2") %>' target_state = "2"/>-->
+		        <!--skill learned-->
+			    <!--<pe:answer-if condition = '<%=Eval("Condition3") %>' target_state = "3"/>-->
+
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    <%=Eval("gossip_text_1")%>            
+		    <pe:answer text="确定" template_id="learnmagic_ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("LearnSkill") %>' target_state = "-1"/>
+		    </pe:answer>		         
+            <br/>
+		    <pe:answer text="以后再说" template_id="later">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

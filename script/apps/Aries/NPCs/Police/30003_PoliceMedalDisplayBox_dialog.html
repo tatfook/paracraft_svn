@@ -1,0 +1,309 @@
+<!-- "script/apps/Aries/NPCs/Police/30003_PoliceMedalDisplayBox_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30003_PoliceMedalDisplayBox_dialog, by Andy, 2009/11/21</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 50001_PoliceInauguralQuestAccept
+-- 50002_PoliceInauguralQuestComplete
+
+
+-- 20004_WoodDogMedal
+-- 20006_ThirdClassPoliceMedal
+-- 20007_SecondClassPoliceMedal
+-- 20008_FirstClassPoliceMedal
+
+-- 20010_AmateurClassDoctorMedal
+-- 20011_ThirdClassDoctorMedal
+-- 20012_SecondClassDoctorMedal
+-- 20013_FirstClassDoctorMedal
+
+
+
+
+
+
+-- 115: Get_Police_AmateurClassPoliceMedal
+-- 116: Get_Police_ThirdClassPoliceMedal
+-- 117: Get_Police_SecondClassPoliceMedal
+-- 118: Get_Police_FirstClassPoliceMedal
+
+
+
+
+-- 50006_StandGuardPost_DailyQuestCompleteCounter
+local bHas, _, __, copies = hasGSItem(50006);
+if(bHas and copies) then
+    counttext = copies.."";
+else
+    counttext = "0";
+    copies = 0;
+end
+
+step = -1;
+
+if(hasGSItem(50002)) then
+    if(not hasGSItem(20004) and not hasGSItem(20006) and not hasGSItem(20007) and not hasGSItem(20008)) then
+        step = 0;
+    elseif(hasGSItem(20004) and not hasGSItem(20006) and not hasGSItem(20007) and not hasGSItem(20008)) then
+        step = 1;
+    elseif(not hasGSItem(20004) and hasGSItem(20006) and not hasGSItem(20007) and not hasGSItem(20008)) then
+        step = 2;
+    elseif(not hasGSItem(20004) and not hasGSItem(20006) and hasGSItem(20007) and not hasGSItem(20008)) then
+        step = 3;
+    elseif(not hasGSItem(20004) and not hasGSItem(20006) and not hasGSItem(20007) and hasGSItem(20008)) then
+        step = 4;
+    end
+else
+    step = -1;
+end
+
+function GetMedal_Amateur()
+    if(not hasGSItem(50002)) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:24px;">神勇木徽章是为神勇的哈奇警官准备的，希尔警长会告诉你如何成为一名警官。</div>]]);
+    else
+        GetMedal(20004);
+    end
+end
+function GetMedal_Third()
+    if(copies and copies < 20) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">需要完成巡逻20次才能获得神勇铜徽章，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20006);
+end
+function GetMedal_Second()
+    if(copies and copies < 80) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">需要完成巡逻80次才能获得神勇银徽章，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20007);
+end
+function GetMedal_First()
+    if(copies and copies < 300) then
+        _guihelper.MessageBox([[<div style="margin-left:20px;margin-top:20px">需要完成巡逻300次才能获得神勇金徽章，继续加油吧！</div>]]);
+        return;
+    end
+    GetMedal(20008);
+end
+
+function GetMedal(gsid)
+    local name = "";
+    local gsItem = System.Item.ItemManager.GetGlobalStoreItemInMemory(gsid)
+    if(gsItem) then
+	    name = gsItem.template.name;
+    end
+    
+    -- Pick the medal through extended cost
+    if(gsid == 20004) then
+        -- exid 115: Get_Police_AmateurClassPoliceMedal
+        ItemManager.ExtendedCost(115, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 115: Get_Police_AmateurClassPoliceMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:20px">恭喜你获得%s，在资料面板中可以看到它哦！另外，你每次巡逻的工资提升为500奇豆啦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20006) then
+        -- exid 116: Get_Police_ThirdClassPoliceMedal
+        ItemManager.ExtendedCost(116, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 116: Get_Police_ThirdClassPoliceMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:20px">恭喜你获得%s，在资料面板中可以看到它哦！另外，你每次巡逻的工资提升为800奇豆啦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20007) then
+        -- exid 117: Get_Police_SecondClassPoliceMedal
+        ItemManager.ExtendedCost(117, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 117: Get_Police_SecondClassPoliceMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:20px">恭喜你获得%s，在资料面板中可以看到它哦！另外，你每次巡逻的工资提升为1200奇豆啦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    elseif(gsid == 20008) then
+        -- exid 118: Get_Police_FirstClassPoliceMedal
+        ItemManager.ExtendedCost(118, nil, nil, function(msg)end, function(msg)
+	        log("+++++++ExtendedCost 118: Get_Police_FirstClassPoliceMedal return: +++++++\n")
+	        commonlib.echo(msg);
+	        if(msg.issuccess == true) then
+	            _guihelper.MessageBox(string.format([[<div style="margin-left:20px;margin-top:20px">恭喜你获得%s，在资料面板中可以看到它哦！另外，你每次巡逻的工资提升为1800奇豆啦！</div>]], name));
+	        end
+	        page:Refresh();
+        end);
+    end
+end
+
+function OnClose()
+    page:CloseWindow();
+end
+]]></script>
+<div style="width:655px;height:512px;background:url(texture/Aries/Quest/MedalStatus_panel_bg2_32bits.png: 60 60 60 60)">
+    <div style="margin-left:310px;margin-top:70px;font-size:14;font-weight:bold;color:#2b6fb3">
+        <div style="width:256px;height:32px;background:url()">
+            <div style="margin-left:280px;margin-top:60px;width:180px;height:64px;">
+            </div>
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;">
+        <div style="width:1024px;height:512px;background:url()">
+            <div style="position:absolute;left:70px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Police/PoliceMedal_level1_32bits.png)">
+            </div>
+            <div style="position:absolute;left:205px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Police/PoliceMedal_level2_32bits.png)">
+            </div>
+            <div style="position:absolute;left:340px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Police/PoliceMedal_level3_32bits.png)">
+            </div>
+            <div style="position:absolute;left:475px;top:124px;width:128px;height:32px;background:url(texture/Aries/Quest/Police/PoliceMedal_level4_32bits.png)">
+            </div>
+            <div style="position:absolute;left:55px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:190px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:325px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <div style="position:absolute;left:460px;top:164px;width:128px;height:128px;background:url(texture/Aries/Quest/Doctor/Medal_bg_32bits.png)">
+            </div>
+            <pe:if condition='<%=step >= 0%>'>
+                <aries:questobjectivestatus gsids="20004,20006,20007,20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20004_WoodDogMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20004_WoodDogMedal_grey.png;0 0 80 100"
+                    on_tooltip = "徽章获得条件：成为1名警察；
+工作待遇：每天可领取500奇豆"
+                    off_tooltip = "徽章获得条件：成为1名警察；
+工作待遇：每天可领取500奇豆"
+                    style="left:83px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= -1%>'>
+                <aries:questobjectivestatus gsids="20004,20006,20007,20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20004_WoodDogMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20004_WoodDogMedal_grey.png;0 0 80 100"
+                    on_tooltip = "徽章获得条件：成为1名警察；
+工作待遇：每天可领取500奇豆"
+                    off_tooltip = "徽章获得条件：成为1名警察；
+工作待遇：每天可领取500奇豆"
+                    style="left:83px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 1%>'>
+                <aries:questobjectivestatus gsids="20006,20007,20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20006_ThirdClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20006_ThirdClassPoliceMedal_grey.png;0 0 80 100"
+                    on_tooltip = "徽章获得条件：累计完成巡逻20次；
+工作待遇：每天可领取800奇豆"
+                    off_tooltip = "徽章获得条件：累计完成巡逻20次；
+工作待遇：每天可领取800奇豆"
+                    style="left:218px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 0%>'>
+                <aries:questobjectivestatus gsids="20006,20007,20008"
+                    on_bg = "texture/Aries/Quest/Police/20006_ThirdClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20006_ThirdClassPoliceMedal_grey.png;0 0 80 100"
+                    style="left:218px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 2%>'>
+                <aries:questobjectivestatus gsids="20007,20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20007_SecondClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20007_SecondClassPoliceMedal_grey.png;0 0 80 100"
+                    on_tooltip = "徽章获得条件：完成巡逻80次；
+工作待遇：每天可领取1200奇豆"
+                    off_tooltip = "徽章获得条件：完成巡逻80次；
+工作待遇：每天可领取1200奇豆"
+                    style="left:353px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 1%>'>
+                <aries:questobjectivestatus gsids="20007,20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20007_SecondClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20007_SecondClassPoliceMedal_grey.png;0 0 80 100"
+                    style="left:353px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            
+            <pe:if condition='<%=step >= 3%>'>
+                <aries:questobjectivestatus gsids="20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20008_FirstClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20008_FirstClassPoliceMedal_grey.png;0 0 80 100"
+                    on_tooltip = "徽章获得条件：完成巡逻300次；
+工作待遇：每天可领取1800奇豆"
+                    off_tooltip = "徽章获得条件：完成巡逻300次；
+工作待遇：每天可领取1800奇豆"
+                    style="left:490px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <pe:if condition='<%=step <= 2%>'>
+                <aries:questobjectivestatus gsids="20008"
+                    conjunction = "or"
+                    on_bg = "texture/Aries/Quest/Police/20008_FirstClassPoliceMedal.png;0 0 80 100"
+                    off_bg = "texture/Aries/Quest/Police/20008_FirstClassPoliceMedal_grey.png;0 0 80 100"
+                    style="left:490px;top:175px;position:relative;width:80px;height:100px;"/>
+            </pe:if>
+            <div style="position:absolute;left:110px;top:20px;width:512px;height:64px;background:url(texture/Aries/Quest/Police/MedalTitle_32bits.png)">
+            </div>
+            
+            <div style="position:absolute;left:212px;top:346px;width:216px;height:64px;background:url(texture/Aries/Quest/Doctor/YellowShowBox_32bits.png: 40 30 40 30)">
+                <div style="color:#339900;padding-left:16px;padding:8px;width:600px;">
+                你已经完成巡逻<div style="float:left;color:#FF0000;margin-left:-4px;margin-right:-4px;"><%=Eval("counttext")%></div>次了！
+                </div>
+            </div>
+            
+            <div style="margin-left:40px;margin-top:280px;width:700px;height:60px;">
+                <pe:if condition='<%=step == 0 or step == -1%>'>
+                    <div style="margin-left:42px;margin-top:20px;width:100px;height:64px;background:url();">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/FirstObtain_32bits.png#0 0 82 36)" onclick="GetMedal_Amateur"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 1%>'>
+                    <div style="margin-left:42px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_Third"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 2%>'>
+                    <div style="margin-left:174px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_Second"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 3%>'>
+                    <div style="margin-left:310px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                        <input type="button" style="margin-left:52px;width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Upgrade_btn_32bits.png#0 0 82 36)" onclick="GetMedal_First"/>
+                    </div>
+                </pe:if>
+                <pe:if condition='<%=step == 4%>'>
+                    <div style="margin-left:444px;margin-top:20px;width:250px;height:64px;">
+                        <input type="button" style="width:82px;height:36px;background:url(Texture/Aries/Quest/Doctor/Obtained_32bits.png#0 0 82 36)" enabled="false" />
+                    </div>
+                </pe:if>
+            </div>
+        </div>
+        <input style="margin-left:600px;margin-top:-522px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+        <div style="margin-left:220px;margin-top:-104px;width:208px;height:49px">
+            <div style="margin-top:-2px;width:208px;height:49px;">
+                <input type="button" style="margin:0px;width:208px;height:49px;background:url(texture/Aries/Quest/back_32bits.png# 0 0 208 49);" onclick="OnClose();" value=""/>
+            </div>
+        </div>
+    </div>
+    
+  </div>
+</pe:mcml>
+</body>
+</html>

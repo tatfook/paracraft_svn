@@ -1,0 +1,62 @@
+--- Edited 2010.9.4 by Xizhi, plan to auto install WebPlayerRedist on 2010.9
+--- this message can be sent multiple times. 
+New patch should append the following. 
+script/apps/Aries/Desktop/GUIHelper/ClickToContinue.lua
+script/apps/Aries/Desktop/GUIHelper/ClickToContinue.html
+script/apps/Aries/main_loop.lua
+script/kids/3DMapSystemApp/mcml/pe_html.lua
+-----------------
+<script type="text/npl">
+if (not System.options.IsWebBrowser and not ParaIO.DoesFileExist("autoupdater.mem.dll")) then
+	NPL.AsyncDownload("http://haqi.61.com/webplayer/RedistParaEngineClient1003.exe", "temp/RedistParaEngineClient1003.exe", "MyCompany.Aries.PatchTryWebRedist1003()", "queue_WebRedist");
+end
+function MyCompany.Aries.PatchTryWebRedist1003()
+	if (msg.DownloadState=="complete") then
+        local cmdLine = ""; -- For Spring, add special command line here
+        ParaGlobal.ShellExecute("open", ParaIO.GetCurDirectory(0).."temp\\RedistParaEngineClient1003.exe", cmdLine, "", 1); 
+		paraworld.PostLog({action="TryWebRedist1003",reason="finished"}, "redist size is "..tostring(msg.totalFileSize), function(msg) end);
+        Page:SetValue("progress", "100%完成")
+    elseif(msg.currentFileSize)then
+        Page:SetValue("progress", format("%d/%d",msg.currentFileSize, msg.totalFileSize))
+	end
+end
+function goto_url(url)
+	ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);
+end
+</script>
+<pe:if condition='<%=not System.options.IsWebBrowser%>'>
+恭喜！你被选为哈奇小镇网页版的测试用户<br/>
+<div style="margin:5px;color:#008000">体验网页版前，需要先关闭当前的游戏客户端<br />
+更新中: <pe:label name="progress" style="height:20px;">请稍候...</pe:label>
+</div>
+<a href="#" onclick='goto_url("http://haqi.61.com")'>点击这里开始体验!</a>
+</pe:if>
+<pe:if condition='<%=System.options.IsWebBrowser%>'>
+谢谢体验哈奇小镇网页版，如果你有任何问题或建议, 
+请提交到<a href="#" 'goto_url("http://service.61.com/user/?gid=3")'>我们的网站</a>
+</pe:if>
+
+
+--- Edited 2010.9.4 by spring, plan to send msg on 2010.9.15
+--- push_nid.txt: 2010.8.27 - 2010.9.2 logined users. For modifying wrong file main100823.pkg.
+<pe:if condition='<%=not System.options.IsWebBrowser%>'>
+推荐使用网页版哈奇小镇，游戏更方便！<br />地址：http://haqi.61.com
+</pe:if>
+<pe:if condition='<%=System.options.IsWebBrowser%>'>
+使用web版哈奇小镇时，如有问题欢迎反馈！<br />地址：http://service.61.com/user/?gid=3
+</pe:if>
+<script>
+fin= ParaIO.open("version.txt", "r");
+vers=string.gsub(fin:readline() or "","ver=(.*)","%1");
+fin:close(); 
+if (vers=="0.3.46" and not ParaIO.DoesFileExist("main100824.pkg")) then
+	NPL.AsyncDownload("http://update.61.com/haqi/coreupdate/coredownload/0.3.46/update/main100824.pkg", "temp/0824.pkg", "MyCompany.Aries.Patch100824()", "queue_name");
+end
+function MyCompany.Aries.Patch100824()
+	if (msg.DownloadState=="complete") then
+		ParaIO.MoveFile("temp/0824.pkg", "main100824.pkg");
+		paraworld.PostLog({action="add main1000824.pkg",reason="Patch 0.3.46"}, "IM_svr push message", function(msg) end);
+	end
+end
+</script>
+

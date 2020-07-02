@@ -1,0 +1,94 @@
+<!-- "script/mobile/paracraft/Login/LocalLoadWorld.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>2009.8.2</title>
+</head>
+<body> 
+<pe:mcml>
+<script type="text/npl" refresh="false" src="LocalLoadWorld.lua"><![CDATA[
+local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
+local page = document:GetPageCtrl();
+local MainLogin = commonlib.gettable("ParaCraft.Mobile.MainLogin");
+
+LocalLoadWorld = commonlib.gettable("ParaCraft.Mobile.Login.LocalLoadWorld")
+LocalLoadWorld.page = page;
+LocalLoadWorld.OnInit();
+
+function ReturnLastStep()
+    page:CloseWindow();
+    MainLogin:next_step({IsLoginModeSelected = false});
+    --[[
+    if(not GameLogic.IsStarted) then
+        MainLogin:next_step({IsLoginModeSelected = false});
+    end
+    ]]
+end
+]]></script>
+<pe:container alignment="_fi" width="100%" height="100%" zorder="-1" class = "mobile_panel" style="position:relative;background-color:#ffffffee"/>
+<pe:container alignment="_ct" style="position:relative;margin-left:-480px;margin-top:-320px;width:960px;height:640px;background:">
+    <div style="width:960px;height:640px;">
+        <div style="margin-top:0px;width:960px;height:60px;">
+            <div style="float:left;margin-left:18px;margin-top:12px;color:#ffffff;font-size:40px;base-font-size:40px;font-weight:bold;">
+                <%=L"本地世界" %>
+            </div>
+            <input type="button" class="mobile_button_white" align="right" onclick="ReturnLastStep" value='<%=L"返回" %>' style="float:left;margin-right:30px;margin-top:11px;min-width:86px;height:46px;font-size:15px;font-weight:bold;"/>
+        </div>
+        <div class="mobile_line" style="width:960px;height:2px;margin-top:5px;background-color:#676767"/>
+        <div class="mobile_panel_grey_black" style="width:910px;height:522px;margin-left:25px;margin-top:20px;">
+            <div style="float:left;margin-left:20px;margin-top:10px;">
+                <pe:gridview RememberScrollPos="true" style="height:440px" AllowPaging="false" VerticalScrollBarStep="110" DefaultNodeHeight="110" ItemsPerLine="1" name="gw_world_ds" DataSource='<%=LocalLoadWorld.DS_Func_Open%>' >
+                    <Columns>
+                    <div style="height:110px;margin-top:0px;">
+                        <pe:if condition='<%= Eval("index") == LocalLoadWorld.selected_world_index%>'>
+                            <div style="position:relative;margin-left:3px;margin-top:6px;height:88px;width:690px;" class="mobile_panel_green">
+                                <div style="position:relative;margin-left:10px;margin-top:2px;font-size:40px;base-font-size:40px;text-align:left;color:#ffffff;font-weight:bold;">
+                                    <%=Eval("Title") %>
+                                </div>
+                                <div style="position:relative;margin-left:16px;margin-top:52px;base-font-size:24px;font-size:24px;color:#9e9e9e">
+                                    <%=Eval("writedate") %>
+                                    <span style="margin-left:30px;"><%=Eval("createdate") %></span>
+                                </div>
+                                <!--<div style="position:relative;margin-left:126px;margin-top:50px;font-size:14px;color:#ffffff">
+                                    <%= GetWorldSize(Eval("size")) %>
+                                </div>-->
+                            </div>
+                        </pe:if>
+                        <pe:if condition='<%= Eval("index") ~= LocalLoadWorld.selected_world_index%>'>
+                            <div style="position:relative;margin-left:3px;margin-top:6px;height:88px;width:690px;" class="mobile_panel_black">
+                                <div style="position:relative;margin-left:10px;margin-top:2px;font-size:40px;base-font-size:40px;text-align:left;color:#ffffff;font-weight:bold;">
+                                    <%=Eval("Title") %>
+                                </div>
+                                <div style="position:relative;margin-left:16px;margin-top:52px;base-font-size:24px;font-size:24px;color:#9e9e9e">
+                                    <%=Eval("writedate") %>
+                                    <span style="margin-left:30px;"><%=Eval("createdate") %></span>
+                                </div>
+                                <!--<div style="position:relative;margin-left:126px;margin-top:50px;font-size:14px;color:#ffffff">
+                                    <%= GetWorldSize(Eval("size")) %>
+                                </div>-->
+                            </div>
+                            <input type="button" style="position:relative;margin-left:3px;margin-top:6px;width:690px;height:88px;background:" name='<%=Eval("index")%>' onclick="LocalLoadWorld.OnSwitchWorld" />
+                        </pe:if>
+                        <input type="button" value='<%=L"进入" %>' style="position:relative;margin-left:740px;margin-top:6px;min-width:86px;height:88px;font-size:15px;font-weight:bold;" onclick="LocalLoadWorld.OnClickLoadWorld" name='<%=Eval("index")%>' class="mobile_button_white"/>    
+                    </div>
+                    
+                    </Columns>
+                    <EmptyDataTemplate>
+                        <div style="margin:10px;font-size:40px;base-font-size:40px;color:#ffffff;font-size:20px;"><%=L"空" %></div>
+                    </EmptyDataTemplate>
+                    <FetchingDataTemplate>
+                        <div style="margin:10px;font-size:40px;base-font-size:40px;color:#ffffff;font-size:20px;"><%=L"正在搜索, 请稍候 ... " %></div>
+                    </FetchingDataTemplate>
+                </pe:gridview>
+            </div>
+            <div>
+                <input type="button" value='<%=L"创建新世界" %>' spacing="20" style="position:relative;margin-left:240px;margin-top:6px;min-width:186px;height:55px;font-size:15px;font-weight:bold;" onclick="LocalLoadWorld.OnClickCreateWorld" class="mobile_button_white"/>    
+                <input type="button" value='<%=L"删除" %>' style="position:relative;margin-left:540px;margin-top:6px;min-width:106px;height:55px;font-size:15px;font-weight:bold;" onclick="LocalLoadWorld.OnClickDeleteWorld" class="mobile_button_white"/>    
+                <input type="button" value='<%=L"导入..." %>' style="position:relative;margin-left:690px;margin-top:6px;min-width:156px;height:55px;font-size:15px;font-weight:bold;" onclick="LocalLoadWorld.OnClickOpenWorldDirectory" class="mobile_button_white"/>    
+            </div>
+        </div>
+    </div>
+</pe:container>
+</pe:mcml>
+</body>
+</html>

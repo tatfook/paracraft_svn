@@ -1,0 +1,47 @@
+<!-- "script/apps/Aries/NPCs/TownSquare/30389_FisherHanter_panel_confirm.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local pageCtrl = document:GetPageCtrl();
+function closePage()
+    pageCtrl:CloseWindow();
+end
+function getDesc()
+    local info = MyCompany.Aries.Quest.NPCs.FisherHanter.GetSellItemInfo();
+    if(not info)then return end
+    local num = info.num;
+    local name = info.name;
+    local price = info.price * num;
+    local s = string.format("出售%d个%s可获得%d奇豆，你确认要出售吗？",num,name,price);
+    return s;
+end
+
+function getIcon()
+    local info = MyCompany.Aries.Quest.NPCs.FisherHanter.GetSellItemInfo();
+    if(not info)then return end
+    return info.icon;
+end
+function doSell()
+   MyCompany.Aries.Quest.NPCs.FisherHanter.SellItem();
+   closePage();
+end
+]]></script>
+<div style="float:left;width:470px;height:340px;background:url(Texture/Aries/Common/MessageBox_bg_32bits.png#0 0 465 196:50 50 50 100);">
+    <div style="margin-left:160px;margin-top:70px;padding-left:40px;padding-top:30px;width:145px;height:135px;margin:21px;background:url(Texture/Aries/Inventory/PurchaseItem/Item_bg_32bits.png#0 0 8 135:2 68 3 65)">
+            <img  src="<%=getIcon() %>" style = "width:64px;height:64px" />
+    </div>
+    <div style = "margin-left:90px;"><%=getDesc() %></div>
+     <div style = "margin-top:50px;">
+        <input type="button" style="float:left;margin-left:70px;width:154px;height:48px;background:url(Texture/Aries/Common/OK_32bits.png#0 0 154 48)" onclick="doSell()"/>
+        <input type="button" style="float:left;margin-left:20px;width:154px;height:48px;background:url(Texture/Aries/Common/Cancel_32bits.png#0 0 154 48)" onclick="closePage()"/>
+     </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

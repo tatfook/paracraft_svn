@@ -1,0 +1,114 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/091225/BuildIceHouse_status.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>BuildIceHouse_status, by Andy, 2009/7/29</title>
+</head>
+<body>
+    <pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+-- 17039_DarkStone
+-- 17040_IceBrick
+
+stone_count = 0;
+-- 17039_DarkStone
+local bHas, guid = hasGSItem(17039);
+if(bHas == true) then
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+		stone_count = item.copies;
+	end
+end
+if(stone_count > 50) then
+    stone_count = 50;
+end
+stone_count_text = stone_count.."/50";
+
+ice_count = 0;
+-- 17040_IceBrick
+local bHas, guid = hasGSItem(17040);
+if(bHas == true) then
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+		ice_count = item.copies;
+	end
+end
+if(ice_count > 15) then
+    ice_count = 15;
+end
+ice_count_text = ice_count.."/15";
+
+function OnClose()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="width:820px;height:512px;background:url(texture/Aries/Quest/QuestStatus_Wooden_32bits.png#0 0 820 512)">
+    <div style="margin-left:320px;margin-top:70px;font-size:14;font-weight:bold;color:#FFFFFF">
+        <div style="width:256px;height:32px;background:url()">
+        </div>
+    </div>
+    <div style="margin-left:0px;margin-top:-100px;font-size:14;font-weight:bold;">
+        <div style="width:1024px;height:512px;background:url(texture/Aries/Quest/Dragon/Schedule/091225/BuildIceHouse_1.png)">
+        
+<!--图纸——1月15日前为：小镇广场的神秘礼盒；
+1月15日起为：请已经拥有图纸的小哈奇通过礼物盒送给你；-->
+
+<!--17038_IceHouseBluePrint-->
+
+        <aries:questobjectivestatus gsids="17038"
+            on_bg = "texture/Aries/Quest/Dragon/Schedule/091225/BluePrint_on.png"
+            off_bg = "texture/Aries/Quest/Dragon/Schedule/091225/BluePrint_off.png"
+            tooltip = "拥有图纸的小哈奇赠送"
+            style="left:140px;top:208px;position:relative;width:128px;height:128px;"/>
+            
+        <!--<aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = ""
+            off_bg = ""
+            tooltip = "小镇广场的神秘礼盒"
+            style="left:136px;top:200px;position:relative;width:128px;height:128px;"/>-->
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = ""
+            off_bg = ""
+            tooltip = "石头——魔法密林"
+            style="left:276px;top:222px;position:relative;width:96px;height:96px;"/>
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = ""
+            off_bg = ""
+            tooltip = "冰块——龙源密境堆雪人"
+            style="left:386px;top:222px;position:relative;width:96px;height:96px;"/>
+        <aries:questobjectivestatus gsids=""
+            force_status = "on"
+            on_bg = ""
+            off_bg = ""
+            tooltip = "建房机——购物街"
+            style="left:500px;top:240px;position:relative;width:160px;height:160px;"/>
+            <div style="position:absolute;left:310px;top:320px;width:100px;height:100px;color:#5d3509;">
+                <%=Eval("stone_count_text")%>
+            </div>
+            <div style="position:absolute;left:410px;top:320px;width:100px;height:100px;color:#5d3509;">
+                <%=Eval("ice_count_text")%>
+            </div>
+        </div>
+        
+        <input style="margin-left:725px;margin-top:-457px;width:54px;height:54px;background:url(Texture/Aries/Quest/CloseStatus_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="OnClose();" value=""/>
+    </div>
+    <div style="margin-left:350px;margin-top:-100px;width:100px;height:65px">
+            <div style="margin-top:0px;width:132px;height:65px;">
+                <input type="button" onclick="OnClose();" style="margin:0px;width:132px;height:65px;background:url(texture/Aries/Quest/ReturnMain_32bits.png# 0 0 132 65);" />
+            </div>
+    </div>
+  </div>
+</pe:mcml>
+</body>
+</html>

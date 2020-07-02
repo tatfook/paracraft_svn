@@ -1,0 +1,71 @@
+﻿<!-- "script/kids/3DMapSystemUI/Creator/ZonePage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>zone page by LiXizhi 2008.9.26</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="ZonePage.lua">
+Map3DSystem.App.Creator.ZonePage.OnInit();
+</script>
+<form name="zoneform">
+<div style="padding:5px">
+<!--    <div>
+        <img style="background:url(Texture/3DMapSystem/Creator/BCS_Block.png);width:32px;height:32px"/>
+        <div style="float:left;margin-top:5px;margin-left:5px">Zone是一个凸空间</div>
+    </div>
+    <select name="zoneName" onselect="Map3DSystem.App.Creator.ZonePage.OnZoneNameSelected" style="width:150px">
+        <option>zone_000</option><option>zone_001</option><option>zone_002</option><option>zone_003</option><option>zone_004</option>
+    </select>-->
+    <!--<input name="btnSelectPortal" tooltip="从场景中选择" type="submit" value="选择" onclick="Map3DSystem.App.Creator.ZonePage.OnSelectZone"/>-->
+    <!--<input name="btnCreateZone" tooltip="在人物当前位置创建Zone" type="submit" value="创建" onclick="Map3DSystem.App.Creator.ZonePage.OnCreateZone"/>-->
+    <!--<br />-->
+    <pe:tabs name="ZoneTabs"> 
+     <pe:tab-item text="属性" onclick = "Map3DSystem.App.Creator.ZonePage.OnTabClick" selected="true" style="padding-left:5px;padding-right:5px">
+        <div style="float:left;text-align:right;width:80px">Zone名称:</div><input name="zone_name" style="width:120px" value=""/>
+        <div style="float:left;text-align:right;width:80px">x:</div><pe:numericupdown name="pos_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Creator.ZonePage.OnChangePosX"/><br />
+        <div style="float:left;text-align:right;width:80px">y:</div><pe:numericupdown name="pos_y" min_step="0.01" value="0" valueformat="%.2f" min="-10000" max="10000" onchange="Map3DSystem.App.Creator.ZonePage.OnChangePosY"/><br />
+        <div style="float:left;text-align:right;width:80px">z:</div><pe:numericupdown name="pos_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Creator.ZonePage.OnChangePosZ"/><br />
+        <div style="float:left;text-align:right;width:80px">旋转:</div><pe:numericupdown name="facing" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Creator.ZonePage.OnFacing"/><br />
+        <div style="float:left;text-align:right;width:80px">宽度:</div><pe:numericupdown  name="width" value="0.5" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.ZonePage.OnChangeWidth"/><br />
+        <div style="float:left;text-align:right;width:80px">高度:</div><pe:numericupdown  name="height" value="1" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.ZonePage.OnChangeHeight"/><br />
+        <div style="float:left;text-align:right;width:80px">深度:</div><pe:numericupdown  name="depth" value="0.1" min_step="0.01" valueformat="%.2f" min="0" max="30" onchange="Map3DSystem.App.Creator.ZonePage.OnChangeDepth"/><br />
+<!--        <input type="checkbox" checked ="true"  onclick="Map3DSystem.App.Creator.ZonePage.OnCheck"/>是否移动它的Portal<br />-->
+        <div style="margin-left:80px">
+        <!--<input name="btnUpdateZone" tooltip="根据包围盒更改形态" type="submit" value="更新" onclick="Map3DSystem.App.Creator.ZonePage.OnUpdateZone"/>-->
+<!--            <input name="btnUpdateObjects" type="button" value="返回" onclick="Map3DSystem.App.Creator.ZonePage.OnReturn"/>-->
+        </div>
+     </pe:tab-item>    
+     <pe:tab-item text="面集合" onclick = "Map3DSystem.App.Creator.ZonePage.OnTabClick" style="padding-left:5px;padding-right:5px">
+        <div style="color:#808080">许多面构成了凸空间</div>
+        <textarea rows="8" name="planeset"></textarea><br />
+        <input name="btnUpdatePlanes" type="submit" value="更新" onclick="Map3DSystem.App.Creator.ZonePage.OnUpdateZonePlanes"/>
+<!--        <input name="btnUpdateObjects" type="button" value="返回" onclick="Map3DSystem.App.Creator.ZonePage.OnReturn"/>-->
+     </pe:tab-item>
+     <pe:tab-item text="Portals" style="padding-left:5px;padding-right:5px" onclick="Map3DSystem.App.Creator.ZonePage.OnRefreshPortals">
+        <div style="color:#808080">属于这个Zone的Portal列表</div>
+        <!--<input name="portalName" style="width:120px"/>-->
+        <!--<input name="btnSelectPortal" type="button" value="添加" tooltip="从场景中选择Portal到列表中" onclick="Map3DSystem.App.Creator.ZonePage.OnSelectPortal"/>-->
+<!--        <input name="btnAddPortal" type="submit" tooltip="添加指定的Portal" value="添加" onclick="Map3DSystem.App.Creator.ZonePage.OnAddPortal"/><br />-->
+        <!--<input name="btnRemovePortal" type="submit" tooltip="从列表中移除当前选择的Portal" value="移除" onclick="Map3DSystem.App.Creator.ZonePage.OnRemovePortal"/><br />
+        <br />-->
+        <select size="5" name="portalset" onselect="Map3DSystem.App.Creator.ZonePage.OnHighlightPortal"></select><br />
+        <input name="btnRefreshPortal" type="button" value="刷新" onclick="Map3DSystem.App.Creator.ZonePage.OnRefreshPortals"/>
+<!--        <input name="btnUpdateObjects" type="button" value="返回" onclick="Map3DSystem.App.Creator.ZonePage.OnReturn"/>-->
+     </pe:tab-item>
+     <pe:tab-item text="静态物品" style="padding-left:5px;padding-right:5px" onclick="Map3DSystem.App.Creator.ZonePage.OnRefreshZoneObject">
+        <div style="color:#808080">属于这个Zone的静态物品列表</div>
+       <!-- <input name="btnAddObject" type="submit" tooltip="从场景中选择静态物体到列表中" value="添加" onclick="Map3DSystem.App.Creator.ZonePage.OnAddObject"/>
+        <input name="btnRemoveObject" type="submit" tooltip="从列表中移除当前选择的物体" value="移除" onclick="Map3DSystem.App.Creator.ZonePage.OnRemoveObject"/><br />-->
+        <select size="7" name="objectset" onselect="Map3DSystem.App.Creator.ZonePage.OnSelectObject"></select><br />
+       <input name="btnUpdateObjects" type="button" value="刷新" onclick="Map3DSystem.App.Creator.ZonePage.OnRefreshZoneObject"/>
+<!--        <input name="btnUpdateObjects" type="button" value="返回" onclick="Map3DSystem.App.Creator.ZonePage.OnReturn"/>-->
+     </pe:tab-item>
+    </pe:tabs>
+</div>
+</form>
+</pe:mcml>
+</body>
+</html>
+

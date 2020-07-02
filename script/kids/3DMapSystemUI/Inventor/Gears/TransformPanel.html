@@ -1,0 +1,55 @@
+<!-- "script/kids/3DMapSystemUI/Inventor/Gears/TransformPanel.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>TransformPanel by Leio, 2008.12.20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TransformPanel.lua">
+    Map3DSystem.App.Inventor.Gears.TransformPanel.OnInit();
+</script>
+<div style="padding:5px">
+<pe:tabs>
+    <pe:tab-item text="位移/缩放/旋转" selected="true" onclick = "Map3DSystem.App.Inventor.Gears.TransformPanel.OnTabClick">
+    <div>
+        <div style="padding:5px">
+        <div style="float:left;text-align:right;width:80px">x:</div><pe:numericupdown canDrag = "false" name="pos_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangePosX"/><br />
+        <div style="float:left;text-align:right;width:80px">y:</div><pe:numericupdown canDrag = "false" name="pos_y" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangePosY"/><br />
+        <div style="float:left;text-align:right;width:80px">z:</div><pe:numericupdown canDrag = "false" name="pos_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangePosZ"/><br />
+        <div style="float:left;text-align:right;width:80px">缩放:</div><pe:numericupdown canDrag = "false" name="scaling" min_step="0.01" value="1" valueformat="%.2f" min="0.01" max="10" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnScaling"/><br /> 
+        <div style="float:left;text-align:right;width:80px">旋转:</div><pe:numericupdown canDrag = "false" name="facing" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnFacing"/><br /> 
+        <!--<input name="btnUpdatePlanes" type="submit" value="更新" tooltip="更新位移属性" onclick="Map3DSystem.App.Inventor.Gears.TransformPanel.OnUpdateProperty"/>-->
+        </div>
+        <br/>
+        <pe:canvas3d name="modelCanvas" autoRotateSpeed="0.12" style="width:256px;height:256px"></pe:canvas3d>
+    </div>  
+    </pe:tab-item>
+     <pe:tab-item text="高级旋转" onclick = "Map3DSystem.App.Inventor.Gears.TransformPanel.OnTabClick">
+        <div>
+        <div style="padding:5px">
+        <div style="float:left;text-align:right;width:80px">rot_x:</div><pe:numericupdown name="rot_x" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangeRotX"/><br />
+        <div style="float:left;text-align:right;width:80px">rot_y:</div><pe:numericupdown name="rot_y" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangeRotY"/><br />
+        <div style="float:left;text-align:right;width:80px">rot_z:</div><pe:numericupdown name="rot_z" min_step="0.005" value="0" valueformat="%.3f" min="-6.28" max="6.28" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnChangeRotZ"/><br />
+        <div style="float:left;text-align:right;width:80px">center_x:</div><pe:numericupdown name="center_x" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnCenterX"/><br />
+        <div style="float:left;text-align:right;width:80px">center_y:</div><pe:numericupdown name="center_y" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnCenterY"/><br />
+        <div style="float:left;text-align:right;width:80px">center_z:</div><pe:numericupdown name="center_z" min_step="0.01" valueformat="%.2f" min="0" max="40000" onchange="Map3DSystem.App.Inventor.Gears.TransformPanel.OnCenterZ"/><br />
+        <!--<div style="float:left;text-align:right;width:80px">绕自己中心点旋转:</div><input checked="true" onclick="Map3DSystem.App.Inventor.Gears.TransformPanel.OnRelative()" type="checkbox" name="isRelative"/><br />-->    
+        <input name="btnUpdatePlanes" type="submit" value="更新" tooltip="更新旋转属性" onclick="Map3DSystem.App.Inventor.Gears.TransformPanel.OnUpdateProperty_Rotation"/>
+        </div>
+        </div>
+    </pe:tab-item>
+     <pe:tab-item text="链接" onclick = "Map3DSystem.App.Inventor.Gears.TransformPanel.OnTabClick" style="padding-left:5px;padding-right:5px">
+        <div style="color:#808080">Portal所连接的两个Zones</div>
+        所属房间 Home Zone: <br />
+        <input name="homeZoneName" style="width:120px" value=""/>
+        <input name="btnSelHomeZone" tooltip="从场景中选择" type="submit" value="选择" onclick="Map3DSystem.App.Inventor.Gears.TransformPanel.OnSelectHomeZone"/><br />
+        <hr />
+        <input name="btnUpdateZones" type="submit" value="更新" onclick="Map3DSystem.App.Inventor.Gears.TransformPanel.OnUpdateZones"/>
+       <!-- <input name="btnUpdateZones" type="submit" value="返回" onclick="Map3DSystem.App.Creator.PortalPage.OnReturn"/>-->
+     </pe:tab-item>
+</pe:tabs>
+  
+</pe:mcml>
+</body>
+</html>

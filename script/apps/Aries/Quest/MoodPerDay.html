@@ -1,0 +1,193 @@
+﻿<!-- "script/apps/Aries/Quest/MoodPerDay.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MoodPerDay, by zrf, 2010/9/19</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="MoodPerDay.lua"><![CDATA[
+local page = document:GetPageCtrl();
+MyCompany.Aries.Quest.MoodPerDay.Init();
+
+function Confirm()
+    page:CloseWindow();
+end
+]]></script>
+<div style="position:relative;">
+    <input type="button" onclick="Confirm()" zorder="2" style="margin-left:800px;margin-top:30px;width:32px;height:32px;background:Texture/Aries/Quest/MoodPerDay/close_32bits.png;"/>
+</div>
+
+
+<div style="width:911px;height:554px;">
+    <div style="position:relative;margin-top:0px;width:911px;height:555px;background:url(Texture/Aries/Quest/MoodPerDay/bg.png#0 0 911 555);">
+        <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.IsDialy()%>'>
+            <div style="position:relative;margin-left:338px;margin-top:28px;width:196px;height:64px;background:url(Texture/Aries/Quest/MoodPerDay/title_32bits.png#0 0 196 64);">
+            </div>   
+        </pe:if> 
+    </div>    
+    <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.IsDialy()%>'>
+        <div style="position:relative;margin-left:177px;margin-top:135px;width:192px;height:388px;">
+            <pe:gridview DataSource="<%=MyCompany.Aries.Quest.MoodPerDay.DS_Func%>" name="MoodPerDay" 
+            CellPadding="0" ItemsPerLine="1" AllowPaging="true" pagesize="9">
+            <Columns>
+                <div style="width:200px;height:42px;background:;">
+                    <div style="position:relative;">
+                       <input type="button" style="float:left;width:198px;height:41;margin-top:5px;font-size:larger;color:#803f06;text-align:left;font-size:12;background:"
+                            value='<%="   " .. Eval("name") %>' name='<%=Eval("index")%>'
+                            onclick = "MyCompany.Aries.Quest.MoodPerDay.onClick()"
+                            Normal_BG=""
+                            MouseOver_BG="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41"
+                            Pressed_BG="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41" />
+                    </div>
+                    <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowSelect(Eval("index"))%>'>
+                        <div style="position:relative;margin-top:5px;">
+
+                            <img style="width:198px;height:41px" src="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41" />
+                        </div>
+                        <div style="position:relative;margin-left:10px;margin-top:13px;width:185px;height:32px;font-size:small;color:#803f06;">
+                            <%=Eval("name") %>
+                        </div>
+                    </pe:if>
+                    <div style="position:relative;margin-left:155px;margin-top:5px;">
+                        <img style="width:35px;height:36px" src='<%=MyCompany.Aries.Quest.MoodPerDay.GetStateIcon(Eval("index")) %>' />
+                    </div>
+                
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:180px;margin-top:-200px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+	        </form>
+	        </PagerTemplate>
+            </pe:gridview>
+        </div>
+
+    </pe:if>
+    <pe:if condition='<%=not MyCompany.Aries.Quest.MoodPerDay.IsDialy()%>'>
+        <div style="position:relative;margin-left:166px;margin-top:125px;width:208px;height:353px;">
+            <pe:gridview DataSource="<%=MyCompany.Aries.Quest.MoodPerDay.DS_Func_Growup%>" name="MoodPerDayGrowup" 
+            CellPadding="0" DefaultNodeHeight="42" ItemsPerLine="1" AllowPaging="false" RememberScrollPos="true" >
+            <Columns>
+                <div style="width:198px;height:42px;background:;">
+                    <div style="position:relative;">
+                       <input type="button" style="float:left;width:198px;height:41;margin-top:5px;color:#803f06;text-align:left;font-size:12;background:"
+                            value='<%="   " .. Eval("name") %>' name='<%=Eval("index")%>'
+                            tooltip='<%=MyCompany.Aries.Quest.MoodPerDay.GetGrowupTooltip(Eval("index")) %>'
+                            onclick = "MyCompany.Aries.Quest.MoodPerDay.onClick()"
+                            Normal_BG=""
+                            MouseOver_BG="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41"
+                            Pressed_BG="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41" />
+                    </div>
+                    <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowSelect(Eval("index"))%>'>
+                        <div tooltip='<%=MyCompany.Aries.Quest.MoodPerDay.GetGrowupTooltip(Eval("index")) %>' style="position:relative;margin-top:5px;">
+                            <img style="width:198px;height:41px" src="Texture/Aries/Quest/MoodPerDay/bg1_32bits.png;0 0 198 41" />
+                        </div>
+                        <div style="position:relative;margin-left:10px;margin-top:13px;width:215px;height:32px;font-size:small;color:#803f06;">
+                            <%=Eval("name") %>
+                        </div>
+                    </pe:if>
+                    <div style="position:relative;margin-left:155px;margin-top:5px;">
+                        <img style="width:35px;height:36px" src='<%=MyCompany.Aries.Quest.MoodPerDay.GetStateIconGrowup(Eval("state")) %>' />
+                    </div>
+                
+                </div>
+            </Columns>
+            <EmptyDataTemplate>
+            
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+            
+            </FetchingDataTemplate>
+	        <PagerSettings Position="Bottom" height="0" style="margin-left:185px;margin-top:-285px;width:168px;height:64px;" PreviousPageText="previous page" NextPageText="next page"/>
+	        <PagerTemplate>
+	            <form>
+    	            <input type="button" name="pre" zorder=2 animstyle="23" tooltip="上一页" style="margin-left:32px;width:32px;height:36px;background:url(Texture/Aries/Quest/QuestList/arrow1_32bits.png# 0 0 32 36);"/>
+	                <input type="button" name="next" zorder=2 animstyle="23" tooltip="下一页" style="margin-left:-32px;margin-top:50px;width:32px;height:37px;background:url(Texture/Aries/Quest/QuestList/arrow2_32bits.png# 0 0 32 37);"/>
+    	        </form>
+	        </PagerTemplate>
+            </pe:gridview>
+        </div>
+    </pe:if>
+
+    <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.IsDialy()%>'>
+        <div style="position:relative;margin-left:395px;margin-top:150px;width:402px;height:350px;">
+            <div style="position:relative;margin-left:0px;margin-top:0px;">
+                <img style="width:106px;height:106px" src='<%=MyCompany.Aries.Quest.MoodPerDay.ShowDialyIcon() %>' />
+            </div>
+            <div style="position:relative;margin-left:110px;margin-top:0px;width:260px;height:200px;color:#5c1f02;">
+                <%=MyCompany.Aries.Quest.MoodPerDay.GetDesc() %>
+            </div>
+
+            <div style="position:relative;margin-left:-70px;margin-top:120px;width:430px;height:42px;color:#5c1f02;background:;">
+                <div style="margin-left:85px;margin-top:10px;font-weight:bold"> 任务奖励：<%=MyCompany.Aries.Quest.MoodPerDay.GetResult() %>  </div>       
+            </div>
+            <div style="position:relative;margin-left:-70px;margin-top:172px;width:430px;height:42px;color:#ff0000;background:;">
+                <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowHasGift()%>'>
+                    <div style="margin-left:85px;margin-top:10px;"> 已领取过任务奖励  </div>       
+                </pe:if>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:610px;margin-top:390px;">
+            <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowGift()%>'>
+                <input type="button" animstyle="23" onclick="MyCompany.Aries.Quest.MoodPerDay.GetGift()" zorder="2" style="margin-left:0px;margin-top:-10px;width:166px;height:80px;background:url(Texture/Aries/Quest/QuestList/reward_btn_32bits.png#0 0 166 80);"/>
+            </pe:if>
+        </div>
+
+    </pe:if>
+
+    <pe:if condition='<%=not MyCompany.Aries.Quest.MoodPerDay.IsDialy()%>'>
+        <div style="position:relative;margin-left:400px;margin-top:130px;width:402px;height:350px;">
+            <div style="position:relative;margin-left:315px;margin-top:15px;width:64px;height:64px;">
+                <input type="button" animstyle="23" onclick="MyCompany.Aries.Quest.MoodPerDay.GetGrowupMore()" zorder="2" style="width:60px;height:27px;background:url(Texture/Aries/Quest/MoodPerDay/more_32bits.png#0 0 60 27);"/>
+            </div>
+            <div style="position:relative;margin-left:0px;margin-top:0px;width:310px;height:200px;color:#5c1f02;">
+                <%=MyCompany.Aries.Quest.MoodPerDay.GetDescGrowup() %>
+            </div>
+
+            <div style="position:relative;margin-left:-80px;margin-top:115px;width:430px;height:42px;color:#5c1f02;background:url(Texture/Aries/Quest/MoodPerDay/result_32bits.png);">
+                <div style="margin-left:85px;margin-top:10px;font-weight:bold"> 任务奖励：<%=MyCompany.Aries.Quest.MoodPerDay.GetResultGrowup() %>  </div>       
+            </div>
+
+            <div style="position:relative;margin-left:-80px;margin-top:172px;width:430px;height:42px;color:#ff0000;background:url(Texture/Aries/Quest/MoodPerDay/result_32bits.png);">
+                <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowHasGiftGrowup()%>'>
+                    <div style="margin-left:85px;margin-top:10px;"> 已领取过任务奖励  </div>       
+                </pe:if>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-left:610px;margin-top:390px;">
+            <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowAcceptGrowup()%>'>
+                <input type="button" animstyle="23" onclick="MyCompany.Aries.Quest.MoodPerDay.AcceptGrowup()" zorder="2" style="margin-left:0px;margin-top:0px;width:166px;height:80px;background:url(Texture/Aries/Quest/QuestList/accept_btn_32bits.png#0 0 166 80);"/>
+            </pe:if>
+            <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.ShowGiftGrowup()%>'>
+                <input type="button" animstyle="23" onclick="MyCompany.Aries.Quest.MoodPerDay.GetGiftGrowup()" zorder="2" style="margin-left:0px;margin-top:-10px;width:166px;height:80px;background:url(Texture/Aries/Quest/QuestList/reward_btn_32bits.png#0 0 166 80);"/>
+            </pe:if>
+        </div>
+    </pe:if>
+
+    <div style="position:relative;">
+        <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.GetPage() == 1%>'>
+            <input type="button" onclick="MyCompany.Aries.Quest.MoodPerDay.onDialyPageClick()" zorder="2" style="margin-left:850px;margin-top:70px;width:92px;height:64px;background:url(Texture/Aries/Quest/MoodPerDay/meirixinqing_32bits.png#0 0 92 64);"/>
+            <br />
+            <input type="button" onclick="MyCompany.Aries.Quest.MoodPerDay.onGrowPageClick()" zorder="2" style="margin-left:830px;margin-top:-36px;width:85px;height:76px;background:url(Texture/Aries/Quest/MoodPerDay/chengzhangjishi2_32bits.png#0 0 85 76);"/>
+        </pe:if>
+        <pe:if condition='<%=MyCompany.Aries.Quest.MoodPerDay.GetPage() == 2%>'>
+            <input type="button" onclick="MyCompany.Aries.Quest.MoodPerDay.onDialyPageClick()" zorder="2" style="margin-left:850px;margin-top:70px;width:95px;height:64px;background:url(Texture/Aries/Quest/MoodPerDay/meirixinqing2_32bits.png#0 0 95 64);"/>
+            <br />
+            <input type="button" onclick="MyCompany.Aries.Quest.MoodPerDay.onGrowPageClick()" zorder="2" style="margin-left:830px;margin-top:-24px;width:82px;height:76px;background:url(Texture/Aries/Quest/MoodPerDay/chengzhangjishi_32bits.png#0 0 82 76);"/>
+        </pe:if>
+    </div>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!-- "script/apps/Aries/CombatPet/CombatPet_Debug.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" Refresh="true"><![CDATA[
+local page = document:GetPageCtrl();
+NPL.load("(gl)script/apps/Aries/CombatPet/CombatPetHelper.lua");
+local CombatPetHelper = commonlib.gettable("MyCompany.Aries.CombatPet.CombatPetHelper");
+local gsid = page:GetRequestParam("gsid");
+gsid = tonumber(gsid) or 10108;
+local exp = page:GetRequestParam("exp");
+exp = tonumber(exp) or 0;
+function ClosePage()
+    page:CloseWindow();
+end
+function GetExp()
+    return exp;
+end
+function ShowAllInfo()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local p = provider:GetPropertiesByID(gsid)
+        local s = commonlib.serialize_compact(p)
+        return s;
+    end
+end
+function ShowCards()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp);
+        local p = provider:GetPropertiesByID(gsid)
+        if(p and p.append_card_level and level and level >=0)then
+            local value = p.append_card_level[level + 1];
+            value = commonlib.serialize_compact(value)
+            return value;
+        end
+    end
+end
+function ShowProps()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp);
+        local p = provider:GetPropertiesByID(gsid)
+        if(p and p.append_card_level and level and level >=0)then
+            local value = p.append_prop_level[level + 1];
+            value = commonlib.serialize_compact(value)
+            return value;
+        end
+    end
+end
+function ShowLevel()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local map = provider:GetAllPets();
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp);
+        local s;
+        if(level == -1)then
+            s = "出错";
+        else
+            s = string.format("级别:%d,经验:%d/%d,是否满级:%s",level,cur_exp or 0,total_exp or 0,tostring(isfull));
+        end
+        return s;
+    end
+end
+function GetValue(key)
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local p = provider:GetPropertiesByID(gsid)
+        if(p)then
+            return p[key];
+        end
+    end
+end
+function ShowPercent()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp);
+        local p = provider:GetPropertiesByID(gsid)
+        if(p and p.add_exp_percent_level and level and level >=0)then
+            local value = p.add_exp_percent_level[level];
+            value = commonlib.serialize_compact(value)
+            return value;
+        end
+    end
+end
+function ShowAddExp()
+    local provider = CombatPetHelper.GetClientProvider();
+    if(provider)then
+        local level,cur_exp,total_exp,isfull = provider:GetLevelInfo(gsid,exp);
+        local p = provider:GetPropertiesByID(gsid)
+        if(p and p.add_exp_max_level and level and level >=0)then
+            local value = p.add_exp_max_level[level];
+            value = commonlib.serialize_compact(value)
+            return value;
+        end
+    end
+end
+]]></script>
+<div style="width:920px;height:512px;background:url(Texture/Aries/PENote/penote_bg2.png# 0 0 920 512)">
+    <div style="margin-left:650px;margin-top:40px;">
+    <input type="button" zorder=2 style="width:32px;height:32px;margin-left:170px;background:Texture/Aries/PENote/penote_close_32bits.png# 0 0 31 30" 
+    onclick="ClosePage()" />
+    </div>
+     <br />
+    gsid：<%=GetValue("gsid") %>
+     <br />
+    label：<%=GetValue("label") %>
+    <br />
+    系别限制：<%=GetValue("school_requirement") %>
+    <br />
+    级别限制：<%=GetValue("combatlevel_requirement") %>
+     <br />
+    isvip：<%=GetValue("isvip") %>
+     <br />
+    经验值上限：<%=GetValue("max_exp") %>
+    <br />
+    级别上限：<%=GetValue("max_level") %>
+    <br />
+    当前总经验：<%=GetExp() %>
+    <br />
+    进度：<%=ShowLevel() %>
+    <br />
+    携带卡片：<%=ShowCards() %>
+    <br />
+    附加属性：<%=ShowProps() %>
+    <br />
+    单次战斗 默认涨经验百分比：<%=GetValue("add_exp_percent_default") %>
+     <br />
+    百分比：<%=ShowPercent() %>
+    <br />
+    单次战斗 默认涨经验最大值：<%=GetValue("add_exp_max_default") %>
+     <br />
+    涨经验最大值：<%=ShowAddExp() %>
+    <br />
+    <%=ShowAllInfo() %>
+</div>
+</pe:mcml>
+</body>
+</html>
+

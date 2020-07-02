@@ -1,0 +1,62 @@
+﻿<!-- "script/apps/Aries/Desktop/SelectionResponse/OtherPlayer.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Avatar Selection Response, by Andy, 2009/4/15</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="false" src="OtherPlayer.lua"><![CDATA[
+local page = document:GetPageCtrl();
+nid = page:GetRequestParam("nid") or System.App.profiles.ProfileManager.GetNID();
+nid = tonumber(nid);
+
+local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+local max_hp = MyCompany.Aries.OPC.GetMaxHP(nid, function(max_hp)
+    HPMyPlayerArea.UpdateUIByPage(page, max_hp or 100, max_hp or 100);
+end);
+HPMyPlayerArea.UpdateUIByPage(page, max_hp or 100, max_hp or 100);
+
+if(not MyCompany.Aries.OPC.GetLevel(nid)) then
+    MyCompany.Aries.OPC.GetLevel(nid, function() page:Refresh(0.1) end);
+end
+
+function OnClickShowMenu()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.OnShowContextMenu(nid);
+end
+function OnClickShowProfile()
+    NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileMain.lua");
+    MyCompany.Aries.NewProfileMain.ShowPage(nid);
+end
+]]></script>
+<div style="">
+    <div style="position:relative;margin-left:10px;width:45px;height:24px;background:url(Texture/Aries/Team/bg2_32bits.png#0 0 45 24);">
+        <input type="button" style='<%=format("background:url(Texture/Aries/Team/%s_32bits.png);background-color:#ffffff;width:16px;height:16px;margin-left:3px;margin-top:4px;", MyCompany.Aries.Combat.GetSchool(Eval("nid")))%>' />
+        <input type="button" value='<%=tostring(MyCompany.Aries.OPC.GetLevel(Eval("nid")) or "?")%>' style="margin-left:0px;margin-top:3px;width:22px;height:16px;font-size:12px;color:#ffffff;background:;"/>
+    </div>
+    <div style="position:relative;margin-left:5px;margin-top:17px;padding-left:10px;padding-top:5px;padding-bottom:5px;width:130px;font-size:12px;color:#572200;background:url(Texture/Aries/Team/bg_32bits.png#0 0 32 30 : 10 10 10 10);" >
+        <div style="height:20px;" tooltip="点击查看个人资料" onclick="OnClickShowProfile()">
+            <pe:if condition='<%=MyCompany.Aries.OPC.IsVIP(Eval("nid")) %>'>
+                <div style="float:left;margin-top:1px;width:20px;height:20px;background:url(Texture/Aries/Dock/Web/magic_star_32bits.png# 0 0 45 45);" />
+            </pe:if>
+            <div style="float:left;margin-top:1px;width:100px;">
+                <pe:name nid='<%=Eval("nid")%>' style="color:#572200" linked="false"/>
+            </div> 
+        </div>
+        <div>
+            <pe:progressbar name="healthbar" Minimum = "0" Maximum = "100" Value = "100" Step = "1"
+                    style="width:110px;height:10px;"
+                    blockimage="Texture/Aries/Team/teen/red_progressbar.png;0 0 16 10: 7 5 8 4"
+                    background=""
+                />
+        </div>
+        <input name="health_text" enabled="false" type="button" style="position:relative;margin-top:-13px;margin-left:1px;width:110px;height:16px;color:#ffffff;font-size:11px;background:;" value="???" />
+    </div>
+    <input type="button" tooltip="菜单" name='<%=Eval("nid") %>' onclick="OnClickShowMenu()"  style="position:relative;margin-left:118px;margin-top:10px;width:19px;height:19px;background:url(Texture/Aries/Team/dropmenu_32bits.png#0 0 19 19);" />
+</div>
+
+</pe:mcml> 
+</body>
+</html>

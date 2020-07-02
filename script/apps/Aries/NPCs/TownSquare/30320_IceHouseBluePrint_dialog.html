@@ -1,0 +1,88 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30320_IceHouseBluePrint_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30320_IceHouseBluePrint_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+local memory = MyCompany.Aries.Quest.NPCAIMemory.GetMemory(30320);
+
+Condition1 = function()
+    if(memory.dialog_state and memory.dialog_state == 1) then
+        return true;
+    end
+    return false;
+end;
+
+Condition2 = function()
+    if(memory.dialog_state and memory.dialog_state == 2) then
+        return true;
+    end
+    return false;
+end;
+
+
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+
+function ExitAction(from, to)
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="content" source="{pe:state}" />
+            <pe:placeholder id="name" source="{this}" value='冰雪小屋礼物盒子'/>
+        </pe:template>
+               
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>			
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    冰雪小屋的图纸只有10000份，已经发放完了；如果你想要作出冰雪小屋，可以请其他小哈奇通<div>过<div style="color:#ff0000;float:left">礼物盒</div><div style="float:left">把图纸送给你</div></div>
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你已经领取过冰雪小屋的图纸了。快到<div><div style="color:#ff0000;float:left">购物街</div><div style="float:left">，使用</div><div style="color:#ff0000;float:left">建房机</div></div>，建造出漂亮的冰雪小屋吧！
+		    <pe:answer template_id = "iknow">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

@@ -1,0 +1,80 @@
+﻿<!-- "script/apps/Aries/NPCs/TownSquare/30309_4ChristmasTree_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30309_4ChristmasTree_dialog, by Andy, 2009/8/20</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+IfNotHoldTorch = function()
+	-- 1156_YuanXiaoTorch
+	if(not equipGSItem(1156)) then
+	    return true;
+	else
+	    return false;
+	end
+end
+
+TryLaunchFirework = function()
+    MyCompany.Aries.Quest.NPCs.FireworkLauncher.TryLaunchFirework(instance);
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+    
+    <!--<pe:dialog NPC_id = "10" width = "480" height = "480" entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">-->
+    
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' >
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' />
+            <pe:placeholder id="name" source="{this}" value='奇豆烟花发射台'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>        
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+		        <pe:answer-if condition = '<%=Eval("IfNotHoldTorch")%>' target_state = "2"/>
+			    <pe:answer-if condition = "true" target_state = "1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    我是奇豆烟花发射台，每15分钟可以发射一次烟花，你想要点燃烟花，让满天都掉奇豆吗？
+		    <pe:answer template_id = "ok">
+			    <pe:answer-if condition = "true" transition = '<%=Eval("TryLaunchFirework")%>' target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    你没有把智者火把拿在手上，又怎么能让我燃放烟花呢！先把智者火把拿出来再说吧！
+		    <pe:answer template_id = "ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>   
+    
+</pe:mcml>
+</body>
+</html>

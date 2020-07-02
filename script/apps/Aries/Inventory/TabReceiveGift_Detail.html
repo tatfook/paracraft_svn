@@ -1,0 +1,105 @@
+﻿<!-- "script/apps/Aries/Inventory/TabReceiveGift_Detail.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TabReceiveGift_Detail, by Leio, 2009/12/2</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" src="TabReceiveGift_Detail.lua" refresh="true"><![CDATA[
+MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.OnInit()
+
+function getNID()
+    return MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.nid;
+end
+
+--礼物的描述
+function getItemDes()
+    local s = MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.item_tooltip;
+    if(not s or s == "")then
+        s = "礼物";
+    end
+    s = string.format("送你的%s",s);
+    return s;
+end
+
+function IsKids()
+    if(System.options.version=="kids") then
+        return true
+    else
+        return false
+    end
+end
+
+function getTitle()    
+    local title = string.format([[<pe:name nid='%s' linked=false/>的礼物盒]],tostring(System.User.nid));
+    return title;
+end
+]]></script>
+<pe:if condition='<%=IsKids() %>'>
+<div style="float:left;width:361px;height:469px;background:url(Texture/Aries/Profile/Profile_BG_32bits.png# 0 0 361 469);">
+    <div style="height:60px;">
+        <div style="float:left;margin-left:60px;margin-top:30px;width:250px">
+            <pe:name style="float:left;margin-left:0px;margin-top:0px;width:250px;height:30px;text-align:center;color:#ffffff;font-size:14;font-weight:bold;" customformat="%s(%s)" nid='<%=getNID()%>'linked="false"/>
+            <div style="float:left;margin-left:0px;margin-top:-10px;width:250px;height:30px;text-align:center;color:#ffffff;font-size:14;font-weight:bold;">
+                    <%=getItemDes()%>
+             </div>
+        </div>
+        <input style="margin-left:320px;margin-top:-70px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" 
+                onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.ClosePage()" value=""/>
+    </div>
+    <div style="margin-left:30px;margin-top:20px;width:300px;height:180px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+        <img  name = "icon" style="margin-left:102px;margin-top:42px;width:96px;height:96px;"/>
+    </div>
+     <div style="margin-left:30px;margin-top:0px;width:300px;text-align:center;font-size:12">
+            赠送留言
+        </div>
+    <div style="padding:8px;margin-left:28px;margin-top:0px;width:300px;height:140px;background:url(Texture/Aries/Profile/Avatar_BG_32bits.png:100 20 100 20);">
+        <textarea style="background:" name="send_info" ReadOnly="true" rows="6" ></textarea>
+    </div>
+    <div style="margin-top:10px;">
+        <input type="button" style="margin-left:28px;width:153;height:49px;background:url(Texture/Aries/Homeland/v1/gift_accept32bits.png#0 0 153 49)" 
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.DoAccept()" />
+        <input type="button" style="margin-left:4px;width:153;height:49px;background:url(Texture/Aries/Homeland/v1/gift_refuse32bits.png#0 0 153 49)" 
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.DoRefuse()"  />
+    </div> 
+</div>
+</pe:if>
+<pe:if condition='<%=not IsKids() %>'>
+<div style="float:left;width:361px;height:420px;" class="pane">
+    <div style="height:19px;">
+      <div class="windowlabel"><%=getTitle()%></div>
+      <input type="button" onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.ClosePage()" class="closebutton" style="position:relative;margin-left:318px;" />
+    </div>
+     <div style="margin-left:5px;margin-top:2px;width:352px;height:395px;" class="border">
+    <div style="height:50px;">
+        <div style="float:left;margin-left:60px;margin-top:20px;width:250px">
+            <pe:name style="float:left;margin-left:0px;margin-top:0px;width:250px;height:30px;text-align:center;font-size:14;font-weight:bold;" customformat="%s(%s)" nid='<%=getNID()%>'linked="false"/>
+            <div style="float:left;margin-left:0px;margin-top:-10px;width:250px;height:30px;text-align:center;font-size:14;font-weight:bold;">
+                    <%=getItemDes()%>
+             </div>
+        </div>
+    </div>
+    <div style="margin-left:30px;margin-top:20px;width:300px;height:120px;" class="inborder">
+        <img  name = "icon_teen" style="margin-left:102px;margin-top:20px;width:90px;height:90px;"/>
+    </div>
+     <div style="margin-left:30px;margin-top:0px;width:300px;text-align:center;font-size:12">
+            赠送留言
+        </div>
+    <div style="padding:8px;margin-left:28px;margin-top:0px;width:300px;height:140px;" class="textpane">
+        <textarea style="background:" name="send_info_teen" ReadOnly="true" rows="6" ></textarea>
+    </div>
+    <div style="margin-top:10px;">
+        <input type="button" style="margin-left:68px;width:80;height:30px;" value="收 下"
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.DoAccept()" />
+        <input type="button" style="margin-left:54px;width:80;height:30px;" value="丢 弃"
+                    onclick="MyCompany.Aries.Inventory.TabReceiveGift_DetailPage.DoRefuse()"  />
+    </div>
+    </div>  
+</div>
+
+</pe:if>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,40 @@
+﻿<!-- "script/apps/Aries/NPCs/TeenAction/SignContractPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/TeenAction/SignContractPage.lua");
+local SignContractPage = commonlib.gettable("MyCompany.Aries.Quest.NPCs.TeenAction.SignContractPage");
+SignContractPage.OnInit();
+local page = document:GetPageCtrl();
+
+function DoSign()
+    SignContractPage.DoSign();
+end
+function ClosePage()
+    page:CloseWindow();
+end
+
+]]></script>
+<div style="width:275px;height:170px;" class="pane">
+    <div style="height:19px;">
+        <div style="position:relative;color:#ffffff;text-align:center;margin-top:2px;">填写推荐人</div>
+        <input type="button" onclick="ClosePage()" class="closebutton" style="position:relative;margin-left:233px;" />
+    </div>
+    <div style="float:left;padding:5px;margin-left:5px;margin-top:5px;width:265px;height:100px;" class="border">
+    <div style="text-align:center;padding:10px;"><%=format("填写推荐你来玩《%s》的人的数字账号，可以让他/她获得一个热心果。", MyCompany.Aries.ExternalUserModule:GetConfig().product_name or "魔法哈奇")%></div>
+    <div style="margin-top:5px;"><div  style="float:left">编号：</div><input type="text" name="user_nid_txt" enable_ime="false" class="defaulttextfield"/></div>
+    </div>
+    <div style="margin-top:15px;">
+    <input type="button" value="确定" onclick="DoSign()" style="margin-left:55px;width:80px;height:22px;font-size:12px;"/>
+    <input type="button" value="取消" onclick="ClosePage()" style="margin-left:10px;width:80px;height:22px;font-size:12px;"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

@@ -1,0 +1,168 @@
+﻿<!-- "script/apps/Aries/NPCs/Dragon/30015_BlueDragonTotem_dialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>30012_DragonTotem_dialog, by Andy, 2009/8/1</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0; 
+npc_id = tonumber(npc_id);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+--50034_WishLevel8_Acquire
+--50035_WishLevel8_Complete
+--50036_WishLevel8_RewardFriendliness
+--50054_WishLevel8_TalkedWithBlueDragonTotem
+--50053_WishLevel8_HeartOfFlyingDragon
+--20009_FlyingCertificationMedal
+
+heartCount = 0;
+local bHas, guid = hasGSItem(50053);
+if(bHas == true) then
+	local item = ItemManager.GetItemByGUID(guid);
+	if(item and item.guid > 0) then
+	    heartCount = item.copies;
+    end
+end
+
+Condition1 = function()
+    -- doesn't accept the quest yet, or completed
+    return (not hasGSItem(50034) or (hasGSItem(50034) and hasGSItem(50035)));
+end;
+Condition2 = function()
+    -- accept the quest, but haven't talked with the totem before
+    return (hasGSItem(50034) and not hasGSItem(50035) and not hasGSItem(50054));
+end;
+Condition3 = function()
+    -- accept the quest, but with less than 10 heart
+    return (hasGSItem(50034) and not hasGSItem(50035) and heartCount < 10);
+end;
+Condition4 = function()
+    -- accept the quest, and with 10 heart
+    return (hasGSItem(50034) and not hasGSItem(50035) and heartCount == 10);
+end;
+
+-- 50040_WishLevel9_TalkedWithDragonTotem
+
+function EntryAction(from, to)
+    commonlib.echo("EntryAction")
+    commonlib.echo({from, to})
+end
+
+function ExitAction(from, to)
+    if(from == 2 and to == -1) then
+        if(hasGSItem(50034) and not hasGSItem(50054)) then
+            ItemManager.PurchaseItem(50054, 1, function(msg) end, function(msg)
+	            if(msg) then
+		            log("+++++++ Purchase 50054_WishLevel8_TalkedWithBlueDragonTotem return: +++++++\n")
+		            commonlib.echo(msg);
+		            MyCompany.Aries.Quest.NPCs.WishLevel8.RefreshStatus();
+	            end
+            end);
+        end
+    elseif(from == 4 and to == -1) then
+        -- accept the quest
+        local bHas, guid = hasGSItem(50053);
+        local copies = 0;
+        if(bHas == true) then
+	        local item = ItemManager.GetItemByGUID(guid);
+	        if(item and item.guid > 0) then
+	            copies = item.copies;
+            end
+        end
+        if(hasGSItem(50034) and bHas and copies == 10) then
+            -- finish the quest
+            -- exid 91: DragonQuestGrow_Level8
+            ItemManager.ExtendedCost(91, nil, nil, function(msg)end, function(msg)
+		        log("+++++++ExtendedCost 91: DragonQuestGrow_Level8 return: +++++++\n")
+		        commonlib.echo(msg);
+			    --50036_WishLevel8_RewardFriendliness
+			    if(msg.issuccess == true) then
+				    -- use the item 50036 to increase pet friendliness
+                    local bHas, guid = hasGSItem(50036);
+                    if(bHas and guid) then
+                        local item = ItemManager.GetItemByGUID(guid);
+                        if(item and item.guid > 0) then
+                            item:OnClick("left");
+                        end
+                    end
+				    --WishLevel0.RefreshStatus();
+			    end
+            end);
+        end
+    end
+    commonlib.echo("ExitAction")
+    commonlib.echo({from, to})
+end
+
+name = "NPCDialog_"..tostring(npc_id)..(instance or "");
+
+]]></script>
+
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+        
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.html">
+            <pe:placeholder id="portrait" source="{this}" nid="30015" />
+            <pe:placeholder id="name" source="{this}" value="龙图腾" />
+
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+        
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = '<%=Eval("Condition1")%>' target_state = "1"/>
+			    <pe:answer-if condition = '<%=Eval("Condition2")%>' target_state = "2"/>
+			    <pe:answer-if condition = '<%=Eval("Condition3")%>' target_state = "3"/>
+			    <pe:answer-if condition = '<%=Eval("Condition4")%>' target_state = "4"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "1">
+		    真正的龙要在蓝天上飞翔！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "2">
+		    终于等到你的<div style="float:right;"><aries:mountpetname/></div>长大了！我已经唤醒了它飞行的力量，快让它带着你飞向天空；通过飞行测试，收集齐所有飞翔的心，它才能成为真正的飞龙！
+
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "3">
+	        飞翔的心还没有收集齐，<div style="float:right;"><aries:mountpetname/></div>没有通过飞行测试，还不是真正的飞龙！赶紧再让它带着你飞上天去找找吧！
+
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "4">
+	        太好了，<div style="float:right;"><aries:mountpetname/></div>通过了飞行测试，真正成为了龙族合格的一员；这枚飞龙奖章属于它了！以后它可以尽情的带着你在天空翱翔了！
+		    <pe:answer text="确定" template_id="ok">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "10">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+	    <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+    
+    
+</pe:mcml>
+</body>
+</html>

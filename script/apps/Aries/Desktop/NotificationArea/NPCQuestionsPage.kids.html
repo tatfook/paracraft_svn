@@ -1,0 +1,94 @@
+﻿<!-- "script/apps/Aries/Desktop/NotificationArea/NPCQuestionsPage.kids.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+<pe:mcml>
+<script type="text/npl" src="NPCTipsPage.lua"><![CDATA[
+local page = document:GetPageCtrl();
+NPCTipsPage = commonlib.gettable("MyCompany.Aries.Desktop.NotificationArea.NPCTipsPage");
+tip = NPCTipsPage.show_dialog_tip or {is_empty=true};
+question = tip[1] or {};
+answers = tip[2] or {};
+function OnClose()
+    Page:CloseWindow();
+end
+
+function OnClickActionBtn()
+    
+    local ans = Page:GetValue("answer");
+    if(not ans or ans == "") then
+        _guihelper.MessageBox("请选择一个答案");
+        return 
+    elseif(answers.attr and answers.attr.value) then
+        if(answers.attr.value:match(tostring(ans))) then
+            _guihelper.MessageBox("恭喜你，答对了！", function(res)
+	            if(res and res == _guihelper.DialogResult.OK) then
+		            Page:CloseWindow();
+	            end
+            end, _guihelper.MessageBoxButtons.OK);
+        else
+            _guihelper.MessageBox("你回答错误了,请重新选择");
+            return;
+        end
+    end
+    -- NPCTipsPage.OnClickActionBtn(tip);
+end
+
+answers_ds = nil;
+function GetAnswers()
+    if(not answers_ds) then
+        answers_ds = {};
+        local index, ans;
+        for index, ans in ipairs(answers) do
+            local attr = ans.attr or {};
+            attr.text = ans[1];
+            attr.value = index;
+            answers_ds[#answers_ds +1] = attr;
+        end
+    end
+    return answers_ds;
+end
+
+function RadioChoice()
+    local ds = GetAnswers();
+    local s="";
+    local i, ans;
+    for i, ans in ipairs(ds) do
+        s = format("%s<div><input type='radio' id='%s' style='float:left;margin-top:2px;' name='answer' value='%s'/><div style='float:left;margin-left:2px;' for='%s'>%s</div></div>", s, tostring(ans.value), tostring(ans.value), tostring(ans.value), commonlib.Encoding.EncodeStr(ans.text or ""));
+    end
+    return s;
+end
+]]></script>
+<div style="width:420px;margin-left:0px;padding-bottom:10px" class="window">
+    <div style="text-align:center;margin-top:10px;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:#fcf73c;shadow-color:#8000468e;text-shadow:true">
+        <%=tip.title or "小精灵提示" %>
+    </div>
+    <div style="margin-left:15px;margin-right:10px;">
+        <div style="float:left;">
+            <img src='<%=(tip.npc_icon or "Texture/Aries/NPCs/Portrait/common_tip_elf_32bits.png") %>' style="width:64px;height:64px"/>
+        </div>
+        <div style="float:left;margin-top:8px;margin-left:-48px;padding-left:50px;padding-bottom:5px;min-height:64px;background:url(Texture/Aries/Common/ThemeKid/wnd_title.png:2 6 1 6)">
+            <div style="margin-left:3px;font-size:15px;base-font-size:15;font-weight:bold;line-height:15" width="100%">
+                <%=question[1] or "请问1+1等于几？" %>
+            </div>
+            <div>
+                <!--<pe:repeat DataSource="<%=GetAnswers()%>">
+                    <pe:repeatitem style="">
+                        <div style="">
+                            <input id='<%=tostring(Eval("value"))%>' type="radio" name="myanswers" max="2" value='<%=Eval("value")%>' />
+                            <div for='<%=tostring(Eval("value"))%>'  style="float:left;"><%=Eval("text")%></div>
+                        </div>
+                    </pe:repeatitem>
+                </pe:repeat>-->
+                <%=RadioChoice() %>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <input name="gotoNPC" style="margin-left:80px;height:26px;width:105px;" class="button_highlight" type="button" value="我选好了" onclick="OnClickActionBtn"/>
+        <input name="closeLater" style="margin-left:40px;height:26px;width:105px;" class="button_thick" type="button" value="等下提醒我" onclick="OnClose"/>
+    </div>
+</div>
+</pe:mcml> 
+</body>
+</html>

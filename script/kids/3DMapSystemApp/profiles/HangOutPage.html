@@ -1,0 +1,79 @@
+﻿<!-- "script/kids/3DMapSystemApp/profiles/HangOutPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Hang Out Page by LiXizhi, 2008.4.30</title>
+</head>
+<body>
+<pe:mcml style="max-width: 640px" trans="ParaworldMCML">
+<script type="text/npl" src="">
+</script>
+<div style="padding:10px" class="box">
+    <div style="font-weight:bold;">在帕拉巫中到处逛逛, 结交新朋友</div>
+    <div style="margin-left:15px;margin-bottom:5px"><font style="color:#808080;">您可以通过世界地图, 活动房间, 朋友查询, 应用程序等多种方式认识新朋友</font></div>
+    <hr />
+    <pe:tabs name="HangoutTabview">
+    <pe:tab-item text="在线用户(随机)" selected="true">
+        <pe:mqldatasource name="OnlineUserDataSource" DataSourceMode="DataReader" SelectCommand="select uid,uname,createDate from users where isOnline = 1" cachepolicy="access plus 20 seconds">
+        </pe:mqldatasource>
+        <pe:gridview ItemsPerLine="2" DataSourceID="OnlineUserDataSource" name="gvwOnlineUsers" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "90" pagesize="6">
+            <Columns>
+                <div style="float:left; margin-right:5px">
+                    <pe:profile-photo uid='<%=Eval("uid")%>'/>
+	            </div>
+	            <div style="float:left;">
+	                <pe:name style="font-weight:bold" uid='<%=Eval("uid")%>'/>
+	                <a href='<%="script/kids/3DMapSystemApp/profiles/FriendsPage.html?uid="..Eval("uid")%>' target="_mcmlblank">查看好友</a><br />
+	                <a onclick="Map3DSystem.App.profiles.ProfileManager.TeleportToUser" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/transmit.png);width:16px;height:16px;margin:3px" />到我身边</a>
+                    <!--<a onclick="Map3DSystem.App.profiles.ProfileManager.GotoHomeWorld" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/house.png);width:16px;height:16px;margin:3px" />访问家园</a>-->
+                    <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+	                <br />
+	                <div style="font-size:11px">
+	                用户ID: <%=Eval("uname")%><br />
+	                创建日期: <%=Eval("createDate")%><br />
+	                </div>
+	            </div>
+            </Columns>
+            <EmptyDataTemplate>
+	            <b>没有找到符合要求的用户</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+    <pe:tab-item text="新注册用户">
+        <pe:mqldatasource name="NewlyRegUserDataSource" DataSourceMode="DataReader" SelectCommand="select page(1,50,order by createDate desc), uid,createDate,uname from users" cachepolicy="access plus 2 hours">
+        </pe:mqldatasource>
+        <pe:gridview ItemsPerLine="2"  DataSourceID="NewlyRegUserDataSource" name="gvwNewUsers" CellPadding="5"  AllowPaging="True" DefaultNodeHeight = "90" pagesize="6">
+            <Columns>
+                <div style="float:left; margin-right:5px">
+                    <pe:profile-photo uid='<%=Eval("uid")%>'/>
+	            </div>
+	            <div style="float:left;">
+	                <pe:name style="font-weight:bold" uid='<%=Eval("uid")%>'/>
+	                <a href='<%="script/kids/3DMapSystemApp/profiles/FriendsPage.html?uid="..Eval("uid")%>' target="_mcmlblank">查看好友</a><br />
+                    <a onclick="Map3DSystem.App.profiles.ProfileManager.GotoHomeWorld" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/house.png);width:16px;height:16px;margin:3px" />访问家园</a>
+                    <a onclick="Map3DSystem.App.profiles.ProfileManager.Poke" param1='<%=Eval("uid")%>'><img style="background:url(Texture/3DMapSystem/common/wand.png);width:16px;height:16px;margin:3px" />打个招呼</a>
+	                <br />
+	                <div style="font-size:11px">
+	                用户ID: <%=Eval("uname")%><br />
+	                创建日期: <%=Eval("createDate")%><br />
+	                </div>
+	            </div>
+            </Columns>
+            <EmptyDataTemplate>
+	            <b>没有找到符合要求的用户</b>
+            </EmptyDataTemplate>
+            <FetchingDataTemplate>
+                <b>正在搜索, 请稍候 ... </b>
+            </FetchingDataTemplate>
+            <PagerSettings Position="Bottom"/>
+        </pe:gridview>
+    </pe:tab-item>
+    </pe:tabs>
+</div>
+</pe:mcml>
+</body>
+</html>

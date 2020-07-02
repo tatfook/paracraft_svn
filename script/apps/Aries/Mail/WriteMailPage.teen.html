@@ -1,0 +1,183 @@
+<!-- "script/apps/Aries/Mail/WriteMailPage.teen.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" refresh="true">
+<![CDATA[
+NPL.load("(gl)script/apps/Aries/Dialog/Dialog_SelectionGoods.lua");
+local Dialog_SelectionGoods = commonlib.gettable("MyCompany.Aries.Dialog.Dialog_SelectionGoods");
+NPL.load("(gl)script/apps/Aries/Mail/MailPage.lua");
+local MailPage = commonlib.gettable("MyCompany.Aries.Mail.MailPage");
+NPL.load("(gl)script/apps/Aries/Mail/WriteMailPage.lua");
+local WriteMailPage = commonlib.gettable("MyCompany.Aries.Mail.WriteMailPage");
+WriteMailPage.OnInit();
+
+local page = document:GetPageCtrl();
+function ClosePage()
+    page:CloseWindow();
+end
+
+function DS_Func(index)
+    return WriteMailPage.DS_Func(index);
+end
+function DS_Func_bag(index)
+    return WriteMailPage.DS_Func_bag(index);
+end
+function OnSend()
+    WriteMailPage.OnSend();
+end
+function AddAttachContent()
+end
+function GetMyFriends()
+    return WriteMailPage.buddy_list;
+end
+function OnSelectFriend(ctrl,value)
+    WriteMailPage.OnSelectFriend(ctrl,value);
+end
+function GetBagsWndVisible()
+    return WriteMailPage.bag_is_show;
+end
+function OnToggleBagsView()
+    WriteMailPage.bag_is_show = not WriteMailPage.bag_is_show;
+    page:Refresh(0);
+end
+function DoAdd(gsid,mcmlNode,index)
+    if(WriteMailPage.attaches_list)then
+        local k,v;
+        local len = 0;
+        for k,v in ipairs(WriteMailPage.attaches_list) do
+            if(v.gsid and v.gsid > 0)then
+                len = len + 1
+            end
+        end
+        if(len >= WriteMailPage.max_cnt)then
+            return
+        end
+    end
+    if(WriteMailPage.item_list and WriteMailPage.item_list[index])then
+        local node = WriteMailPage.item_list[index];
+        local gsid = node.gsid;
+        local cnt = node.cnt;
+        if(mouse_button == "right")then
+             Dialog_SelectionGoods.ShowPage(cnt,function(incoming_items_count)
+                    WriteMailPage.SwapItems(WriteMailPage.item_list,WriteMailPage.attaches_list,gsid,incoming_items_count);
+                    page:Refresh(0);
+                end);
+            return
+        end
+        WriteMailPage.SwapItems(WriteMailPage.item_list,WriteMailPage.attaches_list,gsid,1);
+        page:Refresh(0);
+    end
+end
+function DoRemove(gsid,mcmlNode,index)
+    if(WriteMailPage.attaches_list and WriteMailPage.attaches_list[index])then
+        local node = WriteMailPage.attaches_list[index];
+        local gsid = node.gsid;
+        local cnt = node.cnt;
+        if(mouse_button == "right")then
+            WriteMailPage.SwapItems(WriteMailPage.attaches_list,WriteMailPage.item_list,gsid,cnt);
+            page:Refresh(0);
+            return
+        end
+        WriteMailPage.SwapItems(WriteMailPage.attaches_list,WriteMailPage.item_list,gsid,1);
+        page:Refresh(0);
+    end
+end
+function GetCost()
+    return WriteMailPage.GetCost();
+end
+function OnKeyUp_Title()
+	WriteMailPage.title = page:GetValue("txtTitle");
+	WriteMailPage.content = page:GetValue("content");
+end
+function SetText()
+    page:SetValue("txtTitle",WriteMailPage.title or "");
+    page:SetValue("content",WriteMailPage.content or "");
+end
+SetText();
+]]></script>
+<aries:window width="760" height="470" title="写邮件" onclose="ClosePage" mode="lite" isdeepbg="true">
+    <div style="color:#ffffff;padding:10px;">
+        <div style="height:380px;">
+            <div>
+                <div style="float:left;">收件人:</div>
+                <div style="float:left;">
+                    <select style="width:220px;height:23px;margin-left:5px;" name="buddy_view" AllowUserEdit="false" 
+                        DataSource='<%=GetMyFriends() %>' 
+                        onclick='<%=OnSelectFriend() %>' >
+                        <option value='<%=Eval("value") %>'></option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div style="float:left;">主题:</div>
+                 <input type="text" onkeyup="<%=OnKeyUp_Title()%>" SkipAutoBadWordFilter="true" name="txtTitle"style="float:left;width:680px;height:22px;"class="edit_txt_css" />
+            </div>
+            
+            <div style="margin-left:-8px;padding:10px;width:742px;height:320px;" class="border_bg1_css" >
+                <div style="margin-left:-8px;margin-top:-8px;width:738px;height:200px;" class="edit_txt_css">
+                    <textarea name="content" onkeyup="<%=OnKeyUp_Title()%>" SkipAutoBadWordFilter="true" style="width:740px;height:200px;textcolor:#ffffff;"rows = "10" SingleLineEdit ="false" WordWrap="false" />
+                </div>
+                <div>附件:</div>
+                <div style="position:relative;margin-top:5px;width:700px;height:150px;">
+                    <pe:gridview name="attach_view" DataSource="<%=DS_Func%>"  ItemsPerLine="6" AllowPaging="false" pagesize="6">
+                        <Columns>
+                            <div style="margin-left:2px;margin-top:0px;width:60px;height:60px;padding:4px;" class="block">
+                                <pe:if condition='<%=Eval("gsid") and Eval("gsid") > 0%>'>
+                                    <pe:item gsid='<%=Eval("gsid")%>' param1='<%=Eval("index")%>'  style="width:52px;height:52px;" ShowCount='<%=Eval("cnt") %>'  showdefaulttooltip="true" onclick="DoRemove"/>
+                                </pe:if>
+                            </div>
+                        </Columns>
+	                    <PagerSettings Position="Bottom" style="margin-left:0px;margin-top:0px;width:0px;height:0px;"/>
+				                <PagerTemplate>
+					                <form>
+						                <input type="button" name="pre" invisibleondisabled="false" value="上一页" style="height:0px;background:;"/>
+							                <input type="button" name="page" class="pagerbuttontext" style="height:0px;"/> 
+						                <input type="button" name="next" invisibleondisabled="false" value="下一页" style="height:0px;background:;"/>
+	                                </form>
+				                </PagerTemplate>
+                    </pe:gridview>
+                </div>
+                <input type="button" style="position:relative;margin-left:400px;margin-top:40px;width:80px;" value="添加附件" onclick="OnToggleBagsView"/>
+                <pe:div name="bagsWnd" visible="<%=GetBagsWndVisible()%>" style="position:relative;padding:0px;margin-left:370px;margin-top:-220px;width:370px;height:240px;" zorder="2" class="spark_bg">
+                     <input type="button" class="close_btn_css" align="right" style="margin-right:2px;margin-top:2px;" zorder="2" onclick="OnToggleBagsView"/>
+                    <pe:gridview style="margin-left:5px;margin-top:-15px;width:370;height:240px" name="bags_view" DataSource="<%=DS_Func_bag%>"  ItemsPerLine="8" AllowPaging="true" pagesize="40">
+                        <Columns>
+                            <div style="margin-left:2px;margin-top:0px;width:40px;height:40px;padding:4px;" class="block">
+                                <pe:if condition='<%=Eval("gsid") and Eval("gsid") > 0%>'>
+                                    <pe:item gsid='<%=Eval("gsid")%>' ShowCount='<%=Eval("cnt") %>'  style="width:32px;height:32px;" onclick="DoAdd" param1='<%=Eval("index")%>' />
+                                </pe:if>
+                            </div>
+                        </Columns>
+	                    <PagerSettings Position="Bottom" style="margin-left:180px;margin-top:-2px;width:160px;height:30px;"/>
+				        <PagerTemplate>
+					        <form>
+						        <input type="button" name="pre" invisibleondisabled="false" value="上一页" />
+							    <input type="button" name="page" class="pagerbuttontext" /> 
+						        <input type="button" name="next" invisibleondisabled="false" value="下一页" />
+	                        </form>
+				        </PagerTemplate>
+                    </pe:gridview>
+                    <div style="color:#808080;margin-left:10px;margin-top:-25px;">帮助:右键堆叠物品</div>
+                </pe:div>
+            </div>
+        </div>
+        <div style="margin-top:5px;">
+            <pe:item is_container="true" isclickable="false" gsid="0" style="float:left;width:250px;margin-top:2px;height:20px" class="highbluecolor" >
+                <pe:item gsid="0" isenabled="false" style="width:20px;height:20px;"/>
+                <div style="float:left;margin-left:2px;">银币:</div><pe:slot type="count" gsid="0" style="float:left;" />
+            </pe:item>
+            <div style="float:left;margin-left:200px;width:150px;">花费:<%=GetCost()%>银币</div>
+            <input type="button" style="float:left;margin-left:30px;width:80px;" value="发送" onclick="OnSend"/>
+        </div>
+    </div>
+</aries:window>
+</pe:mcml>
+</body>
+</html>
+
+`

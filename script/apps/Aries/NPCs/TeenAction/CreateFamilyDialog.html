@@ -1,0 +1,69 @@
+﻿<!-- "script/apps/Aries/NPCs/TeenAction/CreateFamilyDialog.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>by leio, 2011/11/07</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl" ><![CDATA[
+NPL.load("(gl)script/apps/Aries/NPCs/TeenAction/CreateFamilyDialog.lua");
+local CreateFamilyDialog = commonlib.gettable("MyCompany.Aries.Quest.NPCs.TeenAction.CreateFamilyDialog");
+
+local page = document:GetPageCtrl();
+npc_id = page:GetRequestParam("npc_id") or 0;
+npc_id = tonumber(npc_id);
+instance = page:GetRequestParam("instance") or 1;
+instance = tonumber(instance);
+
+state = page:GetRequestParam("state");
+state = tonumber(state);
+
+local pageCtrl = document:GetPageCtrl();
+local ItemManager = System.Item.ItemManager;
+local hasGSItem = ItemManager.IfOwnGSItem;
+local equipGSItem = ItemManager.IfEquipGSItem;
+
+
+function EntryAction(from, to)
+end
+function ExitAction(from, to)
+
+end
+function DoCreate()
+    CreateFamilyDialog.DoCreateBefore();
+end
+]]></script>
+    <pe:dialog NPC_id = '<%=Eval("npc_id")%>' entryaction="<%=EntryAction%>" exitaction="<%=ExitAction%>">
+
+        <pe:template filename="script/apps/Aries/Dialog/AriesDialogTemplate_NPC.teen.html">
+            <pe:placeholder id="portrait" source="{this}" nid='<%=Eval("npc_id")%>' instance='<%=Eval("instance")%>'/>
+            <pe:placeholder id="name" source="{this}" value='索罗斯·莫汉'/>
+            <pe:placeholder id="content" source="{pe:state}" />
+        </pe:template>
+       
+	    <pe:state id = "0">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "1"/> 
+		    </pe:answer>
+	    </pe:state>
+
+	    <pe:state id = "1">
+        创建家族可是一件大事，需要300金币才能注册，确定要创建吗？
+		    <pe:answer template_id = "sure">
+                <pe:answer-if condition = "true" transition='<%=DoCreate() %>' target_state = "11"/>
+		    </pe:answer>
+            <pe:answer template_id = "later">
+                <pe:answer-if condition = "true" target_state = "11"/>
+		    </pe:answer>
+	    </pe:state>
+	     <pe:state id = "11">
+		    <pe:answer autoexec = true style="width:90px;height:34px;margin:12px;">
+			    <pe:answer-if condition = "true" target_state = "-1"/>
+		    </pe:answer>
+	    </pe:state>
+    </pe:dialog>
+</pe:mcml>
+</body>
+</html>

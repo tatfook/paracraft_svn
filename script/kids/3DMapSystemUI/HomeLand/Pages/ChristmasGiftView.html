@@ -1,0 +1,61 @@
+<!-- "script/kids/3DMapSystemUI/HomeLand/Pages/ChristmasGiftView.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="ChristmasGiftView.lua"><![CDATA[
+ local page = document:GetPageCtrl();
+
+function DS_Func_Items(index)
+    return MyCompany.Aries.Inventory.ChristmasGiftViewPage.DS_Func_Items(index);
+end
+function getNum()
+    if(MyCompany.Aries.Inventory.ChristmasGiftViewPage.christmas_gifts)then
+        return #MyCompany.Aries.Inventory.ChristmasGiftViewPage.christmas_gifts;
+    end
+    return 0
+end
+
+]]></script>
+<div style="width:735px;height:545px;background:Texture/Aries/Quest/ShoppingZone/Loom/christmas_bg_32bits.png#0 0 735 545">
+    <!--close btn-->
+    <input style="margin-left:700px;margin-top:-20px;width:54px;height:54px;background:url(Texture/Aries/Common/Close_Big_54_32bits.png#0 0 54 54);" type="button" name="close" onclick="MyCompany.Aries.Inventory.ChristmasGiftViewPage.ClosePage()" value=""/>
+     <div style="margin-left:350px;margin-top:0px;"><%=getNum() %></div>
+     <div style="margin-left:20px;margin-top:55px;width:625px;height:400px;">
+            <pe:gridview DataSource="<%=DS_Func_Items%>" name="ItemView" style="margin-left:2px;margin-top:5px;" CellPadding="0"  DefaultNodeHeight = "70" ItemsPerLine="1" AllowPaging="true" pagesize="5">
+                <Columns>
+                <div style="width:580px;height:60px;">
+                    <div style="float:left;width:55px;height:55px;margin-left:35px;margin-top:-0px;">
+                    <pe:item gsid='<%=Eval("gsid")%>'  style="width:50px;height:50px;" isclickable="false"/></div>
+                    <div style="float:left;margin-left:-12px;margin-top:30px;"><%=Eval("num")%></div>
+                    <div style="float:left;margin-left:20px;margin-top:10px;"><%=Eval("label")%></div>
+                    
+                </div>
+                </Columns>
+                <EmptyDataTemplate>
+                    <div style="float:left;text-align:center;font-size:12"></div>
+                </EmptyDataTemplate>
+                <FetchingDataTemplate>
+                    <b>稍等... </b>
+                </FetchingDataTemplate>
+                <PagerSettings Position="Bottom" height="36" style="margin-left:-4px;margin-top:-10px;width:168px;height:36px;" PreviousPageText="previous page" NextPageText="next page"/>
+                <PagerTemplate>
+                    <form>
+                        <input type="button" name="pre" zorder=2 style="margin-left:660px;margin-top:-230px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_up_32bits.png#0 0 34 34;"/>
+                       
+                        <input type="button" name="next" zorder=2 style="margin-left:660px;margin-top:-180px;width:32px;height:32px;background:Texture/Aries/homeland/homeseed_down_32bits.png#0 0 34 34;"/>
+                    </form>
+                </PagerTemplate>
+            </pe:gridview>
+    </div>
+    <!--get btn-->
+    <input style="margin-left:292px;margin-top:-35px;width:151px;height:46px;background:url(Texture/Aries/Quest/ShoppingZone/Loom/christmas_getgift_btn_32bits.png#0 0 151 46);" type="button" onclick="MyCompany.Aries.Inventory.ChristmasGiftViewPage.TakeGift()" value=""/>
+</div>
+
+</pe:mcml> 
+</body>
+</html>

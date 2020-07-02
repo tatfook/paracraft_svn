@@ -1,0 +1,186 @@
+﻿ <!-- "script/apps/Aries/NewProfile/NewProfileCombat.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NewProfileCombat, by zrf, 2011/1/6</title>
+</head>
+<body>
+<pe:mcml>
+<script type="text/npl"><![CDATA[
+NPL.load("(gl)script/apps/Aries/NewProfile/NewProfileCombat.lua");
+NPL.load("(gl)script/apps/Aries/NPCs/Dragon/30111_CyanDragon.lua");
+local page = document:GetPageCtrl();
+NewProfileCombat = commonlib.gettable("MyCompany.Aries.NewProfile.NewProfileCombat");
+NewProfileCombat.Init();
+
+function Confirm()
+    page:CloseWindow();
+end
+
+function DrawVLine(n,top)
+    local i;
+    local s = ""
+    for i = 1,n do
+        s = s .. string.format("<div style='position:relative;margin-left:%spx;margin-top:%spx;width:2px;height:28px;background:url(texture/aries/common/themekid/character/VLine_32bits.png);'/>",
+        if_else(i == 1,68,68 + 80 * (i-1)),
+        top
+        );
+    end
+    return string.format("<div style='position:relative;'>%s</div>",s);
+end
+function DrawHLine(n)
+    local i;
+    local s = ""
+    for i = 1,n do
+        s = s .. string.format("<div style='margin-left:4px;margin-top:%spx;width:290px;height:2px;background:url(texture/aries/common/themekid/character/HLine_32bits.png);'/>",
+        30
+        );
+    end
+    return string.format("<div style='position:relative;'>%s</div>",s);
+end
+function GetProp(key)
+    local s;
+    if(key == "GetCriticalStrikeChance")then
+        s = string.format("暴击率:%.2f%%",NewProfileCombat.GetCriticalStrikeChance() or 0);
+    elseif(key == "GetResilienceChance")then
+        s = string.format("韧性:%.2f%%",NewProfileCombat.GetResilienceChance() or 0);
+    elseif(key == "GetPowerPipChance")then
+        s = string.format("超魔生成率:%.2f%%",NewProfileCombat.GetPowerPipChance() or 0);
+    elseif(key == "GetSpellPenetrationChance")then
+            s = string.format("魔法穿透率:%.2f%%",NewProfileCombat.GetSpellPenetrationChance() or 0);
+    elseif(key == "GetOutputHealBoost")then
+            s = string.format("治疗加成:%.2f%%",NewProfileCombat.GetOutputHealBoost() or 0);
+    elseif(key == "GetInputHealBoost")then
+            s = string.format("被治疗加成:%.2f%%",NewProfileCombat.GetInputHealBoost() or 0);
+    elseif(key == "GetGearScore")then
+            s = NewProfileCombat.GetGearScore();
+    elseif(key == "GetDamageAbsoluteBaseChance") then
+        s = string.format("总伤害加成:%.2f%%",NewProfileCombat.GetDamageAbsoluteBaseChance() or 0);
+    elseif(key == "GetResistAbsoluteBaseChance") then
+        s = string.format("总伤害减少:%.2f%%",NewProfileCombat.GetResistAbsoluteBaseChance() or 0);
+    elseif(key == "GetXunLianDian") then
+        s = string.format("剩余训练点:%d",NewProfileCombat.GetXunLianDian() or 0);
+    end
+    return s;
+end
+
+function ForgetCards()
+    MyCompany.Aries.Quest.NPCs.CyanDragon.doResetTrainingPoint(function (msg)
+        page:Refresh(0.1);
+        NPL.load("(gl)script/apps/Aries/Desktop/HPMyPlayerArea.lua");
+        local HPMyPlayerArea = commonlib.gettable("MyCompany.Aries.Desktop.HPMyPlayerArea");
+        HPMyPlayerArea.UpdateUI(true);
+    end);
+end
+
+]]></script>
+
+<div align="center" height="67%" style="width:300px;color:#022a57;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+    <div style="position:relative;margin-top:2px;">
+    <%=DrawVLine(3,0) %>
+    <%=DrawVLine(3,30) %>
+    <%=DrawVLine(3,65) %>
+    <%=DrawVLine(3,100) %>
+    <%=DrawVLine(3,135) %>
+    <%=DrawVLine(3,165) %>
+    <%=DrawHLine(5) %>
+    </div>
+    <div style="position:relative;margin-top:8px;margin-left:60px;font-size:12px;">
+        <div style="float:left;width:80px;text-align:center;">命中率</div>
+        <div style="float:left;width:80px;text-align:center;">攻击力</div>
+        <div style="float:left;width:80px;text-align:center;">防御力</div>
+    </div>
+    <div style="position:relative;margin-left:20px;margin-top:39px;width:28px;height:28px;background:url(texture/aries/Common/ThemeKid/character/storm_32bits.png);"></div>
+    <div style="position:relative;margin-left:20px;margin-top:71px;width:28px;height:28px;background:url(texture/aries/Common/ThemeKid/character/fire_32bits.png);"></div>
+    <div style="position:relative;margin-left:20px;margin-top:101px;width:28px;height:28px;background:url(texture/aries/Common/ThemeKid/character/ice_32bits.png);"></div>
+    <div style="position:relative;margin-left:20px;margin-top:132px;width:28px;height:28px;background:url(texture/aries/Common/ThemeKid/character/life_32bits.png);"></div>
+    <div style="position:relative;margin-left:20px;margin-top:165px;width:28px;height:28px;background:url(texture/aries/Common/ThemeKid/character/death_32bits.png);"></div>
+
+    <div style="position:relative;margin-left:28px;margin-top:-7px;">
+        <div style="position:relative;margin-left:50px;margin-top:45px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("storm","accuracy") .. " %" %></div>
+        <div style="position:relative;margin-left:130px;margin-top:45px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("storm","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:208px;margin-top:45px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("storm","resist") .. " %" %> </div>
+                
+        <div style="position:relative;margin-left:50px;margin-top:78px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("fire","accuracy") .. " %" %> </div>
+        <div style="position:relative;margin-left:130px;margin-top:78px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("fire","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:208px;margin-top:78px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("fire","resist") .. " %" %> </div>
+
+        <div style="position:relative;margin-left:50px;margin-top:111px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("ice","accuracy") .. " %" %> </div>
+        <div style="position:relative;margin-left:130px;margin-top:111px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("ice","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:208px;margin-top:111px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("ice","resist") .. " %" %> </div>
+
+        <div style="position:relative;margin-left:50px;margin-top:143px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("life","accuracy") .. " %" %> </div>
+        <div style="position:relative;margin-left:130px;margin-top:143px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("life","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:208px;margin-top:143px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("life","resist") .. " %" %> </div>
+
+        <div style="position:relative;margin-left:50px;margin-top:175px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("death","accuracy") .. " %" %> </div>
+        <div style="position:relative;margin-left:130px;margin-top:175px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("death","damage") .. " %" %> </div>
+        <div style="position:relative;margin-left:208px;margin-top:175px;width:68px;text-align:center"><%=NewProfileCombat.GetStats("death","resist") .. " %" %> </div>
+    </div>
+</div>
+<div align="center" height="100%" style="margin-left:0px;margin-top:2px;width:300px;background:url(texture/aries/common/themekid/character/bg_panel_32bits.png:5 5 5 5);">
+    <div style="position:relative;margin-left:15px;margin-top:2px;width:300px;font-size:12;">
+        <!--暴击率-->
+        <%=GetProp("GetCriticalStrikeChance")%>
+    </div>
+    <div style="position:relative;margin-left:175px;margin-top:2px;width:300px;font-size:12;">
+        <!--魔法穿透率-->
+        <%=GetProp("GetSpellPenetrationChance")%>
+    </div>
+    <div style="position:relative;margin-left:15px;margin-top:17px;width:300px;font-size:12;">
+        <!--韧性-->
+        <%=GetProp("GetResilienceChance")%>
+    </div>
+    <div style="position:relative;margin-left:175px;margin-top:17px;width:300px;font-size:12;">
+        <!--治疗加成-->
+        <%=GetProp("GetOutputHealBoost")%>
+    </div>
+    <div style="position:relative;margin-left:15px;margin-top:32px;width:300px;font-size:12;">
+        <!--总伤害加成-->
+        <%=GetProp("GetDamageAbsoluteBaseChance")%>
+    </div>
+    <div style="position:relative;margin-left:175px;margin-top:32px;width:300px;font-size:12;">
+        <!--被治疗加成-->
+        <%=GetProp("GetInputHealBoost")%>
+    </div>
+    <div style="position:relative;margin-left:15px;margin-top:47px;width:300px;font-size:12;">
+        <!--总伤害减少-->
+        <%=GetProp("GetResistAbsoluteBaseChance")%>
+    </div>
+    <div style="position:relative;margin-left:175px;margin-top:47px;width:300px;font-size:12;">
+        <!--超级魔力点生成率-->
+        <%=GetProp("GetPowerPipChance")%>
+    </div>
+    <hr style = "position:relative;margin-left:5px;margin-top:68px;"/>
+    <!--<div style="margin-top:70px;">
+        <%=DrawVLine(3) %>
+    </div>-->
+    <div style= "position:relative;margin-left:-3px;margin-top:2px;">
+        <div style= "float:left;margin-left:15px;margin-top:1px;width:96px;height:20px;background:url(texture/aries/common/themekid/character/gearscore.png#0 0 96 20);">
+        </div>
+        <div style= "float:left;margin-left:5px;margin-top:0px;width:50px;font-weight:bold;font-size:14px;base-font-size:14;color:#FFFF00;shadow-quality:8;shadow-color:#a02a2e48;text-shadow:true;">
+            <%=GetProp("GetGearScore")%>
+        </div>
+        <pe:if condition='<%=NewProfileCombat.ShowXunLian()%>'>
+            <div style="float:left;margin-left:10px;margin-top:2px;width:85px;font-size:12;">
+            <%=GetProp("GetXunLianDian")%>
+            </div>
+            <input type="button" style="float:left;margin-left:-2px;margin-top:1px;" value = "重学" class = "button_highlight" onclick = "ForgetCards" />
+        </pe:if>
+    </div>
+    
+   <!-- <pe:if condition='<%=NewProfileCombat.ShowXunLian()%>'>
+        <div style="position:relative;margin-left:15px;margin-top:50px;width:300px;font-size:12;">
+        剩余训练点:<%=NewProfileCombat.GetXunLianDian() %>
+        </div>
+    </pe:if>
+    <div style="position:relative;margin-left:175px;margin-top:50px;width:300px;font-size:12;">
+        战斗力:<%=GetProp("GetGearScore")%>
+    </div>-->
+</div>
+
+
+</pe:mcml> 
+</body>
+</html>
