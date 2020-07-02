@@ -1,0 +1,71 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Tasks/TeachingQuest/ParacraftCI.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+        <script refresh="false" type="text/npl" src="ParacraftCI.lua">
+            <![CDATA[
+            ParacraftCI = NPL.load("(gl)script/apps/Aries/ParacraftCI/ParacraftCI.lua");
+            ParacraftCI.OnInit();
+            ]]>
+        </script>
+        <aries:window mode="thin" style="width:480px;height:240px" title='<%= L"ParacraftCI"%>' onclose="ParacraftCI.OnClose">
+            <pe:if condition='<%=(ParacraftCI.UpdateState==0)%>'>
+                <div style="width:480px;height:240px;">
+                    <div style="margin-left:20px;margin-top:30px;height:124px;width:480px;text-align:left;color:#ffffff;font-size:13px">
+                        <%=L"选择需要更新的脚本：" %>
+                        <input type="checkbox" name="UpdateScript" style="margin-top:3px;" checked="checked" /><div style="float:left;margin-left:3px;" for="UpdateScript"><%=L"更新script"%></div>
+                        <input type="checkbox" name="UpdateMod" style="margin-top:30px;margin-left:-80px;" checked="checked" /><div style="float:left;margin-left:3px;margin-top:30px;" for="UpdateMod"><%=L"更新所有Mod"%></div>
+                        <input type="checkbox" name="UpdateWorldShare" style="margin-top:60px;margin-left:-103px;" checked="checked" /><div style="float:left;margin-left:3px;margin-top:60px;" for="UpdateWorldShare"><%=L"仅更新Mod中的WorldShare"%></div>
+                        <!--
+                        <input type="checkbox" name="UpdateGeneralGameServerMod" style="margin-top:90px;margin-left:-116px;" checked="checked" /><div style="float:left;margin-left:3px;margin-top:90px;" for="UpdateGeneralGameServerMod"><%=L"更新GeneralGameServerMod"%></div>
+                        -->
+                    </div>
+                    <div style="margin:1px;margin-right:28px;"><hr /></div>
+                    <div style="margin-top:8px;height:50px;width:480px;">
+                        <input type="button" value='<%=L"开始更新" %>' align="center" style="height:30px;min-width:100px;" class="mc_light_grey_button_with_fillet" onclick="ParacraftCI.StartUpdate" />
+                    </div>
+                </div>
+            </pe:if>
+            <!--
+            <pe:if condition='<%=(ParacraftCI.UpdateState>0 and ParacraftCI.UpdateState<ParacraftCI.Finished)%>'>
+                <div style="width:480px;height:240px;">
+                    <div style="margin-top:30px;height:124px;width:480px;text-align:center;color:#ffffff;font-size:13px">
+                        <%=ParacraftCI.GetStateText()%>
+                    </div>
+                </div>
+            </pe:if>
+            -->
+            <pe:if condition='<%=(ParacraftCI.UpdateState==ParacraftCI.Finished)%>'>
+                <div style="width:480px;height:240px;">
+                    <div style="margin-top:30px;height:124px;width:480px;text-align:center;color:#ffffff;font-size:13px">
+                        <%=L"更新完成，退出程序后使用 start_script_mod.bat 启动程序" %>
+                    </div>
+                    <div style="margin:1px;margin-right:12px;"><hr /></div>
+                    <div style="margin-top:8px;height:50px;width:480px;">
+                        <input type="button" value='<%=L"退出程序" %>' align="center" style="height:30px;min-width:100px;" class="mc_light_grey_button_with_fillet" onclick="ParacraftCI.ExitApp" />
+                    </div>
+                </div>
+            </pe:if>
+            <pe:if condition='<%=(ParacraftCI.UpdateState==ParacraftCI.ShowBranches)%>'>
+                <div style="width:480px;height:240px;">
+                    <div style="margin-left:20px;margin-top:30px;height:124px;width:480px;text-align:left;color:#ffffff;font-size:13px">
+                        <%=L"选择 WorldShare 分支：" %>
+                        <select name="WorldShare" style="height:23px" DataSource="<%=ParacraftCI.GetWorldShareBranches()%>" onselect="ParacraftCI.OnSelectWorldShare">
+                        </select>
+                    </div>
+                    <div style="margin:1px;margin-right:28px;"><hr /></div>
+                    <div style="margin-top:8px;height:50px;width:480px;">
+                        <input type="button" value='<%=L"开始打包" %>' align="center" style="height:30px;min-width:100px;" class="mc_light_grey_button_with_fillet" onclick="ParacraftCI.BuildMod" />
+                    </div>
+                </div>
+            </pe:if>
+        </aries:window>
+    </pe:mcml>
+</body>
+</html>
+

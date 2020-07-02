@@ -233,6 +233,9 @@ function GameLogic.InitCommon()
 
     local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 	KeepWorkItemManager.StaticInit();
+
+	local ParacraftCI = NPL.load("(gl)script/apps/Aries/ParacraftCI/ParacraftCI.lua");
+	ParacraftCI.StaticInit();
 	
 	GameLogic.KeepWorkItemManager = KeepWorkItemManager;
 end
