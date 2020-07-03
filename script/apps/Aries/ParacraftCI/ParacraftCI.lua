@@ -18,18 +18,13 @@ ParacraftCI.UpdateBuildMod = 4;
 ParacraftCI.Finished = 5;
 ParacraftCI.ShowBranches = 6;
 ParacraftCI.UpdateState = 0;
-ParacraftCI.StateText = {
-	L"正在更新 script 。。。",
-	L"正在更新 Mod 。。。",
-	L"正在更新 WorldShare 。。。",
-	L"正在打包 Mod 。。。",
-}
 ParacraftCI.WorldShareBranches = {};
+ParacraftCI.GGSBranches = {};
 
 function ParacraftCI.StaticInit()
 	ParacraftCI.Reset();
 	commonlib.TimerManager.SetTimeout(function()  
-		local ci = ParaEngine.GetAppCommandLineByParam("open_ci", false);
+		local ci = ParaEngine.GetAppCommandLineByParam("open_ci", false) or true;
 		if (ci) then
 			ParacraftCI.ShowPage();
 		end
@@ -68,6 +63,7 @@ end
 function ParacraftCI.Reset()
 	ParacraftCI.UpdateState = 0;
 	ParacraftCI.WorldShareBranches = {};
+	ParacraftCI.GGSBranches = {};
 end
 
 function ParacraftCI.OnClose()
@@ -87,18 +83,36 @@ function ParacraftCI.StartUpdate()
 	local update_script = page:GetUIValue("UpdateScript", true);
 	local update_mod = page:GetUIValue("UpdateMod", true);
 	local update_worldshare= page:GetUIValue("UpdateWorldShare", true);
+	local update_GGS= page:GetUIValue("UpdateGeneralGameServerMod", true);
 	if (update_script) then
 		ParacraftCI.GetScript();
-	end
-	if (update_worldshare) then
-		ParacraftCI.ShowWorldShareBranches();
-		return;
 	end
 	if (update_mod) then
 		ParacraftCI.GetBuildInMod();
 		ParacraftCI.GetAllMode();
-	else
-		ParacraftCI.ShowPage(ParacraftCI.Finished)
+		return;
+	end
+	if (update_worldshare) then
+		local cmd = [[
+			pushd "ParacraftBuildinMod/npl_packages/WorldShare"
+			git pull
+			popd
+		]]
+		local result = System.os.run(cmd);
+	end
+	if (update_GGS) then
+		local cmd = [[
+			pushd "ParacraftBuildinMod/npl_packages/GeneralGameServerMod"
+			git pull
+			popd
+		]]
+		local result = System.os.run(cmd);
+	end
+	if (update_worldshare) then
+		ParacraftCI.ShowWorldShareBranches()
+	end
+	if (update_GGS) then
+		ParacraftCI.ShowGGSBranches()
 	end
 end
 
@@ -211,6 +225,7 @@ function ParacraftCI.GetAllMode()
 	local result = System.os.run(cmd);
 	if (result) then
 		ParacraftCI.ShowWorldShareBranches();
+		ParacraftCI.ShowGGSBranches();
 	end
 end
 
@@ -228,6 +243,30 @@ function ParacraftCI.ShowWorldShareBranches()
 		if (page) then
 			page:Refresh(0);
 			page:SetValue("WorldShare", ParacraftCI.WorldShareBranches[1]);
+			if (#ParacraftCI.GGSBranches > 0) then
+				page:SetValue("GeneralGameServerMod", ParacraftCI.GGSBranches[1]);
+			end
+		end
+	end
+end
+
+function ParacraftCI.ShowGGSBranches()
+	local cmd = [[
+		pushd "ParacraftBuildinMod/npl_packages/GeneralGameServerMod"
+		git branch -r
+		popd
+	]]
+	local result = System.os.run(cmd);
+	if (result) then
+		ParacraftCI.GGSBranches = commonlib.split(result, "\n");
+
+		ParacraftCI.UpdateState = ParacraftCI.ShowBranches;
+		if (page) then
+			page:Refresh(0);
+			page:SetValue("GeneralGameServerMod", ParacraftCI.GGSBranches[1]);
+			if (#ParacraftCI.WorldShareBranches > 0) then
+				page:SetValue("WorldShare", ParacraftCI.WorldShareBranches[1]);
+			end
 		end
 	end
 end
@@ -241,23 +280,65 @@ function ParacraftCI.GetWorldShareBranches()
 	return branches;
 end
 
+function ParacraftCI.GetGGSBranches()
+	local branches = {};
+	for i = 1, #ParacraftCI.GGSBranches do
+		local name = ParacraftCI.GGSBranches[i];
+		table.insert(branches, {text=name, value=name});
+	end
+	return branches;
+end
+
 function ParacraftCI.OnSelectWorldShare(name, value)
 	page:SetValue("WorldShare", value);
 end
 
-function ParacraftCI.BuildMod()
+function ParacraftCI.OnSelectGGS(name, value)
+	page:SetValue("GeneralGameServerMod", value);
+end
+
+function ParacraftCI.SwitchWorldShare()
 	local branch = page:GetValue("WorldShare", "master");
-	local name = string.sub(branch, string.find(branch, '/')+1);
-	if (string.find(name, "master")) then
-		name = "master";
+	if (branch and #branch > 0) then
+		local name = string.sub(branch, string.find(branch, '/')+1);
+		if (string.find(name, "master")) then
+			name = "master";
+		end
+		local cmd = string.format([[
+			pushd "ParacraftBuildinMod/npl_packages/WorldShare"
+			git checkout %s
+			git pull
+			popd
+		]], name);
+		local result = System.os.run(cmd);
+		if (result) then
+			return true;
+		end
 	end
-	local cmd = string.format([[
-		pushd "npl_packages/WorldShare"
-		git checkout %s
-		git pull
-		popd
-	]], name);
-	local result = System.os.run(cmd);
+end
+
+function ParacraftCI.SwitchGGS()
+	local branch = page:GetValue("GeneralGameServerMod", "master");
+	if (branch and #branch > 0) then
+		local name = string.sub(branch, string.find(branch, '/')+1);
+		if (string.find(name, "master")) then
+			name = "master";
+		end
+		local cmd = string.format([[
+			pushd "ParacraftBuildinMod/npl_packages/GeneralGameServerMod"
+			git checkout %s
+			git pull
+			popd
+		]], name);
+		local result = System.os.run(cmd);
+		if (result) then
+			return true;
+		end
+	end
+end
+
+function ParacraftCI.BuildMod()
+	local result = ParacraftCI.SwitchWorldShare() and ParacraftCI.SwitchGGS();
 	if (result) then
 		local build = [[
 			@echo off 
