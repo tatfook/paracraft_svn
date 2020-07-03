@@ -53,6 +53,7 @@ end
 function DesktopMenuPage.OnWorldLoaded()
 	if(page) then
 		page:SetValue("projectId", DesktopMenuPage.GetProjectText())
+		page:Refresh(0);
 	end
 end
 
