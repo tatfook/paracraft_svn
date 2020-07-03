@@ -143,7 +143,9 @@ function TeachingQuestTitle.OnKeepWorkLogout_Callback(res)
 	GameLogic.GetFilters():remove_filter("OnShowEscFrame", TeachingQuestTitle.OnShowEscFrame);
 	GameLogic.GetFilters():remove_filter("ShowExitDialog", TeachingQuestTitle.OnShowExitDialog);
 	GameLogic.GetFilters():remove_filter("OnKeepWorkLogout", TeachingQuestTitle.OnKeepWorkLogout_Callback);
-	page:CloseWindow();
+	if (page) then
+		page:CloseWindow();
+	end
 	GameLogic.RunCommand("/leaveworld")
 end
 
