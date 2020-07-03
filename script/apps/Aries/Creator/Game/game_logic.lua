@@ -225,9 +225,6 @@ function GameLogic.InitCommon()
 	local UserIntroduction = commonlib.gettable("MyCompany.Aries.Game.MainLogin.UserIntroduction")
 	UserIntroduction.StaticInit()
 
-	local TeachingQuestTitle = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestTitle.lua");
-	TeachingQuestTitle.StaticInit();
-   
     local KpChatChannel = NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ChatSystem/KpChatChannel.lua");
     KpChatChannel.StaticInit();
 

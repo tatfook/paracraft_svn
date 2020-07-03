@@ -52,7 +52,7 @@ function TeachingQuestTitle.OnWorldLoaded()
 			--GameLogic.GetEvents():AddEventListener("CodeBlockWindowShow", TeachingQuestTitle.MoveLeft, TeachingQuestTitle, "TeachingQuestTitle");
 			GameLogic.GetFilters():add_filter("OnKeepWorkLogout", TeachingQuestTitle.OnKeepWorkLogout_Callback)
 			GameLogic.RunCommand("/hide quickselectbar");
-		end, 2000)
+		end, 200)
 	else
 		if (TeachingQuestPage.IsTaskProject(projectId)) then
 			local state = TeachingQuestPage.GetTaskState(TeachingQuestPage.currentIndex);
@@ -64,7 +64,7 @@ function TeachingQuestTitle.OnWorldLoaded()
 					GameLogic.GetFilters():add_filter("OnShowEscFrame", TeachingQuestTitle.OnShowEscFrame);
 					GameLogic.GetFilters():add_filter("ShowExitDialog", TeachingQuestTitle.OnShowExitDialog);
 					GameLogic.GetFilters():add_filter("OnKeepWorkLogout", TeachingQuestTitle.OnKeepWorkLogout_Callback)
-				end, 2000)
+				end, 1000)
 			else
 				_guihelper.MessageBox(L"本世界只能拥有入场券的用户可以访问。即将退出世界！");
 				commonlib.TimerManager.SetTimeout(function()  
