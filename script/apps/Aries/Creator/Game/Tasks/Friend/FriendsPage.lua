@@ -14,6 +14,75 @@ local FriendsPage = NPL.export();
 local page;
 
 
+FriendsPage.data_sources = {
+    {
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+        { label = "1"},
+    },
+    {
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+        { label = "2"},
+    },
+    {
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+        { label = "3"},
+    },
+    {
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+        { label = "4"},
+    },
+}
+FriendsPage.Current_Item_DS = {};
+FriendsPage.index = 1;
 function FriendsPage.OnInit()
 	page = document:GetPageCtrl();
 end
@@ -37,4 +106,16 @@ function FriendsPage.Show()
 				height = 500,
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
+    FriendsPage.OnChange(1);
+end
+function FriendsPage.OnChange(index)
+	index = tonumber(index)
+    FriendsPage.index = index;
+    FriendsPage.Current_Item_DS = FriendsPage.data_sources[index] or {}
+    FriendsPage.OnRefresh()
+end
+function FriendsPage.OnRefresh()
+    if(page)then
+        page:Refresh(0);
+    end
 end
