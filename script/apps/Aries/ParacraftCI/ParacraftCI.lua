@@ -24,7 +24,7 @@ ParacraftCI.GGSBranches = {};
 function ParacraftCI.StaticInit()
 	ParacraftCI.Reset();
 	commonlib.TimerManager.SetTimeout(function()  
-		local ci = ParaEngine.GetAppCommandLineByParam("open_ci", false) or true;
+		local ci = ParaEngine.GetAppCommandLineByParam("open_ci", false);
 		if (ci) then
 			ParacraftCI.ShowPage();
 		end
