@@ -61,6 +61,7 @@ function Entity:ctor()
 	self.Specular = {1, 0, 0};
 	self.Ambient = {1, 0, 0};
 	self.offsetPos = vector3d:new(0,0.5,0);
+	self.modelFilepath = "model/blockworld/BlockModel/block_model_one.x"
 end
 
 function Entity:init()

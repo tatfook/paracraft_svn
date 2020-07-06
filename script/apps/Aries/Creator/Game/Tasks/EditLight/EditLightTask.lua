@@ -298,8 +298,9 @@ function EditLightTask.ChangeLightModel()
 		OpenAssetFileDialog.ShowPage(
 			L"请输入bmax, x或fbx文件的相对路径, <br/>你也可以随时将外部文件拖入窗口中",
 			function(result)
-				if(light and result and result~="" and result~=local_filename) then
-					light:SetField("modelFilepath", result);
+				if(light and result~=local_filename) then
+					light:SetField("modelFilepath", result or "");
+					self:UpdateManipulators();
 				end
 			end,
 			local_filename,
