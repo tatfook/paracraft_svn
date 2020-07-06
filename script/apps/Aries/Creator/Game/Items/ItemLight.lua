@@ -58,6 +58,19 @@ function ItemLight:CreateTask(itemStack)
 	return EditLightTask:new();
 end
 
+function ItemLight:OnSelect(itemStack)
+	ItemLight._super.OnSelect(self, itemStack);
+	local nRenderMethod = ParaTerrain.GetBlockAttributeObject():GetField("BlockRenderMethod", 1)
+	if(nRenderMethod<2) then
+		-- make sure deferred shading is enabled
+		GameLogic.RunCommand("/shader 2")
+	end
+	if(System.os.GetPlatform() ~= "win32") then
+		_guihelper.MessageBox(L"目前只有windows系统支持动态光源渲染")
+	end
+end
+
+
 function ItemLight:PickItemFromPosition(x,y,z)
 	local entity = self:GetBlock():GetBlockEntity(x,y,z);
 	if(entity) then
