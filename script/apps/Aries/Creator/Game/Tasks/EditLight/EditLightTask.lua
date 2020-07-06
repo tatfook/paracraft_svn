@@ -74,13 +74,15 @@ function EditLightTask:UpdateManipulators()
 	if(light) then
 		local x, y, z = light:GetPosition();
 
-		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditLight/EditLightModelManipContainer.lua");
-		local EditLightModelManipContainer = commonlib.gettable("MyCompany.Aries.Game.Manipulators.EditLightModelManipContainer");
-		local lightModelManipCont = EditLightModelManipContainer:new();
-		lightModelManipCont:init(light);
+		if(light.modelFilepath and light.modelFilepath ~= "") then
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditLight/EditLightModelManipContainer.lua");
+			local EditLightModelManipContainer = commonlib.gettable("MyCompany.Aries.Game.Manipulators.EditLightModelManipContainer");
+			local lightModelManipCont = EditLightModelManipContainer:new();
+			lightModelManipCont:init(light);
 
-		self:AddManipulator(lightModelManipCont);
-		lightModelManipCont:connectToDependNode(light);
+			self:AddManipulator(lightModelManipCont);
+			lightModelManipCont:connectToDependNode(light);
+		end
 
 		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditLight/EditLightManipContainer.lua");
 		local EditLightManipContainer = commonlib.gettable("MyCompany.Aries.Game.Manipulators.EditLightManipContainer");
@@ -151,7 +153,6 @@ function EditLightTask:SelectLight(entityLight)
 
 		light = entityLight;
 		light:Connect("valueChanged", EditLightTask, EditLightTask.OnLightValueChange, "UniqueConnection");
-
 		self.UpdatePageFromLight();
 		self:UpdateManipulators();
 	end
@@ -160,6 +161,9 @@ end
 function EditLightTask.OnLightValueChange()
 	local self = EditLightTask.GetInstance();
 	self:UpdatePageFromLight();
+	if(light) then
+		light:MarkForUpdate()
+	end
 end
 
 
@@ -253,7 +257,7 @@ function EditLightTask:UpdatePageFromLight()
 			Binding.PosVec3ToString(light, "Specular", {1, 1, 1}, page, "Specular", {1, 1, 1}, 0.001, "int");
 			Binding.PosVec3ToString(light, "Ambient", {1, 1, 1}, page, "Ambient", {1, 1, 1}, 0.001, "int");
 
-			Binding.PosVec3ToString(light, "Position", {1, 1, 1}, page, "Position", {1, 1, 1}, 0.001, "float");
+			Binding.PosVec3ToString(light, "modelOffsetPos", {1, 1, 1}, page, "Position", {1, 1, 1}, 0.001, "float");
 			Binding.XYZToString(light, "Yaw", "Pitch", "Roll", 0, page, "Rotation", "0,0,0", 0.001, "int");
 
 			Binding.NumberToString(light, "Range", 0, page, "Range", "0", 0.001, "float");
@@ -271,7 +275,7 @@ function EditLightTask:UpdatePageFromLight()
 			page:SetValue("Diffuse", "")
 			page:SetValue("Specular", "")
 			page:SetValue("Ambient", "")
-			page:SetValue("Position", "")
+			page:SetValue("modelOffsetPos", "")
 			page:SetValue("Rotation", "")
 			page:SetValue("Range", "")
 			page:SetValue("Falloff", "")
@@ -342,7 +346,6 @@ end
 function EditLightTask.UpdateLightFromPage()
 	local self = EditLightTask.GetInstance();
 	if(self and page and light) then
-		Binding.StringToPosVec3(page, "Position", {1, 1, 1}, light, "Position",  {1, 1, 1}, 0.001, "float");
 		Binding.StringToXYZ(page, "Rotation", "0,0,0", light, "Yaw", "Pitch", "Roll", 0, 0.001, "int");
 
 		Binding.StringToNumber(page, "Range", "0", light, "Range", 0, 0.001, "float");
