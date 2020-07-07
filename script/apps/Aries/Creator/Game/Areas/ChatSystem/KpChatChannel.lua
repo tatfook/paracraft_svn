@@ -167,7 +167,7 @@ function KpChatChannel.HasUserName(usernames_str, name)
 	end
 end
 function KpChatChannel.OnMsg(self, msg)
-	LOG.std("", "debug", "KpChatChannel OnMsg", msg);
+	--LOG.std("", "debug", "KpChatChannel OnMsg", msg);
     if(not msg or not msg.data)then
         return
     end

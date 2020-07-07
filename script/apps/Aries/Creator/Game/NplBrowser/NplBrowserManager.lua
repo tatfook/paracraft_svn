@@ -12,6 +12,7 @@ NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show("https://keepwork.com", 
 NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show("https://keepwork.com", "title", true, true, { left = 100, top = 50, right = 100, bottom = 50, fixed = true, candrag = true, });
 
 NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Goto("https://keepwork.com/zhanglei/empty/index")
+NplBrowserManager:CreateOrGet("DailyCheckBrowser"):GotoEmpty()
 -------------------------------------------------------
 ]]
 local NplBrowserFrame = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserFrame.lua");

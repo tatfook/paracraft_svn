@@ -140,7 +140,6 @@ function NplBrowserFrame:_Show(url)
 
 		self.page = page;
 	end
-
 	if(_this and self.page)then
 		_this.visible = true;
         _this.candrag = candrag;
@@ -254,7 +253,7 @@ function NplBrowserFrame:Goto(url)
 end
 function NplBrowserFrame:GotoEmpty()
     local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
-    local url = NplBrowserManager.empty_html;
+    local url = string.format("file:///%scef3/empty.html",ParaIO.GetCurDirectory(0));
     self:Goto(url);
     commonlib.TimerManager.SetTimeout(function()  
 		ParaUI.GetUIObject("root"):Focus();
