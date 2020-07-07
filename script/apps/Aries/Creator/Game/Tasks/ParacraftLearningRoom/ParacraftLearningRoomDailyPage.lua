@@ -24,12 +24,85 @@ ParacraftLearningRoomDailyPage.exid = 10001;
 ParacraftLearningRoomDailyPage.gsid = 30102;
 ParacraftLearningRoomDailyPage.max_cnt = 32;
 ParacraftLearningRoomDailyPage.copies = 0;
+ParacraftLearningRoomDailyPage.lessons = [[
+关于移动
+F3信息状态栏
+关于选择
+跳转
+命令
+电影方块
+代码方块
+获得帮助
+日志文件
+过山车（上）
+过山车（中）
+过山车（下）
+空气墙
+/blockimage
+禁止跳跃
+防止作弊
+联机创作
+彩色告示牌
+HTML与用户UI
+录制视频F9
+/tip命令
+机关与/sendevent
+代码方块控制电影播放
+删除电影方块中的摄像机
+写出工整的代码
+代码和命令中的注释
+/avator命令
+让电影控制主角
+/shader命令
+查看图块的源代码
+学会看命令说明
+代码的英文发音
+全文搜索(上)
+全文搜索(下)
+复制电影角色
+选择性复制角色关键帧
+到镜头的距离
+响应HTML中的按钮事件（上）
+响应HTML中的按钮事件（下）
+HTML中的数据绑定（上）
+HTML中的数据绑定（下）
+中继器的几个用处
+隐藏的含羞草
+出生点的作用
+方块的颜色
+初识CAD方块
+查看CAD教程
+CAD与3D打印
+如何摆放箭头和有方向的物品
+代码方块中的角色（上）
+代码方块中的角色（中)
+代码方块中的角色（下）
+更加精细的bmax模型
+物理模型与/lod命令
+用骨骼方块制作电风扇（上）
+用骨骼方块制作电风扇（下）
+控制CAD模型的面数
+CAD中建立骨骼绑定
+]]
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
+
 }
+
 function ParacraftLearningRoomDailyPage.OnInit()
 	page = document:GetPageCtrl();
 end
+function ParacraftLearningRoomDailyPage.LoadLessonsConfig()
+    if(not ParacraftLearningRoomDailyPage.is_loaded_lessons)then
+        ParacraftLearningRoomDailyPage.lessons_title = {};
+        ParacraftLearningRoomDailyPage.is_loaded_lessons = true;
+
+        for title in string.gfind(ParacraftLearningRoomDailyPage.lessons, "([^\n]+)") do
+            table.insert(ParacraftLearningRoomDailyPage.lessons_title,title);
+        end
+    end
+end
 function ParacraftLearningRoomDailyPage.FillDays()
+    ParacraftLearningRoomDailyPage.LoadLessonsConfig();
     local gsid = ParacraftLearningRoomDailyPage.gsid;
 	local template = KeepWorkItemManager.GetItemTemplate(gsid);
 	if(not template)then
@@ -168,6 +241,7 @@ function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
 	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, "", false, true, nil, function(state)
 		if(state == "ONCLOSE")then
             NplBrowserManager:CreateOrGet("DailyCheckBrowser"):GotoEmpty();
+            ParacraftLearningRoomDailyPage.ShowPage();
 		end
 	end);
 end
