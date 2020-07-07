@@ -1,0 +1,31 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+        <script refresh="false" type="text/npl" src="ClassListPage.lua">
+            <![CDATA[
+            ClassListPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.lua");
+            ClassListPage.OnInit();
+            ]]>
+        </script>
+        <aries:window mode="thin" style="width:400px;height:200px" title='<%= L"上课"%>' onclose="ClassListPage.OnClose">
+            <div style="width:400px;height:200px;">
+                <div style="margin-left:20px;margin-top:30px;height:24px;width:480px;text-align:left;color:#ffffff;font-size:13px">
+                    <%=L"选择班级" %>
+                    <select name="ClassList" style="height:23px;width:250px;" DataSource="<%=ClassListPage.GetClassList()%>" onselect="ClassListPage.OnSelectClass"></select>
+                </div>
+                <div style="margin:1px;margin-top:30px;margin-right:28px;"><hr /></div>
+                <div style="margin-top:8px;height:50px;width:480px;">
+                    <input type="button" value='<%=L"开始打包" %>' align="center" style="height:30px;min-width:100px;" class="mc_light_grey_button_with_fillet" onclick="ClassListPage.BuildMod" />
+                </div>
+            </div>
+        </aries:window>
+    </pe:mcml>
+</body>
+</html>
+
