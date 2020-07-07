@@ -9,6 +9,8 @@ Use Lib:
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
 ParacraftLearningRoomDailyPage.DoCheckin();
 --]]
+NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserLoaderPage.lua");
+local NplBrowserLoaderPage = commonlib.gettable("NplBrowser.NplBrowserLoaderPage");
 local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
 
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
@@ -82,26 +84,6 @@ function ParacraftLearningRoomDailyPage.DoCheckin(callback)
 
 	local show_page = function()
         ParacraftLearningRoomDailyPage.ShowPage();
-
---		KeepWorkItemManager.GetFilter():remove_all_filters("loaded_all");
---		if(ParacraftLearningRoomDailyPage.HasCheckedToday())then
---			ParacraftLearningRoomDailyPage.ShowPage();
---		else
---			ParacraftLearningRoomDailyPage.FillDays();
---			local index = ParacraftLearningRoomDailyPage.GetNextDay();
---			LOG.std(nil, "debug", "ParacraftLearningRoomDailyPage.DoCheckin", index);
---			local exid = ParacraftLearningRoomDailyPage.exid;
---			KeepWorkItemManager.DoExtendedCost(exid, function()
---				ParacraftLearningRoomDailyPage.SaveToLocal();
---				_guihelper.MessageBox(L"签到成功。关闭窗口后将自动播放今日学习视频。", function(res)
---					ParacraftLearningRoomDailyPage.OnOpenWeb(index)
---				end, _guihelper.MessageBoxButtons.OK);    
---			end, function()
---				ParacraftLearningRoomDailyPage.ShowPage();
---			end)
---
---			
---		end
 	end
 	if(not KeepWorkItemManager.IsLoaded())then
 		KeepWorkItemManager.GetFilter():add_filter("loaded_all", show_page);
@@ -168,6 +150,10 @@ function ParacraftLearningRoomDailyPage.SaveToLocal()
 	KeepWorkItemManager.SetClientData(gsid, clientData)
 end
 function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
+    if(not NplBrowserLoaderPage.IsLoaded())then
+        _guihelper.MessageBox(L"正在加载内置浏览器，请稍等！");
+		return
+    end
 	index = tonumber(index)
 	if(bCheckVip and not ParacraftLearningRoomDailyPage.IsVip())then
 		if(ParacraftLearningRoomDailyPage.IsFuture(index))then
