@@ -114,6 +114,10 @@ function ParacraftCI.StartUpdate()
 	if (update_GGS) then
 		ParacraftCI.ShowGGSBranches()
 	end
+
+	if ((not update_mod) and (not update_worldshare) and (not update_GGS)) then
+		ParacraftCI.ShowPage(ParacraftCI.Finished);
+	end
 end
 
 function ParacraftCI.ExitApp()
