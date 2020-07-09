@@ -35,3 +35,16 @@ function(self, err, msg, data)
     return HttpWrapper.default_postFunc(self, err, msg, data, "keepwork.quiz.checkavailable.get", callbackFunc); 
 end
 )
+
+-- http://yapi.kp-para.cn/project/158/interface/api/2517
+-- get
+HttpWrapper.Create("keepwork.quiz.getactivityid", "%MAIN%/online-quiz/v0/activity/getIdByProjectId", "GET", true, nil,
+-- PreProcessor
+function(self, inputParams, callbackFunc, option)
+   return HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option, "keepwork.quiz.getactivityid.get")
+end,
+-- Post Processor
+function(self, err, msg, data)
+    return HttpWrapper.default_postFunc(self, err, msg, data, "keepwork.quiz.getactivityid.get", callbackFunc); 
+end
+)
