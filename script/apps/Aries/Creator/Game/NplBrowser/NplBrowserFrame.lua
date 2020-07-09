@@ -253,7 +253,13 @@ function NplBrowserFrame:Goto(url)
 end
 function NplBrowserFrame:GotoEmpty()
     local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
-    local url = string.format("file:///%scef3/empty.html",ParaIO.GetCurDirectory(0));
+    local local_file_path = string.format("%scef3/empty.html",ParaIO.GetCurDirectory(0));
+    local url;
+    if(ParaIO.DoesFileExist(local_file_path))then
+        url = string.format("file:///%s",local_file_path);
+    else
+        url = NplBrowserManager.empty_html;
+    end
     self:Goto(url);
     commonlib.TimerManager.SetTimeout(function()  
 		ParaUI.GetUIObject("root"):Focus();
