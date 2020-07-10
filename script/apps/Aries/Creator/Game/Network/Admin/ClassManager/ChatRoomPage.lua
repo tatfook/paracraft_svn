@@ -5,22 +5,22 @@ Date: 2020/7/6
 Desc: 
 use the lib:
 -------------------------------------------------------
-local ClassListPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.lua");
-ClassListPage.ShowPage()
+local ChatRoomPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ChatRoomPage.lua");
+ChatRoomPage.ShowPage()
 -------------------------------------------------------
 ]]
-local ClassListPage = NPL.export()
+local ChatRoomPage = NPL.export()
 
 local page;
 
-function ClassListPage.OnInit()
+function ChatRoomPage.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function ClassListPage.ShowPage()
+function ChatRoomPage.ShowPage()
 	local params = {
-		url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.html", 
-		name = "ClassListPage.ShowPage", 
+		url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ChatRoomPage.html", 
+		name = "ChatRoomPage.ShowPage", 
 		isShowTitleBar = false,
 		DestroyOnClose = true,
 		style = CommonCtrl.WindowFrame.ContainerStyle,
@@ -29,26 +29,26 @@ function ClassListPage.ShowPage()
 		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 		directPosition = true,
 		align = "_ct",
-		x = -370 / 2,
-		y = -230 / 2,
-		width = 370,
-		height = 230,
+		x = -730 / 2,
+		y = -520 / 2,
+		width = 730,
+		height = 520,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 end
 
-function ClassListPage.OnClose()
+function ChatRoomPage.OnClose()
 	page:CloseWindow();
 end
 
-function ClassListPage.GetClassList()
+function ChatRoomPage.GetClassList()
 	local classes = {}
 	return classes;
 end
 
-function ClassListPage.OnSelectClass()
+function ChatRoomPage.OnSelectClass()
 end
 
-function ClassListPage.OnOK()
+function ChatRoomPage.OnOK()
 	page:CloseWindow();
 end

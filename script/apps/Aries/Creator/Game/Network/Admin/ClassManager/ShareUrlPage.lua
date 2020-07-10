@@ -5,22 +5,22 @@ Date: 2020/7/6
 Desc: 
 use the lib:
 -------------------------------------------------------
-local ClassListPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.lua");
-ClassListPage.ShowPage()
+local ShareUrlPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ShareUrlPage.lua");
+ShareUrlPage.ShowPage()
 -------------------------------------------------------
 ]]
-local ClassListPage = NPL.export()
+local ShareUrlPage = NPL.export()
 
 local page;
 
-function ClassListPage.OnInit()
+function ShareUrlPage.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function ClassListPage.ShowPage()
+function ShareUrlPage.ShowPage()
 	local params = {
-		url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.html", 
-		name = "ClassListPage.ShowPage", 
+		url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ShareUrlPage.html", 
+		name = "ShareUrlPage.ShowPage", 
 		isShowTitleBar = false,
 		DestroyOnClose = true,
 		style = CommonCtrl.WindowFrame.ContainerStyle,
@@ -30,25 +30,19 @@ function ClassListPage.ShowPage()
 		directPosition = true,
 		align = "_ct",
 		x = -370 / 2,
-		y = -230 / 2,
+		y = -200 / 2,
 		width = 370,
-		height = 230,
+		height = 200,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 end
 
-function ClassListPage.OnClose()
+function ShareUrlPage.OnClose()
 	page:CloseWindow();
 end
 
-function ClassListPage.GetClassList()
-	local classes = {}
-	return classes;
+function ShareUrlPage.ShareClassPage()
 end
 
-function ClassListPage.OnSelectClass()
-end
-
-function ClassListPage.OnOK()
-	page:CloseWindow();
+function ShareUrlPage.ShareOrganPage()
 end

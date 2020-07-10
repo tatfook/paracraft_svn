@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: Teacher Panel
 Author(s): Chenjinxian
 Date: 2020/7/6
@@ -11,6 +11,7 @@ TeacherPanel.ShowPage(true)
 ]]
 local TeacherPanel = NPL.export()
 
+TeacherPanel.InClass = false;
 TeacherPanel.IsLocked = false;
 
 local page;
@@ -18,7 +19,11 @@ function TeacherPanel.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function TeacherPanel.ShowPage(bShow)
+function TeacherPanel.ShowPage(bShow, offsetY)
+	if (page) then
+		GameLogic.GetEvents():RemoveEventListener("DesktopMenuShow", TeacherPanel.MoveDown, TeacherPanel);
+		page:CloseWindow();
+	end
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/TeacherPanel.html", 
 			name = "TeacherPanel.ShowPage", 
@@ -33,9 +38,9 @@ function TeacherPanel.ShowPage(bShow)
 			directPosition = true,
 				align = "_mt",
 				x = 0,
-				y = 0,
+				y = offsetY or 0,
 				width = 0,
-				height = 100,
+				height = 48,
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
@@ -49,23 +54,34 @@ end
 
 function TeacherPanel:MoveDown(event)
 	if (event.bShow) then
-		TeacherPanel.ShowPage(nil, 0, 32);
+		TeacherPanel.ShowPage(nil, 32);
 	else
-		TeacherPanel.ShowPage(nil, 0, 0);
+		TeacherPanel.ShowPage(nil, 0);
 	end
 end
 
 function TeacherPanel.SelectClass()
 	local ClassListPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.lua");
 	ClassListPage.ShowPage();
+	page:CloseWindow();
+end
+
+function TeacherPanel.LeaveClass()
+end
+
+function TeacherPanel.GetClassName()
+	return "编程1班";
+end
+
+function TeacherPanel.GetClassStudents()
+	return "在课学生：10人";
 end
 
 function TeacherPanel.Lock()
-	--TeacherPanel.IsLocked = true;
-	--if (page) then
-		--page:Refresh(0);
-	--end
-	TeacherPanel.OnClose();
+	TeacherPanel.IsLocked = true;
+	if (page) then
+		page:Refresh(0);
+	end
 end
 
 function TeacherPanel.UnLock()
@@ -76,10 +92,15 @@ function TeacherPanel.UnLock()
 end
 
 function TeacherPanel.OpenChat()
+	local ChatRoomPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ChatRoomPage.lua");
+	ChatRoomPage.ShowPage()
 end
 
 function TeacherPanel.ConnectClass()
 end
 
 function TeacherPanel.ShareUrl()
+	local ShareUrlPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ShareUrlPage.lua");
+	ShareUrlPage.ShowPage()
+	TeacherPanel.OnClose();
 end
