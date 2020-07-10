@@ -24,8 +24,7 @@ ParacraftLearningRoomDailyPage.exid = 10001;
 ParacraftLearningRoomDailyPage.gsid = 30102;
 ParacraftLearningRoomDailyPage.max_cnt = 32;
 ParacraftLearningRoomDailyPage.copies = 0;
-ParacraftLearningRoomDailyPage.lessons = [[
-关于移动
+ParacraftLearningRoomDailyPage.lessons = [[关于移动
 F3信息状态栏
 关于选择
 跳转
@@ -95,9 +94,10 @@ function ParacraftLearningRoomDailyPage.LoadLessonsConfig()
     if(not ParacraftLearningRoomDailyPage.is_loaded_lessons)then
         ParacraftLearningRoomDailyPage.lessons_title = {};
         ParacraftLearningRoomDailyPage.is_loaded_lessons = true;
-
         for title in string.gfind(ParacraftLearningRoomDailyPage.lessons, "([^\n]+)") do
-            table.insert(ParacraftLearningRoomDailyPage.lessons_title,title);
+            if(title and title ~= "")then
+                table.insert(ParacraftLearningRoomDailyPage.lessons_title,title);
+            end
         end
     end
 end
