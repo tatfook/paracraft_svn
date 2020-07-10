@@ -203,6 +203,9 @@ function NplBrowserLoaderPage.Check(callback)
         end
         return
     end
+    if(callback)then
+        NplBrowserLoaderPage.callback_maps[callback] = true;
+    end
     if(NplBrowserLoaderPage.is_opened)then
         return not NplBrowserLoaderPage.IsLoaded();
     end
@@ -212,9 +215,7 @@ function NplBrowserLoaderPage.Check(callback)
 
     NplBrowserLoaderPage.is_opened = true;
     NplBrowserLoaderPage.buildin_version = version;
-    if(callback)then
-        NplBrowserLoaderPage.callback_maps[callback] = true;
-    end
+    
     NplBrowserLoaderPage.OnCheck("browser_asset_manager",dest_folder,config_file)
 	return not NplBrowserLoaderPage.IsLoaded();
 end
