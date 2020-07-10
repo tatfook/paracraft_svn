@@ -272,6 +272,7 @@ end
 function NplBrowserLoaderPage.SetChecked(v)
     NplBrowserLoaderPage.loaded = v;
     if(v)then
+	    LOG.std(nil, "info", "NplBrowserLoaderPage", "NplBrowser is loaded");
         local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
         NplBrowserManager:PreShowAll();
     end
