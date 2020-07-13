@@ -13,28 +13,31 @@
             StudentPanel.OnInit();
             ]]>
         </script>
-        <pe:container ClickThrough="true" alignment="_mt" width="0" height="44px" style="position:relative;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#222 349 2 32)">
-            <pe:container alignment="_lt" style="position:relative;background:;width:600px;height:44px;">
-                <div style="margin-top:8px;margin-bottom:5px">
-                    <input type="button" style="width:60px;height:26px;margin-left:10px;color:#ffffff;" value='<%=L"正在上课" %>' class="mc_blue_button_with_fillet" />
+        <pe:container ClickThrough="true" alignment="_mt" width="0" height="48px" style="position:relative;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#222 349 2 32)">
+            <pe:container alignment="_lt" style="position:relative;background:;width:600px;height:48px;">
+                <div style="margin-top:11px;float:left;color:#ffffff;">
+                    <div style="float:left;margin-left:10px;margin-top:-8px;width:80px;height:38px;background:url(Texture/Aries/Creator/keepwork/ClassManager/students_in_class_32bits.png#0 0 80 38);"></div>
+                    <div style="float:left;margin-left:20px;margin-top:2px;"><%=StudentPanel.GetClassName()%></div>
+                    <div style="float:left;margin-left:10px;margin-top:1px;color:#717171;"> | </div>
+                    <div style="float:left;margin-left:10px;margin-top:2px;"><%=L"已上课"%></div>
+                    <div style="float:left;margin-left:0px;margin-top:2px;color:#7fb4ff;"><%=StudentPanel.GetClassTime()%></div>
+                    <div style="float:left;margin-left:0px;margin-top:2px;"><%=L"分钟"%></div>
+                    <div style="float:left;margin-left:10px;margin-top:1px;color:#717171;"> | </div>
+                    <div style="float:left;margin-left:10px;margin-top:2px;color:#7fb4ff;"><%=StudentPanel.GetTeacherName()%></div>
+                    <div style="float:left;margin-left:10px;margin-top:1px;color:#717171;"> | </div>
+                    <div style="float:left;margin-left:10px;margin-top:2px;"><%=StudentPanel.GetWorldID()%></div>
                 </div>
             </pe:container>
-            <pe:container alignment="_rt" style="position:relative;width:300px;height:32px;background:;">
-                <div style="width:36px;position:relative;float:right;margin-right:60px;" align="right">
-                    <div tooltip='<%=L"课堂聊天"%>' name="btnChat" onclick="StudentPanel.OpenChat" style="padding:2px;width:30px;height:30px;background:;background2:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#428 364 25 26:6 6 6 6);">
-                        <div zorder="1" style="width:26px;height:27px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#487 62 26 27);" />
-                    </div>
+            <pe:container alignment="_rt" style="margin-top:10px;position:relative;width:300px;height:32px;background:;">
+                <div style="width:26px;position:relative;margin-right:20px;" align="right">
+                    <input type="button" name="btnUrl" tooltip='<%=L"分享链接"%>' onclick="StudentPanel.ShareUrl" style="width:26px;height:26px;background:url(Texture/Aries/Creator/keepwork/ClassManager/class_to_share_32bits.png#0 0 26 26);" />
                 </div>
-                <div style="width:36px;position:relative;float:right;margin-right:90px;" align="right">
-                    <pe:if condition='<%=not StudentPanel.IsLocked%>'>
-                        <div tooltip='<%=L"点击锁屏"%>' name="btnConnect" onclick="StudentPanel.Lock" style="padding:2px;width:30px;height:30px;background:;background2:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#428 364 25 26:6 6 6 6);">
-                            <div zorder="1" style="width:26px;height:27px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#487 62 26 27);" />
-                        </div>
+                <div style="width:33px;position:relative;float:right;margin-right:70px;" align="right">
+                    <pe:if condition='<%=not StudentPanel.IsChatting%>'>
+                        <input type="button" name="btnChat" tooltip='<%=L"课堂聊天"%>' onclick="StudentPanel.OpenChat" style="width:32px;height:26px;background:url(Texture/Aries/Creator/keepwork/ClassManager/class_to_chat_32bits.png#0 0 32 26);" />
                     </pe:if>
-                    <pe:if condition='<%=StudentPanel.IsLocked%>'>
-                        <div tooltip='<%=L"点击解锁"%>' name="btnConnect" onclick="StudentPanel.Lock" style="padding:2px;width:30px;height:30px;background:;background2:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#428 364 25 26:6 6 6 6);">
-                            <div zorder="1" style="width:26px;height:27px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#487 62 26 27);" />
-                        </div>
+                    <pe:if condition='<%=StudentPanel.IsChatting%>'>
+                        <input type="button" name="btnChat" tooltip='<%=L"课堂聊天"%>' onclick="StudentPanel.OpenChat" style="width:32px;height:26px;background:url(Texture/Aries/Creator/keepwork/ClassManager/class_chatting_32bits.png#0 0 32 26);" />
                     </pe:if>
                 </div>
             </pe:container>

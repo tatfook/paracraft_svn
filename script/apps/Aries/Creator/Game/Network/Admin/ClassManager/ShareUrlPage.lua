@@ -29,10 +29,10 @@ function ShareUrlPage.ShowPage()
 		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 		directPosition = true,
 		align = "_ct",
-		x = -370 / 2,
-		y = -200 / 2,
-		width = 370,
-		height = 200,
+		x = -380 / 2,
+		y = -206 / 2,
+		width = 380,
+		height = 206,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 end
@@ -45,4 +45,7 @@ function ShareUrlPage.ShareClassPage()
 end
 
 function ShareUrlPage.ShareOrganPage()
+end
+
+function ShareUrlPage.ShareInputUrl()
 end

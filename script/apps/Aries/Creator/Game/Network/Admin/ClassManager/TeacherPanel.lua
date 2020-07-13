@@ -13,16 +13,18 @@ local TeacherPanel = NPL.export()
 
 TeacherPanel.InClass = false;
 TeacherPanel.IsLocked = false;
+TeacherPanel.IsChatting = false;
+TeacherPanel.CurrentClassName = "";
+TeacherPanel.CurrentWorldId = "";
 
 local page;
 function TeacherPanel.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function TeacherPanel.ShowPage(bShow, offsetY)
-	if (page) then
-		GameLogic.GetEvents():RemoveEventListener("DesktopMenuShow", TeacherPanel.MoveDown, TeacherPanel);
-		page:CloseWindow();
+function TeacherPanel.ShowPage(reset, offsetY)
+	if (reset) then
+		TeacherPanel.OnClose()
 	end
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/TeacherPanel.html", 
@@ -31,7 +33,6 @@ function TeacherPanel.ShowPage(bShow, offsetY)
 			DestroyOnClose = true,
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			allowDrag = false,
-			bShow = bShow,
 			zorder = 0,
 			click_through = false, 
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
@@ -48,29 +49,43 @@ function TeacherPanel.ShowPage(bShow, offsetY)
 end
 
 function TeacherPanel.OnClose()
-	GameLogic.GetEvents():RemoveEventListener("DesktopMenuShow", TeacherPanel.MoveDown, TeacherPanel);
-	page:CloseWindow();
+	if (page) then
+		GameLogic.GetEvents():RemoveEventListener("DesktopMenuShow", TeacherPanel.MoveDown, TeacherPanel);
+		page:CloseWindow();
+
+		TeacherPanel.Reset();
+	end
+end
+
+function TeacherPanel.Reset()
+	TeacherPanel.InClass = false;
+	TeacherPanel.IsLocked = false;
+	TeacherPanel.CurrentClassName = "";
+	TeacherPanel.CurrentWorldId = "";
 end
 
 function TeacherPanel:MoveDown(event)
 	if (event.bShow) then
-		TeacherPanel.ShowPage(nil, 32);
+		TeacherPanel.ShowPage(false, 32);
 	else
-		TeacherPanel.ShowPage(nil, 0);
+		TeacherPanel.ShowPage(false, 0);
 	end
 end
 
 function TeacherPanel.SelectClass()
 	local ClassListPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.lua");
 	ClassListPage.ShowPage();
-	page:CloseWindow();
 end
 
 function TeacherPanel.LeaveClass()
+	TeacherPanel.Reset();
+	if (page) then
+		page:Refresh(0);
+	end
 end
 
 function TeacherPanel.GetClassName()
-	return "编程1班";
+	return TeacherPanel.CurrentClassName;
 end
 
 function TeacherPanel.GetClassStudents()
@@ -92,6 +107,10 @@ function TeacherPanel.UnLock()
 end
 
 function TeacherPanel.OpenChat()
+	TeacherPanel.IsChatting = true;
+	if (page) then
+		page:Refresh(0);
+	end
 	local ChatRoomPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ChatRoomPage.lua");
 	ChatRoomPage.ShowPage()
 end
@@ -104,3 +123,35 @@ function TeacherPanel.ShareUrl()
 	ShareUrlPage.ShowPage()
 	TeacherPanel.OnClose();
 end
+
+function TeacherPanel.SetInClass(class, worldId)
+	TeacherPanel.InClass = true;
+	TeacherPanel.CurrentClassName = class;
+	TeacherPanel.CurrentWorldId = worldId;
+	if (worldId and #worldId > 1) then
+		GameLogic:Connect("WorldLoaded", TeacherPanel, TeacherPanel.OnWorldLoaded, "UniqueConnection");
+		GameLogic:Connect("WorldUnloaded", TeacherPanel, TeacherPanel.OnWorldUnload, "UniqueConnection");
+		GameLogic.RunCommand("/loadworld -force "..worldId);
+		return;
+	end
+	if (page) then
+		page:Refresh(0);
+	end
+end
+
+function TeacherPanel.OnWorldLoaded()
+	local projectId = tostring(GameLogic.options:GetProjectId());
+	if (projectId == TeacherPanel.CurrentWorldId) then
+		commonlib.TimerManager.SetTimeout(function()
+			TeacherPanel.ShowPage();
+		end, 1000);
+	end
+end
+
+function TeacherPanel.OnWorldUnload()
+	local projectId = tostring(GameLogic.options:GetProjectId());
+	if (projectId == TeacherPanel.CurrentWorldId) then
+		TeacherPanel.Reset();
+	end
+end
+

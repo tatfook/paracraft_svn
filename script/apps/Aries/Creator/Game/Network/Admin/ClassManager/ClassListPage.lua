@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: Class List 
 Author(s): Chenjinxian
 Date: 2020/7/6
@@ -46,9 +46,43 @@ function ClassListPage.GetClassList()
 	return classes;
 end
 
-function ClassListPage.OnSelectClass()
+function ClassListPage.OnSelectClass(name, value)
+end
+
+function ClassListPage.OnRemoveClass(value)
+end
+
+function ClassListPage.WriteClassName(name, mcmlNode)
+	if (page) then
+		local value = mcmlNode:GetUIValue();
+		page:SetValue("ClassList", value);
+	end
+end
+
+function ClassListPage.GetWorldList()
+end
+
+function ClassListPage.OnSelectWorld(name, value)
+end
+
+function ClassListPage.OnRemoveWorld(value)
+end
+
+function ClassListPage.WriteWorldName(name, mcmlNode)
+	if (page) then
+		local name = mcmlNode:GetUIValue();
+		page:SetValue("WorldList", name);
+	end
 end
 
 function ClassListPage.OnOK()
-	page:CloseWindow();
+	local class = page:GetValue("ClassList");
+	local world = page:GetValue("WorldList");
+	if (class and #class > 0) then
+		page:CloseWindow();
+		local TeacherPanel = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/TeacherPanel.lua");
+		TeacherPanel.SetInClass(class, world);
+	else
+		_guihelper.MessageBox(L"请输入班级名和世界ID");
+	end
 end
