@@ -13,18 +13,39 @@
             ChatRoomPage.OnInit();
             ]]>
         </script>
-        <aries:window mode="thin" style="width:730px;height:520px" title='<%= L"上课"%>' onclose="ChatRoomPage.OnClose">
-            <div style="width:730px;height:520px;">
-                <div style="margin-left:30px;margin-top:30px;height:24px;width:480px;text-align:left;color:#ffffff;font-size:13px">
-                    <%=L"选择班级" %>
-                    <select name="ClassList" style="margin-left:10px;height:23px;width:250px;" DataSource="<%=ChatRoomPage.GetClassList()%>" onselect="ChatRoomPage.OnSelectClass"></select>
-                </div>
-                <div style="margin-left:30px;margin-top:10px;height:24px;width:480px;text-align:left;color:#ffffff;font-size:13px">
-                    <%=L"世界ID" %>
-                </div>
-                <div style="margin-top:20px;">
-                    <input type="button" name="OK" DefaultButton="true" style="margin-left:210px;min-width:60px;" class="mc_light_grey_button_with_fillet" onclick="ChatRoomPage.OnOK" value='<%=L"确定"%>' />
-                    <input type="button" name="Cancel" DefaultButton="true" style="margin-left:20px;min-width:60px;" class="mc_light_grey_button_with_fillet" onclick="ChatRoomPage.OnClose" value='<%=L"取消"%>' />
+        <aries:window mode="center_white" style="width:750px;height:533px" title='<%=ChatRoomPage.GetClassName()%>' onclose="ChatRoomPage.OnClose">
+            <div style="margin-left:-4px;width:750px;height:490px;">
+                <div style="width:748px;height:1px;background-color:#cdcdcd"></div>
+                <div style="position:relative;">
+                    <div style="float:left;width:480px;height:484px;">
+                        <div style="width:480px;height:31px;background-color:#292929;color:#ff9f40">
+                            <div style="margin-left:26px;margin-top:6px;"><%=L"聊天"%></div>
+                            <div style="margin-left:10px;margin-top:2px;width:56px;height:2px;background-color:#ff9f40;"></div>
+                        </div>
+                        <div style="width:480px;height:1px;background-color:#cdcdcd"></div>
+                        <div style="width:480px;height:330px;">
+                        </div>
+                        <div style="width:480px;height:2px;background-color:#cdcdcd"></div>
+                        <div style="width:480px;height:120px;background-color:#e2e7e8">
+                        </div>
+                    </div>
+                    <div style="float:left;width:2px;height:484px;background-color:#cdcdcd"></div>
+                    <div style="float:left;width:266px;height:484px;">
+                        <div style="width:266px;height:31px;background-color:#292929;color:#ffffff">
+                            <div style="float:left;margin-left:10px;margin-top:6px;"><%=ChatRoomPage.GetClassPeoples()%></div>
+                            <input type="button" style="float:left;width:52px;height:20px;margin-left:98px;margin-top:6px;color:#ffffff;" value='<%=L"+邀请"%>' class="mc_blue_button_with_fillet" tooltip='<%=L"邀请所有未上课成员"%>' onclick="ChatRoomPage.InviteAll" />
+                        </div>
+                        <div style="width:266px;height:1px;background-color:#cdcdcd"></div>
+                        <div style="width:266px;height:452px;">
+                            <pe:gridview style="margin:0px;width:680px;height:430px;" name="item_gridview" CellPadding="22" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="8" AllowPaging="false" ItemsPerLine="3" DefaultNodeHeight="140"
+                                         DataSource='<%=ChatRoomPage.ClassItems%>'>
+                                <Columns>
+                                </Columns>
+                                <EmptyDataTemplate>
+                                </EmptyDataTemplate>
+                            </pe:gridview>
+                        </div>
+                    </div>
                 </div>
             </div>
         </aries:window>
