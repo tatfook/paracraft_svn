@@ -19,3 +19,9 @@ HttpWrapper.Create("keepwork.user.profile", "%MAIN%/core/v0/users/profile", "GET
 
 
 --http://yapi.kp-para.cn/project/32/interface/api/2552
+HttpWrapper.Create("keepwork.user.getinfo", "%MAIN%/core/v0/users/:id/detail", "GET", true, nil,
+-- PreProcessor
+HttpWrapper.default_prepFunc,
+-- Post Processor
+HttpWrapper.default_postFunc
+)

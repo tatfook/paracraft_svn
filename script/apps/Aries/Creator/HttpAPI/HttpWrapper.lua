@@ -12,6 +12,7 @@ config cmd line param "Config.defaultEnv" to load different development env
 local httpwrapper_version = ParaEngine.GetAppCommandLineByParam("httpwrapper_version", "ONLINE");  - "ONLINE" or "STAGE" or "RELEASE" or "LOCAL"
 ]]
 NPL.load("(gl)script/ide/System/os/GetUrl.lua");
+local UrlConverter = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/UrlConverter.lua");
 
 local HttpWrapper = NPL.export()
 
@@ -62,7 +63,7 @@ function HttpWrapper.get_default_cache_url(self)
     if(self.tokenRequired)then
         local username = commonlib.getfield("System.User.username")
         if(username)then
-            table.insert(url_queries,"username");
+            table.insert(url_queries,"localserver_username");
             table.insert(url_queries,username);
         end
     end
@@ -87,7 +88,7 @@ function HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option)
 			-- make output msg
 			local output_msg = commonlib.LoadTableFromString(item.payload.data);
             local fullname = self.fullname or "";
-		    LOG.std("", "info",fullname, "loaded %s from local server", url);
+		    LOG.std("", "info",fullname, "loaded from local server: %s", url);
 			if(callbackFunc) then
 				callbackFunc(200, {}, output_msg);
 			end	
@@ -123,7 +124,7 @@ function HttpWrapper.default_postFunc(self, err, msg, data)
 		LOG.std("", "info",fullname, "%s saved to local server", url);
         return true;
 	else	
-		LOG.std("", "warning",fullname, LOG.tostring("warning: failed saving %s to local server\n", tostring(url))..LOG.tostring(output_msg));
+		LOG.std("", "warning",fullname, LOG.tostring("warning: failed saving to local server %s \n", tostring(url))..LOG.tostring(output_msg));
 	end
 end
 -- NOTE: only cache method == "GET"
@@ -144,11 +145,17 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
 		-- return if we already created it before.
 		LOG.std(nil, "warn","HttpWrapper", "The "..fullname.." is overriden by HttpWrapper.Create\n Remove duplicate calls with the same name.");
 	end
-    -- 
-    -- inputParams.cache_policy
-    -- inputParams.headers
-
+    local keyword_params = {
+        ["cache_policy"] = true,
+        ["headers"] = true,
+        ["router_params"] = true,
+    }
     local function activate(self, inputParams, callbackFunc, option)
+        inputParams = inputParams or {};
+
+        if(inputParams.router_params)then
+             url = UrlConverter.ToPath(url,inputParams.router_params)
+        end
         local res;
         -- only cache method == "GET"
         if(method == "GET" and prepFunc)then
@@ -156,7 +163,6 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
         end
         
         if(not res)then
-            inputParams = inputParams or {};
             local raw_input = commonlib.deepcopy(inputParams);
             local input;
             if(method == "GET")then
@@ -164,7 +170,7 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
                 local url_queries = {}
                 for k,v in pairs(raw_input) do
                     -- remove keywords
-                    if(k ~= "cache_policy" and k ~= "headers" )then
+                    if(not keyword_params[k])then
                         table.insert(url_queries,k);
                         table.insert(url_queries,v);
                     end
