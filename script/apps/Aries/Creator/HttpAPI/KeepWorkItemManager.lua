@@ -278,9 +278,9 @@ function KeepWorkItemManager.Load(bForced, callback)
         return
     end
     KeepWorkItemManager.GetFilter():apply_filters("loading", L"加载GlobalStore");
-    KeepWorkItemManager.LoadGlobalStore(true, function()
+    KeepWorkItemManager.LoadGlobalStore(false, function()
         KeepWorkItemManager.GetFilter():apply_filters("loading", L"加载ExtendedCost");
-        KeepWorkItemManager.LoadExtendedCost(true, function()
+        KeepWorkItemManager.LoadExtendedCost(false, function()
             KeepWorkItemManager.GetFilter():apply_filters("loading", L"加载背包");
             KeepWorkItemManager.LoadBags(true, function()
                 KeepWorkItemManager.GetFilter():apply_filters("loading", L"加载物品");
@@ -305,7 +305,7 @@ function KeepWorkItemManager.LoadGlobalStore(bForced, callback)
         cache_policy = "access plus 0";
     end
     keepwork.globalstore.get({
-        cache_policy = "access plus 0";
+        cache_policy = cache_policy;
     },function(err, msg, data)
         if(err ~= 200)then
             return

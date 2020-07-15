@@ -9,7 +9,7 @@ local test = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/test/keepwork.item.
 test.globalstore()
 test.extendedcost()
 test.bags()
-test.items(763, "1", "access plus 0")
+test.items(763, "1")
 test.exchange(18);
 test.checkExchange(18)
 test.setClientData(30102)
@@ -45,11 +45,10 @@ function test.bags()
         commonlib.echo(#(data.data.rows));
     end)
 end
-function test.items(userId, bagNos, cache_policy)
+function test.items(userId, bagNos)
     keepwork.items.get({
         userId = userId,
         bagNos = bagNos,
-        cache_policy = cache_policy,
     },function(err, msg, data)
         commonlib.echo("==========items");
         commonlib.echo(err);

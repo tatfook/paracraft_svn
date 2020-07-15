@@ -46,20 +46,30 @@ function HttpWrapper.GetUrl(key)
     end
     return url;
 end
-
-function HttpWrapper.SetToken(token)
-    local User = commonlib.gettable('System.User');
-    System.User.keepworktoken = token;
-end
 -- depends on https://github.com/tatfook/WorldShare/blob/master/Mod/WorldShare/store/UserStore.lua#L32
 function HttpWrapper.GetToken()
-    local User = commonlib.gettable('System.User');
-    local token = System.User.keepworktoken;
+    local token = commonlib.getfield("System.User.keepworktoken")
     return token;
 end
-local default_cache_policy = System.localserver.CachePolicy:new("access plus 1 day");
+local default_cache_policy = System.localserver.CachePolicy:new("access plus 1 hour");
 
-function HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option, fullname)
+-- create url for caching
+function HttpWrapper.get_default_cache_url(self)
+    if(not self)then
+        return
+    end
+    local url_queries = { "method", self.method };
+    if(self.tokenRequired)then
+        local username = commonlib.getfield("System.User.username")
+        if(username)then
+            table.insert(url_queries,"username");
+            table.insert(url_queries,username);
+        end
+    end
+	local url = NPL.EncodeURLQuery(self.GetUrl(), url_queries)
+    return url;
+end
+function HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option)
     cache_policy = inputParams.cache_policy or default_cache_policy;
     if(type(cache_policy) == "string") then
 		cache_policy = System.localserver.CachePolicy:new(cache_policy);
@@ -70,12 +80,13 @@ function HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option, f
 		return 
 	end
     -- make url
-	local url = NPL.EncodeURLQuery(self.GetUrl(), { "method", self.method})
+	local url = HttpWrapper.get_default_cache_url(self);
 	local item = ls:GetItem(url)
 	if(item and item.entry and item.payload) then
 		if(not cache_policy:IsExpired(item.payload.creation_date)) then
 			-- make output msg
 			local output_msg = commonlib.LoadTableFromString(item.payload.data);
+            local fullname = self.fullname or "";
 		    LOG.std("", "info",fullname, "loaded %s from local server", url);
 			if(callbackFunc) then
 				callbackFunc(200, {}, output_msg);
@@ -84,11 +95,8 @@ function HttpWrapper.default_prepFunc(self, inputParams, callbackFunc, option, f
 		end
 	end
 end
-function HttpWrapper.default_postFunc(self, err, msg, data, fullname, callbackFunc)
+function HttpWrapper.default_postFunc(self, err, msg, data)
     if(not err or err ~= 200)then
-        if(callbackFunc)then
-            callbackFunc(err, msg, data);
-        end
         return
     end
     local ls = System.localserver.CreateStore(nil, 3);
@@ -99,7 +107,7 @@ function HttpWrapper.default_postFunc(self, err, msg, data, fullname, callbackFu
 	local output_msg = data;
 
     -- make url
-	local url = NPL.EncodeURLQuery(self.GetUrl(), { "method", self.method})
+	local url = HttpWrapper.get_default_cache_url(self);
    -- make entry
 	local item = {
 		entry = System.localserver.WebCacheDB.EntryInfo:new({url = url,}),
@@ -108,14 +116,17 @@ function HttpWrapper.default_postFunc(self, err, msg, data, fullname, callbackFu
 			data = (output_msg),
 		}),
 	}
+    local fullname = self.fullname or "";
 	-- save to database entry
 	local res = ls:PutItem(item) 
     if(res) then 
 		LOG.std("", "info",fullname, "%s saved to local server", url);
+        return true;
 	else	
 		LOG.std("", "warning",fullname, LOG.tostring("warning: failed saving %s to local server\n", tostring(url))..LOG.tostring(output_msg));
 	end
 end
+-- NOTE: only cache method == "GET"
 function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepFunc, postFunc)
     if(not fullname or not url)then
         return 
@@ -133,9 +144,14 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
 		-- return if we already created it before.
 		LOG.std(nil, "warn","HttpWrapper", "The "..fullname.." is overriden by HttpWrapper.Create\n Remove duplicate calls with the same name.");
 	end
+    -- 
+    -- inputParams.cache_policy
+    -- inputParams.headers
+
     local function activate(self, inputParams, callbackFunc, option)
         local res;
-        if(prepFunc)then
+        -- only cache method == "GET"
+        if(method == "GET" and prepFunc)then
 			res = prepFunc(self, inputParams, callbackFunc, option);
         end
         
@@ -147,7 +163,8 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
                 input = raw_input;
                 local url_queries = {}
                 for k,v in pairs(raw_input) do
-                    if(k ~= "cache_policy")then
+                    -- remove keywords
+                    if(k ~= "cache_policy" and k ~= "headers" )then
                         table.insert(url_queries,k);
                         table.insert(url_queries,v);
                     end
@@ -171,7 +188,8 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
             input.headers = headers;
 		    LOG.std(nil, "debug","HttpWrapper input", input);
             System.os.GetUrl(input, function(err, msg, data)
-                if(postFunc)then
+                -- only cache method == "GET"
+                if(method == "GET" and postFunc)then
                     postFunc(self, err, msg, data);
                 end
                 if(callbackFunc)then
@@ -182,7 +200,9 @@ function HttpWrapper.Create(fullname, url, method, tokenRequired, configs, prepF
 	end
     o = setmetatable({
 		GetUrl = function() return url end,
+        fullname = fullname,
         method = method,
+        tokenRequired = tokenRequired,
 	}, {
 		__call = activate,
 		__tostring = function(self)
