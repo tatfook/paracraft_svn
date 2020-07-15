@@ -27,7 +27,7 @@ function ChatRoomPage.ShowPage()
 		style = CommonCtrl.WindowFrame.ContainerStyle,
 		allowDrag = true,
 		enable_esc_key = true,
-		click_through = false, 
+		click_through = true, 
 		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 		directPosition = true,
 		align = "_ct",
@@ -56,13 +56,40 @@ function ChatRoomPage.InviteAll()
 end
 
 function ChatRoomPage.ClassItems()
-	local items = {{name="张晓", teacher=true, online=true},
+	local items = {{name="张三丰", teacher=true, online=true},
 		{name="张飞", teacher=false, online=false},
+		{name="关羽", teacher=false, online=false},
+		{name="夏侯渊", teacher=false, online=true},
+		{name="姜维", teacher=false, online=true},
+		{name="孙策", teacher=false, online=false},
+		{name="太史慈", teacher=false, online=true},
+		{name="张辽", teacher=false, online=false},
+		{name="张郃", teacher=false, online=true},
+		{name="庞德", teacher=false, online=true},
+		{name="魏延", teacher=false, online=true},
+		{name="颜良", teacher=false, online=false},
+		{name="吴三桂", teacher=false, online=true},
+		{name="张无忌", teacher=false, online=true},
+		{name="张翠山", teacher=false, online=false},
+		{name="周芷若", teacher=false, online=true},
+		{name="杨逍", teacher=false, online=true},
+		{name="灭绝师太", teacher=false, online=true},
+		{name="洪七公", teacher=false, online=true},
 		{name="赵云", teacher=false, online=true}};
 	return items;
 end
 
 function ChatRoomPage.ChatItems()
+end
+
+function ChatRoomPage.GetShortName(name)
+	local len = commonlib.utf8.len(name);
+	if (len > 2) then
+		return commonlib.utf8.sub(name, len-1);
+	else
+		return name;
+	end
+	return name;
 end
 
 function ChatRoomPage.SendMessage()

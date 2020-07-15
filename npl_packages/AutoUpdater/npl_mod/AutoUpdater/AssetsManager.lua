@@ -565,7 +565,7 @@ end
 -- step 3. decompress and move files
 function AssetsManager:apply()
     self:callback(self.State.PREUPDATE);
-    local version_storagePath;
+    local version_storagePath = "";
 	local version_name;
     local version_abs_app_dest_folder;
     local len = #self._downloadUnits; --include version.txt if it is existed
@@ -603,7 +603,7 @@ function AssetsManager:apply()
                 end
 
                 -- version.txt
-                if(ParaIO.DeleteFile(version_storagePath) ~= 1)then
+                if(version_storagePath and ParaIO.DeleteFile(version_storagePath) ~= 1)then
 	                LOG.std(nil, "error", "AssetsManager", "failed to delete file: %s",version_storagePath);
 		        end
 		        if(not ParaIO.MoveFile(version_name, version_abs_app_dest_folder))then
@@ -620,7 +620,7 @@ function AssetsManager:apply()
             return 
         end
 
-        local storagePath = v.storagePath;
+        local storagePath = v.storagePath or "";
         local indexOfLastSeparator = string.find(storagePath, ".[^.]*$");
         local name = string.sub(storagePath,0,indexOfLastSeparator-1);
         local app_dest_folder = name;
