@@ -613,17 +613,24 @@ function Actor:CreateKeyFromUI(keyname, callbackFunc)
 			assetFilename = entity:GetMainAssetPath();
 		end
 
-		NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/EditSkinPage.lua");
-		local EditSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.EditSkinPage");
-		EditSkinPage.ShowPage(function(result)
-			if(result) then
-				self:AddKeyFrameByName(keyname, nil, result);
-				self:FrameMovePlaying(0);
-				if(callbackFunc) then
-					callbackFunc(true);
+		if(entity.IsCustomModel and entity:IsCustomModel()) then
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditCCS/EditCCSTask.lua");
+			local EditCCSTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditCCSTask");
+			local task = EditCCSTask:new({entity = entity});
+			task:Run();
+		else
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/EditSkinPage.lua");
+			local EditSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.EditSkinPage");
+			EditSkinPage.ShowPage(function(result)
+				if(result) then
+					self:AddKeyFrameByName(keyname, nil, result);
+					self:FrameMovePlaying(0);
+					if(callbackFunc) then
+						callbackFunc(true);
+					end
 				end
-			end
-		end, old_value, title, assetFilename)
+			end, old_value, title, assetFilename)
+		end
 
 	elseif(keyname == "scaling") then
 		local title = format(L"起始时间%s, 请输入放大系数(默认1)", strTime);
