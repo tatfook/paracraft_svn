@@ -433,19 +433,17 @@ function Entity:RefreshSkin(player)
 		end
 		if(not skins[2] or not skins[2].filename) then
 			-- if model has shared skin file at id 2
-			if(PlayerSkins:CheckModelHasSkin(self:GetMainAssetPath())) then
-				local item = self:GetItemClass();
-				if(item) then
-					local skin = item:GetSkinFile();
-					if(skin) then
-						player:SetReplaceableTexture(2, ParaAsset.LoadTexture("", PlayerSkins:GetFileNameByAlias(skin), 1));
-						skins[2] = skins[2] or {}
-						skins[2].filename = skin;
-					end	
+			local mainAssetPath = self:GetMainAssetPath()
+			if(PlayerSkins:CheckModelHasSkin(mainAssetPath)) then
+				local skin = PlayerSkins:GetDefaultSkinForModel(mainAssetPath)
+				if(skin) then
+					player:SetReplaceableTexture(2, ParaAsset.LoadTexture("", PlayerSkins:GetFileNameByAlias(skin), 1));
+					skins[2] = skins[2] or {}
+					skins[2].filename = skin;
 				end
 			end
 		end
-
+		
 		for id, skin in pairs(skins) do
 			if(not skin.filename and skin.last_filename) then
 				player:SetReplaceableTexture(id, player:GetDefaultReplaceableTexture(id));	
