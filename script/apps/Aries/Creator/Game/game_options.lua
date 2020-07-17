@@ -421,7 +421,8 @@ function options:OnLoadWorld()
 	local WorldStacks = commonlib.gettable("MyCompany.Aries.Game.WorldStacks");
 	WorldStacks:PopWorld();
 
-	if(self:IsVipWorld() and not self:IsVip() and 
+	-- TODO: 2020.7.17. disabled IsVipWorld until server fixed
+	if(false and self:IsVipWorld() and not self:IsVip() and 
 		-- skip standalone app when noclientupdate is true
 		ParaEngine.GetAppCommandLineByParam("noclientupdate", "")=="") then
 		
