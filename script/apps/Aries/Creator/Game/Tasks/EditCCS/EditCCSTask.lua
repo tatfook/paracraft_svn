@@ -7,11 +7,17 @@ use the lib:
 ------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditCCS/EditCCSTask.lua");
 local EditCCSTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditCCSTask");
-local task = EditCCSTask:new({entity=entity});
+-- method1:
+local task = EditCCSTask:new({entity=entity, callbackFunc=function(ccs) end});
 task:Run();
+-- method2:
+EditCCSTask:ShowPage(entity, function(ccs)
+end);
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityManager.lua");
+NPL.load("(gl)script/kids/3DMapSystemUI/CCS/ccs.lua");
+local CCS = commonlib.gettable("Map3DSystem.UI.CCS");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 
 -- create class
@@ -33,49 +39,64 @@ end
 
 function EditCCSTask:Run()
 	curInstance = self;
-	local entity = self.entity or EntityManager.GetPlayer()
-	if(not entity:IsCustomModel()) then
-		entity:SetMainAssetPath("character/v3/Elf/Female/ElfFemale.xml")
-	end
-	curPlayer = entity:GetInnerObject();
 	self.finished = false;
-	self:ShowPage();
+	self:ShowPage(self.entity, self.callbackFunc);
 end
 
 function EditCCSTask:OnExit()
 	self:SetFinished();
 	curInstance = nil;
-	curPlayer = nil;
 	if(page) then
 		page:CloseWindow();
-		page = nil;
 	end
 end
 
-function EditCCSTask:ShowPage()
+-- this function can be called as a static function. 
+-- @param callbackFunc: function(ccs) end
+function EditCCSTask:ShowPage(entity, callbackFunc)
+	entity = entity or EntityManager.GetPlayer()
+	if(not entity:IsCustomModel()) then
+		entity:SetMainAssetPath("character/v3/Elf/Female/ElfFemale.xml")
+	end
+	curPlayer = entity:GetInnerObject();
+
+
 	NPL.load("(gl)script/ide/System/Scene/Viewports/ViewportManager.lua");
 	local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager");
 	local viewport = ViewportManager:GetSceneViewport();
 	local parent = viewport:GetUIObject(true)
 
+	
 	local width, height = 400, 600;
-	System.App.Commands.Call("File.MCMLWindowFrame", {
-			url="script/apps/Aries/Creator/Game/Tasks/EditCCS/EditCCSTask.html",
-			name="EditCCSTask", 
-			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-			isShowTitleBar = false,
-			bShow = true,
-			DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
-			style = CommonCtrl.WindowFrame.ContainerStyle,
-			allowDrag = true,
-			isTopLevel = true, 
-			directPosition = true,
-				align = "_ctl",
-				x = 10,
-				y = 0,
-				width = width,
-				height = height,
-		});
+	local params = {
+		url="script/apps/Aries/Creator/Game/Tasks/EditCCS/EditCCSTask.html",
+		name="EditCCSTask", 
+		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
+		isShowTitleBar = false,
+		bShow = true,
+		DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
+		style = CommonCtrl.WindowFrame.ContainerStyle,
+		allowDrag = true,
+		isTopLevel = true, 
+		directPosition = true,
+			align = "_ctl",
+			x = 10,
+			y = 0,
+			width = width,
+			height = height,
+	}
+	System.App.Commands.Call("File.MCMLWindowFrame", params);
+	params._page.OnClose = function(bDestroy)
+		local ccsString = CCS.GetCCSInfoString(curPlayer);
+		curPlayer = nil;
+		page = nil;
+		if(curInstance) then
+			curInstance:OnExit()
+		end
+		if(callbackFunc) then
+			callbackFunc(ccsString);
+		end
+	end
 end
 
 

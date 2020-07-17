@@ -616,8 +616,15 @@ function Actor:CreateKeyFromUI(keyname, callbackFunc)
 		if(entity.IsCustomModel and entity:IsCustomModel()) then
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditCCS/EditCCSTask.lua");
 			local EditCCSTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditCCSTask");
-			local task = EditCCSTask:new({entity = entity});
-			task:Run();
+			EditCCSTask:ShowPage(entity, function(ccsString)
+				if(ccsString ~= old_value) then
+					self:AddKeyFrameByName(keyname, nil, ccsString);
+					self:FrameMovePlaying(0);
+					if(callbackFunc) then
+						callbackFunc(true);
+					end
+				end
+			end);
 		else
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/EditSkinPage.lua");
 			local EditSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.EditSkinPage");
