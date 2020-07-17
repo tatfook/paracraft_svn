@@ -24,6 +24,7 @@ local models_has_skin = {
 	["character/CC/01char/MainChar/MainChar.x"] = true,
 }
 local models_default_skins = {
+	["character/CC/02human/actor/actor.x"] = "Texture/blocks/human/boy_worker01.png",
 	["character/CC/01char/char_male.x"] = "Texture/blocks/human/boy_blue_shirt01.png",
 	["character/CC/01char/MainChar/MainChar.x"] = "Texture/blocks/human/boy_blue_shirt01.png",
 }
