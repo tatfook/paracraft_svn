@@ -26,6 +26,11 @@ local assetfiles = {
 	-- {filename="character/CC/01char/char_male.x", name="default", displayname="通用人物"},
 }
 
+-- default scale 
+local default_scales = {
+	["character/v3/Elf/Female/ElfFemale.xml"] = 1.4,
+}
+
 local categories = {};
 local filename_to_name_map = {}
 local name_to_filename_map = {}
@@ -131,9 +136,14 @@ end
 
 -- @param skin: this is actually CCS string 
 function PlayerAssetFile:RefreshCustomModel(player, skin)
-	if(skin and skin:match("%d+#")) then
+	if(skin and skin:match("^%d+#")) then
 		CCS.ApplyCCSInfoString(player, skin);
 	else
 		CCS.ApplyCCSInfoString(player, "0#1#0#2#1#@0#F#0#0#0#0#0#F#0#0#0#0#9#F#0#0#0#0#9#F#0#0#0#0#10#F#0#0#0#0#8#F#0#0#0#0#0#F#0#0#0#0#@1#10001#0#3#11009#0#0#0#0#0#0#0#0#1072#1073#1074#0#0#0#0#0#0#0#0#");
 	end
+end
+
+-- get default player scale for the given file. default to 1
+function PlayerAssetFile:GetDefaultScale(filename)
+	return default_scales[filename] or 1;
 end

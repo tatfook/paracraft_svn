@@ -425,6 +425,8 @@ function Entity:RefreshSkin(player)
 					skins[id].filename = filename;
 					player:SetReplaceableTexture(id, ParaAsset.LoadTexture("", PlayerSkins:GetFileNameByAlias(filename), 1));
 				end
+			elseif(skin:match("^%d+#")) then
+				-- ignore ccs skins
 			else
 				player:SetReplaceableTexture(2, ParaAsset.LoadTexture("", PlayerSkins:GetFileNameByAlias(skin), 1));
 				skins[2] = skins[2] or {};
