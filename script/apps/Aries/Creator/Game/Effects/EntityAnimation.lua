@@ -73,6 +73,9 @@ local id_to_names = {
 
 local assetNameToAnims = {};
 
+local assetNameToAnimMap = {
+	["character/v3/Elf/Female/ElfFemale.xml"] = anim_map_haqi,
+}
 
 function EntityAnimation.Init()
 	if(EntityAnimation.isInited) then
@@ -87,19 +90,15 @@ function EntityAnimation.Init()
 		end
 	end
 
-	if(not System.options.mc) then
-		for name, data in pairs(anim_map_haqi) do
-			if(type(data) == "table" and data[2] and data[2]>10000) then
-				ParaAsset.CreateBoneAnimProvider(data[2], data[1], data[1], false);
-			end
+	for name, data in pairs(anim_map_haqi) do
+		if(type(data) == "table" and data[2] and data[2]>10000) then
+			ParaAsset.CreateBoneAnimProvider(data[2], data[1], data[1], false);
 		end
 	end
+end
 
-	if(System.options.mc) then
-		anim_map_player = anim_map;
-	else
-		anim_map_player = anim_map_haqi;
-	end
+function EntityAnimation.GetAnimMapByAssetFile(filename)
+	return assetNameToAnimMap[filename] or anim_map;
 end
 
 -- public 
@@ -180,7 +179,7 @@ function EntityAnimation.CreateGetAnimId(filename, entity)
 		if(entity) then
 			local asset_file = entity:GetMainAssetPath();
 			if(asset_file) then
-				filename = anim_map_player[filename] or filename;
+				filename = EntityAnimation.GetAnimMapByAssetFile(asset_file)[filename] or filename;
 			else
 				filename = anim_map[filename] or filename;
 			end
