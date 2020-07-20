@@ -12,18 +12,22 @@ test.goods_get("access plus 0");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkAPI.lua");
 local test = NPL.export()
 
-function test.menus_get(cache_policy)
+function test.menus_get(cache_policy, callback)
     keepwork.mall.menus.get({
-        cache_policy =  cache_policy,
+        cache_policy,
+        platform =  1,
         platform = 1,
     },function(err, msg, data)
         commonlib.echo("==========menus_get");
         commonlib.echo(err);
         commonlib.echo(msg);
         commonlib.echo(data,true);
+        if callback then
+            callback(data)
+        end
     end)
 end
-function test.goods_get(cache_policy)
+function test.goods_get(cache_policy, callback)
     keepwork.mall.goods.get({
         cache_policy =  cache_policy,
         classifyId = nil,
@@ -39,5 +43,8 @@ function test.goods_get(cache_policy)
         commonlib.echo(err);
         commonlib.echo(msg);
         commonlib.echo(data);
+        if callback then
+            callback(data)
+        end
     end)
 end
