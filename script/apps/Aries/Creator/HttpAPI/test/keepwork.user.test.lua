@@ -10,6 +10,7 @@ test.login();
 test.login("access plus 0");
 test.profile();
 test.getinfo();
+test.school();
 --]]
 NPL.load("(gl)script/ide/System/Encoding/base64.lua");
 NPL.load("(gl)script/ide/Json.lua");
@@ -50,6 +51,16 @@ function test.getinfo(cache_policy)
         }
     },function(err, msg, data)
         commonlib.echo("==========getinfo");
+        commonlib.echo(err);
+        commonlib.echo(msg);
+        commonlib.echo(data);
+    end)
+end
+
+function test.school()
+    keepwork.user.school({
+    },function(err, msg, data)
+        commonlib.echo("==========school");
         commonlib.echo(err);
         commonlib.echo(msg);
         commonlib.echo(data);
