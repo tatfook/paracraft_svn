@@ -36,7 +36,7 @@ function ParaWorldChunkGenerator:GetFlatLayers()
 	if(self.flat_layers == nil) then
 		self.flat_layers = {
 			{y = 9, block_id = names.Bedrock},
-			{block_id = names.underground_default},
+			--{block_id = names.underground_default},
 		};
 	end
 	return self.flat_layers;
@@ -52,12 +52,37 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 			
 	local by = layers[1].y;
 	for i = 1, #layers do
-		by = by+1;
+		by = by + 1;
 		local block_id = layers[i].block_id;
 
 		for bx = 0, 15 do
 			for bz = 0, 15 do
 				c:SetType(bx, by, bz, block_id, false);
+			end
+		end
+	end
+	-- Top layer with road
+	by = by + 1;
+	local road_block_id = 71;
+	local ground_block_id = 171;
+	
+	local worldCenterX, worldCenterZ  = 19200, 19200;
+	local gridOffsetX = (x*16 - worldCenterX) / 128;
+	local gridOffsetZ = (z*16 - worldCenterZ) / 128;
+	if(math.abs(gridOffsetX) <= 1 and math.abs(gridOffsetZ) <= 1) then
+		-- PGC region uses a different ground block
+		ground_block_id = 155;
+	end
+
+	for bx = 0, 15 do
+		local worldX = bx + (x * 16);
+		for bz = 0, 15 do
+			local worldZ = bz + (z * 16);
+			local offsetX, offsetZ = (worldX%128), (worldZ%128)
+			if(offsetX < 4 or offsetZ < 4 or offsetX>123 or offsetZ>123) then
+				c:SetType(bx, by, bz, road_block_id, false);
+			else
+				c:SetType(bx, by, bz, ground_block_id, false);
 			end
 		end
 	end
