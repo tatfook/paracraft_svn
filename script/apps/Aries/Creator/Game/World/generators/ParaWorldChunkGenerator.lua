@@ -64,14 +64,15 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 	-- Top layer with road
 	by = by + 1;
 	local road_block_id = 71;
-	local ground_block_id = 171;
+	local ground_block_id = 62;
+	local road_edge_id = 180;
 	
 	local worldCenterX, worldCenterZ  = 19200, 19200;
 	local gridOffsetX = (x*16 - worldCenterX) / 128;
 	local gridOffsetZ = (z*16 - worldCenterZ) / 128;
-	if(math.abs(gridOffsetX) <= 1 and math.abs(gridOffsetZ) <= 1) then
+	if(-1 <= gridOffsetX  and gridOffsetX < 1 and -1 <= gridOffsetZ  and gridOffsetZ < 1) then
 		-- PGC region uses a different ground block
-		ground_block_id = 155;
+		ground_block_id = 59;
 	end
 
 	for bx = 0, 15 do
@@ -81,6 +82,11 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 			local offsetX, offsetZ = (worldX%128), (worldZ%128)
 			if(offsetX < 4 or offsetZ < 4 or offsetX>123 or offsetZ>123) then
 				c:SetType(bx, by, bz, road_block_id, false);
+
+				if( ((offsetX == 3 or offsetX==124) and (offsetZ>=3 and offsetZ<=124)) or 
+					((offsetZ == 3 or offsetZ==124) and (offsetX>=3 and offsetX<=124))) then
+					c:SetType(bx, by+1, bz, road_edge_id, false);
+				end
 			else
 				c:SetType(bx, by, bz, ground_block_id, false);
 			end
