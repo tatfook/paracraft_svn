@@ -198,20 +198,26 @@ function NplCad.GetCode(code, filename, relativePath)
 			NplCad.templateCode = [[
     local SceneHelper = NPL.load("Mod/NplCad2/SceneHelper.lua");
     local ShapeBuilder = NPL.load("Mod/NplCad2/Blocks/ShapeBuilder.lua");
-	SceneHelper.LoadPlugin(function()
-        ShapeBuilder.create();
-        local NplCad = NPL.load("(gl)script/apps/Aries/Creator/Game/Code/NplCad/NplCad.lua");
-        NplCad.InstallMethods(codeblock:GetCodeEnv(), ShapeBuilder);
-        <code>
-        local result = SceneHelper.saveSceneToParaX(%q,ShapeBuilder.getScene(), ShapeBuilder.liner, ShapeBuilder.angular);
-        NplCad.ExportToFile(ShapeBuilder.getScene(),%q, ShapeBuilder.liner, ShapeBuilder.angular);
-        if(result)then
-	        setActorValue("assetfile", %q);
-	        setActorValue("showBones", true);
-            NplCad.RefreshFile(%q);
-        end
-		NplCad.StopCodeBlock(codeblock)
-    end)
+	local isFinished = false;
+	SceneHelper.LoadPlugin(co:MakeCallbackFuncAsync(function()
+		isFinished = true;
+		resume();
+    end))
+	if(not isFinished) then
+		yield();
+	end
+    ShapeBuilder.create();
+    local NplCad = NPL.load("(gl)script/apps/Aries/Creator/Game/Code/NplCad/NplCad.lua");
+    NplCad.InstallMethods(codeblock:GetCodeEnv(), ShapeBuilder);
+    <code>
+    local result = SceneHelper.saveSceneToParaX(%q,ShapeBuilder.getScene(), ShapeBuilder.liner, ShapeBuilder.angular);
+    NplCad.ExportToFile(ShapeBuilder.getScene(),%q, ShapeBuilder.liner, ShapeBuilder.angular);
+    if(result)then
+	    setActorValue("assetfile", %q);
+	    setActorValue("showBones", true);
+        NplCad.RefreshFile(%q);
+    end
+	NplCad.StopCodeBlock(codeblock)
 ]]
 		NplCad.templateCode = NplCad.templateCode:gsub("(\r?\n)", ""):gsub("<code>", "%%s")
 	end
