@@ -484,8 +484,7 @@ function AssetsManager:downloadNextAsset(index)
 	        LOG.std(nil, "info", "AssetsManager", "downloading: %s",unit.srcUrl);
 	        LOG.std(nil, "info", "AssetsManager", "temp storagePath: %s",unit.storagePath);
             local callback_str = string.format([[Mod.AutoUpdater.AssetsManager.downloadCallback("%s","%s")]],self.id,unit.customId);
-			-- force timeout to 100 seconds per file, since we have some big file
-	        NPL.AsyncDownload({url = unit.srcUrl, request_timeout = 1000000}, unit.storagePath, callback_str, unit.customId);
+			NPL.AsyncDownload(unit.srcUrl, unit.storagePath, callback_str, unit.customId);
         else
             self:downloadNext();
         end
@@ -504,8 +503,8 @@ function AssetsManager.downloadCallback(manager_id,id)
         manager:callback(manager.State.DOWNLOADING_ASSETS);
         local download_unit = manager._downloadUnits[manager.download_next_asset_index];
         local rcode = msg.rcode;
-        if(rcode and rcode ~= 200)then
-	        LOG.std(nil, "warnig", "AssetsManager", "download failed: %s",download_unit.srcUrl);
+        if((rcode and rcode ~= 200) or (msg.code and msg.code ~= 0)) then
+	        LOG.std(nil, "warn", "AssetsManager", "download failed: %s, code: %d",download_unit.srcUrl, msg.code or 0);
             table.insert(manager._failedDownloadUnits,download_unit);
             manager:downloadNext();
             return
