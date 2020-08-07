@@ -1,22 +1,22 @@
 --[[
-Title: UserInfoPage
+Title: StudyPage
 Author(s): 
-Date: 2020/8/6
+Date: 2020/8/7
 Desc:  
 Use Lib:
 -------------------------------------------------------
-local UserInfoPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/UserInfoPage.lua");
-UserInfoPage.ShowPage();
+local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
+StudyPage.ShowPage();
 --]]
-local UserInfoPage = NPL.export()
+local StudyPage = NPL.export()
 local page
-function UserInfoPage.OnInit()
+function StudyPage.OnInit()
     page = document:GetPageCtrl();
 end
-function UserInfoPage.ShowPage()
+function StudyPage.ShowPage()
 	local params = {
-			url = "script/apps/Aries/Creator/Game/Tasks/User/UserInfoPage.html",
-			name = "UserInfoPage.ShowPage", 
+			url = "script/apps/Aries/Creator/Game/Tasks/User/StudyPage.html",
+			name = "StudyPage.ShowPage", 
 			isShowTitleBar = false,
 			DestroyOnClose = true,
 			style = CommonCtrl.WindowFrame.ContainerStyle,
