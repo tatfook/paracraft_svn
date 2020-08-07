@@ -38,6 +38,9 @@ function NplBrowserManager:CloseAll()
 end
 -- previous to load cef3 exe 
 function NplBrowserManager:PreShowAll()
-    NplBrowserManager:CreateOrGet("DailyCheckBrowser"):PreShow(NplBrowserManager.empty_html, false);
-    NplBrowserManager:CreateOrGet("TeachingQuest_BrowserPage"):PreShow(NplBrowserManager.empty_html, false);
+    local cef_preshow = ParaEngine.GetAppCommandLineByParam("cef_preshow", "true");
+    if(cef_preshow == "true")then
+        NplBrowserManager:CreateOrGet("DailyCheckBrowser"):PreShow(NplBrowserManager.empty_html, false);
+        NplBrowserManager:CreateOrGet("TeachingQuest_BrowserPage"):PreShow(NplBrowserManager.empty_html, false);
+    end
 end
