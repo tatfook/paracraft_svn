@@ -484,7 +484,8 @@ function AssetsManager:downloadNextAsset(index)
 	        LOG.std(nil, "info", "AssetsManager", "downloading: %s",unit.srcUrl);
 	        LOG.std(nil, "info", "AssetsManager", "temp storagePath: %s",unit.storagePath);
             local callback_str = string.format([[Mod.AutoUpdater.AssetsManager.downloadCallback("%s","%s")]],self.id,unit.customId);
-	        NPL.AsyncDownload(unit.srcUrl, unit.storagePath, callback_str, unit.customId);
+			-- force timeout to 100 seconds per file, since we have some big file
+	        NPL.AsyncDownload({url = unit.srcUrl, request_timeout = 1000000}, unit.storagePath, callback_str, unit.customId);
         else
             self:downloadNext();
         end
@@ -515,7 +516,7 @@ function AssetsManager.downloadCallback(manager_id,id)
         if(PercentDone == 100)then
             download_unit.hasDownloaded = true;
             if(totalFileSize ~= download_unit.totalFileSize)then
-	            LOG.std(nil, "warnig", "AssetsManager", "the size of this file is wrong: %s",download_unit.storagePath);
+	            LOG.std(nil, "warn", "AssetsManager", "the size of this file is wrong possibly due to slow connection: %s",download_unit.storagePath);
             else
 	            LOG.std(nil, "debug", "AssetsManager", "download finished: %s",download_unit.srcUrl);
 	            LOG.std(nil, "debug", "AssetsManager", "save at: %s",download_unit.storagePath);
