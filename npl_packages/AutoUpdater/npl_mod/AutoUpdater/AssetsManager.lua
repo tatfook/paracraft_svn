@@ -119,9 +119,9 @@ function AssetsManager:onInit(writablePath,config_filename,event_callback,moving
 	
     self:loadConfig(config_filename)
 end
-function AssetsManager:callback(state)
+function AssetsManager:callback(state, ...)
     if(self.event_callback)then
-        self.event_callback(state);
+        self.event_callback(state, ...);
     end
 end
 function AssetsManager:loadConfig(filename)
@@ -570,16 +570,16 @@ function AssetsManager:apply()
     local version_abs_app_dest_folder;
     local len = #self._downloadUnits; --include version.txt if it is existed
     
-    local k = 1
+	local k = 1
     timer = commonlib.Timer:new({callbackFunc = function(timer)
         local v = self._downloadUnits[k]
         if not v then -- moving file finished
             self:deleteOldFiles();
             self._needUpdate = false;
             local has_error = false;
-            for _, _ in pairs(self._failedUpdateFiles) do
+            for filename, errorCode in pairs(self._failedUpdateFiles) do
                 has_error = true;
-		        self:callback(self.State.FAIL_TO_UPDATED);
+		        self:callback(self.State.FAIL_TO_UPDATED, filename, errorCode);
                 break;
             end
             if(not has_error)then
@@ -608,7 +608,7 @@ function AssetsManager:apply()
 		        end
 		        if(not ParaIO.MoveFile(version_name, version_abs_app_dest_folder))then
 	                LOG.std(nil, "error", "AssetsManager", "failed to move file: %s -> %s",version_name, version_abs_app_dest_folder);
-                    self:callback(self.State.FAIL_TO_UPDATED);
+                    self:callback(self.State.FAIL_TO_UPDATED, version_abs_app_dest_folder, self.UpdateFailedReason.Move);
                     return
 		        end
 		        self._hasVersionFile = true;
