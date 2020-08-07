@@ -76,10 +76,14 @@ function DockPage.OnClick(id)
     elseif(id == "mall")then
         local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
         KeepWorkMallPage.Show();
+    elseif(id == "competition")then
+	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/cp/home", "", 1); 
     elseif(id == "checkin")then
         ParacraftLearningRoomDailyPage.DoCheckin();
     elseif(id == "island")then
         ParacraftLearningRoomDailyPage.OnLearningLand();
+
+        
     else
         _guihelper.MessageBox(id);
     end
