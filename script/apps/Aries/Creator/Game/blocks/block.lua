@@ -1650,6 +1650,20 @@ function block:GetBlockColorByData(blockData)
 	return color;
 end
 
+function block:GetBlockColorStrByData(blockData)
+	local color; 
+	if(self.color_data) then
+		color = Color.convert16_32(blockData or 0);
+	elseif(self.color8_data) then
+		local data = blockData or 0;	
+		color = Color.convert8_32(0xff - rshift(data, 8));
+	elseif(self.mapcolor) then
+		color = self.mapcolor;
+	end
+	color = Color.FromValueToStr(color);
+	return color;
+end
+
 -- @param data: current data
 -- @param preferredData: data containning preferred colors
 -- return new data based on preferredData. In most cases, preferredData are just color data

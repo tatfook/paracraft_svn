@@ -1,12 +1,12 @@
 --[[
 Title: div element
-Author(s): LiXizhi
-Date: 2015/4/27
-Desc: div element
+Author(s): chenjinxian
+Date: 2020/8/4
+Desc: kp:usertag element
 use the lib:
 ------------------------------------------------------------
-NPL.load("(gl)script/ide/System/Windows/mcml/Elements/kp_usertag.lua");
-System.Windows.mcml.Elements.kp_usertag:RegisterAs("kp:usertag");
+NPL.load("(gl)script/apps/Aries/Creator/Game/mcml2/keepwork/kp_usertag.lua");
+MyCompany.Aries.Game.mcml2.kp_usertag:RegisterAs("kp:usertag");
 ------------------------------------------------------------
 ]]
 
@@ -16,7 +16,7 @@ NPL.load("(gl)script/ide/System/Windows/Controls/Button.lua");
 local Button = commonlib.gettable("System.Windows.Controls.Button");
 local Rectangle = commonlib.gettable("System.Windows.Shapes.Rectangle");
 
-local kp_usertag = commonlib.inherit(commonlib.gettable("System.Windows.mcml.PageElement"), commonlib.gettable("System.Windows.mcml.Elements.kp_usertag"));
+local kp_usertag = commonlib.inherit(commonlib.gettable("System.Windows.mcml.PageElement"), commonlib.gettable("MyCompany.Aries.Game.mcml2.kp_usertag"));
 kp_usertag:Property({"class_name", "kp:usertag"});
 
 function kp_usertag:ctor()

@@ -114,6 +114,9 @@ function App:Init()
 	
 	NPL.load("(gl)script/apps/Aries/mcml/mcml_aries.lua");
 	MyCompany.Aries.mcml_controls.register_all();
+	-- mcml v2
+	NPL.load("(gl)script/apps/Aries/Creator/Game/mcml2/mcml.lua");
+	MyCompany.Aries.Game.mcml2.mcml_controls.register_all();
 
 	if(not System.options.mc) then
 		-- load all worlds configuration file
