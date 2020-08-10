@@ -769,3 +769,23 @@ function KeepWorkItemManager.GetUserTag(user_info)
     end
     return tag;
 end
+function KeepWorkItemManager.Is_crown(user_info)
+    return user_info.vip == 1;
+end
+function KeepWorkItemManager.Is_student(user_info)
+    return user_info.student == 1;
+end
+function KeepWorkItemManager.Is_teacher(user_info)
+    return user_info.tLevel == 1;
+end
+function KeepWorkItemManager.GetItemTemplateById(id)
+    if nil == KeepWorkItemManager.globalstore then
+        return nil
+    end
+    
+    for k,v in pairs(KeepWorkItemManager.globalstore) do
+        if id == v.id then
+            return v
+        end
+    end
+end

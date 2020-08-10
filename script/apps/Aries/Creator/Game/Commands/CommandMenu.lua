@@ -198,6 +198,9 @@ Commands["menu"] = {
 					height = 400,
 				cancelShowAnimation = true,
 			});
+		elseif(name == "window.mall") then
+			local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
+			KeepWorkMallPage.Show();
 		elseif(name == "help.Credits") then
 			GameLogic.RunCommand("/open "..L"https://keepwork.com/official/paracraft/credits");
 		elseif(name == "help.ParacraftSDK") then

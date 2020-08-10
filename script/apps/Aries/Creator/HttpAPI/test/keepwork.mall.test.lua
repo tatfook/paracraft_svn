@@ -16,7 +16,6 @@ function test.menus_get(cache_policy, callback)
     keepwork.mall.menus.get({
         cache_policy,
         platform =  1,
-        platform = 1,
     },function(err, msg, data)
         commonlib.echo("==========menus_get");
         commonlib.echo(err);
