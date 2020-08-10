@@ -94,18 +94,20 @@ function KeepWorkStackableItemPage.OnOK()
 		return
 	end
 
-	-- 判断是否不够钱
-	local id = exchange_costs[1] and exchange_costs[1].id or 0
-	local cost_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
-	local cost_name = cost_data.name or ""
-	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(cost_data.gsId)
-	local my_money = copies and copies or 0
+
 	-- local my_money = is_cost_bean and my_bean or my_coin
 	local rule = item_data.rule or {}
 
 	local exchange_costs = rule.exchangeCosts or {}
 	local price = exchange_costs[1] and exchange_costs[1].amount or 0
 	local result_price = price * buy_num
+	
+	-- 判断是否不够钱
+	local id = exchange_costs[1] and exchange_costs[1].id or 0
+	local cost_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
+	local cost_name = cost_data.name or ""
+	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(cost_data.gsId)
+	local my_money = copies and copies or 0
 	
 	if my_money < result_price then
 		if cost_data.gsId == bean_gsid then
