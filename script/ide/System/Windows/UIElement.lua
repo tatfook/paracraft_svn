@@ -91,8 +91,7 @@ UIElement:Property({"TranslationY", 0, auto=true});
 UIElement:Property({"ScalingX", 1, auto=true});
 UIElement:Property({"ScalingY", 1, auto=true});
 UIElement:Property({"Rotation", 0, auto=true});
-UIElement:Property({"Color", "#ffffff", auto=true});
-UIElement:Property({"Opacity", 1, auto=true});
+UIElement:Property({"Color", "#ffffffff", auto=true});
 
 -- number of posted events
 UIElement.postedEvents = 0;

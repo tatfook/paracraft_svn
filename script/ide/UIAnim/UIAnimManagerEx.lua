@@ -222,8 +222,7 @@ function UIAnimManagerEx.StopLoopingUIAnimationSequence(obj, fileName, ID, bForc
 				_uiObject.ScalingY = _SY;
 				
 				_uiObject.Rotation = _R;
-				_uiObject.Color = string.format("#%x%x%x", _CR, _CG, _CB);
-				_uiObject.Opacity = _A / 255;
+				_uiObject.Color = string.format("#%x%x%x%x", _CR, _CG, _CB, _A);
 			end
 		end
 	end
@@ -335,8 +334,7 @@ function UIAnimManagerEx.DoAnimation(timer)
 				_uiObject.ScalingY = _SY;
 				
 				_uiObject.Rotation = _R;
-				_uiObject.Color = string.format("#%x%x%x", _CR, _CG, _CB);
-				_uiObject.Opacity = _A / 255;
+				_uiObject.Color = string.format("#%x%x%x%x", _CR, _CG, _CB, _A);
 			
 			end -- if(v.IsAnimating = true) then
 		end 

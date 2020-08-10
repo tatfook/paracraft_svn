@@ -27,7 +27,6 @@ function Canvas:paintEvent(painter)
 
 	local color = Color.Multiply(self:GetBackgroundColor(), self:GetColor());
 	painter:SetPen(color);
-	painter:SetOpacity(self:GetOpacity());
 	painter:DrawRectTexture(self:x(), self:y(), self:width(), self:height(), self:GetBackground());
 
 	painter:Translate(-self:GetTranslationX(), -self:GetTranslationY());
