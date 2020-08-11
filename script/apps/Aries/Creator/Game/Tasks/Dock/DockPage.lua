@@ -57,6 +57,9 @@ function DockPage.OnClick(id)
     if(id == "character")then
         local UserInfoPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/UserInfoPage.lua");
         UserInfoPage.ShowPage();
+    elseif(id == "bag")then
+        local UserBagPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/UserBagPage.lua");
+        UserBagPage.ShowPage();
     elseif(id == "work")then
         
         GameLogic.RunCommand("/menu file.loadworld");
