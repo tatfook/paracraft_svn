@@ -377,6 +377,7 @@ end
   message="请求成功" 
 }
 --]]
+-- NOTE: apply_filters("LoadBags_Finished") after loaded
 function KeepWorkItemManager.LoadBags(bForced, callback)
     local cache_policy;
     if(bForced)then
@@ -394,6 +395,7 @@ function KeepWorkItemManager.LoadBags(bForced, callback)
             for k,v in ipairs(KeepWorkItemManager.bags) do
                 KeepWorkItemManager.bags_map[v.id] = v;
             end
+            KeepWorkItemManager.GetFilter():apply_filters("LoadBags_Finished");
 
             if(callback)then
                 callback();
@@ -427,6 +429,7 @@ end
     ]
 }
 --]]
+-- NOTE: apply_filters("LoadItems_Finished") after loaded
 -- @param bagNos: nil to load all, "{1001,1002}" to load specific bags by bag number
 function KeepWorkItemManager.LoadItems(bagNos, callback, error_callback)
     bagNos = bagNos or {};
@@ -455,6 +458,7 @@ function KeepWorkItemManager.LoadItems(bagNos, callback, error_callback)
         if(data and data.data)then
             local new_items = data.data;
             KeepWorkItemManager.items = KeepWorkItemManager.UnionItems(KeepWorkItemManager.items, new_items)
+            KeepWorkItemManager.GetFilter():apply_filters("LoadItems_Finished");
             if(callback)then
                 callback();
             end
