@@ -162,7 +162,8 @@ end
 -- 	  stateLog={ completedAt="2020-08-12T07:14:25.228Z" },
 -- 	  updatedAt="2020-08-12T07:14:25.228Z",
 -- 	  userId=623 
--- 	} 
+-- 	} ,
+--	icon=""
 --   }
 
 function KeepWorkStackableItemPage.OnOK()
@@ -219,7 +220,9 @@ function KeepWorkStackableItemPage.OnOK()
         }
 	},function(err, msg, data)
 		if err == 200 then
+			data.icon = item_data.icon
 			GameLogic.AddBBS("statusBar", L"购买成功!", 5000, "0 255 0");
+			-- KeepWorkStackableItemPage.openGetItemView(data)
 			KeepWorkItemManager.LoadItems()
 			page:CloseWindow()
 		elseif err == 500 then
@@ -268,10 +271,10 @@ function KeepWorkStackableItemPage.openBeanNoEnoughView()
 		enable_esc_key = true,
 		directPosition = true,
 			align = "_ct",
-			x = -466/2,
-			y = -400/2,
-			width = 466,
-			height = 355,
+			x = -400/2,
+			y = -330/2,
+			width = 400,
+			height = 330,
 	});
 end
 
@@ -293,10 +296,10 @@ function KeepWorkStackableItemPage.openCoinNoEnoughView()
 		enable_esc_key = true,
 		directPosition = true,
 			align = "_ct",
-			x = -466/2,
-			y = -400/2,
-			width = 466,
-			height = 355,
+			x = -400/2,
+			y = -216/2,
+			width = 400,
+			height = 216,
 	});
 end
 
@@ -314,12 +317,13 @@ function KeepWorkStackableItemPage.canChooseNums()
 end
 
 function KeepWorkStackableItemPage.getGoodName()
-	
 	return item_data and item_data.name or ""
 end
 
-function KeepWorkStackableItemPage.openGetItemView()
-	local url = System.localserver.UrlHelper.BuildURLQuery("script/apps/Aries/Creator/Game/KeepWork/KeepWorkGetItem.html", {});
+function KeepWorkStackableItemPage.openGetItemView(data)
+	-- data.icon = "Texture/Aries/Creator/keepwork/items/item_10001_32bits.png"
+	data = commonlib.Json.Encode(data);
+	local url = System.localserver.UrlHelper.BuildURLQuery("script/apps/Aries/Creator/Game/KeepWork/KeepWorkGetItem.html", {item_data = data});
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 		-- TODO:  Add uid to url
 		url = url, 
@@ -334,9 +338,9 @@ function KeepWorkStackableItemPage.openGetItemView()
 		enable_esc_key = true,
 		directPosition = true,
 			align = "_ct",
-			x = -466/2,
-			y = -400/2,
-			width = 466,
-			height = 355,
+			x = -400/2,
+			y = -304/2,
+			width = 400,
+			height = 304,
 	});
 end

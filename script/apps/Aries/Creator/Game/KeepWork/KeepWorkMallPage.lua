@@ -9,7 +9,8 @@ local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/K
 KeepWorkMallPage.Show();
 --]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-
+local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
+local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
 local KeepWorkMallPage = NPL.export();
 local pe_gridview = commonlib.gettable("Map3DSystem.mcml_controls.pe_gridview");
 
@@ -57,43 +58,59 @@ function KeepWorkMallPage.OnInit()
 end
 
 function KeepWorkMallPage.Show()
-	local view_width = 1084
-	local view_height = 638
-	local params = {
-			url = "script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.html",
-			name = "KeepWorkMallPage.Show", 
-			isShowTitleBar = false,
-			DestroyOnClose = true,
-			style = CommonCtrl.WindowFrame.ContainerStyle,
-			allowDrag = true,
-			enable_esc_key = true,
-			zorder = -1,
-			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-			directPosition = true,
-				align = "_ct",
-				x = -view_width/2,
-				y = -view_height/2,
-				width = view_width,
-				height = view_height,
-		};
-	System.App.Commands.Call("File.MCMLWindowFrame", params);
-	KeepWorkMallPage.OnChangeTopBt(1);
+    if(KeepworkServiceSession:IsSignedIn())then
+        KeepWorkMallPage.ShowView()
+        return
+    end
+    LoginModal:CheckSignedIn(L"请先登录", function(result)
+        if result == true then
+            Mod.WorldShare.Utils.SetTimeOut(function()
+                if result then
+					KeepWorkMallPage.ShowView()
+                end
+            end, 500)
+        end
+    end)
+end
 
-    keepwork.mall.menus.get({
-        cache_policy,
-        platform =  1,
-    },function(err, msg, data)
+function KeepWorkMallPage.ShowView()
+	keepwork.mall.menus.get({
+		cache_policy,
+		platform =  1,
+	},function(err, msg, data)
 		level_to_index = {}
 		menu_item_index = 0
 	
 		local level = 1
 		KeepWorkMallPage.menu_data_sources = {}
 		KeepWorkMallPage.HandleMenuData(KeepWorkMallPage.menu_data_sources, data, level)
+
+		local view_width = 1084
+		local view_height = 638
+		local params = {
+				url = "script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.html",
+				name = "KeepWorkMallPage.Show", 
+				isShowTitleBar = false,
+				DestroyOnClose = true,
+				style = CommonCtrl.WindowFrame.ContainerStyle,
+				allowDrag = true,
+				enable_esc_key = true,
+				zorder = -1,
+				app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
+				directPosition = true,
+					align = "_ct",
+					x = -view_width/2,
+					y = -view_height/2,
+					width = view_width,
+					height = view_height,
+			};
+		System.App.Commands.Call("File.MCMLWindowFrame", params);
+
+		KeepWorkMallPage.OnChangeTopBt(1);
 		KeepWorkMallPage.ChangeMenuType(KeepWorkMallPage.cur_select_level, KeepWorkMallPage.cur_select_type_index);
 	end)
-	
-
 end
+
 function KeepWorkMallPage.OnChangeTopBt(index)
 	index = tonumber(index)
     KeepWorkMallPage.top_bt_index = index;
@@ -109,7 +126,7 @@ function KeepWorkMallPage.ChangeMenuItem(attr)
 end
 function KeepWorkMallPage.OnRefresh()
     if(page)then
-        page:Refresh(0.05);
+        page:Refresh(0.2);
     end
 end
 function KeepWorkMallPage.ChangeMenuType(level, index)
@@ -187,100 +204,6 @@ local tagList = {
 	[2] = "latest",
 	[3] = "hot",
 }
-
--- {
---     bean=0,
---     coin=0,
---     createdAt="2020-07-21T08:50:28.000Z",
---     description="测试兑换10001",
---     icon="http://qiniu-public-dev.keepwork.com/admin5-6bb607b0-d172-11ea-a1c7-af49ce54d063",
---     id=12,
---     isVip=false,
---     method=0,
---     name="测试兑换10001",
---     rule={
---       createdAt="2020-06-04T08:18:35.000Z",
---       desc="测试兑换10001",
---       exId=10001,
---       exchangeCosts={ { amount=1, id=15 } },
---       exchangeTargets={
---         {
---           goods={
---             {
---               amount=1,
---               goods={
---                 bagId=8,
---                 beans=100000,
---                 canHandsel=true,
---                 canTrade=true,
---                 canUse=true,
---                 coins=100000,
---                 createdAt="2020-06-04T08:16:07.000Z",
---                 dayMax=100000,
---                 deleted=false,
---                 desc="测试物品10003",
---                 destoryAfterUse=true,
---                 expiredRules=1,
---                 expiredSeconds=0,
---                 gsId=10003,
---                 icon="none",
---                 id=16,
---                 max=100000,
---                 name="测试物品10003",
---                 stackable=true,
---                 typeId=8,
---                 updatedAt="2020-06-04T09:10:14.000Z",
---                 weekMax=100000 
---               },
---               id=16 
---             },
---             {
---               amount=1,
---               goods={
---                 bagId=9,
---                 beans=100000,
---                 canHandsel=true,
---                 canTrade=true,
---                 canUse=true,
---                 coins=100000,
---                 createdAt="2020-06-04T08:19:34.000Z",
---                 dayMax=100000,
---                 deleted=false,
---                 desc="测试物品10004",
---                 destoryAfterUse=true,
---                 expiredRules=1,
---                 expiredSeconds=0,
---                 gsId=10004,
---                 icon="none",
---                 id=17,
---                 max=100000,
---                 name="测试物品10004",
---                 stackable=true,
---                 typeId=8,
---                 updatedAt="2020-06-04T09:10:27.000Z",
---                 weekMax=100000 
---               },
---               id=17 
---             } 
---           },
---           probability=100 
---         } 
---       },
---       greedy=false,
---       icon="http://qiniu-public-dev.keepwork.com/admin5-6bb607b0-d172-11ea-a1c7-af49ce54d063",
---       id=27,
---       name="测试兑换10001",
---       preconditions={ { amount=6, id=12, op="gte" } },
---       storage=-1,
---       updatedAt="2020-07-29T08:06:41.000Z" 
---     },
---     ruleId=10001,
---     showAt=2,
---     sn=0,
---     status=1,
---     tags="latest,hot",
---     updatedAt="2020-08-10T05:20:00.000Z" 
---   },
 
 function KeepWorkMallPage.GetGoodsData(classifyId, keyword, only_refresh_grid)
 	-- classifyId 类别id
@@ -381,10 +304,10 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 		enable_esc_key = true,
 		directPosition = true,
 			align = "_ct",
-			x = -466/2,
-			y = -400/2,
-			width = 466,
-			height = 355,
+			x = -400/2,
+			y = -304/2,
+			width = 400,
+			height = 304,
 	});
 end
 
@@ -458,6 +381,5 @@ local top_bt_desc_list = {
 	[3] = "热门类别"
 }
 function KeepWorkMallPage.getTopBtDesc()
-	print("ssssss", KeepWorkMallPage.top_bt_index)
 	return top_bt_desc_list[KeepWorkMallPage.top_bt_index or 1] or ""
 end
