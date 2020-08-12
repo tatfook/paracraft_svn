@@ -17,6 +17,8 @@ local page;
 local level_to_index = {}
 local menu_item_index = 0
 local cur_classifyId = 0
+local bean_gsid = 998;
+local coin_gsid = 888
 KeepWorkMallPage.menu_data_sources = {}
 KeepWorkMallPage.menu_data_sources = {
 	{
@@ -55,6 +57,8 @@ function KeepWorkMallPage.OnInit()
 end
 
 function KeepWorkMallPage.Show()
+	local view_width = 1084
+	local view_height = 638
 	local params = {
 			url = "script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.html",
 			name = "KeepWorkMallPage.Show", 
@@ -67,10 +71,10 @@ function KeepWorkMallPage.Show()
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			directPosition = true,
 				align = "_ct",
-				x = -650/2,
-				y = -450/2,
-				width = 650,
-				height = 450,
+				x = -view_width/2,
+				y = -view_height/2,
+				width = view_width,
+				height = view_height,
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 	KeepWorkMallPage.OnChangeTopBt(1);
@@ -171,8 +175,8 @@ function KeepWorkMallPage.HandleMenuData(parent_t, data, level)
 
 		-- 记录默认展示的索引
 		if temp_t.attr.menu_item_index and temp_t.attr.menu_item_index == KeepWorkMallPage.defaul_select_menu_item_index then
-			KeepWorkMallPage.cur_select_level = parent_t.attr.level
-			KeepWorkMallPage.cur_select_type_index = parent_t.attr.index
+			KeepWorkMallPage.cur_select_level = parent_t.attr and parent_t.attr.level or 1
+			KeepWorkMallPage.cur_select_type_index = parent_t.attr and parent_t.attr.index or 1
 			KeepWorkMallPage.GetGoodsData(temp_t.attr.server_data.id)
 		end
 	end	
@@ -300,40 +304,45 @@ function KeepWorkMallPage.GetGoodsData(classifyId, keyword, only_refresh_grid)
             ["x-per-page"] = 1000,
             ["x-page"] = 1,
         }
-    },function(err, msg, data)
+	},function(err, msg, data)
 		for k, v in pairs(data.rows) do
 			v.cost_name = ""
 			v.cost = 0
 			v.cost_desc = ""
-			v.tag_desc = ""
 			v.enabled = true
-			v.vip_desc = v.isVip and "vip" or ""
-
+			v.is_show_hot_tag = string.find(v.tags, "hot") and string.find(v.tags, "hot") > 0
+			v.is_show_latest_tag = string.find(v.tags, "latest") and string.find(v.tags, "latest") > 0
+			v.isLink = v.purchaseUrl ~= nil and v.purchaseUrl ~= ""
 			-- 售完或者到达购买上限的情况下不允许购买
 			v.buy_txt = "购买"
 			if v.rule and v.rule.storage == 0 then
 				v.buy_txt = "售完"
 				v.enabled = false
+			else
+				v.enabled = KeepWorkMallPage.checkIsGetLimit(v)
 			end
-
-			v.enabled = KeepWorkMallPage.checkIsGetLimit(v)
-
-			if v.tags == "latest" then
-				v.tag_desc = "最新"
-			elseif v.tags == "hot" then
-				v.tag_desc = "热门"
-			elseif v.tags == "latest,hot" or v.tags == "hot,latest" then
-				v.tag_desc = "最新热门"
-			end
+			
 			
 			if v.rule and v.rule.exchangeCosts and v.rule.exchangeCosts[1] then
 				v.cost = v.rule.exchangeCosts[1].amount
-
+				
 				local cost_item_data = KeepWorkItemManager.GetItemTemplateById(v.rule.exchangeCosts[1].id) or {}
 				v.cost_name = cost_item_data.name or ""
-				v.cost_desc = v.cost .. v.cost_name				
+
+				if cost_item_data.gsId == bean_gsid then
+					v.is_cost_bean = true
+				elseif cost_item_data.gsId == coin_gsid then
+					v.is_cost_coin = true
+				end
+
+				if v.is_cost_bean or v.is_cost_coin then
+					v.cost_desc = v.cost
+				else
+					v.cost_desc = v.cost .. v.cost_name
+				end
+			elseif v.price then
+				v.cost_desc = v.price
 			end
-			
 		end
 
 		KeepWorkMallPage.grid_data_sources = data.rows
@@ -349,6 +358,11 @@ function KeepWorkMallPage.GetGoodsData(classifyId, keyword, only_refresh_grid)
 end
 
 function KeepWorkMallPage.OnClickBuy(item_data)
+	if item_data.isLink then
+		ParaGlobal.ShellExecute("open", "iexplore.exe", item_data.purchaseUrl or "", "", 1); 
+		return
+	end
+
 	item_data = commonlib.Json.Encode(item_data);
 	local params = {}
 	local seq = 1
@@ -405,9 +419,14 @@ end
 -- 2 背包数量还没达到限制的购买数量 但买了之后会超过限制数量 必须看是否允许贪婪 若允许 则可以购买 但后买后的数量依然不能超过限制数量
 --   若不允许 则不允许购买
 function KeepWorkMallPage.checkIsGetLimit(data)
+	if data.isLink then
+		return true
+	end
+
 	if nil == data.rule then
 		return false
 	end
+
 	local exchange_targets = data.rule.exchangeTargets or {}
 	local greedy = data.rule.greedy
 	local target_list = exchange_targets[1].goods or {}
@@ -431,4 +450,14 @@ function KeepWorkMallPage.checkIsGetLimit(data)
 	end
 
 	return true
+end
+
+local top_bt_desc_list = {
+	[1] = "全部类别",
+	[2] = "最新类别",
+	[3] = "热门类别"
+}
+function KeepWorkMallPage.getTopBtDesc()
+	print("ssssss", KeepWorkMallPage.top_bt_index)
+	return top_bt_desc_list[KeepWorkMallPage.top_bt_index or 1] or ""
 end
