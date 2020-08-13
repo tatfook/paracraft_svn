@@ -13,6 +13,7 @@ local KeepWorkStackableItemPage = {};
 commonlib.setfield("MyCompany.Aries.Creator.Game.KeepWork.KeepWorkStackableItemPage", KeepWorkStackableItemPage);
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua");
+local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 local page;
 local item_data
 local item_name;
@@ -221,7 +222,7 @@ function KeepWorkStackableItemPage.OnOK()
             -- ["Authorization"] = " Bearer aa",
         }
 	},function(err, msg, data)
-		print("aaaaaaaaaaaaaaaaaaa", err)
+		print("aaaaaaaaaaaaaaaaaaa", err) 
 		commonlib.echo(data, true)
 
 		if err == 200 then
@@ -231,6 +232,7 @@ function KeepWorkStackableItemPage.OnOK()
 				_guihelper.MessageBoxClass.CheckShowCallback = KeepWorkStackableItemPage.openMessageBox
 				_guihelper.MessageBox("订单请求中，请稍等...", KeepWorkStackableItemPage.openMessageBox, _guihelper.MessageBoxButtons.OK);
 
+				HttpWrapper.Create("keepwork.mall.orderResule", "%MAIN%/core/v0/mall/mOrders/" .. orderId, "GET", false)
 				requestOrderTimes = 0
 				commonlib.TimerManager.SetTimeout(function()
 					KeepWorkStackableItemPage.requestOrderResult()
@@ -372,7 +374,7 @@ end
 
 function KeepWorkStackableItemPage.requestOrderResult()
 	requestOrderTimes = requestOrderTimes + 1
-	if requestOrderTimes >= requestOrderMaxTimes then
+	if requestOrderTimes > requestOrderMaxTimes then
 		-- 关闭弹窗
 		_guihelper.CloseMessageBox()
 		_guihelper.MessageBoxClass.CheckShowCallback = nil
@@ -386,15 +388,13 @@ function KeepWorkStackableItemPage.requestOrderResult()
 	end
 	GameLogic.AddBBS("statusBar", L"订单请求中，请稍等...", 5000, "0 255 0");
 	
+	
 	KeepworkService:GetToken()
     keepwork.mall.orderResule({
-		id=orderId,
         headers = {
 			["Authorization"] = format("Bearer %s", token),
         }
 	},function(err, msg, data)
-		print("aaaaaaaaaaaaaaaaaaxxxx", err)
-		commonlib.echo(data, true)
 		if err == 200 then
 			if data.state == 0 then
 				commonlib.TimerManager.SetTimeout(function()

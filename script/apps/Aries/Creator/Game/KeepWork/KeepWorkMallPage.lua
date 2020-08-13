@@ -133,7 +133,7 @@ function KeepWorkMallPage.ChangeMenuItem(attr)
 end
 function KeepWorkMallPage.OnRefresh()
     if(page)then
-        page:Refresh(0.05);
+        page:Refresh(0.2);
     end
 end
 function KeepWorkMallPage.ChangeMenuType(level, index)
