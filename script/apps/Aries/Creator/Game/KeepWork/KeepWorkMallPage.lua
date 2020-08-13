@@ -283,13 +283,12 @@ function KeepWorkMallPage.GetGoodsData(classifyId, keyword, only_refresh_grid)
 		else
 			KeepWorkMallPage.OnRefresh()
 		end
-		KeepWorkMallPage.OnRefresh()
     end)
 end
 
 function KeepWorkMallPage.OnClickBuy(item_data)
 	if item_data.isLink then
-		ParaGlobal.ShellExecute("open", "explorer.exe", item_data.purchaseUrl or "", "", 1); 
+		ParaGlobal.ShellExecute("open", item_data.purchaseUrl, "", "", 1); 
 		return
 	end
 	local KeepWorkStackableItemPage = MyCompany.Aries.Creator.Game.KeepWork.KeepWorkStackableItemPage
