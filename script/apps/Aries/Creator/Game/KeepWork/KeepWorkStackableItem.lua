@@ -222,9 +222,6 @@ function KeepWorkStackableItemPage.OnOK()
             -- ["Authorization"] = " Bearer aa",
         }
 	},function(err, msg, data)
-		print("aaaaaaaaaaaaaaaaaaa", err) 
-		commonlib.echo(data, true)
-
 		if err == 200 then
 			-- 订单状态：0：进行中, 1： 购买成功，2: 购买失败
 			orderId = data.id
