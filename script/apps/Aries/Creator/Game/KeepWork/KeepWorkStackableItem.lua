@@ -221,8 +221,8 @@ function KeepWorkStackableItemPage.OnOK()
 	},function(err, msg, data)
 		if err == 200 then
 			data.icon = item_data.icon
-			GameLogic.AddBBS("statusBar", L"购买成功!", 5000, "0 255 0");
-			-- KeepWorkStackableItemPage.openGetItemView(data)
+			-- GameLogic.AddBBS("statusBar", L"购买成功!", 5000, "0 255 0");
+			KeepWorkStackableItemPage.openGetItemView(data)
 			KeepWorkItemManager.LoadItems()
 			page:CloseWindow()
 		elseif err == 500 then
