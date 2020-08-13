@@ -1,12 +1,12 @@
 --[[
-Title: ParaWorldChunkGenerator
+Title: ParaWorldMiniChunkGenerator
 Author(s): LiXizhi
-Date: 2013/8/27, refactored 2015.11.17
-Desc: A flat grid world, where the center is 256*256, the outer is 128*128 grid.
+Date: 2020.8.12
+Desc: A mini 128*128 world 
 -----------------------------------------------
-NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldChunkGenerator.lua");
-local ParaWorldChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator");
-ChunkGenerators:Register("paraworld", ParaWorldChunkGenerator);
+NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldMiniChunkGenerator.lua");
+local ParaWorldMiniChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator");
+ChunkGenerators:Register("paraworldMini", ParaWorldMiniChunkGenerator);
 -----------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua");
@@ -14,25 +14,25 @@ local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine");
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 
-local ParaWorldChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"))
+local ParaWorldMiniChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"))
 
-function ParaWorldChunkGenerator:ctor()
+function ParaWorldMiniChunkGenerator:ctor()
 end
 
 -- @param world: WorldManager, if nil, it means a local generator. 
 -- @param seed: a number
-function ParaWorldChunkGenerator:Init(world, seed)
-	ParaWorldChunkGenerator._super.Init(self, world, seed);
+function ParaWorldMiniChunkGenerator:Init(world, seed)
+	ParaWorldMiniChunkGenerator._super.Init(self, world, seed);
 	return self;
 end
 
-function ParaWorldChunkGenerator:OnExit()
-	ParaWorldChunkGenerator._super.OnExit(self);
+function ParaWorldMiniChunkGenerator:OnExit()
+	ParaWorldMiniChunkGenerator._super.OnExit(self);
 end
 
 -- get params for generating flat terrain
 -- one can modify its properties before running custom chunk generator. 
-function ParaWorldChunkGenerator:GetFlatLayers()
+function ParaWorldMiniChunkGenerator:GetFlatLayers()
 	if(self.flat_layers == nil) then
 		self.flat_layers = {
 			{y = 9, block_id = names.Bedrock},
@@ -42,12 +42,12 @@ function ParaWorldChunkGenerator:GetFlatLayers()
 	return self.flat_layers;
 end
 
-function ParaWorldChunkGenerator:SetFlatLayers(layers)
+function ParaWorldMiniChunkGenerator:SetFlatLayers(layers)
 	self.flat_layers = layers;
 end
 
 -- generate flat terrain
-function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
+function ParaWorldMiniChunkGenerator:GenerateFlat(c, x, z)
 	local layers = self:GetFlatLayers();
 			
 	local by = layers[1].y;
@@ -97,24 +97,24 @@ end
 
 -- protected virtual funtion:
 -- generate chunk for the entire chunk column at x, z
-function ParaWorldChunkGenerator:GenerateChunkImp(chunk, x, z, external)
+function ParaWorldMiniChunkGenerator:GenerateChunkImp(chunk, x, z, external)
 	self:GenerateFlat(chunk, x, z);
 end
 
 -- virtual function: this is run in worker thread. It should only use data in the provided chunk.
 -- if this function returns false, we will use GenerateChunkImp() instead. 
-function ParaWorldChunkGenerator:GenerateChunkAsyncImp(chunk, x, z)
+function ParaWorldMiniChunkGenerator:GenerateChunkAsyncImp(chunk, x, z)
 	return false
 end
 
-function ParaWorldChunkGenerator:IsSupportAsyncMode()
+function ParaWorldMiniChunkGenerator:IsSupportAsyncMode()
 	return false;
 end
 
 -- virtual function: get the class address for sending to worker thread. 
-function ParaWorldChunkGenerator:GetClassAddress()
+function ParaWorldMiniChunkGenerator:GetClassAddress()
 	return {
-		filename="script/apps/Aries/Creator/Game/World/generators/ParaWorldChunkGenerator.lua", 
-		classpath="MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"
+		filename="script/apps/Aries/Creator/Game/World/generators/ParaWorldMiniChunkGenerator.lua", 
+		classpath="MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"
 	};
 end
