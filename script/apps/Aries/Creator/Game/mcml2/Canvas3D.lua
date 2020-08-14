@@ -6,13 +6,13 @@ Desc: A 3D canvas container for displaying picture, 3D scene, etc
 use the lib:
 ------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/mcml2//Canvas3D.lua");
-local Canvas3D = commonlib.gettable("MyCompany.Aries.Game.mcml2.Canvas3D");
+local Canvas3D = commonlib.gettable("MyCompany.Aries.Creator.Game.mcml2.Canvas3D");
 ------------------------------------------------------------
 ]]
 NPL.load("(gl)script/ide/CanvasCamConfig.lua");
 local CanvasCamConfig = commonlib.gettable("MyCompany.Aries.CanvasCamConfig");
 NPL.load("(gl)script/ide/System/Windows/UIElement.lua");
-local Canvas3D = commonlib.inherit(commonlib.gettable("System.Windows.UIElement"), commonlib.gettable("MyCompany.Aries.Game.mcml2.Canvas3D"));
+local Canvas3D = commonlib.inherit(commonlib.gettable("System.Windows.UIElement"), commonlib.gettable("MyCompany.Aries.Creator.Game.mcml2.Canvas3D"));
 Canvas3D:Property("Name", "Canvas3D");
 Canvas3D:Property({"BackgroundColor", "#ffffff", auto=true});
 Canvas3D:Property({"Background", nil, auto=true});
