@@ -641,18 +641,41 @@ function Entity:UpdateImageModel(filename, isSingle)
 			local gridWidth, gridHeight = self.columns, self.rows;
 			if(not isSingle or imageSizeChanged) then
 				imageRadius = math.max(gridWidth, gridHeight);
-				mat:setScale(imageRadius*BlockEngine.blocksize, imageRadius*BlockEngine.blocksize, imageRadius*BlockEngine.blocksize)
-				obj:SetField("LocalTransform", mat)	
+				if(isSingle or self.last_filename == "") then
+					mat:setScale(BlockEngine.blocksize, BlockEngine.blocksize, BlockEngine.blocksize)
+					obj:SetField("LocalTransform", mat)	
+				else
+					local matScale = mathlib.Matrix4:new():identity();
+					matScale:setScale(imageRadius*2*BlockEngine.blocksize, imageRadius*2*BlockEngine.blocksize, imageRadius*2*BlockEngine.blocksize);
+					mat:offsetTrans(0, -0.5, 0);
+
+					local data = self.block_data or 0;
+					if(data>=4 and data<12) then
+						local quat = Direction.GetQuaternionByData(data);
+						mat = mat:multiply(mathlib.Quaternion:new({quat.x, quat.y, quat.z, quat.w}):ToRotationMatrix());
+					end
+					mat = mat:multiply(matScale);
+
+					if(self.start_block_coord and (self.start_block_coord.x ~= self.bx or self.start_block_coord.y ~= self.by or self.start_block_coord.z ~= self.bz)) then
+						local dx = (self.start_block_coord.x - self.bx) * BlockEngine.blocksize;
+						local dy = (self.start_block_coord.y - self.by) * BlockEngine.blocksize;
+						local dz = (self.start_block_coord.z - self.bz) * BlockEngine.blocksize;
+						mat:offsetTrans(dx, dy, dz);
+					end
+					obj:SetField("LocalTransform", mat)	
+				end
 			end
 
-			if(filename) then
+			if(self.last_filename ~= "") then
 				-- update rotation based on block data
 				local data = self.block_data or 0;
 				if(data < 4) then
 					obj:SetFacing(Direction.directionTo3DFacing[data]);
 				elseif(data < 12) then
 					obj:SetFacing(0);
-					obj:SetRotation(Direction.GetQuaternionByData(data));
+					if(isSingle)  then
+						obj:SetRotation(Direction.GetQuaternionByData(data));
+					end
 				end
 			end
 
@@ -660,8 +683,9 @@ function Entity:UpdateImageModel(filename, isSingle)
 				self.text_offset.y = 0.45;
 				Image3DDisplay.ShowHeadonDisplay(true, obj, filename or "", 90, 90, nil, self.text_offset, -1.57);
 			else
-				local text_offset = {x = (self.text_offset.x + gridWidth*0.5-0.5)  / imageRadius, y = (0.5) / imageRadius, z = self.text_offset.z / imageRadius}
-				Image3DDisplay.ShowHeadonDisplay(true, obj, filename or "", 100/imageRadius * gridWidth, 100/imageRadius*gridHeight, nil, text_offset, -1.57);
+				local imageScale = imageRadius*2;
+				local text_offset = {x = (self.text_offset.x + gridWidth*0.5-0.5)  / imageScale, y = (0.5+imageRadius) / imageScale, z = self.text_offset.z / imageScale}
+				Image3DDisplay.ShowHeadonDisplay(true, obj, filename or "", 100/imageScale * gridWidth, 100/imageScale*gridHeight, nil, text_offset, -1.57);
 			end
 		end
 	end
