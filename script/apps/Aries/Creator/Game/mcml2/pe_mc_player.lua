@@ -11,9 +11,9 @@ MyCompany.Aries.Game.mcml2.pe_mc_player:RegisterAs("pe:mc_player");
 ]]
 
 NPL.load("(gl)script/ide/System/Windows/mcml/PageElement.lua");
-NPL.load("(gl)script/apps/Aries/Creator/Game/mcml2//Canvas3D.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/mcml2/Canvas3D.lua");
 local PageElement = commonlib.gettable("System.Windows.mcml.PageElement");
-local Canvas3D = commonlib.gettable("MyCompany.Aries.Creator.Game.mcml2.Canvas3D");
+local Canvas3D = commonlib.gettable("MyCompany.Aries.Game.mcml2.Canvas3D");
 
 local pe_mc_player = commonlib.inherit(commonlib.gettable("System.Windows.mcml.PageElement"), commonlib.gettable("MyCompany.Aries.Game.mcml2.pe_mc_player"));
 pe_mc_player:Property({"class_name", "pe:mc_player"});
