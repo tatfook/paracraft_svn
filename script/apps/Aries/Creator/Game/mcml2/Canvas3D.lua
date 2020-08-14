@@ -211,8 +211,8 @@ function Canvas3D:ShowModel(obj, bAutoAdjustCamera)
 		------------------------------------
 		-- init camera
 		------------------------------------
-		scene:CameraSetLookAtPos(0,0.8,0);
-		scene:CameraSetEyePosByAngle(0, 0.25, 4);
+		scene:CameraSetLookAtPos(0,0.4,0);
+		scene:CameraSetEyePosByAngle(0, 0.25, 2.5);
 		
 		if(self.mask_texture) then
 			scene:SetMaskTexture(ParaAsset.LoadTexture("", self.mask_texture, 1));
