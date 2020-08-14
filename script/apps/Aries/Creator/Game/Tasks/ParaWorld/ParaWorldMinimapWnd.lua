@@ -23,20 +23,36 @@ function ParaWorldMinimapWnd:Show()
 		window:EnableSelfPaint(true);
 		window:SetAutoClearBackground(false);
 		self.window = window;
+
+		self.window2 = Window:new();
 	end
 	
 	self.window:Show({
 		name="ParaWorldMinimapWnd", 
-		url="script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.html",
-		alignment="_rt", left=-210, top=10, width = 200, height = 220, zorder = -12
+		url="script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.html?isSurface=true",
+		alignment="_rt", left=-202, top=10, width = 192, height = 220, zorder = -12
+	});
+
+	self.window2:Show({
+		name="ParaWorldMinimapWnd2", 
+		url="script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.html?isSurface=false",
+		alignment="_rt", left=-202, top=10, width = 192, height = 220, zorder = -11
 	});
 end
 
-function ParaWorldMinimapWnd:Close()
+function ParaWorldMinimapWnd.CloseWindow()
+	local self = ParaWorldMinimapWnd
 	if(self.window) then
 		self.window:CloseWindow(true)
 		self.window = nil;
+
+		self.window2:CloseWindow(true)
+		self.window2 = nil;
 	end
+end
+
+function ParaWorldMinimapWnd:Close()
+	ParaWorldMinimapWnd.CloseWindow()
 end
 
 function ParaWorldMinimapWnd.GetWorldName()
