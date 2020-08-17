@@ -141,6 +141,13 @@ function TeacherPanel.OpenChat()
 end
 
 function TeacherPanel.ConnectClass()
+	_guihelper.MessageBox(L"确定要开启联机模式吗？", function(res)
+		if(res == _guihelper.DialogResult.OK) then
+			GameLogic.RunCommand("/connectGGS");
+			ClassManager.SendMessage("cmd:connect");
+			GameLogic.AddBBS(nil, L"联机成功！", 3000, "0 255 0");
+		end
+	end, _guihelper.MessageBoxButtons.OKCancel);
 end
 
 function TeacherPanel.ShareUrl()

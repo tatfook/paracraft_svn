@@ -45,13 +45,13 @@ function ShareUrlContext.OnClose()
 	end
 end
 
+function ShareUrlContext.Refresh()
+	if (page) then
+		page:Refresh(0);
+	end
+end
 			
 function ShareUrlContext.ClassItems()
-	ClassManager.ShareLinkList = {
-		{link = "https://keepwork.com/", teacher = "test1", time = "2020/8/15"},
-		{link = "https://keepwork.com/", teacher = "test1", time = "2020/8/15"},
-		{link = "https://keepwork.com/", teacher = "test1", time = "2020/8/15"},
-	}
 	return ClassManager.ShareLinkList;
 end
 

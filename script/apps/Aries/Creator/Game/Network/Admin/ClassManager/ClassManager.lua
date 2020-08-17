@@ -19,16 +19,20 @@ local TeacherPanel = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/
 local StudentPanel = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/StudentPanel.lua");
 local TChatRoomPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/TChatRoomPage.lua");
 local SChatRoomPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/SChatRoomPage.lua");
+local ShareUrlContext = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ShareUrlContext.lua");
 local LockDesktop = commonlib.gettable("MyCompany.Aries.Game.Tasks.LockDesktop");
 local ClassManager = NPL.export()
 
 ClassManager.InClass = false;
+
+ClassManager.CurrentOrgLoginUrl = nil;
 ClassManager.CurrentClassId = nil;
 ClassManager.CurrentWorldId = nil; 
 ClassManager.CurrentClassroomId = nil;
 ClassManager.CurrentClassName = nil;
 ClassManager.CurrentWorldName = nil; 
 
+ClassManager.OrgClassIdMap = {};
 ClassManager.ClassList = {};
 ClassManager.ProjectList = {};
 ClassManager.StudentList = {};
@@ -49,6 +53,7 @@ function ClassManager.OnKeepWorkLogin_Callback()
 	if (KpChatChannel.client) then
 		KpChatChannel.client:AddEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
 		commonlib.TimerManager.SetTimeout(function()
+			ClassManager.LoadAllClassesAndProjects();
 			ClassManager.LoadOnlineClassroom(function(classId, projectId, classroomId)
 				if (ClassManager.IsTeacherInClass()) then
 					_guihelper.MessageBox("你所在的班级正在上课！", function(res)
@@ -89,15 +94,17 @@ function ClassManager.LoadAllClassesAndProjects(callback)
 				local classes = data and data.data;
 				if (classes == nil) then return end
 
+				ClassManager.OrgClassIdMap[orgs[i].loginUrl] = {}
 				for j = 1, #classes do
 					if (classes[j].classId and classes[j].name) then
 						table.insert(ClassManager.ClassList, classes[j]);
+						ClassManager.OrgClassIdMap[orgs[i].loginUrl][j] = classes[j].classId;
 					end
 				end
 
 				if (i == #orgs) then
-					local projectId = tonumber(GameLogic.options:GetProjectId());
-					if (projectId) then
+					local projectId = GameLogic.options:GetProjectId();
+					if (projectId and tonumber(projectId)) then
 						table.insert(ClassManager.ProjectList, projectId);
 					end
 					keepwork.classroom.get({cache_policy = "access plus 0"}, function(err, msg, data)
@@ -237,15 +244,29 @@ function ClassManager.GetOnlineCount()
 	return count;
 end
 
+function ClassManager.GetCurrentOrgUrl()
+	for orgUrl, classIds in pairs(ClassManager.OrgClassIdMap) do
+		for i = 1, #classIds do
+			if (classIds[i] == ClassManager.CurrentClassId) then
+				return orgUrl;
+			end
+		end
+	end
+end
+
 function ClassManager.RunCommand(command)
 	if (command == "lock") then
 		LockDesktop.ShowPage(true, 60 * 60, cmd_text);
 	elseif (command == "unlock") then
 		LockDesktop.ShowPage(false, 0, cmd_text);
+	elseif (command == "connect") then
+		GameLogic.RunCommand("/connectGGS");
 	end
 end
 
 function ClassManager.AddLink(link, name, timestamp)
+	table.insert(ClassManager.ShareLinkList, {link = link, teacher = name, time = timestamp});
+	ShareUrlContext.Refresh();
 end
 
 function ClassManager.ProcessMessage(payload, meta)
@@ -255,6 +276,11 @@ function ClassManager.ProcessMessage(payload, meta)
 	end
 	local result = commonlib.split(payload.content, ":");
 	local type, content = result[1], result[2];
+	if (#result > 2) then
+		for i = 3, #result do
+			content = content..":"..result[i];
+		end
+	end
 
 	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
 	if (type == "cmd") then
@@ -330,10 +356,16 @@ function ClassManager.Reset()
 	ClassManager.CurrentClassId = nil;
 	ClassManager.CurrentWorldId = nil; 
 	ClassManager.CurrentClassroomId = nil;
+	ClassManager.CurrentClassName = nil;
+	ClassManager.CurrentWorldName = nil; 
 
-	ClassManager.ClassList = {};
-	ClassManager.ProjectList = {};
-	ClassManager.StudentList = {};
+ClassManager.OrgClassIdMap = {};
+ClassManager.ClassList = {};
+ClassManager.ProjectList = {};
+ClassManager.StudentList = {};
+ClassManager.ShareLinkList = {};
+
+ClassManager.ChatDataList = {};
 end
 
 function ClassManager.SendMessage(content)
@@ -380,7 +412,6 @@ function ClassManager.MessageToMcml(chatdata)
 	if(not System.options.mc) then
 		words = SmileyPage.ChangeToMcml(words);
 	end
-	words = SChatRoomPage.FilterURL(words);
 
 	local fromName = chatdata.fromName;
 	local fromMyself = chatdata.fromMyself;
@@ -427,9 +458,13 @@ function ClassManager.MessageToMcml(chatdata)
 			fromName, timestamp, words);
 		end
 	elseif (type == "cmd") then
-		local text = L"开启了屏幕锁屏";
-		if (words == "unlock") then
+		local text = L"";
+		if (words == "lock") then
+			text = L"开启了屏幕锁屏";
+		elseif (words == "unlock") then
 			text = L"关闭了屏幕锁屏";
+		elseif (words == "connect") then
+			text = L"开启了联机模式";
 		end
 		mcmlStr = string.format(
 			[[
@@ -441,6 +476,16 @@ function ClassManager.MessageToMcml(chatdata)
 			]],
 		fromName, text);
 	elseif (type == "link") then
+		local text = L"分享链接：";
+		mcmlStr = string.format(
+			[[
+			<div style="height:30px;">
+				<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+					%s%s%s
+				</div>
+			</div>
+			]],
+		fromName, text, words);
 	else
 	end
 

@@ -140,19 +140,6 @@ function SChatRoomPage.CreateTreeView(param, mcmlNode)
 	ctl:Show(true, nil, true);
 end
 
-function SChatRoomPage.FilterURL(words)
-	if(words) then
-		local url = words:match("(http://%S+)");
-		if(url) then
-			local nid, slot_id = url:match("visit_url=(%d+)@?(.*)$");
-			if(nid and slot_id) then
-				words = words:gsub("(http://%S+)", format("<pe:mcworld nid='%s' slot='%s' class='linkbutton_yellow'/>", nid, slot_id));
-			end
-		end
-	end
-	return words;
-end
-
 function SChatRoomPage.DrawTextNodeHandler(_parent, treeNode)
 	if(_parent == nil or treeNode == nil) then
 		return;
