@@ -26,6 +26,8 @@ ClassManager.InClass = false;
 ClassManager.CurrentClassId = nil;
 ClassManager.CurrentWorldId = nil; 
 ClassManager.CurrentClassroomId = nil;
+ClassManager.CurrentClassName = nil;
+ClassManager.CurrentWorldName = nil; 
 
 ClassManager.ClassList = {};
 ClassManager.ProjectList = {};
@@ -132,11 +134,27 @@ function ClassManager.LoadOnlineClassroom(callback)
 		if (rooms) then
 			for i = 1, #rooms do
 				if (rooms[i].status == 1) then
-					ClassManager.CurrentClassroomId = rooms[i].id;
+					ClassManager.CurrentClassName = rooms[i].class.name;
 					ClassManager.LoadClassroomInfo(rooms[i].id, callback);
 					return;
 				end
 			end
+		end
+	end);
+end
+
+function ClassManager.LoadClassroomInfo(classroomId, callback)
+	keepwork.info.get({cache_policy = "access plus 0", classroomId = classroomId}, function(err, msg, data)
+		local room = data and data.data;
+		if (room == nil) then return end
+
+		ClassManager.CurrentWorldId = room.projectId;
+		ClassManager.CurrentClassId = room.classId;
+		ClassManager.CurrentClassroomId = room.id;
+		ClassManager.CurrentWorldName = room.project.name;
+		ClassManager.StudentList = room.classroomUser or {};
+		if (callback) then
+			callback(room.classId, room.projectId, classroomId);
 		end
 	end);
 end
@@ -161,20 +179,6 @@ function ClassManager.DismissClassroom(classroomId, callback)
 		end
 		if (err == 200) then
 			ClassManager.Reset();
-		end
-	end);
-end
-
-function ClassManager.LoadClassroomInfo(classroomId, callback)
-	keepwork.info.get({cache_policy = "access plus 0", classroomId = classroomId}, function(err, msg, data)
-		local room = data and data.data;
-		if (room == nil) then return end
-
-		ClassManager.CurrentWorldId = room.projectId;
-		ClassManager.CurrentClassId = room.classId;
-		ClassManager.StudentList = room.classroomUser or {};
-		if (callback) then
-			callback(room.classId, room.projectId, classroomId);
 		end
 	end);
 end
@@ -221,6 +225,16 @@ function ClassManager.GetClassTeacherInfo()
 			return userInfo;
 		end
 	end
+end
+
+function ClassManager.GetOnlineCount()
+	local count = 0;
+	for i = 1, #ClassManager.StudentList do
+		if (ClassManager.StudentList[i].online) then
+			count = count + 1;
+		end
+	end
+	return count;
 end
 
 function ClassManager.RunCommand(command)

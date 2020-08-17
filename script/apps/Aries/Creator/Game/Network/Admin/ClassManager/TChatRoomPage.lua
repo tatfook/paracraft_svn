@@ -99,6 +99,8 @@ function TChatRoomPage.SendMessage()
 	local text = page:GetValue("MessageText", nil);
 	if (text and text ~= "") then
 		ClassManager.SendMessage("msg:"..text);
+		page:SetValue("MessageText", "");
+		page:Refresh(0);
 	else
 		--_guihelper.MessageBox(L"");
 	end

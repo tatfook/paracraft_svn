@@ -63,7 +63,7 @@ function SChatRoomPage.OnClose()
 end
 
 function SChatRoomPage.GetClassName()
-	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId);
+	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId) or ClassManager.CurrentClassName;
 end
 
 function SChatRoomPage.GetClassPeoples()
@@ -99,6 +99,8 @@ function SChatRoomPage.SendMessage()
 	local text = page:GetValue("MessageText", nil);
 	if (text and text ~= "") then
 		ClassManager.SendMessage("msg:"..text);
+		page:SetValue("MessageText", "");
+		page:Refresh(0);
 	else
 		--_guihelper.MessageBox(L"");
 	end

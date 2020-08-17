@@ -66,7 +66,7 @@ function StudentPanel:MoveDown(event)
 end
 
 function StudentPanel.GetClassName()
-	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId);
+	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId) or ClassManager.CurrentClassName;
 end
 
 function StudentPanel.GetClassTime()

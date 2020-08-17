@@ -78,25 +78,31 @@ function TeacherPanel.SelectClass()
 end
 
 function TeacherPanel.LeaveClass()
-	ClassManager.DismissClassroom(ClassManager.CurrentClassroomId, function(result, data)
-		if (result) then
-			ClassManager.SendMessage("cmd:leave");
-			ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
-			if (page) then
-				page:Refresh(0);
-			end
-		else
-			_guihelper.MessageBox(L"请重试！");
+	_guihelper.MessageBox(L"确定要结束上课吗？", function(res)
+		if(res == _guihelper.DialogResult.OK) then
+			ClassManager.DismissClassroom(ClassManager.CurrentClassroomId, function(result, data)
+				if (result) then
+					ClassManager.SendMessage("cmd:leave");
+					ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
+					if (page) then
+						page:Refresh(0);
+					end
+				else
+					_guihelper.MessageBox(L"请重试！");
+				end
+			end);
 		end
-	end);
+	end, _guihelper.MessageBoxButtons.OKCancel);
 end
 
 function TeacherPanel.GetClassName()
-	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId);
+	return ClassManager.ClassNameFromId(ClassManager.CurrentClassId) or ClassManager.CurrentClassName;
 end
 
 function TeacherPanel.GetClassStudents()
-	local student = string.format(L"在课学生：%d人", #(ClassManager.StudentList));
+	local count = ClassManager.GetOnlineCount();
+	if (count > 0) then count = count - 1 end
+	local student = string.format(L"在课学生：%d人", count);
 	return student;
 end
 
