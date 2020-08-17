@@ -96,6 +96,12 @@ function SChatRoomPage.ShowAll()
 end
 
 function SChatRoomPage.SendMessage()
+	local text = page:GetValue("MessageText", nil);
+	if (text and text ~= "") then
+		ClassManager.SendMessage("msg:"..text);
+	else
+		--_guihelper.MessageBox(L"");
+	end
 end
 
 function SChatRoomPage.AppendChatMessage(chatdata, needrefresh)
@@ -150,79 +156,7 @@ function SChatRoomPage.DrawTextNodeHandler(_parent, treeNode)
 		return;
 	end
 
-	local chatdata = treeNode.chatdata;
-	local words = commonlib.Encoding.EncodeStr(chatdata.words or "");
-	words = words:gsub("\n", "<br/>")
-	if(not System.options.mc) then
-		words = SmileyPage.ChangeToMcml(words);
-	end
-	words = SChatRoomPage.FilterURL(words);
-
-	local fromName = chatdata.fromName;
-	local fromMyself = chatdata.fromMyself;
-	local isMessage = chatda
-	local timestamp = chatdata.timestamp;
-
-	local mcmlStr;
-	if (isMessage) then
-		if (chatdata.fromMyself) then
-			mcmlStr = string.format(
-				[[
-				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
-						张晓老师
-					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
-						16:40
-					</div>
-				</div>
-				<div style="height:30px;">
-					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
-						朝辞白帝彩云间，千里江陵一日还。
-					</div>
-				</div>
-				]],
-			fromName, timestamp, words);
-		else
-			mcmlStr = string.format(
-				[[
-				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;"">
-						张晓老师
-					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;"">
-						16:40
-					</div>
-				</div>
-				<div style="height:30px;">
-					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
-						朝辞白帝彩云间，千里江陵一日还。
-					</div>
-				</div>
-				]],
-			fromName, timestamp, words);
-		end
-	else
-			mcmlStr = string.format(
-				[[
-				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
-						张晓老师
-					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
-						16:40
-					</div>
-				</div>
-				<div style="height:30px;">
-					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
-						朝辞白帝彩云间，千里江陵一日还。
-					</div>
-				</div>
-				]],
-			fromName, timestamp, words);
-	end
-
-
+	local mcmlStr = ClassManager.MessageToMcml(treeNode.chatdata);
 	if(mcmlStr ~= nil) then
 		local xmlRoot = ParaXML.LuaXML_ParseString(mcmlStr);
 		if(type(xmlRoot)=="table" and table.getn(xmlRoot)>0) then

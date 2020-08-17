@@ -241,12 +241,11 @@ function ClassManager.ProcessMessage(payload, meta)
 	end
 	local result = commonlib.split(payload.content, ":");
 	local type, content = result[1], result[2];
-	local isMessage = false;
 
 	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
 	if (type == "cmd") then
 		if (userId ~= payload.id) then
-			--ClassManager.RunCommand(content);
+			ClassManager.RunCommand(content);
 		end
 	elseif (type == "tip") then
 		TChatRoomPage.Refresh();
@@ -256,13 +255,12 @@ function ClassManager.ProcessMessage(payload, meta)
 			ClassManager.AddLink(content, name, meta.timestamp);
 		end
 	else
-		isMessage = true;
 	end
 
 	local msgdata = {
+		msgType = type,
 		fromName = name,
 		fromMyself = userId == payload.id,
-		isMessage = isMessage,
 		timestamp = meta.timestamp,
 		words = content,
 	};
@@ -360,4 +358,77 @@ function ClassManager.OnProcessMsg(msgdata)
 
 	SChatRoomPage.AppendChatMessage(msgdata, true);
 	TChatRoomPage.AppendChatMessage(msgdata, true);
+end
+
+function ClassManager.MessageToMcml(chatdata)
+	local words = commonlib.Encoding.EncodeStr(chatdata.words or "");
+	words = words:gsub("\n", "<br/>")
+	if(not System.options.mc) then
+		words = SmileyPage.ChangeToMcml(words);
+	end
+	words = SChatRoomPage.FilterURL(words);
+
+	local fromName = chatdata.fromName;
+	local fromMyself = chatdata.fromMyself;
+	local timestamp = chatdata.timestamp;
+
+	local mcmlStr;
+	local type = chatdata.msgType;
+	if (type == "msg") then
+		if (chatdata.fromMyself) then
+			mcmlStr = string.format(
+				[[
+				<div style="height:20px;">
+					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
+						%s
+					</div>
+					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
+						%s
+					</div>
+				</div>
+				<div style="height:30px;">
+					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+						%s
+					</div>
+				</div>
+				]],
+			fromName, timestamp, words);
+		else
+			mcmlStr = string.format(
+				[[
+				<div style="height:20px;">
+					<div style="width:66px;position:relative;margin-right:0px;color:#000000;"">
+						%s
+					</div>
+					<div style="width:53px;position:relative;margin-right:60px;color:#000000;"">
+						%s
+					</div>
+				</div>
+				<div style="height:30px;">
+					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+						%s
+					</div>
+				</div>
+				]],
+			fromName, timestamp, words);
+		end
+	elseif (type == "cmd") then
+		local text = L"开启了屏幕锁屏";
+		if (words == "unlock") then
+			text = L"关闭了屏幕锁屏";
+		end
+		mcmlStr = string.format(
+			[[
+			<div style="height:30px;">
+				<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+					%s%s
+				</div>
+			</div>
+			]],
+		fromName, text);
+	elseif (type == "link") then
+	else
+	end
+
+	return mcmlStr;
 end
