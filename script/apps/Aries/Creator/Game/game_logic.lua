@@ -231,7 +231,7 @@ function GameLogic.InitCommon()
     local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 	KeepWorkItemManager.StaticInit();
 
-	if (ParaEngine.GetAppCommandLineByParam("open_ci", false) == "true") then
+	if ((not System.options.isCodepku) and ParaEngine.GetAppCommandLineByParam("open_ci", false) == "true") then
 		local ParacraftCI = NPL.load("(gl)script/apps/Aries/ParacraftCI/ParacraftCI.lua");
 		ParacraftCI.StaticInit();
 	end
