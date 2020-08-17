@@ -138,3 +138,9 @@ end
 function DockPage.OnClick_Menuitem_exit()
     GameLogic.RunCommand("/menu file.exit");
 end
+function DockPage.FindUIControl(name)
+    if(not name or not DockPage.page)then
+        return
+    end
+    return   DockPage.page:FindUIControl(name);
+end
