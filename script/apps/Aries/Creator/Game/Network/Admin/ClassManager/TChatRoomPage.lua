@@ -95,6 +95,18 @@ function TChatRoomPage.GetShortName(name)
 	return name;
 end
 
+function TChatRoomPage.IsForbiddened()
+	return not ClassManager.CanSpeak;
+end
+
+function TChatRoomPage.ForbiddenChat()
+	ClassManager.SendMessage("cmd:".."nospeak");
+end
+
+function TChatRoomPage.AllowChat()
+	ClassManager.SendMessage("cmd:".."canspeak");
+end
+
 function TChatRoomPage.SendMessage()
 	local text = page:GetValue("MessageText", nil);
 	if (text and text ~= "") then

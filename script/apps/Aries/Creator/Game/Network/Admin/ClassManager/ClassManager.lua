@@ -24,6 +24,9 @@ local LockDesktop = commonlib.gettable("MyCompany.Aries.Game.Tasks.LockDesktop")
 local ClassManager = NPL.export()
 
 ClassManager.InClass = false;
+ClassManager.IsLocking = false;
+ClassManager.InGGS = false;
+ClassManager.CanSpeak = true;
 
 ClassManager.CurrentOrgLoginUrl = nil;
 ClassManager.CurrentClassId = nil;
@@ -359,13 +362,13 @@ function ClassManager.Reset()
 	ClassManager.CurrentClassName = nil;
 	ClassManager.CurrentWorldName = nil; 
 
-ClassManager.OrgClassIdMap = {};
-ClassManager.ClassList = {};
-ClassManager.ProjectList = {};
-ClassManager.StudentList = {};
-ClassManager.ShareLinkList = {};
+	ClassManager.OrgClassIdMap = {};
+	ClassManager.ClassList = {};
+	ClassManager.ProjectList = {};
+	ClassManager.StudentList = {};
+	ClassManager.ShareLinkList = {};
 
-ClassManager.ChatDataList = {};
+	ClassManager.ChatDataList = {};
 end
 
 function ClassManager.SendMessage(content)

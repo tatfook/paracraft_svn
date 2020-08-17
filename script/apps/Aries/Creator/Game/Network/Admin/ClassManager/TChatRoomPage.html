@@ -28,7 +28,12 @@
                         </div>
                         <div style="width:480px;height:2px;background-color:#cdcdcd"></div>
                         <div style="width:480px;height:29px;background-color:#e2e7e8">
-                            <div onclick="TChatRoomPage.ShowAll" style="margin-left:10px;margin-top:5px;width:20px;height:19px;background:url(Texture/Aries/Creator/keepwork/ClassManager/no_talking_s_icon_32bits.png#0 0 19 19);"></div>
+                            <pe:if condition='<%=not TChatRoomPage.IsForbiddened()%>'>
+                                <div onclick="TChatRoomPage.ForbiddenChat" style="margin-left:10px;margin-top:5px;width:20px;height:18px;background:url(Texture/Aries/Creator/keepwork/ClassManager/talk_t_icon_32bits.png#0 0 20 18);"></div>
+                            </pe:if>
+                            <pe:if condition='<%=TChatRoomPage.IsForbiddened()%>'>
+                                <div onclick="TChatRoomPage.AllowChat" style="margin-left:10px;margin-top:5px;width:20px;height:19px;background:url(Texture/Aries/Creator/keepwork/ClassManager/no_talking_t_icon_32bits.png#0 0 27 18);"></div>
+                            </pe:if>
                         </div>
                         <div style="width:480px;height:97px;background-color:#e2e7e8">
                             <textarea name="MessageText" AlwaysShowCurLineBackground="false" UseSystemControl="true" style="margin-left:6px;height:60px;color:#e2e7e8;"></textarea>
