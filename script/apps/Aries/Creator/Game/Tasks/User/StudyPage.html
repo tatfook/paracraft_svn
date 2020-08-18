@@ -13,11 +13,38 @@ StudyPage.OnInit()
 function ClosePage()
     Page:CloseWindow();
 end
-]]></script>
-    <aries:window mode="thin" width="600" height="500" title='<%= L"学习"%>' onclose="ClosePage">
-    <div>
 
-    </div>
+function GridsItems(index)
+    if(index == nil) then    
+        return #StudyPage.grid_data_sources;
+    else
+        return StudyPage.grid_data_sources[index];
+    end
+end
+]]></script>
+
+<aries:window mode="thin" width="600" height="500" title='<%= L"学习"%>' onclose="ClosePage">
+    <pe:gridview style="margin-left:15px;" name="item_gridview" CellPadding="32" AllowPaging="false" ItemsPerLine="3" DefaultNodeHeight="50"
+                    DataSource='<%=GridsItems%>' pagesize="6">
+        <!-- <PagerSettings Position="Bottom" height="36" style="position:relative;width:498px;margin-top:-30px;height:32px;" PreviousPageText="previous page" NextPageText="next page"/>
+        <PagerTemplate>
+            <form>
+                <input type="button" name="pre" zorder="2" style="width:20px;height:20px;margin-left:355px;margin-top:5px;background-rotation:-1.57;background:url(Texture/Aries/Creator/Game/KeepWork/Mall/icon_arrow_1_32bits.png#0 0 16 16);"/>
+                <div style="float:left;margin-top:0px;text-singleline:true">
+                    <label name="page" style="color:#FFFFFF;text-align:center;width:45px;height:18px;margin:4px"/>
+                </div>
+                <input type="button" name="next" zorder=2 style="width:20px;height:20px;margin-top:7px;background-rotation:1.57;background:url(Texture/Aries/Creator/Game/KeepWork/Mall/icon_arrow_1_32bits.png#0 0 16 16)"/>
+            </form>
+        </PagerTemplate> -->
+        <Columns>
+                <div style="width:123px;height:159px;background-color:#999999;">
+                    <input type="button" name="next" zorder=0 style="position:relative;width:123px;height:159px;background:"/>
+                    <div style="margin-top:0px;height:20px;font-size:12;font-weight:bold;color:#ffffff;"><%=Eval("name") %></div>
+                </div>
+        </Columns>
+        <EmptyDataTemplate>
+        </EmptyDataTemplate>
+    </pe:gridview>
     
 </aries:window>
 </pe:mcml>

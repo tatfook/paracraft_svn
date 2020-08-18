@@ -10,6 +10,11 @@ StudyPage.ShowPage();
 --]]
 local StudyPage = NPL.export()
 local page
+
+StudyPage.grid_data_sources = {
+	{name="碎片化学习"},{name="知识岛"},{name="孙子子兵法"},
+	{name="视频资源"},{name="Doc"},{name="百度知道"},
+}
 function StudyPage.OnInit()
     page = document:GetPageCtrl();
 end
@@ -33,3 +38,4 @@ function StudyPage.ShowPage()
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 end
+
