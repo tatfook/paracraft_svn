@@ -7,8 +7,9 @@ Use Lib:
 -------------------------------------------------------
 local DockTipPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockTipPage.lua");
 DockTipPage.GetInstance():PushGsid(888);
-DockTipPage.GetInstance():PushGsid(998);
+DockTipPage.GetInstance():PushGsid(998,100);
 --]]
+local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
 
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
@@ -60,6 +61,10 @@ end
 function DockTipPage:GetNodeList()
 	return self.node_list,self.node_map;
 end
+function DockTipPage:GetUserName()
+    local User = commonlib.gettable("System.User")
+    return User.username or "";
+end
 function DockTipPage:OnInit()
 	self:ChangeWorld();
 	if(self.is_init)then
@@ -76,9 +81,7 @@ function DockTipPage:OnInit()
 		{name = "bag", label = "背包", x = -130, y = -25, title="你获得了新物品！", },
 	}
 	
-
-	local nid = Map3DSystem.User.nid or 0;
-	local key = string.format("DockTipPage:SetActiveTimer_%d",nid);
+	local key = string.format("DockTipPage:SetActiveTimer_%s",DockTipPage:GetUserName());
 	self.timer_enabled = GameLogic.GetPlayerController():LoadLocalData(key, false);
 	self.timer:Change(0, self.interval);
 end
@@ -194,8 +197,7 @@ function DockTipPage:SetActiveTimer()
 			self.cur_interval = 0;
 		end
 	end
-	local nid = Map3DSystem.User.nid;
-	local key = string.format("DockTipPage:SetActiveTimer_%d",nid);
+	local key = string.format("DockTipPage:SetActiveTimer_%s",DockTipPage:GetUserName());
 	GameLogic.GetPlayerController():SaveLocalData(key, self.timer_enabled);
 end
 function DockTipPage:TimerIsEnabled()
@@ -313,14 +315,15 @@ function DockTipPage:CheckAllPendingGsids()
 		if(node)then
 			local check_times = node.check_times or 0;
 			local gsid = node.gsid;
+			local count = node.count;
 			local tag = node.tag;
 			--尝试3次
 			if(check_times < 3)then
 				LOG.std("", "info","DockTipPage:CheckAllPendingGsids",node);
-				local bHas = hasGSItem(gsid);
+				local bHas = KeepWorkItemManager.HasGSItem(gsid);
 				LOG.std("", "info","bHas",bHas);
 
-				self:PushGsid(gsid,tag,true);
+				self:PushGsid(gsid, count, tag);
 				check_times = check_times + 1;
 				node.check_times = check_times;
 			else
@@ -360,13 +363,15 @@ function DockTipPage:PushToPendingList(gsid,tag)
 		});
 	end
 end
-function DockTipPage:PushGsid(gsid,tag,is_pending_state)
+function DockTipPage:PushGsid(gsid, count, tag)
 	if(not self.is_init)then
 		return
 	end
+
 	if(not gsid)then return end
-	LOG.std("", "info","DockTipPage:PushGsid",{gsid = gsid, is_pending_state = is_pending_state,});
-	local node = { name = "bag", gsid = gsid, title="你获得了一个新物品！", animation_only = false};
+    count = count or 1;
+	LOG.std("", "info","DockTipPage:PushGsid",{gsid = gsid, count = count, });
+	local node = { name = "bag", gsid = gsid, count = count, title = L"你获得了新物品！", animation_only = false};
 	self:PushNode(node);
 end
 

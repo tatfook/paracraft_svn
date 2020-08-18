@@ -1,4 +1,4 @@
-<!-- "script/apps/Aries/Creator/Game/Tasks/Dock/DockTipPage.html" -->
+﻿<!-- "script/apps/Aries/Creator/Game/Tasks/Dock/DockTipPage.html" -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
@@ -43,13 +43,7 @@ function GetName()
     if(HasBtn())then
         return
     end
-    if(node.gsid)then
-	local gsItem = KeepWorkItemManager.GetItemTemplate(node.gsid);
-        if(gsItem)then
-		    local name = gsItem.name;
-            return name or ""
-        end
-    end
+   
 end
 function GetTitle()
     if(node.title)then
@@ -58,6 +52,15 @@ function GetTitle()
     if(param.title)then
         return param.title;
     end
+end
+function GetDesc()
+    local name = "";
+	local gsItem = KeepWorkItemManager.GetItemTemplate(node.gsid);
+    if(gsItem)then
+		name = gsItem.name;
+    end
+    local s = string.format("%sx%d",name,node.count)
+    return s;
 end
 function DoAction()
     DockTipPage.GetInstance():Manual_RemoveFirstNode();
@@ -88,31 +91,21 @@ pageCtrl:SetValue("active_timer",DockTipPage.GetInstance():TimerIsEnabled());
     <div style="position:relative;margin-left:90px;margin-top:60px;">
         <input type="checkbox" name="active_timer" onclick="SetActiveTimer"/><%=GetText() %>
     </div>
-    <div style="position:relative;margin-left:50px;margin-top:30px;">
-        <pe:if condition='<%=IsType("DockTipPage.CombatCardTeen") %>'>
-            <%=GetName() %>
-        </pe:if>
-    </div>
+    
     <div type="button" class="anchor_tooltip_downarrow" style="position:relative;margin-top:80px;margin-left:105px;" />
-    <!--<div style="position:relative;margin-left:113px;margin-top:105px;" class="anchor_tooltip_highlight"/>-->
-    <pe:if condition='<%=IsType("DockTipPage.FriendsPage.ShowPage") %>'>
-        <div style="text-align:center;margin-top:25px;">
-            <%=GetTitle() %>   
-        </div>
-    </pe:if>
-    <pe:if condition='<%=not IsType("DockTipPage.FriendsPage.ShowPage") %>'>
+    
         <div style="text-align:center;">
             <%=GetTitle() %>   
         </div>
         <div>
             <div style="float:left;margin-left:5px;margin-top:5px;" class="item">
-                <kp:item gsid='<%=GetGsid()%>' isdragable="false" style="width:42px;height:42px" isclickable="false"/>
+                <kp:item gsid='<%=GetGsid()%>' isdragable="false" style="width:42px;height:42px" />
             </div>
+            <div style="float:left;margin-left:5px;margin-top:5px;"><%=GetDesc()%></div>
             <pe:if condition='<%=HasBtn() %>'>
                 <input type="button" class="defaultbtn" value='<%=GetBtnValue() %>' onclick="DoAction()" style="font-size:12px;margin-left:15px;margin-top:15px;height:26px;"/>
             </pe:if>
         </div>
-    </pe:if>
         
     </div>
 
