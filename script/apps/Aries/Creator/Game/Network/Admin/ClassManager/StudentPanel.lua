@@ -121,7 +121,7 @@ end
 
 function StudentPanel.StartClass()
 	ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
-	ClassManager.SendMessage("cmd:join");
+	ClassManager.SendMessage("tip:join");
 	local projectId = GameLogic.options:GetProjectId();
 	if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
 		if (page) then
