@@ -101,7 +101,6 @@ end
 
 function TeacherPanel.GetClassStudents()
 	local count = ClassManager.GetOnlineCount();
-	if (count > 0) then count = count - 1 end
 	local student = string.format(L"在课学生：%d人", count);
 	return student;
 end

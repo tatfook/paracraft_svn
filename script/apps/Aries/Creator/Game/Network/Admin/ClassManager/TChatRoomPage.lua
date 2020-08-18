@@ -142,7 +142,7 @@ function TChatRoomPage.AppendChatMessage(chatdata, needrefresh)
 end
 
 function TChatRoomPage.CreateTreeView(param, mcmlNode)
-	local _container = ParaUI.CreateUIObject("container", "SChatRoomPage_tvcon", "_lt", param.left,param.top,param.width,param.height);
+	local _container = ParaUI.CreateUIObject("container", "TChatRoomPage_tvcon", "_lt", param.left,param.top,param.width,param.height);
 	_container.background = "";
 	_container:GetAttributeObject():SetField("ClickThrough", false);
 	param.parent:AddChild(_container);
@@ -227,7 +227,7 @@ function TChatRoomPage.RefreshTreeView()
 	if (page) then
 		local ctl = TChatRoomPage.GetTreeView();
 		if(ctl) then
-			local parent = ParaUI.GetUIObject("SChatRoomPage_tvcon");
+			local parent = ParaUI.GetUIObject("TChatRoomPage_tvcon");
 			if(parent:IsValid())then
 				ctl.parent = parent;
 				ctl:Update(true);

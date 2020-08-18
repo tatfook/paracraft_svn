@@ -240,7 +240,8 @@ end
 function ClassManager.GetOnlineCount()
 	local count = 0;
 	for i = 1, #ClassManager.StudentList do
-		if (ClassManager.StudentList[i].online) then
+		local userInfo = ClassManager.StudentList[i].user;
+		if (ClassManager.StudentList[i].online and (userInfo.tLevel == 0 or userInfo.student == 1)) then
 			count = count + 1;
 		end
 	end
@@ -423,6 +424,14 @@ function ClassManager.MessageToMcml(chatdata)
 	local mcmlStr;
 	local type = chatdata.msgType;
 	if (type == "msg") then
+		local width = _guihelper.GetTextWidth(words);
+		local height = 40;
+		local lineCount = width / 390 + 1;
+		if (lineCount > 1) then
+			width = 390;
+			height = height * lineCount;
+		end
+		width = width + 10;
 		if (chatdata.fromMyself) then
 			mcmlStr = string.format(
 				[[
@@ -434,31 +443,31 @@ function ClassManager.MessageToMcml(chatdata)
 						%s
 					</div>
 				</div>
-				<div style="height:30px;">
-					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+				<div style="height:%dpx;">
+					<div style="width:%dpx;height:%dpx;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_myself.png#0 0 32 32:8 8 8 8);" align="right">
 						%s
 					</div>
 				</div>
 				]],
-			fromName, timestamp, words);
+			fromName, timestamp, height, width, height, words);
 		else
 			mcmlStr = string.format(
 				[[
 				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;"">
+					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
 						%s
 					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;"">
+					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
 						%s
 					</div>
 				</div>
-				<div style="height:30px;">
-					<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
+				<div style="height:%dpx;">
+					<div style="width:%dpx;height:%dpx;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_myself.png#0 0 32 32:8 8 8 8);" align="right">
 						%s
 					</div>
 				</div>
 				]],
-			fromName, timestamp, words);
+			fromName, timestamp, height, width, height, words);
 		end
 	elseif (type == "cmd") then
 		local text = L"";
