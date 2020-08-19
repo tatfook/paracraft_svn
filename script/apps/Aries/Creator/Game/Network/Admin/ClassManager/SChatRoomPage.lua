@@ -67,14 +67,33 @@ function SChatRoomPage.GetClassName()
 end
 
 function SChatRoomPage.GetClassPeoples()
-	return L"班级成员 10/20";
+	local onlineCount = ClassManager.GetOnlineCount();
+	local text = string.format(L"班级成员 %d/%d", onlineCount+1, #ClassManager.ClassMemberList);
+	return text;
 end
 
 function SChatRoomPage.ClassItems()
 	local items = {};
-	for i = 1, #ClassManager.StudentList do
-		local member = ClassManager.StudentList[i];
-		items[i] = {name = member.user.username, teacher = member.user.tLevel == 1, online = member.online};
+	for i = 1, #ClassManager.ClassMemberList do
+		local member = ClassManager.ClassMemberList[i];
+		local userInfo = member.user;
+		if (userInfo.tLevel == 1 and userInfo.student == 0) then
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online});
+		end
+	end
+	for i = 1, #ClassManager.ClassMemberList do
+		local member = ClassManager.ClassMemberList[i];
+		local userInfo = member.user;
+		if (userInfo.tLevel == 1 and userInfo.student == 1) then
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online});
+		end
+	end
+	for i = 1, #ClassManager.ClassMemberList do
+		local member = ClassManager.ClassMemberList[i];
+		local userInfo = member.user;
+		if (userInfo.tLevel == 0) then
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = false, online = member.online});
+		end
 	end
 	return items;
 end

@@ -65,6 +65,7 @@ function ShareUrlPage.ShareInputUrl()
 	if (text and text ~= "") then
 		ClassManager.SendMessage("link:"..text);
 		GameLogic.AddBBS(nil, L"链接分享成功！", 2000, "0 255 0");
+		page:SetValue("url", "");
 	else
 		_guihelper.MessageBox(L"请输入要分享的链接");
 	end

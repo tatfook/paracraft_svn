@@ -75,9 +75,7 @@ end
 
 function StudentPanel.GetTeacherName()
 	local teacher = ClassManager.GetClassTeacherInfo();
-	if (teacher) then
-		return teacher.username;
-	end
+	return ClassManager.GetMemberUIName(teacher);
 end
 
 function StudentPanel.GetWorldID()

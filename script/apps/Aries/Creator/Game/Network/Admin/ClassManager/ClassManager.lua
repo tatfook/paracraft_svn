@@ -12,6 +12,7 @@ ClassManager.StaticInit();
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.class.lua");
 NPL.load("(gl)script/apps/Aries/BBSChat/ChatSystem/ChatChannel.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/LockDesktop.lua");
+local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local ChatChannel = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatChannel");
 local KpChatChannel = NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ChatSystem/KpChatChannel.lua");
@@ -38,7 +39,7 @@ ClassManager.CurrentWorldName = nil;
 ClassManager.OrgClassIdMap = {};
 ClassManager.ClassList = {};
 ClassManager.ProjectList = {};
-ClassManager.StudentList = {};
+ClassManager.ClassMemberList = {};
 ClassManager.ShareLinkList = {};
 
 ClassManager.ChatDataList = {};
@@ -88,6 +89,7 @@ function ClassManager.OnKeepWorkLogout_Callback()
 end
 
 function ClassManager.LoadAllClassesAndProjects(callback)
+	ClassManager.Reset();
 	keepwork.userOrgInfo.get(nil, function(err, msg, data)
 		local orgs = data and data.data and data.data.allOrgs;
 		if (orgs == nil) then return end
@@ -108,14 +110,14 @@ function ClassManager.LoadAllClassesAndProjects(callback)
 				if (i == #orgs) then
 					local projectId = GameLogic.options:GetProjectId();
 					if (projectId and tonumber(projectId)) then
-						table.insert(ClassManager.ProjectList, projectId);
+						table.insert(ClassManager.ProjectList, {projectId = tonumber(projectId), projectName = WorldCommon.GetWorldTag("name")});
 					end
 					keepwork.classroom.get({cache_policy = "access plus 0"}, function(err, msg, data)
 						local rooms = data and data.data and data.data.rows;
 						if (rooms) then
 							local function findProject(id)
 								for j = 1, #ClassManager.ProjectList do
-									if (id == ClassManager.ProjectList[j]) then
+									if (id == ClassManager.ProjectList[j].projectId) then
 										return true;
 									end
 								end
@@ -123,7 +125,7 @@ function ClassManager.LoadAllClassesAndProjects(callback)
 							end
 							for j = 1, #rooms do
 								if (not findProject(rooms[j].projectId)) then
-									table.insert(ClassManager.ProjectList, rooms[j].projectId);
+									table.insert(ClassManager.ProjectList, {projectId = rooms[j].projectId, projectName = rooms[j].projectName});
 								end
 							end
 						end
@@ -162,7 +164,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 		ClassManager.CurrentClassId = room.classId;
 		ClassManager.CurrentClassroomId = room.id;
 		ClassManager.CurrentWorldName = room.project.name;
-		ClassManager.StudentList = room.classroomUser or {};
+		ClassManager.ClassMemberList = room.classroomUser or {};
 		if (callback) then
 			callback(room.classId, room.projectId, classroomId);
 		end
@@ -219,9 +221,9 @@ end
 
 function ClassManager.IsTeacherInClass()
 	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
-	for i = 1, #ClassManager.StudentList do
-		if (userId == ClassManager.StudentList[i].userId) then
-			local userInfo = ClassManager.StudentList[i].user;
+	for i = 1, #ClassManager.ClassMemberList do
+		if (userId == ClassManager.ClassMemberList[i].userId) then
+			local userInfo = ClassManager.ClassMemberList[i].user;
 			return userInfo.tLevel == 1 and userInfo.student == 0;
 		end
 	end
@@ -229,19 +231,30 @@ function ClassManager.IsTeacherInClass()
 end
 
 function ClassManager.GetClassTeacherInfo()
-	for i = 1, #ClassManager.StudentList do
-		local userInfo = ClassManager.StudentList[i].user;
+	for i = 1, #ClassManager.ClassMemberList do
+		local userInfo = ClassManager.ClassMemberList[i].user;
 		if (userInfo and userInfo.tLevel == 1 and userInfo.student == 0) then
 			return userInfo;
 		end
 	end
 end
 
+function ClassManager.GetMemberUIName(userInfo, teacher)
+	local name = userInfo.nickname;
+	if (name == nil or name == "") then
+		name = userInfo.username;
+	end
+	if (teacher and userInfo.tLevel == 1 and userInfo.student == 0) then
+		name = name..L"老师";
+	end
+	return name;
+end
+
 function ClassManager.GetOnlineCount()
 	local count = 0;
-	for i = 1, #ClassManager.StudentList do
-		local userInfo = ClassManager.StudentList[i].user;
-		if (ClassManager.StudentList[i].online and (userInfo.tLevel == 0 or userInfo.student == 1)) then
+	for i = 1, #ClassManager.ClassMemberList do
+		local userInfo = ClassManager.ClassMemberList[i].user;
+		if (ClassManager.ClassMemberList[i].online and (userInfo.tLevel == 0 or userInfo.student == 1)) then
 			count = count + 1;
 		end
 	end
@@ -274,10 +287,7 @@ function ClassManager.AddLink(link, name, timestamp)
 end
 
 function ClassManager.ProcessMessage(payload, meta)
-	local name = payload.nickname;
-	if (name == nil or name == "") then
-		name = payload.username;
-	end
+	local name = ClassManager.GetMemberUIName(payload, true)
 	local result = commonlib.split(payload.content, ":");
 	local type, content = result[1], result[2];
 	if (#result > 2) then
@@ -301,11 +311,12 @@ function ClassManager.ProcessMessage(payload, meta)
 	else
 	end
 
+	local _, time = string.match(meta.timestamp, "(.+)%s(.+)");
 	local msgdata = {
 		msgType = type,
 		fromName = name,
 		fromMyself = userId == payload.id,
-		timestamp = meta.timestamp,
+		timestamp = time,
 		words = content,
 	};
 	ChatChannel.ValidateMsg(msgdata, ClassManager.OnProcessMsg);
@@ -336,12 +347,13 @@ function ClassManager.OnMsg(self, msg)
 				if (userId == teacher.id) then
 					TeacherPanel.StartClass();
 				else
-					_guihelper.MessageBox("老师邀请你上课！", function(res)
+					local text = string.format(L"%s邀请你上课，是否加入课堂？", ClassManager.GetMemberUIName(teacher, true));
+					_guihelper.MessageBox(text, function(res)
 						if(res and res == _guihelper.DialogResult.Yes)then
 							ClassManager.InClass = true;
 							StudentPanel.StartClass();
 						end
-					end, _guihelper.MessageBoxButtons.YesNo, {yes = "立即上课", no = "暂时不", show_label = true});
+					end, _guihelper.MessageBoxButtons.YesNo);
 				end
 			end);
 			return;
@@ -366,7 +378,7 @@ function ClassManager.Reset()
 	ClassManager.OrgClassIdMap = {};
 	ClassManager.ClassList = {};
 	ClassManager.ProjectList = {};
-	ClassManager.StudentList = {};
+	ClassManager.ClassMemberList = {};
 	ClassManager.ShareLinkList = {};
 
 	ClassManager.ChatDataList = {};
@@ -410,12 +422,21 @@ function ClassManager.OnProcessMsg(msgdata)
 	TChatRoomPage.AppendChatMessage(msgdata, true);
 end
 
+function ClassManager.FilterURL(words)
+	if(words) then
+		local url = words:match("(http://%S+)");
+		if(url) then
+			local nid, slot_id = url:match("visit_url=(%d+)@?(.*)$");
+			if(nid and slot_id) then
+				words = words:gsub("(http://%S+)", format("<pe:mcworld nid='%s' slot='%s' class='linkbutton_yellow'/>", nid, slot_id));
+			end
+		end
+	end
+	return words;
+end
+
 function ClassManager.MessageToMcml(chatdata)
 	local words = commonlib.Encoding.EncodeStr(chatdata.words or "");
-	words = words:gsub("\n", "<br/>")
-	if(not System.options.mc) then
-		words = SmileyPage.ChangeToMcml(words);
-	end
 
 	local fromName = chatdata.fromName;
 	local fromMyself = chatdata.fromMyself;
@@ -424,80 +445,106 @@ function ClassManager.MessageToMcml(chatdata)
 	local mcmlStr;
 	local type = chatdata.msgType;
 	if (type == "msg") then
-		local width = _guihelper.GetTextWidth(words);
-		local height = 40;
-		local lineCount = width / 390 + 1;
-		if (lineCount > 1) then
-			width = 390;
-			height = height * lineCount;
+		words = words:gsub("\n", "<br/>")
+		if(not System.options.mc) then
+			words = SmileyPage.ChangeToMcml(words);
 		end
-		width = width + 10;
+		local width = _guihelper.GetTextWidth(words);
+		local height = 36;
+		local lineCount = math.floor(width / 390) + 1;
+		if (lineCount > 1) then
+			width = 396;
+			height = (height - 12) * lineCount + 4;
+		end
+		width = width + 20;
+		if (width < 32) then
+			width = 32;
+		end
+		local offset = _guihelper.GetTextWidth(fromName, "System;12");
 		if (chatdata.fromMyself) then
 			mcmlStr = string.format(
 				[[
 				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
+					<div style="width:%dpx;position:relative;margin-right:0px;color:#a0a0a0;font-size:12px;" align="right">
 						%s
 					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
+					<div style="width:36px;position:relative;margin-right:%dpx;color:#a0a0a0;font-size:12px;" align="right">
 						%s
 					</div>
 				</div>
 				<div style="height:%dpx;">
-					<div style="width:%dpx;height:%dpx;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_myself.png#0 0 32 32:8 8 8 8);" align="right">
-						%s
+					<div style="width:%dpx;height:%dpx;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_myself_32bits.png#0 0 32 32:8 8 8 8);" align="right">
+						<div style="margin-left:10px;margin-top:6px;">%s</div>
 					</div>
 				</div>
 				]],
-			fromName, timestamp, height, width, height, words);
+			offset, fromName, offset+4, timestamp, height, width, height, words);
 		else
 			mcmlStr = string.format(
 				[[
 				<div style="height:20px;">
-					<div style="width:66px;position:relative;margin-right:0px;color:#000000;" align="right">
+					<div style="width:%dpx;float:left;color:#a0a0a0;font-size:12px;">
 						%s
 					</div>
-					<div style="width:53px;position:relative;margin-right:60px;color:#000000;" align="right">
+					<div style="width:36px;float:left;color:#a0a0a0;font-size:12px;">
 						%s
 					</div>
 				</div>
 				<div style="height:%dpx;">
-					<div style="width:%dpx;height:%dpx;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_myself.png#0 0 32 32:8 8 8 8);" align="right">
-						%s
+					<div style="width:%dpx;height:%dpx;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_other_32bits.png#0 0 32 32:8 8 8 8);">
+						<div style="margin-left:10px;margin-top:6px;">%s</div>
 					</div>
 				</div>
 				]],
-			fromName, timestamp, height, width, height, words);
+			offset+6, fromName, timestamp, height, width, height, words);
 		end
 	elseif (type == "cmd") then
 		local text = L"";
 		if (words == "lock") then
-			text = L"开启了屏幕锁屏";
+			text = fromName..L"开启了屏幕锁屏";
 		elseif (words == "unlock") then
-			text = L"关闭了屏幕锁屏";
+			text = fromName..L"关闭了屏幕锁屏";
 		elseif (words == "connect") then
-			text = L"开启了联机模式";
+			text = fromName..L"开启了联机模式";
 		end
+		local width = _guihelper.GetTextWidth(text, "System;12") + 10;
 		mcmlStr = string.format(
 			[[
 			<div style="height:30px;">
-				<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
-					%s%s
+				<div style="width:%dpx;height:22px;margin-top:4px;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_cmd_32bits.png#0 0 32 22:8 8 8 8);" align="center">
+					<div style="margin-top:1px;text-align:center;font-size:12px;color:#a0a0a0;">
+						%s
+					</div>
 				</div>
 			</div>
 			]],
-		fromName, text);
+		width, text);
 	elseif (type == "link") then
-		local text = L"分享链接：";
+		commonlib.echo(words);
+		local text = string.format(L"%s分享链接：%s", fromName, words);
+		local width = _guihelper.GetTextWidth(text, "System;12");
+		local height = 22;
+		if (width > 420) then
+			text = string.format(L"%s分享链接：<br/>%s", fromName, words);
+			width = _guihelper.GetTextWidth(words, "System;12");
+			local lineCount = math.floor(width / 420) + 1;
+			if (lineCount > 1) then
+				width = 420;
+			end
+			height = (height - 2) * (lineCount + 1);
+		end
+		width = width + 10;
 		mcmlStr = string.format(
 			[[
-			<div style="height:30px;">
-				<div style="width:236px;position:relative;margin-right:0px;color:#000000;background:url(Texture/Aries/Creator/keepwork/ClassManager/teacher_bg_32bits.png#0 0 8 8:3 3 3 3);" align="right">
-					%s%s%s
+			<div style="height:%dpx;">
+				<div style="width:%dpx;height:%dpx;margin-top:4px;background:url(Texture/Aries/Creator/keepwork/ClassManager/message_bg_cmd_32bits.png#0 0 32 22:8 8 8 8);" align="center">
+					<div style="margin-top:1px;text-align:center;font-size:12px;color:#a0a0a0;">
+						%s
+					</div>
 				</div>
 			</div>
 			]],
-		fromName, text, words);
+		height+8, width, height, text);
 	else
 	end
 
