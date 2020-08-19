@@ -539,6 +539,8 @@ function GameLogic.LoadGame()
 	Files:ClearFindFileCache();
 	Files:UnloadAllWorldAssets();
 
+	System.os.options.DisableInput(true);
+
 	GameLogic.current_worlddir = ParaWorld.GetWorldDirectory();
 	-- GameLogic.script_dir = GameLogic.current_worlddir.."script/blocks/";
 
@@ -573,9 +575,11 @@ function GameLogic.LoadGame()
 		local SwfLoadingBar = commonlib.gettable("MyCompany.Aries.Game.GUI.SwfLoadingBar");
 		SwfLoadingBar.ShowForLightCalculation(function()
 			GameLogic.Resume();
+			System.os.options.DisableInput(false);
 		end);
 	else
 		GameLogic.Resume();
+		System.os.options.DisableInput(false);
 	end
 	
 	ModManager:OnWorldLoad();
