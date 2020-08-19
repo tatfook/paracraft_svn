@@ -78,7 +78,7 @@ function DockTipPage:OnInit()
 	self.pending_gsid_list = {};
 
 	self.pos_list = {
-		{name = "bag", label = "背包", x = -130, y = -25, title="你获得了新物品！", },
+		{name = "bag", label = "背包", x = -130, y = -5, title="你获得了新物品！", },
 	}
 	
 	local key = string.format("DockTipPage:SetActiveTimer_%s",DockTipPage:GetUserName());
