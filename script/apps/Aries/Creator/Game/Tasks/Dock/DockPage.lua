@@ -30,7 +30,7 @@ DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangriji_32bits.png#0 0 85 75", },
-    { label = L"每周实战", id = "island", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
+    { label = L"每周实战", id = "week_quest", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
 }
 
 function DockPage.Show()
@@ -88,10 +88,9 @@ function DockPage.OnClick(id)
 	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/cp/home", "", 1); 
     elseif(id == "checkin")then
         ParacraftLearningRoomDailyPage.DoCheckin();
-    elseif(id == "island")then
-        ParacraftLearningRoomDailyPage.OnLearningLand();
-
-        
+    elseif(id == "week_quest")then
+        local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
+        TeachingQuestLinkPage.ShowPage();
     else
         _guihelper.MessageBox(id);
     end
