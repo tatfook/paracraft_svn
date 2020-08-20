@@ -30,7 +30,7 @@ function UserBagPage.ShowPage()
 			DestroyOnClose = true,
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			allowDrag = true,
-			enable_esc_key = false,
+			enable_esc_key = true,
 			zorder = 100,
 			--app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			directPosition = true,
