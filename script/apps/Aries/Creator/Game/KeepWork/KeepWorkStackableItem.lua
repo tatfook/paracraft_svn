@@ -299,9 +299,9 @@ function KeepWorkStackableItemPage.openBeanNoEnoughView()
 		directPosition = true,
 			align = "_ct",
 			x = -400/2,
-			y = -330/2,
+			y = -216/2,
 			width = 400,
-			height = 330,
+			height = 216,
 	});
 end
 

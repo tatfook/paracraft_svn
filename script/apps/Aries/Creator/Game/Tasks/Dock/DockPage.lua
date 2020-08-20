@@ -40,7 +40,7 @@ function DockPage.Show()
             click_through = true,
         } );
         DockPage._root = DockPage.page:Create("DockPage.Show_instance", nil, "_fi", 0, 0, 0, 0)
-        DockPage._root.zorder = -100;
+        DockPage._root.zorder = 0;
 	    DockPage._root:GetAttributeObject():SetField("ClickThrough", true);
     end
     DockPage._root.visible = true;
@@ -150,14 +150,14 @@ end
 function DockPage.RenderButton_1(index)
     local node = DockPage.top_line_1[index];
     local s = string.format([[
-        <input type="button" name='%s' tooltip='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
-    ]],node.id,node.label,node.bg);
+        <input type="button" name='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
+    ]],node.id,node.bg);
     return s;
 end
 function DockPage.RenderButton_2(index)
     local node = DockPage.top_line_2[index];
     local s = string.format([[
-        <input type="button" name='%s' tooltip='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
-    ]],node.id,node.label,node.bg);
+        <input type="button" name='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
+    ]],node.id,node.bg);
     return s;
 end
