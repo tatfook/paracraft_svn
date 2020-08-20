@@ -172,11 +172,16 @@ end
 
 function KeepWorkStackableItemPage.OnOK()
 	if is_need_vip and not is_vip then
+		--[[
 		ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/vip", "", 1); 
 		_guihelper.MessageBox("开通VIP后点击【确定】，刷新VIP状态。", function()
 			page:CloseWindow()
 			KeepWorkItemManager.LoadItems()
 		end)
+		]]
+		page:CloseWindow()
+		GameLogic.GetFilters():apply_filters("VipNotice", true);
+
 		
 		return
 	end
