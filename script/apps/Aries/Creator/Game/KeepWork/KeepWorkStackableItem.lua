@@ -204,20 +204,6 @@ function KeepWorkStackableItemPage.OnOK()
 	-- is_not_enough = true
 	-- cost_data.gsId = 998
 	-- cost_data.gsId = 888
-	if is_not_enough then
-		if cost_data.gsId == bean_gsid then
-			page:CloseWindow()
-			KeepWorkStackableItemPage.openBeanNoEnoughView()
-		elseif cost_data.gsId == coin_gsid then
-			page:CloseWindow()
-			KeepWorkStackableItemPage.openCoinNoEnoughView()
-		else
-			local need_num = result_price - my_money
-			_guihelper.MessageBox(string.format("您的%s不足，还需要%d个%s", cost_name, need_num, cost_name))
-		end
-		
-		return
-	end	
 
 	local gsid = item_data.id
     keepwork.mall.buy({
@@ -248,7 +234,21 @@ function KeepWorkStackableItemPage.OnOK()
 				KeepWorkItemManager.LoadItems()
 				page:CloseWindow()
 			else
-				GameLogic.AddBBS("statusBar", L"购买失败!", 5000, "0 255 0");
+
+				if is_not_enough then
+					if cost_data.gsId == bean_gsid then
+						page:CloseWindow()
+						KeepWorkStackableItemPage.openBeanNoEnoughView()
+					elseif cost_data.gsId == coin_gsid then
+						page:CloseWindow()
+						KeepWorkStackableItemPage.openCoinNoEnoughView()
+					else
+						local need_num = result_price - my_money
+						_guihelper.MessageBox(string.format("您的%s不足，还需要%d个%s", cost_name, need_num, cost_name))
+					end
+				else
+					GameLogic.AddBBS("statusBar", L"购买失败!", 5000, "0 255 0");
+				end	
 			end
 
 		elseif err == 500 then
