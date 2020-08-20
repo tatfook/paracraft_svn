@@ -81,7 +81,7 @@ function DesktopMenu.LoadMenuItems(bForceReload)
 			{
 				{text = L"角色换装...",name = "window.changeskin", onclick=nil},
 				{text = L"材质包管理...",name = "window.texturepack",onclick=nil},
-				{text = L"资源中心...",name = "window.mall",onclick=nil},
+				-- {text = L"商城...",name = "window.mall",onclick=nil},
 				{text = L"背包...",name = "window.userbag",onclick=nil},
 				{text = L"元件库...",name = "window.onlinestore", cmd="/open store"},
 				{text = L"视频录制...".."  F9",name = "window.videorecoder", cmd="/record"},
@@ -199,7 +199,7 @@ function DesktopMenu.RebuildMenuItem(menuItem)
 				if(item.Type == "Separator") then
 					node:AddChild(CommonCtrl.TreeNode:new({Type = item.Type, }));
 				else
-					node:AddChild(CommonCtrl.TreeNode:new({Text = item.text, Name = item.name, Type = "Menuitem", onclick = item.onclick, }));
+					node:AddChild(CommonCtrl.TreeNode:new({Text = item.text, Name = item.name, Type = "Menuitem", Enable = item.Enable,  onclick = item.onclick, }));
 					menu_name_map[item.name] = item;
 				end
 			end

@@ -55,6 +55,10 @@ function UserBagPage.CanFill(item)
     if(not item)then
         return
     end
+    local copies = item.copies or 0;
+    if(copies <= 0)then
+        return
+    end
     for k,bagId in ipairs(UserBagPage.accepted_bags) do
         if(item.bagId == bagId)then
             return true;         
