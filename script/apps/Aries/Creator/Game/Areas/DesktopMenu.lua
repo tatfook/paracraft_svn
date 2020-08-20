@@ -166,6 +166,11 @@ function DesktopMenu.Init()
 	DesktopMenu.LoadMenuItems();
 end
 
+
+function DesktopMenu.GetAllModeMenu()
+	return {game_mode_menu, edit_mode_menu};
+end
+
 -- return the main menu object, that one can add new object to. 
 function DesktopMenu.GetCurrentMenu()
 	if(GameLogic.GameMode:IsEditor()) then
