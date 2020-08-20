@@ -117,7 +117,7 @@ function DockPage.OnClick_system_menu()
 	end
 	
 	local x,y,width, height = _guihelper.GetLastUIObjectPos();
-	ctl:Show(x - 0, y - 120);
+	ctl:Show(x - 0, y - 140);
 end
 function DockPage.OnClick_Menuitem_server()
     NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ServerPage.lua");
