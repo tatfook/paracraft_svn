@@ -45,7 +45,7 @@ function DockPage.Show()
             click_through = true,
         } );
         DockPage._root = DockPage.page:Create("DockPage.Show_instance", nil, "_fi", 0, 0, 0, 0)
-        DockPage._root.zorder = 0;
+        DockPage._root.zorder = -5;
 	    DockPage._root:GetAttributeObject():SetField("ClickThrough", true);
     end
     DockPage._root.visible = true;
