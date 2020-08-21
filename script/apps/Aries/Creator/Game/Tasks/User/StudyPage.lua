@@ -78,22 +78,23 @@ function StudyPage.clickStudy()
 end
 
 function StudyPage.clickKnowledgeIsland()
-	print("打开知识岛")
-	if(KeepworkServiceSession:IsSignedIn())then
-		ParacraftLearningRoomDailyPage.OnLearningLand();
-		return
-	end
-	LoginModal:CheckSignedIn(L"请先登录", function(result)
-		if result == true then
-			Mod.WorldShare.Utils.SetTimeOut(function()
-				if result then
-					-- WorldList:RefreshCurrentServerList()
-					local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
-					ParacraftLearningRoomDailyPage.OnLearningLand();
-				end
-			end, 300)
-		end
-	end)
+	local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
+	TeachingQuestLinkPage.ShowPage();
+	-- if(KeepworkServiceSession:IsSignedIn())then
+	-- 	ParacraftLearningRoomDailyPage.OnLearningLand();
+	-- 	return
+	-- end
+	-- LoginModal:CheckSignedIn(L"请先登录", function(result)
+	-- 	if result == true then
+	-- 		Mod.WorldShare.Utils.SetTimeOut(function()
+	-- 			if result then
+	-- 				-- WorldList:RefreshCurrentServerList()
+	-- 				local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
+	-- 				ParacraftLearningRoomDailyPage.OnLearningLand();
+	-- 			end
+	-- 		end, 300)
+	-- 	end
+	-- end)
 end
 
 function StudyPage.clickArtOfWar()
