@@ -8,11 +8,6 @@ Use Lib:
 local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
 DockPage.Show();
 DockPage.Hide();
-
-<div style="float:left;margin-left:7px;">
-    <!--商城-->
-    <input type="button" name='mall' onclick="OnClick" style="width:70px;height:90px;background:url(Texture/Aries/Creator/keepwork/dock/btn_shangcheng_32bits.png#0 0 70 90)"/>
-</div>
 --]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
