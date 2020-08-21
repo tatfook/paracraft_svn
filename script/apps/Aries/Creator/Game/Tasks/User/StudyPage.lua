@@ -123,7 +123,7 @@ end
 StudyPage.grid_data_sources = {
 	{name="成长日记", type = grid_type_list.study, click_cb = StudyPage.clickStudy},
 	{name="每周实战", type = grid_type_list.knowledge_island, click_cb = StudyPage.clickKnowledgeIsland},
-	{name="学玩课堂", type = grid_type_list.art_of_war, click_cb = StudyPage.clickArtOfWar},
+	{name="玩学课堂", type = grid_type_list.art_of_war, click_cb = StudyPage.clickArtOfWar},
 	{name="视频资源", type = grid_type_list.video_res, click_cb = StudyPage.clickVideoRes},
 	{name="文档资料", type = grid_type_list.doc, click_cb = StudyPage.clickDoc},
 	{name="百度知道", type = grid_type_list.baidu_konw, click_cb = StudyPage.clickBaiduKnow},
