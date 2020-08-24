@@ -25,8 +25,8 @@ ParaWorldMinimapSurface:Property({"CenterY", nil, desc="map center in block posi
 ParaWorldMinimapSurface:Property({"MapRadius", 128*3/2, "GetMapRadius", "SetMapRadius", desc="map radius in block coordinate"});
 -- we will only update the map when player moves between grid and over 1/4 into a neighbouring grid. 
 ParaWorldMinimapSurface:Property({"GridSize", 128});
-ParaWorldMinimapSurface:Property({"isShowGrid", true, "IsShowGrid", "SetShowGrid", auto=true});
-ParaWorldMinimapSurface:Property({"GridColor", "#333333"});
+ParaWorldMinimapSurface:Property({"isShowGrid", false, "IsShowGrid", "SetShowGrid", auto=true});
+ParaWorldMinimapSurface:Property({"GridColor", "#33333380"});
 ParaWorldMinimapSurface:Property({"BlocksSamplingSize", 4});
 ParaWorldMinimapSurface:Property({"BlocksSamplingLODSize", 4});
 ParaWorldMinimapSurface:Property({"BlocksPerFrame", 50, desc = "how many blocks to render per frame. "});
@@ -112,7 +112,9 @@ end
 function ParaWorldMinimapSurface:SetMapCenter(x, y)
 	if(not x or not y) then
 		local _;
+		local gridSize = self.GridSize;
 		x, _, y = EntityManager.GetPlayer():GetBlockPos();
+		x, y = math.floor(x / gridSize)*gridSize+gridSize/2, math.floor(y / gridSize)*gridSize+gridSize/2;
 	end
 	if(self.CenterX~=x or self.CenterY~=y) then
 		local radius = math.floor(self.GridSize*1.25/2);
@@ -122,6 +124,12 @@ function ParaWorldMinimapSurface:SetMapCenter(x, y)
 		self.lockBottom =  y + radius;
 		self.CenterX = x;
 		self.CenterY = y;
+
+		self.map_left = self.CenterX - self.MapRadius;
+		self.map_top = self.CenterY - self.MapRadius;
+		self.map_width = self.MapRadius * 2;
+		self.map_height = self.MapRadius * 2;
+
 		self:Invalidate();
 		-- signal
 		self:mapChanged();
@@ -164,10 +172,6 @@ function ParaWorldMinimapSurface:ResetDrawProgress()
 	if(not self.CenterX) then
 		return;
 	end
-	self.map_left = self.CenterX - self.MapRadius;
-	self.map_top = self.CenterY - self.MapRadius;
-	self.map_width = self.MapRadius * 2;
-	self.map_height = self.MapRadius * 2;
 	
 	if(self:width() > 0) then
 		self.step_size = self.BlocksSamplingSize;
@@ -179,7 +183,7 @@ end
 -- convert from world position to 2d map position in pixel. 
 -- @return nil, nil if point is not on map
 function ParaWorldMinimapSurface:WorldToMapPos(worldX, worldZ)
-	local mapX, mapZ = worldX - self.map_left, worldZ - self.map_left;
+	local mapX, mapZ = worldX - self.map_left, worldZ - self.map_top;
 	if(mapX>=0 and mapX < self.map_width and mapZ>=0 and mapZ < self.map_height) then
 		local width, height = self:width(), self:height();
 		local x = math.floor(width - mapZ/self.map_height * width)
@@ -254,7 +258,7 @@ function ParaWorldMinimapSurface:DrawSome(painter)
 		if(color) then
 			-- echo({color,from_x+self.last_x*step_size, from_y+self.last_y*step_size})
 			painter:SetPen(color);
-			painter:DrawRect(width - self.last_y*block_size, height - self.last_x*block_size, block_size, block_size);
+			painter:DrawRect(self:x() + width - self.last_y*block_size, self:y() + height - self.last_x*block_size, block_size, block_size);
 		end
 		count = count + 1;
 		
