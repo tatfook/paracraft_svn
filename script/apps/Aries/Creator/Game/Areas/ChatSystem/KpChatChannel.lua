@@ -211,7 +211,7 @@ function KpChatChannel.OnMsg(self, msg)
                 if(not KpChatChannel.IsInWorld())then
                     return
                 end
-                if(KpChatChannel.worldId ~= worldId)then
+                if(KpChatChannel.worldId ~= worldId and key == "app/msg" )then
                     return
                 end
                 
