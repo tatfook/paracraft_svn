@@ -89,11 +89,13 @@ function ParaWorldMinimapSurface:IsPointInLockRegion(x, y)
 end
 
 -- @param x, y: if nil, we will use the current player's position. 
-function ParaWorldMinimapSurface:UpdatePlayerPos(x, y)
+function ParaWorldMinimapSurface:UpdatePlayerPos(x, y, facing)
 	if(not x or not y) then
 		local _;
 		x, _, y = EntityManager.GetPlayer():GetBlockPos();
+		facing = EntityManager.GetPlayer():GetFacing();
 	end
+	self.playerFacing = facing or self.playerFacing;
 	if(self.playerX~=x or self.playerY~=y) then
 		self.playerX = x;
 		self.playerY = y;
@@ -174,6 +176,18 @@ function ParaWorldMinimapSurface:ResetDrawProgress()
 	end
 end
 
+-- convert from world position to 2d map position in pixel. 
+-- @return nil, nil if point is not on map
+function ParaWorldMinimapSurface:WorldToMapPos(worldX, worldZ)
+	local mapX, mapZ = worldX - self.map_left, worldZ - self.map_left;
+	if(mapX>=0 and mapX < self.map_width and mapZ>=0 and mapZ < self.map_height) then
+		local width, height = self:width(), self:height();
+		local x = math.floor(width - mapZ/self.map_height * width)
+		local y = math.floor(height - mapX/self.map_width * height)
+		return x, y
+	end
+end
+
 function ParaWorldMinimapSurface:Invalidate()
 	self:ResetDrawProgress();
 	self:ScheduleNextPaint();
@@ -233,12 +247,14 @@ function ParaWorldMinimapSurface:DrawSome(painter)
 	local from_x, from_y = self.map_left, self.map_top;
 	local count = 0;
 
+	local width, height = self:width(), self:height();
+
 	while (true) do
 		local color = self:GetHighmapColor(from_x+self.last_x*step_size, from_y+self.last_y*step_size);
 		if(color) then
 			-- echo({color,from_x+self.last_x*step_size, from_y+self.last_y*step_size})
 			painter:SetPen(color);
-			painter:DrawRect(self.last_x*block_size, self.last_y*block_size, block_size, block_size);
+			painter:DrawRect(width - self.last_y*block_size, height - self.last_x*block_size, block_size, block_size);
 		end
 		count = count + 1;
 		
