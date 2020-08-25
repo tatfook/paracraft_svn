@@ -35,6 +35,7 @@ ClassManager.CurrentWorldId = nil;
 ClassManager.CurrentClassroomId = nil;
 ClassManager.CurrentClassName = nil;
 ClassManager.CurrentWorldName = nil; 
+ClassManager.CurrentTeacher = nil;
 
 ClassManager.OrgClassIdMap = {};
 ClassManager.ClassList = {};
@@ -60,15 +61,14 @@ function ClassManager.OnKeepWorkLogin_Callback()
 			--ClassManager.LoadAllClassesAndProjects();
 			-- first load teacher classroom
 			local roleId = 2;
-			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId)
+			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId, userId)
 				if (classId and projectId and classroomId) then
-					if (ClassManager.IsTeacherInClass()) then
-						_guihelper.MessageBox("你所在的班级正在上课，即将自动进入课堂！");
-						commonlib.TimerManager.SetTimeout(function()
-							ClassManager.InClass = true;
-							TeacherPanel.StartClass();
-						end, 2000);
-					end
+					ClassManager.CurrentTeacher = {username = System.User.username, nickname = System.User.NickName, userId = userId};
+					_guihelper.MessageBox("你所在的班级正在上课，即将自动进入课堂！");
+					commonlib.TimerManager.SetTimeout(function()
+						ClassManager.InClass = true;
+						TeacherPanel.StartClass();
+					end, 2000);
 				else
 					-- no teacher classroom, then load student classroom
 					local roleId = 1;
@@ -163,12 +163,12 @@ end
 
 function ClassManager.LoadOnlineClassroom(roleId, callback)
 	keepwork.classroom.get({cache_policy = "access plus 0", status = 1, roleId = roleId}, function(err, msg, data)
-		commonlib.echo(data);
 		local rooms = data and data.data and data.data.rows;
 		if (rooms) then
 			for i = 1, #rooms do
 				if (rooms[i].status == 1) then
 					ClassManager.CurrentClassName = rooms[i].class.name;
+					ClassManager.CurrentTeacher = rooms[i].teacherInfo;
 					ClassManager.LoadClassroomInfo(rooms[i].id, callback);
 					return;
 				end
@@ -191,7 +191,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 		ClassManager.CurrentWorldName = room.project.name;
 		ClassManager.ClassMemberList = room.classroomUser or {};
 		if (callback) then
-			callback(room.classId, room.projectId, classroomId);
+			callback(room.classId, room.projectId, classroomId, room.userId);
 		end
 	end);
 end
@@ -545,7 +545,6 @@ function ClassManager.MessageToMcml(chatdata)
 			]],
 		width, text);
 	elseif (type == "link") then
-		commonlib.echo(words);
 		local text = string.format(L"%s分享链接：%s", fromName, words);
 		local width = _guihelper.GetTextWidth(text, "System;12");
 		local height = 22;

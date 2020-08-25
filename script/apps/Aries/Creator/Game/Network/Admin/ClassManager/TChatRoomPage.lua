@@ -68,7 +68,7 @@ end
 
 function TChatRoomPage.GetClassPeoples()
 	local onlineCount = ClassManager.GetOnlineCount();
-	local text = string.format(L"班级成员 %d/%d", onlineCount+1, #ClassManager.ClassMemberList);
+	local text = string.format(L"班级成员 %d/%d", onlineCount+1, (#ClassManager.ClassMemberList) + 1);
 	return text;
 end
 
@@ -87,13 +87,7 @@ end
 
 function TChatRoomPage.ClassItems()
 	local items = {};
-	for i = 1, #ClassManager.ClassMemberList do
-		local member = ClassManager.ClassMemberList[i];
-		local userInfo = member.user;
-		if (userInfo.tLevel == 1 and userInfo.student == 0) then
-			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online, userId = member.userId});
-		end
-	end
+	table.insert(items, {name = ClassManager.GetMemberUIName(ClassManager.CurrentTeacher), teacher = true, online = true, userId = ClassManager.CurrentTeacher.userId});
 	for i = 1, #ClassManager.ClassMemberList do
 		local member = ClassManager.ClassMemberList[i];
 		local userInfo = member.user;
