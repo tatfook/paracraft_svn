@@ -98,7 +98,7 @@ function kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, l
 	end
 
     if(icon and icon ~= "")then
-        _this = ParaUI.CreateUIObject("container", "icon", "_lt", 10, -18, 128, 64);
+        _this = ParaUI.CreateUIObject("container", "icon", "_lt", 5, -22, 128, 64);
 	    _this.background = icon;
 	    _parent:AddChild(_this);
     end
