@@ -12,12 +12,7 @@ local kp_window = commonlib.gettable("MyCompany.Aries.Game.mcml.kp_window");
 local kp_window = commonlib.gettable("MyCompany.Aries.Game.mcml.kp_window");
 
 function kp_window.render_callback(mcmlNode, rootName, bindingContext, _parent, left, top, right, bottom, myLayout, css)
-	local mode = mcmlNode:GetString("mode") or "default"; 
-	if(mode == "default")then
-		kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, left, top, right, bottom, myLayout, css);
-	else
-		kp_window.create_lite(rootName, mcmlNode, bindingContext, _parent, left, top, right, bottom, myLayout, css);
-	end
+	kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, left, top, right, bottom, myLayout, css);
 	return true, true, true; -- ignore_onclick, ignore_background, ignore_tooltip;
 end
 
@@ -26,10 +21,13 @@ function kp_window.create(rootName, mcmlNode, bindingContext, _parent, left, top
 end
 
 function kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, left, top, width, height, parentLayout, css)
+	local mode = mcmlNode:GetString("mode") or "default";  -- "default" or "lite"
 
     local window_bg = "Texture/Aries/Creator/keepwork/Window/dakuang_32bits.png;0 0 440 93:378 43 33 44";
     local close_bg = "Texture/Aries/Creator/keepwork/Window/guanbi_32bits.png;0 0 22 22";
-
+    if(mode == "lite")then
+        window_bg = "Texture/Aries/Creator/keepwork/Window/dakuang2_32bits.png;0 0 64 69:26 44 24 22";
+    end
 
 	local w = mcmlNode:GetNumber("width") or (width-left);
 	local default_height = mcmlNode:GetNumber("height")
