@@ -33,7 +33,7 @@ function kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, l
 	local default_height = mcmlNode:GetNumber("height")
 	local h = default_height or (height-top);
 	local title = mcmlNode:GetAttribute("title_text") or mcmlNode:GetAttributeWithCode("title", nil, true);
-	local icon = mcmlNode:GetString("icon") or ""; --32 32
+	local icon = mcmlNode:GetAttributeWithCode("icon", nil, true)
 	local parent_width, parent_height = w, h;
 	
 	local title_height = mcmlNode:GetNumber("title_height") or 28;
@@ -44,25 +44,28 @@ function kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, l
 	_parent = _this;
 	local _parent_window = _this;
 
-	
-    if(not icon or icon == "")then
-	    _this = ParaUI.CreateUIObject("button", "window_title_text", "_lt", 10, 5, w, title_height);
-	    _this.enabled = false;
-	    _this.text = title;
-	    _this.background = "";
-	    if(title_height >= 32) then
-		    if (mcmlNode:GetNumber("close_height")) then
-			    _this.font = "System;14;bold";
-		    else
-			    _this.font = "System;20;bold";
-		    end
-	    else
-		    _this.font = "System;14;bold";
-	    end
-	    _guihelper.SetUIFontFormat(_this, 36)
-	    _guihelper.SetButtonFontColor(_this, "#FCFCFC", "#FCFCFC");
+	 if(icon and icon ~= "" and not title)then
+        _this = ParaUI.CreateUIObject("container", "icon", "_lt", 5, -22, 128, 64);
+	    _this.background = icon;
 	    _parent:AddChild(_this);
+    end
+
+	_this = ParaUI.CreateUIObject("button", "window_title_text", "_lt", 10, 5, w, title_height);
+	_this.enabled = false;
+	_this.text = title or "";
+	_this.background = "";
+	if(title_height >= 32) then
+		if (mcmlNode:GetNumber("close_height")) then
+			_this.font = "System;14;bold";
+		else
+			_this.font = "System;20;bold";
+		end
+	else
+		_this.font = "System;14;bold";
 	end
+	_guihelper.SetUIFontFormat(_this, 36)
+	_guihelper.SetButtonFontColor(_this, "#FCFCFC", "#FCFCFC");
+	_parent:AddChild(_this);
 
 	local onclose = mcmlNode:GetString("onclose");
 
@@ -97,11 +100,7 @@ function kp_window.create_default(rootName, mcmlNode, bindingContext, _parent, l
 		end);
 	end
 
-    if(icon and icon ~= "")then
-        _this = ParaUI.CreateUIObject("container", "icon", "_lt", 5, -22, 128, 64);
-	    _this.background = icon;
-	    _parent:AddChild(_this);
-    end
+   
 
 	local myLayout = parentLayout:new_child();
 	myLayout:reset(0, 0, parent_width, parent_height);
