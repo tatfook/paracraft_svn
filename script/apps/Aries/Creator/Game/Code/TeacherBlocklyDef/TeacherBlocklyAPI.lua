@@ -10,6 +10,7 @@ local TeacherBlocklyAPI = NPL.load("(gl)script/apps/Aries/Creator/Game/Code/Teac
 ]]
 NPL.load("(gl)script/ide/headon_speech.lua");
 NPL.load("(gl)script/ide/System/localserver/URLResourceStore.lua");
+local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 local TeachingQuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestPage.lua");
 local TeacherBlocklyAPI = commonlib.inherit(nil, NPL.export());
 
@@ -19,7 +20,7 @@ local TeacherBlocklyAPI = commonlib.inherit(nil, NPL.export());
 -- https://api.keepwork.com/core/v0/repos/official%2Fparacraft/files/official%2Fparacraft%2Fconfig%2Fanimation.md
 -- CAD data https://keepwork.com/official/paracraft/config/CAD
 -- https://api.keepwork.com/core/v0/repos/official%2Fparacraft/files/official%2Fparacraft%2Fconfig%2FCAD.md
-local taskUrl = "https://api.keepwork.com/core/v0/repos/official%2Fparacraft/files/official%2Fparacraft%2Fconfig%2F";
+local taskUrl = "core/v0/repos/official%2Fparacraft/files/official%2Fparacraft%2Fconfig%2F";
 
 function TeacherBlocklyAPI:ctor()
 	self.type = "program";
@@ -67,7 +68,7 @@ function TeacherBlocklyAPI:BecomeTeacherNPC(type)
 	self.type = TeachingQuestPage.TaskTypeIndex[type] or TeachingQuestPage.UnknowType;
 
 	local function getTaskFromUrl(taskName, callback)
-		local url = string.format("%s%s.md", taskUrl, taskName);
+		local url = string.format("%s/%s%s.md", HttpWrapper.GetUrl(), taskUrl, taskName);
 		local ls = System.localserver.CreateStore(nil, 3, "userdata");
 		if(ls) then
 			local res = ls:GetURL(System.localserver.CachePolicy:new("access plus 0"), url, function(msg)
