@@ -215,6 +215,9 @@ function KpChatChannel.OnMsg(self, msg)
                     return
                 end
                 
+				if (key == "app/msg" and meta.target ~= KpChatChannel.GetRoom()) then
+					return
+				end
 
                 local timestamp = KpChatChannel.GetTimeStamp(meta.timestamp);
        
