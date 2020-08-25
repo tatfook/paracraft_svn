@@ -51,6 +51,7 @@ NPL.export({
 	category = "npc", 
 	helpUrl = "", 
 	canRun = false,
+	hide_in_codewindow = true,
 	previousStatement = true,
 	nextStatement = true,
 	func_description = 'SetTeacherNPCTasks(%s)',
