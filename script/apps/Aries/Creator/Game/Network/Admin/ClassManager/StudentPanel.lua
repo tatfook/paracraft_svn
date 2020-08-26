@@ -74,8 +74,7 @@ function StudentPanel.GetClassTime()
 end
 
 function StudentPanel.GetTeacherName()
-	local teacher = ClassManager.GetClassTeacherInfo();
-	return ClassManager.GetMemberUIName(teacher);
+	return ClassManager.GetMemberUIName(ClassManager.CurrentTeacher, true);
 end
 
 function StudentPanel.GetWorldID()

@@ -187,7 +187,7 @@ end
 function ParacraftLearningRoomDailyPage.IsVip()
 	local gsid = 10;
 	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gsid)
-	return (copies and copies > 0);
+	return (copies and copies > 0) or (System and System.User and System.User.isVip);
 end
 function ParacraftLearningRoomDailyPage.GetNextDay()
 	local copies = ParacraftLearningRoomDailyPage.copies or 0;
@@ -290,7 +290,6 @@ function ParacraftLearningRoomDailyPage:Refresh()
     page:Refresh(0);
 end
 function ParacraftLearningRoomDailyPage.OnVIP()
-	--ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/vip", "", 1); 
 	GameLogic.GetFilters():apply_filters("VipNotice", true, function()
         ParacraftLearningRoomDailyPage:Refresh();
     end);

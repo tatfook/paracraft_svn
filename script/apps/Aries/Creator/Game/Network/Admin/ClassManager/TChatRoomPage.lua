@@ -91,7 +91,7 @@ function TChatRoomPage.ClassItems()
 	for i = 1, #ClassManager.ClassMemberList do
 		local member = ClassManager.ClassMemberList[i];
 		local userInfo = member.user;
-		if (userInfo.tLevel == 1 and userInfo.student == 1) then
+		if (userInfo.tLevel == 1) then
 			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online, userId = member.userId});
 		end
 	end
