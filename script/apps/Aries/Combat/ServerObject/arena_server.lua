@@ -7820,7 +7820,7 @@ function Arena.OnReponse_TryEnterCombat(nid, arena_id, side, petlevel, current_h
 		if(nid == "localuser") then
 			-- skip all equipment validation for local haqi users. 
 			equipped_items = ""
-			local localuser = MyCompany.Aries.Combat.localuser
+			local localuser = MyCompany.Aries.Combat.localuser or {};
 			addonlevel_damage_percent = localuser.addonlevel_damage_percent or 0;
 			addonlevel_damage_absolute = localuser.addonlevel_damage_absolute or 0;
 			addonlevel_resist_absolute = localuser.addonlevel_resist_absolute or 0;
