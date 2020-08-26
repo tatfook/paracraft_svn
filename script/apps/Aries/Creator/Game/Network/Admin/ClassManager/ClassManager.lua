@@ -62,7 +62,7 @@ function ClassManager.OnKeepWorkLogin_Callback()
 			local roleId = 2;
 			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId, userId)
 				if (classId and projectId and classroomId) then
-					ClassManager.CurrentTeacher = {username = System.User.username, nickname = System.User.NickName, userId = userId};
+					ClassManager.CurrentTeacher = {username = System.User.username, nickname = System.User.NickName, id = userId};
 					_guihelper.MessageBox("你所在的班级正在上课，即将自动进入课堂！");
 					commonlib.TimerManager.SetTimeout(function()
 						ClassManager.InClass = true;
@@ -167,7 +167,7 @@ function ClassManager.LoadOnlineClassroom(roleId, callback)
 			for i = 1, #rooms do
 				if (rooms[i].status == 1) then
 					ClassManager.CurrentClassName = rooms[i].class.name;
-					ClassManager.CurrentTeacher = rooms[i].teacherInfo;
+					ClassManager.CurrentTeacher = rooms[i].teacherInfo or ClassManager.CurrentTeacher;
 					ClassManager.LoadClassroomInfo(rooms[i].id, callback);
 					return;
 				end
@@ -186,7 +186,7 @@ function ClassManager.LoadClassroom(roomId, roleId, callback)
 			for i = 1, #rooms do
 				if (rooms[i].status == 1 and rooms[i].id == roomId) then
 					ClassManager.CurrentClassName = rooms[i].class.name;
-					ClassManager.CurrentTeacher = rooms[i].teacherInfo;
+					ClassManager.CurrentTeacher = rooms[i].teacherInfo or ClassManager.CurrentTeacher;
 					ClassManager.LoadClassroomInfo(rooms[i].id, callback);
 					return;
 				end
@@ -211,14 +211,15 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 		for i = 1, #(room.classroomUser) do
 			local user = room.classroomUser[i];
 			if (user.userId ~= room.userId) then
-				ClassManager.ClassMemberList[i] = {
+				table.insert(ClassManager.ClassMemberList,
+				{
 					userId = user.userId,
 					username = user.user.username,
 					nickname = user.user.nickname,
 					tLevel = user.user.tLevel,
 					teacher = false,
 					online = user.online,
-				};
+				})
 			end
 		end
 		if (callback) then
@@ -227,12 +228,17 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 	end);
 end
 
-function ClassManager.CreateClassroom(classId, projectId, callback)
+function ClassManager.CreateAndEnterClassroom(classId, projectId, callback)
 	keepwork.classroom.post({classId = classId, projectId = projectId}, function(err, msg, data)
 		if (err == 200) then
-			ClassManager.CurrentClassId = classId;
-			ClassManager.CurrentWorldId = projectId;
 			ClassManager.InClass = true;
+			local roleId = 2;
+			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId, userId)
+				if (classId and projectId and classroomId) then
+					ClassManager.CurrentTeacher = {username = System.User.username, nickname = System.User.NickName, id = userId};
+					TeacherPanel.StartClass();
+				end
+			end);
 		end
 		if (callback) then
 			callback(err == 200, data);
@@ -322,7 +328,7 @@ function ClassManager.AddLink(link, name, timestamp)
 end
 
 function ClassManager.ProcessMessage(payload, meta)
-	local name = ClassManager.GetMemberUIName(payload, ClassManager.CurrentTeacher.userId == payload.id)
+	local name = ClassManager.GetMemberUIName(payload, ClassManager.CurrentTeacher.id == payload.id)
 	local result = commonlib.split(payload.content, ":");
 	local type, content = result[1], result[2];
 	if (#result > 2) then
@@ -376,24 +382,20 @@ function ClassManager.OnMsg(self, msg)
 			if (ClassManager.InClass) then
 				return;
 			end
-			local roleId = 2;
-			ClassManager.LoadClassroom(payload.classroomId, roleId, function(classId, projectId, classroomId, userId)
+			local roleId = 1;
+			ClassManager.LoadClassroom(payload.classroomId, roleId, function(classId, projectId, classroomId)
+				local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
+				if (ClassManager.CurrentTeacher.id == userId) then
+					return;
+				end
 				if (classId and projectId and classroomId) then
-					ClassManager.CurrentTeacher = {username = System.User.username, nickname = System.User.NickName, userId = userId};
-					TeacherPanel.StartClass();
-				else
-					roleId = 1;
-					ClassManager.LoadClassroom(payload.classroomId, roleId, function(classId, projectId, classroomId)
-						if (classId and projectId and classroomId) then
-							local text = string.format(L"%s邀请你上课，是否加入课堂？", ClassManager.GetMemberUIName(ClassManager.CurrentTeacher, true));
-							_guihelper.MessageBox(text, function(res)
-								if(res and res == _guihelper.DialogResult.Yes)then
-									ClassManager.InClass = true;
-									StudentPanel.StartClass();
-								end
-							end, _guihelper.MessageBoxButtons.YesNo);
+					local text = string.format(L"%s邀请你上课，是否加入课堂？", ClassManager.GetMemberUIName(ClassManager.CurrentTeacher, true));
+					_guihelper.MessageBox(text, function(res)
+						if(res and res == _guihelper.DialogResult.Yes)then
+							ClassManager.InClass = true;
+							StudentPanel.StartClass();
 						end
-					end);
+					end, _guihelper.MessageBoxButtons.YesNo);
 				end
 			end);
 		end

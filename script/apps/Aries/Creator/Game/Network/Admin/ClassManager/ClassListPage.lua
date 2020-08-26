@@ -83,7 +83,7 @@ function ClassListPage.OnOK()
 	classId = tonumber(classId);
 	worldId = tonumber(worldId);
 	if (classId and worldId) then
-		ClassManager.CreateClassroom(classId, worldId, function(result, data)
+		ClassManager.CreateAndEnterClassroom(classId, worldId, function(result, data)
 			if (result) then
 				page:CloseWindow();
 			else

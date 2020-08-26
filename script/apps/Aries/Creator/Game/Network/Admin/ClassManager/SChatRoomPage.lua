@@ -78,13 +78,13 @@ function SChatRoomPage.ClassItems()
 	for i = 1, #ClassManager.ClassMemberList do
 		local userInfo = ClassManager.ClassMemberList[i];
 		if (userInfo.tLevel == 1) then
-			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online});
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = userInfo.online});
 		end
 	end
 	for i = 1, #ClassManager.ClassMemberList do
 		local userInfo = ClassManager.ClassMemberList[i];
 		if (userInfo.tLevel == 0) then
-			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = false, online = member.online});
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = false, online = userInfo.online});
 		end
 	end
 	return items;

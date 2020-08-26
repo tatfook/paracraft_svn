@@ -77,9 +77,9 @@ end
 
 function TChatRoomPage.InviteOne(userId)
 	for i = 1, #ClassManager.ClassMemberList do
-		local member = ClassManager.ClassMemberList[i];
-		if (userId == member.userId) then
-			_guihelper.MessageBox(member.user.username);
+		local userInfo = ClassManager.ClassMemberList[i];
+		if (userId == userInfo.userId) then
+			_guihelper.MessageBox(userInfo.username);
 			return;
 		end
 	end
@@ -89,17 +89,15 @@ function TChatRoomPage.ClassItems()
 	local items = {};
 	table.insert(items, {name = ClassManager.GetMemberUIName(ClassManager.CurrentTeacher), teacher = true, online = true, userId = ClassManager.CurrentTeacher.userId});
 	for i = 1, #ClassManager.ClassMemberList do
-		local member = ClassManager.ClassMemberList[i];
-		local userInfo = member.user;
+		local userInfo = ClassManager.ClassMemberList[i];
 		if (userInfo.tLevel == 1) then
-			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = member.online, userId = member.userId});
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = true, online = userInfo.online, userId = userInfo.userId});
 		end
 	end
 	for i = 1, #ClassManager.ClassMemberList do
-		local member = ClassManager.ClassMemberList[i];
-		local userInfo = member.user;
+		local userInfo = ClassManager.ClassMemberList[i];
 		if (userInfo.tLevel == 0) then
-			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = false, online = member.online, userId = member.userId});
+			table.insert(items, {name = ClassManager.GetMemberUIName(userInfo), teacher = false, online = userInfo.online, userId = userInfo.userId});
 		end
 	end
 	return items;
