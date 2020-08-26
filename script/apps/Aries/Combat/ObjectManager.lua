@@ -1039,6 +1039,18 @@ local function GetSchoolNameByPhase(phase)
 	return phase_to_school_name[phase or ""] or "未知系"
 end
 
+function ObjectManager.GetWorldFilePath(any_filename)
+	if(any_filename) then
+		if(not ParaIO.DoesAssetFileExist(any_filename, true)) then
+			local filename = ParaWorld.GetWorldDirectory()..any_filename;
+			if(ParaIO.DoesAssetFileExist(filename, true)) then
+				any_filename = filename;
+			end
+		end
+		return any_filename
+	end
+end
+
 -- create all mobs that is guarding a given arena
 function ObjectManager.CreateArenaMobs(arena_id, arena_data)
 	local arena_meta = MsgHandler.Get_arena_meta_data_by_id(arena_id);
@@ -1064,10 +1076,11 @@ function ObjectManager.CreateArenaMobs(arena_id, arena_data)
 			elseif(slot_id == 4) then
 				mob_z = mob_z - offset;
 			end
+			
 
 			local params = {
 				position = {mob_x, mob_y, mob_z},
-				assetfile_char = eachmob.asset,
+				assetfile_char = ObjectManager.GetWorldFilePath(eachmob.asset),
 				instance = eachmob.id,
 				--name = "("..eachmob.phase..")"..eachmob.displayname,
 				name = displayname,
