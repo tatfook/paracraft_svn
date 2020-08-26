@@ -251,6 +251,14 @@ function DefaultTheme:Load()
 			["padding-right"] = 2,
 			["padding-bottom"] = 2,
         },
+		["kp_item"] = {
+            ["background"] = "Texture/Aries/Creator/keepwork/Window/tooltip/tipkuang_32bits.png:14 14 14 14",
+            ["width"] = 64,
+			["height"] = 64,
+        },
+        ["kp_tooltip_bg"] = {
+            ["background"] = "Texture/Aries/Creator/keepwork/Window/tooltip/tipbj_32bits.png:14 14 14 14",
+        },
 
 
 		["default"] = {color="#ffffff"},
