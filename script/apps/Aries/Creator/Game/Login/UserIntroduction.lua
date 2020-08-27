@@ -40,6 +40,10 @@ function UserIntroduction.OnInit()
 end
 
 function UserIntroduction.ShowPage()
+	if (not GameLogic.GameMode:IsEditor()) then
+		_guihelper.MessageBox(L"非编辑模式下无法使用新手引导！");
+		return;
+	end
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 		url = "script/apps/Aries/Creator/Game/Login/UserIntroduction.html", 
 		name = "CreateMCNewWorld", 
