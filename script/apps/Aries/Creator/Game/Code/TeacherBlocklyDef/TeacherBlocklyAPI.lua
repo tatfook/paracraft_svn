@@ -33,7 +33,7 @@ function TeacherBlocklyAPI:InvokeMethod(name, ...)
 end
 
 local publicMethods = {
-"BecomeTeacherNPC", "SetTeacherNPCTasks",
+"BecomeTeacherNPC", "SetTeacherNPCTasks", "anim",
 }
 
 -- create short cut in code API
@@ -106,6 +106,22 @@ function TeacherBlocklyAPI:SetTeacherNPCTasks(tasks, callback)
 		end);err
 	end
 	]]
+end
+
+function TeacherBlocklyAPI:anim(anim_id)
+	anim_id = anim_id or 0;
+	local actor = self:InvokeMethod("getActor", "myself");
+	if (actor) then
+		local entity = actor:GetEntity();
+		if(entity) then
+			entity:EnableAnimation(true);
+			if(actor.UnbindAnimInstance) then
+				-- this ensures that actor are not bound to current bone position in the movie block
+				actor:UnbindAnimInstance();
+			end
+			entity:SetAnimation(anim_id);
+		end
+	end
 end
 
 function TeacherBlocklyAPI:ShowHeadOn(state)

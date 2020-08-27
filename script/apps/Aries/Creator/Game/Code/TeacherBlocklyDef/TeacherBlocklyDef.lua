@@ -62,4 +62,39 @@ NPL.export({
 ]]}},
 },
 
+{
+	type = "anim", 
+	message0 = L"播放动作编号 %1",
+	arg0 = {
+		{
+			name = "animId",
+			type = "input_value",
+			shadow = { type = "math_number", value = 0,},
+			text = 0, 
+		},
+	},
+	category = "npc", 
+	helpUrl = "", 
+	canRun = true,
+	previousStatement = true,
+	nextStatement = true,
+	funcName = "anim",
+	func_description = 'anim(%d)',
+	ToNPL = function(self)
+		return string.format('anim(%d)\n', self:getFieldValue('animId'));
+	end,
+	examples = {{desc = "", canRun = true, code = [[
+anim(4)
+move(-2,0,0,1)
+anim(0)
+]]},
+{desc = L"常用动作编号", canRun = true, code = [[
+-- 0: standing
+-- 4: walking 
+-- 5: running
+-- check movie block for more ids
+]]}
+},
+},
+
 });
