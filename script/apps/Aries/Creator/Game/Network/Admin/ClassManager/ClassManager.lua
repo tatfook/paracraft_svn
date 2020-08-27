@@ -132,9 +132,9 @@ function ClassManager.LoadAllProjects(callback)
 	if (#ClassManager.ProjectList > 0) then
 		ClassManager.ProjectList = {};
 	end
-	local projectId = GameLogic.options:GetProjectId();
-	if (projectId and tonumber(projectId)) then
-		table.insert(ClassManager.ProjectList, {projectId = tonumber(projectId), projectName = WorldCommon.GetWorldTag("name")});
+	local currentWorld = Mod.WorldShare.Store:Get('world/currentWorld');
+	if (currentWorld and currentWorld.kpProjectId) then
+		table.insert(ClassManager.ProjectList, {projectId = tonumber(currentWorld.kpProjectId), projectName = WorldCommon.GetWorldTag("name")});
 	end
 	keepwork.classroom.get({cache_policy = "access plus 0", roleId = 2}, function(err, msg, data)
 		local rooms = data and data.data and data.data.rows;
