@@ -58,8 +58,8 @@ function ChatWindow.ResetPosition(ggs_valid)
     local parent_wnd_pos_config;
     local edit_wnd_pos_config;
 
-    -- set sticky_mode first
-    ChatWindow.sticky_mode = ggs_valid;
+    -- set ggs_mode first
+    ChatWindow.ggs_mode = ggs_valid;
 
     if(ggs_valid)then
         ChatWindow.ShowAllPage(true)
@@ -361,6 +361,11 @@ function ChatWindow.FadeIn(animSeconds)
 			local _parent = ChatWindow.page:FindControl("canvas");
 			--local _parent = ParaUI.GetUIObject("ChatLogPage");
 			UIAnimManager.ChangeAlpha("Aries.ChatWindow", _parent, 255, 256/(animSeconds or 0.5))
+
+			local canvas_tab_btn = ChatWindow.page:FindControl("canvas_tab_btn");
+            if(canvas_tab_btn and canvas_tab_btn:IsValid())then
+			    UIAnimManager.ChangeAlpha("Aries.ChatWindow_canvas_tab_btn", canvas_tab_btn, 255, 256/(animSeconds or 0.5))
+            end
 		end
 	end
 end
@@ -372,6 +377,11 @@ function ChatWindow.FadeOut(animSeconds)
 			local _parent = ChatWindow.page:FindControl("canvas");
 			--local _parent = ParaUI.GetUIObject("ChatLogPage");
 			UIAnimManager.ChangeAlpha("Aries.ChatWindow", _parent, if_else(System.options.version == "teen", 0, 0), 256/(animSeconds or 4))
+
+            local canvas_tab_btn = ChatWindow.page:FindControl("canvas_tab_btn");
+            if(canvas_tab_btn and canvas_tab_btn:IsValid())then
+			    UIAnimManager.ChangeAlpha("Aries.ChatWindow_canvas_tab_btn", canvas_tab_btn, 0, 256/(animSeconds or 4))
+            end
 		end
 	end
 end

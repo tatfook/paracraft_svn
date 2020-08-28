@@ -111,8 +111,8 @@ function ChatEdit.GetInputControl()
 			if(System.options.IsMobilePlatform) then
 				return ChatEdit.page:FindUIControl("chatedit_words_mobile");
 			else
-                if(ChatWindow.sticky_mode)then
-				    return ChatEdit.page:FindUIControl("chatedit_words_sticky");
+                if(ChatWindow.ggs_mode)then
+				    return ChatEdit.page:FindUIControl("chatedit_words_ggsmode");
                 else
 				    return ChatEdit.page:FindUIControl("chatedit_words");
                 end
@@ -240,9 +240,6 @@ end
 -- if the mouse cursor is within the chat area, we will highlight the background. 
 -- otherwise we will not show the display background.
 function ChatEdit.OnTimer(timer)
-    if(ChatWindow.sticky_mode)then
-        return
-    end
 	if(ChatWindow.is_shown) then
 		if(ChatEdit.HasFocus()) then
 			ChatEdit.FadeIn();
@@ -261,9 +258,6 @@ function ChatEdit.SetComboSelect(select)
 end
 
 function ChatEdit.LostFocus()
-    if(ChatWindow.sticky_mode)then
-        return
-    end
 	local _editbox = ChatEdit.GetInputControl();
 	if(_editbox) then
 		_editbox:LostFocus();
