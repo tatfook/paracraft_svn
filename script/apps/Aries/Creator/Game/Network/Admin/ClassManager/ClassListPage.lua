@@ -20,7 +20,7 @@ function ClassListPage.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function ClassListPage.ShowPage(onClose)
+function ClassListPage.ShowPage()
 	local params = {
 		url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassListPage.html", 
 		name = "ClassListPage.ShowPage", 
@@ -108,7 +108,8 @@ function ClassListPage.OnOK()
 						GameLogic.GetFilters():apply_filters("SaveWorldPage.ShowSharePage", true);
 					end
 				else
-					_guihelper.MessageBox(L"所选择的世界ID无效");
+					--_guihelper.MessageBox(L"获取当前世界的版本信息失败！");
+					createClassroom(classId, worldId, page);
 				end
 			end)
 		else
