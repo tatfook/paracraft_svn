@@ -17,7 +17,11 @@ local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 local ParaWorldMiniChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"))
 local defaultFilename = "miniworld.template.xml"
 -- dynamic blocks are not supported. 
-local ignoreList = {};
+local ignoreList = {[9]=true,[219]=true,[253]=true,[110]=true,[215]=true,[216]=true,[217]=true,[196]=true};
+-- dynamic water to still water
+local replaceList = {[75]=76,};
+-- max allowed blocks
+ParaWorldMiniChunkGenerator.MaxAllowedBlock = 200000;
 
 function ParaWorldMiniChunkGenerator:ctor()
 end
@@ -46,6 +50,7 @@ function ParaWorldMiniChunkGenerator:GetAllBlocks()
 			local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 255, 255-from_y);
 			while(block_id and y >= from_y) do
 				if(not ignoreList[block_id]) then
+					block_id = replaceList[block_id] or block_id
 					local block = block_types.get(block_id);
 					local node;
 					if(block) then
@@ -73,9 +78,13 @@ function ParaWorldMiniChunkGenerator:OnSaveWorld()
 	local filename = GameLogic.GetWorldDirectory()..defaultFilename;
 	
 	local x, y, z = self:GetPivot();
-	local params = {};
+	local params = {count = #blocks};
 	params.pivot = string.format("%d,%d,%d", x, y, z)
 
+	if(#blocks > self.MaxAllowedBlock) then
+		commonlib.resize(blocks, self.MaxAllowedBlock);
+		GameLogic.AddBBS("paraworld", "方块数量大于20万块，请删除一定方块后上传", 5000, "255 0 0");
+	end
 	local task = BlockTemplate:new({operation = BlockTemplate.Operations.Save, filename = filename, 
 		params = params,
 		blocks = blocks})
