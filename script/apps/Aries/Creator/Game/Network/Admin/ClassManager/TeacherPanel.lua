@@ -22,6 +22,9 @@ function TeacherPanel.OnInit()
 end
 
 function TeacherPanel.ShowPage()
+	if (page) then
+		page:CloseWindow();
+	end
 	GameLogic.IsVip("OnlineTeaching", true, function(result)
 		if (result) then
 			local params = {

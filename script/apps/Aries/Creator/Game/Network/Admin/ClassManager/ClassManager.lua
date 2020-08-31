@@ -66,7 +66,7 @@ function ClassManager.OnKeepWorkLogin_Callback()
 					commonlib.TimerManager.SetTimeout(function()
 						ClassManager.InClass = true;
 						TeacherPanel.StartClass();
-					end, 2000);
+					end, 1500);
 				else
 					-- no teacher classroom, then load student classroom
 					roleId = 1;
@@ -84,7 +84,7 @@ function ClassManager.OnKeepWorkLogin_Callback()
 					end);
 				end
 			end);
-		end, 1000)
+		end, 500)
 	end
 end
 
@@ -268,6 +268,7 @@ function ClassManager.CreateAndEnterClassroom(classId, projectId, callback)
 			local roleId = 2;
 			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId, userId)
 				if (classId and projectId and classroomId) then
+					ClassManager.InClass = true;
 					TeacherPanel.StartClass();
 				end
 			end);
