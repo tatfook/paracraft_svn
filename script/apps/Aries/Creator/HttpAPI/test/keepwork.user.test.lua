@@ -27,7 +27,7 @@ function test.login(cache_policy)
         commonlib.echo("==========login");
         commonlib.echo(err);
         commonlib.echo(msg);
-        commonlib.echo(data);
+        commonlib.echo(data,true);
     end)
 end
 
@@ -37,7 +37,7 @@ function test.profile(cache_policy)
         commonlib.echo("==========profile");
         commonlib.echo(err);
         commonlib.echo(msg);
-        commonlib.echo(data);
+        commonlib.echo(data,true);
     end)
 end
 
@@ -53,7 +53,7 @@ function test.getinfo(cache_policy)
         commonlib.echo("==========getinfo");
         commonlib.echo(err);
         commonlib.echo(msg);
-        commonlib.echo(data);
+        commonlib.echo(data,true);
     end)
 end
 
@@ -63,6 +63,6 @@ function test.school()
         commonlib.echo("==========school");
         commonlib.echo(err);
         commonlib.echo(msg);
-        commonlib.echo(data);
+        commonlib.echo(data,true);
     end)
 end
