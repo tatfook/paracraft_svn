@@ -724,6 +724,8 @@ function GameLogic.SaveAll(bSaveToLastSaveFolder, bForceSave)
 	WorldCommon.SaveWorld();
 	autotips.Show(true);
 
+	GameLogic.world:OnSaveWorld();
+
 	GameLogic.GetPlayerController():SaveToCurrentWorld();
 	ItemClient.SaveToCurrentWorld();
 	if(GameLogic.world_sim) then

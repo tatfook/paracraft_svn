@@ -73,6 +73,13 @@ end
 function ChunkProvider:OnExit()
 end
 
+-- virtual function:
+function ChunkProvider:OnSaveWorld()
+	if(self.chunkGenerator) then
+		self.chunkGenerator:OnSaveWorld()
+	end
+end
+
 function ChunkProvider:CreateGenerator(gen_class_name)
 	NPL.load("(gl)script/apps/Aries/Creator/Game/World/ChunkGenerators.lua");
 	local ChunkGenerators = commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerators");

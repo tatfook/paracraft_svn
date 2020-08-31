@@ -15,6 +15,9 @@ local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 
 local ParaWorldMiniChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"))
+local defaultFilename = "miniworld.template.xml"
+-- dynamic blocks are not supported. 
+local ignoreList = {};
 
 function ParaWorldMiniChunkGenerator:ctor()
 end
@@ -28,6 +31,55 @@ end
 
 function ParaWorldMiniChunkGenerator:OnExit()
 	ParaWorldMiniChunkGenerator._super.OnExit(self);
+end
+
+
+function ParaWorldMiniChunkGenerator:GetPivot()
+	return 19136, 12, 19136
+end
+
+function ParaWorldMiniChunkGenerator:GetAllBlocks()
+	local blocks = {};
+	local originX, from_y, originZ = self:GetPivot();
+	for x = 19140, 19259 do
+		for z = 19140, 19259 do
+			local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 255, 255-from_y);
+			while(block_id and y >= from_y) do
+				if(not ignoreList[block_id]) then
+					local block = block_types.get(block_id);
+					local node;
+					if(block) then
+						local entity = block:GetBlockEntity(x,y,z);
+						if(entity) then
+							node = entity:SaveToXMLNode();
+						end
+					end
+					if(block_data == 0) then
+						block_data = nil
+					end
+					blocks[#blocks+1] = {x-originX, y-from_y, z-originX, block_id, block_data, node}
+				end
+				block_id, y = BlockEngine:GetNextBlockOfTypeInColumn(x,y,z, 255)
+			end
+		end
+	end
+	return blocks;
+end
+
+function ParaWorldMiniChunkGenerator:OnSaveWorld()
+	local blocks = self:GetAllBlocks();
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
+	local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
+	local filename = GameLogic.GetWorldDirectory()..defaultFilename;
+	
+	local x, y, z = self:GetPivot();
+	local params = {};
+	params.pivot = string.format("%d,%d,%d", x, y, z)
+
+	local task = BlockTemplate:new({operation = BlockTemplate.Operations.Save, filename = filename, 
+		params = params,
+		blocks = blocks})
+	task:Run();
 end
 
 -- get params for generating flat terrain
