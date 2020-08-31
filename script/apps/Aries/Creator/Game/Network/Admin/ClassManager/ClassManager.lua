@@ -401,6 +401,16 @@ function ClassManager.RefreshChatRoomList(userId, inclass, online)
 	if (ClassManager.IsTeacherInClass()) then
 		TChatRoomPage.Refresh();
 		TeacherPanel.Refresh();
+		local room = string.format("__user_%d__", userId);
+		if (ClassManager.IsLocking) then
+			ClassManager.SendMessage("cmd:lock:"..userId, room);
+		end
+		if (ClassManager.InGGS) then
+			ClassManager.SendMessage("cmd:connect:"..userId, room);
+		end
+		if (not ClassManager.CanSpeak) then
+			ClassManager.SendMessage("cmd:nospeak:"..userId, room);
+		end
 	else
 		SChatRoomPage.Refresh();
 	end
@@ -503,12 +513,20 @@ function ClassManager.OnMsg(self, msg)
 			elseif (string.find(meta.target, "__user_") ~= nil) then
 				-- invite msg send to __user_id__ room
 				local result = commonlib.split(payload.content, ":");
-				if (#result > 2 and result[1] == "invite") then
+				if (#result ~= 3) then return end
+				if (result[1] == "invite") then
 					local roomId = tonumber(result[3]);
 					local id = tonumber(result[2]);
 					local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
 					if (id == userId) then
 						ClassManager.StudentJointClassroom(roomId);
+					end
+				elseif (result[1] == "cmd") then
+					local cmd = result[2];
+					local id = tonumber(result[3]);
+					local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
+					if (id == userId) then
+						ClassManager.RunCommand(cmd);
 					end
 				end
 			end
