@@ -75,8 +75,15 @@ end
 
 -- virtual function:
 function ChunkProvider:OnSaveWorld()
-	if(self.chunkGenerator) then
+	if(self.chunkGenerator and self.chunkGenerator.OnSaveWorld) then
 		self.chunkGenerator:OnSaveWorld()
+	end
+end
+
+-- virtual function:
+function ChunkProvider:OnLoadWorld()
+	if(self.chunkGenerator and self.chunkGenerator.OnLoadWorld) then
+		self.chunkGenerator:OnLoadWorld()
 	end
 end
 

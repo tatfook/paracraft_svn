@@ -581,7 +581,7 @@ function GameLogic.LoadGame()
 		GameLogic.Resume();
 		System.os.options.DisableInput(false);
 	end
-	
+	GameLogic.world:OnLoadWorld();
 	ModManager:OnWorldLoad();
 	GameLogic:WorldLoaded()
 	GameLogic.GetFilters():apply_filters("OnWorldLoaded");

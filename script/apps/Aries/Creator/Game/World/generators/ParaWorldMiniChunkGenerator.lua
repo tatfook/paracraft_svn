@@ -17,7 +17,7 @@ local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 local ParaWorldMiniChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"))
 local defaultFilename = "miniworld.template.xml"
 -- dynamic blocks are not supported. 
-local ignoreList = {[9]=true,[219]=true,[253]=true,[110]=true,[215]=true,[216]=true,[217]=true,[196]=true};
+local ignoreList = {[9]=true,[219]=true,[253]=true,[110]=true,[215]=true,[216]=true,[217]=true,[196]=true,[218]=true,[22]=true,[254]=true,[212]=true,[189]=true, [221]=true};
 -- dynamic water to still water
 local replaceList = {[75]=76,};
 -- max allowed blocks
@@ -71,20 +71,59 @@ function ParaWorldMiniChunkGenerator:GetAllBlocks()
 	return blocks;
 end
 
+function ParaWorldMiniChunkGenerator:GetTemplateFilepath()
+	return GameLogic.GetWorldDirectory()..defaultFilename;
+end
+
+function ParaWorldMiniChunkGenerator:GetBlockCountInTemplate(filename)
+	local count = 0;
+	local xmlRoot = ParaXML.LuaXML_ParseFile(filename);
+	if(xmlRoot) then
+		local node = commonlib.XPath.selectNode(xmlRoot, "/pe:blocktemplate/pe:blocks");
+		if(node and node.attr and node.attr.count) then
+			count = tonumber(node.attr.count) or 0
+		end
+	end
+	return count;
+end
+
+function ParaWorldMiniChunkGenerator:ShowBlockTip(count)
+	count = count or self.count or 0;
+	if(count < self.MaxAllowedBlock) then
+		GameLogic.AddBBS("paraworld", format(L"剩余空间%d%%", math.floor((self.MaxAllowedBlock - count)/self.MaxAllowedBlock * 100)), 5000, "0 255 0");
+	else
+		GameLogic.AddBBS("paraworld", L"方块数量大于20万块，请删除一定方块后上传", 5000, "255 0 0");
+	end
+end
+
+function ParaWorldMiniChunkGenerator:OnLoadWorld()
+	local filename = self:GetTemplateFilepath();
+	local count = self:GetBlockCountInTemplate(filename)
+	if(count) then
+		self.count = count;
+		self:ShowBlockTip()
+	end
+end
+
+function ParaWorldMiniChunkGenerator:GetTotalCount()
+	return self.count or 0;
+end
+
+
 function ParaWorldMiniChunkGenerator:OnSaveWorld()
 	local blocks = self:GetAllBlocks();
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
 	local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
-	local filename = GameLogic.GetWorldDirectory()..defaultFilename;
+	local filename = self:GetTemplateFilepath();
 	
 	local x, y, z = self:GetPivot();
 	local params = {count = #blocks};
 	params.pivot = string.format("%d,%d,%d", x, y, z)
-
+	self.count = #blocks;
 	if(#blocks > self.MaxAllowedBlock) then
 		commonlib.resize(blocks, self.MaxAllowedBlock);
-		GameLogic.AddBBS("paraworld", "方块数量大于20万块，请删除一定方块后上传", 5000, "255 0 0");
 	end
+	self:ShowBlockTip()
 	local task = BlockTemplate:new({operation = BlockTemplate.Operations.Save, filename = filename, 
 		params = params,
 		blocks = blocks})
