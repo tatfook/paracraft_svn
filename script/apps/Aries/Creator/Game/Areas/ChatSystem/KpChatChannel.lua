@@ -230,7 +230,7 @@ function KpChatChannel.OnMsg(self, msg)
                 local channelname = ChatChannel.channels[ChannelIndex];
                 local msgdata = { ChannelIndex = ChannelIndex, words = content, channelname = channelname, 
                 vip = vip, student = student, orgAdmin = orgAdmin, tLevel = tLevel, 
-                timestamp = timestamp, kp_from_name = kp_from_name, kp_from_id = userId, kp_id = KpChatChannel.GetUserId(), is_keepwork = true, }
+                timestamp = timestamp, kp_from_name = kp_from_name, kp_from_id = userId, kp_username = username,  kp_id = KpChatChannel.GetUserId(), is_keepwork = true, }
                 ChatChannel.AppendChat( msgdata)
 
                 
@@ -354,6 +354,7 @@ function KpChatChannel.CreateMcmlStrToChatWindow(chatdata)
     local color = chatdata.color or "ffffff";
     local kp_from_name = chatdata.kp_from_name or "";
     local kp_from_id = chatdata.kp_from_id;
+    local kp_username = chatdata.kp_username or "";
 
     local vip = chatdata.vip;
     local student = chatdata.student;
@@ -371,7 +372,7 @@ function KpChatChannel.CreateMcmlStrToChatWindow(chatdata)
     if(chatdata.ChannelIndex == ChatChannel.EnumChannels.KpSystem)then
         mcmlStr = string.format([[<div style="color:#%s">%s%s%s%s%s%s%s%s</div>]],color,channel_tag,"","","","",":",words,timestamp_tag);
     else
-        kp_from_name = string.format([[<input type="button" name="%d" value="%s" onclick="MyCompany.Aries.Creator.ChatSystem.KpChatHelper.ShowUserInfo" style="float:left;color:#%s;background:url()" />]],kp_from_id, kp_from_name, color);
+        kp_from_name = string.format([[<input type="button" name="%s" value="%s" zorder="1000" onclick="MyCompany.Aries.Creator.ChatSystem.KpChatHelper.ShowUserInfo" style="float:left;color:#%s;background:url()" />]],kp_username, kp_from_name, color);
         mcmlStr = string.format([[<div style="color:#%s">%s%s%s%s%s%s%s</div>]],color,channel_tag,name_tag_start,user_tag,kp_from_name,name_tag_end,words,timestamp_tag);
     end
     return mcmlStr;
