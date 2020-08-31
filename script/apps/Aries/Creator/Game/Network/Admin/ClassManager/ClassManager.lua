@@ -467,7 +467,6 @@ function ClassManager.ProcessMessage(payload, meta)
 end
 
 function ClassManager.OnMsg(self, msg)
-			commonlib.echo(msg);
 	if (not msg or not msg.data) then return end
 
 	local data = msg.data;
