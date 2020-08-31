@@ -71,14 +71,21 @@ function TChatRoomPage.GetClassPeoples()
 end
 
 function TChatRoomPage.InviteAll()
-	ClassManager.SendMessage("tip:invite:all:"..ClassManager.CurrentClassroomId);
+	for i = 2, #ClassManager.ClassMemberList do
+		local userInfo = ClassManager.ClassMemberList[i];
+		if (userInfo.online and not userInfo.inclass) then
+			local room = string.format("__user_%d__", userInfo.userId);
+			ClassManager.SendMessage("invite:"..userInfo.userId..":"..ClassManager.CurrentClassroomId, room);
+		end
+	end
 end
 
 function TChatRoomPage.InviteOne(userId)
 	for i = 2, #ClassManager.ClassMemberList do
 		local userInfo = ClassManager.ClassMemberList[i];
 		if (userId == userInfo.userId) then
-			ClassManager.SendMessage("tip:invite:"..userId..":"..ClassManager.CurrentClassroomId);
+			local room = string.format("__user_%d__", userId);
+			ClassManager.SendMessage("invite:"..userId..":"..ClassManager.CurrentClassroomId, room);
 			return;
 		end
 	end
