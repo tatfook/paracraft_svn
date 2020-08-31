@@ -518,6 +518,10 @@ end
 
 function ClassManager.Reset()
 	ClassManager.InClass = false;
+	ClassManager.IsLocking = false;
+	ClassManager.InGGS = false;
+	ClassManager.CanSpeak = true;
+
 	ClassManager.CurrentClassId = nil;
 	ClassManager.CurrentWorldId = nil; 
 	ClassManager.CurrentClassroomId = nil;
@@ -527,8 +531,8 @@ function ClassManager.Reset()
 	ClassManager.OrgClassIdMap = {};
 	ClassManager.ClassList = {};
 	ClassManager.ProjectList = {};
-	ClassManager.ClassMemberList = {};
 	ClassManager.ShareLinkList = {};
+	ClassManager.ClassMemberList = {};
 
 	ClassManager.ChatDataList = {};
 end
