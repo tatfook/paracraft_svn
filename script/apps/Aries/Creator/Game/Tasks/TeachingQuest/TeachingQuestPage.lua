@@ -75,10 +75,13 @@ local page;
 function TeachingQuestPage.OnInit()
 	page = document:GetPageCtrl();
 end
-function TeachingQuestPage.ShowPage(type)
-	TeachingQuestPage.currentType = type;
-	TeachingQuestPage.Current_Item_DS = TeachingQuestPage.quests[type] or {};
-	TeachingQuestPage.CheckTaskCount(type);
+function TeachingQuestPage.ShowPage(type_)
+	if (type(type_) == "string") then
+		type_ = TeachingQuestPage.TaskTypeIndex[type_] or TeachingQuestPage.UnknowType;
+	end
+	TeachingQuestPage.currentType = type_;
+	TeachingQuestPage.Current_Item_DS = TeachingQuestPage.quests[type_] or {};
+	TeachingQuestPage.CheckTaskCount(type_);
 	if (TeachingQuestPage.RefreshItem()) then
 		return;
 	end
@@ -101,7 +104,7 @@ function TeachingQuestPage.ShowPage(type)
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
-	page:SetValue("TaskType", TeachingQuestPage.TaskTypeNames[type]);
+	page:SetValue("TaskType", TeachingQuestPage.TaskTypeNames[type_]);
 	commonlib.TimerManager.SetTimeout(function()  
 		local count = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.ticketGsid);
 		local state = L"  （本周已发放一张）";

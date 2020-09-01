@@ -25,7 +25,7 @@ function TeacherBlocklyAPI:InvokeMethod(name, ...)
 end
 
 local publicMethods = {
-"BecomeTeacherNPC", "SetTeacherNPCTasks", "anim", "registerClickEvent",
+"BecomeTeacherNPC", "SetTeacherNPCTasks", "anim",
 }
 
 -- create short cut in code API
@@ -89,14 +89,15 @@ function TeacherBlocklyAPI:BecomeTeacherNPC(type)
 		end, self.type);
 		TeachingQuestPage.AddTasks(tasks, self.type);
 		self:InvokeMethod("registerClickEvent", function()
-			TeachingQuestPage.ShowPage(self.type);
+			if (data.script) then
+				TeacherBlocklyAPI.RunExternalFunc(data.script);
+			end
 		end);
 	end);
 end
 
 -- not used
 function TeacherBlocklyAPI:SetTeacherNPCTasks(tasks, callback)
-	commonlib.echo("anim");
 	--[[
 	if (tasks and type(tasks) == "table") then
 		TeachingQuestPage.RegisterTasksChanged(function(state)
@@ -111,7 +112,6 @@ function TeacherBlocklyAPI:SetTeacherNPCTasks(tasks, callback)
 end
 
 function TeacherBlocklyAPI:anim(anim_id)
-	commonlib.echo("anim");
 	anim_id = anim_id or 0;
 	local actor = self:InvokeMethod("getActor", "myself");
 	if (actor) then
@@ -125,14 +125,6 @@ function TeacherBlocklyAPI:anim(anim_id)
 			entity:SetAnimation(anim_id);
 		end
 	end
-end
-
-function TeacherBlocklyAPI:registerClickEvent(callbackFunc)
-	--self:InvokeMethod("registerClickEvent", function()
-		--if (callbackFunc) then
-			--callbackFunc();
-		--end
-	--end);
 end
 
 function TeacherBlocklyAPI:ShowHeadOn(state)
@@ -161,5 +153,12 @@ function TeacherBlocklyAPI:ShowHeadOn(state)
 		local img = _parent:GetChildAt(0):GetChildAt(0);
 		local fileName = "script/UIAnimation/CommonBounce.lua.table";
 		UIAnimManager.PlayUIAnimationSequence(img, fileName, "ShakeUD", true);
+	end
+end
+
+
+function TeacherBlocklyAPI.RunExternalFunc(func)
+	if (type(func) == "string" and func ~= "") then
+		NPL.DoString(func);
 	end
 end

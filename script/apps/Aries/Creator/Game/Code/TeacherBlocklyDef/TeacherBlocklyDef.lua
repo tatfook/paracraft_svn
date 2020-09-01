@@ -97,29 +97,4 @@ anim(0)
 },
 },
 
-{
-	type = "registerClickEvent", 
-	message0 = L"当演员被点击时",
-	message1 = L"%1",
-	arg1 = {
-		{
-			name = "input",
-			type = "input_statement",
-			text = "",
-		},
-	},
-	category = "npc", 
-	helpUrl = "", 
-	canRun = false,
-	previousStatement = true,
-	nextStatement = true,
-	funcName = "registerClickEvent",
-	func_description = 'registerClickEvent(function()\\n%send)',
-	ToNPL = function(self)
-		return string.format('registerClickEvent(function()\n    %s\nend)\n', self:getFieldAsString('input'));
-	end,
-	examples = {{desc = "", canRun = true, code = [[
-]]}},
-},
-
 });
