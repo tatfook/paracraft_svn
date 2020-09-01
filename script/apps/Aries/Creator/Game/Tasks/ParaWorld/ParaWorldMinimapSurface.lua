@@ -18,6 +18,7 @@ window:SetAutoClearBackground(false);
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine");
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types");
+local ParaWorldMain = commonlib.gettable("Paracraft.Controls.ParaWorldMain");
 local ParaWorldMinimapSurface = commonlib.inherit(commonlib.gettable("System.Windows.UIElement"), commonlib.gettable("Paracraft.Controls.ParaWorldMinimapSurface"));
 
 ParaWorldMinimapSurface:Property({"CenterX", nil, desc="map center in block position"});
@@ -47,7 +48,20 @@ function ParaWorldMinimapSurface:ctor()
 	self.timer = self.timer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnTimer()
 	end})
-	self.timer:Change(1000, 1000);
+	if(ParaWorldMain:IsMiniWorld()) then
+		self.BlocksSamplingSize = 1;
+		self:LockMap(19200, 19200, 128/2)
+	else
+		self.timer:Change(1000, 1000);
+	end
+end
+
+function ParaWorldMinimapSurface:LockMap(centerX, centerZ, radius)
+	self.timer:Change();
+	self:SetMapRadius(radius);
+	self.GridSize = radius * 8;
+	self:SetShowGrid(false);
+	self:SetMapCenter(19200, 19200)
 end
 
 function ParaWorldMinimapSurface:BuildBlockColorTable()

@@ -139,26 +139,41 @@ function TeachingQuestPage.CheckTaskCount(type)
 	end
 end
 
+function TeachingQuestPage.RestTasks()
+	TeachingQuestPage.taskCallback = {};
+end
+
 function TeachingQuestPage.AddTasks(tasks, type)
-	TeachingQuestPage.quests[type] = tasks;
+	if (tasks ~= nil and #tasks > 1) then
+		TeachingQuestPage.quests[type] = tasks;
+	end
 	commonlib.TimerManager.SetTimeout(function()  
 		local count = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.TaskGsids[type]);
 		local max = TeachingQuestPage.GetTaskItemMax(TeachingQuestPage.TaskGsids[type]);
 		local ticket = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.ticketGsid);
 		if (count < max) then
 			if (ticket > 0) then
-				TeachingQuestPage.taskCallback[type](TeachingQuestPage.TaskInProgress);
+				for i = 1, #TeachingQuestPage.taskCallback[type] do
+					TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.TaskInProgress);
+				end
 			else
-				TeachingQuestPage.taskCallback[type](TeachingQuestPage.HasNewTask);
+				for i = 1, #TeachingQuestPage.taskCallback[type] do
+					TeachingQuestPage.taskCallback[type](TeachingQuestPage.HasNewTask);
+				end
 			end
 		else
-			TeachingQuestPage.taskCallback[type](TeachingQuestPage.AllFinished);
+			for i = 1, #TeachingQuestPage.taskCallback[type] do
+				TeachingQuestPage.taskCallback[type](TeachingQuestPage.AllFinished);
+			end
 		end
 	end, 2000)
 end
 
 function TeachingQuestPage.RegisterTasksChanged(callback, type)
-	TeachingQuestPage.taskCallback[type] = callback;
+	if (not TeachingQuestPage.taskCallback[type]) then
+		TeachingQuestPage.taskCallback[type] = {};
+	end
+	table.insert(TeachingQuestPage.taskCallback[type], callback);
 end
 
 function TeachingQuestPage.GetTaskOptions()

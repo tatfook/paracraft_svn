@@ -119,7 +119,7 @@ function LocalLoadWorld.RefreshAll(refresh_delay)
 	page:Refresh(refresh_delay);
 end
 
-
+-- @param worldTitle: can be nil
 function LocalLoadWorld.CreateHomeWorld(myHomeWorldName, worldTitle)
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Login/CreateNewWorld.lua");
 	local CreateNewWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.CreateNewWorld")
@@ -132,6 +132,20 @@ function LocalLoadWorld.CreateHomeWorld(myHomeWorldName, worldTitle)
 		inherit_scene = true,
 		inherit_char = true,
 	})
+	return worldpath;
+end
+
+function LocalLoadWorld.CreateGetHomeWorld()
+	local myHomeWorldName;
+	if(System.User.keepworkUsername) then
+		local folderPath = LocalLoadWorld.GetDefaultSaveWorldPath();
+		myHomeWorldName = tostring(System.User.keepworkUsername).."_main";
+		-- create home world if not exist
+		if(not ParaIO.DoesFileExist(folderPath.."/"..myHomeWorldName.."/tag.xml", false)) then
+			LocalLoadWorld.CreateHomeWorld(myHomeWorldName)
+		end
+		return folderPath.."/"..myHomeWorldName;
+	end
 end
 
 function LocalLoadWorld.BuildLocalWorldList(bForceRefresh, bSelectFirst)
