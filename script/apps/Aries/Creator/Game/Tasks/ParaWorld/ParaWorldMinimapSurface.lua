@@ -2,9 +2,7 @@
 Title: ParaWorld Minimap Surface
 Author(s): LiXizhi
 Date: 2020/8/9
-Desc: paint minimap around the current player location in a spiral pattern. 
-	- click to close. 
-	- mouse wheel to zoom in/out
+Desc: paint minimap with a sampling rate
 use the lib:
 ------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapSurface.lua");
@@ -30,8 +28,10 @@ ParaWorldMinimapSurface:Property({"isShowGrid", false, "IsShowGrid", "SetShowGri
 ParaWorldMinimapSurface:Property({"GridColor", "#33333380"});
 ParaWorldMinimapSurface:Property({"BlocksSamplingSize", 4});
 ParaWorldMinimapSurface:Property({"BlocksSamplingLODSize", 4});
-ParaWorldMinimapSurface:Property({"BlocksPerFrame", 50, desc = "how many blocks to render per frame. "});
+ParaWorldMinimapSurface:Property({"BlocksPerFrame", 500, desc = "how many blocks to render per frame. "});
 ParaWorldMinimapSurface:Property({"BackgroundColor", "#000000"});
+-- use self:LockMap() method to lock. do not set this manually. 
+ParaWorldMinimapSurface:Property({"isMapLocked", false});
 
 ParaWorldMinimapSurface:Signal("mapChanged");
 
@@ -56,10 +56,11 @@ function ParaWorldMinimapSurface:ctor()
 	end
 end
 
+-- lock map at given region. 
 function ParaWorldMinimapSurface:LockMap(centerX, centerZ, radius)
+	self.isMapLocked = true;
 	self.timer:Change();
 	self:SetMapRadius(radius);
-	self.GridSize = radius * 8;
 	self:SetShowGrid(false);
 	self:SetMapCenter(19200, 19200)
 end
@@ -131,11 +132,18 @@ function ParaWorldMinimapSurface:SetMapCenter(x, y)
 		x, y = math.floor(x / gridSize)*gridSize+gridSize/2, math.floor(y / gridSize)*gridSize+gridSize/2;
 	end
 	if(self.CenterX~=x or self.CenterY~=y) then
-		local radius = math.floor(self.GridSize*1.25/2);
-		self.lockLeft =  x - radius;
-		self.lockRight =  x + radius;
-		self.lockTop =  y - radius;
-		self.lockBottom =  y + radius;
+		if(self.isMapLocked) then
+			self.lockLeft =  0;
+			self.lockRight =  0;
+			self.lockTop =  999999;
+			self.lockBottom =  999999;
+		else
+			local radius = math.floor(self.GridSize*1.25/2);
+			self.lockLeft =  x - radius;
+			self.lockRight =  x + radius;
+			self.lockTop =  y - radius;
+			self.lockBottom =  y + radius;
+		end
 		self.CenterX = x;
 		self.CenterY = y;
 
@@ -206,6 +214,14 @@ function ParaWorldMinimapSurface:WorldToMapPos(worldX, worldZ)
 	end
 end
 
+-- convert from map 2d position to world position
+function ParaWorldMinimapSurface:MapToWorldPos(mapX, mapZ)
+	local width, height = self:width(), self:height();
+	local worldX = math.floor((1 - mapZ/height) * self.map_width + self.map_left)
+	local worldZ = math.floor((1 - mapX/width) * self.map_height + self.map_top)
+	return worldX, worldZ;
+end
+
 function ParaWorldMinimapSurface:Invalidate()
 	self:ResetDrawProgress();
 	self:ScheduleNextPaint();
@@ -214,7 +230,9 @@ end
 
 function ParaWorldMinimapSurface:showEvent()
 	-- always Invalidate when page become visible. 
-	self:SetMapCenter(nil, nil)
+	if(not self.isMapLocked) then
+		self:SetMapCenter(nil, nil)
+	end
 	self:Invalidate();
 end
 
@@ -226,6 +244,13 @@ function ParaWorldMinimapSurface:DrawBackground(painter)
 	end
 end
 
+-- get the highest block at world block position. may return nil if no block is found
+function ParaWorldMinimapSurface:GetHeightByWorldPos(x, z)
+	local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 255, 255);
+	if(block_id and block_id > 0) then
+		return y;
+	end
+end
 
 function ParaWorldMinimapSurface:GetHighmapColor(x,z)
 	local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 4, 255);
@@ -301,9 +326,6 @@ end
 
 -- virtual: 
 function ParaWorldMinimapSurface:mousePressEvent(mouse_event)
-	if(mouse_event:button() == "right" or mouse_event:button() == "left") then
-		mouse_event:accept();
-	end
 end
 
 -- virtual: 
