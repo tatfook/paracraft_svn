@@ -161,12 +161,12 @@ function TeachingQuestPage.AddTasks(tasks, type)
 				end
 			else
 				for i = 1, #TeachingQuestPage.taskCallback[type] do
-					TeachingQuestPage.taskCallback[type](TeachingQuestPage.HasNewTask);
+					TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.HasNewTask);
 				end
 			end
 		else
 			for i = 1, #TeachingQuestPage.taskCallback[type] do
-				TeachingQuestPage.taskCallback[type](TeachingQuestPage.AllFinished);
+				TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.AllFinished);
 			end
 		end
 	end, 2000)
