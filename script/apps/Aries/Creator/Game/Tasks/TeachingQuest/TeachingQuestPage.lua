@@ -142,7 +142,7 @@ function TeachingQuestPage.CheckTaskCount(type)
 	end
 end
 
-function TeachingQuestPage.RestTasks()
+function TeachingQuestPage.ResetTasks()
 	TeachingQuestPage.taskCallback = {};
 end
 
@@ -150,26 +150,24 @@ function TeachingQuestPage.AddTasks(tasks, type)
 	if (tasks ~= nil and #tasks > 1) then
 		TeachingQuestPage.quests[type] = tasks;
 	end
-	commonlib.TimerManager.SetTimeout(function()  
-		local count = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.TaskGsids[type]);
-		local max = TeachingQuestPage.GetTaskItemMax(TeachingQuestPage.TaskGsids[type]);
-		local ticket = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.ticketGsid);
-		if (count < max) then
-			if (ticket > 0) then
-				for i = 1, #TeachingQuestPage.taskCallback[type] do
-					TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.TaskInProgress);
-				end
-			else
-				for i = 1, #TeachingQuestPage.taskCallback[type] do
-					TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.HasNewTask);
-				end
+	local count = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.TaskGsids[type]);
+	local max = TeachingQuestPage.GetTaskItemMax(TeachingQuestPage.TaskGsids[type]);
+	local ticket = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.ticketGsid);
+	if (count < max) then
+		if (ticket > 0) then
+			for i = 1, #TeachingQuestPage.taskCallback[type] do
+				TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.TaskInProgress);
 			end
 		else
 			for i = 1, #TeachingQuestPage.taskCallback[type] do
-				TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.AllFinished);
+				TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.HasNewTask);
 			end
 		end
-	end, 2000)
+	else
+		for i = 1, #TeachingQuestPage.taskCallback[type] do
+			TeachingQuestPage.taskCallback[type][i](TeachingQuestPage.AllFinished);
+		end
+	end
 end
 
 function TeachingQuestPage.RegisterTasksChanged(callback, type)

@@ -28,6 +28,7 @@ function TeachingQuestTitle.CreateOrGetBrowserPage()
 	return NplBrowserManager:CreateOrGet("TeachingQuest_BrowserPage");
 end
 function TeachingQuestTitle.OnWorldLoaded()
+	TeachingQuestPage.ResetTasks();
 	--TeachingQuestTitle.CreateOrGetBrowserPage():Close();
 	if (page) then
 		page:CloseWindow();
@@ -40,7 +41,6 @@ function TeachingQuestTitle.OnWorldLoaded()
 		end
 	end
 	if (projectId == TeachingQuestPage.MainWorldId) then
-		TeachingQuestPage.RestTasks();
 		if(not KeepWorkItemManager.GetToken())then
 			_guihelper.MessageBox(L"本世界只有登录的用户可以访问。即将退出世界！");
 			commonlib.TimerManager.SetTimeout(function()  
