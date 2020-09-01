@@ -89,8 +89,8 @@ function TeacherBlocklyAPI:BecomeTeacherNPC(type)
 		end, self.type);
 		TeachingQuestPage.AddTasks(tasks, self.type);
 		self:InvokeMethod("registerClickEvent", function()
-			if (data.script) then
-				TeacherBlocklyAPI.RunExternalFunc(data.script);
+			if (data.npcScript) then
+				TeacherBlocklyAPI.RunExternalFunc(data.npcScript);
 			end
 		end);
 	end);
