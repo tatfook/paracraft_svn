@@ -36,6 +36,13 @@ function ParaWorldLoginAdapter.GetDefaultWorldID()
 end
 -- search a world id to login
 function ParaWorldLoginAdapter:SearchWorldID(callback)
+    keepwork.world.mylist({
+    },function(err, msg, data)
+        commonlib.echo("==========world.mylist");
+        commonlib.echo(err);
+        commonlib.echo(msg);
+        commonlib.echo(data,true);
+    end)
     local world_id = ParaWorldLoginAdapter.GetDefaultWorldID();
     if(callback)then
         callback(world_id);

@@ -75,6 +75,9 @@ function DockPage.OnClick(id)
         StudyPage.ShowPage();
     elseif(id == "home")then
         GameLogic.RunCommand("/loadworld home");
+    elseif(id == "friends")then
+        local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
+        FriendsPage.Show();
     elseif(id == "school")then
         local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
         MySchool:Show();
