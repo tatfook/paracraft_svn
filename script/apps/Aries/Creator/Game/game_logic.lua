@@ -240,6 +240,11 @@ function GameLogic.InitCommon()
 	local ParaWorldMain = commonlib.gettable("Paracraft.Controls.ParaWorldMain");
 	ParaWorldMain:Init()
 
+	if (not System.options.isCodepku) then
+		local ClassManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassManager.lua");
+		ClassManager.StaticInit();
+	end
+
 	GameLogic.KeepWorkItemManager = KeepWorkItemManager;
 end
 

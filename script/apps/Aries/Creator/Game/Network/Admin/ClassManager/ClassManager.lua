@@ -47,18 +47,17 @@ ClassManager.ChatDataMax = 200;
 
 local init = false;
 function ClassManager.StaticInit()
+	--GameLogic:Connect("WorldLoaded", ClassManager, ClassManager.OnWorldLoaded, "UniqueConnection");
+	--GameLogic:Connect("WorldUnloaded", ClassManager, ClassManager.OnWorldUnload, "UniqueConnection");
 	if (init) then return end
 	init = true;
 
-	GameLogic:Connect("WorldLoaded", ClassManager, ClassManager.OnWorldLoaded, "UniqueConnection");
-	GameLogic:Connect("WorldUnloaded", ClassManager, ClassManager.OnWorldUnload, "UniqueConnection");
 	GameLogic.GetFilters():add_filter("OnKeepWorkLogin", ClassManager.OnKeepWorkLogin_Callback);
 	GameLogic.GetFilters():add_filter("OnKeepWorkLogout", ClassManager.OnKeepWorkLogout_Callback)
 end
 
 function ClassManager.OnWorldLoaded()
 	if (KpChatChannel.client) then
-		KpChatChannel.client:AddEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
 		commonlib.TimerManager.SetTimeout(function()
 			-- first load teacher classroom
 			local roleId = 2;
@@ -91,16 +90,37 @@ function ClassManager.OnWorldLoaded()
 end
 
 function ClassManager.OnWorldUnload()
-	if (KpChatChannel.client) then
-		KpChatChannel.client:RemoveEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
-		ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
-	end
 end
 
 function ClassManager.OnKeepWorkLogin_Callback()
+	if (KpChatChannel.client) then
+		KpChatChannel.client:AddEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
+	end
+	local worldName = WorldCommon.GetWorldTag("name");
+	if (worldName ~= nil and worldName ~= "") then
+		ClassManager.OnWorldLoaded();
+	end
 end
 
 function ClassManager.OnKeepWorkLogout_Callback()
+	if (KpChatChannel.client) then
+		--[[
+		if (ClassManager.IsTeacherInClass()) then
+			if (ClassManager.IsLocking) then
+				TeacherPanel.UnLock();
+			end
+			if (not ClassManager.CanSpeak) then
+				TChatRoomPage.AllowChat();
+			end
+		end
+		if (ClassManager.InClass) then
+			ClassManager.SendMessage("tip:leave");
+			ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
+		end
+		ClassManager.Reset();
+		]]
+		KpChatChannel.client:RemoveEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
+	end
 end
 
 function ClassManager.LoadAllClasses(callback)
@@ -171,7 +191,6 @@ end
 
 function ClassManager.LoadOnlineClassroom(roleId, callback)
 	keepwork.classroom.get({cache_policy = "access plus 0", status = 1, roleId = roleId}, function(err, msg, data)
-		commonlib.echo(data);
 		local rooms = data and data.data and data.data.rows;
 		if (rooms) then
 			for i = 1, #rooms do
@@ -224,7 +243,6 @@ end
 
 function ClassManager.LoadClassroomInfo(classroomId, callback)
 	keepwork.info.get({cache_policy = "access plus 0", classroomId = classroomId}, function(err, msg, data)
-		commonlib.echo(data);
 		local room = data and data.data;
 		if (room == nil) then return end
 
@@ -241,7 +259,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 
 		for i = 1, #(room.classroomUser) do
 			local user = room.classroomUser[i];
-			if (user.userId ~= room.userId and user.user.tLevel == 1) then
+			if (user.userId ~= room.userId and user.user ~= nil and user.user.tLevel == 1) then
 				table.insert(ClassManager.ClassMemberList,
 				{
 					userId = user.userId,
@@ -254,7 +272,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 		end
 		for i = 1, #(room.classroomUser) do
 			local user = room.classroomUser[i];
-			if (user.userId ~= room.userId and user.user.tLevel == 0) then
+			if (user.userId ~= room.userId and user.user ~= nil and user.user.tLevel == 0) then
 				table.insert(ClassManager.ClassMemberList,
 				{
 					userId = user.userId,
@@ -362,7 +380,7 @@ end
 function ClassManager.GetOnlineCount()
 	local count = 0;
 	for i = 1, #ClassManager.ClassMemberList do
-		if (ClassManager.ClassMemberList[i].online) then
+		if (ClassManager.ClassMemberList[i].inclass) then
 			count = count + 1;
 		end
 	end
@@ -381,10 +399,13 @@ end
 
 function ClassManager.RunCommand(command)
 	if (command == "lock") then
+		ClassManager.IsLocking = true;
 		LockDesktop.ShowPage(true, 60 * 60, cmd_text);
 	elseif (command == "unlock") then
+		ClassManager.IsLocking = false;
 		LockDesktop.ShowPage(false, 0, cmd_text);
 	elseif (command == "connect") then
+		ClassManager.InGGS = true;
 		GameLogic.RunCommand("/connectGGS -isSyncBlock");
 	elseif (command == "nospeak") then
 		ClassManager.CanSpeak = false;
@@ -411,15 +432,17 @@ function ClassManager.RefreshChatRoomList(userId, inclass, online)
 	if (ClassManager.IsTeacherInClass()) then
 		TChatRoomPage.Refresh();
 		TeacherPanel.Refresh();
-		local room = string.format("__user_%d__", userId);
-		if (ClassManager.IsLocking) then
-			ClassManager.SendMessage("cmd:lock:"..userId, room);
-		end
-		if (ClassManager.InGGS) then
-			ClassManager.SendMessage("cmd:connect:"..userId, room);
-		end
-		if (not ClassManager.CanSpeak) then
-			ClassManager.SendMessage("cmd:nospeak:"..userId, room);
+		if (inclass) then
+			local room = string.format("__user_%d__", userId);
+			if (ClassManager.IsLocking) then
+				ClassManager.SendMessage("cmd:lock:"..userId, room);
+			end
+			if (ClassManager.InGGS) then
+				ClassManager.SendMessage("cmd:connect:"..userId, room);
+			end
+			if (not ClassManager.CanSpeak) then
+				ClassManager.SendMessage("cmd:nospeak:"..userId, room);
+			end
 		end
 	else
 		SChatRoomPage.Refresh();
@@ -505,9 +528,17 @@ function ClassManager.OnMsg(self, msg)
 		if (action == "classroom_start") then
 			ClassManager.StudentJointClassroom(payload.classroomId);
 		elseif (action == "classroom_dismiss") then
-			ClassManager.Reset();
 			if (not ClassManager.IsTeacherInClass()) then
+				if (ClassManager.IsLocking) then
+					ClassManager.RunCommand("unlock");
+				end
+				if (not ClassManager.CanSpeak) then
+					ClassManager.RunCommand("canspeak");
+				end
+				ClassManager.Reset();
 				StudentPanel.LeaveClass();
+			else
+				ClassManager.Reset();
 			end
 		elseif (action == "online") then
 			ClassManager.RefreshChatRoomList(payload.userId, false, true);

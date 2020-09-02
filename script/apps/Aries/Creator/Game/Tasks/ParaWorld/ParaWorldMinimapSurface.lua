@@ -253,7 +253,7 @@ function ParaWorldMinimapSurface:GetHeightByWorldPos(x, z)
 end
 
 function ParaWorldMinimapSurface:GetHighmapColor(x,z)
-	local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 4, 255);
+	local block_id, y, block_data = BlockEngine:GetNextBlockOfTypeInColumn(x,255,z, 255, 255);
 	if(block_id and block_id > 0) then
 		local block_template = block_types.get(block_id);
 		if(block_template) then

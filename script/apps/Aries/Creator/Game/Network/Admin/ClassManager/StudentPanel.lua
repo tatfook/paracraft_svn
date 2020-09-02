@@ -67,7 +67,6 @@ function StudentPanel.LeaveClass()
 	if (page) then
 		page:Refresh(0);
 	end
-	SChatRoomPage.ShowPage(false);
 end
 
 function StudentPanel.GetClassName()
@@ -92,7 +91,6 @@ function StudentPanel.OpenChat()
 	if (page) then
 		page:Refresh(0);
 	end
-	SChatRoomPage.ShowPage(true);
 end
 
 function StudentPanel.CloseChat()
@@ -119,8 +117,6 @@ function StudentPanel.IsClassStarted()
 end
 
 function StudentPanel.StartClass()
-	ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
-	ClassManager.SendMessage("tip:join");
 	local projectId = GameLogic.options:GetProjectId();
 	if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
 		if (page) then
@@ -128,6 +124,8 @@ function StudentPanel.StartClass()
 		else
 			StudentPanel.ShowPage();
 		end
+		ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
+		ClassManager.SendMessage("tip:join");
 	else
 		StudentPanel.EnterTeachingWorld(ClassManager.CurrentWorldId)
 	end
@@ -145,6 +143,8 @@ function StudentPanel.OnWorldLoaded()
 	if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
 		commonlib.TimerManager.SetTimeout(function()
 			StudentPanel.ShowPage();
+			ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
+			ClassManager.SendMessage("tip:join");
 		end, 1000);
 	end
 end

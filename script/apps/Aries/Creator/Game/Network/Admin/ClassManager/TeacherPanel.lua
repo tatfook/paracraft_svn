@@ -118,6 +118,7 @@ end
 
 function TeacherPanel.Lock()
 	TeacherPanel.IsLocked = true;
+	ClassManager.IsLocking = true;
 	if (page) then
 		page:Refresh(0);
 	end
@@ -126,6 +127,7 @@ end
 
 function TeacherPanel.UnLock()
 	TeacherPanel.IsLocked = false;
+	ClassManager.IsLocking = false;
 	if (page) then
 		page:Refresh(0);
 	end
@@ -153,6 +155,7 @@ function TeacherPanel.ConnectClass()
 			GameLogic.RunCommand("/connectGGS -isSyncBlock");
 			ClassManager.SendMessage("cmd:connect");
 			GameLogic.AddBBS(nil, L"联机成功！", 3000, "0 255 0");
+			ClassManager.InGGS = true;
 		end
 	end, _guihelper.MessageBoxButtons.OKCancel);
 end
