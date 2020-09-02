@@ -9,6 +9,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd
 local ParaWorldMinimapWnd = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldMinimapWnd");
 ParaWorldMinimapWnd:Show();
 ParaWorldMinimapWnd:Close();
+ParaWorldMinimapWnd:RefreshMap()
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapSurface.lua");
@@ -41,6 +42,21 @@ function ParaWorldMinimapWnd:Show()
 	});
 end
 
+local page;
+function ParaWorldMinimapWnd.OnInit()
+	page = document:GetPageCtrl();
+end
+
+-- refresh the map
+function ParaWorldMinimapWnd:RefreshMap()
+	if(page) then
+		local ctl = page:FindControl("surface");
+		if(ctl) then
+			-- rebuild map
+			ctl:Invalidate();
+		end
+	end
+end
 
 function ParaWorldMinimapWnd.CloseWindow()
 	local self = ParaWorldMinimapWnd
