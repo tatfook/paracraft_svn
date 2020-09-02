@@ -19,9 +19,15 @@ local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.Par
 
 
 ParaWorldLoginAdapter.ids = {
-    ONLINE = { 18355, },
+    ONLINE = { 
+        18355, -- 知识岛
+        18626, --希望空间 
+    },
     STAGE = { 1192, },
-    RELEASE = { 1192, },
+    RELEASE = { 
+        1192, -- 知识岛
+        1236, --希望空间 
+    },
     LOCAL = {},
 }
 function ParaWorldLoginAdapter.GetDefaultWorldID()
