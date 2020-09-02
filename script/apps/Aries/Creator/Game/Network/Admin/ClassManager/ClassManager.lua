@@ -59,6 +59,12 @@ end
 function ClassManager.OnWorldLoaded()
 	if (KpChatChannel.client) then
 		commonlib.TimerManager.SetTimeout(function()
+			local projectId = GameLogic.options:GetProjectId();
+			if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
+				GameLogic.events:AddEventListener("OnWorldUnload", ClassManager.OnWorldUnload, ClassManager, "ClassManager");
+				return;
+			end
+
 			-- first load teacher classroom
 			local roleId = 2;
 			ClassManager.LoadOnlineClassroom(roleId, function(classId, projectId, classroomId, userId)
@@ -67,7 +73,7 @@ function ClassManager.OnWorldLoaded()
 					commonlib.TimerManager.SetTimeout(function()
 						ClassManager.InClass = true;
 						TeacherPanel.StartClass();
-					end, 1500);
+					end, 2000);
 				else
 					-- no teacher classroom, then load student classroom
 					roleId = 1;
@@ -85,16 +91,33 @@ function ClassManager.OnWorldLoaded()
 					end);
 				end
 			end);
-		end, 5000)
+		end, 2000)
 	end
 end
 
-function ClassManager.OnWorldUnload()
+function ClassManager.OnWorldUnload(event)
+	--[[
+	if (ClassManager.IsTeacherInClass()) then
+		if (ClassManager.IsLocking) then
+			TeacherPanel.UnLock();
+		end
+		if (not ClassManager.CanSpeak) then
+			TChatRoomPage.AllowChat();
+		end
+	end
+	if (ClassManager.InClass) then
+		ClassManager.SendMessage("tip:leave");
+		ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
+	end
+	ClassManager.Reset();
+	]]
 end
 
 function ClassManager.OnKeepWorkLogin_Callback()
 	if (KpChatChannel.client) then
+		KpChatChannel.client:AddEventListener("OnOpen",ClassManager.OnOpen,ClassManager);
 		KpChatChannel.client:AddEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
+		KpChatChannel.client:AddEventListener("OnClose",ClassManager.OnClose,ClassManager);
 	end
 	local worldName = WorldCommon.GetWorldTag("name");
 	if (worldName ~= nil and worldName ~= "") then
@@ -119,8 +142,16 @@ function ClassManager.OnKeepWorkLogout_Callback()
 		end
 		ClassManager.Reset();
 		]]
+		KpChatChannel.client:RemoveEventListener("OnOpen",ClassManager.OnOpen,ClassManager);
 		KpChatChannel.client:RemoveEventListener("OnMsg",ClassManager.OnMsg,ClassManager);
+		KpChatChannel.client:RemoveEventListener("OnClose",ClassManager.OnClose,ClassManager);
 	end
+end
+
+function ClassManager.OnOpen(self)
+end
+
+function ClassManager.OnClose(self)
 end
 
 function ClassManager.LoadAllClasses(callback)

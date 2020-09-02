@@ -133,7 +133,6 @@ end
 
 function StudentPanel.EnterTeachingWorld(worldId)
 	GameLogic:Connect("WorldLoaded", StudentPanel, StudentPanel.OnWorldLoaded, "UniqueConnection");
-	--GameLogic:Connect("WorldUnloaded", StudentPanel, StudentPanel.OnWorldUnload, "UniqueConnection");
 	local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
 	UserConsole:HandleWorldId(worldId, "force");
 end
@@ -148,8 +147,3 @@ function StudentPanel.OnWorldLoaded()
 		end, 1000);
 	end
 end
-
-function StudentPanel.OnWorldUnload()
-	local projectId = tostring(GameLogic.options:GetProjectId());
-end
-

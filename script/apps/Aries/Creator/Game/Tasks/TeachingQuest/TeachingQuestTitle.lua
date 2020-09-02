@@ -55,8 +55,6 @@ function TeachingQuestTitle.OnWorldLoaded()
 			GameLogic.GetFilters():add_filter("OnKeepWorkLogout", TeachingQuestTitle.OnKeepWorkLogout_Callback)
 			GameLogic.RunCommand("/hide quickselectbar");
             DockPage.Show();
-			local ClassManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassManager.lua");
-			ClassManager.OnWorldLoaded();
 
 		end, 200)
 	else

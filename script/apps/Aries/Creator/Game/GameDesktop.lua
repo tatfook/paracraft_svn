@@ -361,10 +361,31 @@ function Desktop.OnExit(bForceExit, bRestart)
 	if(ModManager:OnClickExitApp(bForceExit, bRestart)) then
 		return
 	end
+
+	local function checkLockWorld(callback)
+        local currentEnterWorld = Mod.WorldShare.Store:Get("world/currentEnterWorld")
+        if (currentEnterWorld.project and currentEnterWorld.project.memberCount or 0) > 1 then
+            Mod.WorldShare.MsgBox:Show(L"请稍后...")
+			local KeepworkServiceWorld = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/World.lua")
+            KeepworkServiceWorld:UnlockWorld(function()
+                if (callback) then
+                    callback()
+                end
+            end)
+		else
+			if (callback) then
+				callback()
+			end
+        end
+	end
 	if(GameLogic.IsReadOnly()) then
 		if(bForceExit or Desktop.is_exiting) then
 			-- double click to exit without saving. 
-			Desktop.ForceExit();
+			checkLockWorld(function()
+				local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
+				KeepworkServiceSession:Logout();
+				Desktop.ForceExit();
+			end);
 		else
 			Desktop.is_exiting = true;
 
@@ -391,7 +412,11 @@ function Desktop.OnExit(bForceExit, bRestart)
 			if(Desktop.is_exiting) then
 				-- GameLogic.QuickSave();
 			end
-			Desktop.ForceExit();
+			checkLockWorld(function()
+				local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
+				KeepworkServiceSession:Logout();
+				Desktop.ForceExit();
+			end);
 		else
 			Desktop.is_exiting = true;
 			local dialog = {
@@ -423,17 +448,20 @@ function Desktop.ForceExit(bRestart)
 
 	local platform = System.os.GetPlatform();
 	if(platform == "android" or platform == "ios" ) then
+		GameLogic.events:DispatchEvent({type = "OnWorldUnload"});	
 		-- disable close on these platform. 
 		MyCompany.Aries.Game.Exit();
 		-- soft restart the NPL runtime state to login screen. 
 		System.App.Commands.Call("Profile.Aries.Restart", {method="soft"});
 	elseif(System.options.IsMobilePlatform) then
+		GameLogic.events:DispatchEvent({type = "OnWorldUnload"});	
 		MyCompany.Aries.Game.Exit();
 		-- soft restart the NPL runtime state to login screen. 
 		Map3DSystem.App.Commands.Call("Profile.Aries.MobileRestart");
 	else
 		ParaEngine.GetAttributeObject():SetField("IsWindowClosingAllowed", true);
 		if(bRestart) then
+			GameLogic.events:DispatchEvent({type = "OnWorldUnload"});	
 			Game.Exit();
 			System.App.Commands.Call("Profile.Aries.Restart", {method="soft"});
 		else
