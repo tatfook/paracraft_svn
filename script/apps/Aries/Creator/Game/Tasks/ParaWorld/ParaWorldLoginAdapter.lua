@@ -20,13 +20,13 @@ local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.Par
 
 ParaWorldLoginAdapter.ids = {
     ONLINE = { 
-        18355, -- 知识岛
-        18626, --希望空间 
+        18355, -- 默认世界 知识岛
+        --18626, --希望空间 
     },
     STAGE = { 1192, },
     RELEASE = { 
-        1192, -- 知识岛
-        1236, --希望空间 
+        1192, -- 默认世界 知识岛
+        --1236, --希望空间 
     },
     LOCAL = {},
 }
@@ -42,17 +42,48 @@ function ParaWorldLoginAdapter.GetDefaultWorldID()
 end
 -- search a world id to login
 function ParaWorldLoginAdapter:SearchWorldID(callback)
+    --[[
+        {
+          {
+            commitId="31d04",
+            createdAt="2020-09-02T17:00:00.000Z",
+            favorite=0,
+            id=1,
+            lastFavorite=0,
+            lastStar=0,
+            name="甯屾湜绌洪棿",
+            objectId=272928,
+            objectType="school",
+            projectId=1236,
+            regionId=1894,
+            settleCount=0,
+            star=0,
+            status="audited",
+            updatedAt="2020-09-02T17:00:00.000Z" 
+          } 
+        }
+    ]]
     keepwork.world.mylist({
     },function(err, msg, data)
         commonlib.echo("==========world.mylist");
         commonlib.echo(err);
         commonlib.echo(msg);
         commonlib.echo(data,true);
+        local world_id = ParaWorldLoginAdapter.GetDefaultWorldID();
+        if(err == 200)then
+            -- the first item is right world
+            if(data and data[1])then
+                local world_info = data[1];
+                if(world_info.projectId)then
+                    world_id =  world_info.projectId;
+                end
+            end
+        end
+        if(callback)then
+            callback(world_id);
+        end
     end)
-    local world_id = ParaWorldLoginAdapter.GetDefaultWorldID();
-    if(callback)then
-        callback(world_id);
-    end
+    
 end
 -- enter offline world
 function ParaWorldLoginAdapter:EnterOfflineWorld()
