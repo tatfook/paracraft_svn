@@ -67,6 +67,7 @@ function StudentPanel.LeaveClass()
 	if (page) then
 		page:Refresh(0);
 	end
+	SChatRoomPage.ShowPage(false);
 end
 
 function StudentPanel.GetClassName()
@@ -91,6 +92,7 @@ function StudentPanel.OpenChat()
 	if (page) then
 		page:Refresh(0);
 	end
+	SChatRoomPage.ShowPage(true);
 end
 
 function StudentPanel.CloseChat()

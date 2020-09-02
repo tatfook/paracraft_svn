@@ -499,15 +499,21 @@ function ClassManager.StudentJointClassroom(roomId)
 			return;
 		end
 		if (classId and projectId and classroomId) then
-			local text = string.format(L"%s邀请你上课，是否加入课堂？", ClassManager.GetMemberUIName(currentTeacher, true));
+			local text = string.format(L"%s邀请你上课，是否要保存当前世界并加入课堂，或点击取消不进入课堂？", ClassManager.GetMemberUIName(currentTeacher, true));
 			_guihelper.MessageBox(text, function(res)
 				if(res and res == _guihelper.DialogResult.Yes)then
+					if (not GameLogic.IsReadOnly()) then
+						GameLogic.QuickSave();
+					end
+					ClassManager.InClass = true;
+					StudentPanel.StartClass();
+				elseif(res and res == _guihelper.DialogResult.No)then
 					ClassManager.InClass = true;
 					StudentPanel.StartClass();
 				else
 					ClassManager.Reset();
 				end
-			end, _guihelper.MessageBoxButtons.YesNo);
+			end, _guihelper.MessageBoxButtons.YesNoCancel);
 		end
 	end);
 end
