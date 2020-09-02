@@ -95,22 +95,29 @@ function ClassManager.OnWorldLoaded()
 	end
 end
 
-function ClassManager.OnWorldUnload(event)
-	--[[
-	if (ClassManager.IsTeacherInClass()) then
-		if (ClassManager.IsLocking) then
-			TeacherPanel.UnLock();
+function ClassManager.OnWorldUnload(self, event)
+	local projectId = GameLogic.options:GetProjectId();
+	if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
+		if (not ClassManager.IsTeacherInClass() and ClassManager.InClas) then
+			ClassManager.SendMessage("tip:leave");
+			ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
 		end
-		if (not ClassManager.CanSpeak) then
-			TChatRoomPage.AllowChat();
+		ClassManager.Reset();
+	end
+end
+
+function ClassManager.OnExitApp()
+	local projectId = GameLogic.options:GetProjectId();
+	if (projectId and tonumber(projectId) == ClassManager.CurrentWorldId) then
+		if (ClassManager.IsTeacherInClass()) then
+			if (ClassManager.IsLocking) then
+				TeacherPanel.UnLock();
+			end
+			if (not ClassManager.CanSpeak) then
+				TChatRoomPage.AllowChat();
+			end
 		end
 	end
-	if (ClassManager.InClass) then
-		ClassManager.SendMessage("tip:leave");
-		ClassManager.LeaveClassroom(ClassManager.CurrentClassroomId);
-	end
-	ClassManager.Reset();
-	]]
 end
 
 function ClassManager.OnKeepWorkLogin_Callback()

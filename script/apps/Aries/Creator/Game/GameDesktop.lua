@@ -465,6 +465,8 @@ function Desktop.ForceExit(bRestart)
 			Game.Exit();
 			System.App.Commands.Call("Profile.Aries.Restart", {method="soft"});
 		else
+			local ClassManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Network/Admin/ClassManager/ClassManager.lua");
+			ClassManager.OnExitApp();
 			Game.Exit();
 			ParaGlobal.ExitApp();
 		end
