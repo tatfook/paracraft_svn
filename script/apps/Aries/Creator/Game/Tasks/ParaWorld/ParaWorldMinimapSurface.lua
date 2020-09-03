@@ -107,9 +107,16 @@ end
 function ParaWorldMinimapSurface:UpdatePlayerPos(x, y, facing)
 	if(not x or not y) then
 		local _;
-		x, _, y = EntityManager.GetPlayer():GetBlockPos();
-		facing = EntityManager.GetPlayer():GetFacing();
+        local player = EntityManager.GetPlayer();
+        if(player)then
+            x, _, y = player:GetBlockPos();
+		    facing = player:GetFacing();    
+        end
+		
 	end
+	if(not x or not y) then
+        return
+    end
 	self.playerFacing = facing or self.playerFacing;
 	if(self.playerX~=x or self.playerY~=y) then
 		self.playerX = x;
