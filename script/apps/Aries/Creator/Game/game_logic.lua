@@ -996,7 +996,7 @@ function GameLogic.FrameMove(timer)
 end
 
 function GameLogic.OnDead()
-	_guihelper.MessageBox(L"你挂了, 将被传送到出生点", function()
+	_guihelper.MessageBox(L"您已被重置回出生点。", function()
 		CommandManager:RunCommand("/tp home");
 	end)
 end
