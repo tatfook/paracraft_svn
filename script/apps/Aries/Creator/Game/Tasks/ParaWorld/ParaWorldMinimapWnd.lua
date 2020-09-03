@@ -41,7 +41,7 @@ function ParaWorldMinimapWnd:Show()
 	self.window2:Show({
 		name="ParaWorldMinimapWnd2", 
 		url="script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.html?isSurface=false",
-		alignment="_rt", left=-202, top=10, width = 192, height = 220, zorder = -11
+		alignment="_rt", left=-202, top=10, width = 192, height = 248, zorder = -11
 	});
 end
 
@@ -78,4 +78,16 @@ end
 
 function ParaWorldMinimapWnd.GetWorldName()
     return WorldCommon.GetWorldTag("name");
+end
+
+function ParaWorldMinimapWnd.OnClickSpawnpoint()
+	GameLogic.RunCommand("/home")
+end
+
+function ParaWorldMinimapWnd.OnLocalWorldInfo()
+	_guihelper.MessageBox("TODO:")
+end
+
+function ParaWorldMinimapWnd.OnClickParaWorldList()
+	_guihelper.MessageBox("TODO:")
 end

@@ -88,7 +88,7 @@ function ParaWorldMinimapSurface:BuildBlockColorTable()
 	end
 end
 
-function ParaWorldMinimapSurface:aboutToDestroy()
+function ParaWorldMinimapSurface:Destroy()
 	if(self.timer) then
 		self.timer:Change();
 	end
@@ -107,16 +107,14 @@ end
 function ParaWorldMinimapSurface:UpdatePlayerPos(x, y, facing)
 	if(not x or not y) then
 		local _;
-        local player = EntityManager.GetPlayer();
-        if(player)then
-            x, _, y = player:GetBlockPos();
-		    facing = player:GetFacing();    
-        end
-		
+		local player = EntityManager.GetPlayer()
+		if(player) then
+			x, _, y = player:GetBlockPos();
+			facing = player:GetFacing();
+		else
+			return
+		end
 	end
-	if(not x or not y) then
-        return
-    end
 	self.playerFacing = facing or self.playerFacing;
 	if(self.playerX~=x or self.playerY~=y) then
 		self.playerX = x;

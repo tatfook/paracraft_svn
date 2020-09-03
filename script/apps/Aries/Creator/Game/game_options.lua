@@ -714,15 +714,16 @@ function options.GetClientVersion()
 end
 
 -- set or toggle viewbobbing. 
-function options:SetViewBobbing(value)
+-- @param noSave: if true, it means temporary set, do not save to disk options
+function options:SetViewBobbing(value, noSave)
 	local key = "Paracraft_System_View_Bobbing";
 	if(value == nil) then
-		if(self.ViewBobbing == nil) then
-			self.ViewBobbing = GameLogic.GetPlayerController():LoadLocalData(key,true,true);
-		end
+		self.ViewBobbing = GameLogic.GetPlayerController():LoadLocalData(key,true,true);
 	elseif(self.ViewBobbing ~= value) then
 		self.ViewBobbing = value;
-		GameLogic.GetPlayerController():SaveLocalData(key, value, true, true);
+		if(not noSave) then
+			GameLogic.GetPlayerController():SaveLocalData(key, value, true, true);
+		end
 	end
 end
 

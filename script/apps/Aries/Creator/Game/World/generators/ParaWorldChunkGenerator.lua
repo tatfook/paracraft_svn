@@ -32,7 +32,7 @@ end
 
 function ParaWorldChunkGenerator:OnLoadWorld()
 	GameLogic.RunCommand("/speedscale 2");
-	GameLogic.RunCommand("/viewbobbing off");
+	GameLogic.options:SetViewBobbing(false, true)
 end
 
 -- get params for generating flat terrain
