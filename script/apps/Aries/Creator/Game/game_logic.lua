@@ -1516,9 +1516,16 @@ end
 -- toggle desktop view
 function GameLogic.ToggleDesktop(name)
 	if(name == "esc") then
-		NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/EscFramePage.lua");
-		local EscFramePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.EscFramePage");
-		EscFramePage.ShowPage();
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+		local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
+		local projectId = GameLogic.options:GetProjectId();
+		if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
+			ParaWorldLoginAdapter.ShowExitWorld(true);
+		else
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/EscFramePage.lua");
+			local EscFramePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.EscFramePage");
+			EscFramePage.ShowPage();
+		end
 	elseif(name == "builder") then
 		if(GameMode:IsUseCreatorBag()) then
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/CreatorDesktop.lua");

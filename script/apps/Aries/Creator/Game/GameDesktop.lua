@@ -389,6 +389,14 @@ function Desktop.OnExit(bForceExit, bRestart)
 		else
 			Desktop.is_exiting = true;
 
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+			local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
+			local projectId = GameLogic.options:GetProjectId();
+			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
+				ParaWorldLoginAdapter.ShowExitWorld(true);
+				return true;
+			end
+
 			local dialog = {
 				text = L"确定要退出当前世界么？", 
 				callback = function(res)
@@ -419,6 +427,14 @@ function Desktop.OnExit(bForceExit, bRestart)
 			end);
 		else
 			Desktop.is_exiting = true;
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+			local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
+			local projectId = GameLogic.options:GetProjectId();
+			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
+				ParaWorldLoginAdapter.ShowExitWorld(true);
+				return true;
+			end
+
 			local dialog = {
 				text = string.format(L"%d秒内您没有保存过世界. <br/>退出前, 是否保存世界？", GameLogic.options:GetElapsedUnSavedTime()/1000), 
 				callback = function(res)

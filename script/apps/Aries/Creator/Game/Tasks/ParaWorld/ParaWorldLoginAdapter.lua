@@ -14,9 +14,15 @@ How to config cmd line:
 seeing script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua 
 -------------------------------------------------------
 ]]
+NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
+local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
+local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
+local MainLogin = commonlib.gettable("MyCompany.Aries.Game.MainLogin");
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 
+ParaWorldLoginAdapter.MainWorldId = nil;
 
 ParaWorldLoginAdapter.ids = {
     ONLINE = { 
@@ -92,7 +98,13 @@ function ParaWorldLoginAdapter:EnterOfflineWorld()
 	InternetLoadWorld.ShowPage();
 end
 function ParaWorldLoginAdapter:EnterWorld()
-    if(System.options.loginmode == "offline")then
+	--[[
+    local token = Mod.WorldShare.Store:Get("user/token")
+	commonlib.echo("token");
+	commonlib.echo(token);
+	local bLoginSuccessed = Mod.WorldShare.Store:Get("user/bLoginSuccessed")
+	]]
+    if(System.options.loginmode == "offline" or not KeepworkService:IsSignedIn())then
         ParaWorldLoginAdapter:EnterOfflineWorld();
         return
     end
@@ -103,8 +115,21 @@ function ParaWorldLoginAdapter:EnterWorld()
             ParaWorldLoginAdapter:EnterOfflineWorld();
             return
         end
+		ParaWorldLoginAdapter.MainWorldId = world_id;
         local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
 	    UserConsole:HandleWorldId(world_id, "force");
     end)
     
+end
+
+function ParaWorldLoginAdapter.ShowExitWorld(restart)
+	_guihelper.MessageBox("是否离开当前世界，返回登录界面？", function(res)
+		if(res and res == _guihelper.DialogResult.Yes)then
+			Desktop.is_exiting = true;
+			KeepworkServiceSession:Logout(nil, function()
+				GameLogic.GetFilters():apply_filters("OnKeepWorkLogout", true);
+			end);
+			Desktop.ForceExit(restart);
+		end
+	end, _guihelper.MessageBoxButtons.YesNo);
 end
