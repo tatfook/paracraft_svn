@@ -96,19 +96,24 @@ function ParaWorldLoginAdapter:EnterOfflineWorld()
 	local InternetLoadWorld = commonlib.gettable("MyCompany.Aries.Creator.Game.Login.InternetLoadWorld");
 	InternetLoadWorld.ShowPage();
 end
-function ParaWorldLoginAdapter:EnterWorld()
+function ParaWorldLoginAdapter:EnterWorld(close)
 	local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
 	local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
-	if not KeepworkService:IsSignedIn() and KeepworkServiceSession:GetCurrentUserToken() then
-		UserInfo:LoginWithToken(function()
-			ParaWorldLoginAdapter:EnterWorld();
-		end);
-		return;
+	if (close) then
+		if (not KeepworkService:IsSignedIn() and not KeepworkServiceSession:GetCurrentUserToken()) then
+			Desktop.ForceExit(true);
+		end
 	end
     if(System.options.loginmode == "offline" and not KeepworkService:IsSignedIn())then
         ParaWorldLoginAdapter:EnterOfflineWorld();
         return
     end
+	if (not KeepworkService:IsSignedIn() and KeepworkServiceSession:GetCurrentUserToken()) then
+		UserInfo:LoginWithToken(function()
+			ParaWorldLoginAdapter:EnterWorld();
+		end);
+		return;
+	end
 
     ParaWorldLoginAdapter:SearchWorldID(function(world_id)
 	    LOG.std(nil, "info", "ParaWorldLoginAdapter", " found world_id:%s", tostring(world_id));

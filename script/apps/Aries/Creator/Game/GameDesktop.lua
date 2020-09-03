@@ -402,10 +402,10 @@ function Desktop.OnExit(bForceExit, bRestart)
 					Desktop.is_exiting = false;
 					if(res and res == _guihelper.DialogResult.Yes) then
 						--Desktop.ForceExit(bRestart);
-						ParaWorldLoginAdapter:EnterWorld();
+						ParaWorldLoginAdapter:EnterWorld(true);
 					elseif(res and res == _guihelper.DialogResult.No) then
 						--Desktop.ForceExit(bRestart);
-						ParaWorldLoginAdapter:EnterWorld();
+						ParaWorldLoginAdapter:EnterWorld(true);
 					end
 				end
 			};
@@ -441,10 +441,10 @@ function Desktop.OnExit(bForceExit, bRestart)
 					if(res and res == _guihelper.DialogResult.Yes) then
 						GameLogic.QuickSave();
 						--Desktop.ForceExit(bRestart);
-						ParaWorldLoginAdapter:EnterWorld();
+						ParaWorldLoginAdapter:EnterWorld(true);
 					elseif(res and res == _guihelper.DialogResult.No) then
 						--Desktop.ForceExit(bRestart);
-						ParaWorldLoginAdapter:EnterWorld();
+						ParaWorldLoginAdapter:EnterWorld(true);
 					end
 				end
 			};
