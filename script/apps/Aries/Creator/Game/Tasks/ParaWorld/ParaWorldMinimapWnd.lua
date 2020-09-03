@@ -19,6 +19,9 @@ local ParaWorldMinimapSurface = commonlib.gettable("Paracraft.Controls.ParaWorld
 local Window = commonlib.gettable("System.Windows.Window");
 local ParaWorldMinimapWnd = commonlib.inherit(nil, commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldMinimapWnd"));
 
+-- page only for surface window. Not the realtime window
+local page;
+
 function ParaWorldMinimapWnd:Show()
 	if(not self.window) then
 		local window = Window:new();
@@ -42,7 +45,6 @@ function ParaWorldMinimapWnd:Show()
 	});
 end
 
-local page;
 function ParaWorldMinimapWnd.OnInit()
 	page = document:GetPageCtrl();
 end
@@ -66,6 +68,7 @@ function ParaWorldMinimapWnd.CloseWindow()
 
 		self.window2:CloseWindow(true)
 		self.window2 = nil;
+		page = nil;
 	end
 end
 
