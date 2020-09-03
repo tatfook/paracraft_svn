@@ -16,8 +16,6 @@ seeing script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
 local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
-local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
-local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
 local UserInfo = NPL.load("(gl)Mod/WorldShare/cellar/Login/UserInfo.lua")
 local MainLogin = commonlib.gettable("MyCompany.Aries.Game.MainLogin");
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
@@ -99,6 +97,8 @@ function ParaWorldLoginAdapter:EnterOfflineWorld()
 	InternetLoadWorld.ShowPage();
 end
 function ParaWorldLoginAdapter:EnterWorld()
+	local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+	local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
 	if not KeepworkService:IsSignedIn() and KeepworkServiceSession:GetCurrentUserToken() then
 		UserInfo:LoginWithToken(function()
 			ParaWorldLoginAdapter:EnterWorld();
@@ -127,6 +127,7 @@ function ParaWorldLoginAdapter.ShowExitWorld(restart)
 	_guihelper.MessageBox("是否离开当前世界，返回登录界面？", function(res)
 		if(res and res == _guihelper.DialogResult.Yes)then
 			Desktop.is_exiting = true;
+			local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
 			KeepworkServiceSession:Logout(nil, function()
 				GameLogic.GetFilters():apply_filters("OnKeepWorkLogout", true);
 			end);

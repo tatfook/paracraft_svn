@@ -611,9 +611,15 @@ function MainLogin:LoadMainWorld()
 	if(self:CheckLoadWorldFromCmdLine() or System.options.servermode) then
 		return;
 	end
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
-    local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
-    ParaWorldLoginAdapter:EnterWorld();
+	if (not System.options.isCodepku) then
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+		local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
+		ParaWorldLoginAdapter:EnterWorld();
+	else
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Login/InternetLoadWorld.lua");
+		local InternetLoadWorld = commonlib.gettable("MyCompany.Aries.Creator.Game.Login.InternetLoadWorld");
+		InternetLoadWorld.ShowPage();
+	end
 end
 
 function MainLogin:ShowCreateWorldPage()
