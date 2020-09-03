@@ -18,6 +18,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
 local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
 local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
 local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
+local UserInfo = NPL.load("(gl)Mod/WorldShare/cellar/Login/UserInfo.lua")
 local MainLogin = commonlib.gettable("MyCompany.Aries.Game.MainLogin");
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
@@ -98,13 +99,13 @@ function ParaWorldLoginAdapter:EnterOfflineWorld()
 	InternetLoadWorld.ShowPage();
 end
 function ParaWorldLoginAdapter:EnterWorld()
-	--[[
-    local token = Mod.WorldShare.Store:Get("user/token")
-	commonlib.echo("token");
-	commonlib.echo(token);
-	local bLoginSuccessed = Mod.WorldShare.Store:Get("user/bLoginSuccessed")
-	]]
-    if(System.options.loginmode == "offline" or not KeepworkService:IsSignedIn())then
+	if not KeepworkService:IsSignedIn() and KeepworkServiceSession:GetCurrentUserToken() then
+		UserInfo:LoginWithToken(function()
+			ParaWorldLoginAdapter:EnterWorld();
+		end);
+		return;
+	end
+    if(System.options.loginmode == "offline" and not KeepworkService:IsSignedIn())then
         ParaWorldLoginAdapter:EnterOfflineWorld();
         return
     end

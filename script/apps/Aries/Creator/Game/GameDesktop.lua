@@ -21,7 +21,8 @@ NPL.load("(gl)script/apps/Aries/Creator/ToolTipsPage.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/DesktopMenuPage.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Mod/ModManager.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/SceneContext/AllContext.lua");
-
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 
 local TeamMembersPage = commonlib.gettable("MyCompany.Aries.Team.TeamMembersPage");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
@@ -389,8 +390,6 @@ function Desktop.OnExit(bForceExit, bRestart)
 		else
 			Desktop.is_exiting = true;
 
-			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
-			local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 			local projectId = GameLogic.options:GetProjectId();
 			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
 				ParaWorldLoginAdapter.ShowExitWorld(true);
@@ -402,9 +401,11 @@ function Desktop.OnExit(bForceExit, bRestart)
 				callback = function(res)
 					Desktop.is_exiting = false;
 					if(res and res == _guihelper.DialogResult.Yes) then
-						Desktop.ForceExit(bRestart);
+						--Desktop.ForceExit(bRestart);
+						ParaWorldLoginAdapter:EnterWorld();
 					elseif(res and res == _guihelper.DialogResult.No) then
-						Desktop.ForceExit(bRestart);
+						--Desktop.ForceExit(bRestart);
+						ParaWorldLoginAdapter:EnterWorld();
 					end
 				end
 			};
@@ -427,8 +428,6 @@ function Desktop.OnExit(bForceExit, bRestart)
 			end);
 		else
 			Desktop.is_exiting = true;
-			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
-			local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 			local projectId = GameLogic.options:GetProjectId();
 			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
 				ParaWorldLoginAdapter.ShowExitWorld(true);
@@ -441,9 +440,11 @@ function Desktop.OnExit(bForceExit, bRestart)
 					Desktop.is_exiting = false;
 					if(res and res == _guihelper.DialogResult.Yes) then
 						GameLogic.QuickSave();
-						Desktop.ForceExit(bRestart);
+						--Desktop.ForceExit(bRestart);
+						ParaWorldLoginAdapter:EnterWorld();
 					elseif(res and res == _guihelper.DialogResult.No) then
-						Desktop.ForceExit(bRestart);
+						--Desktop.ForceExit(bRestart);
+						ParaWorldLoginAdapter:EnterWorld();
 					end
 				end
 			};
