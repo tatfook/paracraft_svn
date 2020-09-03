@@ -315,6 +315,8 @@ function options:OnLoadWorld()
 	self:OneTimeInit();
 	self:LoadDefaultTransientOptions();
 	GameLogic.RunCommand("language");
+	-- increased chunk limit
+	GameLogic.RunCommand("/memlimit -v -s 500");
 	GameLogic.AddBBS("options", nil);
 
 	local player = ParaScene.GetPlayer();
