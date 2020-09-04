@@ -395,7 +395,7 @@ function Desktop.OnExit(bForceExit, bRestart)
 			Desktop.is_exiting = true;
 
 			local projectId = GameLogic.options:GetProjectId();
-			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
+			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId and GameLogic.IsReadOnly()) then
 				ParaWorldLoginAdapter.ShowExitWorld(true);
 				return true;
 			end
@@ -443,7 +443,7 @@ function Desktop.OnExit(bForceExit, bRestart)
 		else
 			Desktop.is_exiting = true;
 			local projectId = GameLogic.options:GetProjectId();
-			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId) then
+			if (projectId and tonumber(projectId) == ParaWorldLoginAdapter.MainWorldId and GameLogic.IsReadOnly()) then
 				ParaWorldLoginAdapter.ShowExitWorld(true);
 				return true;
 			end
