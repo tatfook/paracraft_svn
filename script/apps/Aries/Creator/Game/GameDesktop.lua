@@ -388,6 +388,8 @@ function Desktop.OnExit(bForceExit, bRestart)
 					KeepworkServiceSession:Logout();
 					Desktop.ForceExit();
 				end);
+			else
+				Desktop.ForceExit();
 			end
 		else
 			Desktop.is_exiting = true;
@@ -435,6 +437,8 @@ function Desktop.OnExit(bForceExit, bRestart)
 					KeepworkServiceSession:Logout();
 					Desktop.ForceExit();
 				end);
+			else
+				Desktop.ForceExit();
 			end
 		else
 			Desktop.is_exiting = true;
