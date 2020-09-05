@@ -455,13 +455,17 @@ function Desktop.OnExit(bForceExit, bRestart)
 					if(res and res == _guihelper.DialogResult.Yes) then
 						GameLogic.QuickSave();
 						if (not System.options.isCodepku) then
-							ParaWorldLoginAdapter:EnterWorld(true);
+							checkLockWorld(function()
+								ParaWorldLoginAdapter:EnterWorld(true);
+							end);
 						else
 							Desktop.ForceExit(bRestart);
 						end
 					elseif(res and res == _guihelper.DialogResult.No) then
 						if (not System.options.isCodepku) then
-							ParaWorldLoginAdapter:EnterWorld(true);
+							checkLockWorld(function()
+								ParaWorldLoginAdapter:EnterWorld(true);
+							end);
 						else
 							Desktop.ForceExit(bRestart);
 						end
