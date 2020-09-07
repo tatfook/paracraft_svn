@@ -136,7 +136,8 @@ function KpChatChannel.Connect(url,options,onopen_callback)
     KpChatChannel.client:Connect(url,nil,{ token = KeepWorkItemManager.GetToken(), });
 end
 function KpChatChannel.OnOpen(self)
-	LOG.std("", "info", "KpChatChannel", "OnOpen");
+	local userId = KpChatChannel.GetUserId();
+	LOG.std("", "info", "KpChatChannel", "OnOpen userId:%s", tostring(userId));
     if(KpChatChannel.onopen_callback)then
         KpChatChannel.onopen_callback();
     end

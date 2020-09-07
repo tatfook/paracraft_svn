@@ -156,5 +156,23 @@ function FriendConnection:SendMessage(msg)
     local msgdata = KpChatChannel.CreateMessage(ChannelIndex, self.userId, nil, words, roomName);
     KpChatChannel.SendToServer(msgdata);
 end
-function FriendConnection:UpdateMsgTag(callback)
+function FriendConnection:UpdateLastMsgTag(callback)
+    local len = #(self.unread_msgs);
+    local node = self.unread_msgs[len];
+    if(node and node.msgKey)then
+        local roomId = self.roomId;
+        local msgKey = node.msgKey;
+        keepwork.friends.updateLastMsgTagInRoom({
+            roomId = roomId,
+            msgKey = msgKey,
+        },function(err, msg, data)
+            commonlib.echo("==========FriendConnection:UpdateMsgTag");
+            commonlib.echo(err);
+            commonlib.echo(msg);
+            commonlib.echo(data,true);
+            if(callback)then
+                callback();
+            end
+        end)
+    end
 end

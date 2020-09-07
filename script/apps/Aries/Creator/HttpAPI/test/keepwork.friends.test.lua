@@ -53,6 +53,7 @@ end
 function test.updateLastMsgTagInRoom()
     keepwork.friends.updateLastMsgTagInRoom({
         roomId = 1,
+        msgKey = "",
     },function(err, msg, data)
         commonlib.echo("==========updateLastMsgTagInRoom");
         commonlib.echo(err);
