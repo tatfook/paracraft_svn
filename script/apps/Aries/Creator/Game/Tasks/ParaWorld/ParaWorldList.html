@@ -20,6 +20,12 @@
                     return "Texture/Aries/Creator/keepwork/ParaWorld/zuopkuang_266X134_32bits.png#0 0 32 32:8 8 8 8";
                 end
             end
+
+            function GetSettleString()
+                local count = Eval("settleCount");
+                local total = 96;
+                return string.format("%d/%d", count, total);
+            end
             ]]>
         </script>
         <kp:window width="860" height="400" onclose="ParaWorldList.OnClose">
@@ -29,7 +35,7 @@
                              DataSource='<%=ParaWorldList.Current_Item_DS%>'>
                     <Columns>
                         <div name='<%= Eval("index")%>' onclick="ParaWorldList.OnClickItem" style="<%= 'width:256px;height:134px;background:url(' .. GetWorldPreview() .. ')' %>"></div>
-                        <div style="float:left;position:relative;margin-top:-30px;padding-right:10px;width:256px;text-align:right;base-font-size:15px;font-size:16px;shadow-quality:8;color:#ffffff;shadow-color:#802a2e27;text-shadow:true"><%= Eval("settleCount")%></div>
+                        <div style="float:left;position:relative;margin-top:-30px;padding-right:10px;width:256px;text-align:right;base-font-size:15px;font-size:16px;shadow-quality:8;color:#ffffff;shadow-color:#000000;text-shadow:true"><%= GetSettleString()%></div>
                         <div style="float:left;position:relative;margin-top:6px;width:256px;text-align:center;base-font-size:16px;font-size:16px;color:#000000"><%= Eval("name")%></div>
                     </Columns>
                     <EmptyDataTemplate>
