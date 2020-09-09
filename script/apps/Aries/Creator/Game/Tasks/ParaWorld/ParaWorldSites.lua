@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: paraworld list
 Author(s): chenjinxian
 Date: 2020/9/8
@@ -23,8 +23,12 @@ ParaWorldSites.Checked = 2;
 ParaWorldSites.Selected = 3;
 ParaWorldSites.Available = 4;
 
+ParaWorldSites.currentRow = 5;
+ParaWorldSites.currentColumn = 5;
+ParaWorldSites.currentName = L"主世界";
+
 local rows = 10;
-local column = 10;
+local columns = 10;
 local mainRange = {rows*4+5, rows*4+6, rows*5+5, rows*5+6};
 
 local page;
@@ -33,6 +37,9 @@ function ParaWorldSites.OnInit()
 end
 
 function ParaWorldSites.ShowPage()
+	ParaWorldSites.currentRow = 5;
+	ParaWorldSites.currentColumn = 5;
+	ParaWorldSites.currentName = L"主世界";
 	if (not ParaWorldSites.SitesNumber or #ParaWorldSites.SitesNumber < 1) then
 		ParaWorldSites.InitSitesNumber();
 	end
@@ -79,11 +86,16 @@ function ParaWorldSites.SetCurrentSite(sites)
 		local seat = sites[i];
 		if (seat.sn and seat.status) then
 			local pos = ParaWorldSites.SitesNumber[seat.sn];
-			local index = (pos.row-1) * rows + pos.column;
-			if (seat.status == "locked") then
-				ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Locked;
-			elseif (seat.status == "checked") then
-				ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
+			for j = 1, #ParaWorldSites.Current_Item_DS do
+				local item = ParaWorldSites.Current_Item_DS[j];
+				if (item.x == pos.row and item.y == pos.column) then
+					if (seat.status == "locked") then
+						item.state = ParaWorldSites.Locked;
+					elseif (seat.status == "checked") then
+						item.state = ParaWorldSites.Checked;
+					end
+					break;
+				end
 			end
 		end
 	end
@@ -94,15 +106,18 @@ function ParaWorldSites.InitSitesData()
 	if (ParaWorldLoginAdapter.ParaWorldId) then
 		state = ParaWorldSites.Available;
 	end
-	for i = 1, 100 do
-		local valid = true;
-		for j = 1, #mainRange do
-			if (i == mainRange[j]) then
-				valid = false;
-				break;
+	for i = 1, 10 do
+		for j = 1, 10 do
+			local valid = true;
+			local index = (i-1) * rows + j;
+			for k = 1, #mainRange do
+				if (index == mainRange[k]) then
+					valid = false;
+					break;
+				end
 			end
+			ParaWorldSites.Current_Item_DS[index] = {x = i, y = j, valid=valid, state=state};
 		end
-		ParaWorldSites.Current_Item_DS[i] = {valid=valid, state=state};
 	end
 end
 
@@ -139,20 +154,41 @@ function ParaWorldSites.InitSitesNumber()
 	end
 end
 
+function ParaWorldSites.GetIndexFromPos(row, column)
+	for i = 1, #ParaWorldSites.SitesNumber do
+		local pos = ParaWorldSites.SitesNumber[i];
+		if (pos.row == row and pos.column == column) then
+			return i;
+		end
+	end
+end
+
 function ParaWorldSites.OnClickItem(index)
 	local projectId = GameLogic.options:GetProjectId();
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
-		if (item.state == ParaWorldSites.Checked) then
+		ParaWorldSites.currentRow, ParaWorldSites.currentColumn = item.x, item.y;
+		ParaWorldSites.currentName = L"空地";
+		if (item.state == ParaWorldSites.Locked) then
+		elseif (item.state == ParaWorldSites.Checked) then
 		else
 			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
 			page:Refresh(0);
 			ParaWorldTakeSeat.ShowPage(function(res, worldId)
 				if (res) then
-					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=tonumber(projectId), sn=index}, function(err, msg, data)
+					local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+					if (not id) then
+						ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
+						page:Refresh(0);
+						_guihelper.MessageBox(L"所选的座位无效！");
+						return;
+					end
+					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=tonumber(projectId), sn=id}, function(err, msg, data)
 						if (err == 200) then
 							ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
 							page:Refresh(0);
+						else
+							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位！");
 						end
 					end);
 				else
