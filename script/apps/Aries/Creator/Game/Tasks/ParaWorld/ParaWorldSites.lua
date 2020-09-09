@@ -10,6 +10,9 @@ ParaWorldSites.ShowPage();
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
+local ParaWorldTakeSeat = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTakeSeat.lua");
 local ParaWorldSites = NPL.export();
 
 ParaWorldSites.SitesNumber = {};
@@ -17,8 +20,8 @@ ParaWorldSites.Current_Item_DS = {};
 ParaWorldSites.RowNumbers = {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
 ParaWorldSites.Locked = 1;
 ParaWorldSites.Checked = 2;
-ParaWorldSites.Available = 3;
-ParaWorldSites.Unavailable = 4;
+ParaWorldSites.Selected = 3;
+ParaWorldSites.Available = 4;
 
 local rows = 10;
 local column = 10;
@@ -55,20 +58,16 @@ function ParaWorldSites.ShowPage()
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
-	commonlib.TimerManager.SetTimeout(function()
-		keepwork.world.list(nil, function(err, msg, data)
-			if (data and data.rows) then
-				for i = 1, #(data.rows) do
-					keepwork.world.get({router_params={id=data.rows[i].id}}, function(err, msg, data)
-						if (data and data.sites) then
-							ParaWorldSites.SetCurrentSite(data.sites);
-						end
-					end);
+	if (ParaWorldLoginAdapter.ParaWorldId) then
+		commonlib.TimerManager.SetTimeout(function()
+			keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
+				if (data and data.sites) then
+					ParaWorldSites.SetCurrentSite(data.sites);
+					page:Refresh(0);
 				end
-				page:Refresh(0);
-			end
-		end);
-	end, 100);
+			end);
+		end, 100);
+	end
 end
 
 function ParaWorldSites.OnClose()
@@ -76,18 +75,25 @@ function ParaWorldSites.OnClose()
 end
 
 function ParaWorldSites.SetCurrentSite(sites)
-	if (sites.sn and sites.status) then
-		local site = ParaWorldSites.SitesNumber[sites.sn];
-		local index = (site.row-1) * rows + site.column;
-		if (sites.status == "locked") then
-			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Locked;
-		elseif (sites.status == "checked") then
-			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
+	for i = 1, #sites do
+		local seat = sites[i];
+		if (seat.sn and seat.status) then
+			local pos = ParaWorldSites.SitesNumber[seat.sn];
+			local index = (pos.row-1) * rows + pos.column;
+			if (seat.status == "locked") then
+				ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Locked;
+			elseif (seat.status == "checked") then
+				ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
+			end
 		end
 	end
 end
 
 function ParaWorldSites.InitSitesData()
+	local state = ParaWorldSites.Locked;
+	if (ParaWorldLoginAdapter.ParaWorldId) then
+		state = ParaWorldSites.Available;
+	end
 	for i = 1, 100 do
 		local valid = true;
 		for j = 1, #mainRange do
@@ -96,7 +102,7 @@ function ParaWorldSites.InitSitesData()
 				break;
 			end
 		end
-		ParaWorldSites.Current_Item_DS[i] = {valid=valid, state=ParaWorldSites.Available};
+		ParaWorldSites.Current_Item_DS[i] = {valid=valid, state=state};
 	end
 end
 
@@ -134,7 +140,26 @@ function ParaWorldSites.InitSitesNumber()
 end
 
 function ParaWorldSites.OnClickItem(index)
+	local projectId = GameLogic.options:GetProjectId();
 	local item = ParaWorldSites.Current_Item_DS[index];
-	if (item) then
+	if (item and projectId and tonumber(projectId)) then
+		if (item.state == ParaWorldSites.Checked) then
+		else
+			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
+			page:Refresh(0);
+			ParaWorldTakeSeat.ShowPage(function(res, worldId)
+				if (res) then
+					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=tonumber(projectId), sn=index}, function(err, msg, data)
+						if (err == 200) then
+							ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
+							page:Refresh(0);
+						end
+					end);
+				else
+					ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
+					page:Refresh(0);
+				end
+			end);
+		end
 	end
 end

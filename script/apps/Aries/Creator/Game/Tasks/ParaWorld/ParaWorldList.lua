@@ -43,15 +43,13 @@ function ParaWorldList.ShowPage()
 	end
 	commonlib.TimerManager.SetTimeout(function()
 		keepwork.world.mylist(nil, function(err, msg, data)
-			commonlib.echo(data);
-			if (data and data.rows) then
-				for i = 1, #(data.rows) do
-					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
+			if (err == 200 and data) then
+				for i = 1, #data do
+					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data[i];
 				end
 			end
 
 			keepwork.world.list(nil, function(err, msg, data)
-				commonlib.echo(data);
 				if (data and data.rows) then
 					for i = 1, #(data.rows) do
 						ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
