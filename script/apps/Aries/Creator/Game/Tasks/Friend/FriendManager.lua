@@ -13,12 +13,15 @@ local conn = FriendManager:Connect(userId,function()
 end)
 --]]
 local FriendConnection = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendConnection.lua");
-
+local FriendChatPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendChatPage.lua");
+local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
 local FriendManager = NPL.export();
 
+local UserData = {}
 FriendManager.connections = {};
 FriendManager.unread_msgs = {};
 FriendManager.unread_msgs_loaded = false;
+FriendManager.lastChatMsg = nil -- 各个好友最后的聊天信息 包括已读的和未读的
 --[[
 {
   data={
@@ -74,6 +77,10 @@ FriendManager.unread_msgs_loaded = false;
   message="请求成功" 
 }
 --]]
+function FriendManager:InitUserData(user_data)
+  UserData = user_data
+end
+
 function FriendManager:LoadAllUnReadMsgs(callback)
     if(FriendManager.unread_msgs_loaded)then
         if(callback)then
@@ -84,10 +91,10 @@ function FriendManager:LoadAllUnReadMsgs(callback)
     FriendManager.unread_msgs = {};
     keepwork.friends.getUnReadMsgCnt({
         },function(err, msg, data)
-            commonlib.echo("==========LoadAllUnReadMsgs");
-            commonlib.echo(err);
-            commonlib.echo(msg);
-            commonlib.echo(data,true);
+            -- commonlib.echo("==========LoadAllUnReadMsgs");
+            -- commonlib.echo(err);
+            -- commonlib.echo(msg);
+            -- commonlib.echo(data,true);
             if(err ~= 200)then
                 return
             end
@@ -112,6 +119,10 @@ function FriendManager:CreateOrGetConnection(userId)
         self.connections[userId] = conn;
     end
     return conn;
+end
+
+function FriendManager:ClearAllConnections()
+  self.connections = {}
 end
 
 --[[
@@ -175,10 +186,38 @@ end
 }
 --]]
 function FriendManager:OnMsg(payload, full_msg)
-    commonlib.echo("=============FriendManager:OnMsg payload");
-    commonlib.echo(payload,true);
-    commonlib.echo("=============FriendManager:OnMsg full_msg");
-    commonlib.echo(full_msg,true);
+    -- commonlib.echo("=============FriendManager:OnMsg payload");
+    -- commonlib.echo(payload,true);
+    -- commonlib.echo("=============FriendManager:OnMsg full_msg");
+    -- commonlib.echo(full_msg,true);
+
+    if UserData == nil then
+      KeepWorkItemManager.GetUserInfo(nil,function(err,msg,data)
+        if(err ~= 200)then
+            return
+        end
+        UserData = data
+      end)
+    end
+
+    local last_msg_data = {}
+    last_msg_data.unReadCnt = 0
+    last_msg_data.latestMsg = {}
+    last_msg_data.latestMsg.content = payload.content
+    last_msg_data.latestMsg.senderId = payload.id
+    last_msg_data.time_stamp = os.time()
+    local save_id = payload.id == UserData.id and payload.toid or payload.id
+    self:AddLastChatMsg(save_id, last_msg_data)
+
+    -- 聊天界面 有收到消息就把消息加上去
+    if FriendChatPage.IsOpen then
+      FriendChatPage.OnMsg(payload, full_msg)
+    end
+
+    -- 好友列表界面 如果当前聊天的对象不是收到消息的对象 要给小红点
+    if FriendsPage.GetIsOpen() then
+      FriendsPage.OnMsg(payload, full_msg)
+    end
 end
 -- send a message to user
 -- @param {number} userId
@@ -187,4 +226,68 @@ end
 function FriendManager:SendMessage(userId,msg)
     local conn = FriendManager:CreateOrGetConnection(userId)
     conn:SendMessage(msg);
+end
+
+function FriendManager:SaveLastChatMsg()
+  if self.lastChatMsg == nil then
+    return
+  end
+
+  -- 剔除有未读消息的
+  local msg_list = {}
+  for k, v in pairs(self.lastChatMsg) do
+    if v.unReadCnt == nil or v.unReadCnt == 0 then
+      msg_list[k] = v
+    end
+  end
+  local id = UserData.id or 0
+	local filepath = string.format("chat_content/%s_last_chat.txt", id)
+	local conten_str = commonlib.Json.Encode(msg_list)
+    ParaIO.CreateDirectory(filepath);
+	local file = ParaIO.open(filepath, "w");
+	if(file:IsValid()) then
+		file:WriteString(conten_str);
+		file:close();
+	end
+end
+
+function FriendManager:GetLastChatMsg()
+  if self.lastChatMsg then
+    return self.lastChatMsg
+  end
+
+  local id = UserData.id or 0
+	local filepath = string.format("chat_content/%s_last_chat.txt", id)
+  local file = ParaIO.open(filepath, "r");
+
+  if(file:IsValid()) then
+    local text = file:GetText();
+    local msg_list = commonlib.Json.Decode(text)
+    file:close();
+
+    self.lastChatMsg = msg_list
+    return self.lastChatMsg
+  end
+end
+
+function FriendManager:AddLastChatMsg(user_id, chat_data)
+  print("bbbbbbbbbbb", user_id)
+  -- commonlib.echo(chat_data, true)
+  if self.lastChatMsg == nil then
+    self.lastChatMsg = self:GetLastChatMsg() or {}
+  end
+
+
+    -- 这里将时间转成时间戳
+    if chat_data.latestMsg and chat_data.latestMsg.createdAt then
+      local at_time = chat_data.latestMsg.createdAt
+      -- at_time = "2020-09-09T06:52:43.000Z"
+      local year, month, day, hour, min, sec = at_time:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)") 
+      local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}) -- 这个时间是带时区的 要加8小时
+      time_stamp = time_stamp + min * 60 + sec
+
+      chat_data.time_stamp = time_stamp
+    end
+
+    self.lastChatMsg[tostring(user_id)] = chat_data
 end

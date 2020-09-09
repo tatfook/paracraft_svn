@@ -56,10 +56,10 @@ function FriendConnection:Connect(callback)
         targetId = self.userId , 
     },function(err, msg, data)
 
-        commonlib.echo("==========startChatToUser");
-        commonlib.echo(err);
-        commonlib.echo(msg);
-        commonlib.echo(data,true);
+        -- commonlib.echo("==========startChatToUser");
+        -- commonlib.echo(err);
+        -- commonlib.echo(msg);
+        -- commonlib.echo(data,true);
         if(err ~= 200)then
             return
         end
@@ -105,10 +105,10 @@ function FriendConnection:LoadUnReadMsgs(callback)
         },
         roomId = self.roomId,
     },function(err, msg, data)
-        commonlib.echo("==========LoadUnReadMsgs");
-        commonlib.echo(err);
-        commonlib.echo(msg);
-        commonlib.echo(data,true);
+        -- commonlib.echo("==========LoadUnReadMsgs");
+        -- commonlib.echo(err);
+        -- commonlib.echo(msg);
+        -- commonlib.echo(data,true);
         --[[
          {
 data = {
@@ -139,7 +139,7 @@ data = {
             return
         end
         if(callback)then
-            callback(data);
+            callback(data.data.rows);
         end
     end)
 end
@@ -158,7 +158,11 @@ function FriendConnection:SendMessage(msg)
 end
 function FriendConnection:UpdateLastMsgTag(callback)
     local len = #(self.unread_msgs);
-    local node = self.unread_msgs[len];
+    local node = self.unread_msgs[1];
+    print("ttttttt", node)
+    if node then
+        print("xxxs",node.msgKey)
+    end
     if(node and node.msgKey)then
         local roomId = self.roomId;
         local msgKey = node.msgKey;
@@ -166,10 +170,10 @@ function FriendConnection:UpdateLastMsgTag(callback)
             roomId = roomId,
             msgKey = msgKey,
         },function(err, msg, data)
-            commonlib.echo("==========FriendConnection:UpdateMsgTag");
-            commonlib.echo(err);
-            commonlib.echo(msg);
-            commonlib.echo(data,true);
+            -- commonlib.echo("==========FriendConnection:UpdateMsgTag");
+            -- commonlib.echo(err);
+            -- commonlib.echo(msg);
+            -- commonlib.echo(data,true);
             if(callback)then
                 callback();
             end
