@@ -315,7 +315,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 					name = ClassManager.GetMemberUIName2(user.user.username, user.user.nickname),
 					teacher = true,
 					online = user.online,
-					inclass = false,
+					inclass = user.inRoom,
 				})
 			end
 		end
@@ -328,7 +328,7 @@ function ClassManager.LoadClassroomInfo(classroomId, callback)
 					name = ClassManager.GetMemberUIName2(user.user.username, user.user.nickname),
 					teacher = false,
 					online = user.online,
-					inclass = false,
+					inclass = user.inRoom,
 				})
 			end
 		end
