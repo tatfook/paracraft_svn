@@ -110,6 +110,7 @@ function DesktopMenu.LoadMenuItems(bForceReload)
 				-- {text = L"致谢",name = "help.Credits", onclick=nil},
 			},
 		},
+		--[[
 		{text = L"在线社区", order=8, name = "community",children = 
 			{
 				{text = L"在线社区",name = "community.keepwork", cmd="/open https://keepwork.com"},
@@ -122,6 +123,7 @@ function DesktopMenu.LoadMenuItems(bForceReload)
 				
 			},
 		},
+		]]
 	};
 
 	-- apply filter
