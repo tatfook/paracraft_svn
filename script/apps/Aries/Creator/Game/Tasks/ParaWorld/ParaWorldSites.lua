@@ -94,6 +94,9 @@ function ParaWorldSites.SetCurrentSite(sites)
 					elseif (seat.status == "checked") then
 						item.state = ParaWorldSites.Checked;
 					end
+					if (seat.paraMini and seat.paraMini.name) then
+						item.name = seat.paraMini.name;
+					end
 					break;
 				end
 			end
@@ -168,9 +171,11 @@ function ParaWorldSites.OnClickItem(index)
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
 		ParaWorldSites.currentRow, ParaWorldSites.currentColumn = item.x, item.y;
-		ParaWorldSites.currentName = L"空地";
+		ParaWorldSites.currentName = item.name or L"空地";
 		if (item.state == ParaWorldSites.Locked) then
+			page:Refresh(0);
 		elseif (item.state == ParaWorldSites.Checked) then
+			page:Refresh(0);
 		else
 			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
 			page:Refresh(0);
@@ -198,4 +203,11 @@ function ParaWorldSites.OnClickItem(index)
 			end);
 		end
 	end
+end
+
+function ParaWorldSites.OnClickMain()
+	ParaWorldSites.currentRow = 5;
+	ParaWorldSites.currentColumn = 5;
+	ParaWorldSites.currentName = L"主世界";
+	page:Refresh(0);
 end
