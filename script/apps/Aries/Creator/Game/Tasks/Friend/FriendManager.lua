@@ -81,13 +81,13 @@ function FriendManager:InitUserData(user_data)
   UserData = user_data
 end
 
-function FriendManager:LoadAllUnReadMsgs(callback)
-    -- if(FriendManager.unread_msgs_loaded)then
-    --     if(callback)then
-    --         callback();
-    --     end
-    --     return
-    -- end
+function FriendManager:LoadAllUnReadMsgs(callback, forced_load)
+    if(FriendManager.unread_msgs_loaded and not forced_load)then
+        if(callback)then
+            callback();
+        end
+        return
+    end
     FriendManager.unread_msgs = {};
     keepwork.friends.getUnReadMsgCnt({
         },function(err, msg, data)

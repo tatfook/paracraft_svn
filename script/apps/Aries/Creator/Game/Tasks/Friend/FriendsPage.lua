@@ -222,7 +222,7 @@ function FriendsPage.OnChange(index)
 	end
 
     -- FriendsPage.Current_Item_DS = FriendsPage.data_sources[index] or {}
-    -- FriendsPage.OnRefresh()
+    FriendsPage.OnRefresh()
 end
 
 
@@ -630,7 +630,7 @@ function FriendsPage.UpdataUnAllLoadMsg()
 	
 			FriendsPage.FlushCurDataAndView()
 			FriendsPage.UpdataUnAllLoadMsg()
-		end);
+		end, true);
 	end, 30000)
 
 end
