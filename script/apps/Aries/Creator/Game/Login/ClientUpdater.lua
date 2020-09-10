@@ -73,7 +73,7 @@ function ClientUpdater:Check(callbackFunc)
 
 		if(bSucceed) then
 			-- we will not update for mac if software version heighter then remote version
-			if System.os.GetPlatform() == 'mac' then
+			if System.os.GetPlatform() == 'mac' or System.os.GetPlatform() == "ios" then
 				local function CompareVersion(a, b)
 					-- a < b return -1
 					-- a == b return 0
