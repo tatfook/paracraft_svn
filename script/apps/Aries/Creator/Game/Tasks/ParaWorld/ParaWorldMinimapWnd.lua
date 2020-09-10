@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: minimap UI window
 Author(s): LiXizhi
 Date: 2020/8/9
@@ -13,6 +13,8 @@ ParaWorldMinimapWnd:RefreshMap()
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapSurface.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 local ParaWorldMain = commonlib.gettable("Paracraft.Controls.ParaWorldMain");
 local ParaWorldMinimapSurface = commonlib.gettable("Paracraft.Controls.ParaWorldMinimapSurface");
@@ -85,8 +87,17 @@ function ParaWorldMinimapWnd.OnClickSpawnpoint()
 end
 
 function ParaWorldMinimapWnd.OnLocalWorldInfo()
-	local ParaWorldSites = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSites.lua");
-	ParaWorldSites.ShowPage();
+	if (ParaWorldLoginAdapter.ParaWorldId) then
+		local ParaWorldSites = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSites.lua");
+		ParaWorldSites.ShowPage();
+	else
+		local generatorName = WorldCommon.GetWorldTag("world_generator");
+		if (generatorName == "paraworld") then
+			_guihelper.MessageBox(L"入驻并行世界的功能将在9.17日开放。 快去建设自己的家园吧, 将你的家园安放在大世界周围的地块中");
+		elseif (generatorName == "paraworldMini") then
+			_guihelper.MessageBox(L"请到并行世界中选择要入驻的大世界，在并行世界列表中可以点击进入并行世界！");
+		end
+	end
 end
 
 function ParaWorldMinimapWnd.OnClickParaWorldList()

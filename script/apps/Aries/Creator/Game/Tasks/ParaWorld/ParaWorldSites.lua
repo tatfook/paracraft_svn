@@ -167,6 +167,11 @@ function ParaWorldSites.GetIndexFromPos(row, column)
 end
 
 function ParaWorldSites.OnClickItem(index)
+	local function resetState()
+		ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
+		page:Refresh(0);
+	end
+	
 	local projectId = GameLogic.options:GetProjectId();
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
@@ -183,16 +188,16 @@ function ParaWorldSites.OnClickItem(index)
 				if (res) then
 					local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
 					if (not id) then
-						ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
-						page:Refresh(0);
+						resetState();
 						_guihelper.MessageBox(L"所选的座位无效！");
 						return;
 					end
-					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=tonumber(projectId), sn=id}, function(err, msg, data)
+					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 						if (err == 200) then
 							ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
 							page:Refresh(0);
 						else
+							resetState();
 							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位！");
 						end
 					end);

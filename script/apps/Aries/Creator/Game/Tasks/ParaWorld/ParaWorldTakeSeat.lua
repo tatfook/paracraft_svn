@@ -80,7 +80,7 @@ function ParaWorldTakeSeat.GetMiniWorldList()
 	local worldList = {};
 	for i = 1, #ParaWorldTakeSeat.WorldList do
 		local world = ParaWorldTakeSeat.WorldList[i];
-		worldList[i] = {text = world.name.."（"..world.projectId.."）", value = world.projectId};
+		worldList[i] = {text = world.name.."（"..world.projectId.."）", value = world.id};
 	end
 	return worldList;
 end
