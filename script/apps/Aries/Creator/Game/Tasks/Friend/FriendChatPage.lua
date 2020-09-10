@@ -294,7 +294,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 					<div style="margin-top:0px;width:400px;color:#000000;text-align:right">
 						%s
 					</div>
-					<div style="position:relative;margin-top:0px;margin-left:%s;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua2_32X32_32bits.png#0 0 32 32:12 22 12 6)">
+					<div name="item_bg" style="position:relative;margin-top:0px;margin-left:%s;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua2_32X32_32bits.png#0 0 32 32:12 22 12 6)">
 					</div>
 					<div style="margin-top:%s;margin-left:%s;width:%s;font-size:%s;color:#575757;text-align:%s;">
 						%s
@@ -312,7 +312,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 					<img zorder="0" src='%s'width="46" height="46"/>
 				</div>
 				<div style="float: left;margin-left: 8px;">
-					<div style="margin-top:0px;width:40px;margin-left: 2px;color:#000000">
+					<div style="margin-top:0px;width:400px;margin-left: 2px;color:#000000">
 						%s
 					</div>
 					<div style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
@@ -334,6 +334,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 			myLayout:reset(0, 0, nodeWidth-5, height);
 			Map3DSystem.mcml_controls.create("bbs_lobby", xmlRoot, nil, _parent, 0, 0, nodeWidth-5, height,nil, myLayout);
 			local usedW, usedH = myLayout:GetUsedSize()
+			print("nnnnnnnnnnnnnnnnnnnnn", usedH)
 			if(usedH>height) then
 				return usedH+10;
 			end
@@ -369,7 +370,6 @@ function FriendChatPage.GetStringCharCount(str)
     while (i <= lenInByte)
     do
 		local curByte = string.byte(str, i)
-		print("nnnnnnnn", curByte, string.char(curByte))
 		local byteCount = 1;
         if curByte > 0 and curByte <= 127 then
 			byteCount = 1                                              --1字节字符
@@ -421,11 +421,11 @@ function FriendChatPage.GetStringCharCount(str)
         i = i + byteCount                                              -- 重置下一字节的索引
         charCount = charCount + 1                                      -- 字符的个数（长度）
 	end
-	print("yyy", charCount, allcount)
     return charCount, allcount
 end
 
 function FriendChatPage.SendMsg()
+	
 	local send_text = page:GetValue("sendText") or ""
 	page:SetValue("sendText", "")
 
