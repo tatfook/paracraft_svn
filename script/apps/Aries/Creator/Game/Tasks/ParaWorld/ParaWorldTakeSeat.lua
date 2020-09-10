@@ -52,6 +52,9 @@ function ParaWorldTakeSeat.ShowPage(onClose)
 			if (data and data.rows and #data.rows > 0) then
 				ParaWorldTakeSeat.WorldList = data.rows;
 				page:Refresh(0);
+				if (#ParaWorldTakeSeat.WorldList > 0) then
+					page:SetValue("WorldList", ParaWorldTakeSeat.WorldList[1].id);
+				end
 			else
 				_guihelper.MessageBox(L"您还未上传任何世界，请先上传您自己创造的世界！");
 				if (page) then

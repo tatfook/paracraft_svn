@@ -67,18 +67,29 @@ function ParaWorldSites.ShowPage()
 
 	if (ParaWorldLoginAdapter.ParaWorldId) then
 		commonlib.TimerManager.SetTimeout(function()
-			keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
-				if (data and data.sites) then
-					ParaWorldSites.SetCurrentSite(data.sites);
-					page:Refresh(0);
-				end
-			end);
+			ParaWorldSites.UpdateSitesState();
 		end, 100);
 	end
 end
 
 function ParaWorldSites.OnClose()
 	page:CloseWindow();
+end
+
+function ParaWorldSites.UpdateSitesState()
+	local state = ParaWorldSites.Locked;
+	if (ParaWorldLoginAdapter.ParaWorldId) then
+		state = ParaWorldSites.Available;
+	end
+	for i = 1, #ParaWorldSites.Current_Item_DS do
+		ParaWorldSites.Current_Item_DS[i].state = state;
+	end
+	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
+		if (data and data.sites) then
+			ParaWorldSites.SetCurrentSite(data.sites);
+			page:Refresh(0);
+		end
+	end);
 end
 
 function ParaWorldSites.SetCurrentSite(sites)
@@ -194,8 +205,9 @@ function ParaWorldSites.OnClickItem(index)
 					end
 					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 						if (err == 200) then
-							ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
-							page:Refresh(0);
+							--ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
+							--page:Refresh(0);
+							ParaWorldSites.UpdateSitesState();
 						else
 							resetState();
 							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位！");
