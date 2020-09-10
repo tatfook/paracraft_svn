@@ -19,7 +19,9 @@ local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 local ParaWorldMiniChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator"))
 local defaultFilename = "miniworld.template.xml"
 -- dynamic blocks are not supported. 
-local ignoreList = {[9]=true,[219]=true,[253]=true,[110]=true,[215]=true,[216]=true,[217]=true,[196]=true,[218]=true,[22]=true,[254]=true,[212]=true,[189]=true, [221]=true};
+local ignoreList = {[9]=true,[253]=true,[110]=true,[216]=true,[217]=true,[196]=true,[218]=true,
+	-- [219]=true,[215]=true,[254]=true,[189]=true, [221]=true,[212]=true, [22]=true,
+};
 -- dynamic water to still water
 local replaceList = {[75]=76,};
 -- max allowed blocks
