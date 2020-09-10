@@ -284,25 +284,6 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 	end
 
 	if treeNode.ifmyself then
-		mcmlStr = string.format([[
-			<div style="margin-left:0px;margin-top:0px;padding-left:5px;padding-top:2px;width:500px;">
-				<div style="float: left;margin-left:0px;margin-top:5px;">
-					<img zorder="0" src='%s'width="46" height="46"/>
-				</div>
-				<div style="float: left;margin-left: 8px;">
-					<div style="margin-top:0px;width:40px;margin-left: 2px;color:#000000">
-						%s
-					</div>
-					<div style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
-						<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757">
-							%s
-						</div>	
-					</div>
-
-				</div>
-			</div>
-			]], icon , name, bg_width, height_str, margin_top, text_width, content_font_size, content_text);
-	else
 		local margin_left = is_more_line == false and (text_width - bg_width + 10) or 0
 		local text_margin_left = is_more_line and 4 or 0
 		-- height_str = "height:64px"
@@ -324,6 +305,25 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 				</div>
 			</div>
 			]] , name, margin_left, bg_width, height_str, margin_top, text_margin_left, text_width, content_font_size, align_type, content_text, icon);
+	else
+		mcmlStr = string.format([[
+			<div style="margin-left:0px;margin-top:0px;padding-left:5px;padding-top:2px;width:500px;">
+				<div style="float: left;margin-left:0px;margin-top:5px;">
+					<img zorder="0" src='%s'width="46" height="46"/>
+				</div>
+				<div style="float: left;margin-left: 8px;">
+					<div style="margin-top:0px;width:40px;margin-left: 2px;color:#000000">
+						%s
+					</div>
+					<div style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
+						<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757">
+							%s
+						</div>	
+					</div>
+
+				</div>
+			</div>
+			]], icon , name, bg_width, height_str, margin_top, text_width, content_font_size, content_text);
 	end
 	if(mcmlStr ~= nil) then
 		local xmlRoot = ParaXML.LuaXML_ParseString(mcmlStr);
@@ -341,7 +341,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 	end
 end
 
-local chatList = {
+local charList = {
 	["w"] = 0.71, ["q"] = 0.57, ["l"] = 0.14,
 	["z"] = 0.43, ["r"] = 0.36, ["t"] = 0.36,
 	["y"] = 0.57, ["u"] = 0.57, ["i"] = 0.14,
@@ -358,6 +358,7 @@ local chatList = {
 	["J"] = 0.43,["K"] = 0.57,["Z"] = 0.57,
 	["X"] = 0.57,["C"] = 0.65,["V"] = 0.57,
 	["B"] = 0.57,["N"] = 0.65,["M"] = 0.71,
+	["."] = 0.25,
 }
 
 function FriendChatPage.GetStringCharCount(str)
@@ -367,12 +368,13 @@ function FriendChatPage.GetStringCharCount(str)
 	local allcount = 0
     while (i <= lenInByte)
     do
-        local curByte = string.byte(str, i)
+		local curByte = string.byte(str, i)
+		print("nnnnnnnn", curByte, string.char(curByte))
 		local byteCount = 1;
         if curByte > 0 and curByte <= 127 then
 			byteCount = 1                                              --1字节字符
-			if chatList[string.char(curByte)] then
-				allcount = allcount + chatList[string.char(curByte)]
+			if charList[string.char(curByte)] then
+				allcount = allcount + charList[string.char(curByte)]
 			elseif curByte <= 46 then
 				if curByte == 37 then -- % 
 					allcount = allcount + 1
@@ -402,9 +404,14 @@ function FriendChatPage.GetStringCharCount(str)
 		elseif curByte >= 192 and curByte <= 223 then
 			byteCount = 2                                              --双字节字符
 			allcount = allcount + 1
-        elseif curByte >= 224 and curByte <= 239 then
-            byteCount = 3                                              --中文
-			allcount = allcount + 1
+		elseif curByte >= 224 and curByte <= 239 then					--中文
+			if curByte == 226 then
+				allcount = allcount + 0.8
+			else
+				allcount = allcount + 1
+			end
+            byteCount = 3                                              
+			
 		elseif curByte >= 240 and curByte <= 247 then
             byteCount = 4                                              --4字节字符
 			allcount = allcount + 1
@@ -414,6 +421,7 @@ function FriendChatPage.GetStringCharCount(str)
         i = i + byteCount                                              -- 重置下一字节的索引
         charCount = charCount + 1                                      -- 字符的个数（长度）
 	end
+	print("yyy", charCount, allcount)
     return charCount, allcount
 end
 
@@ -641,8 +649,8 @@ function FriendChatPage.CreateChatContentView()
 	end
 
 	if connection.unread_msgs ~= nil and connection.unread_msgs ~= nil then
-		print("hhhhhhhhhhhhhhhhhh")
-		commonlib.echo(connection.unread_msgs, true)
+		-- print("hhhhhhhhhhhhhhhhhh")
+		-- commonlib.echo(connection.unread_msgs, true)
 		local msg_list = connection.unread_msgs
 		if connection and msg_list and #msg_list > 0 then
 			for index = #msg_list, 1, -1 do
