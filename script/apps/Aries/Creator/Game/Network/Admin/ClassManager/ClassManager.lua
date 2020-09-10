@@ -455,7 +455,7 @@ function ClassManager.RunCommand(command)
 		LockDesktop.ShowPage(false, 0, cmd_text);
 	elseif (command == "connect") then
 		ClassManager.InGGS = true;
-		GameLogic.RunCommand("/connectGGS -isSyncBlock");
+		GameLogic.RunCommand("/ggs connect -isSyncBlock");
 	elseif (command == "nospeak") then
 		ClassManager.CanSpeak = false;
 		SChatRoomPage.Refresh();
