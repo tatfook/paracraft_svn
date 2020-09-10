@@ -1,6 +1,6 @@
 --[[
 Title: FriendChatPage
-Author(s): 
+Author(s): yangguiyi
 Date: 2020/7/3
 Desc:  
 Use Lib:
@@ -79,9 +79,20 @@ function FriendChatPage.Show(user_data, chat_user_data)
 			end
 			FriendChatPage.Current_Item_DS = list
 			FriendChatPage.OnRefresh()
+
+			local connection = FriendManager.connections[ChatUserData.id]
 			FriendManager:Connect(ChatUserData.id,function()
-				FriendChatPage.CreateChatContentView()
-				FriendChatPage.FreshFriendGridView()
+				-- 如果connection存在 则说明已经有保存在内存的未读消息 这种情况要重新请求下最新的未读消息
+				if connection then
+					connection:LoadUnReadMsgs(function (unread_msgs)
+						connection.unread_msgs = unread_msgs
+						FriendChatPage.CreateChatContentView()
+						FriendChatPage.FreshFriendGridView()
+					end)
+				else
+					FriendChatPage.CreateChatContentView()
+					FriendChatPage.FreshFriendGridView()
+				end
 			end)
 		end)
 
@@ -630,6 +641,8 @@ function FriendChatPage.CreateChatContentView()
 	end
 
 	if connection.unread_msgs ~= nil and connection.unread_msgs ~= nil then
+		print("hhhhhhhhhhhhhhhhhh")
+		commonlib.echo(connection.unread_msgs, true)
 		local msg_list = connection.unread_msgs
 		if connection and msg_list and #msg_list > 0 then
 			for index = #msg_list, 1, -1 do

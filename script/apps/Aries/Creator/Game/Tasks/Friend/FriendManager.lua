@@ -82,12 +82,12 @@ function FriendManager:InitUserData(user_data)
 end
 
 function FriendManager:LoadAllUnReadMsgs(callback)
-    if(FriendManager.unread_msgs_loaded)then
-        if(callback)then
-            callback();
-        end
-        return
-    end
+    -- if(FriendManager.unread_msgs_loaded)then
+    --     if(callback)then
+    --         callback();
+    --     end
+    --     return
+    -- end
     FriendManager.unread_msgs = {};
     keepwork.friends.getUnReadMsgCnt({
         },function(err, msg, data)
@@ -190,8 +190,9 @@ function FriendManager:OnMsg(payload, full_msg)
     -- commonlib.echo(payload,true);
     -- commonlib.echo("=============FriendManager:OnMsg full_msg");
     -- commonlib.echo(full_msg,true);
-
+  print("nnnnnnnnnnnnnnnnnnnnnnnnnnnn", payload.id)
     if UserData == nil then
+      UserData = {}
       KeepWorkItemManager.GetUserInfo(nil,function(err,msg,data)
         if(err ~= 200)then
             return
@@ -224,6 +225,7 @@ end
 -- @param {table} msg
 -- @param {string} msg.words
 function FriendManager:SendMessage(userId,msg)
+    msg.words = self:BadWordsFilter(msg.words)
     local conn = FriendManager:CreateOrGetConnection(userId)
     conn:SendMessage(msg);
 end
@@ -271,7 +273,7 @@ function FriendManager:GetLastChatMsg()
 end
 
 function FriendManager:AddLastChatMsg(user_id, chat_data)
-  print("bbbbbbbbbbb", user_id)
+  -- print("bbbbbbbbbbb", user_id, chat_data.latestMsg.content)
   -- commonlib.echo(chat_data, true)
   if self.lastChatMsg == nil then
     self.lastChatMsg = self:GetLastChatMsg() or {}
@@ -290,4 +292,12 @@ function FriendManager:AddLastChatMsg(user_id, chat_data)
     end
 
     self.lastChatMsg[tostring(user_id)] = chat_data
+end
+
+function FriendManager:BadWordsFilter(msgdata)
+  local words = ""
+	if(msgdata)then
+		words = MyCompany.Aries.Chat.BadWordFilter.FilterString(msgdata);
+	end
+	return words;
 end

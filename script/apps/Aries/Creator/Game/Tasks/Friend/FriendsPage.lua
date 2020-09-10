@@ -13,6 +13,7 @@ local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/Keep
 local Encoding = commonlib.gettable("System.Encoding");
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local FriendChatPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendChatPage.lua");
+local pe_gridview = commonlib.gettable("Map3DSystem.mcml_controls.pe_gridview");
 
 local UserData = {}
 FriendsPage.UnreadMsg = {}
@@ -83,6 +84,8 @@ function FriendsPage.Show()
 			FriendsPage.OnChange(1);
 	
 			IsOpen = true
+
+			FriendsPage.UpdataUnAllLoadMsg()
 		end);
 	end)
 end
@@ -127,7 +130,7 @@ function FriendsPage.GetRecentContactLlist(search_text)
 		if err == 200 then
 			FriendList = data.rows
 			local list = FriendsPage.GetRecentFromFriendsList()
-			FriendsPage.SetListData(list)
+			FriendsPage.SetListDataAndFlushGridView(list)
 		end
 		
 	end)
@@ -144,7 +147,7 @@ function FriendsPage.GetFriendsLlist(search_text)
 	},function(err, msg, data)
 		-- commonlib.echo(data, true)
 		if err == 200 then
-			FriendsPage.SetListData(data.rows)
+			FriendsPage.SetListDataAndFlushGridView(data.rows)
 		end
 	end)
 end
@@ -163,7 +166,7 @@ function FriendsPage.GetFollowingLlist(search_text)
 	-- print("获取关注列表cccccccccccccccccccccccccc", UserData.id)
 		-- commonlib.echo(data, true)
 		if err == 200 then
-			FriendsPage.SetListData(data.rows)
+			FriendsPage.SetListDataAndFlushGridView(data.rows)
 		end
 	end)
 end
@@ -180,12 +183,19 @@ function FriendsPage.GetFollowersLlist(search_text)
 	},function(err, msg, data)
 		-- commonlib.echo(data, true)
 		if err == 200 then
-			FriendsPage.SetListData(data.rows)
+			FriendsPage.SetListDataAndFlushGridView(data.rows)
 		end
 	end)
 end
 
-function FriendsPage.SetListData(rows)
+function FriendsPage.SetListDataAndFlushGridView(rows)
+	FriendsPage.HandleListData(rows)
+	local gvw_name = "item_gridview";
+	local node = page:GetNode(gvw_name);
+	pe_gridview.DataBind(node, gvw_name, false);
+end
+
+function FriendsPage.HandleListData(rows)
 	FriendsPage.Current_Item_DS = {}
 
 	local last_chat_msg = FriendManager:GetLastChatMsg() or {}
@@ -201,7 +211,6 @@ function FriendsPage.SetListData(rows)
 			FriendsPage.Current_Item_DS[#FriendsPage.Current_Item_DS + 1] = value
 		end
 	end
-	FriendsPage.OnRefresh()
 end
 
 function FriendsPage.OnChange(index)
@@ -389,6 +398,8 @@ function FriendsPage.FormatUnixTime2Date(unixTime)
 end
 
 function FriendsPage.PrivateLetter(chat_user_data)
+	-- page:CloseWindow()
+	-- FriendsPage.CloseView()
 	FriendChatPage.Show(UserData, chat_user_data);
 end
 
@@ -566,7 +577,7 @@ function FriendsPage.OnMsg(payload, full_msg)
 			-- 收到消息 最近联系列表得刷新一下
 			if FriendsPage.index == TopBtListType.RecentContact then
 				local list = FriendsPage.GetRecentFromFriendsList()
-				FriendsPage.SetListData(list)
+				FriendsPage.SetListDataAndFlushGridView(list)
 			end
 
 			return
@@ -575,10 +586,12 @@ function FriendsPage.OnMsg(payload, full_msg)
 
 	-- 收到消息 最近联系列表得刷新一下
 	if FriendsPage.index == TopBtListType.RecentContact then
+		print("...收到消息 最近联系列表得刷新一下")
 		FriendsPage.AddUnReadMsg(payload.id, 1, payload.content)
-		
+		commonlib.echo(FriendsPage.UnreadMsg, true)
 		local list = FriendsPage.GetRecentFromFriendsList()
-		FriendsPage.SetListData(list)
+		commonlib.echo(list, true)
+		FriendsPage.SetListDataAndFlushGridView(list)
 	else
 		FriendsPage.AddUnReadMsg(payload.id, 1, payload.content)
 		FriendsPage.OnRefresh()
@@ -594,3 +607,30 @@ function FriendsPage.ClearUnReadMsg(userId)
 end
 
 ------------------------------------------------------处理未读消息/end------------------------------------------------------
+-- 定时刷新全部未读消息
+function FriendsPage.UpdataUnAllLoadMsg()
+	if not IsOpen then
+		return
+	end
+
+	commonlib.TimerManager.SetTimeout(function()
+		if not IsOpen then
+			return
+		end
+
+		FriendManager:LoadAllUnReadMsgs(function ()
+			-- 处理未读消息
+			if FriendManager.unread_msgs and FriendManager.unread_msgs.data then
+				for k, v in pairs(FriendManager.unread_msgs.data) do
+					local data = commonlib.clone(v)
+					FriendsPage.UnreadMsg[v.latestMsg.senderId] = data
+					FriendManager:AddLastChatMsg(v.latestMsg.senderId, data)
+				end
+			end
+	
+			FriendsPage.FlushCurDataAndView()
+			FriendsPage.UpdataUnAllLoadMsg()
+		end);
+	end, 30000)
+
+end
