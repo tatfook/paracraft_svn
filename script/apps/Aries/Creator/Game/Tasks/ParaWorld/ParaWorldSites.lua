@@ -27,6 +27,8 @@ ParaWorldSites.currentRow = 5;
 ParaWorldSites.currentColumn = 5;
 ParaWorldSites.currentName = L"主世界";
 
+ParaWorldSites.paraWorldName = L"并行世界";
+
 local rows = 10;
 local columns = 10;
 local mainRange = {rows*4+5, rows*4+6, rows*5+5, rows*5+6};
@@ -76,6 +78,10 @@ function ParaWorldSites.OnClose()
 	page:CloseWindow();
 end
 
+function ParaWorldSites.GetParaWorldName()
+	return ParaWorldSites.paraWorldName;
+end
+
 function ParaWorldSites.UpdateSitesState()
 	local state = ParaWorldSites.Locked;
 	if (ParaWorldLoginAdapter.ParaWorldId) then
@@ -86,6 +92,7 @@ function ParaWorldSites.UpdateSitesState()
 	end
 	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
 		if (data and data.sites) then
+			ParaWorldSites.paraWorldName = data.name;
 			ParaWorldSites.SetCurrentSite(data.sites);
 			page:Refresh(0);
 		end
