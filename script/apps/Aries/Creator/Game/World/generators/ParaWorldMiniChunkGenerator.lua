@@ -10,6 +10,7 @@ ChunkGenerators:Register("paraworldMini", ParaWorldMiniChunkGenerator);
 -----------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua");
+NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine");
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
@@ -193,6 +194,37 @@ function ParaWorldMiniChunkGenerator:OnSaveWorld()
 		params = params,
 		blocks = blocks})
 	task:Run();
+	
+	local function uploadMiniWorld(projectId)
+		keepwork.world.joined_list({}, function(err, msg, data)
+			if (data and type(data) == "table") then
+				for i = 1, #data do
+					local world = data[i];
+					if (world.projectId == projectId) then
+						keepwork.miniworld.upload({projectId = projectId, name = world.worldName, type="main", commitId = world.commitId}, function(err, msg, data)
+							if (err == 200) then
+								_guihelper.MessageBox(L"上传成功！");
+							end
+						end);
+						break;
+					end
+				end
+			end
+		end);
+	end
+
+	_guihelper.MessageBox(L"世界已保存，是否要上传迷你世界？", function(res)
+		if(res and res == _guihelper.DialogResult.Yes)then
+			GameLogic.GetFilters():apply_filters("SaveWorldPage.ShowSharePage", true, function(res)
+				if (res) then
+					local currentWorld = Mod.WorldShare.Store:Get('world/currentWorld');
+					if (currentWorld and currentWorld.kpProjectId) then
+						uploadMiniWorld(tonumber(currentWorld.kpProjectId));
+					end
+				end
+			end);
+		end
+	end, _guihelper.MessageBoxButtons.YesNo);
 end
 
 -- get params for generating flat terrain
