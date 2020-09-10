@@ -32,9 +32,9 @@ function ParaWorldList.ShowPage()
 		directPosition = true,
 		align = "_ct",
 		x = -860 / 2,
-		y = -400 / 2,
+		y = -420 / 2,
 		width = 860,
-		height = 400,
+		height = 420,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
@@ -52,7 +52,16 @@ function ParaWorldList.ShowPage()
 			keepwork.world.list(nil, function(err, msg, data)
 				if (data and data.rows) then
 					for i = 1, #(data.rows) do
-						ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
+						local exist = false;
+						for j = 1, #ParaWorldList.Current_Item_DS do
+							if (ParaWorldList.Current_Item_DS[j].id == data.rows[i].id) then
+								exist = true;
+								break;
+							end
+						end
+						if (not exist) then
+							ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
+						end
 					end
 					page:Refresh(0);
 				end
