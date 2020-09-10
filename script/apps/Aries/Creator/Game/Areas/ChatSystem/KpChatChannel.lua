@@ -441,7 +441,7 @@ function KpChatChannel.LeaveWorld(worldId)
         return
     end
     local room = KpChatChannel.GetRoom();
-	LOG.std(nil, "info", "KpChatChannel", "try to join world %s", room);
+	LOG.std(nil, "info", "KpChatChannel", "try to leave world %s", room);
     KpChatChannel.client:Send("app/leave",{ rooms = { room }, });
     KpChatChannel.Clear();
 end
