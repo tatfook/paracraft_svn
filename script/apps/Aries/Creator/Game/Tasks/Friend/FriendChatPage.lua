@@ -315,7 +315,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 					<div style="margin-top:0px;width:400px;margin-left: 2px;color:#000000">
 						%s
 					</div>
-					<div style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
+					<div name="item_bg" style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
 						<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757">
 							%s
 						</div>	
@@ -334,7 +334,10 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 			myLayout:reset(0, 0, nodeWidth-5, height);
 			Map3DSystem.mcml_controls.create("bbs_lobby", xmlRoot, nil, _parent, 0, 0, nodeWidth-5, height,nil, myLayout);
 			local usedW, usedH = myLayout:GetUsedSize()
-			print("nnnnnnnnnnnnnnnnnnnnn", usedH)
+
+			-- local item_bg = xmlRoot:GetChildWithAttribute("item_bg")
+			-- print("nnnnnnnnnnnnnnnnnnnnn", usedH, item_bg, height_str)
+			-- commonlib.echo(item_bg, true)
 			if(usedH>height) then
 				return usedH+10;
 			end
