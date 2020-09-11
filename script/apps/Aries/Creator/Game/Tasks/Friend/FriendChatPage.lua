@@ -281,7 +281,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 
 		local line_num = #str_list
 		local line_inerval = 7
-		bg_height = line_num * content_font_size + (line_num - 1) * line_inerval + 7
+		bg_height = line_num * content_font_size + (line_num - 1) * line_inerval + 10
 		height_str = string.format("height:%s", bg_height)
 	end
 
