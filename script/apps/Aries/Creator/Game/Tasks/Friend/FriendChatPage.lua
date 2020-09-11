@@ -263,12 +263,12 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 	local text_width = 390
 
 	local lenth, allcount, str_list = FriendChatPage.GetStringCharCount(content_text, content_font_size, text_width)
-
+	-- print("kkkkkkkkkkkkkkkkkkkkkkkkkkkk")
 	-- commonlib.echo(str_list)
 	local content_text_width = allcount * content_font_size	
-	if content_text_width - math.floor(content_text_width) > 0.5 then
-		content_text_width = content_text_width + 1
-	end
+	-- if content_text_width - math.floor(content_text_width) > 0.5 then
+	-- 	content_text_width = content_text_width + 1
+	-- end
 	local is_more_line = #str_list > 1
 
 	local bg_width = content_text_width + 18
@@ -280,7 +280,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 		margin_top = 0
 
 		local line_num = #str_list
-		local line_inerval = 9
+		local line_inerval = 7
 		bg_height = line_num * content_font_size + (line_num - 1) * line_inerval + 7
 		height_str = string.format("height:%s", bg_height)
 	end
@@ -290,6 +290,7 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 	end
 
 	height_str = string.format("height:%s", bg_height)
+	local text_singleline = is_more_line and "true" or "false"
 	if treeNode.ifmyself then
 		-- is_more_line = true
 		local margin_left = is_more_line and 0 or (text_width - bg_width + 10)
@@ -304,10 +305,10 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 			-- 	margin_top = 0
 			-- end
 			html_str = html_str .. string.format([[
-				<div style="margin-top:%s;margin-left:%s;width:%s;font-size:%s;color:#575757;text-align:%s;">
+				<div style="margin-top:%s;margin-left:%s;width:%s;font-size:%s;color:#575757;text-align:%s;text-singleline:%s;">
 					%s
 				</div>	
-			]], margin_top, text_margin_left, text_width, content_font_size, align_type, v)
+			]], margin_top, text_margin_left, text_width, content_font_size, align_type, is_more_line, v)
 		end
 		mcmlStr = string.format([[
 			<div style="margin-left:0px;margin-top:0px;padding-left:30px;padding-top:2px;width:500px;">
@@ -332,10 +333,10 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 			-- 	margin_top = 0
 			-- end
 			html_str = html_str .. string.format([[
-				<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757;">
+				<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757;text-singleline:%s;">
 					%s
 				</div>	
-			]], margin_top, text_width, content_font_size, v)
+			]], margin_top, text_width, content_font_size, is_more_line, v)
 		end
 
 		mcmlStr = string.format([[
@@ -406,6 +407,7 @@ function FriendChatPage.GetStringCharCount(str, content_font_size, text_width)
 	local str_list = {}
 	local last_byteCount = 0
 	local line_count = 0
+	local add_num = 0
 
 	local clip_start_index = 1
 
@@ -416,74 +418,60 @@ function FriendChatPage.GetStringCharCount(str, content_font_size, text_width)
         if curByte > 0 and curByte <= 127 then
 			byteCount = 1                                              --1字节字符
 			if charList[string.char(curByte)] then
-				allcount = allcount + charList[string.char(curByte)]
-				line_count = line_count + charList[string.char(curByte)]
+				add_num = charList[string.char(curByte)]
 			elseif curByte <= 46 then
 				if curByte == 37 then -- % 
-					allcount = allcount + 1
-					line_count = line_count + 1
+					add_num = 1
 				elseif curByte == 42 then
-					allcount = allcount + 0.57
-					line_count = line_count + 0.57
+					add_num = 0.57
 				elseif curByte == 45 then
-					allcount = allcount + 0.36
-					line_count = line_count + 0.36
+					add_num = 0.36
 				else
-					allcount = allcount + 0.3
-					line_count = line_count + 0.3
+					add_num = 0.3
 				end
 			else
 				if curByte == 64 then -- @ 
-					allcount = allcount + 0.94
-					line_count = line_count + 0.94
+					add_num = 0.94
 				elseif curByte == 94 then --^
-					allcount = allcount + 0.73
-					line_count = line_count + 0.73
+					add_num = 0.73
 				elseif curByte == 47 then -- /
-					allcount = allcount + 0.36
-					line_count = line_count + 0.36
+					add_num =  0.36
 				elseif curByte >= 48 and curByte <= 57 then -- 数字1-9
-					allcount = allcount + 0.57
-					line_count = line_count + 0.57
+					add_num = 0.57
 				elseif curByte >= 58 and curByte <= 59 then
-					allcount = allcount + 0.3
-					line_count = line_count + 0.3
+					add_num = 0.3
 				else--字母
-					allcount = allcount + 0.5 
-					line_count = line_count + 0.5
+					add_num = 0.5
 				end
 			end
 
 		elseif curByte >= 192 and curByte <= 223 then
 			byteCount = 2                                              --双字节字符
-			allcount = allcount + 1
-			line_count = line_count + 1
+			add_num = 1
 		elseif curByte >= 224 and curByte <= 239 then					--中文
 			if curByte == 226 then
-				allcount = allcount + 0.8
-				line_count = line_count + 0.8
+				add_num = 0.8
 			else
-				allcount = allcount + 1
-				line_count = line_count + 1
+				add_num = 1
 			end
             byteCount = 3                                              
 			
 		elseif curByte >= 240 and curByte <= 247 then
             byteCount = 4                                              --4字节字符
-			allcount = allcount + 1
-			line_count = line_count + 1
+			add_num = 1
 		end
 
+		allcount = allcount + add_num
+		line_count = line_count + add_num
 		
-
 		-- line_count = line_count + allcount
 		-- 如果超出自己定义的文本框宽度 则帮它分行
 		local width = line_count * content_font_size
-		if width - math.floor(width) > 0.5 then
-			width = width + 1
-		end
+		-- if width - math.floor(width) > 0 then
+		-- 	width = width + content_font_size
+		-- end
 		if width > text_width then
-			line_count = 0
+			line_count = add_num
 
 			local str = string.sub(str, clip_start_index, begain_index - 1)
 			str_list[#str_list + 1] = str
@@ -499,6 +487,11 @@ function FriendChatPage.GetStringCharCount(str, content_font_size, text_width)
 	end
 
 	if clip_start_index < lenInByte then
+		local str = string.sub(str, clip_start_index, lenInByte)
+		str_list[#str_list + 1] = str
+	end
+	
+	if clip_start_index == lenInByte and lenInByte == 1 then
 		local str = string.sub(str, clip_start_index, lenInByte)
 		str_list[#str_list + 1] = str
 	end
