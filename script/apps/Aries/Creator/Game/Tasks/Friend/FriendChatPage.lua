@@ -99,6 +99,8 @@ function FriendChatPage.Show(user_data, chat_user_data)
 		return
 	end
 
+	FriendChatPage.IsOpen = true
+
 	ChatUserData = chat_user_data
 	if last_chat_msg[ChatUserData.id] == nil then
 		chat_user_data.last_msg_time_stamp = os.time()
@@ -152,7 +154,6 @@ function FriendChatPage.Show(user_data, chat_user_data)
 
 				FriendChatPage.CreateChatContentView()
 				FriendChatPage.FreshFriendGridView()
-				FriendChatPage.IsOpen = true
 			end
 
 			FriendManager:LoadAllUnReadMsgs(function ()
@@ -258,36 +259,56 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 	local content_text = treeNode.Text or ""
 	
 	local mcmlStr = ""
-
-	local lenth, allcount = FriendChatPage.GetStringCharCount(content_text)
 	local content_font_size = 14
-	local content_text_width = allcount * content_font_size
 	local text_width = 390
-	local is_more_line = content_text_width > text_width
+
+	local lenth, allcount, str_list = FriendChatPage.GetStringCharCount(content_text, content_font_size, text_width)
+
+	-- commonlib.echo(str_list)
+	local content_text_width = allcount * content_font_size	
+	if content_text_width - math.floor(content_text_width) > 0.5 then
+		content_text_width = content_text_width + 1
+	end
+	local is_more_line = #str_list > 1
 
 	local bg_width = content_text_width + 18
 	local margin_top = 4
-	local height_str = "height:32px"
+	local bg_height = 32
 
 	if is_more_line then
 		bg_width = text_width + 12
 		margin_top = 0
 
-		local line_num = math.ceil(content_text_width/text_width)
+		local line_num = #str_list
 		local line_inerval = 9
-		local height = line_num * content_font_size + (line_num - 1) * line_inerval + 7
-		height_str = string.format("height:%s", height)
+		bg_height = line_num * content_font_size + (line_num - 1) * line_inerval + 7
+		height_str = string.format("height:%s", bg_height)
 	end
 
 	if bg_width < 32 then
 		bg_width = 32
 	end
 
+	height_str = string.format("height:%s", bg_height)
 	if treeNode.ifmyself then
-		local margin_left = is_more_line == false and (text_width - bg_width + 10) or 0
+		-- is_more_line = true
+		local margin_left = is_more_line and 0 or (text_width - bg_width + 10)
 		local text_margin_left = is_more_line and 4 or 0
 		-- height_str = "height:64px"
-		local align_type = content_text_width > text_width and "left" or "right"
+		local align_type = is_more_line and "left" or "right"
+
+		-- local str_list = {}
+		local html_str = ""
+		for index, v in ipairs(str_list) do
+			-- if index > 1 then
+			-- 	margin_top = 0
+			-- end
+			html_str = html_str .. string.format([[
+				<div style="margin-top:%s;margin-left:%s;width:%s;font-size:%s;color:#575757;text-align:%s;">
+					%s
+				</div>	
+			]], margin_top, text_margin_left, text_width, content_font_size, align_type, v)
+		end
 		mcmlStr = string.format([[
 			<div style="margin-left:0px;margin-top:0px;padding-left:30px;padding-top:2px;width:500px;">
 				<div style="float: left;margin-left: 0px;">
@@ -296,16 +317,27 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 					</div>
 					<div name="item_bg" style="position:relative;margin-top:0px;margin-left:%s;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua2_32X32_32bits.png#0 0 32 32:12 22 12 6)">
 					</div>
-					<div style="margin-top:%s;margin-left:%s;width:%s;font-size:%s;color:#575757;text-align:%s;">
-						%s
-					</div>	
+					%s
 				</div>
 				<div style="float: left;margin-left:8px;margin-top:6px;">
 					<img zorder="0" src='%s'width="46" height="46"/>
 				</div>
 			</div>
-			]] , name, margin_left, bg_width, height_str, margin_top, text_margin_left, text_width, content_font_size, align_type, content_text, icon);
+			]] , name, margin_left, bg_width, height_str, html_str, icon);
 	else
+
+		local html_str = ""
+		for index, v in ipairs(str_list) do
+			-- if index > 1 then
+			-- 	margin_top = 0
+			-- end
+			html_str = html_str .. string.format([[
+				<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757;">
+					%s
+				</div>	
+			]], margin_top, text_width, content_font_size, v)
+		end
+
 		mcmlStr = string.format([[
 			<div style="margin-left:0px;margin-top:0px;padding-left:5px;padding-top:2px;width:500px;">
 				<div style="float: left;margin-left:0px;margin-top:5px;">
@@ -316,15 +348,15 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 						%s
 					</div>
 					<div name="item_bg" style="margin-top:0px;width:%s;%s;background:url(Texture/Aries/Creator/keepwork/friends/duihua1_32X32_32bits.png#0 0 32 32:12 22 12 6)">
-						<div style="margin-top:%s;margin-left:12px;width:%s;font-size:%s;color:#575757">
-							%s
-						</div>	
+						%s
 					</div>
 
 				</div>
 			</div>
-			]], icon , name, bg_width, height_str, margin_top, text_width, content_font_size, content_text);
+			]], icon , name, bg_width, height_str, html_str);
 	end
+
+
 	if(mcmlStr ~= nil) then
 		local xmlRoot = ParaXML.LuaXML_ParseString(mcmlStr);
 		if(type(xmlRoot)=="table" and table.getn(xmlRoot)>0) then
@@ -332,12 +364,13 @@ function FriendChatPage.DrawConversationNodeHandler2(_parent, treeNode)
 							
 			local myLayout = Map3DSystem.mcml_controls.layout:new();
 			myLayout:reset(0, 0, nodeWidth-5, height);
+			-- print("aaaaaaaaaaaaaaaa")
 			Map3DSystem.mcml_controls.create("bbs_lobby", xmlRoot, nil, _parent, 0, 0, nodeWidth-5, height,nil, myLayout);
 			local usedW, usedH = myLayout:GetUsedSize()
 
-			-- local item_bg = xmlRoot:GetChildWithAttribute("item_bg")
-			-- print("nnnnnnnnnnnnnnnnnnnnn", usedH, item_bg, height_str)
-			-- commonlib.echo(item_bg, true)
+			local item_bg = xmlRoot:GetChildWithAttribute("item_bg")
+			-- print("nnnnnnnnnnnnnnnnnnnnn", usedH, xmlRoot:GetUIControl())
+			-- commonlib.echo(xmlRoot:GetControl(), true)
 			if(usedH>height) then
 				return usedH+10;
 			end
@@ -365,66 +398,112 @@ local charList = {
 	["."] = 0.25,
 }
 
-function FriendChatPage.GetStringCharCount(str)
+function FriendChatPage.GetStringCharCount(str, content_font_size, text_width)
     local lenInByte = #str
     local charCount = 0   
-	local i = 1
+	local begain_index = 1
 	local allcount = 0
-    while (i <= lenInByte)
+	local str_list = {}
+	local last_byteCount = 0
+	local line_count = 0
+
+	local clip_start_index = 1
+
+    while (begain_index <= lenInByte)
     do
-		local curByte = string.byte(str, i)
+		local curByte = string.byte(str, begain_index)
 		local byteCount = 1;
         if curByte > 0 and curByte <= 127 then
 			byteCount = 1                                              --1字节字符
 			if charList[string.char(curByte)] then
 				allcount = allcount + charList[string.char(curByte)]
+				line_count = line_count + charList[string.char(curByte)]
 			elseif curByte <= 46 then
 				if curByte == 37 then -- % 
 					allcount = allcount + 1
+					line_count = line_count + 1
 				elseif curByte == 42 then
 					allcount = allcount + 0.57
+					line_count = line_count + 0.57
 				elseif curByte == 45 then
 					allcount = allcount + 0.36
+					line_count = line_count + 0.36
 				else
 					allcount = allcount + 0.3
+					line_count = line_count + 0.3
 				end
 			else
 				if curByte == 64 then -- @ 
 					allcount = allcount + 0.94
+					line_count = line_count + 0.94
 				elseif curByte == 94 then --^
 					allcount = allcount + 0.73
+					line_count = line_count + 0.73
 				elseif curByte == 47 then -- /
 					allcount = allcount + 0.36
+					line_count = line_count + 0.36
 				elseif curByte >= 48 and curByte <= 57 then -- 数字1-9
 					allcount = allcount + 0.57
+					line_count = line_count + 0.57
 				elseif curByte >= 58 and curByte <= 59 then
 					allcount = allcount + 0.3
+					line_count = line_count + 0.3
 				else--字母
 					allcount = allcount + 0.5 
+					line_count = line_count + 0.5
 				end
 			end
 
 		elseif curByte >= 192 and curByte <= 223 then
 			byteCount = 2                                              --双字节字符
 			allcount = allcount + 1
+			line_count = line_count + 1
 		elseif curByte >= 224 and curByte <= 239 then					--中文
 			if curByte == 226 then
 				allcount = allcount + 0.8
+				line_count = line_count + 0.8
 			else
 				allcount = allcount + 1
+				line_count = line_count + 1
 			end
             byteCount = 3                                              
 			
 		elseif curByte >= 240 and curByte <= 247 then
             byteCount = 4                                              --4字节字符
 			allcount = allcount + 1
+			line_count = line_count + 1
 		end
 
-        local char = string.sub(str, i, i + byteCount - 1)
-        i = i + byteCount                                              -- 重置下一字节的索引
-        charCount = charCount + 1                                      -- 字符的个数（长度）
+		
+
+		-- line_count = line_count + allcount
+		-- 如果超出自己定义的文本框宽度 则帮它分行
+		local width = line_count * content_font_size
+		if width - math.floor(width) > 0.5 then
+			width = width + 1
+		end
+		if width > text_width then
+			line_count = 0
+
+			local str = string.sub(str, clip_start_index, begain_index - 1)
+			str_list[#str_list + 1] = str
+			clip_start_index = begain_index
+		end
+
+		local end_index = begain_index + byteCount
+        local char = string.sub(str, begain_index, end_index - 1)
+        begain_index = end_index                                              -- 重置下一字节的索引
+		charCount = charCount + 1                                      -- 字符的个数（长度）
+		
+		last_byteCount = byteCount
 	end
-    return charCount, allcount
+
+	if clip_start_index < lenInByte then
+		local str = string.sub(str, clip_start_index, lenInByte)
+		str_list[#str_list + 1] = str
+	end
+
+    return charCount, allcount, str_list
 end
 
 function FriendChatPage.SendMsg()

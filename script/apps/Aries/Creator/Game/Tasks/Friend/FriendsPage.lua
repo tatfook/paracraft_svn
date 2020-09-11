@@ -507,6 +507,7 @@ function FriendsPage.ClearData()
 	FriendsPage.UnreadMsg = {}
 	TypeToCb = {}
 	FriendList = nil
+	FriendManager.unread_msgs_loaded = false;
 end
 
 function FriendsPage.GetIsOpen()
