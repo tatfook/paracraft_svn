@@ -90,6 +90,10 @@ function ParaWorldChunkGenerator:GetGridXYBy2DIndex(left, top)
 	return 5-top, 5-left;
 end
 
+function ParaWorldChunkGenerator:Get2DIndexByGridXY(x, y)
+	return 5-x, 5-y;
+end
+
 function ParaWorldChunkGenerator:LoadTemplateAtGridXY(x, y, filename)
 	if(filename) then
 		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");

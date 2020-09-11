@@ -11,6 +11,10 @@ ParaWorldSites.ShowPage();
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldMiniChunkGenerator.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/BlockTemplatePage.lua");
+local BlockTemplatePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BlockTemplatePage");
+local ParaWorldMiniChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 local ParaWorldTakeSeat = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTakeSeat.lua");
 local ParaWorldSites = NPL.export();
@@ -89,6 +93,7 @@ function ParaWorldSites.UpdateSitesState()
 	end
 	for i = 1, #ParaWorldSites.Current_Item_DS do
 		ParaWorldSites.Current_Item_DS[i].state = state;
+		ParaWorldSites.Current_Item_DS[i].name = L"该地块已锁定";
 	end
 	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
 		if (data and data.sites) then
@@ -194,7 +199,7 @@ function ParaWorldSites.OnClickItem(index)
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
 		ParaWorldSites.currentRow, ParaWorldSites.currentColumn = item.x, item.y;
-		ParaWorldSites.currentName = item.name or L"空地";
+		ParaWorldSites.currentName = item.name or L"该地块已锁定";
 		if (item.state == ParaWorldSites.Locked) then
 			page:Refresh(0);
 		elseif (item.state == ParaWorldSites.Checked) then
@@ -212,13 +217,11 @@ function ParaWorldSites.OnClickItem(index)
 					end
 					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 						if (err == 200) then
-							--ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Checked;
-							--page:Refresh(0);
-							ParaWorldSites.UpdateSitesState();
+							_guihelper.MessageBox(L"入驻成功！");
 						else
-							resetState();
-							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位！");
+							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位入驻！");
 						end
+						ParaWorldSites.UpdateSitesState();
 					end);
 				else
 					ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
@@ -234,4 +237,39 @@ function ParaWorldSites.OnClickMain()
 	ParaWorldSites.currentColumn = 5;
 	ParaWorldSites.currentName = L"主世界";
 	page:Refresh(0);
+end
+
+function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
+	if (not ParaWorldSites.SitesNumber or #ParaWorldSites.SitesNumber < 1) then
+		ParaWorldSites.InitSitesNumber();
+	end
+
+	local sn = ParaWorldSites.GetIndexFromPos(row, column);
+	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
+		if (data and data.sites) then
+			for i = 1, #data.sites do
+				local seat = data.sites[i];
+				if (seat.sn and seat.paraMini and seat.sn == sn) then
+					local path = ParaWorldMiniChunkGenerator:GetTemplateFilepath();
+					local filename = ParaIO.GetFileName(path);
+					local KeepworkServiceWorld = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/World.lua");
+					KeepworkServiceWorld:GetSingleFile(seat.paraMini.projectId, filename, function(content)
+						if (not content) then return end
+
+						local template_file = ParaIO.GetCurDirectory(0)..BlockTemplatePage.global_template_dir..seat.paraMini.name..".xml";
+						local file = ParaIO.open(template_file, "w");
+						if (file:IsValid()) then
+							file:write(content, #content);
+							file:close();
+							local gen = GameLogic.GetBlockGenerator();
+							local x, y = gen:GetGridXYBy2DIndex(column,row);
+							local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
+							gen:LoadTemplateAtGridXY(x, y, template_file);
+						end
+					end);
+					break;
+				end
+			end
+		end
+	end);
 end
