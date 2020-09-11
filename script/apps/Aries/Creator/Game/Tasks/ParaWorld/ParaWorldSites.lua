@@ -256,7 +256,8 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 					KeepworkServiceWorld:GetSingleFile(seat.paraMini.projectId, filename, function(content)
 						if (not content) then return end
 
-						local template_file = ParaIO.GetCurDirectory(0)..BlockTemplatePage.global_template_dir..seat.paraMini.name..".xml";
+						local name = commonlib.Encoding.Utf8ToDefault(seat.paraMini.name);
+						local template_file = ParaIO.GetCurDirectory(0)..BlockTemplatePage.global_template_dir..name..".xml";
 						local file = ParaIO.open(template_file, "w");
 						if (file:IsValid()) then
 							file:write(content, #content);
