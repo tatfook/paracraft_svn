@@ -170,7 +170,7 @@ function FriendChatPage.Show(user_data, chat_user_data)
 				FriendManager:Connect(ChatUserData.id,function()
 					show_callback()
 				end)
-			end);
+			end, true);
 		end
 	end)
 
@@ -754,22 +754,39 @@ function FriendChatPage.CreateChatContentView()
 	----------------------------------------------服务器保存的未读消息/end----------------------------------------------
 
 	ctl:Update(true);
-
 	-- 通知服务器消息已读
-	connection:UpdateLastMsgTag(function ()
-		-- 清除未读消息数量
-		if FriendChatPage.UnreadMsg[ChatUserData.id] and FriendChatPage.UnreadMsg[ChatUserData.id].unReadCnt then
-			FriendChatPage.UnreadMsg[ChatUserData.id].unReadCnt = 0
-			FriendChatPage.FreshFriendGridView()
-		end
 
-		-- 清除好友列表未读消息数量
-		if FriendsPage.GetIsOpen() then
-			FriendsPage.ClearUnReadMsg(ChatUserData.id)
-		end
+	local clear_unread_callback = function ()
+			-- 清除未读消息数量
+			if FriendChatPage.UnreadMsg[ChatUserData.id] and FriendChatPage.UnreadMsg[ChatUserData.id].unReadCnt then
+				FriendChatPage.UnreadMsg[ChatUserData.id].unReadCnt = 0
+				FriendChatPage.FreshFriendGridView()
+			end
+	
+			-- 清除好友列表未读消息数量
+			if FriendsPage.GetIsOpen() then
+				FriendsPage.ClearUnReadMsg(ChatUserData.id)
+			end
+	
+			connection.unread_msgs = {}
+	end
 
-		connection.unread_msgs = {}
-	end)	
+	if connection.unread_msgs and connection.unread_msgs[1] then
+		connection:UpdateLastMsgTag(function ()
+			clear_unread_callback()
+		end)	
+	else -- 预防单人的未读消息清除了但没清总的未读消息
+		if FriendChatPage.UnreadMsg[ChatUserData.id] then
+			local msgKey = FriendChatPage.UnreadMsg[ChatUserData.id].msgKey or ""
+			keepwork.friends.updateLastMsgTagInRoom({
+				roomId = connection.roomId,
+				msgKey = msgKey,
+			},function(err, msg, data)
+				print(err, msg)
+				clear_unread_callback()
+			end)
+		end
+	end
 end
 
 function FriendChatPage.IsShowRedPoint(userId)
@@ -801,7 +818,7 @@ function FriendChatPage.AddUnReadMsg(payload, full_msg)
 	end
 
 	FriendChatPage.UnreadMsg[userId].latestMsg.content = msg
-	
+	FriendChatPage.UnreadMsg[userId].lastMsgKey = payload.msgKey
 	FriendChatPage.UnreadMsg[userId].unReadCnt = FriendChatPage.UnreadMsg[userId].unReadCnt + num
 
 	-- {
