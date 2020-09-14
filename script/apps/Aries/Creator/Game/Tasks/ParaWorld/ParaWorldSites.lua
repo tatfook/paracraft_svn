@@ -34,6 +34,8 @@ ParaWorldSites.currentName = L"主世界";
 
 ParaWorldSites.paraWorldName = L"并行世界";
 
+ParaWorldSites.IsOwner = false;
+
 local rows = 10;
 local columns = 10;
 local mainRange = {rows*4+5, rows*4+6, rows*5+5, rows*5+6};
@@ -72,9 +74,13 @@ function ParaWorldSites.ShowPage()
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
+	ParaWorldSites.IsOwner = false;
 	if (ParaWorldLoginAdapter.ParaWorldId) then
 		commonlib.TimerManager.SetTimeout(function()
 			ParaWorldSites.UpdateSitesState();
+			ParaWorldSites.CheckIsMyParaworld(function(world)
+				ParaWorldSites.IsOwner = true;
+			end);
 		end, 100);
 	end
 end
@@ -101,6 +107,28 @@ function ParaWorldSites.UpdateSitesState()
 			ParaWorldSites.paraWorldName = data.name;
 			ParaWorldSites.SetCurrentSite(data.sites);
 			page:Refresh(0);
+		end
+	end);
+end
+
+function ParaWorldSites.CheckIsMyParaworld(callback)
+	local projectId = GameLogic.options:GetProjectId();
+	if (not projectId) then return end
+	projectId = tonumber(projectId);
+	if (not projectId) then return end
+	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
+
+	keepwork.world.joined_list({}, function(err, msg, data)
+		if (data and type(data) == "table") then
+			for i = 1, #data do
+				local world = data[i];
+				if (world.projectId == projectId and world.userId == userId) then
+					if (callback) then
+						callback(world);
+					end
+					break;
+				end
+			end
 		end
 	end);
 end
@@ -191,11 +219,6 @@ function ParaWorldSites.GetIndexFromPos(row, column)
 end
 
 function ParaWorldSites.OnClickItem(index)
-	local function resetState()
-		ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
-		page:Refresh(0);
-	end
-	
 	local projectId = GameLogic.options:GetProjectId();
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
@@ -203,6 +226,18 @@ function ParaWorldSites.OnClickItem(index)
 		if (item.state == ParaWorldSites.Locked) then
 			ParaWorldSites.currentName = L"该地块已锁定";
 			page:Refresh(0);
+			if (ParaWorldSites.IsOwner) then
+				_guihelper.MessageBox("该地块已锁定，你确定要解锁吗？", function(res)
+					if(res and res == _guihelper.DialogResult.Yes) then
+						local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+						keepwork.world.unlock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
+							if (err == 200) then
+								ParaWorldSites.UpdateSitesState();
+							end
+						end);
+					end
+				end, _guihelper.MessageBoxButtons.OKCancel);
+			end
 		elseif (item.state == ParaWorldSites.Checked) then
 			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
@@ -210,29 +245,53 @@ function ParaWorldSites.OnClickItem(index)
 			ParaWorldSites.currentName = item.name or L"空地";
 			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
 			page:Refresh(0);
-			ParaWorldTakeSeat.ShowPage(function(res, worldId)
-				if (res) then
-					local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
-					if (not id) then
-						resetState();
-						_guihelper.MessageBox(L"所选的座位无效！");
-						return;
+
+			if (ParaWorldSites.IsOwner) then
+				_guihelper.MessageBox(L"该地块为空地，你确定要锁定吗（点击取消开始占座）？", function(res)
+					if(res and res == _guihelper.DialogResult.Yes)then
+						keepwork.world.lock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
+							if (err == 200) then
+								ParaWorldSites.UpdateSitesState();
+							end
+						end);
+					else
+						ParaWorldSites.ShowTeakSeat(item, index);
 					end
-					keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
-						if (err == 200) then
-							_guihelper.MessageBox(L"入驻成功！");
-						else
-							_guihelper.MessageBox(L"该座位已被占用，请选择其他座位入驻！");
-						end
-						ParaWorldSites.UpdateSitesState();
-					end);
-				else
-					ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
-					page:Refresh(0);
-				end
-			end);
+				end, _guihelper.MessageBoxButtons.OKCancel);
+			else
+				ParaWorldSites.ShowTeakSeat(item, index);
+			end
 		end
 	end
+end
+
+function ParaWorldSites.ShowTeakSeat(item, index)
+	local function resetState()
+		ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
+		page:Refresh(0);
+	end
+	
+	ParaWorldTakeSeat.ShowPage(function(res, worldId)
+		if (res) then
+			local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+			if (not id) then
+				resetState();
+				_guihelper.MessageBox(L"所选的座位无效！");
+				return;
+			end
+			keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
+				if (err == 200) then
+					_guihelper.MessageBox(L"入驻成功！");
+				else
+					_guihelper.MessageBox(L"该座位已被占用，请选择其他座位入驻！");
+				end
+				ParaWorldSites.UpdateSitesState();
+			end);
+		else
+			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
+			page:Refresh(0);
+		end
+	end);
 end
 
 function ParaWorldSites.OnClickMain()
@@ -279,7 +338,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 end
 
 function ParaWorldSites.LoadMiniWorldOnPos(x, z)
-	if (ParaWorldLoginAdapter.ParaWorldId and WorldCommon.GetWorldTag("world_generator") == "paraworld") then
+	if (GameLogic.IsReadOnly() and ParaWorldLoginAdapter.ParaWorldId and WorldCommon.GetWorldTag("world_generator") == "paraworld") then
 		local gen = GameLogic.GetBlockGenerator();
 		local gridX, gridY = gen:FromWorldPosToGridXY(x, z);
 		local row, column = gen:Get2DIndexByGridXY(gridX, gridY);
