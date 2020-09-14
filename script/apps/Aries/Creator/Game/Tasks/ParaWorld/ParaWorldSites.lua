@@ -13,6 +13,7 @@ NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldMiniChunkGenerator.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/BlockTemplatePage.lua");
+local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 local BlockTemplatePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BlockTemplatePage");
 local ParaWorldMiniChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
@@ -275,4 +276,13 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 			end
 		end
 	end);
+end
+
+function ParaWorldSites.LoadMiniWorldOnPos(x, z)
+	if (ParaWorldLoginAdapter.ParaWorldId and WorldCommon.GetWorldTag("world_generator") == "paraworld") then
+		local gen = GameLogic.GetBlockGenerator();
+		local gridX, gridY = gen:FromWorldPosToGridXY(x, z);
+		local row, column = gen:Get2DIndexByGridXY(gridX, gridY);
+		ParaWorldSites.LoadMiniWorldOnSeat(row, column);
+	end
 end
