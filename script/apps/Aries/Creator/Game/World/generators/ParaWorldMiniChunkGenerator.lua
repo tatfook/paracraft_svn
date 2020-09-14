@@ -207,7 +207,11 @@ function ParaWorldMiniChunkGenerator:OnSaveWorld()
 					for i = 1, #data do
 						local world = data[i];
 						if (world.projectId == projectId) then
-							keepwork.miniworld.upload({projectId = projectId, name = world.worldName, type="main", commitId = world.commitId}, function(err, msg, data)
+							local worldName = world.worldName;
+							if (world.extra and world.extra.worldTagName) then
+								worldName = world.extra.worldTagName;
+							end
+							keepwork.miniworld.upload({projectId = projectId, name = worldName, type="main", commitId = world.commitId}, function(err, msg, data)
 								if (err == 200) then
 									_guihelper.MessageBox(L"上传成功！");
 								end

@@ -93,7 +93,7 @@ function ParaWorldSites.UpdateSitesState()
 	end
 	for i = 1, #ParaWorldSites.Current_Item_DS do
 		ParaWorldSites.Current_Item_DS[i].state = state;
-		ParaWorldSites.Current_Item_DS[i].name = L"该地块已锁定";
+		ParaWorldSites.Current_Item_DS[i].name = L"空地";
 	end
 	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
 		if (data and data.sites) then
@@ -199,12 +199,14 @@ function ParaWorldSites.OnClickItem(index)
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
 		ParaWorldSites.currentRow, ParaWorldSites.currentColumn = item.x, item.y;
-		ParaWorldSites.currentName = item.name or L"该地块已锁定";
 		if (item.state == ParaWorldSites.Locked) then
+			ParaWorldSites.currentName = L"该地块已锁定";
 			page:Refresh(0);
 		elseif (item.state == ParaWorldSites.Checked) then
+			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
 		else
+			ParaWorldSites.currentName = item.name or L"空地";
 			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
 			page:Refresh(0);
 			ParaWorldTakeSeat.ShowPage(function(res, worldId)
