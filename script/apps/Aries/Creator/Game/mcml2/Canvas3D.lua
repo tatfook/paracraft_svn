@@ -616,7 +616,9 @@ function Canvas3D:paintEvent(painter)
 		end
 
 		if(scene:IsValid()) then
-			scene:Draw(0);
+			if(not scene:IsActiveRenderingEnabled()) then
+				scene:Draw(0);
+			end
 			painter:SetPen(self:GetBackgroundColor());
 			painter:DrawRectTexture(self:x(), self:y(), self:width(), self:height(), scene:GetTexture());
 		end
