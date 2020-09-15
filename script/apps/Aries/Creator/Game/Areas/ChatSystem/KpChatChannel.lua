@@ -474,13 +474,14 @@ function KpChatChannel.RefreshChatWindow()
         ChatEdit.selected_channel = ChatChannel.EnumChannels.NearBy;
     end
 
-
+    if(not MyCompany.Aries.ChatSystem.ChatWindow.ggs_mode)then
+        MyCompany.Aries.ChatSystem.ChatWindow.HideAll();
+    end
     -- refresh the state of TipRoadManager
     if(KpChatChannel.IsInWorld())then
         TipRoadManager:OnShow(true);
     else
         TipRoadManager:OnShow(false);
-        MyCompany.Aries.ChatSystem.ChatWindow.HideAll();
     end
     if(ChatEdit.page)then
         -- refresh the state of shortcut button

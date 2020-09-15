@@ -58,3 +58,7 @@ HttpWrapper.Create("keepwork.user.focus", "%MAIN%/core/v0/favorites/search", "PO
 
 -- 获取作品列表
 HttpWrapper.Create("keepwork.user.projects", "%MAIN%/core/v0/projects", "GET", true)
+
+--http://yapi.kp-para.cn/project/32/interface/api/947
+-- 新增举报投诉
+HttpWrapper.Create("keepwork.user.complain", "%MAIN%/core/v0/feedbacks", "POST", true)
