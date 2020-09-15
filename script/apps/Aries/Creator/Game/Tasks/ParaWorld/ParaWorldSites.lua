@@ -228,7 +228,7 @@ function ParaWorldSites.OnClickItem(index)
 			page:Refresh(0);
 			if (ParaWorldSites.IsOwner) then
 				_guihelper.MessageBox("该地块已锁定，你确定要解锁吗？", function(res)
-					if(res and res == _guihelper.DialogResult.Yes) then
+					if(res and res == _guihelper.DialogResult.OK) then
 						local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
 						keepwork.world.unlock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 							if (err == 200) then
@@ -247,25 +247,26 @@ function ParaWorldSites.OnClickItem(index)
 			page:Refresh(0);
 
 			if (ParaWorldSites.IsOwner) then
-				_guihelper.MessageBox(L"该地块为空地，你确定要锁定吗（点击取消开始占座）？", function(res)
-					if(res and res == _guihelper.DialogResult.Yes)then
+				_guihelper.MessageBox(L"该地块为空地，你确定要锁定吗（否则占座）？", function(res)
+					if(res and res == _guihelper.DialogResult.OK) then
+						local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
 						keepwork.world.lock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 							if (err == 200) then
 								ParaWorldSites.UpdateSitesState();
 							end
 						end);
 					else
-						ParaWorldSites.ShowTeakSeat(item, index);
+						ParaWorldSites.ShowTakeSeat(item, index);
 					end
-				end, _guihelper.MessageBoxButtons.OKCancel);
+				end, _guihelper.MessageBoxButtons.OKCancel_CustomLabel,nil,nil,nil,nil,{ ok = L"锁定", cancel = L"占座", });
 			else
-				ParaWorldSites.ShowTeakSeat(item, index);
+				ParaWorldSites.ShowTakeSeat(item, index);
 			end
 		end
 	end
 end
 
-function ParaWorldSites.ShowTeakSeat(item, index)
+function ParaWorldSites.ShowTakeSeat(item, index)
 	local function resetState()
 		ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Available;
 		page:Refresh(0);
