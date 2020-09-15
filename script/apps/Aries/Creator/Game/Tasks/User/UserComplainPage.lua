@@ -47,11 +47,11 @@ function UserComplainPage.MakeProjectMsg(projectId)
     }
     return msg;
 end
-function UserComplainPage.MakeChatMsg(userId, username, content)
+function UserComplainPage.MakeChatMsg(userId, username, content, timestamp)
     if(not userId or not username)then
         return
     end
-    local title = string.format(L"%s(%s):%s",tostring(userId), username, content);
+    local title = string.format(L"%s(%s)(%s):%s",tostring(userId), username, timestamp or "", content or "");
     local msg = {
         userId = userId,
         username = username,
