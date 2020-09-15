@@ -62,3 +62,7 @@ HttpWrapper.Create("keepwork.user.projects", "%MAIN%/core/v0/projects", "GET", t
 --http://yapi.kp-para.cn/project/32/interface/api/947
 -- 新增举报投诉
 HttpWrapper.Create("keepwork.user.complain", "%MAIN%/core/v0/feedbacks", "POST", true)
+
+--http://yapi.kp-para.cn/project/32/interface/api/3127
+-- 获取用户的禁言状态
+HttpWrapper.Create("keepwork.user.mutings", "%MAIN%/core/v0/mutings", "GET", true)

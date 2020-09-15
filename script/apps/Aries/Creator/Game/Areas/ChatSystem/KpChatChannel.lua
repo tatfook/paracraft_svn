@@ -559,7 +559,11 @@ function KpChatChannel.SendToServer(msgdata)
         return
     end
     local user_info = KeepWorkItemManager.GetProfile();
-
+    local muting_info = KeepWorkItemManager.GetMutingInfo();
+    if(muting_info and muting_info.isMuted)then
+        _guihelper.MessageBox(L"很抱歉，你被禁言了！");
+        return
+    end
     local kp_msg = {
         target = msgdata.target,
         payload = {
