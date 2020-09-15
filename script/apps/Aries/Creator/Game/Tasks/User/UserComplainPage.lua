@@ -40,7 +40,7 @@ function UserComplainPage.MakeProjectMsg(projectId)
     if(not projectId)then
         return
     end
-    local title = string.format(L"项目:%s",tostring(projectId));
+    local title = string.format(L"项目ID:%s",tostring(projectId));
     local msg = {
         projectId = projectId,
         title = title,
@@ -73,7 +73,7 @@ function UserComplainPage.ShowPage(input_type, input_msg)
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			allowDrag = true,
 			enable_esc_key = true,
-			zorder = 100,
+			zorder = 0,
 			--app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			directPosition = true,
 				align = "_ct",
