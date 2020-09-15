@@ -14,6 +14,11 @@ NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 local ParaWorldApply = NPL.export();
 
 ParaWorldApply.CurrentWorld = nil;
+ParaWorldApply.SelectGame = 0;
+ParaWorldApply.SelectOrg = 1;
+ParaWorldApply.SelectSchool = 2;
+ParaWorldApply.SelectRegion = 3;
+ParaWorldApply.SelectType = 0;
 
 local page;
 function ParaWorldApply.OnInit()
@@ -41,8 +46,20 @@ function ParaWorldApply.ShowPage()
 		};
 		System.App.Commands.Call("File.MCMLWindowFrame", params);
 
+		ParaWorldApply.schoolData = nil
+		ParaWorldApply.orgData = nil
+		ParaWorldApply.SelectType = ParaWorldApply.SelectSchool;
 		commonlib.TimerManager.SetTimeout(function()
-			ParaWorldApply.GetRegionData();
+			KeepworkServiceSchoolAndOrg:GetMyAllOrgsAndSchools(function(schoolData, orgData)
+				if type(schoolData) == "table" and schoolData.regionId then
+					ParaWorldApply.schoolData= schoolData
+				end
+				if type(orgData) == "table" and #orgData > 0 then
+					ParaWorldApply.orgData = orgData
+				end
+
+				ParaWorldApply.GetRegionData();
+			end);
 		end, 100);
 	end);
 end
@@ -67,6 +84,29 @@ function ParaWorldApply.CheckIsMyParaworld(callback)
 			end
 		end
 	end);
+end
+
+function ParaWorldApply.GetGameList()
+	local gameList = {};
+	return;
+end
+
+function ParaWorldApply.GeOrgList()
+	local orgList = {};
+	if (ParaWorldApply.orgData) then
+		for i = 1, #ParaWorldApply.orgData do
+			orgList[i] = {text = ParaWorldApply.orgData[i].name, value = ParaWorldApply.orgData[i].id};
+		end
+	end
+	return orgList;
+end
+
+function ParaWorldApply.GetSchoolList()
+	local schoolList = {};
+	if (ParaWorldApply.schoolData) then
+		schoolList[1] = {text = ParaWorldApply.schoolData.name, value = ParaWorldApply.schoolData.id};
+	end
+	return schoolList;
 end
 
 function ParaWorldApply.GetWorldName()
@@ -206,7 +246,7 @@ end
 
 function ParaWorldApply.OnOK()
 	local name = page:GetValue("paraworld_name", nil);
-	if (not name) then
+	if (not name or name == "") then
 		_guihelper.MessageBox(L"请输入有效的世界名称！");
 		return;
 	end
@@ -217,5 +257,48 @@ function ParaWorldApply.OnOK()
 		return;
 	end
 
-	page:CloseWindow();
+	local objectId = 0;
+	local type = page:GetValue("paraworld_type", nil);
+	if (type == "game") then
+		objectId = page:GetValue("GameList", nil);
+		if (not objectId) then
+			_guihelper.MessageBox(L"请选择有效的大赛项目！");
+			return;
+		end
+	elseif (type == "org") then
+		objectId = page:GetValue("OrgList", nil);
+		if (not objectId) then
+			_guihelper.MessageBox(L"请选择有效的机构！");
+			return;
+		end
+	elseif (type == "school") then
+		objectId = page:GetValue("SchoolList", nil);
+		if (not objectId) then
+			_guihelper.MessageBox(L"请选择有效的学校！");
+			return;
+		end
+	elseif (type == "region") then
+		objectId = page:GetValue("area_type", nil);
+		if (not objectId or objectId == 0) then
+			_guihelper.MessageBox(L"请选择有效的地域类型！");
+			return;
+		end
+	end
+
+	keepwork.world.apply({
+		name = name,
+		projectId = ParaWorldApply.CurrentWorld.projectId,
+		objectId = objectId,
+		objectType = type,
+		cover = ParaWorldApply.GetWorldCoverUrl(),
+		commitId = ParaWorldApply.CurrentWorld.commitId,
+		regionId = region,
+	}, function(err, msg, data)
+		if (err == 200) then
+			page:CloseWindow();
+			_guihelper.MessageBox(L"提交成功，请等待审核！");
+		else
+			_guihelper.MessageBox(L"提交失败，请稍后重试！");
+		end
+	end);
 end
