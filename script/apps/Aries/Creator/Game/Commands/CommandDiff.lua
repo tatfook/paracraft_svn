@@ -24,6 +24,7 @@ Commands["diff"] = {
 	name="diff", 
 	quick_ref="/diff [-selection] [remote_ip_port]", 
 	desc=[[show differences between all entities in current world and others in remote or local computer. 
+Usage: load two worlds in two processes; start NPL code wiki (F11) in first process, and run /diff in the other process. 
 @param remote_ip_port: default value is "127.0.0.1:8099"
 @param -selection: only compare selected blocks
 e.g.
