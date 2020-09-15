@@ -471,6 +471,10 @@ function ParaWorldLessons.EnterLessonImp(packageId, lessonId, classId, recordId,
 	end
 	
 	ParaWorldLessons.UrlRequest(lessonAPIUrl , "GET", nil, function(err, msg, data)
+		if data and type(data) == 'table' and data.data then
+			data = data.data
+		end
+
 		if(data and data.id) then
 			lesson:SetClientData(data.extra)
 			lesson:SetGoals(data.goals);
@@ -480,6 +484,10 @@ function ParaWorldLessons.EnterLessonImp(packageId, lessonId, classId, recordId,
 			end
 
 			ParaWorldLessons.UrlRequest(contentAPIUrl, "GET", nil, function(err, msg, data)
+				if data and type(data) == 'table' and data.data then
+					data = data.data
+				end
+
 				if(data and data.content) then
 					lesson:SetContent(data.content);
 					ParaWorldLessons.SetCurrentLesson(lesson);
