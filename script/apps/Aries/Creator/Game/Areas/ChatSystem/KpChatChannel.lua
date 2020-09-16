@@ -551,7 +551,17 @@ function KpChatChannel.CreateMessage( ChannelIndex, toid, toname, words, roomNam
 	return msgdata;
 end
 
-
+function KpChatChannel.IsBlockedChannel(ChannelIndex)
+    local channels = {
+        ChatChannel.EnumChannels.KpNearBy,
+        ChatChannel.EnumChannels.KpBroadCast,
+    }
+    for k,v in ipairs(channels) do
+        if(v == ChannelIndex)then
+            return true;
+        end
+    end
+end
 --[[---------------------------------------------------------------------------------------------------
 根据消息类型分别发送至服务器
 --]]---------------------------------------------------------------------------------------------------
