@@ -112,7 +112,8 @@ function DockPage.OnClick_system_menu()
 		node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "name", Type="Title", NodeHeight = 0 });
 		node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "", Name = "titleseparator", Type="separator", NodeHeight = 0 });
 		node = ctl.RootNode:AddChild(CommonCtrl.TreeNode:new{Text = "Quickwords", Name = "actions", Type = "Group", NodeHeight = 0 });
---			node:AddChild(CommonCtrl.TreeNode:new({Text = L"架设私服", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_server, }));
+			node:AddChild(CommonCtrl.TreeNode:new({Text = L"创建服务器", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_server, }));
+			node:AddChild(CommonCtrl.TreeNode:new({Text = L"加入服务器", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_server_join, }));
 			node:AddChild(CommonCtrl.TreeNode:new({Text = "插件管理", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_plugin, }));
 			node:AddChild(CommonCtrl.TreeNode:new({Text = "联系客服", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_service, }));
 			node:AddChild(CommonCtrl.TreeNode:new({Text = "系统设置", Name = "ExitGame", Type = "Menuitem", onclick = DockPage.OnClick_Menuitem_system, }));
@@ -126,6 +127,14 @@ function DockPage.OnClick_Menuitem_server()
     NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ServerPage.lua");
     local ServerPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.ServerPage");
     ServerPage.ShowPage();
+end
+function DockPage.OnClick_Menuitem_server_join()
+    local Server = NPL.load("(gl)Mod/WorldShare/cellar/Server/Server.lua")
+    Server:ShowPage()
+
+    --local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
+    --UserConsole:ShowHistoryManager()
+
 end
 function DockPage.OnClick_Menuitem_plugin()
     NPL.load("(gl)script/apps/Aries/Creator/Game/Login/SelectModulePage.lua");
