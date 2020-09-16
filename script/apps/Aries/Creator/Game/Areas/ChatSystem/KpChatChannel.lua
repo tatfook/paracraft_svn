@@ -304,6 +304,10 @@ function KpChatChannel.OnMsg(self, msg)
                   } 
                 }
             ]]
+            if(payload and payload.muteType == 1)then
+                KeepWorkItemManager.LoadMutingInfo(true);
+                return
+            end
             if(payload and payload.receivers and payload.msg)then
                 local receivers = payload.receivers;
                 local user_info = KeepWorkItemManager.GetProfile();
