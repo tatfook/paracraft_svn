@@ -469,6 +469,7 @@ function Canvas3D:SetMaskTexture(textureFile)
 end
 
 function Canvas3D:mousePressEvent(e)
+	if (not self.IsInteractive) then return end
 	self.lastMouseDown.x = e:pos():x();
 	self.lastMouseDown.y = e:pos():y();
 	self.IsMouseDown = true;
@@ -481,6 +482,7 @@ function Canvas3D:mousePressEvent(e)
 end
 
 function Canvas3D:mouseMoveEvent(e)
+	if (not self.IsInteractive) then return end
 	if (self.IsMouseDown) then
 		local mouse_dx, mouse_dy = e:pos():x() - self.lastMousePos.x, e:pos():y() - self.lastMousePos.y;
 		if (mouse_dx ~= 0 or mouse_dy ~= 0) then
@@ -532,6 +534,7 @@ function Canvas3D:mouseMoveEvent(e)
 end
 
 function Canvas3D:mouseReleaseEvent(e)
+	if (not self.IsInteractive) then return end
 	if (not self.IsMouseDown) then
 		return;
 	end
@@ -547,6 +550,7 @@ function Canvas3D:mouseReleaseEvent(e)
 end
 
 function Canvas3D:mouseWheelEvent(e)
+	if (not self.IsInteractive) then return end
 	if (self.resourceName == nil) then
 		return;
 	end
@@ -579,9 +583,11 @@ function Canvas3D:mouseWheelEvent(e)
 end
 
 function Canvas3D:mouseEnterEvent(mouse_event)
+	if (not self.IsInteractive) then return end
 end
 
 function Canvas3D:mouseLeaveEvent(mouse_event)
+	if (not self.IsInteractive) then return end
 end
 
 -- manually draw the miniscene graph, in case active rendering is disabled. 
