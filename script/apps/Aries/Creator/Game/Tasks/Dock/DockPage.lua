@@ -16,6 +16,10 @@ local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/G
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
 local DockPage = NPL.export();
 
+DockPage.hide_vip_world_ids = {
+    ONLINE = { 18626 },
+    RELEASE = { 1236 },
+};
 DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
