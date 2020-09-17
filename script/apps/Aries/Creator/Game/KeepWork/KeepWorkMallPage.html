@@ -88,6 +88,15 @@ function IsShowFlag(data)
 
     return false
 end
+
+function IsOnlyNumber(desc)
+    if type(tonumber(desc)) == "number" then
+        return true
+    end
+
+    return false
+end
+
 ]]></script>
 <kp:window name="iframe" width="996" height="613" icon="Texture/Aries/Creator/keepwork/Window/title/biaoti_ziyuan_32bits.png"   onclose="ClosePage">
     <div style="color:#ffffff;" class="kp_window_container">
@@ -298,19 +307,23 @@ end
                             <pe:if condition='<%=not IsShowFlag(XPath("this"))%>'>
                                 <div style="position:relative;margin-top:5px;margin-left:58px;padding-left:5px;font-size:12px;">
                                     <pe:if condition='<%=Eval("is_cost_bean") %>'>
-                                        <div style="margin-top:3px;float:left;width:22;height:21;background:url(Texture/Aries/Creator/keepwork/Mall/icon_douzi_22X21_32bits.png#0 0 22 21:0 0 0 0);"></div> 
-                                        <!-- <aries:textsprite name="text" value = '<%=Eval("cost_desc")%>' spritestyle="CombatDigits" color="#40ff01" text="" fontsize="18"/> -->
+                                        <div style="margin-top:1px;float:left;width:22;height:21;background:url(Texture/Aries/Creator/keepwork/Mall/icon_douzi_22X21_32bits.png#0 0 22 21:0 0 0 0);"></div> 
+                                        <!-- <pe:textsprite fontName="MallCost" name = "time_text_sprite_h" value = '<%=Eval("cost_desc")%>' style="width:50px;margin-left:0px;margin-top:0px;font-size:22;" /> -->
                                     </pe:if>
                                      
                                     <pe:if condition='<%=Eval("is_cost_coin") %>'>
                                         <div style="margin-top:3px;float:left;width:20;height:20;background:url(Texture/Aries/Creator/keepwork/Mall/icon_coin_32bits.png#0 0 14 14);"></div>  
-                                        <!-- <pe:textsprite name = "time_text_sprite_h" value = '<%=Eval("cost_desc")%>' style="width:50px;margin-left:0px;margin-top:0px;font-size:22;" /> -->
+                                        <!-- <pe:textsprite fontName="MallCost" name = "time_text_sprite_h" value = '<%=Eval("cost_desc")%>' style="width:50px;margin-left:0px;margin-top:0px;font-size:22;" /> -->
                                     </pe:if>
                                     
-                                    <!-- <pe:if condition='<%=not Eval("is_cost_coin") and not Eval("is_cost_bean") %>'>
-                                        
-                                    </pe:if> -->
-                                    <div style="margin-left:5px;margin-top:1px;float:left;height:20px;color:#000000;font-weight:bold;font-size: 16pt;"><%=Eval("cost_desc")%></div>
+                                    <pe:if condition='<%=IsOnlyNumber(Eval("cost_desc")) %>'>
+                                        <pe:textsprite fontName="MallCost" imagePath="Texture/mall_number_119X95_32bits.png" name = "" value = '<%=Eval("cost_desc")%>' style="width:50px;margin-left:5px;margin-top:3px;font-size:17pt;" />
+                                    </pe:if>
+
+                                    <pe:if condition='<%=not IsOnlyNumber(Eval("cost_desc")) %>'>
+                                        <div style="margin-left:5px;margin-top:1px;float:left;height:20px;color:#000000;font-weight:bold;font-size: 16pt;"><%=Eval("cost_desc")%></div>
+                                    </pe:if>
+                                    
                                 </div>
                             </pe:if>
                             <!-- <pe:if condition='<%=Eval("enabled")%>'>

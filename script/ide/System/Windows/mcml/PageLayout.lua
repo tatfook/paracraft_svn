@@ -113,7 +113,7 @@ function PageLayout:doResize(width, height)
 			else
 				if(self.width ~= width or self.height~=height) then
 					self:reset(0, 0, width, height);
-					if (self.parent and self.parent.IsUIWindow and self.parent:IsUIWindow() and self.parent:IsEnableElementLayout() and self.parent.UpdateLayout) then
+					if (self.parent and self.parent.IsUIWindow and self.parent:IsUIWindow() and self.parent.IsEnableElementLayout and self.parent:IsEnableElementLayout() and self.parent.UpdateLayout) then
 						self.parent:UpdateLayout(self, pageElem);
 					else
 						pageElem:UpdateLayout(self, nil);
