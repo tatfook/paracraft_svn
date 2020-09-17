@@ -114,7 +114,7 @@ function ParaWorldMiniChunkGenerator:OnLoadWorld()
 	GameLogic.RunCommand("/speedscale 2");
 	GameLogic.options:SetViewBobbing(false, true)
 	
-	if(self:GetTotalCount() < 10) then
+	if(self:GetTotalCount() < 2) then
 		self:ShowCreateFromTemplateWnd()
 	end
 
@@ -137,6 +137,7 @@ function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd()
 --		local filename = self:GetTemplateFilepath()
 --		self:LoadFromTemplateFile(filename)
 --	end)
+	--[[
 	local ParaWorldTemplates = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTemplates.lua");
 	ParaWorldTemplates.ShowPage(function(filename)
 		if (filename) then
@@ -146,6 +147,7 @@ function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd()
 			ParaWorldMinimapWnd:RefreshMap()
 		end
 	end);
+	]]
 end
 
 -- please note: it does not clear the scene, it simply load template to pivot point
@@ -196,6 +198,7 @@ function ParaWorldMiniChunkGenerator:OnSaveWorld()
 	local x, y, z = self:GetPivot();
 	local params = {count = #blocks};
 	params.pivot = string.format("%d,%d,%d", x, y, z)
+	params.relative_motion = true;
 	self.count = #blocks;
 	if(#blocks > self.MaxAllowedBlock) then
 		commonlib.resize(blocks, self.MaxAllowedBlock);
