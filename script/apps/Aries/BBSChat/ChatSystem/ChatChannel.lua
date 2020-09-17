@@ -432,7 +432,10 @@ end
 
 function ChatChannel.SendMessage_Keepwork( ChannelIndex, to, toname, words, inputType)
     inputType = inputType or ChatChannel.InputTypes.FromEditBox;
-    if(KpChatChannel.IsBlockedChannel(ChannelIndex))then
+    NPL.load("(gl)script/apps/Aries/Creator/WorldCommon.lua");
+    local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon");
+	local generatorName = WorldCommon.GetWorldTag("world_generator");
+    if(generatorName == "paraworld" and KpChatChannel.IsBlockedChannel(ChannelIndex))then
         if(inputType ~= ChatChannel.InputTypes.FromQuickWord)then
 			_guihelper.MessageBox(L"这个频道只能发快捷语言！");
             return
