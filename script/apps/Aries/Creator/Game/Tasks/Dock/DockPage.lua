@@ -176,7 +176,17 @@ function DockPage.RenderButton_2(index)
                 return (not ParacraftLearningRoomDailyPage.HasCheckedToday());
             end
         </script>
-        <kp:redtip style="position:relative;margin-left:53;margin-top:-72px;" onupdate='<%%= HasCheckedToday()%%>' ></kp:redtip>
+        <kp:redtip style="position:relative;margin-left:50px;margin-top:-74px;" onupdate='<%%= HasCheckedToday()%%>' ></kp:redtip>
+        ]],"");
+	elseif (id == "week_quest") then
+        tip_str = string.format([[
+        <script type="text/npl" refresh="false">
+            local TeachingQuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestPage.lua");
+            function HasTaskInProgress()
+				return TeachingQuestPage.HasTaskInProgress();
+            end
+        </script>
+        <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= HasTaskInProgress()%%>' ></kp:redtip>
         ]],"");
     end
     local s = string.format([[
