@@ -9,6 +9,7 @@ local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPag
 DockPage.Show();
 DockPage.Hide();
 --]]
+local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
@@ -49,6 +50,8 @@ function DockPage.Show()
     end
     DockPage._root.visible = true;
     DockPage.is_show = true;
+
+    DockPage.LoadActivityList();
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -90,7 +93,7 @@ function DockPage.OnClick(id)
         local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
         KeepWorkMallPage.Show();
     elseif(id == "competition")then
-	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/cp/home", "", 1); 
+        DockPage.OnActivity();
     elseif(id == "checkin")then
         ParacraftLearningRoomDailyPage.DoCheckin();
     elseif(id == "week_quest")then
@@ -160,11 +163,45 @@ function DockPage.FindUIControl(name)
     end
     return   DockPage.page:FindUIControl(name);
 end
+function DockPage.OnActivity()
+	ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/cp/home", "", 1); 
+    if(DockPage.RedTip_Activity_Len and DockPage.RedTip_Activity_Len > 0)then
+	    local profile = KeepWorkItemManager.GetProfile();
+        local userId = profile.id;
+        local key = string.format("RedTip_Activity_%s_%d", userId, DockPage.RedTip_Activity_Len);
+        GameLogic.GetPlayerController():SaveLocalData(key, true, true);
+    end
+    DockPage.page:Refresh(0);
+end
+function DockPage.RedTip_Activity_Checked()
+    local checked = true;
+    if(DockPage.RedTip_Activity_Len and DockPage.RedTip_Activity_Len > 0)then
+        local profile = KeepWorkItemManager.GetProfile();
+        local userId = profile.id;
+        local key = string.format("RedTip_Activity_%s_%d", userId, DockPage.RedTip_Activity_Len);
+        checked = GameLogic.GetPlayerController():LoadLocalData(key,false,true);
+    end
+    return checked;
+end
 function DockPage.RenderButton_1(index)
     local node = DockPage.top_line_1[index];
+    local tip_str = "";
+    local id = node.id;
+    if(id == "competition")then
+        tip_str = string.format([[
+        <script type="text/npl" refresh="false">
+            local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+            function RedTip_Activity_Checked()
+                return (not DockPage.RedTip_Activity_Checked());
+            end
+        </script>
+        <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= RedTip_Activity_Checked()%%>' ></kp:redtip>
+        ]],"");
+    end
     local s = string.format([[
         <input type="button" name='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
-    ]],node.id,node.bg);
+        %s
+    ]],node.id,node.bg,tip_str);
     return s;
 end
 
@@ -180,7 +217,7 @@ function DockPage.RenderButton_2(index)
                 return (not ParacraftLearningRoomDailyPage.HasCheckedToday());
             end
         </script>
-        <kp:redtip style="position:relative;margin-left:50px;margin-top:-74px;" onupdate='<%%= HasCheckedToday()%%>' ></kp:redtip>
+        <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= HasCheckedToday()%%>' ></kp:redtip>
         ]],"");
 	elseif (id == "week_quest") then
         tip_str = string.format([[
@@ -201,3 +238,16 @@ function DockPage.RenderButton_2(index)
 end
 
 
+function DockPage.LoadActivityList(callback)
+    keepwork.user.activity_list({},function(err, msg, data)
+        if(err ~= 200)then
+            return
+        end
+        if(data and data.data)then
+            data = data.data;
+            local len = #data;
+            DockPage.RedTip_Activity_Len = len;
+            DockPage.page:Refresh(0);
+        end
+    end)
+end
