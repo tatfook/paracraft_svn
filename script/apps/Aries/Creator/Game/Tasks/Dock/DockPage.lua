@@ -34,6 +34,10 @@ DockPage.top_line_2 = {
 }
 
 function DockPage.Show()
+    local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+    if(not KeepWorkItemManager.GetToken())then
+        return
+    end
     if(not DockPage._root)then
         DockPage.page = Map3DSystem.mcml.PageCtrl:new({ 
             url = "script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.html" ,
