@@ -184,7 +184,6 @@ function ParacraftCI.GetAllMode()
 
 		pushd "npl_packages"
 
-		CALL :InstallPackage AutoUpdater https://github.com/NPLPackages/AutoUpdater
 		CALL :InstallPackage STLExporter https://github.com/LiXizhi/STLExporter
 		CALL :InstallPackage BMaxToParaXExporter https://github.com/tatfook/BMaxToParaXExporter
 
