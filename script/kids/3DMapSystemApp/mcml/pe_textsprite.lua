@@ -49,6 +49,7 @@ pe_textsprite.Sprites = {
 		["8"] = {rect = "94 32 23 31", width = 23, height = 32},
 		["9"] = {rect = "0 64 22 31", width = 22, height = 32},
 		["0"] = {rect = "30 64 21 31", width = 21, height = 32},
+		["."] = {rect = "64 64 22 31", width = 22, height = 32},
 		["A"] = {rect = "64 64 22 31", width = 22, height = 32},
 		["B"] = {rect = "96 64 20 31", width = 20, height = 32},
 		["C"] = {rect = "0 96 19 31", width = 19, height = 32},
