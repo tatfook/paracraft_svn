@@ -137,7 +137,15 @@ function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd()
 --		local filename = self:GetTemplateFilepath()
 --		self:LoadFromTemplateFile(filename)
 --	end)
-	
+	local ParaWorldTemplates = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTemplates.lua");
+	ParaWorldTemplates.ShowPage(function(filename)
+		if (filename) then
+			self:LoadFromTemplateFile(filename);
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.lua");
+			local ParaWorldMinimapWnd = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldMinimapWnd");
+			ParaWorldMinimapWnd:RefreshMap()
+		end
+	end);
 end
 
 -- please note: it does not clear the scene, it simply load template to pivot point
