@@ -190,18 +190,7 @@ function SystemSettingsPage.InitPageParams()
 	--UpdateCheckBox("btn_MouseInverse", is_mouse_inverse)
 	--ds["is_mouse_inverse"] = is_mouse_inverse;
 	-- 分辨率
-	local screen_desc = {
-		["3840 × 2160"] = "3840X2160 (4K)",
-		["2560 × 1440"] = "2560X1440 (2K)",
-		["1920 × 1080"] = "1920X1080 (1080p)",
-		["1280 × 720"] = "1280X720 (720p)",
-		["1600 × 1200"] = "1600X1200 (UXGA)",
-		["1024 × 768"] = "1024X768 (XGA)",
-	}
-
 	local screen_resolution =  string.format("%d × %d", att:GetDynamicField("ScreenWidth", 1020), att:GetDynamicField("ScreenHeight", 680))
-	screen_resolution = screen_desc[screen_resolution]
-
 	page:SetNodeValue("ScreenResolution", screen_resolution) -- 分辨率	
 	ds["screen_resolution"] = screen_resolution;
 

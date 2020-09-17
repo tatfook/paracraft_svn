@@ -80,7 +80,6 @@ end
 
 function KeepWorkMallPage.ShowView()
 	KeepWorkMallPage.isOpen = true
-
 	keepwork.mall.menus.get({
 		cache_policy,
 		platform =  1,
@@ -102,8 +101,8 @@ function KeepWorkMallPage.ShowView()
 		local standard_width = 1280
 		local standard_height = 720
 		
-		local view_width = 904
-		local view_height = 518
+		local view_width = 996
+		local view_height = 613
 
 		local ratio = view_width/standard_width
 
@@ -208,11 +207,17 @@ function KeepWorkMallPage.HandleMenuData(parent_t, data, level)
 	if level_to_index[level] == nil then
 		level_to_index[level] = 0
 	end
+
 	
 	for k, v in pairs(data) do
 		local temp_t = {}
 		temp_t.name = v.children == nil and "item" or "type"
+		
 		temp_t.attr = {}
+		-- 中间级别的样式处理
+		if temp_t.name == "type" then
+			temp_t.attr.isMidleMenu = level > 1
+		end
 		temp_t.attr.server_data = v
 		temp_t.attr.type_index = 1
 		temp_t.attr.text = v.name
@@ -321,6 +326,7 @@ function KeepWorkMallPage.HandleDataSources()
 		if v.rule and v.rule.storage == 0 then
 			v.buy_txt = "售完"
 			v.enabled = false
+			v.is_sell = true
 		else
 			v.enabled = KeepWorkMallPage.checkIsGetLimit(v)
 
@@ -330,16 +336,28 @@ function KeepWorkMallPage.HandleDataSources()
 				local bag_nums = copies and copies or 0
 				v.bag_nums = bag_nums
 				if bag_nums > 0 then
-					v.buy_txt = "使用"
-					v.enabled = true
-
-					-- 如果有使用中的显示的需求
-					local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
-					local file = EditModelTask:GetModelFileInHand()
-					if file == string.format("blocktemplates/%s.%s", good_data.name, good_data.fileType) then
-						v.buy_txt = "已使用"
+					if GameLogic.IsReadOnly() then
+						v.buy_txt = "已拥有"
 						v.enabled = false
+						v.is_has = true
+					else
+						v.buy_txt = "使用"
+						v.enabled = true
+						v.can_use = true
+						-- 如果有使用中的显示的需求
+						local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
+						if EditModelTask then
+							local file = EditModelTask:GetModelFileInHand()
+							if file == string.format("blocktemplates/%s.%s", good_data.name, good_data.fileType) then
+								v.buy_txt = "已使用"
+								v.enabled = false
+								v.is_use = true
+								v.can_use = false
+							end
+						end
+
 					end
+
 					--file ：blocktemplates/河马.bmax
 					
 				end
@@ -375,7 +393,15 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 		ParaGlobal.ShellExecute("open", item_data.purchaseUrl, "", "", 1); 
 		return
 	end
+
+	if item_data.enabled == false then
+		return
+	end
+
 	if item_data.isModelProduct and item_data.bag_nums and item_data.bag_nums > 0 then
+		if GameLogic.IsReadOnly() then
+			return
+		end
 		local good_data = item_data.goods_data[1]
 		local model_url = good_data.modelUrl or ""
 		local command = string.format("/install -ext %s -filename %s %s", good_data.fileType, good_data.name, model_url)
@@ -409,10 +435,10 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 		enable_esc_key = true,
 		directPosition = true,
 			align = "_ct",
-			x = -400/2,
-			y = -304/2,
-			width = 400,
-			height = 304,
+			x = -396/2,
+			y = -274/2,
+			width = 396,
+			height = 274,
 	});
 end
 

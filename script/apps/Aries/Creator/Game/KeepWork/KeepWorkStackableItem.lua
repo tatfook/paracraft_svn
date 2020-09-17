@@ -437,6 +437,7 @@ function KeepWorkStackableItemPage.requestOrderResult()
 				end, 10)
 
 				data.icon = item_data.icon
+				data.isModelProduct = item_data.isModelProduct
 				-- GameLogic.AddBBS("statusBar", L"购买成功!", 5000, "0 255 0");
 				KeepWorkStackableItemPage.openGetItemView(data)
 				KeepWorkItemManager.LoadItems()
