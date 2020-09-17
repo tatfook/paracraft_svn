@@ -19,7 +19,7 @@ local AssetsManager = commonlib.inherit(nil,commonlib.gettable("Mod.AutoUpdater.
 local FILE_LIST_FILE_EXT = ".p"
 local next_value = 0;
 local try_redownload_max_num = 3;
-AssetsManager.global_instances = {};
+AssetsManager.global_instances = AssetsManager.global_instances or {};
 AssetsManager.defaultVersionFilename = "version.txt";
 
 local function get_next_value()
