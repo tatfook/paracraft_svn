@@ -554,13 +554,13 @@ function ParaWorldLessons.OnWorldLoaded()
 
 	if(lesson) then
 		local nQuizCount = lesson:GetQuizCount();
-		local text = L"点击图标打开课程学习页面";
-		if(nQuizCount>0) then
-			text = text.."<br/>"..lesson:GetSummaryMCML();
-		end
-		text = text.."<br/><div style='color:#cc3300'>"..(L"学习完毕可领取奖励~").."</div>";
+		-- local text = L"点击图标打开课程学习页面";
+		-- if(nQuizCount>0) then
+		-- 	text = text.."<br/>"..lesson:GetSummaryMCML();
+		-- end
+		-- text = text.."<br/><div style='color:#cc3300'>"..(L"学习完毕可领取奖励~").."</div>";
 
-		TeacherAgent:AddTaskButton("OpenLesson", "Texture/3DMapSystem/AppIcons/png/Intro_64.png", ParaWorldLessons.OpenCurrentLessonUrl, nQuizCount, 100, text)
+		TeacherAgent:AddTaskButton("OpenLesson", "Texture/3DMapSystem/AppIcons/png/Intro_64.png", ParaWorldLessons.OpenCurrentLessonUrl, nQuizCount, 100, "")
 		TeacherAgent:SetEnabled(true);
 	end
 end
