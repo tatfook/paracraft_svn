@@ -33,9 +33,9 @@ DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"", },
     { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangriji_32bits.png#0 0 85 75", },
     { label = L"每周实战", id = "week_quest", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
+    { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
 }
 
 function DockPage.Show()
@@ -103,6 +103,9 @@ function DockPage.OnClick(id)
     elseif(id == "week_quest")then
         local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
         TeachingQuestLinkPage.ShowPage();
+    elseif(id == "codewar")then
+        local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
+        StudyPage.clickArtOfWar();
     else
         _guihelper.MessageBox(id);
     end
