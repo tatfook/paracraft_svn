@@ -153,7 +153,7 @@ end
 
 function ParaWorldLoginAdapter.CheckAndReset()
 	commonlib.TimerManager.SetTimeout(function()
-		--ParaWorldLoginAdapter.MainWorldId = nil;
+		ParaWorldLoginAdapter.MainWorldId = ParaWorldLoginAdapter.GetDefaultWorldID();
 		ParaWorldLoginAdapter.ParaWorldId = nil;
 		local projectId = GameLogic.options:GetProjectId();
 		keepwork.world.mylist(nil, function(err, msg, data)
