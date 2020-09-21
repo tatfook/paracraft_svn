@@ -16,13 +16,15 @@ local StudentPanel = NPL.export()
 
 StudentPanel.IsChatting = false;
 StudentPanel.ShowUrl = false;
+StudentPanel.IsPanelVisible = true;
 
 local page;
 function StudentPanel.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function StudentPanel.ShowPage()
+function StudentPanel.ShowPage(offsetY)
+	StudentPanel.OnClose()
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Network/Admin/ClassManager/StudentPanel.html", 
 			name = "StudentPanel.ShowPage", 
@@ -36,31 +38,60 @@ function StudentPanel.ShowPage()
 			directPosition = true,
 				align = "_mt",
 				x = 0,
-				y = 0,
+				y = offsetY or 0,
 				width = 0,
 				height = 48,
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
+
+	GameLogic.GetEvents():AddEventListener("DesktopMenuShow", StudentPanel.MoveDown, StudentPanel, "StudentPanel");
+	GameLogic.GetEvents():AddEventListener("CodeBlockWindowShow", StudentPanel.MoveLeft, StudentPanel, "StudentPanel");
 end
 
 function StudentPanel.OnClose()
 	if (page) then
 		GameLogic.GetEvents():RemoveEventListener("DesktopMenuShow", StudentPanel.MoveDown, StudentPanel);
+		GameLogic.GetEvents():RemoveEventListener("CodeBlockWindowShow", StudentPanel.MoveLeft, StudentPanel);
 		page:CloseWindow();
-
-		StudentPanel.Reset();
 	end
 end
 
 function StudentPanel:MoveDown(event)
 	if (event.bShow) then
-		StudentPanel.ShowPage(false, 32);
+		if (StudentPanel.IsPanelVisible) then
+			StudentPanel.ShowPage(32);
+		else
+			StudentPanel.ShowPage(32-32);
+		end
 	else
-		StudentPanel.ShowPage(false, 0);
+		if (StudentPanel.IsPanelVisible) then
+			StudentPanel.ShowPage();
+		else
+			StudentPanel.ShowPage(-32);
+		end
 	end
 end
 
-function StudentPanel.Reset()
+function StudentPanel:MoveLeft(event)
+	if (event.bShow) then
+		StudentPanel.OnHidePanel();
+	else
+		StudentPanel.OnShowPanel();
+	end
+end
+
+function StudentPanel.OnShowPanel()
+	if (not StudentPanel.IsPanelVisible) then
+		StudentPanel.IsPanelVisible = true;
+		StudentPanel.ShowPage();
+	end
+end
+
+function StudentPanel.OnHidePanel()
+	if (StudentPanel.IsPanelVisible) then
+		StudentPanel.IsPanelVisible = false;
+		StudentPanel.ShowPage(-32);
+	end
 end
 
 function StudentPanel.LeaveClass()
