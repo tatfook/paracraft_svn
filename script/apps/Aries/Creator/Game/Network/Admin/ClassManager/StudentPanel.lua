@@ -17,6 +17,7 @@ local StudentPanel = NPL.export()
 StudentPanel.IsChatting = false;
 StudentPanel.ShowUrl = false;
 StudentPanel.IsPanelVisible = true;
+StudentPanel.TickCount = 0;
 
 local page;
 function StudentPanel.OnInit()
@@ -95,6 +96,7 @@ function StudentPanel.OnHidePanel()
 end
 
 function StudentPanel.LeaveClass()
+	StudentPanel.timer:Change();
 	if (page) then
 		page:Refresh(0);
 	end
@@ -106,7 +108,8 @@ function StudentPanel.GetClassName()
 end
 
 function StudentPanel.GetClassTime()
-	return "20";
+	local classtime = string.format(L"已上课%d分钟", StudentPanel.TickCount);
+	return classtime;
 end
 
 function StudentPanel.GetTeacherName()
@@ -159,6 +162,7 @@ function StudentPanel.StartClass()
 		end
 		ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
 		ClassManager.SendMessage("tip:join");
+		StudentPanel.StartTick();
 	else
 		StudentPanel.EnterTeachingWorld(ClassManager.CurrentWorldId)
 	end
@@ -177,6 +181,27 @@ function StudentPanel.OnWorldLoaded()
 			StudentPanel.ShowPage();
 			ClassManager.JoinClassroom(ClassManager.CurrentClassroomId);
 			ClassManager.SendMessage("tip:join");
+			StudentPanel.StartTick();
 		end, 1000);
+	end
+end
+
+function StudentPanel.StartTick()
+	StudentPanel.timer = StudentPanel.timer or commonlib.Timer:new({callbackFunc = function(timer)
+		if (page) then
+			page:Refresh(0);
+		end
+		StudentPanel.TickCount = StudentPanel.TickCount + 1;
+	end});
+	StudentPanel.timer:Change(100, 1000 * 60);
+end
+
+function StudentPanel.UpdateClassTime(updatedTime)
+	local diff = updatedTime - ClassManager.CreatedTime;
+	if (diff > 0) then
+		StudentPanel.TickCount = diff;
+		if (page) then
+			page:Refresh(0);
+		end
 	end
 end
