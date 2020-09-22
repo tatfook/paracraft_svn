@@ -198,4 +198,5 @@ function UrlProtocolHandler:CheckInstallUrlProtocol()
 			LOG.std(nil, "info", "Url protocol", "skipped because of qq or school mode");
 		end
 	end
+	
 end
