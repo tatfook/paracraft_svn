@@ -215,9 +215,9 @@ function KeepWorkMallPage.HandleMenuData(parent_t, data, level)
 		
 		temp_t.attr = {}
 		-- 中间级别的样式处理
-		if temp_t.name == "type" then
-			temp_t.attr.isMidleMenu = level > 1
-		end
+		-- if temp_t.name == "type" then
+		-- 	temp_t.attr.isMidleMenu = level > 1
+		-- end
 		temp_t.attr.server_data = v
 		temp_t.attr.type_index = 1
 		temp_t.attr.text = v.name
