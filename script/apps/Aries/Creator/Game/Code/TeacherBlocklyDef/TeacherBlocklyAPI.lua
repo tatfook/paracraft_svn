@@ -25,7 +25,7 @@ function TeacherBlocklyAPI:InvokeMethod(name, ...)
 end
 
 local publicMethods = {
-"BecomeTeacherNPC", "SetTeacherNPCTasks", "anim",
+"BecomeTeacherNPC", "SetTeacherNPCTasks", "anim", "BecomeGeneralNPC",
 }
 
 -- create short cut in code API
@@ -88,6 +88,38 @@ function TeacherBlocklyAPI:BecomeTeacherNPC(type)
 			self:ShowHeadOn(state);
 		end, self.type);
 		TeachingQuestPage.AddTasks(tasks, self.type);
+		self:InvokeMethod("registerClickEvent", function()
+			if (data.npcScript) then
+				TeacherBlocklyAPI.RunExternalFunc(data.npcScript);
+			end
+		end);
+	end);
+end
+
+function TeacherBlocklyAPI:BecomeGeneralNPC(configName)
+	local actor = self:InvokeMethod("getActor", "myself");
+	if (actor) then
+		self.obj = actor:GetEntity();
+	end
+
+	local function getTaskFromUrl(taskName, callback)
+		keepwork.rawfile.get({
+			cache_policy =  "access plus 0",
+			router_params = {
+				repoPath = "official%%2Fparacraft",
+				filePath = "official%%2Fparacraft%%2Fconfig%%2F"..taskName..".md",
+			}
+		},function(err, msg, data)
+			local result = commonlib.LoadTableFromString(data);
+			if (result and callback) then
+				callback(result);
+			end
+		end)
+	end
+
+	getTaskFromUrl(configName, function(data)
+		self.name = data.npcName or self.name;
+		self:ShowHeadOn(data.npcState or TeachingQuestPage.AllFinished);
 		self:InvokeMethod("registerClickEvent", function()
 			if (data.npcScript) then
 				TeacherBlocklyAPI.RunExternalFunc(data.npcScript);
