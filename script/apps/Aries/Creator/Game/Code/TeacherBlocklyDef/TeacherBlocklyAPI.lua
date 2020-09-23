@@ -96,7 +96,7 @@ function TeacherBlocklyAPI:BecomeTeacherNPC(type)
 	end);
 end
 
-function TeacherBlocklyAPI:BecomeGeneralNPC(configName)
+function TeacherBlocklyAPI:BecomeGeneralNPC(configName, npcType)
 	local actor = self:InvokeMethod("getActor", "myself");
 	if (actor) then
 		self.obj = actor:GetEntity();
@@ -117,14 +117,21 @@ function TeacherBlocklyAPI:BecomeGeneralNPC(configName)
 		end)
 	end
 
-	getTaskFromUrl(configName, function(data)
-		self.name = data.npcName or self.name;
-		self:ShowHeadOn(data.npcState or TeachingQuestPage.AllFinished);
-		self:InvokeMethod("registerClickEvent", function()
-			if (data.npcScript) then
-				TeacherBlocklyAPI.RunExternalFunc(data.npcScript);
+	getTaskFromUrl(configName, function(datas)
+		if (type(datas) ~= "table") then return end
+		for i = 1, #datas do
+			local data = datas[i];
+			if (data.npcType == npcType) then
+				self.name = data.npcName or self.name;
+				self:ShowHeadOn(data.npcState or TeachingQuestPage.AllFinished);
+				self:InvokeMethod("registerClickEvent", function()
+					if (data.npcScript) then
+						TeacherBlocklyAPI.RunExternalFunc(data.npcScript);
+					end
+				end);
+				break;
 			end
-		end);
+		end
 	end);
 end
 
