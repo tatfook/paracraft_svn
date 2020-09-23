@@ -14,6 +14,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
+local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local DockPage = NPL.export();
 
 DockPage.hide_vip_world_ids = {
@@ -38,6 +39,8 @@ DockPage.top_line_2 = {
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
 }
 
+DockPage.show_friend_red_tip = false
+
 function DockPage.Show()
     local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
     if(not KeepWorkItemManager.GetToken())then
@@ -56,6 +59,7 @@ function DockPage.Show()
     DockPage.is_show = true;
 
     DockPage.LoadActivityList();
+    DockPage.LoadFriendsMess();
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -86,6 +90,10 @@ function DockPage.OnClick(id)
     elseif(id == "friends")then
         local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
         FriendsPage.Show();
+        if DockPage.show_friend_red_tip then
+            DockPage.show_friend_red_tip = false
+            DockPage.page:Refresh(0);
+        end
     elseif(id == "school")then
         local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
         MySchool:Show();
@@ -258,3 +266,30 @@ function DockPage.LoadActivityList(callback)
         end
     end)
 end
+
+function DockPage.LoadFriendsMess()
+	if not DockPage.is_show then
+		return
+    end
+    
+    FriendManager:LoadAllUnReadMsgs(function ()
+        -- 处理未读消息
+        DockPage.show_friend_red_tip = false
+        if FriendManager.unread_msgs and FriendManager.unread_msgs.data then
+            for k, v in pairs(FriendManager.unread_msgs.data) do
+                if v.unReadCnt and v.unReadCnt > 0 then
+                    DockPage.show_friend_red_tip = true
+                    DockPage.page:Refresh(0);
+                    break
+                end
+            end
+        end
+        commonlib.TimerManager.SetTimeout(function()
+            if not DockPage.is_show then
+                return
+            end            
+            DockPage.LoadFriendsMess()
+        end, 60000)
+    end, true);
+end
+

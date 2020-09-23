@@ -1,0 +1,80 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActLuckyDrawPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="true" type="text/npl" src="ActLuckyDrawPage.lua"><![CDATA[
+local ActLuckyDrawPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActLuckyDrawPage.lua");
+ActLuckyDrawPage.OnInit()
+function ClosePage()
+    Page:CloseWindow(0)
+    ActLuckyDrawPage.CloseView()
+end
+
+function DS_Items(index)
+    if(index == nil) then
+        return #ActLuckyDrawPage.Current_Item_DS;
+    else
+        return ActLuckyDrawPage.Current_Item_DS[index];
+    end
+end
+
+function LuckyDraw()
+    ActLuckyDrawPage.LuckyDraw()
+end
+
+function OpenRewardList()
+    ActLuckyDrawPage.OpenRewardList()
+end
+]]></script>
+<kp:window name="iframe" mode="lite" width="564" height="324" title='<%= L"抽奖"%>' onclose="ClosePage">
+    <div style="color:#ffffff;padding-left:2px;padding-top:36px;padding-right:2px;padding-bottom:2px;">
+
+    <div type ="box" style="width:575px;height:285px">
+        <!-- <div style="position: relative; width:540px;height:270px;margin-top:8px;margin-left: 10;background: url(Texture/Aries/Creator/keepwork/friends/xiangmuliebiaobj_32X32_32bits.png#0 0 32 32:8 8 8 8);"></div> -->
+        
+        <div style="margin-top:0px;">
+            <!-- <pe:container name = "ImgTable" alignment="_lt" ClickThrough="true" style="width:400px;height:400px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDrawPage/timg.png#0 0 1020 1020)"></pe:container> -->
+            <div style="width: 564px; height: 30px; margin-top: 200px;">
+                <input type="button" class="button" value="获奖列表" onclick="OpenRewardList"  alwaysmouseover="true" style="float:right;margin-left:120px;width:120px;height:30px;"/>
+                <input type="button" class="button" value="抽奖" onclick="LuckyDraw"  alwaysmouseover="true" style="float:right;margin-left:50px;width:120px;height:30px;"/>
+            </div>
+
+            <!-- <div name = "ImgTable" style=" width: 400px;height: 400px; background: url(Texture/Aries/Creator/keepwork/ActLuckyDrawPage/timg.png#0 0 1020 1020);"></div> -->
+            <!-- <pe:gridview style="margin:0px;width:575px;height:285px;" name="item_gridview" CellPadding="8" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="8" AllowPaging="false" ItemsPerLine="1" DefaultNodeHeight = "64" 
+                DataSource='<%=DS_Items%>'>
+                <Columns>
+                        <div style="width:530px;height:64px;margin:0px;margin-left: 8;padding:0px;background: url(Texture/Aries/Creator/keepwork/friends/kuang1_284X274_32bits.png#0 0 32 32:13 13 13 13);">
+                            <a onclick="ClickItem" param1='<%=Eval("nid")%>'>
+                                <input type="button" Normal_BG="" onclick="ClickItem" param1='<%= XPath("this") %>' MouseOver_BG='' alwaysmouseover="true" style="position:relative;margin-top:0px;width:530px;height:64px;background:;" />
+                                <div style="position:relative;margin-left:10px;margin-top:6px;padding-left:5px;padding-top:2px;width:530px;height:30px;">
+                                    <div style="float: left;margin-left:0px;margin-top:0px;">
+                                        <img zorder="0" src='<%=GetIcon(XPath("this"))%>'width="46" height="46"/>
+                                    </div>
+                                    <div style="float: left;margin-left:16px;margin-top:8px;width:120px;color:#000000">
+                                        <%=Eval("nickname") %>
+                                    </div>
+                                    <div style="float: left;margin-left:185px;margin-top:10px;font-size:12pt;color:#000000;text-align: right;">
+                                        <input type="button" value='拒绝' onclick="Fefuse" name='<%= XPath("this") %>' tooltip='拒绝' style="color: #000000; width: 52px;height: 27px; font-size: 14;background: url(Texture/Aries/Creator/keepwork/friends/btn_shousuo_36X28_32bits.png#0 0 32 32:8 8 8 8);"/>
+                                        <input type="button" value='关注' onclick="Follow" name='<%= XPath("this") %>' tooltip='关注' style="margin-left: 15; color: #000000; width: 52px;height: 27px; font-size: 14;background: url(Texture/Aries/Creator/keepwork/friends/btn_guanzhu_32X32_32bits.png#0 0 32 32:8 8 8 8);"/>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                </Columns>
+                <EmptyDataTemplate>
+                </EmptyDataTemplate>
+            </pe:gridview> -->
+        </div>
+    </div>
+</div>
+    
+</kp:window>
+</pe:mcml>
+</body>
+</html>
+
