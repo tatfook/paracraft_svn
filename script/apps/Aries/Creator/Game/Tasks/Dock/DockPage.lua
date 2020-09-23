@@ -27,7 +27,7 @@ DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"", },
+    { label = L"用户社区", id = "web_keepwork_home", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_yonghushequ_32bits.png#0 0 85 75", },
     { label = L"大赛", id = "competition", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_dasai_32bits.png#0 0 85 75", },
 }
 DockPage.top_line_2 = {
@@ -114,6 +114,8 @@ function DockPage.OnClick(id)
     elseif(id == "codewar")then
         local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
         StudyPage.clickArtOfWar();
+    elseif(id == "web_keepwork_home")then
+	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com", "", 1); 
     else
         _guihelper.MessageBox(id);
     end
