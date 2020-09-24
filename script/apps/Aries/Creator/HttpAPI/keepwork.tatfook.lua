@@ -14,7 +14,7 @@ local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.
 
 --http://yapi.kp-para.cn/project/32/interface/api/3222
 -- 获取当前活动正在报名的抽奖
-HttpWrapper.Create("keepwork.tatfook.lucky_load", "%MAIN%/core/v0/lotteries/curent", "GET", true)
+HttpWrapper.Create("keepwork.tatfook.lucky_load", "%MAIN%/core/v0/lotteries/current", "GET", true)
 
 --http://yapi.kp-para.cn/project/32/interface/api/3227
 -- 获取已结束的抽奖活动的中奖情况

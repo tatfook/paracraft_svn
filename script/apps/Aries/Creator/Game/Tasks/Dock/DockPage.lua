@@ -16,6 +16,9 @@ local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/G
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local DockPage = NPL.export();
+local UserData = nil
+DockPage.FriendsFansData = nil
+DockPage.RefuseFansList = {}
 
 DockPage.hide_vip_world_ids = {
     ONLINE = { 18626 },
@@ -58,8 +61,18 @@ function DockPage.Show()
     DockPage._root.visible = true;
     DockPage.is_show = true;
 
+    
     DockPage.LoadActivityList();
-    DockPage.LoadFriendsMess(true);
+
+    KeepWorkItemManager.GetUserInfo(nil,function(err,msg,data)
+        if(err ~= 200)then
+            return
+        end
+        UserData = data
+        DockPage.HandleFriendsFansLocalData()
+        DockPage.HandleFriendsRedTip(true);
+    end)
+
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -151,6 +164,8 @@ function DockPage.OnClick(id)
             DockPage.last_page_ctrl_id = id;
         end
         FriendsPage.Show();
+
+        DockPage.SaveFriendsFansLocalData()
         DockPage.ChangeFriendRedTipState(false)
         return
     elseif(id == "school")then
@@ -326,7 +341,7 @@ function DockPage.LoadActivityList(callback)
     end)
 end
 
-function DockPage.LoadFriendsMess(is_repeat)
+function DockPage.HandleFriendsRedTip(is_repeat)
 	if not DockPage.is_show then
 		return
     end
@@ -337,8 +352,8 @@ function DockPage.LoadFriendsMess(is_repeat)
                 if not DockPage.is_show then
                     return
                 end            
-                DockPage.LoadFriendsMess(is_repeat)
-            end, 30000)
+                DockPage.HandleFriendsRedTip(is_repeat)
+            end, 3000)
         end
     end
 
@@ -356,9 +371,103 @@ function DockPage.LoadFriendsMess(is_repeat)
                     end
                 end
             end
+
+            
+
+            if UserData then
+                DockPage.GetFriendsFansData()
+            end
     
             repeat_cb()
         end, true);
+    end
+end
+
+function DockPage.HandleFriendsFansLocalData()
+    local id = UserData.id or 0
+	local filepath = string.format("chat_content/%s_fans_list.txt", id)
+    local file = ParaIO.open(filepath, "r");
+    if(file:IsValid()) then
+        local text = file:GetText();
+        DockPage.FriendsFansData = commonlib.Json.Decode(text)
+        file:close();
+    end
+    if DockPage.FriendsFansData == nil then
+        DockPage.FriendsFansData = {}
+        keepwork.user.followers({
+            username=search_text,
+            headers = {
+                ["x-per-page"] = 200,
+                ["x-page"] = 1,
+            },
+            userId = UserData.id,
+        },function(err, msg, data)
+            if err == 200 then
+                for k, v in pairs(data.rows) do
+                    if not v.isFriend then
+                        DockPage.FriendsFansData[v.id] = v
+                    end
+                end
+            end
+        end)
+
+        DockPage.SaveFriendsFansLocalData()
+    end
+
+
+	local filepath = string.format("chat_content/%s_refuse_list.txt", id)
+    local file = ParaIO.open(filepath, "r");
+    if(file:IsValid()) then
+        local text = file:GetText();
+        DockPage.RefuseFansList = commonlib.Json.Decode(text) or {}
+        file:close();
+    end
+end
+
+function DockPage.GetFriendsFansData()
+    keepwork.user.followers({
+        username=search_text,
+        headers = {
+            ["x-per-page"] = 200,
+            ["x-page"] = 1,
+        },
+        userId = UserData.id,
+    },function(err, msg, data)
+        if err == 200 then
+            -- FriendsPage.HandleFriendsFansData(data.rows)
+            -- DockPage.FriendsFansData = {}
+            local is_show_red_tip = false
+            local fans_list = {}
+            for k, v in pairs(data.rows) do
+                -- 没有说明是新增的 但也可能是拒绝列表里面的
+                if not v.isFriend then
+                    if DockPage.FriendsFansData[v.id] == nil and DockPage.RefuseFansList[v.id] == nil then
+                        is_show_red_tip = true
+                    end
+    
+                    fans_list[v.id] = v
+                end
+
+            end
+
+            DockPage.FriendsFansData = fans_list
+
+            if is_show_red_tip then
+                DockPage.ChangeFriendRedTipState(true)
+            end
+        end
+    end)
+end
+
+function DockPage.SaveFriendsFansLocalData()
+    local id = UserData.id or 0
+	local filepath = string.format("chat_content/%s_fans_list.txt", id)
+	local conten_str = commonlib.Json.Encode(DockPage.FriendsFansData or {})
+    ParaIO.CreateDirectory(filepath);
+	local file = ParaIO.open(filepath, "w");
+	if(file:IsValid()) then
+		file:WriteString(conten_str);
+		file:close();
     end
 end
 
@@ -367,6 +476,5 @@ function DockPage.ChangeFriendRedTipState(state)
         DockPage.show_friend_red_tip = state
         DockPage.page:Refresh(0);
     end
-
 end
 

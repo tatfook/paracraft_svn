@@ -12,7 +12,8 @@ local ActLuckyDrawPage = NPL.export();
 NPL.load("(gl)script/ide/Transitions/Tween.lua");
 local page;
 ActLuckyDrawPage.Current_Item_DS = {};
-
+ActLuckyDrawPage.draw_bt_enable = true
+ActLuckyDrawPage.id = 0
 function ActLuckyDrawPage.OnInit()
     page = document:GetPageCtrl();
     page.OnClose = ActLuckyDrawPage.CloseView
@@ -83,15 +84,25 @@ function ActLuckyDrawPage.Show()
         };
         
         System.App.Commands.Call("File.MCMLWindowFrame", params);
+
+        ActLuckyDrawPage.UpdataDrawBt()
     end
 
-    -- keepwork.tatfook.lucky_load({
-    --     activityCode = 0,
-    -- },function(err, msg, data)
-    --     openView()
-    -- end)  
+    keepwork.tatfook.lucky_load({
+        activityCode = "nationalDay",
+    },function(err, msg, data)
+            print("aaaaaaaaaaaaaaaa", err, msg)
+            commonlib.echo(data, true)
+        if err == 200 then
+            ActLuckyDrawPage.id = data.id
+            openView()
+        else
+            GameLogic.AddBBS("statusBar", L"活动暂未开启!敬请期待", 5000, "0 255 0");
+        end
 
-    openView()
+    end)  
+
+    -- openView()
 end
 
 function ActLuckyDrawPage.OnRefresh()
@@ -109,10 +120,48 @@ function ActLuckyDrawPage.ClearData()
 end
 
 function ActLuckyDrawPage.LuckyDraw()
-    print("抽奖抽奖")
+    if not ActLuckyDrawPage.draw_bt_enable then
+        GameLogic.AddBBS("statusBar", L"您已许愿，请等待结果", 5000, "0 255 0");
+        return
+    end
+
+    ActLuckyDrawPage.draw_bt_enable = false
+
+    keepwork.tatfook.lucky_push({
+        lotteryId = ActLuckyDrawPage.id,
+    },function(err, msg, data)
+
+        if err == 200 then
+            -- print("dddddddddwwwww", data.data)
+            -- commonlib.echo(data, true)
+    
+            ActLuckyDrawPage.UpdataDrawBt()
+            GameLogic.AddBBS("statusBar", L"参与抽奖成功，请静候佳音", 5000, "0 255 0");
+        elseif err == 400 then
+            GameLogic.AddBBS("statusBar", L"未绑定手机号不能参与抽奖", 5000, "0 255 0");
+            ActLuckyDrawPage.draw_bt_enable = true
+        end
+
+    end) 
+    
 end
 
 function ActLuckyDrawPage.OpenRewardList()
     local ActGetRewardList = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActGetRewardList.lua");
     ActGetRewardList.Show();
+end
+
+function ActLuckyDrawPage.UpdataDrawBt()
+    keepwork.tatfook.lucky_check({
+        lotteryId = ActLuckyDrawPage.id,
+    },function(err, msg, data)
+
+        if err == 200 then
+            commonlib.echo(data, true)
+    
+            ActLuckyDrawPage.draw_bt_enable = not data.data
+            ActLuckyDrawPage.OnRefresh()
+        end
+
+    end)  
 end
