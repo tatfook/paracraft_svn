@@ -70,38 +70,38 @@ end
 function DockPage.IsShow()
     return DockPage.is_show;
 end
-function DockPage.OnClick(id)
-    if(id == "character")then
-        local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
-        page.ShowUserInfoPage({username = System.User.keepworkUsername});
-    elseif(id == "bag")then
-        local UserBagPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/UserBagPage.lua");
-        UserBagPage.ShowPage();
-    elseif(id == "work")then
-        GameLogic.RunCommand("/menu file.loadworld");
-    elseif(id == "explore")then
-        local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
-        UserConsole.OnClickOfficialWorlds();
-    elseif(id == "study")then
-        local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
-        StudyPage.ShowPage();
-    elseif(id == "home")then
-        GameLogic.RunCommand("/loadworld home");
-    elseif(id == "friends")then
-        local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
-        FriendsPage.Show();
-        DockPage.ChangeFriendRedTipState(false)
-    elseif(id == "school")then
-        local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
-        MySchool:Show();
-    elseif(id == "system")then
-        DockPage.OnClick_system_menu();
-    elseif(id == "vip")then
-        ParacraftLearningRoomDailyPage.OnVIP();
-    elseif(id == "mall")then
-        local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
-        KeepWorkMallPage.Show();
-    elseif(id == "competition")then
+function DockPage.CloseLastShowPage(id)
+    if(not id)then
+        return
+    end
+    local visible;
+    commonlib.echo("=====================id");
+    commonlib.echo(id);
+    if(DockPage.last_page_ctrl)then
+        if(id == "character" or DockPage.last_page_ctrl_id == "character")then
+            visible = (DockPage.last_page_ctrl.window ~= nil);
+        else
+            visible = DockPage.last_page_ctrl:IsVisible();
+        end
+        commonlib.echo("=====================visible");
+        commonlib.echo(visible);
+        if(visible)then
+            DockPage.last_page_ctrl:CloseWindow();
+            DockPage.last_page_ctrl = nil;
+            if(DockPage.last_page_ctrl_id)then
+                if(DockPage.last_page_ctrl_id == id)then
+                    DockPage.last_page_ctrl_id = nil;
+                    return true
+                end
+            end
+        end
+    else
+        DockPage.last_page_ctrl_id = nil;
+    end
+end
+
+function DockPage.OnClickTop(id)
+    if(id == "competition")then
         DockPage.OnActivity();
     elseif(id == "checkin")then
         ParacraftLearningRoomDailyPage.DoCheckin();
@@ -113,9 +113,69 @@ function DockPage.OnClick(id)
         StudyPage.clickArtOfWar();
     elseif(id == "web_keepwork_home")then
 	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com", "", 1); 
-    else
-        _guihelper.MessageBox(id);
     end
+end
+function DockPage.OnClick(id)
+    if(DockPage.CloseLastShowPage(id))then
+        return
+    end
+    local last_page_ctrl;
+    if(id == "character")then
+        local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
+        last_page_ctrl = page.ShowUserInfoPage({username = System.User.keepworkUsername});
+    elseif(id == "bag")then
+        local UserBagPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/UserBagPage.lua");
+        UserBagPage.ShowPage();
+        last_page_ctrl = UserBagPage.GetPageCtrl();
+    elseif(id == "work")then
+        --GameLogic.RunCommand("/menu file.loadworld");
+
+        local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
+        UserConsole:ShowPage();
+        last_page_ctrl = Mod.WorldShare.Store:Get('page/Mod.WorldShare.UserConsole')
+    elseif(id == "explore")then
+        local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
+        UserConsole.OnClickOfficialWorlds();
+        last_page_ctrl = Mod.WorldShare.Store:Get("page/MainPage")
+    elseif(id == "study")then
+        local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
+        StudyPage.ShowPage();
+        last_page_ctrl = StudyPage.GetPageCtrl();
+    elseif(id == "home")then
+        GameLogic.RunCommand("/loadworld home");
+    elseif(id == "friends")then
+        local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
+        FriendsPage.show_callback = function()
+            last_page_ctrl = FriendsPage.GetPageCtrl();
+            DockPage.last_page_ctrl = last_page_ctrl;
+            DockPage.last_page_ctrl_id = id;
+        end
+        FriendsPage.Show();
+        DockPage.ChangeFriendRedTipState(false)
+        return
+    elseif(id == "school")then
+        local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
+        MySchool:Show();
+        last_page_ctrl = Mod.WorldShare.Store:Get('page/Mod.WorldShare.MySchool')
+    elseif(id == "system")then
+        DockPage.OnClick_system_menu();
+    elseif(id == "vip")then
+        ParacraftLearningRoomDailyPage.OnVIP();
+    elseif(id == "mall")then
+        local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
+        KeepWorkMallPage.show_callback = function()
+            last_page_ctrl = KeepWorkMallPage.GetPageCtrl();
+            DockPage.last_page_ctrl = last_page_ctrl;
+            DockPage.last_page_ctrl_id = id;
+        end
+        KeepWorkMallPage.Show();
+        return
+    else
+        --_guihelper.MessageBox(id);
+    end
+    DockPage.last_page_ctrl = last_page_ctrl;
+    DockPage.last_page_ctrl_id = id;
+
 end
 
 function DockPage.OnClick_system_menu()
@@ -213,7 +273,7 @@ function DockPage.RenderButton_1(index)
         ]],"");
     end
     local s = string.format([[
-        <input type="button" name='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
+        <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
         %s
     ]],node.id,node.bg,tip_str);
     return s;
@@ -245,7 +305,7 @@ function DockPage.RenderButton_2(index)
         ]],"");
     end
     local s = string.format([[
-        <input type="button" name='%s' onclick="OnClick" style="width:85px;height:75px;background:url(%s)"/>
+        <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
         %s
     ]],node.id,node.bg,tip_str);
     return s;

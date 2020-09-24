@@ -136,6 +136,10 @@ function KeepWorkMallPage.ShowView()
 
 		KeepWorkMallPage.OnChangeTopBt(1);
 		KeepWorkMallPage.ChangeMenuType(KeepWorkMallPage.cur_select_level, KeepWorkMallPage.cur_select_type_index);
+
+        if(KeepWorkMallPage.show_callback)then
+            KeepWorkMallPage.show_callback();
+        end
 	end)
 end
 
@@ -517,4 +521,7 @@ end
 
 function KeepWorkMallPage.CloseView()
 	KeepWorkMallPage.isOpen = false
+end
+function KeepWorkMallPage.GetPageCtrl()
+    return page;
 end
