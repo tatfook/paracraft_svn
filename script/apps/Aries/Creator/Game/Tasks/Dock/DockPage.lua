@@ -69,7 +69,7 @@ function DockPage.Show()
             return
         end
         UserData = data
-        DockPage.HandleFriendsFansLocalData()
+        -- DockPage.HandleFriendsFansLocalData()
         DockPage.HandleFriendsRedTip(true);
     end)
 
@@ -165,7 +165,7 @@ function DockPage.OnClick(id)
         end
         FriendsPage.Show();
 
-        DockPage.SaveFriendsFansLocalData()
+        -- DockPage.SaveFriendsFansLocalData()
         DockPage.ChangeFriendRedTipState(false)
         return
     elseif(id == "school")then
@@ -353,7 +353,7 @@ function DockPage.HandleFriendsRedTip(is_repeat)
                     return
                 end            
                 DockPage.HandleFriendsRedTip(is_repeat)
-            end, 3000)
+            end, 30000)
         end
     end
 
@@ -374,9 +374,9 @@ function DockPage.HandleFriendsRedTip(is_repeat)
 
             
 
-            if UserData then
-                DockPage.GetFriendsFansData()
-            end
+            -- if UserData then
+            --     DockPage.GetFriendsFansData()
+            -- end
     
             repeat_cb()
         end, true);
@@ -438,10 +438,14 @@ function DockPage.GetFriendsFansData()
             -- DockPage.FriendsFansData = {}
             local is_show_red_tip = false
             local fans_list = {}
+
             for k, v in pairs(data.rows) do
                 -- 没有说明是新增的 但也可能是拒绝列表里面的
                 if not v.isFriend then
                     if DockPage.FriendsFansData[v.id] == nil and DockPage.RefuseFansList[v.id] == nil then
+                        print("eeeeeeeeeeeee")
+                        commonlib.echo(v, true)
+                        commonlib.echo(DockPage.FriendsFansData, true)
                         is_show_red_tip = true
                     end
     
