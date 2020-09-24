@@ -62,26 +62,36 @@ end
 
 function ActLuckyDrawPage.Show()
 
-    local params = {
-        url = "script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActLuckyDrawPage.html",
-        name = "ActLuckyDrawPage.Show", 
-        isShowTitleBar = false,
-        DestroyOnClose = true,
-        style = CommonCtrl.WindowFrame.ContainerStyle,
-        allowDrag = true,
-        enable_esc_key = true,
-        zorder = -1,
-        app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-        directPosition = true,
+    local function openView()
+        local params = {
+            url = "script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActLuckyDrawPage.html",
+            name = "ActLuckyDrawPage.Show", 
+            isShowTitleBar = false,
+            DestroyOnClose = true,
+            style = CommonCtrl.WindowFrame.ContainerStyle,
+            allowDrag = true,
+            enable_esc_key = true,
+            zorder = -1,
+            app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
+            directPosition = true,
+            
+            align = "_ct",
+            x = -730/2,
+            y = -401/2,
+            width = 730,
+            height = 401,
+        };
         
-        align = "_ct",
-        x = -564/2,
-        y = -324/2,
-        width = 564,
-        height = 324,
-    };
-    
-    System.App.Commands.Call("File.MCMLWindowFrame", params);
+        System.App.Commands.Call("File.MCMLWindowFrame", params);
+    end
+
+    -- keepwork.tatfook.lucky_load({
+    --     activityCode = 0,
+    -- },function(err, msg, data)
+    --     openView()
+    -- end)  
+
+    openView()
 end
 
 function ActLuckyDrawPage.OnRefresh()

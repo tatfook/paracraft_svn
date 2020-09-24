@@ -59,7 +59,7 @@ function DockPage.Show()
     DockPage.is_show = true;
 
     DockPage.LoadActivityList();
-    DockPage.LoadFriendsMess();
+    DockPage.LoadFriendsMess(true);
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -90,10 +90,7 @@ function DockPage.OnClick(id)
     elseif(id == "friends")then
         local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
         FriendsPage.Show();
-        if DockPage.show_friend_red_tip then
-            DockPage.show_friend_red_tip = false
-            DockPage.page:Refresh(0);
-        end
+        DockPage.ChangeFriendRedTipState(false)
     elseif(id == "school")then
         local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
         MySchool:Show();
@@ -269,29 +266,47 @@ function DockPage.LoadActivityList(callback)
     end)
 end
 
-function DockPage.LoadFriendsMess()
+function DockPage.LoadFriendsMess(is_repeat)
 	if not DockPage.is_show then
 		return
     end
-    
-    FriendManager:LoadAllUnReadMsgs(function ()
-        -- 处理未读消息
-        DockPage.show_friend_red_tip = false
-        if FriendManager.unread_msgs and FriendManager.unread_msgs.data then
-            for k, v in pairs(FriendManager.unread_msgs.data) do
-                if v.unReadCnt and v.unReadCnt > 0 then
-                    DockPage.show_friend_red_tip = true
-                    DockPage.page:Refresh(0);
-                    break
+
+    local function repeat_cb()
+        if is_repeat then
+            commonlib.TimerManager.SetTimeout(function()
+                if not DockPage.is_show then
+                    return
+                end            
+                DockPage.LoadFriendsMess(is_repeat)
+            end, 30000)
+        end
+    end
+
+    local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
+    if FriendsPage.GetIsOpen() then
+        repeat_cb()
+    else
+        FriendManager:LoadAllUnReadMsgs(function ()
+            -- 处理未读消息
+            if FriendManager.unread_msgs and FriendManager.unread_msgs.data then
+                for k, v in pairs(FriendManager.unread_msgs.data) do
+                    if v.unReadCnt and v.unReadCnt > 0 then
+                        DockPage.ChangeFriendRedTipState(true)
+                        break
+                    end
                 end
             end
-        end
-        commonlib.TimerManager.SetTimeout(function()
-            if not DockPage.is_show then
-                return
-            end            
-            DockPage.LoadFriendsMess()
-        end, 60000)
-    end, true);
+    
+            repeat_cb()
+        end, true);
+    end
+end
+
+function DockPage.ChangeFriendRedTipState(state)
+    if state ~= DockPage.show_friend_red_tip then
+        DockPage.show_friend_red_tip = state
+        DockPage.page:Refresh(0);
+    end
+
 end
 
