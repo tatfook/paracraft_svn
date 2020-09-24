@@ -516,9 +516,11 @@ function ItemClient.RegisterCustomItem(params)
 		new_block.modelName = base_block.modelName;
 		new_block.hasAction = base_block.hasAction;
 		new_block.color_data = base_block.color_data;
+		new_block.color8_data = base_block.color8_data;
 		new_block.texture = real_filename;
 		new_block.icon = params.icon or new_block.texture or base_block.icon;
 		new_block.opacity = base_block.opacity;
+		new_block.handleNeighborChange = base_block.handleNeighborChange;
 
 		new_block.name = "customblock"..tostring(new_block.id);
 		new_block.class = base_block.class;
