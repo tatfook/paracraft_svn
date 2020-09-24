@@ -14,6 +14,11 @@ local x, y = gen:GetGridXYBy2DIndex(5,5)
 local bx, by, bz = gen:GetBlockOriginByGridXY(x, y)
 gen:LoadTemplateAtGridXY(x, y, filename)
 GameLogic.EntityManager.GetPlayer():SetBlockPos(bx, by, bz)
+
+NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldChunkGenerator.lua");
+local ParaWorldChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator");
+local x, y, z = GameLogic.EntityManager.GetPlayer():GetBlockPos()
+ParaWorldChunkGenerator:LoadTemplate(x, y, z, GameLogic.GetWorldDirectory().."miniworld.template.xml")
 -----------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua");
@@ -24,6 +29,7 @@ local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 local ParaWorldChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"))
 
 function ParaWorldChunkGenerator:ctor()
+	self:SetWorkerThreadCount(1)
 end
 
 -- @param world: WorldManager, if nil, it means a local generator. 
@@ -94,17 +100,22 @@ function ParaWorldChunkGenerator:Get2DIndexByGridXY(x, y)
 	return 5-x, 5-y;
 end
 
+-- static function:
 function ParaWorldChunkGenerator:LoadTemplateAtGridXY(x, y, filename)
 	if(filename) then
-		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
-		local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
 		local minX, minY, minZ = self:GetBlockOriginByGridXY(x, y);
-		local task = BlockTemplate:new({operation = BlockTemplate.Operations.Load, filename = filename,
-				blockX = minX,blockY = minY, blockZ = minZ, bSelect=false, UseAbsolutePos = false, TeleportPlayer = false})
-		task:Run();
+		self:LoadTemplate(minX, minY, minZ)
 	end
 end
 
+-- @param x, y, z: pivot origin. 
+function ParaWorldChunkGenerator:LoadTemplate(x, y, z, filename)
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
+	local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
+	local task = BlockTemplate:new({operation = BlockTemplate.Operations.Load, filename = filename,
+			blockX = x,blockY = y, blockZ = z, bSelect=false, UseAbsolutePos = false, TeleportPlayer = false})
+	task:Run();
+end
 
 -- generate flat terrain
 function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
@@ -209,4 +220,10 @@ function ParaWorldChunkGenerator:GetClassAddress()
 		filename="script/apps/Aries/Creator/Game/World/generators/ParaWorldChunkGenerator.lua", 
 		classpath="MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"
 	};
+end
+
+-- protected function:
+-- @param chunk: 
+function ParaWorldChunkGenerator:LoadTemplateAsync(x, y, filename)
+	
 end
