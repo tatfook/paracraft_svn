@@ -3,7 +3,7 @@ Title: Item Client
 Author(s): LiXizhi
 Date: 2013/7/14
 Desc: all block template.
-User defined custom blocks in the current world directory is saved in `blockworld.lastsave/customblocks.xml`
+User defined custom blocks in the current world directory is saved in `blockWorld.lastsave/customblocks.xml`
 
 use the lib:
 ------------------------------------------------------------
