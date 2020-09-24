@@ -88,16 +88,12 @@ function DockPage.CloseLastShowPage(id)
         return
     end
     local visible;
-    commonlib.echo("=====================id");
-    commonlib.echo(id);
     if(DockPage.last_page_ctrl)then
         if(id == "character" or DockPage.last_page_ctrl_id == "character")then
             visible = (DockPage.last_page_ctrl.window ~= nil);
         else
             visible = DockPage.last_page_ctrl:IsVisible();
         end
-        commonlib.echo("=====================visible");
-        commonlib.echo(visible);
         if(visible)then
             DockPage.last_page_ctrl:CloseWindow();
             DockPage.last_page_ctrl = nil;
@@ -167,6 +163,7 @@ function DockPage.OnClick(id)
 
         -- DockPage.SaveFriendsFansLocalData()
         DockPage.ChangeFriendRedTipState(false)
+        DockPage.is_show_apply_red_tip = false
         return
     elseif(id == "school")then
         local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
@@ -353,7 +350,7 @@ function DockPage.HandleFriendsRedTip(is_repeat)
                     return
                 end            
                 DockPage.HandleFriendsRedTip(is_repeat)
-            end, 30000)
+            end, 60000)
         end
     end
 
@@ -436,17 +433,14 @@ function DockPage.GetFriendsFansData()
         if err == 200 then
             -- FriendsPage.HandleFriendsFansData(data.rows)
             -- DockPage.FriendsFansData = {}
-            local is_show_red_tip = false
+            DockPage.is_show_apply_red_tip = false
             local fans_list = {}
 
             for k, v in pairs(data.rows) do
                 -- 没有说明是新增的 但也可能是拒绝列表里面的
                 if not v.isFriend then
-                    if DockPage.FriendsFansData[v.id] == nil and DockPage.RefuseFansList[v.id] == nil then
-                        print("eeeeeeeeeeeee")
-                        commonlib.echo(v, true)
-                        commonlib.echo(DockPage.FriendsFansData, true)
-                        is_show_red_tip = true
+                    if DockPage.FriendsFansData[v.id] == nil and DockPage.FriendsFansData[tostring(v.id)] == nil and DockPage.RefuseFansList[v.id] == nil then
+                        DockPage.is_show_apply_red_tip = true
                     end
     
                     fans_list[v.id] = v
@@ -456,7 +450,7 @@ function DockPage.GetFriendsFansData()
 
             DockPage.FriendsFansData = fans_list
 
-            if is_show_red_tip then
+            if DockPage.is_show_apply_red_tip then
                 DockPage.ChangeFriendRedTipState(true)
             end
         end

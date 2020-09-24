@@ -322,6 +322,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 		end
 	end
 
+	currentItem.loaded = true;
 	local sn = ParaWorldSites.GetIndexFromPos(row, column);
 	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
 		if (data and data.sites) then
@@ -332,7 +333,10 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 					local filename = ParaIO.GetFileName(path);
 					local KeepworkServiceWorld = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/World.lua");
 					KeepworkServiceWorld:GetSingleFile(seat.paraMini.projectId, filename, function(content)
-						if (not content) then return end
+						if (not content) then
+							currentItem.loaded = false;
+							return;
+						end
 
 						local name = commonlib.Encoding.Utf8ToDefault(seat.paraMini.name);
 						local template_file = ParaIO.GetCurDirectory(0)..BlockTemplatePage.global_template_dir..name..".xml";
@@ -347,9 +351,12 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column)
 							currentItem.loaded = true;
 						end
 					end);
-					break;
+					return;
 				end
 			end
+			currentItem.loaded = false;
+		else
+			currentItem.loaded = false;
 		end
 	end);
 end

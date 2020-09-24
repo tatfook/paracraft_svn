@@ -338,9 +338,11 @@ end
 
 local workers = {};
 local worker_index = 0;
+
+-- @param nIndex: force a given worker index
 -- return the activation file name
-function ChunkGenerator:GetFreeWorkerName()
-	worker_index = (worker_index+1) % (self.worker_count);
+function ChunkGenerator:GetFreeWorkerName(nIndex)
+	worker_index = ((nIndex or worker_index)+1) % (self.worker_count);
 	local worker_name = workers[worker_index];
 	if(not worker_name) then
 		local name = "gen"..worker_index;
@@ -374,6 +376,12 @@ function ChunkGenerator:GenerateChunkAsync(chunk, x, z)
 	local worker_name = self:GetFreeWorkerName();
 	cur_generator = self;
 	NPL.activate(worker_name, {x=x, z=z, gen_id=self:GetId(), cmd="GenerateChunk", seed = self:GetSeed(), address = self:GetClassAddress()});
+end
+
+function ChunkGenerator:InvokeCustomFuncAsync(funcName, params)
+	local worker_name = self:GetFreeWorkerName(0);
+	cur_generator = self;
+	NPL.activate(worker_name, {x=x, z=z, gen_id=self:GetId(), cmd="CustomFunc", seed = self:GetSeed(), funcName = funcName, params = params, address = self:GetClassAddress()});
 end
 
 -- apply chunk data in main thread
@@ -566,7 +574,7 @@ NPL.this(function()
 			elseif(msg.cmd == "CustomFunc") then
 				local func = gen[msg.funcName]
 				if(type(func) == "function") then
-					func(gen, msg.params);
+					func(gen, msg.params, msg);
 				end
 			end
 		end

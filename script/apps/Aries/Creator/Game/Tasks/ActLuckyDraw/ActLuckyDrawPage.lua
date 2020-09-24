@@ -91,8 +91,8 @@ function ActLuckyDrawPage.Show()
     keepwork.tatfook.lucky_load({
         activityCode = "nationalDay",
     },function(err, msg, data)
-            print("aaaaaaaaaaaaaaaa", err, msg)
-            commonlib.echo(data, true)
+            -- print("aaaaaaaaaaaaaaaa", err, msg)
+            -- commonlib.echo(data, true)
         if err == 200 then
             ActLuckyDrawPage.id = data.id
             openView()
@@ -138,7 +138,7 @@ function ActLuckyDrawPage.LuckyDraw()
             ActLuckyDrawPage.UpdataDrawBt()
             GameLogic.AddBBS("statusBar", L"参与抽奖成功，请静候佳音", 5000, "0 255 0");
         elseif err == 400 then
-            GameLogic.AddBBS("statusBar", L"未绑定手机号不能参与抽奖", 5000, "0 255 0");
+            GameLogic.AddBBS("statusBar", L"未绑定手机号不能参与抽奖", 5000, "255 0 0");
             ActLuckyDrawPage.draw_bt_enable = true
         end
 
