@@ -81,8 +81,6 @@ function ActGetRewardList.Show()
     },function(err, msg, data)
 
         if err == 200 then
-            -- print("wwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
-            -- commonlib.echo(data, true)
             if #data == 0 then
                 GameLogic.AddBBS("statusBar", L"暂无获奖信息", 5000, "0 255 0");
                 return

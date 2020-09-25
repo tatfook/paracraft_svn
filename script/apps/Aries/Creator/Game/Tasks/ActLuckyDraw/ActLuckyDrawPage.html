@@ -34,6 +34,14 @@ end
 function IsLuckyDrawBtEnable()
     return ActLuckyDrawPage.draw_bt_enable
 end
+
+function GetActState()
+    return ActLuckyDrawPage.GetActState()
+end
+
+function IsShowDrawBt()
+    return ActLuckyDrawPage.id and ActLuckyDrawPage.id ~= 0
+end
 ]]></script>
 <div style="width: 730px; height: 401px;">
     <div type ="box" style="width:697px;height:401px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/tu1_697x401_32bits.png#0 0 697 401);">
@@ -47,7 +55,27 @@ end
             <pe:if condition='<%=not IsLuckyDrawBtEnable() %>'>
                 <input type="button" value="" onclick="LuckyDraw" enabled='false' style="float:right;margin-left:265px;width:218px;height:110px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_choujiang_218X110_32bits.png#0 0 218 110);"/>
             </pe:if> -->
-            <input type="button" value="" onclick="LuckyDraw" style="float:right;margin-left:265px;width:218px;height:110px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_choujiang_218X110_32bits.png#0 0 218 110);"/>
+
+
+            <pe:if condition='<%=GetActState() == 1%>'>
+                <div style="float:right;margin-left:275px;width:208px;height:58px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_weikaishi_208X58_32bits.png#0 0 208 58);"></div>
+            </pe:if>
+
+            <pe:if condition='<%=GetActState() == 2%>'>
+                <pe:if condition='<%=IsShowDrawBt()%>'>
+                    <input type="button" value="" onclick="LuckyDraw" style="float:right;margin-left:265px;width:218px;height:110px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_choujiang_218X110_32bits.png#0 0 218 110);"/>
+                </pe:if>
+    
+                <pe:if condition='<%=not IsShowDrawBt()%>'>
+                    <div style="float:right;margin-left:275px;width:208px;height:58px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_xiaqi_208X58_32bits.png#0 0 208 58);"></div>
+                </pe:if>
+                
+            </pe:if>
+
+            <pe:if condition='<%=GetActState() == 3%>'>
+                <div style="float:right;margin-left:275px;width:208px;height:58px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_jieshu_208X58_32bits.png#0 0 208 58);"></div>
+            </pe:if>
+            
             <input type="button" value="" onclick="OpenRewardList" style="float:right;margin-left:25px;margin-top: 27px; width:116px;height:22px;background: url(Texture/Aries/Creator/keepwork/ActLuckyDraw/btn_chakanzhongjiang_116X22_32bits.png#0 0 116 22)"/>
         </div>
     </div>

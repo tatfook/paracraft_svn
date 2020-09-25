@@ -27,3 +27,7 @@ HttpWrapper.Create("keepwork.tatfook.lucky_push", "%MAIN%/core/v0/lotteries/join
 --http://yapi.kp-para.cn/project/32/interface/api/3237
 -- 用户是否参加这次抽奖
 HttpWrapper.Create("keepwork.tatfook.lucky_check", "%MAIN%/core/v0/lotteries/hasJoined", "GET", true)
+
+--http://yapi.kp-para.cn/project/32/interface/api/3267
+-- 获取活动信息
+HttpWrapper.Create("keepwork.tatfook.lucky_info", "%MAIN%/core/v0/activities/nationalDay", "GET", true)
