@@ -245,8 +245,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 	block_types.RecomputeAttributeOfAllBlocks()
 
 	local x, y, z, filename = params.x, params.y, params.z, params.filename
-	LOG.std(nil, "info", "ParaWorldChunkGenerator", "LoadTemplateAsyncImp: %s", filename)
-
+	
 	local xmlRoot = ParaXML.LuaXML_ParseFile(filename);
 	if(xmlRoot) then
 		local root_node = commonlib.XPath.selectNode(xmlRoot, "/pe:blocktemplate");
@@ -263,7 +262,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 					end
 
 					local addList = {};
-
+					ParaTerrain.GetBlockAttributeObject():CallField("SuspendLightUpdate");
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
 						if(block_id) then
@@ -286,6 +285,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 							end
 						end
 					end
+					ParaTerrain.GetBlockAttributeObject():CallField("ResumeLightUpdate");
 					if(#addList > 0) then
 						NPL.activate("(main)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua", {
 							cmd="CustomFunc", funcName = "ApplyOnLoadBlocks", params= {addList=addList, x=bx, y=by, z=bz}, 
