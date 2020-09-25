@@ -262,7 +262,10 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 					end
 
 					local addList = {};
-					ParaTerrain.GetBlockAttributeObject():CallField("SuspendLightUpdate");
+					local is_suspended_before = ParaTerrain.GetBlockAttributeObject():GetField("IsLightUpdateSuspended", false);
+					if(not is_suspended_before) then
+						ParaTerrain.GetBlockAttributeObject():CallField("SuspendLightUpdate");
+					end
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
 						if(block_id) then
@@ -285,7 +288,9 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 							end
 						end
 					end
-					ParaTerrain.GetBlockAttributeObject():CallField("ResumeLightUpdate");
+					if(not is_suspended_before) then
+						ParaTerrain.GetBlockAttributeObject():CallField("ResumeLightUpdate");
+					end
 					if(#addList > 0) then
 						NPL.activate("(main)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua", {
 							cmd="CustomFunc", funcName = "ApplyOnLoadBlocks", params= {addList=addList, x=bx, y=by, z=bz}, 
