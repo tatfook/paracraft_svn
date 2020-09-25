@@ -164,6 +164,10 @@ function Entity:GetImageFacing()
 	return (self.block_data or 0) % 4;
 end
 
+function Entity:IsImageHorizontal()
+	return (self.block_data or 0) >= 4;
+end
+
 -- clean up all nearby paintings which are derived from this one. 
 function Entity:ResetDerivedPaintings()
 	if(self.start_block_coord and self.rows) then
@@ -322,7 +326,87 @@ function Entity:CaculateImageExpansionData()
 	local z = root_z;
 
 	local neighbor_id,neighbor_facing;
-	
+
+	--[[
+	-- TODO: for ground images, we need to calculate the range
+	local isHorizontal = self:IsImageHorizontal()
+	if(isHorizontal) then
+		while(true) do
+			z = z - 1;
+			neighbor_id = BlockEngine:GetBlockId(x,y,z)
+			if(root_block_id ~= neighbor_id) then
+				break;
+			end
+			local neighbor_entity = EntityManager.GetEntityInBlock(x,y,z,self.class_name);
+			if(neighbor_entity and neighbor_entity:IsImageHorizontal()) then
+				neighbor_facing = neighbor_entity:GetImageFacing();
+				if(neighbor_facing ~= root_block_facing or neighbor_entity:HasImage()) then
+					break;
+				end
+				top_blocks_number = top_blocks_number + 1;
+			else
+				bHasInvalidImageEntity = true;
+			end
+		end
+
+		z = root_z;
+		while(true) do
+			z = z + 1;
+			neighbor_id = BlockEngine:GetBlockId(x,y,z)
+			if(root_block_id ~= neighbor_id) then
+				break;
+			end
+			local neighbor_entity = EntityManager.GetEntityInBlock(x,y,z,self.class_name);
+			if(neighbor_entity and neighbor_entity:IsImageHorizontal()) then
+				neighbor_facing = neighbor_entity:GetImageFacing();
+				if(neighbor_facing ~= root_block_facing or neighbor_entity:HasImage()) then
+					break;
+				end
+				bottom_blocks_number = bottom_blocks_number + 1;
+			else
+				bHasInvalidImageEntity = true;
+			end
+		end
+
+		while(true) do
+			x = x - 1;
+			neighbor_id = BlockEngine:GetBlockId(x,y,z)
+			if(root_block_id ~= neighbor_id) then
+				break;
+			end
+			local neighbor_entity = EntityManager.GetEntityInBlock(x,y,z,self.class_name);
+			if(neighbor_entity and neighbor_entity:IsImageHorizontal()) then
+				neighbor_facing = neighbor_entity:GetImageFacing();
+				if(neighbor_facing ~= root_block_facing or neighbor_entity:HasImage()) then
+					break;
+				end
+				left_blocks_number = left_blocks_number + 1;
+			else
+				bHasInvalidImageEntity = true;
+			end
+		end
+
+		x = root_x;
+		while(true) do
+			x = x + 1;
+			neighbor_id = BlockEngine:GetBlockId(x,y,z)
+			if(root_block_id ~= neighbor_id) then
+				break;
+			end
+			local neighbor_entity = EntityManager.GetEntityInBlock(x,y,z,self.class_name);
+			if(neighbor_entity and neighbor_entity:IsImageHorizontal()) then
+				neighbor_facing = neighbor_entity:GetImageFacing();
+				if(neighbor_facing ~= root_block_facing or neighbor_entity:HasImage()) then
+					break;
+				end
+				right_blocks_number = right_blocks_number + 1;
+			else
+				bHasInvalidImageEntity = true;
+			end
+		end
+	end
+	]]
+
 	while(true) do
 		y = y + 1;
 		neighbor_id = BlockEngine:GetBlockId(x,y,z)
