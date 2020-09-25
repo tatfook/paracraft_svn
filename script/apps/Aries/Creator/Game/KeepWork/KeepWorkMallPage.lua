@@ -349,8 +349,9 @@ function KeepWorkMallPage.HandleDataSources()
 						v.enabled = true
 						v.can_use = true
 						-- 如果有使用中的显示的需求
+						NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditModel/EditModelTask.lua");
 						local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
-						if EditModelTask then
+						if EditModelTask and EditModelTask.GetModelFileInHand then
 							local file = EditModelTask:GetModelFileInHand()
 							if file == string.format("blocktemplates/%s.%s", good_data.name, good_data.fileType) then
 								v.buy_txt = "已使用"
