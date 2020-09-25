@@ -149,6 +149,9 @@ end
 function ActLuckyDrawPage.OpenRewardList()
     local ActGetRewardList = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActGetRewardList.lua");
     ActGetRewardList.Show();
+
+    page:CloseWindow(0)
+    ActLuckyDrawPage.ClearData()
 end
 
 function ActLuckyDrawPage.UpdataDrawBt()

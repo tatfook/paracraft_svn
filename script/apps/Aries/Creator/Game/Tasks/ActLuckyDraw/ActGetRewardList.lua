@@ -7,7 +7,7 @@ Use Lib:
 -------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActGetRewardList.lua").Show();
 --]]
-
+local ActLuckyDrawPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActLuckyDraw/ActLuckyDrawPage.lua")
 local ActGetRewardList = NPL.export();
 local page;
 ActGetRewardList.Current_Item_DS = {};
@@ -130,6 +130,8 @@ end
 
 function ActGetRewardList.CloseView()
     ActGetRewardList.ClearData()
+
+    ActLuckyDrawPage.Show();
 end
 
 function ActGetRewardList.ClearData()
