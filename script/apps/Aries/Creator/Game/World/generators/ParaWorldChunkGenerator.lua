@@ -296,6 +296,9 @@ function ParaWorldChunkGenerator:LoadTemplateImp(params)
 					if(#addList > 0) then
 						self:ApplyOnLoadBlocks({addList=addList, x=bx, y=by, z=bz})
 					end
+					local attRegion = ParaTerrain.GetBlockAttributeObject():GetChild(format("region_%d_%d", math.floor(bx/512), math.floor(bz/512)))
+					attRegion:SetField("RefreshLightChunkColumns", {math.floor(bx/16), math.floor(bz/16), 128/16});
+
 					return true;
 				end
 			end
