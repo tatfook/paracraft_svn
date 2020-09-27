@@ -8,6 +8,8 @@ Use Lib:
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TatfookUserTakeVipPage.lua").ShowPage();
 --]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
+local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
 
 local TatfookUserTakeVipPage = NPL.export()
 local page
@@ -17,10 +19,25 @@ function TatfookUserTakeVipPage.OnInit()
 end
 
 function TatfookUserTakeVipPage.ShowPage()
-    if(KeepWorkItemManager.IsVip())then
-        _guihelper.MessageBox(L"你已经是会员，不需要再领取会员了。");
+    if(KeepworkServiceSession:IsSignedIn())then
+        if(KeepWorkItemManager.IsVip())then
+            _guihelper.MessageBox(L"你已经是会员，不需要再领取会员了。");
+            return
+        end
+        TatfookUserTakeVipPage._ShowPage();   
         return
     end
+    LoginModal:CheckSignedIn(L"请先登录", function(result)
+        if(KeepWorkItemManager.IsVip())then
+            _guihelper.MessageBox(L"你已经是会员，不需要再领取会员了。");
+            return
+        end
+        if (result == true)then
+            TatfookUserTakeVipPage._ShowPage();   
+        end
+    end)
+end
+function TatfookUserTakeVipPage._ShowPage()
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Tasks/User/TatfookUserTakeVipPage.html",
 			name = "TatfookUserTakeVipPage.ShowPage", 
