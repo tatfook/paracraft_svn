@@ -17,10 +17,10 @@ function TatfookUserTakeVipPage.OnInit()
 end
 
 function TatfookUserTakeVipPage.ShowPage()
---    if(KeepWorkItemManager.IsVip())then
---        _guihelper.MessageBox(L"你已经是会员了，不需要再领取了。");
---        return
---    end
+    if(KeepWorkItemManager.IsVip())then
+        _guihelper.MessageBox(L"你已经是会员，不需要再领取会员了。");
+        return
+    end
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Tasks/User/TatfookUserTakeVipPage.html",
 			name = "TatfookUserTakeVipPage.ShowPage", 

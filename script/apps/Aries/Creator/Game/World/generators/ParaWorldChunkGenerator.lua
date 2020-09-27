@@ -33,6 +33,12 @@ local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 
 local ParaWorldChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"))
 
+-- this is the host side ignore list, which could be different from ParaWorldMiniChunkGenerator's ignoreList
+local ignoreList = {[9]=true,[253]=true,[110]=true,[216]=true,[217]=true,[196]=true,[218]=true,
+	[219]=true,[215]=true,[254]=true,[189]=true, [221]=true,[212]=true, [22]=true,
+};
+
+
 function ParaWorldChunkGenerator:ctor()
 	self:SetWorkerThreadCount(1)
 end
@@ -235,6 +241,7 @@ function ParaWorldChunkGenerator:GetClassAddress()
 	};
 end
 
+
 -- only call this in main thread. use LoadTemplateAsyncImp for async mode
 function ParaWorldChunkGenerator:LoadTemplateImp(params)
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
@@ -263,7 +270,7 @@ function ParaWorldChunkGenerator:LoadTemplateImp(params)
 					end
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
-						if(block_id) then
+						if(block_id and not ignoreList[block_id]) then
 							local last_block_id = ParaTerrain.GetBlockTemplateByIdx(x,y,z);
 							local last_block = block_types.get(last_block_id);
 							if(last_block) then
@@ -330,7 +337,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 					end
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
-						if(block_id) then
+						if(block_id and not ignoreList[block_id]) then
 							local last_block_id = ParaTerrain.GetBlockTemplateByIdx(x,y,z);
 							local last_block = block_types.get(last_block_id);
 							if(last_block) then
