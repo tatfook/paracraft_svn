@@ -1,0 +1,37 @@
+<!-- "script/apps/Aries/Creator/Game/Tasks/UserInfo/TatfookUserTakeVipPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+<pe:mcml>
+<script refresh="false" type="text/npl" src="TatfookUserTakeVipPage.lua"><![CDATA[
+local TatfookUserTakeVipPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TatfookUserTakeVipPage.lua");
+TatfookUserTakeVipPage.OnInit()
+function ClosePage()
+    Page:CloseWindow();
+end
+function OnClick()
+    keepwork.user.takevip_bycode({
+        promoCodeName = "I_love_tatfook"
+    },function(err, msg, data)
+        commonlib.echo("==========takevip_bycode");
+        commonlib.echo(err);
+        commonlib.echo(msg);
+        commonlib.echo(data,true);
+    end)
+end
+]]></script>
+
+<kp:window width="955" height="580" title='<%=L"Paracraft会员" %>' onclose="ClosePage">
+    <div style="margin-left: 10px; margin-top: 40px; width: 932px; height: 534x; background: url(Texture/Aries/Creator/keepwork/vip/huiyuan_932X534_32bits.png#0 0 932 534)">
+        <input type="button"  onclick="OnClick" style="margin-left:55px;margin-top:380px;width: 184px;height: 124x;background: url(Texture/Aries/Creator/keepwork/vip/btn_zhaojiazhangkaitong_184X124_32bits.png#0 0 184 124)" />
+        <div style="margin-left:120px;margin-top:-45px;color:#000000;"><%=L"领取会员" %></div>
+    </div>
+</kp:window>
+</pe:mcml>
+</body>
+</html>
+

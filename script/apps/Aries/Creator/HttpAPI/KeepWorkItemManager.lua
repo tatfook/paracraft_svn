@@ -868,3 +868,8 @@ function KeepWorkItemManager.GetItemTemplateById(id)
         end
     end
 end
+function KeepWorkItemManager.IsVip()
+	local gsid = 10;
+	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gsid)
+	return (copies and copies > 0) or (System and System.User and System.User.isVip);
+end
