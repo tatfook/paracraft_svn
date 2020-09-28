@@ -302,9 +302,8 @@ function TeachingQuestTitle.StartTask()
 			TeachingQuestTitle.ShowPage("?info=task");
 		end
 
-		ShowTaskVideo(false);
-		--[[
 		if (not TeachingQuestTitle.IsTaskFinished()) then
+			--[[
 			_guihelper.MessageBox(L"是否使用1张入场券开始当前世界任务？", function(res)
 				if(res and res == _guihelper.DialogResult.Yes) then
 					local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
@@ -316,29 +315,36 @@ function TeachingQuestTitle.StartTask()
 					end);
 				end
 			end, _guihelper.MessageBoxButtons.YesNo);
+			]]
+			local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
+			if (TeachingQuestPage.IsVip()) then
+				exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
+			end
+			KeepWorkItemManager.DoExtendedCost(exid, function()
+				ShowTaskVideo(true);
+			end);
 		else
 			ShowTaskVideo(false);
 		end
-		]]
 	end
 end
 
 function TeachingQuestTitle.FinishedTask()
 	if (firstStart) then
 		firstStart = false;
-		--[[
 		if (TeachingQuestPage.IsVip()) then
 			GameLogic.AddBBS("statusBar", L"获得了20个知识豆。", 3000, "0 255 0");
-			_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆。您已开通VIP，自动获得了20知识豆！");
+			--_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆。您已开通VIP，自动获得了20知识豆！");
 		else
 			GameLogic.AddBBS("statusBar", L"获得了10个知识豆。", 3000, "0 255 0");
+			--[[
 			_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆，是否开通VIP获取双倍知识豆？", function(res)
 				if(res and res == _guihelper.DialogResult.Yes) then
 					ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/vip", "", 1); 
 				end
 			end, _guihelper.MessageBoxButtons.YesNo);
+			]]
 		end
-		]]
 	end
 	taskInProcess = false;
 	TeachingQuestTitle.ShowPage("?info=task");
@@ -364,7 +370,6 @@ function TeachingQuestTitle.OnReturn()
 		--GameLogic.RunCommand("/loadworld -force "..ParaWorldLoginAdapter.MainWorldId);
 		ParaWorldLoginAdapter:EnterWorld(true);
 	end
-	--[[
 	if (not TeachingQuestTitle.IsTaskFinished()) then
 		_guihelper.MessageBox(L"任务尚未开始，是否确定退出当前任务世界？", function(res)
 			if(res and res == _guihelper.DialogResult.Yes) then
@@ -374,6 +379,4 @@ function TeachingQuestTitle.OnReturn()
 	else
 		ReturnMainWorld()
 	end
-	]]
-	ReturnMainWorld();
 end

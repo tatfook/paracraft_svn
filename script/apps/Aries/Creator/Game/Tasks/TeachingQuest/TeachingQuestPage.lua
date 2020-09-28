@@ -281,30 +281,38 @@ end
 function TeachingQuestPage.GetTaskState(index)
 	local task = TeachingQuestPage.GetCurrentSelectTask(index);
 	if (task) then
-		if (index <= 5) then
-			return TeachingQuestPage.Activated;
-		else
-			if (TeachingQuestPage.IsVip()) then
-				return TeachingQuestPage.Activated;
-			else
-				return TeachingQuestPage.Locked;
-			end
-		end
-		--[[
 		local count = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.TaskGsids[TeachingQuestPage.currentType]);
 		if (index <= count) then
 			return TeachingQuestPage.Finished;
 		elseif (index > count + 1) then
-			return TeachingQuestPage.Locked;
+			if (index <= 5) then
+				return TeachingQuestPage.Locked;
+			else
+				if (TeachingQuestPage.IsVip() or count < 5) then
+					return TeachingQuestPage.Locked;
+				else
+					return TeachingQuestPage.Acceptable;
+				end
+			end
 		else
+			--[[
 			local ticket = TeachingQuestPage.GetTaskItemCount(TeachingQuestPage.ticketGsid);
 			if (ticket > 0) then
 				return TeachingQuestPage.Activated;
 			else
 				return TeachingQuestPage.Acceptable;
 			end
+			]]
+			if (index <= 5) then
+				return TeachingQuestPage.Activated;
+			else
+				if (TeachingQuestPage.IsVip()) then
+					return TeachingQuestPage.Activated;
+				else
+					return TeachingQuestPage.Acceptable;
+				end
+			end
 		end
-		]]
 	else
 		return TeachingQuestPage.Locked;
 	end
@@ -341,10 +349,12 @@ function TeachingQuestPage.OnClickItem(index)
 				StartTask();
 			end
 		end);
-	else
-		-- task is locked
+	elseif (state == TeachingQuestPage.Acceptable) then
+		-- task is acceptable, show vip
 		GameLogic.GetFilters():apply_filters("VipNotice", true, function()
 			page:Refresh(0);
 		end);
+	else
+		-- task is locked
 	end
 end
