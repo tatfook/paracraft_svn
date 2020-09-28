@@ -21,7 +21,7 @@ ActLantern.view_type = {
     start_view = 1,
     question_view = 2,
     success_view = 3,
-    fail_view = 4.,
+    fail_view = 4,
 }
 
 ActLantern.result_type = {
