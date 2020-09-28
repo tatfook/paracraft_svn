@@ -96,12 +96,15 @@ function TeachingQuestTitle.CheckAndShow()
 		TeachingQuestTitle.ShowPage("?info=main&ticket=non_today");
 	end);
 	]]
+
+	--[[
 	KeepWorkItemManager.CheckExchange(TeachingQuestPage.ticketExid, function(canExchange)
 		if (canExchange.data and canExchange.data.ret == true) then
 			KeepWorkItemManager.DoExtendedCost(TeachingQuestPage.ticketExid, function()
 			end);
 		end
 	end);
+	]]
 end
 
 function TeachingQuestTitle.OnShowPanel()
@@ -299,6 +302,8 @@ function TeachingQuestTitle.StartTask()
 			TeachingQuestTitle.ShowPage("?info=task");
 		end
 
+		ShowTaskVideo(false);
+		--[[
 		if (not TeachingQuestTitle.IsTaskFinished()) then
 			_guihelper.MessageBox(L"是否使用1张入场券开始当前世界任务？", function(res)
 				if(res and res == _guihelper.DialogResult.Yes) then
@@ -314,12 +319,14 @@ function TeachingQuestTitle.StartTask()
 		else
 			ShowTaskVideo(false);
 		end
+		]]
 	end
 end
 
 function TeachingQuestTitle.FinishedTask()
 	if (firstStart) then
 		firstStart = false;
+		--[[
 		if (TeachingQuestPage.IsVip()) then
 			GameLogic.AddBBS("statusBar", L"获得了20个知识豆。", 3000, "0 255 0");
 			_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆。您已开通VIP，自动获得了20知识豆！");
@@ -331,6 +338,7 @@ function TeachingQuestTitle.FinishedTask()
 				end
 			end, _guihelper.MessageBoxButtons.YesNo);
 		end
+		]]
 	end
 	taskInProcess = false;
 	TeachingQuestTitle.ShowPage("?info=task");
@@ -356,6 +364,7 @@ function TeachingQuestTitle.OnReturn()
 		--GameLogic.RunCommand("/loadworld -force "..ParaWorldLoginAdapter.MainWorldId);
 		ParaWorldLoginAdapter:EnterWorld(true);
 	end
+	--[[
 	if (not TeachingQuestTitle.IsTaskFinished()) then
 		_guihelper.MessageBox(L"任务尚未开始，是否确定退出当前任务世界？", function(res)
 			if(res and res == _guihelper.DialogResult.Yes) then
@@ -365,4 +374,6 @@ function TeachingQuestTitle.OnReturn()
 	else
 		ReturnMainWorld()
 	end
+	]]
+	ReturnMainWorld();
 end
