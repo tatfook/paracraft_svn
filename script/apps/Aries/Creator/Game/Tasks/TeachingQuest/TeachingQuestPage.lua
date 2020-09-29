@@ -288,7 +288,8 @@ function TeachingQuestPage.GetTaskState(index)
 			if (index <= 5) then
 				return TeachingQuestPage.Locked;
 			else
-				if (TeachingQuestPage.IsVip() or count < 5) then
+				--if (TeachingQuestPage.IsVip() or count < 5) then
+				if (TeachingQuestPage.IsVip()) then
 					return TeachingQuestPage.Locked;
 				else
 					return TeachingQuestPage.Acceptable;
