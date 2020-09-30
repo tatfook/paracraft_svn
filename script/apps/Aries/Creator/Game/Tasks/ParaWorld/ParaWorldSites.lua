@@ -119,7 +119,7 @@ function ParaWorldSites.CheckIsMyParaworld(callback)
 	if (not projectId) then return end
 	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
 
-	keepwork.world.joined_list({}, function(err, msg, data)
+	keepwork.world.worlds_list({projectId = projectId}, function(err, msg, data)
 		if (data and type(data) == "table") then
 			for i = 1, #data do
 				local world = data[i];
