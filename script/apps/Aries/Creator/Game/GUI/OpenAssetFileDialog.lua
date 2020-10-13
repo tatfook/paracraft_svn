@@ -38,6 +38,7 @@ OpenAssetFileDialog.categories = {
 	{name = "props", text = L"物品", colour="#69b090", },
 	{name = "equipment", text = L"装备", colour="#69b090", },
 	{name = "effects", text = L"特效", colour="#69b090", },
+	{name = "furnitures", text = L"装饰", colour="#69b090", },
 	
 };
 
