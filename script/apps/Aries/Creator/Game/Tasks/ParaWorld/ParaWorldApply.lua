@@ -133,7 +133,7 @@ function ParaWorldApply.GetWorldCommitId()
 end
 
 function ParaWorldApply.GetWorldCoverUrl()
-	if (ParaWorldApply.CurrentWorld.extra and ParaWorldApply.CurrentWorld.extra.coverUrl) then
+	if (ParaWorldApply.CurrentWorld.extra and ParaWorldApply.CurrentWorld.extra.coverUrl and ParaWorldApply.CurrentWorld.extra.coverUrl ~= "") then
 		return ParaWorldApply.CurrentWorld.extra.coverUrl;
 	else
 		return ParaWorldApply.CurrentWorld.project.extra.imageUrl;
