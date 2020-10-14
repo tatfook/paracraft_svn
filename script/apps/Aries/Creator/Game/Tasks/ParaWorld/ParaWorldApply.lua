@@ -60,7 +60,7 @@ function ParaWorldApply.ShowPage()
 
 				ParaWorldApply.GetRegionData();
 			end);
-		end, 100);
+		end, 10);
 	end);
 end
 
@@ -174,6 +174,29 @@ function ParaWorldApply.GetRegionData()
 
 		if (page) then
 			page:Refresh(0)
+			if (ParaWorldApply.schoolData) then
+				page:SetValue("SchoolList", ParaWorldApply.schoolData.id);
+				ParaWorldApply.GetCities(ParaWorldApply.schoolData.region.state.id, function(data)
+					if type(data) ~= "table" then
+						return false
+					end
+
+					ParaWorldApply.cities = data
+				
+					ParaWorldApply.GetAreas(ParaWorldApply.schoolData.region.city.id, function(data)
+						if type(data) ~= "table" then
+							return false
+						end
+
+						ParaWorldApply.areas = data
+						page:Refresh(0);
+						page:SetValue("SchoolList", ParaWorldApply.schoolData.id);
+						page:SetValue("province", ParaWorldApply.schoolData.region.state.id);
+						page:SetValue("city", ParaWorldApply.schoolData.region.city.id);
+						page:SetValue("area", ParaWorldApply.schoolData.region.county.id);
+					end);
+				end);
+			end
 		end
 	end)
 end
