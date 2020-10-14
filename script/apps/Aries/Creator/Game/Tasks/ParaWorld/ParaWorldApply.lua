@@ -67,12 +67,12 @@ end
 function ParaWorldApply.CheckIsMyParaworld(callback)
 	local projectId = GameLogic.options:GetProjectId();
 	if (not projectId) then
-		_guihelper.MessageBox(L"请到您所属的并行世界进行操作！");
+		_guihelper.MessageBox(L"请先分享世界，分享后可以提交申请！");
 		return;
 	end
 	projectId = tonumber(projectId);
 	if (not projectId) then
-		_guihelper.MessageBox(L"请到您所属的并行世界进行操作！");
+		_guihelper.MessageBox(L"请先分享世界，分享后可以提交申请！");
 		return;
 	end
 	local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
@@ -88,7 +88,7 @@ function ParaWorldApply.CheckIsMyParaworld(callback)
 					return;
 				end
 			end
-			_guihelper.MessageBox(L"请到您所属的并行世界进行操作！");
+			_guihelper.MessageBox(L"请先分享世界，分享后可以提交申请！");
 		end
 	end);
 end
