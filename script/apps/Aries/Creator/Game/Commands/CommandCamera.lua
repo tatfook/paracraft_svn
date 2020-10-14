@@ -153,6 +153,7 @@ Commands["camerayaw"] = {
 	end,
 };
 
+
 Commands["panorama"] = {
 	name="panorama", 
 	quick_ref="/panorama x y z", 
@@ -160,6 +161,58 @@ Commands["panorama"] = {
 		create panorama screenshot and save
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params)
+		function takeshot(filepath)
+			local tempfile = "Screen Shots/cubemap_render" .. os.time() .. ".jpg"
+		
+			GameLogic.RunCommand("/fov 1.57")
+			GameLogic.RunCommand("/hide tips")
+			ParaUI.GetUIObject("root").visible = false;
+			ParaUI.ShowCursor(false);
+			ParaScene.EnableMiniSceneGraph(false);
+			
+			ParaEngine.ForceRender()
+			ParaEngine.ForceRender()
+		
+			local Screen = commonlib.gettable("System.Windows.Screen")
+			local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager")
+
+			local viewport = ViewportManager:GetSceneViewport()
+			viewport:SetPosition("_ctt", 0, 0, Screen:GetHeight(), Screen:GetHeight())
+			-- viewport:SetPosition("_lt", 0, 0, Screen:GetHeight(), Screen:GetHeight())
+		
+			commonlib.TimerManager.SetTimeout(function()
+				ParaMovie.TakeScreenShot(tempfile, Screen:GetWidth(), Screen:GetHeight())
+		
+				viewport:SetPosition("_fi", 0,0,0,0)
+		
+				GameLogic.RunCommand("/hide tips")
+				ParaUI.GetUIObject("root").visible = true;
+				ParaUI.ShowCursor(true);
+				ParaScene.EnableMiniSceneGraph(true);
+				
+				local _width = Screen:GetWidth();
+				local _height = Screen:GetHeight();
+		
+				local r = ParaUI.GetUIObject("root");
+		
+				local offset = (_width * _width / _height - _width) / 2
+				local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", -offset, 0, _width * _width / _height, _height);
+				-- local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", 0, 0, _width * _width / _height, _height);
+				c.background = tempfile
+				
+				r:AddChild(c)
+		
+				commonlib.TimerManager.SetTimeout(function()
+					ParaMovie.TakeScreenShot(filepath, _height, _height)
+					ParaUI.DestroyUIObject(c)
+					-- ParaIO.DeleteFile(tempfile)
+				end, 1000)
+			end, 1000)
+		end
+
+		takeshot("Screen Shots/test.jpg")
+		do return end
+
 		local att = ParaEngine.GetAttributeObject();
 		att:SetField("ScreenResolution", {1024, 1024}); 
 		att:CallField("UpdateScreenMode");
@@ -228,6 +281,5 @@ Commands["panorama"] = {
 				end)
 			end)
 		end)
-
 	end,
 };
