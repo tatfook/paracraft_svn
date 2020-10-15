@@ -280,6 +280,7 @@ Commands["panorama"] = {
 													crop_shot(4, function()
 														crop_shot(5, function()
 															-- send event
+															CommandManager:RunCommand('/sendevent after_generate_panorama')
 														end)
 													end)
 												end)
