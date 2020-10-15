@@ -166,16 +166,6 @@ Commands["panorama"] = {
 		function setPlayerPos(x, y, z)
 			GameLogic.RunCommand(string.format("/goto %s %s %s", x, y, z))
 		end
-		
-		GameLogic.RunCommand("/property -all-2 PasueScene true")
-		GameLogic.RunCommand("/hide desktop")
-		GameLogic.RunCommand("/hide tips")
-		GameLogic.RunCommand("/hide")
-		GameLogic.RunCommand("/fov 1.57")
-
-		ParaUI.ShowCursor(false)
-		ParaScene.EnableMiniSceneGraph(false);
-		ParaEngine.ForceRender()
 				
 		local Screen = commonlib.gettable("System.Windows.Screen")
 		local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager")
@@ -196,52 +186,59 @@ Commands["panorama"] = {
 		}
 
 		function shot(pitch, yaw, name, chain)
-			viewport:SetPosition("_ctt", 0, 0, _height, _height)
-			-- viewport:SetPosition("_lt", 0, 0, Screen:GetHeight(), Screen:GetHeight())
-	
 			local p = pos[name]
 			setPlayerPos(p[1], p[2], p[3])
 			
 			ParaCamera.SetEyePos(1, pitch, yaw)
 
-			ParaUI.GetUIObject("root").visible = false
-
 			commonlib.TimerManager.SetTimeout(function()
-				local tempfile = string.format("Screen Shots/cubemap_tmp_%s_%s.jpg", name, os.time())
+				local tempfile = string.format("Screen Shots/cubemap_tmp_%s.jpg", name)
 				ParaMovie.TakeScreenShot(tempfile)
-				
-				viewport:SetPosition("_fi", 0, 0, 0, 0)
-				
-				local r = ParaUI.GetUIObject("root")
-				ParaUI.GetUIObject("root").visible = true
-
-				local offset = (_width * _width / _height - _width) / 2
-				local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", -offset, 0, _width * _width / _height, _height);
-				--local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", 0, 0, _width * _width / _height, _height);
-				c.background = tempfile
-
-				r:AddChild(c)
-				
-				local filepath = string.format("Screen Shots/%s.jpg", name)
-				ParaMovie.TakeScreenShot(filepath, _height, _height)
-				ParaUI.DestroyUIObject(c)
-				-- ParaIO.DeleteFile(tempfile)
-
-				commonlib.TimerManager.SetTimeout(function()
---					chain()
-				end, 1000)	
+				chain()
 			end, 1000)
 		end
 
-		shot(0, 3.14, 0, function()
-			GameLogic.RunCommand("/t 2 /property -all-2 PasueScene false")	
-			GameLogic.RunCommand("/show desktop")
-			GameLogic.RunCommand("/show")
-			ParaUI.ShowCursor(true)
-		end)
+		function crop_shot(name, chain)			
+			local r = ParaUI.GetUIObject("root")
 
-		--[[
+			local offset = (_width * _width / _height - _width) / 2
+			--local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", -offset, 0, _width * _width / _height, _height);
+			local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", 0, 0, _width * _width / _height, _height);
 
+			local tempfile = string.format("Screen Shots/cubemap_tmp_%s.jpg", name)
+			c.background = tempfile
+
+			r:AddChild(c)
+
+			ParaEngine.ForceRender()
+			ParaEngine.ForceRender()
+	
+			commonlib.TimerManager.SetTimeout(function()
+				local filepath = string.format("Screen Shots/%s.jpg", name)
+				ParaMovie.TakeScreenShot(filepath, _height, _height)
+				ParaUI.DestroyUIObject(c)
+
+				chain()
+			end, 1000)
+		end
+
+		---[[
+		
+		GameLogic.RunCommand("/property -all-2 PasueScene true")
+		GameLogic.RunCommand("/hide desktop")
+		GameLogic.RunCommand("/hide tips")
+		GameLogic.RunCommand("/hide")
+		GameLogic.RunCommand("/fov 1.57")
+
+		ParaUI.ShowCursor(false)
+		ParaScene.EnableMiniSceneGraph(false);
+		ParaEngine.ForceRender()
+		ParaEngine.ForceRender()
+
+		--viewport:SetPosition("_ctt", 0, 0, _height, _height)
+		viewport:SetPosition("_lt", 0, 0, _height, _height)
+		ParaUI.GetUIObject("root").visible = false
+			
 		shot(0, 3.14, 0, function()
 			shot(0, -1.57, 1, function()
 				shot(0, 0, 2, function()
@@ -250,15 +247,40 @@ Commands["panorama"] = {
 							shot(1.57, 3.14, 5, function()
 								GameLogic.RunCommand("/t 2 /property -all-2 PasueScene false")	
 								GameLogic.RunCommand("/show desktop")
+								GameLogic.RunCommand("/show tips")
 								GameLogic.RunCommand("/show")
+
 								ParaUI.ShowCursor(true)
+								ParaScene.EnableMiniSceneGraph(true);
+								ParaEngine.ForceRender()
+								ParaEngine.ForceRender()
+						
+								viewport:SetPosition("_fi", 0, 0, 0, 0)
+								ParaUI.GetUIObject("root").visible = true
+
+								crop_shot(0, function()  -- clear root ui object cache
+									crop_shot(0, function()
+										crop_shot(1, function()
+											crop_shot(2, function()
+												crop_shot(3, function()
+													crop_shot(4, function()
+														crop_shot(5, function()
+														end)
+													end)
+												end)
+											end)
+										end)
+									end)
+								end)
+
 							end)	
 						end)	
 					end)
 				end)
 			end)
 		end)
-		]]
 
+		
+		--]]
 	end,
 };
