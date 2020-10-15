@@ -127,9 +127,9 @@ function ParaWorldMiniChunkGenerator:OnLoadWorld()
 	GameLogic.RunCommand("/speedscale 2");
 	GameLogic.options:SetViewBobbing(false, true)
 	
-	--if(self:GetTotalCount() < 2) then
+	if(self:GetTotalCount() < 10) then
 		self:ShowCreateFromTemplateWnd()
-	--end
+	end
 
 	self.lock_timer = self.lock_timer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnLockTimer()
