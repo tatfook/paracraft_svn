@@ -146,7 +146,7 @@ function ActLanternReward.HandleData()
             list[v.award] = 0
             index = index + 1
         else
-            if #ActLanternReward.Current_Item_DS[index].userList > 4 then
+            if ActLanternReward.Current_Item_DS[index] and ActLanternReward.Current_Item_DS[index].userList and #ActLanternReward.Current_Item_DS[index].userList > 4 then
                 index = index + 1
             end 
         end

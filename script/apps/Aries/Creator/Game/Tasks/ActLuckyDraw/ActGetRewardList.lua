@@ -160,7 +160,7 @@ function ActGetRewardList.HandleData()
             list[v.award] = 0
             index = index + 1
         else
-            if #ActGetRewardList.Current_Item_DS[index].userList > 4 then
+            if ActGetRewardList.Current_Item_DS[index] and ActGetRewardList.Current_Item_DS[index].userList and #ActGetRewardList.Current_Item_DS[index].userList > 4 then
                 index = index + 1
             end
         end
