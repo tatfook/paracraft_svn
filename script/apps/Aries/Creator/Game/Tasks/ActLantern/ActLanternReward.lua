@@ -145,6 +145,10 @@ function ActLanternReward.HandleData()
             ActLanternReward.Current_Item_DS[index] = {is_show_level = true, level = v.award}
             list[v.award] = 0
             index = index + 1
+        else
+            if #ActLanternReward.Current_Item_DS[index].userList > 4 then
+                index = index + 1
+            end 
         end
 
         if ActLanternReward.Current_Item_DS[index] == nil then
@@ -159,10 +163,13 @@ function ActLanternReward.HandleData()
         local userList = ActLanternReward.Current_Item_DS[index].userList
         userList[#userList + 1] = {name = v.user.username, award = v.award}
         list[v.award] = list[v.award] + 1
-        -- print("sssssssss", v.user.username, index)
-        if #ActLanternReward.Current_Item_DS[index].userList > 4 then
-            index = index + 1
-        end        
+    end
+
+
+    for k, v in pairs(ActLanternReward.Current_Item_DS) do
+        if v.userList then
+            v.mcml_str = ActLanternReward.GetShowStr(v.userList, list)
+        end
     end
 
     -- print("gggggggggggggggggg")
