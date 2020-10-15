@@ -15,6 +15,7 @@ ParaWorldMinimapWnd:RefreshMap()
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapSurface.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
 local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 local ParaWorldMain = commonlib.gettable("Paracraft.Controls.ParaWorldMain");
