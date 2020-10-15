@@ -162,6 +162,10 @@ Commands["panorama"] = {
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params)
 		local x, y, z = CmdParser.ParsePos(cmd_text)
+
+		if not x or not y or not z then
+			return false
+		end
 		
 		function setPlayerPos(x, y, z)
 			GameLogic.RunCommand(string.format("/goto %s %s %s", x, y, z))
@@ -185,6 +189,16 @@ Commands["panorama"] = {
 			[5] = {x, y-1, z},
 		}
 
+		local rootPath = ""
+
+		if System.os.GetExternalStoragePath() ~= "" then
+			rootPath = System.os.GetExternalStoragePath() .. "paracraft/"
+		else
+			rootPath = ParaIO.GetWritablePath()
+		end
+
+		local currentTime = os.time()
+
 		function shot(pitch, yaw, name, chain)
 			local p = pos[name]
 			setPlayerPos(p[1], p[2], p[3])
@@ -192,7 +206,7 @@ Commands["panorama"] = {
 			ParaCamera.SetEyePos(1, pitch, yaw)
 
 			commonlib.TimerManager.SetTimeout(function()
-				local tempfile = string.format("Screen Shots/cubemap_tmp_%s.jpg", name)
+				local tempfile = string.format("%sScreen Shots/cubemap_tmp_%s_%s.jpg", rootPath, currentTime, name)
 				ParaMovie.TakeScreenShot(tempfile)
 				chain()
 			end, 1000)
@@ -205,7 +219,7 @@ Commands["panorama"] = {
 			--local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", -offset, 0, _width * _width / _height, _height);
 			local c = ParaUI.CreateUIObject("container", "RenderCubMapImage" .. os.time(), "_lt", 0, 0, _width * _width / _height, _height);
 
-			local tempfile = string.format("Screen Shots/cubemap_tmp_%s.jpg", name)
+			local tempfile = string.format("%sScreen Shots/cubemap_tmp_%s_%s.jpg", rootPath, currentTime, name)
 			c.background = tempfile
 
 			r:AddChild(c)
@@ -214,7 +228,7 @@ Commands["panorama"] = {
 			ParaEngine.ForceRender()
 	
 			commonlib.TimerManager.SetTimeout(function()
-				local filepath = string.format("Screen Shots/%s.jpg", name)
+				local filepath = string.format("%sScreen Shots/%s.jpg", rootPath, name)
 				ParaMovie.TakeScreenShot(filepath, _height, _height)
 				ParaUI.DestroyUIObject(c)
 
@@ -265,6 +279,7 @@ Commands["panorama"] = {
 												crop_shot(3, function()
 													crop_shot(4, function()
 														crop_shot(5, function()
+															-- send event
 														end)
 													end)
 												end)
