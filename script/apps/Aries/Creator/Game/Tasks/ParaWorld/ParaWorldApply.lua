@@ -281,7 +281,7 @@ function ParaWorldApply.OnOK()
 		return;
 	end
 
-	local region = page:GetValue("area", nil);
+	local region = page:GetValue("city", nil);
 	if (not region or region == 0) then
 		_guihelper.MessageBox(L"请选择有效的区域！");
 		return;
