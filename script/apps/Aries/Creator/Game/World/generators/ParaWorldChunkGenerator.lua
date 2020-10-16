@@ -67,7 +67,7 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 	local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 	if ((not GameLogic.IsReadOnly()) and KeepworkService:IsSignedIn() and (not WorldCommon.GetWorldTag("fromProjects"))) then
 		keepwork.world.myschoolParaWorld({}, function(err, msg, data)
-			if (data and data.schoolParaWorld) then
+			if (data and data.schoolParaWorld and tostring(data.schoolParaWorld.projectId) == GameLogic.options:GetProjectId()) then
 			else
 				local ParaWorldSchools = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSchools.lua");
 				ParaWorldSchools.ShowPage(function(projectId)

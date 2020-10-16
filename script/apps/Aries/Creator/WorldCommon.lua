@@ -428,6 +428,7 @@ function WorldCommon.ReplaceWorldImp()
 		if (result) then
 			_guihelper.MessageBox(string.format(L"替换成功，即将进入【%s】。", WorldCommon.sourceWorldName));
 		end
+		WorldCommon.sourceWorldName = nil
 		commonlib.TimerManager.SetTimeout(function()
 			WorldCommon.OpenWorld(targetFolder, true);
 		end, 2000);
@@ -435,13 +436,14 @@ function WorldCommon.ReplaceWorldImp()
 end
 
 function WorldCommon.OnWorldLoaded()
+	GameLogic:Disconnect("WorldLoaded", WorldCommon, WorldCommon.OnWorldLoaded, "UniqueConnection");
 	local projectId = GameLogic.options:GetProjectId();
 	if (projectId and tostring(projectId) == tostring(WorldCommon.destWorldId)) then
 		commonlib.TimerManager.SetTimeout(function()
 			_guihelper.MessageBox(L"正在使用当前世界替换原有的并行世界...");
-		end, 2000);
+		end, 3000);
 		commonlib.TimerManager.SetTimeout(function()
 			WorldCommon.ReplaceWorldImp()
-		end, 3000);
+		end, 4000);
 	end
 end
