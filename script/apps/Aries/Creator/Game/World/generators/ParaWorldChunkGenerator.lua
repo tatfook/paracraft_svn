@@ -30,6 +30,7 @@ local Chunk = commonlib.gettable("MyCompany.Aries.Game.World.Chunk");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine");
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
+local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
 
 local ParaWorldChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"))
 
@@ -58,8 +59,24 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 	GameLogic.RunCommand("/speedscale 2");
 	GameLogic.options:SetViewBobbing(false, true)
 
-	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId()) then
+	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and KeepworkService:IsSignedIn()) then
 		GameLogic.RunCommand("/ggs connect -silent=false");
+	end
+
+	NPL.load("(gl)script/apps/Aries/Creator/WorldCommon.lua");
+	local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
+	if ((not GameLogic.IsReadOnly()) and KeepworkService:IsSignedIn() and (not WorldCommon.GetWorldTag("fromProjects"))) then
+		keepwork.world.myschoolParaWorld({}, function(err, msg, data)
+			if (data and data.schoolParaWorld) then
+			else
+				local ParaWorldSchools = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSchools.lua");
+				ParaWorldSchools.ShowPage(function(projectId)
+					if (projectId) then
+						WorldCommon.ReplaceWorld(projectId);
+					end
+				end);
+			end
+		end);
 	end
 end
 

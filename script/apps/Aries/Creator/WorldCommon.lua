@@ -439,9 +439,9 @@ function WorldCommon.OnWorldLoaded()
 	if (projectId and tostring(projectId) == tostring(WorldCommon.destWorldId)) then
 		commonlib.TimerManager.SetTimeout(function()
 			_guihelper.MessageBox(L"正在使用当前世界替换原有的并行世界...");
-		end, 1000);
+		end, 2000);
 		commonlib.TimerManager.SetTimeout(function()
 			WorldCommon.ReplaceWorldImp()
-		end, 2000);
+		end, 3000);
 	end
 end
