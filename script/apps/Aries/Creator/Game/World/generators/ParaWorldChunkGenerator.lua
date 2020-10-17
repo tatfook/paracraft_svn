@@ -188,6 +188,8 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 		ground_block_id = 59;
 		isPGCArea = true
 	end
+	local worldDX, worldDY, worldDZ = c.Coords.WorldX, c.Coords.WorldY, c.Coords.WorldZ
+
 	for bx = 0, 15 do
 		local worldX = bx + (x * 16);
 		for bz = 0, 15 do
@@ -211,7 +213,10 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 					end
 				end
 			else
-				c:SetType(bx, by, bz, ground_block_id, false);
+				-- just in case we loaded template before generating terrain. we will ignore top grass layer
+				if(ParaTerrain.GetBlockTemplateByIdx(worldDX + bx, worldDY + by, worldDZ + bz) == 0) then
+					c:SetType(bx, by, bz, ground_block_id, false);
+				end
 			end
 		end
 	end
