@@ -13,6 +13,8 @@ NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldLoginAdapter.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldMiniChunkGenerator.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/BlockTemplatePage.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapSurface.lua");
+local ParaWorldMinimapSurface = commonlib.gettable("Paracraft.Controls.ParaWorldMinimapSurface");
 local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 local BlockTemplatePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BlockTemplatePage");
 local ParaWorldMiniChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator");
@@ -242,6 +244,15 @@ function ParaWorldSites.OnClickItem(index)
 		elseif (item.state == ParaWorldSites.Checked) then
 			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
+			local gen = GameLogic.GetBlockGenerator();
+			local x, y = gen:GetGridXYBy2DIndex(item.y, item.x);
+			local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
+			bx = bx + 64;
+			bz = bz + 64;
+			local y = ParaWorldMinimapSurface:GetHeightByWorldPos(bx, bz)
+			y = y or by;
+			ParaWorldSites.LoadMiniWorldOnSeat(item.x, item.y, true);
+			GameLogic.RunCommand(format("/goto %d %d %d", bx, y+1, bz))
 		else
 			ParaWorldSites.currentName = item.name or L"空地";
 			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
@@ -355,7 +366,6 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
 							file:close();
 							local gen = GameLogic.GetBlockGenerator();
 							local x, y = gen:GetGridXYBy2DIndex(column,row);
-							local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
 							gen:LoadTemplateAtGridXY(x, y, template_file);
 							currentItem.loaded = true;
 							currentItem.projectName = seat.paraMini.name;
@@ -435,7 +445,6 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center)
 					file:close();
 					local gen = GameLogic.GetBlockGenerator();
 					local x, y = gen:GetGridXYBy2DIndex(column,row);
-					local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
 					gen:LoadTemplateAtGridXY(x, y, template_file);
 					ParaWorldSites.AllMiniWorld[key].loaded = true;
 					ParaWorldSites.AllMiniWorld[key].projectName = worlds[index].name;
