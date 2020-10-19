@@ -128,7 +128,7 @@ function ParaWorldMiniChunkGenerator:OnLoadWorld()
 	GameLogic.options:SetViewBobbing(false, true)
 	
 	if(self:GetTotalCount() < 10) then
-		--self:ShowCreateFromTemplateWnd()
+		self:ShowCreateFromTemplateWnd()
 	end
 
 	self.lock_timer = self.lock_timer or commonlib.Timer:new({callbackFunc = function(timer)
