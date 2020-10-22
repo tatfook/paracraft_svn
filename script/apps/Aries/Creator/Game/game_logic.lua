@@ -1069,7 +1069,9 @@ end
 -- set mode 
 function GameLogic.SetMode(mode, bFireModeChangeEvent)
 	if mode == 'editor' then
-		GameLogic.GetFilters():apply_filters("user_behavior", "editWorld", "enter" , Mod.WorldShare.Store:Get("world/currentEnterWorld").kpProjectId );
+		if(GameLogic.options:GetProjectId()) then
+			GameLogic.GetFilters():apply_filters("user_behavior", "editWorld", "enter" , GameLogic.options:GetProjectId());
+		end
 	end
 	GameLogic.mode = mode;
 	GameMode:SetInnerMode(mode);
