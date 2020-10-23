@@ -216,7 +216,6 @@ Commands["panorama"] = {
 			commonlib.TimerManager.SetTimeout(function()
 				local tempfile = tempfile_path(name)
 
-				ParaCamera.SetEyePos(1, pitch, yaw)
 				ParaMovie.TakeScreenShot(tempfile)
 
 				chain()
@@ -251,6 +250,9 @@ Commands["panorama"] = {
 		GameLogic.RunCommand("/hide tips")
 		GameLogic.RunCommand("/hide")
 		GameLogic.RunCommand("/fov 1.57")
+
+		ParaScene.GetAttributeObject():SetField("BlockInput", true)
+		ParaCamera.GetAttributeObject():SetField("BlockInput", true)
 
 		ParaUI.ShowCursor(false)
 		ParaScene.EnableMiniSceneGraph(false);
@@ -296,6 +298,10 @@ Commands["panorama"] = {
 															GameLogic.RunCommand("/fov 1")
 															GameLogic.RunCommand("/cameradist 10")
 															GameLogic.RunCommand("/camerapitch 0")
+
+															ParaScene.GetAttributeObject():SetField("BlockInput", false)
+															ParaCamera.GetAttributeObject():SetField("BlockInput", false)
+													
 															-- send event
 															CommandManager:RunCommand('/sendevent after_generate_panorama')
 														end)
