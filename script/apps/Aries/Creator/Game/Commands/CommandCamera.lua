@@ -269,12 +269,7 @@ Commands["panorama"] = {
 						shot(-1.57, 3.14, 4, function()
 							shot(1.57, 3.14, 5, function()
 								GameLogic.RunCommand("/t 2 /property -all-2 PasueScene false")	
-								GameLogic.RunCommand("/show desktop")
-								GameLogic.RunCommand("/show tips")
-								GameLogic.RunCommand("/show")
 
-								ParaUI.ShowCursor(true)
-								ParaScene.EnableMiniSceneGraph(true);
 								ParaEngine.ForceRender()
 								ParaEngine.ForceRender()
 						
@@ -295,6 +290,13 @@ Commands["panorama"] = {
 														crop_shot(5, function()
 															delete_tempfile(5)
 
+															GameLogic.RunCommand("/show desktop")
+															GameLogic.RunCommand("/show tips")
+															GameLogic.RunCommand("/show")
+							
+															ParaUI.ShowCursor(true)
+															ParaScene.EnableMiniSceneGraph(true);
+							
 															GameLogic.RunCommand("/fov 1")
 															GameLogic.RunCommand("/cameradist 10")
 															GameLogic.RunCommand("/camerapitch 0")
