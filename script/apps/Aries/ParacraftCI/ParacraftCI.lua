@@ -52,9 +52,9 @@ function ParacraftCI.ShowPage(state)
 		directPosition = true,
 		align = "_ct",
 		x = -480 / 2,
-		y = -240 / 2,
+		y = -340 / 2,
 		width = 480,
-		height = 240,
+		height = 340,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
@@ -80,7 +80,7 @@ function ParacraftCI.GetStateText()
 end
 
 function ParacraftCI.StartUpdate()
-	local update_script = page:GetUIValue("UpdateScript", true);
+	local update_script = page:GetUIValue("UpdateScript", false);
 	local update_mod = page:GetUIValue("UpdateMod", true);
 	local update_worldshare= page:GetUIValue("UpdateWorldShare", true);
 	local update_GGS= page:GetUIValue("UpdateGeneralGameServerMod", true);
