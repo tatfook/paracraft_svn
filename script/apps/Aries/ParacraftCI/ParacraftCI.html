@@ -9,11 +9,25 @@
     <pe:mcml>
         <script refresh="false" type="text/npl" src="ParacraftCI.lua">
             <![CDATA[
+            NPL.load("(gl)script/installer/BuildParaWorld.lua");
+
             ParacraftCI = NPL.load("(gl)script/apps/Aries/ParacraftCI/ParacraftCI.lua");
             ParacraftCI.OnInit();
+            function BuildComplete()
+                local error_count = commonlib.BuildParaWorld.BuildComplete();
+                _guihelper.MessageBox("编译main_full.pkg 错误数量：" .. error_count);
+            end
             ]]>
         </script>
-        <aries:window mode="thin" style="width:480px;height:240px" title='<%= L"ParacraftCI"%>' onclose="ParacraftCI.OnClose">
+        <aries:window mode="thin" style="width:480px;height:340px" title='<%= L"ParacraftCI"%>' onclose="ParacraftCI.OnClose">
+            <div style="margin-left:20px;margin-top:10px;color:#ffffff;">
+                <div style="float:left;">
+                    <%=L"生成脚本：" %>
+                </div>
+                <div style="float:left;">
+                    <input type="button" value='<%=L"编译main_full.pkg" %>' style="height:30px;min-width:100px;color:#ffffff;" class="mc_blue_button_with_fillet" onclick="BuildComplete" />
+                </div>
+            </div>
             <pe:if condition='<%=(ParacraftCI.UpdateState==0)%>'>
                 <div style="width:480px;height:240px;">
                     <div style="margin-left:20px;margin-top:30px;height:124px;width:480px;text-align:left;color:#ffffff;font-size:13px">
