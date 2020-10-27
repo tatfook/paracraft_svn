@@ -135,10 +135,6 @@ function ParaWorldMiniChunkGenerator:OnLoadWorld()
 		self:OnLockTimer()
 	end})
 	self.lock_timer:Change(1000, 1000);
-
-	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId()) then
-		GameLogic.RunCommand("/ggs connect -silent=false");
-	end
 end
 
 function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd()

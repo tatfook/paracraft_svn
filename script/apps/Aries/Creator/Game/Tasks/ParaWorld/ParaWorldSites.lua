@@ -96,7 +96,7 @@ function ParaWorldSites.GetParaWorldName()
 	return ParaWorldSites.paraWorldName;
 end
 
-function ParaWorldSites.UpdateSitesState()
+function ParaWorldSites.UpdateSitesState(callback)
 	local state = ParaWorldSites.Locked;
 	if (ParaWorldLoginAdapter.ParaWorldId) then
 		state = ParaWorldSites.Available;
@@ -109,7 +109,12 @@ function ParaWorldSites.UpdateSitesState()
 		if (data and data.sites) then
 			ParaWorldSites.paraWorldName = data.name;
 			ParaWorldSites.SetCurrentSite(data.sites);
-			page:Refresh(0);
+			if (page) then
+				page:Refresh(0);
+			end
+			if (callback) then
+				callback();
+			end
 		end
 	end);
 end
@@ -148,6 +153,10 @@ function ParaWorldSites.SetCurrentSite(sites)
 						item.state = ParaWorldSites.Locked;
 					elseif (seat.status == "checked") then
 						item.state = ParaWorldSites.Checked;
+						local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
+						if (seat.paraMini.userId == userId) then
+							item.state = ParaWorldSites.Selected;
+						end
 					end
 					if (seat.paraMini and seat.paraMini.name) then
 						item.name = seat.paraMini.name;
@@ -184,7 +193,6 @@ function ParaWorldSites.InitSitesNumber()
 	-- first down to radius unit, then right to radius unit, up to radius unit, last left to radius unit
 	-- radius from 3 to 9, 3 5 7 9
 	local index = 1;
-	local radius = 3;
 	local corner1, corner2 = 4, 7;
 	for radius = 3, 9, 2 do
 		-- down
@@ -212,11 +220,20 @@ function ParaWorldSites.InitSitesNumber()
 	end
 end
 
-function ParaWorldSites.GetIndexFromPos(row, column)
+function ParaWorldSites.GetSeatNumFromPos(row, column)
 	for i = 1, #ParaWorldSites.SitesNumber do
 		local pos = ParaWorldSites.SitesNumber[i];
 		if (pos.row == row and pos.column == column) then
 			return i;
+		end
+	end
+end
+
+function ParaWorldSites.GetItemFromPos(row, column)
+	for i = 1, #ParaWorldSites.Current_Item_DS do
+		local item = ParaWorldSites.Current_Item_DS[i];
+		if (item.x == row and item.y == column) then
+			return item;
 		end
 	end
 end
@@ -232,7 +249,7 @@ function ParaWorldSites.OnClickItem(index)
 			if (ParaWorldSites.IsOwner) then
 				_guihelper.MessageBox("该地块已锁定，你确定要解锁吗？", function(res)
 					if(res and res == _guihelper.DialogResult.OK) then
-						local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+						local id = ParaWorldSites.GetSeatNumFromPos(item.x, item.y);
 						keepwork.world.unlock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 							if (err == 200) then
 								ParaWorldSites.UpdateSitesState();
@@ -241,7 +258,7 @@ function ParaWorldSites.OnClickItem(index)
 					end
 				end, _guihelper.MessageBoxButtons.OKCancel);
 			end
-		elseif (item.state == ParaWorldSites.Checked) then
+		elseif (item.state == ParaWorldSites.Checked or item.state == ParaWorldSites.Selected) then
 			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
 			local gen = GameLogic.GetBlockGenerator();
@@ -255,13 +272,11 @@ function ParaWorldSites.OnClickItem(index)
 			GameLogic.RunCommand(format("/goto %d %d %d", bx, y+1, bz))
 		else
 			ParaWorldSites.currentName = item.name or L"空地";
-			ParaWorldSites.Current_Item_DS[index].state = ParaWorldSites.Selected;
-			page:Refresh(0);
 
 			if (ParaWorldSites.IsOwner) then
 				_guihelper.MessageBox(L"该地块为空地，你确定要锁定吗（否则占座）？", function(res)
 					if(res and res == _guihelper.DialogResult.OK) then
-						local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+						local id = ParaWorldSites.GetSeatNumFromPos(item.x, item.y);
 						keepwork.world.lock_seat({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 							if (err == 200) then
 								ParaWorldSites.UpdateSitesState();
@@ -286,7 +301,7 @@ function ParaWorldSites.ShowTakeSeat(item, index)
 	
 	ParaWorldTakeSeat.ShowPage(function(res, worldId)
 		if (res) then
-			local id = ParaWorldSites.GetIndexFromPos(item.x, item.y);
+			local id = ParaWorldSites.GetSeatNumFromPos(item.x, item.y);
 			if (not id) then
 				resetState();
 				_guihelper.MessageBox(L"所选的座位无效！");
@@ -341,7 +356,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
 	end
 
 	currentItem.loaded = true;
-	local sn = ParaWorldSites.GetIndexFromPos(row, column);
+	local sn = ParaWorldSites.GetSeatNumFromPos(row, column);
 	keepwork.world.get({router_params={id=ParaWorldLoginAdapter.ParaWorldId}}, function(err, msg, data)
 		if (data and data.sites) then
 			for i = 1, #data.sites do
@@ -498,4 +513,56 @@ function ParaWorldSites.Reset()
 		item.loaded = false;
 		item.projectName = "";
 	end
+end
+
+function ParaWorldSites.LoadAdvertisementWorld()
+	function loadTemplate(projectId, row, column)
+		local path = ParaWorldMiniChunkGenerator:GetTemplateFilepath();
+		local filename = ParaIO.GetFileName(path);
+		local KeepworkServiceWorld = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/World.lua");
+		KeepworkServiceWorld:GetSingleFile(projectId, filename, function(content)
+			if (not content) then
+				return;
+			end
+
+			local miniTemplateDir = ParaIO.GetCurDirectory(0).."temp/miniworlds/";
+			ParaIO.CreateDirectory(miniTemplateDir);
+			local template_file = miniTemplateDir..projectId..".xml";
+			local file = ParaIO.open(template_file, "w");
+			if (file:IsValid()) then
+				file:write(content, #content);
+				file:close();
+				local gen = GameLogic.GetBlockGenerator();
+				local x, y = gen:GetGridXYBy2DIndex(column,row);
+				gen:LoadTemplateAtGridXY(x, y, template_file);
+			end
+		end);
+	end
+
+	keepwork.world.paraWorldFillings({}, function(err, msg, data)
+		if (err == 200 and data and #data > 0) then
+			ParaWorldSites.UpdateSitesState(function()
+				local count = 1;
+				for i = 1, #data do
+					if (i > 1) then
+						count = count + data[i-1].quantity;
+					end
+					local index = 1;
+					local projectIds = data[i].projectIds;
+					for j = count, count + data[i].quantity - 1 do
+						if (#projectIds < index) then
+							break;
+						end
+						local projectId = projectIds[index];
+						local row, column = ParaWorldSites.SitesNumber[j].row, ParaWorldSites.SitesNumber[j].column;
+						local item = ParaWorldSites.GetItemFromPos(row, column);
+						if (item and item.state == ParaWorldSites.Available) then
+							loadTemplate(projectId, row, column);
+							index = index + 1;
+						end
+					end
+				end
+			end);
+		end
+	end);
 end
