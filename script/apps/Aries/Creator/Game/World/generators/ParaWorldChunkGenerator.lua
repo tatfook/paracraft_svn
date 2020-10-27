@@ -60,6 +60,7 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 	GameLogic.options:SetViewBobbing(false, true)
 
 	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and KeepworkService:IsSignedIn()) then
+		GameLogic.RunCommand("/hide desktop");
 		GameLogic.RunCommand("/ggs connect -silent=false");
 	end
 
