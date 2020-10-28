@@ -14,12 +14,17 @@ local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.Par
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local TeachingQuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestPage.lua");
 local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
+local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
+local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 
 local TeachingQuestTitle = NPL.export()
 
 local page;
+local TaskTime = 0
+local TimeLimit = 20 -- 观看20秒算是完成任务
 function TeachingQuestTitle.OnInit()
 	page = document:GetPageCtrl();
+
 end
 
 function TeachingQuestTitle.StaticInit()
@@ -29,11 +34,22 @@ function TeachingQuestTitle.CreateOrGetBrowserPage()
 	return NplBrowserManager:CreateOrGet("TeachingQuest_BrowserPage");
 end
 function TeachingQuestTitle.OnWorldLoaded()
+	-- 探索5个世界任务
+	if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.VisitWorld) then
+		local world_generator = WorldCommon.GetWorldTag("world_generator");
+		local world_id = WorldCommon.GetWorldTag("kpProjectId");
+		local sunzi_world_id = "19405" -- 排除孙子兵法世界
+		if world_generator ~= "paraworld" and GameLogic.IsReadOnly() and world_id ~= sunzi_world_id then
+			DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.VisitWorld)
+		end
+	end
+	
 	TeachingQuestPage.ResetTasks();
 	--TeachingQuestTitle.CreateOrGetBrowserPage():Close();
 	if (page) then
 		page:CloseWindow();
 	end
+
 	local projectId = GameLogic.options:GetProjectId();
 	projectId = tonumber(projectId);
 	if (ParaWorldLoginAdapter.MainWorldId == nil) then
@@ -63,6 +79,11 @@ function TeachingQuestTitle.OnWorldLoaded()
 			local state = TeachingQuestPage.GetTaskState(TeachingQuestPage.currentIndex);
 			if (state == TeachingQuestPage.Finished or state == TeachingQuestPage.Activated) then
 				commonlib.TimerManager.SetTimeout(function()  
+					TaskTime = 0
+					if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.WeekWork) then
+						GameLogic.AddBBS("desktop", L"至少需要学习20秒才能获得学习任务奖励哦~", 3000, "0 255 0"); 
+					end
+
 					TeachingQuestTitle.ShowPage("?info=task");
 					GameLogic.GetEvents():AddEventListener("DesktopMenuShow", TeachingQuestTitle.MoveDown, TeachingQuestTitle, "TeachingQuestTitle");
 					GameLogic.GetEvents():AddEventListener("CodeBlockWindowShow", TeachingQuestTitle.MoveLeft, TeachingQuestTitle, "TeachingQuestTitle");
@@ -303,6 +324,7 @@ function TeachingQuestTitle.StartTask()
 		end
 
 		if (not TeachingQuestTitle.IsTaskFinished()) then
+
 			--[[
 			_guihelper.MessageBox(L"是否使用1张入场券开始当前世界任务？", function(res)
 				if(res and res == _guihelper.DialogResult.Yes) then
@@ -316,6 +338,8 @@ function TeachingQuestTitle.StartTask()
 				end
 			end, _guihelper.MessageBoxButtons.YesNo);
 			]]
+			TaskTime = os.time()
+
 			local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
 			if (TeachingQuestPage.IsVip()) then
 				exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
@@ -323,6 +347,7 @@ function TeachingQuestTitle.StartTask()
 			KeepWorkItemManager.DoExtendedCost(exid, function()
 				ShowTaskVideo(true);
 			end);
+
 		else
 			ShowTaskVideo(false);
 		end
@@ -332,18 +357,25 @@ end
 function TeachingQuestTitle.FinishedTask()
 	if (firstStart) then
 		firstStart = false;
-		if (TeachingQuestPage.IsVip()) then
-			GameLogic.AddBBS("statusBar", L"获得了20个知识豆。", 3000, "0 255 0");
-			--_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆。您已开通VIP，自动获得了20知识豆！");
-		else
-			GameLogic.AddBBS("statusBar", L"获得了10个知识豆。", 3000, "0 255 0");
-			--[[
-			_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆，是否开通VIP获取双倍知识豆？", function(res)
-				if(res and res == _guihelper.DialogResult.Yes) then
-					ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/vip", "", 1); 
-				end
-			end, _guihelper.MessageBoxButtons.YesNo);
-			]]
+		-- if (TeachingQuestPage.IsVip()) then
+		-- 	GameLogic.AddBBS("statusBar", L"获得了20个知识豆。", 3000, "0 255 0");
+		-- 	--_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆。您已开通VIP，自动获得了20知识豆！");
+		-- else
+		-- 	GameLogic.AddBBS("statusBar", L"获得了10个知识豆。", 3000, "0 255 0");
+		-- 	--[[
+		-- 	_guihelper.MessageBox(L"普通用户完成任务后自动获得10知识豆，VIP用户获得20知识豆，是否开通VIP获取双倍知识豆？", function(res)
+		-- 		if(res and res == _guihelper.DialogResult.Yes) then
+		-- 			ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/vip", "", 1); 
+		-- 		end
+		-- 	end, _guihelper.MessageBoxButtons.YesNo);
+		-- 	]]
+		-- end
+		
+		if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.WeekWork) and os.time() - TaskTime >= TimeLimit then
+			DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.WeekWork, function ()
+				TeachingQuestTitle.ShowPage("?info=task");
+			end)
+			
 		end
 	end
 	taskInProcess = false;

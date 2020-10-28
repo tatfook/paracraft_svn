@@ -90,7 +90,7 @@ local names;
 -- TODO: testing only, replace this with 
 -- local BlockTerrain = ParaTerrain;
 local BlockTerrain = commonlib.gettable("MyCompany.Aries.Game.Fake_ParaTerrain")
-
+local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
 -- expose to global environment
 _G["GameLogic"] = commonlib.gettable("MyCompany.Aries.Game.GameLogic"); 
 _G["Game"] = commonlib.gettable("MyCompany.Aries.Game");
@@ -748,6 +748,8 @@ function GameLogic.SaveAll(bSaveToLastSaveFolder, bForceSave)
 	NeuronManager.SaveToFile(bSaveToLastSaveFolder);
 	EntityManager.SaveToFile(bSaveToLastSaveFolder==true);
 	BroadcastHelper.PushLabel({id="GameLogic", label = format(L"保存成功 [版本:%d]", GameLogic.options:GetRevision()), max_duration=4000, color = "0 255 0", scaling=1.1, bold=true, shadow=true,});
+	DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.UpdataWorld)
+
 	ModManager:OnWorldSave();
 	GameLogic.world_revision:UpdateWorldFileSize();
 	GameLogic:WorldSaved(); -- signal
