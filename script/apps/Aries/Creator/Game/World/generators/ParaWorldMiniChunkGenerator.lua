@@ -243,7 +243,10 @@ function ParaWorldMiniChunkGenerator:OnSaveWorld()
 							if (world.extra and world.extra.worldTagName) then
 								worldName = world.extra.worldTagName;
 							end
-							keepwork.miniworld.upload({projectId = projectId, name = worldName, type="main", commitId = world.commitId, block = self:GetTotalCount()}, function(err, msg, data)
+							local player = EntityManager.GetPlayer()
+							local x, y, z = player:GetBlockPos();
+							keepwork.miniworld.upload({projectId = projectId, name = worldName, type="main", commitId = world.commitId,
+								block = self:GetTotalCount(), bornAt = {math.floor(x), math.floor(y), math.floor(z)}}, function(err, msg, data)
 								if (err == 200) then
 									_guihelper.MessageBox(L"上传成功！");
 								end

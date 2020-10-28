@@ -268,8 +268,13 @@ function ParaWorldSites.OnClickItem(index)
 			bz = bz + 64;
 			local y = ParaWorldMinimapSurface:GetHeightByWorldPos(bx, bz)
 			y = y or by;
-			ParaWorldSites.LoadMiniWorldOnSeat(item.x, item.y, true);
-			GameLogic.RunCommand(format("/goto %d %d %d", bx, y+1, bz))
+			GameLogic.RunCommand(format("/goto %d %d %d", bx, y+1, bz));
+			ParaWorldSites.LoadMiniWorldOnSeat(item.x, item.y, true, function(x, y, z)
+				local cx, _, cz = gen:GetWorldCenter();
+				local bornX = bx + x - cx;
+				local bornZ = bz + z - cz;
+				GameLogic.RunCommand(format("/goto %d %d %d", bornX, y, bornZ));
+			end);
 		else
 			ParaWorldSites.currentName = item.name or L"空地";
 
@@ -329,7 +334,7 @@ function ParaWorldSites.OnClickMain()
 	page:Refresh(0);
 end
 
-function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
+function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 	if (not ParaWorldSites.SitesNumber or #ParaWorldSites.SitesNumber < 1) then
 		ParaWorldSites.InitSitesNumber();
 	end
@@ -344,6 +349,9 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
 			if (currentItem.loaded) then
 				if (center and currentItem.projectName and currentItem.projectName ~= "") then
 					GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", currentItem.projectName), 3000, "0 255 0");
+					if (currentItem.bornAt and callback) then
+						callback(currentItem.bornAt[1], currentItem.bornAt[2], currentItem.bornAt[3]);
+					end
 				end
 				return;
 			else
@@ -384,8 +392,12 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
 							gen:LoadTemplateAtGridXY(x, y, template_file);
 							currentItem.loaded = true;
 							currentItem.projectName = seat.paraMini.name;
+							currentItem.bornAt = seat.paraMini.bornAt;
 							if (center) then
 								GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", seat.paraMini.name), 3000, "0 255 0");
+								if (seat.paraMini.bornAt and callback) then
+									callback(seat.paraMini.bornAt[1], seat.paraMini.bornAt[2], seat.paraMini.bornAt[3]);
+								end
 							end
 						end
 					end);
@@ -399,7 +411,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center)
 	end);
 end
 
-function ParaWorldSites.LoadMiniWorldInRandom(row, column, center)
+function ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback)
 	--[[
 	if (row < 1) then
 		keepwork.miniworld.list({searchType = "school"}, function(err, msg, data)
@@ -423,6 +435,9 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center)
 	if (ParaWorldSites.AllMiniWorld[key] and ParaWorldSites.AllMiniWorld[key].loaded) then
 		if (center and ParaWorldSites.AllMiniWorld[key].projectName and ParaWorldSites.AllMiniWorld[key].projectName ~= "") then
 			GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", ParaWorldSites.AllMiniWorld[key].projectName), 3000, "0 255 0");
+			if (ParaWorldSites.AllMiniWorld[key].bornAt and callback) then
+				callback(ParaWorldSites.AllMiniWorld[key].bornAt[1], ParaWorldSites.AllMiniWorld[key].bornAt[2], ParaWorldSites.AllMiniWorld[key].bornAt[3]);
+			end
 		end
 		return;
 	end
@@ -463,8 +478,12 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center)
 					gen:LoadTemplateAtGridXY(x, y, template_file);
 					ParaWorldSites.AllMiniWorld[key].loaded = true;
 					ParaWorldSites.AllMiniWorld[key].projectName = worlds[index].name;
+					ParaWorldSites.AllMiniWorld[key].bornAt = seat.paraMini.bornAt;
 					if (center) then
 						GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", worlds[index].name), 3000, "0 255 0");
+						if (seat.paraMini.bornAt and callback) then
+							callback(seat.paraMini.bornAt[1], seat.paraMini.bornAt[2], seat.paraMini.bornAt[3]);
+						end
 					end
 				else
 					ParaWorldSites.AllMiniWorld[key].loaded = false;
@@ -476,19 +495,19 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center)
 	end);
 end
 
-function ParaWorldSites.LoadMiniWorldOnPos(x, z)
-	function loadMiniWorld(row, column, center)
+function ParaWorldSites.LoadMiniWorldOnPos(x, z, callback)
+	function loadMiniWorld(row, column, center, callback)
 		if (row < 1 or column < 1 or row > 10 or column > 10) then
-			ParaWorldSites.LoadMiniWorldInRandom(row, column, center);
+			ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback);
 		else
-			ParaWorldSites.LoadMiniWorldOnSeat(row, column, center);
+			ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback);
 		end
 	end
 	if (GameLogic.IsReadOnly() and ParaWorldLoginAdapter.ParaWorldId and WorldCommon.GetWorldTag("world_generator") == "paraworld") then
 		local gen = GameLogic.GetBlockGenerator();
 		local gridX, gridY = gen:FromWorldPosToGridXY(x, z);
 		local row, column = gen:Get2DIndexByGridXY(gridX, gridY);
-		loadMiniWorld(row, column, true);
+		loadMiniWorld(row, column, true, callback);
 		for i = -1, 1, 2 do
 			loadMiniWorld(row + i, column);
 			loadMiniWorld(row, column + i);
@@ -507,11 +526,13 @@ function ParaWorldSites.Reset()
 	for i = 1, #ParaWorldSites.Current_Item_DS do
 		ParaWorldSites.Current_Item_DS[i].loaded = false;
 		ParaWorldSites.Current_Item_DS[i].projectName = "";
+		ParaWorldSites.Current_Item_DS[i].bornAt = nil; 
 	end
 
 	for _, item in pairs(ParaWorldSites.AllMiniWorld) do
 		item.loaded = false;
 		item.projectName = "";
+		item.bornAt = nil;
 	end
 end
 
