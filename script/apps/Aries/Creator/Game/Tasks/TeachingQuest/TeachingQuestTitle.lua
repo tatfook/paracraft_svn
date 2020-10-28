@@ -38,8 +38,16 @@ function TeachingQuestTitle.OnWorldLoaded()
 	if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.VisitWorld) then
 		local world_generator = WorldCommon.GetWorldTag("world_generator");
 		local world_id = WorldCommon.GetWorldTag("kpProjectId");
+		local world_name = WorldCommon.GetWorldTag("name");
 		local sunzi_world_id = "19405" -- 排除孙子兵法世界
-		if world_generator ~= "paraworld" and GameLogic.IsReadOnly() and world_id ~= sunzi_world_id then
+
+		local exclude_world = {
+			["Paracraft小课堂"] = 1
+		}
+
+		-- print("fffffffffffffffffffff", world_generator)
+		-- commonlib.echo(WorldCommon.world_info, true)
+		if world_generator ~= "paraworld" and GameLogic.IsReadOnly() and world_id ~= sunzi_world_id and exclude_world[world_name] == nil then
 			DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.VisitWorld)
 		end
 	end
