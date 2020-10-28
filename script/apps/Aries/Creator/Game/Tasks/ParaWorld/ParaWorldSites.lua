@@ -154,7 +154,7 @@ function ParaWorldSites.SetCurrentSite(sites)
 					elseif (seat.status == "checked") then
 						item.state = ParaWorldSites.Checked;
 						local userId = tonumber(Mod.WorldShare.Store:Get("user/userId"));
-						if (seat.paraMini.userId == userId) then
+						if (seat.paraMini and seat.paraMini.userId == userId) then
 							item.state = ParaWorldSites.Selected;
 						end
 					end
@@ -261,6 +261,7 @@ function ParaWorldSites.OnClickItem(index)
 		elseif (item.state == ParaWorldSites.Checked or item.state == ParaWorldSites.Selected) then
 			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
+			--[[
 			local gen = GameLogic.GetBlockGenerator();
 			local x, y = gen:GetGridXYBy2DIndex(item.y, item.x);
 			local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
@@ -275,6 +276,7 @@ function ParaWorldSites.OnClickItem(index)
 				local bornZ = bz + z - cz;
 				GameLogic.RunCommand(format("/goto %d %d %d", bornX, y, bornZ));
 			end);
+			]]
 		else
 			ParaWorldSites.currentName = item.name or L"空地";
 
