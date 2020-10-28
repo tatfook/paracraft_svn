@@ -42,7 +42,8 @@ function TeachingQuestTitle.OnWorldLoaded()
 		local sunzi_world_id = "19405" -- 排除孙子兵法世界
 
 		local exclude_world = {
-			["Paracraft小课堂"] = 1
+			["Paracraft小课堂"] = 1,
+			["孙子兵法"] = 1,
 		}
 
 		-- print("fffffffffffffffffffff", world_generator)
