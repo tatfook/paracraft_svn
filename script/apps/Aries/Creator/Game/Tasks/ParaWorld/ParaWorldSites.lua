@@ -33,6 +33,7 @@ ParaWorldSites.Available = 4;
 ParaWorldSites.currentRow = 5;
 ParaWorldSites.currentColumn = 5;
 ParaWorldSites.currentName = L"主世界";
+ParaWorldSites.currentItem = nil;
 
 ParaWorldSites.paraWorldName = L"并行世界";
 
@@ -52,6 +53,7 @@ function ParaWorldSites.ShowPage()
 	ParaWorldSites.currentRow = 5;
 	ParaWorldSites.currentColumn = 5;
 	ParaWorldSites.currentName = L"主世界";
+	ParaWorldSites.currentItem = nil;
 	if (not ParaWorldSites.SitesNumber or #ParaWorldSites.SitesNumber < 1) then
 		ParaWorldSites.InitSitesNumber();
 	end
@@ -160,6 +162,14 @@ function ParaWorldSites.SetCurrentSite(sites)
 					end
 					if (seat.paraMini and seat.paraMini.name) then
 						item.name = seat.paraMini.name;
+						if (_guihelper.GetTextWidth(item.name, "System;16") > 132) then
+							if (string.find(item.name, L"的家园") or string.find(item.name, "_main")) then
+								local text = string.sub(item.name, 1, 8);
+								item.name = string.format(L"%s...的家园", text);
+							else
+								item.name = commonlib.utf8.sub(item.name, 1, 8);
+							end
+						end
 					end
 					break;
 				end
@@ -238,10 +248,34 @@ function ParaWorldSites.GetItemFromPos(row, column)
 	end
 end
 
+function ParaWorldSites.GotoSelectWorld()
+	local item = ParaWorldSites.currentItem;
+	if (item) then
+		local gen = GameLogic.GetBlockGenerator();
+		local x, y = gen:GetGridXYBy2DIndex(item.y, item.x);
+		local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
+		bx = bx + 64;
+		bz = bz + 64;
+		local y = ParaWorldMinimapSurface:GetHeightByWorldPos(bx, bz)
+		y = y or by;
+		GameLogic.RunCommand(format("/goto %d %d %d", bx, y+1, bz));
+		ParaWorldSites.LoadMiniWorldOnSeat(item.x, item.y, true, function(x, y, z)
+			local cx, _, cz = gen:GetWorldCenter();
+			local bornX = bx + x - cx;
+			local bornZ = bz + z - cz;
+			GameLogic.RunCommand(format("/goto %d %d %d", bornX, y, bornZ));
+		end);
+	else
+		GameLogic.RunCommand("/home");
+	end
+end
+
 function ParaWorldSites.OnClickItem(index)
+	ParaWorldSites.currentItem = nil;
 	local projectId = GameLogic.options:GetProjectId();
 	local item = ParaWorldSites.Current_Item_DS[index];
 	if (item and projectId and tonumber(projectId)) then
+		ParaWorldSites.currentItem = item;
 		ParaWorldSites.currentRow, ParaWorldSites.currentColumn = item.x, item.y;
 		if (item.state == ParaWorldSites.Locked) then
 			ParaWorldSites.currentName = L"该地块已锁定";
@@ -261,7 +295,6 @@ function ParaWorldSites.OnClickItem(index)
 		elseif (item.state == ParaWorldSites.Checked or item.state == ParaWorldSites.Selected) then
 			ParaWorldSites.currentName = item.name or L"该地块已有人入驻";
 			page:Refresh(0);
-			--[[
 			local gen = GameLogic.GetBlockGenerator();
 			local x, y = gen:GetGridXYBy2DIndex(item.y, item.x);
 			local bx, by, bz = gen:GetBlockOriginByGridXY(x, y);
@@ -276,7 +309,6 @@ function ParaWorldSites.OnClickItem(index)
 				local bornZ = bz + z - cz;
 				GameLogic.RunCommand(format("/goto %d %d %d", bornX, y, bornZ));
 			end);
-			]]
 		else
 			ParaWorldSites.currentName = item.name or L"空地";
 
@@ -333,6 +365,7 @@ function ParaWorldSites.OnClickMain()
 	ParaWorldSites.currentRow = 5;
 	ParaWorldSites.currentColumn = 5;
 	ParaWorldSites.currentName = L"主世界";
+	ParaWorldSites.currentItem = nil;
 	page:Refresh(0);
 end
 
