@@ -128,6 +128,33 @@ function ParaWorldChunkGenerator:Get2DIndexByGridXY(x, y)
 	return 5-x, 5-y;
 end
 
+-- delete everything at x, y grid position. 
+function ParaWorldChunkGenerator:ResetGridXY(x, y)
+	local minX, minY, minZ = self:GetBlockOriginByGridXY(x, y);
+	self:ResetGridImp(minX, minY, minZ)
+end
+
+-- reset a grid
+function ParaWorldChunkGenerator:ResetGridImp(minX, minY, minZ)
+	size = size or 120;
+	local ground_block_id = 62;
+
+	for x = minX+4, minX + size - 1 do
+		for z = minZ+4, minZ + size - 1 do
+			local y = minY-1
+			BlockEngine:SetBlock(x, y, z, ground_block_id)
+			local dist = 1;
+			while(dist > 0) do
+				dist = ParaTerrain.FindFirstBlock(x,y,z, 4, 255-y, 0xffff);
+				if(dist > 0) then
+					y = y + dist;
+					BlockEngine:SetBlockToAir(x, y, z);
+				end
+			end
+		end
+	end
+end
+
 -- static function:
 function ParaWorldChunkGenerator:LoadTemplateAtGridXY(x, y, filename)
 	if(filename) then
@@ -405,6 +432,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 		end
 	end
 end
+
 
 -- called in main thread, similar in Chunk:ApplyMapChunkData
 function ParaWorldChunkGenerator:ApplyOnLoadBlocks(params)
