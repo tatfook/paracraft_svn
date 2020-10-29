@@ -252,6 +252,21 @@ function GameLogic.InitCommon()
 	ParaWorldMain:Init()
 end
 
+-- for checking desktop state after activate desktop
+function GameLogic.After_OnActivateDesktop()
+    local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+
+    NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
+    local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
+
+
+    if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and KeepworkService:IsSignedIn()) then
+	    local generatorName = WorldCommon.GetWorldTag("world_generator");
+        if(generatorName == "paraworld")then
+		    Desktop.HideAllAreas();
+        end
+	end
+end
 -- call this when user first enters a game world.
 function GameLogic.Init(worldObj)
 	GameLogic.InitCommon();
