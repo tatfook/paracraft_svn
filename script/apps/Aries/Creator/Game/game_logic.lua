@@ -267,7 +267,9 @@ function GameLogic.After_OnActivateDesktop()
     if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and KeepworkService:IsSignedIn()) then
 	    local generatorName = WorldCommon.GetWorldTag("world_generator");
         if(generatorName == "paraworld")then
-		    Desktop.HideAllAreas();
+            NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/GameDock.lua");
+            local GameDock = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.GameDock");
+            GameDock.ShowPage(false);
         end
 	end
 end
