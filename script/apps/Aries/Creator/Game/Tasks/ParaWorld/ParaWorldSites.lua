@@ -439,7 +439,32 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 					return;
 				end
 			end
-			currentItem.loaded = false;
+
+			if (currentItem.adProjectId) then
+				local path = ParaWorldMiniChunkGenerator:GetTemplateFilepath();
+				local filename = ParaIO.GetFileName(path);
+				local KeepworkServiceWorld = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/World.lua");
+				KeepworkServiceWorld:GetSingleFile(currentItem.adProjectId, filename, function(content)
+					if (not content) then
+						currentItem.loaded = false;
+						return;
+					end
+
+					local miniTemplateDir = ParaIO.GetCurDirectory(0).."temp/miniworlds/";
+					ParaIO.CreateDirectory(miniTemplateDir);
+					local template_file = miniTemplateDir..currentItem.adProjectId..".xml";
+					local file = ParaIO.open(template_file, "w");
+					if (file:IsValid()) then
+						file:write(content, #content);
+						file:close();
+						local gen = GameLogic.GetBlockGenerator();
+						local x, y = gen:GetGridXYBy2DIndex(column,row);
+						gen:LoadTemplateAtGridXY(x, y, template_file);
+					end
+				end);
+			else
+				currentItem.loaded = false;
+			end
 		else
 			currentItem.loaded = false;
 		end
@@ -562,6 +587,7 @@ function ParaWorldSites.Reset()
 		ParaWorldSites.Current_Item_DS[i].loaded = false;
 		ParaWorldSites.Current_Item_DS[i].projectName = "";
 		ParaWorldSites.Current_Item_DS[i].bornAt = nil; 
+		ParaWorldSites.Current_Item_DS[i].adProjectId = nil; 
 	end
 
 	for _, item in pairs(ParaWorldSites.AllMiniWorld) do
@@ -572,6 +598,7 @@ function ParaWorldSites.Reset()
 end
 
 function ParaWorldSites.LoadAdvertisementWorld()
+	--[[
 	function loadTemplate(projectId, row, column)
 		local path = ParaWorldMiniChunkGenerator:GetTemplateFilepath();
 		local filename = ParaIO.GetFileName(path);
@@ -594,6 +621,7 @@ function ParaWorldSites.LoadAdvertisementWorld()
 			end
 		end);
 	end
+	]]
 
 	keepwork.world.paraWorldFillings({}, function(err, msg, data)
 		if (err == 200 and data and #data > 0) then
@@ -613,7 +641,8 @@ function ParaWorldSites.LoadAdvertisementWorld()
 						local row, column = ParaWorldSites.SitesNumber[j].row, ParaWorldSites.SitesNumber[j].column;
 						local item = ParaWorldSites.GetItemFromPos(row, column);
 						if (item and item.state == ParaWorldSites.Available) then
-							loadTemplate(projectId, row, column);
+							--loadTemplate(projectId, row, column);
+							item.adProjectId = projectId;
 							index = index + 1;
 						end
 					end
