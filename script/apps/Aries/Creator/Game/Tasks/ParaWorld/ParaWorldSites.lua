@@ -513,11 +513,11 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback)
 					gen:LoadTemplateAtGridXY(x, y, template_file);
 					ParaWorldSites.AllMiniWorld[key].loaded = true;
 					ParaWorldSites.AllMiniWorld[key].projectName = worlds[index].name;
-					ParaWorldSites.AllMiniWorld[key].bornAt = seat.paraMini.bornAt;
+					ParaWorldSites.AllMiniWorld[key].bornAt = worlds[index].bornAt;
 					if (center) then
 						GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", worlds[index].name), 3000, "0 255 0");
-						if (seat.paraMini.bornAt and callback) then
-							callback(seat.paraMini.bornAt[1], seat.paraMini.bornAt[2], seat.paraMini.bornAt[3]);
+						if (worlds[index].bornAt and callback) then
+							callback(worlds[index].bornAt[1], worlds[index].bornAt[2], worlds[index].bornAt[3]);
 						end
 					end
 				else
