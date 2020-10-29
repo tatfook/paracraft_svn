@@ -51,6 +51,11 @@ function DailyTask.Show()
 end
 
 function DailyTask.ShowView()
+	if page then
+		page:CloseWindow();
+		DailyTask.CloseView()
+	end
+
 	DailyTask.isOpen = true
 	local view_width = 850
 	local view_height = 443

@@ -34,6 +34,7 @@ function TeachingQuestTitle.CreateOrGetBrowserPage()
 	return NplBrowserManager:CreateOrGet("TeachingQuest_BrowserPage");
 end
 function TeachingQuestTitle.OnWorldLoaded()
+	
 	-- 探索5个世界任务
 	if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.VisitWorld) then
 		local world_generator = WorldCommon.GetWorldTag("world_generator");
@@ -49,7 +50,7 @@ function TeachingQuestTitle.OnWorldLoaded()
 		-- print("fffffffffffffffffffff", world_generator)
 		-- commonlib.echo(WorldCommon.world_info, true)
 		if world_generator ~= "paraworld" and GameLogic.IsReadOnly() and world_id ~= sunzi_world_id and exclude_world[world_name] == nil then
-			DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.VisitWorld)
+			DailyTaskManager.AchieveVisitWorldTask(world_id)
 		end
 	end
 	
@@ -234,7 +235,7 @@ function TeachingQuestTitle.GetTaskInfo()
 		L"使用入场券开始任务";
 	end
 	]]
-	return L"点击【开始任务】按钮观看视频，完整观看视频后自动获得知识豆奖励";
+	return L"点击【开始任务】按钮开始学习，完成学习任务后即可获得知识豆奖励哦";
 end
 
 function TeachingQuestTitle.GetTotalPoints()

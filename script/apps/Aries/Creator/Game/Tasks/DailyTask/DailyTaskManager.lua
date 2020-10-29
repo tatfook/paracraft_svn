@@ -14,7 +14,7 @@ commonlib.setfield("MyCompany.Aries.Creator.Game.DailyTask.DailyTaskManager", Da
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 
 local TaskKey = "daily_task_data"
-DailyTaskManager.gsid = 30102; -- 与签到的共用
+DailyTaskManager.gsid = 40002;
 
 DailyTaskManager.task_id_list = {
 	GrowthDiary = "101",
@@ -29,7 +29,9 @@ DailyTaskManager.task_data = {
 	[DailyTaskManager.task_id_list.WeekWork] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.Classroom] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.UpdataWorld] = {complete_times = 0, max_times = 1},
-	[DailyTaskManager.task_id_list.VisitWorld] = {complete_times = 0, max_times = 5},
+	[DailyTaskManager.task_id_list.VisitWorld] = {complete_times = 0, max_times = 5, visit_world_list = {}, },
+	is_auto_open_view = false, -- 每日首次登陆是否有过弹窗的标记
+	time_stamp = 0, -- 保存数据的日期
 }
 
 DailyTaskManager.exid_list = {
@@ -54,7 +56,6 @@ end
 
 function DailyTaskManager.GetTaskData(task_id)
 	local clientData = DailyTaskManager.GetClientData()
-
 	local task_data = clientData[TaskKey]
 	return task_data[task_id]
 end
@@ -127,8 +128,8 @@ function DailyTaskManager.GetClientData()
 	if is_new_day then
 		clientData[TaskKey] = DailyTaskManager.task_data
 		clientData[TaskKey].time_stamp = time_stamp
+		clientData[TaskKey].is_auto_open_view = false
 	end
-
 	return clientData
 end
 
@@ -138,7 +139,7 @@ function DailyTaskManager.CheckIsNewDay(clientData)
 		return true, 0
 	end
 
-	-- 获取今日凌晨的时间戳
+	-- 获取今日凌晨的时间戳 1603949593
 	local cur_time_stamp = os.time()
     local cur_year = os.date("%Y", cur_time_stamp)	
     local cur_month = os.date("%m", cur_time_stamp)
@@ -170,4 +171,37 @@ function DailyTaskManager.CheckTaskCompelete(task_id)
 	end
 
 	return false
+end
+
+function DailyTaskManager.OpenDailyTaskView()
+	commonlib.TimerManager.SetTimeout(function()
+		local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
+		DailyTask.Show();
+	
+		local clientData = DailyTaskManager.GetClientData()
+		clientData[TaskKey].is_auto_open_view = true
+		KeepWorkItemManager.SetClientData(DailyTaskManager.gsid, clientData)
+	end, 1000);
+end
+
+-- 检测当天是否自动弹出过任务面板
+function DailyTaskManager.CheckIsFirstOpenView()
+	local clientData = DailyTaskManager.GetClientData()
+	return clientData[TaskKey].is_auto_open_view
+end
+
+function DailyTaskManager.AchieveVisitWorldTask(world_id)
+	-- 探索同一个世界的话无效
+	local task_id = DailyTaskManager.task_id_list.VisitWorld
+	local task_data = DailyTaskManager.GetTaskData(task_id)
+
+	if task_data.visit_world_list == nil then
+		task_data.visit_world_list = {}
+	end
+
+	local visit_world_list = task_data.visit_world_list or {}
+	if task_data.visit_world_list[world_id] == nil then
+		task_data.visit_world_list[world_id] = 1
+		DailyTaskManager.AchieveTask(task_id)
+	end
 end

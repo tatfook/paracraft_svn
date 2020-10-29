@@ -10,6 +10,7 @@ DockPage.Show();
 DockPage.Hide();
 --]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
@@ -73,6 +74,10 @@ function DockPage.Show()
         DockPage.HandleFriendsRedTip(true);
     end)
 
+    -- 每日首次登陆自动打开任务面板
+    if not DailyTaskManager.CheckIsFirstOpenView() then
+        DailyTaskManager.OpenDailyTaskView()
+    end
 end
 function DockPage.Hide()
     DockPage.is_show = false;
