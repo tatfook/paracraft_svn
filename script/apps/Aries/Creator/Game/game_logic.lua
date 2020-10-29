@@ -226,6 +226,10 @@ function GameLogic.InitCommon()
 	GameLogic.CreateGetAutoSaver();
 
 	if (not System.options.isCodepku) then
+
+        local DockAssetsPreloader = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockAssetsPreloader.lua");
+        DockAssetsPreloader.Start();
+
 		NPL.load("(gl)script/apps/Aries/Creator/Game/Login/UserIntroduction.lua");
 		local UserIntroduction = commonlib.gettable("MyCompany.Aries.Game.MainLogin.UserIntroduction")
 		UserIntroduction.StaticInit()
