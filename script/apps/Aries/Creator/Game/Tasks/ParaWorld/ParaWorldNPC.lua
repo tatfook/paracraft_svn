@@ -57,7 +57,7 @@ function ParaWorldNPC.CreateNPCImp()
 		local entity = EntityManager.EntityNPC:Create({x=x,y=y,z=z, item_id = block_types.names["villager"]});
 		local assetfile = EntityManager.PlayerAssetFile:GetValidAssetByString(npc.npcModel);
 		if (npc.f) then
-			--entity:SetFacing(npc.f);
+			entity:SetFacing(npc.f % math.pi);
 		end
 		entity:SetPersistent(false);
 		entity:SetServerEntity(false);
@@ -189,4 +189,11 @@ function ParaWorldNPC.MoveNPC(index)
 end
 
 function ParaWorldNPC.RenameNPC(index)
+end
+
+function ParaWorldNPC.ShowNPC(checked)
+	for i = 1, #ParaWorldNPC.npcList do
+		local check = page:GetUIValue(string.format("check_%d", i), false);
+		ParaWorldNPC.npcList[i].show = check;
+	end
 end
