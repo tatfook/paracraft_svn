@@ -384,6 +384,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 			if (currentItem.loaded) then
 				if (center and currentItem.projectName and currentItem.projectName ~= "") then
 					GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", currentItem.projectName), 3000, "0 255 0");
+					GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = currentItem.projectName, x = currentItem.x, y = currentItem.y, });
 					if (currentItem.bornAt and callback) then
 						callback(currentItem.bornAt[1], currentItem.bornAt[2], currentItem.bornAt[3]);
 					end
