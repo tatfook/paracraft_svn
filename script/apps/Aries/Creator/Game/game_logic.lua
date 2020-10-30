@@ -268,8 +268,14 @@ function GameLogic.After_OnActivateDesktop()
 	    local generatorName = WorldCommon.GetWorldTag("world_generator");
         if(generatorName == "paraworld")then
             NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/GameDock.lua");
+            NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/BuilderDock.lua");
+            NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/QuickSelectBar.lua");
             local GameDock = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.GameDock");
+            local BuilderDock = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BuilderDock");
+            local QuickSelectBar = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.QuickSelectBar");
             GameDock.ShowPage(false);
+		    BuilderDock.ShowPage(false);
+		    QuickSelectBar.ShowPage(false);
         end
 	end
 end
