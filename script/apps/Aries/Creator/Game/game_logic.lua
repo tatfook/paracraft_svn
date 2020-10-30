@@ -1742,6 +1742,11 @@ function GameLogic.IsVip(name, bOpenUIIfNot, callbackFunc)
 	end
 end
 
+-- if the current world is social, where the current player maintains its social outfit. 
+function GameLogic.IsSocialWorld()
+	return Paracraft.Controls.ParaWorldMain:IsCurrentParaWorld();
+end
+
 local errorCount = 1;
 function GameLogic.OnCodeError(errorMessage, stackInfo)
 	errorCount=errorCount+1;
