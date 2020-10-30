@@ -128,19 +128,22 @@ function ParaWorldMinimapWnd.OnClickParaWorldList()
 end
 
 function ParaWorldMinimapWnd.OnClickMapName()
+	if (ParaWorldMinimapWnd.nameMap and ParaWorldMinimapWnd.userId) then
+		local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
+		page.ShowUserInfoPage({userId = ParaWorldMinimapWnd.userId});
+	end
 end
 
 -- @param params: {projectName, x, y}
 function ParaWorldMinimapWnd.OnEnterParaWorldGrid(params)
-	if(params.projectName) then
-		ParaWorldMinimapWnd.SetMapName(params.projectName);
-	end
+	ParaWorldMinimapWnd.SetMapName(params.projectName, params.userId);
 	return params;
 end
 
-function ParaWorldMinimapWnd.SetMapName(name)
+function ParaWorldMinimapWnd.SetMapName(name, userId)
 	if(pageWnd) then
 		ParaWorldMinimapWnd.nameMap = name;
-		pageWnd:SetValue("mapName", name or "")
+		ParaWorldMinimapWnd.userId = userId;
+		pageWnd:SetValue("mapName", name or L"地图")
 	end
 end

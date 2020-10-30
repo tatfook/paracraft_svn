@@ -382,11 +382,13 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 		if (item.x == row and item.y == column) then
 			currentItem = item;
 			if (currentItem.loaded) then
-				if (center and currentItem.projectName and currentItem.projectName ~= "") then
-					GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", currentItem.projectName), 3000, "0 255 0");
-					GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = currentItem.projectName, x = currentItem.x, y = currentItem.y, });
-					if (currentItem.bornAt and callback) then
-						callback(currentItem.bornAt[1], currentItem.bornAt[2], currentItem.bornAt[3]);
+				if (center) then
+					GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = currentItem.projectName, userId = currentItem.userId, x = currentItem.x, y = currentItem.y, });
+					if (currentItem.projectName and currentItem.projectName ~= "") then
+						GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", currentItem.projectName), 3000, "0 255 0");
+						if (currentItem.bornAt and callback) then
+							callback(currentItem.bornAt[1], currentItem.bornAt[2], currentItem.bornAt[3]);
+						end
 					end
 				end
 				return;
@@ -429,6 +431,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 							currentItem.loaded = true;
 							currentItem.projectName = seat.paraMini.name;
 							currentItem.bornAt = seat.paraMini.bornAt;
+							currentItem.userId = seat.paraMini.userId;
 							if (center) then
 								GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", seat.paraMini.name), 3000, "0 255 0");
 								if (seat.paraMini.bornAt and callback) then
@@ -441,6 +444,9 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 				end
 			end
 
+			if (center) then
+				GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = nil, userId = nil, x = currentItem.x, y = currentItem.y, });
+			end
 			if (currentItem.adProjectId) then
 				local path = ParaWorldMiniChunkGenerator:GetTemplateFilepath();
 				local filename = ParaIO.GetFileName(path);
@@ -461,6 +467,10 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 						local gen = GameLogic.GetBlockGenerator();
 						local x, y = gen:GetGridXYBy2DIndex(column,row);
 						gen:LoadTemplateAtGridXY(x, y, template_file, true);
+						currentItem.loaded = true;
+						currentItem.projectName = nil;
+						currentItem.bornAt = nil;
+						currentItem.userId = nil;
 					end
 				end);
 			else
@@ -496,6 +506,7 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback)
 	if (ParaWorldSites.AllMiniWorld[key] and ParaWorldSites.AllMiniWorld[key].loaded) then
 		if (center and ParaWorldSites.AllMiniWorld[key].projectName and ParaWorldSites.AllMiniWorld[key].projectName ~= "") then
 			GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", ParaWorldSites.AllMiniWorld[key].projectName), 3000, "0 255 0");
+			GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = ParaWorldSites.AllMiniWorld[key].projectName, userId = ParaWorldSites.AllMiniWorld[key].userId, x = row, y = column, });
 			if (ParaWorldSites.AllMiniWorld[key].bornAt and callback) then
 				callback(ParaWorldSites.AllMiniWorld[key].bornAt[1], ParaWorldSites.AllMiniWorld[key].bornAt[2], ParaWorldSites.AllMiniWorld[key].bornAt[3]);
 			end
@@ -513,6 +524,9 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback)
 			end
 			if (#worlds < 1) then
 				ParaWorldSites.AllMiniWorld[key].loaded = false;
+				if (center) then
+					GameLogic.GetFilters():apply_filters("OnEnterParaWorldGrid", {projectName = nil, userId = nil, x = currentItem.x, y = currentItem.y, });
+				end
 				return;
 			end
 
@@ -539,6 +553,7 @@ function ParaWorldSites.LoadMiniWorldInRandom(row, column, center, callback)
 					gen:LoadTemplateAtGridXY(x, y, template_file);
 					ParaWorldSites.AllMiniWorld[key].loaded = true;
 					ParaWorldSites.AllMiniWorld[key].projectName = worlds[index].name;
+					ParaWorldSites.AllMiniWorld[key].userId = worlds[index].userId;
 					ParaWorldSites.AllMiniWorld[key].bornAt = worlds[index].bornAt;
 					if (center) then
 						GameLogic.AddBBS(nil, string.format(L"欢迎来到【%s】", worlds[index].name), 3000, "0 255 0");
@@ -587,6 +602,7 @@ function ParaWorldSites.Reset()
 	for i = 1, #ParaWorldSites.Current_Item_DS do
 		ParaWorldSites.Current_Item_DS[i].loaded = false;
 		ParaWorldSites.Current_Item_DS[i].projectName = "";
+		ParaWorldSites.Current_Item_DS[i].userId = userId; 
 		ParaWorldSites.Current_Item_DS[i].bornAt = nil; 
 		ParaWorldSites.Current_Item_DS[i].adProjectId = nil; 
 	end
@@ -594,6 +610,7 @@ function ParaWorldSites.Reset()
 	for _, item in pairs(ParaWorldSites.AllMiniWorld) do
 		item.loaded = false;
 		item.projectName = "";
+		item.userId = nil;
 		item.bornAt = nil;
 	end
 end
