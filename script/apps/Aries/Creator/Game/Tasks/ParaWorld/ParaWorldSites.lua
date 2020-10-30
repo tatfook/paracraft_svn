@@ -459,7 +459,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 						file:close();
 						local gen = GameLogic.GetBlockGenerator();
 						local x, y = gen:GetGridXYBy2DIndex(column,row);
-						gen:LoadTemplateAtGridXY(x, y, template_file);
+						gen:LoadTemplateAtGridXY(x, y, template_file, true);
 					end
 				end);
 			else
