@@ -30,11 +30,11 @@ function ParaWorldNPC.CreateDefaultNPC(x, y, z)
 	for i = #ParaWorldNPC.npcList, 1, -1 do
 		ParaWorldNPC.npcList[i] = nil;
 	end
-	ParaWorldNPC.npcList[1] = {npcName = "班主任", npcType = "head_teacher", npcModel = "character/CC/02human/paperman/girl05.x", x = x, y = y, z = z+5};
+	ParaWorldNPC.npcList[1] = {npcName = "班主任", npcType = "head_teacher", npcModel = "character/CC/02human/paperman/girl04.x", x = x, y = y, z = z+5};
 	ParaWorldNPC.npcList[2] = {npcName = "编程导师", npcType = "program", npcModel = "character/CC/02human/paperman/girl05.x", x = x+5, y = y, z = z+5};
 	ParaWorldNPC.npcList[3] = {npcName = "动画导师", npcType = "animation", npcModel = "character/CC/02human/paperman/Male_teacher.x", x = x-5, y = y, z = z+5};
 	ParaWorldNPC.npcList[4] = {npcName = "CAD", npcType = "CAD", npcModel = "character/CC/02human/paperman/Female_teachers.x", x = x+5, y = y, z = z-5};
-	ParaWorldNPC.npcList[5] = {npcName = "玩学课堂", npcType = "code_war", npcModel = "character/CC/02human/paperman/girl05.x", x = x-5, y = y, z = z-5};
+	ParaWorldNPC.npcList[5] = {npcName = "玩学课堂", npcType = "code_war", npcModel = "character/CC/codewar/sunbinjunshixingtai_movie.x", x = x-5, y = y, z = z-5};
 	ParaWorldNPC.CreateNPCImp();
 end
 
@@ -72,9 +72,6 @@ function ParaWorldNPC.CreateNPCImp()
 			ParaWorldNPC.CreateTeacherNPC(entityList[i], npc.npcName, npc.npcType);
 		elseif (npc.npcType == "head_teacher") then
 			entity:Say(L"欢迎来到Paracraft小课堂，请点击不同的老师进入对应的课堂", -1);
-			entity.OnClick = function(entity, x, y, z, mouse_button)
-				return true;
-			end
 		elseif (npc.npcType == "code_war") then
 			local headon_mcml = string.format(
 				[[<pe:mcml><div style="margin-left:-100px;margin-top:-60px;width:200px;height:20px;">
