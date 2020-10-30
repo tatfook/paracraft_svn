@@ -156,26 +156,29 @@ function ParaWorldChunkGenerator:ResetGridImp(minX, minY, minZ)
 end
 
 -- static function:
-function ParaWorldChunkGenerator:LoadTemplateAtGridXY(x, y, filename)
+-- @param bEnableLogics: true to enable logics like code block and movie block in the file
+function ParaWorldChunkGenerator:LoadTemplateAtGridXY(x, y, filename, bEnableLogics)
 	if(filename) then
 		local minX, minY, minZ = self:GetBlockOriginByGridXY(x, y);
 		if(ParaTerrain.LoadBlockAsync) then
-			self:LoadTemplateAsync(minX, minY, minZ, filename)
+			self:LoadTemplateAsync(minX, minY, minZ, filename, bEnableLogics)
 		else
-			self:LoadTemplate(minX, minY, minZ, filename)
+			self:LoadTemplate(minX, minY, minZ, filename, bEnableLogics)
 		end
 	end
 end
 
 -- call this function to use a worker thread to load the template file
-function ParaWorldChunkGenerator:LoadTemplateAsync(x, y, z, filename)
-	self:InvokeCustomFuncAsync("LoadTemplateAsyncImp", {x=x, y=y, z=z, filename=filename})
+-- @param bEnableLogics: true to enable logics like code block and movie block in the file
+function ParaWorldChunkGenerator:LoadTemplateAsync(x, y, z, filename, bEnableLogics)
+	self:InvokeCustomFuncAsync("LoadTemplateAsyncImp", {x=x, y=y, z=z, filename=filename, bEnableLogics = bEnableLogics})
 end
 
 -- consider using LoadTemplateAsync instead. 
 -- @param x, y, z: pivot origin. 
-function ParaWorldChunkGenerator:LoadTemplate(x, y, z, filename)
-	self:LoadTemplateImp({x=x, y=y, z=z, filename=filename})
+-- @param bEnableLogics: true to enable logics like code block and movie block in the file
+function ParaWorldChunkGenerator:LoadTemplate(x, y, z, filename, bEnableLogics)
+	self:LoadTemplateImp({x=x, y=y, z=z, filename=filename, bEnableLogics = bEnableLogics})
 --	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
 --	local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
 --	local task = BlockTemplate:new({operation = BlockTemplate.Operations.Load, filename = filename,
@@ -313,7 +316,7 @@ end
 function ParaWorldChunkGenerator:LoadTemplateImp(params)
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
 	local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
-	local x, y, z, filename = params.x, params.y, params.z, params.filename
+	local x, y, z, filename, bEnableLogics = params.x, params.y, params.z, params.filename, params.bEnableLogics
 	
 	local xmlRoot = ParaXML.LuaXML_ParseFile(filename);
 	if(xmlRoot) then
@@ -337,12 +340,10 @@ function ParaWorldChunkGenerator:LoadTemplateImp(params)
 					end
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
-						if(block_id and not ignoreList[block_id]) then
+						if(block_id and (bEnableLogics or not ignoreList[block_id])) then
 							local last_block_id = ParaTerrain.GetBlockTemplateByIdx(x,y,z);
 							local last_block = block_types.get(last_block_id);
-							if(last_block) then
-								
-							end
+							
 							if(block_id ~= last_block_id) then
 								ParaTerrain.SetBlockTemplateByIdx(x,y,z, block_id);
 							end
@@ -383,7 +384,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 	block_types.init();
 	block_types.RecomputeAttributeOfAllBlocks()
 
-	local x, y, z, filename = params.x, params.y, params.z, params.filename
+	local x, y, z, filename, bEnableLogics = params.x, params.y, params.z, params.filename, params.bEnableLogics
 	
 	local xmlRoot = ParaXML.LuaXML_ParseFile(filename);
 	if(xmlRoot) then
@@ -410,7 +411,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 
 					for _, b in ipairs(blocks) do
 						local x, y, z, block_id = b[1]+bx, b[2]+by, b[3]+bz, b[4];
-						if(block_id and not ignoreList[block_id]) then
+						if(block_id and (bEnableLogics or not ignoreList[block_id])) then
 							ParaTerrain.LoadBlockAsync(x,y,z, block_id, b[5] or 0)
 							local block = block_types.get(block_id);
 							if(block and block.onload) then
