@@ -57,7 +57,7 @@ function ParaWorldNPC.CreateNPCImp()
 		local entity = EntityManager.EntityNPC:Create({x=x,y=y,z=z, item_id = block_types.names["villager"]});
 		local assetfile = EntityManager.PlayerAssetFile:GetValidAssetByString(npc.npcModel);
 		if (npc.f) then
-			entity:SetFacing(npc.f);
+			--entity:SetFacing(npc.f);
 		end
 		entity:SetPersistent(false);
 		entity:SetServerEntity(false);
