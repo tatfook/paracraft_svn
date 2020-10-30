@@ -282,6 +282,16 @@ function ParaWorldChunkGenerator:GenerateFlat(c, x, z)
 			-- code block on ground?
 			BlockEngine:SetBlock(worldX, by,worldZ, 219, 0, 3, {attr={}, {name="cmd",[[--tip('hello world')]]}})
 			BlockEngine:SetBlock(worldX, by-1,worldZ, 157, 0, 3)
+			local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
+			local entity = EntityManager.GetEntity("player_spawn_point");
+			if (not entity) then
+				NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/CreateBlockTask.lua");
+				local task = MyCompany.Aries.Game.Tasks.CreateBlock:new({block_id = block_types.names.player_spawn_point, blockX=worldX, blockY=by+1, blockZ=worldZ})
+				task:Run();
+
+				local ParaWorldNPC = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldNPC.lua");
+				ParaWorldNPC.CreateDefaultNPC(worldX, by+1, worldZ);
+			end
 		end
 	end
 end
