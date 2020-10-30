@@ -13,6 +13,8 @@
             ParacraftCI = NPL.load("(gl)script/apps/Aries/ParacraftCI/ParacraftCI.lua");
             ParacraftCI.OnInit();
             function BuildComplete()
+	            local root = ParaIO.GetCurDirectory(0);
+                ParaIO.DeleteFile(root.."bin/script/*.*");
                 local error_count = commonlib.BuildParaWorld.BuildComplete();
                 _guihelper.MessageBox("编译main_full.pkg完成，错误数量：" .. error_count);
             end
@@ -28,20 +30,15 @@
                     <%=L"生成脚本步骤：" %>
                 </div>
                 <div style="float:left;">
+                    <div style="float:left;">1：</div>
+                    <input type="button" value='<%=L"编译main_full.pkg" %>' style="float:left;height:30px;min-width:100px;color:#ffffff;" class="mc_blue_button_with_fillet" onclick="BuildComplete" />
                     <div>
-                        <div style="float:left">1：删除bin/script里面的所有文件</div>
-                        <input type="button" value='<%=L"打开文件夹" %>' name="bin" style="float:left;height:30px;color:#ffffff;" class="mc_blue_button_with_fillet" onclick="OnOpenFolder" />
-                    <div>
-                        <div style="float:left;">2：</div>
-                        <input type="button" value='<%=L"编译main_full.pkg" %>' style="float:left;height:30px;min-width:100px;color:#ffffff;" class="mc_blue_button_with_fillet" onclick="BuildComplete" />
-                    </div>
-                    <div></div>
-                    <div>
-                        <div style="float:left;">3：改名main_complete.pkg 为 main_full.pkg</div>
+                        <div style="float:left;">2：改名main_complete.pkg 为 main_full.pkg</div>
                         <input type="button" value='<%=L"打开文件夹" %>' name="installer" style="float:left;height:30px;color:#ffffff;" class="mc_blue_button_with_fillet" onclick="OnOpenFolder" />
                     </div>
                 </div>
             </div>
+
             <div style="margin:1px;margin-top:10px;margin-right:28px;"><hr /></div>
 
             <pe:if condition='<%=(ParacraftCI.UpdateState==0)%>'>
