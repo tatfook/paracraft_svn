@@ -138,7 +138,7 @@ function DailyTaskManager.CheckIsNewDay(clientData)
 	if clientData[TaskKey] == nil then
 		return true, 0
 	end
-
+    local time_stamp = clientData[TaskKey].time_stamp or 0;
 	-- 获取今日凌晨的时间戳 1603949593
 	local cur_time_stamp = os.time()
     local cur_year = os.date("%Y", cur_time_stamp)	
@@ -147,11 +147,11 @@ function DailyTaskManager.CheckIsNewDay(clientData)
 	local day_time_stamp = os.time({year = cur_year, month = cur_month, day = cur_day, hour=0, minute=0, second=0})
 
 	-- 天数改变 清除数据
-	if day_time_stamp > clientData[TaskKey].time_stamp then
+	if day_time_stamp > time_stamp then
 		return true, day_time_stamp
 	end
 
-	return false, clientData[TaskKey].time_stamp
+	return false, time_stamp
 end
 
 function DailyTaskManager.GetTaskExidByTaskId(task_id)
