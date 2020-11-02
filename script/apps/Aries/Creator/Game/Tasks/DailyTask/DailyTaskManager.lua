@@ -175,6 +175,10 @@ end
 
 function DailyTaskManager.OpenDailyTaskView()
 	commonlib.TimerManager.SetTimeout(function()
+		if TaskKey == nil then
+			return
+		end
+		
 		local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
 		DailyTask.Show();
 	
