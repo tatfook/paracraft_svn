@@ -1,7 +1,7 @@
 ﻿--[[
-Title: paraworld list
+Title: 
 Author(s): chenjinxian
-Date: 2020/9/8
+Date: 2020/10/28
 Desc: 
 use the lib:
 ------------------------------------------------------------
@@ -30,12 +30,14 @@ function ParaWorldNPC.CreateDefaultNPC(x, y, z)
 	for i = #ParaWorldNPC.npcList, 1, -1 do
 		ParaWorldNPC.npcList[i] = nil;
 	end
-	ParaWorldNPC.npcList[1] = {npcName = "班主任", npcType = "head_teacher", npcModel = "character/CC/02human/paperman/girl04.x", x = x, y = y, z = z+5};
-	ParaWorldNPC.npcList[2] = {npcName = "编程导师", npcType = "program", npcModel = "character/CC/02human/paperman/girl05.x", x = x+5, y = y, z = z+5};
-	ParaWorldNPC.npcList[3] = {npcName = "动画导师", npcType = "animation", npcModel = "character/CC/02human/paperman/Male_teacher.x", x = x-5, y = y, z = z+5};
-	ParaWorldNPC.npcList[4] = {npcName = "CAD", npcType = "CAD", npcModel = "character/CC/02human/paperman/Female_teachers.x", x = x+5, y = y, z = z-5};
-	ParaWorldNPC.npcList[5] = {npcName = "玩学课堂", npcType = "code_war", npcModel = "character/CC/codewar/sunbinjunshixingtai_movie.x", x = x-5, y = y, z = z-5};
-	ParaWorldNPC.CreateNPCImp();
+	ParaWorldNPC.npcList[1] = {npcName = "班主任", npcType = "head_teacher", npcModel = "character/CC/02human/paperman/girl04.x", x = x, y = y, z = z+10, show = true};
+	ParaWorldNPC.npcList[2] = {npcName = "编程导师", npcType = "program", npcModel = "character/CC/02human/paperman/girl05.x", x = x+5, y = y, z = z+5, show = true};
+	ParaWorldNPC.npcList[3] = {npcName = "动画导师", npcType = "animation", npcModel = "character/CC/02human/paperman/Male_teacher.x", x = x-5, y = y, z = z+5, show = true};
+	ParaWorldNPC.npcList[4] = {npcName = "CAD", npcType = "CAD", npcModel = "character/CC/02human/paperman/Female_teachers.x", x = x+5, y = y, z = z-5, show = true};
+	ParaWorldNPC.npcList[5] = {npcName = "玩学课堂", npcType = "code_war", npcModel = "character/CC/codewar/sunbinjunshixingtai_movie.x", x = x-5, y = y, z = z-5, show = true};
+	for i = 1, #ParaWorldNPC.npcList do
+		entityList[i] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[i]);
+	end
 end
 
 function ParaWorldNPC.LoadNPCFromHomePoint(node)
@@ -45,46 +47,64 @@ function ParaWorldNPC.LoadNPCFromHomePoint(node)
 	for i = 1, #node do
 		if (node[i].name == "npc") then
 			ParaWorldNPC.npcList[#ParaWorldNPC.npcList + 1] = node[i].attr;
+			local npc = ParaWorldNPC.npcList[#ParaWorldNPC.npcList];
+			npc.show = (npc.show == nil or npc.show == "true");
 		end
 	end
-	ParaWorldNPC.CreateNPCImp();
+	if (#ParaWorldNPC.npcList > 0) then
+		for i = 1, #ParaWorldNPC.npcList do
+			entityList[i] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[i]);
+		end
+	else
+		commonlib.TimerManager.SetTimeout(function() 
+			local x, y, z = GameLogic.GetHomePosition();
+			if (not x) then
+				x, y, z = GameLogic.GetPlayerPosition();
+			end
+			x,y,z = BlockEngine:block(x,y+0.1,z);
+			ParaWorldNPC.CreateDefaultNPC(x, y, z);
+		end, 3000);
+	end
 end
 
-function ParaWorldNPC.CreateNPCImp()
-	for i = 1, #ParaWorldNPC.npcList do
-		local npc = ParaWorldNPC.npcList[i];
-		local x, y, z = BlockEngine:ConvertToRealPosition_float(npc.x, npc.y, npc.z);
-		local entity = EntityManager.EntityNPC:Create({x=x,y=y,z=z, item_id = block_types.names["villager"]});
-		local assetfile = EntityManager.PlayerAssetFile:GetValidAssetByString(npc.npcModel);
-		if (npc.f) then
-			entity:SetFacing(npc.f % math.pi);
-		end
-		entity:SetPersistent(false);
-		entity:SetServerEntity(false);
-		entity:SetCanRandomMove(false);
-		entity:EnablePhysics(false);
-		entity.bContinueMoveOnCollision = false;
-		entity:SetMainAssetPath(assetfile);
-		entity:Attach();
-		entityList[i] = entity;
+function ParaWorldNPC.CreateNPCImp(npc)
+	if (not npc.show) then return end
+	local x, y, z = BlockEngine:ConvertToRealPosition_float(npc.x, npc.y, npc.z);
+	local entity = EntityManager.EntityNPC:Create({x=x,y=y-0.5,z=z, item_id = block_types.names["villager"]});
+	local assetfile = EntityManager.PlayerAssetFile:GetValidAssetByString(npc.npcModel);
+	if (npc.f) then
+		entity:SetFacing(npc.f % math.pi);
+	end
+	entity:SetPersistent(false);
+	entity:SetServerEntity(false);
+	entity:SetCanRandomMove(false);
+	entity:EnablePhysics(false);
+	entity.bContinueMoveOnCollision = false;
+	entity:SetMainAssetPath(assetfile);
+	entity:Attach();
 
-		if (npc.npcType == "program" or npc.npcType == "animation" or npc.npcType == "CAD") then
-			ParaWorldNPC.CreateTeacherNPC(entityList[i], npc.npcName, npc.npcType);
-		elseif (npc.npcType == "head_teacher") then
+	if (npc.npcType == "program" or npc.npcType == "animation" or npc.npcType == "CAD") then
+		ParaWorldNPC.CreateTeacherNPC(entity, npc.npcName, npc.npcType);
+	elseif (npc.npcType == "head_teacher") then
+		entity:Say(L"欢迎来到Paracraft小课堂，请点击不同的老师进入对应的课堂", -1);
+		entity.OnClick = function(entity, x, y, z, mouse_button)
 			entity:Say(L"欢迎来到Paracraft小课堂，请点击不同的老师进入对应的课堂", -1);
-		elseif (npc.npcType == "code_war") then
-			local headon_mcml = string.format(
-				[[<pe:mcml><div style="margin-left:-100px;margin-top:-60px;width:200px;height:20px;">
-					<div style="margin-top:20px;width:200px;height:20px;text-align:center;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:%s;shadow-color:#8000468e;text-shadow:true">%s</div>
-				</div></pe:mcml>]],
-				npc.npcColor or "#fcf73c", npc.npcName);
-			entity:SetHeadOnDisplay({url=ParaXML.LuaXML_ParseString(headon_mcml)})
-			entity.OnClick = function(entity, x, y, z, mouse_button)
-				GameLogic.RunCommand("/loadworld -force 19405");
-				return true;
-			end
+			return true;
+		end
+	elseif (npc.npcType == "code_war") then
+		local headon_mcml = string.format(
+			[[<pe:mcml><div style="margin-left:-100px;margin-top:-60px;width:200px;height:20px;">
+				<div style="margin-top:20px;width:200px;height:20px;text-align:center;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:%s;shadow-color:#8000468e;text-shadow:true">%s</div>
+			</div></pe:mcml>]],
+			npc.npcColor or "#fcf73c", npc.npcName);
+		entity:SetHeadOnDisplay({url=ParaXML.LuaXML_ParseString(headon_mcml)})
+		entity.OnClick = function(entity, x, y, z, mouse_button)
+			GameLogic.RunCommand("/loadworld -force 19405");
+			return true;
 		end
 	end
+
+	return entity;
 end
 
 function ParaWorldNPC.CreateTeacherNPC(entity, npcName, npcType)
@@ -153,7 +173,7 @@ function ParaWorldNPC.ShowPage()
 		isShowTitleBar = false,
 		DestroyOnClose = true,
 		style = CommonCtrl.WindowFrame.ContainerStyle,
-		allowDrag = true,
+		allowDrag = false,
 		enable_esc_key = true,
 		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 		directPosition = true,
@@ -186,11 +206,30 @@ function ParaWorldNPC.MoveNPC(index)
 end
 
 function ParaWorldNPC.RenameNPC(index)
+	local RenameNPC = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/RenameNPC.lua");
+	RenameNPC.ShowPage(function(result)
+		if (result) then
+			ParaWorldNPC.npcList[index].npcName = result;
+			if (entityList[index]) then
+				entityList[index]:Destroy();
+				entityList[index] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[index]);
+			end
+		end
+	end);
 end
 
 function ParaWorldNPC.ShowNPC(checked)
 	for i = 1, #ParaWorldNPC.npcList do
 		local check = page:GetUIValue(string.format("check_%d", i), false);
-		ParaWorldNPC.npcList[i].show = check;
+		if (ParaWorldNPC.npcList[i].show ~= check) then
+			ParaWorldNPC.npcList[i].show = check;
+			if (check) then
+				entityList[i] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[i]);
+			else
+				if (entityList[i]) then
+					entityList[i]:Destroy();
+				end
+			end
+		end
 	end
 end
