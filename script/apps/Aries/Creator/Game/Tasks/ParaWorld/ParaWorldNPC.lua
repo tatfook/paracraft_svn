@@ -214,6 +214,9 @@ function ParaWorldNPC.RenameNPC(index)
 				entityList[index]:Destroy();
 				entityList[index] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[index]);
 			end
+			if (page) then
+				page:Refresh(0);
+			end
 		end
 	end);
 end
