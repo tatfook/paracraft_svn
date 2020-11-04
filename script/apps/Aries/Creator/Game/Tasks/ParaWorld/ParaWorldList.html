@@ -26,10 +26,25 @@
                 local total = 96;
                 return string.format("%d/%d", count, total);
             end
+
+            function InputKeyWorld(name, mcmlNode)
+                local text = mcmlNode:GetUIValue();
+                ParaWorldList.SeachParaWorld(text);
+            end
+
             ]]>
         </script>
-        <kp:window width="860" height="420" onclose="ParaWorldList.OnClose">
+        <kp:window width="860" height="480" onclose="ParaWorldList.OnClose">
             <div style="margin-left:20px;margin-top:7px;width:128px;height:32px;background:url(Texture/Aries/Creator/keepwork/ParaWorld/zi_bingxing_96X25_32bits.png);"></div>
+            <div style="margin-left:0px;margin-top:6px;height:70px;color:#000000;">
+                <input type="text" name="seach_text" onchange="InputKeyWorld" autofocus="true" EmptyText='<%=L"请输入并行世界名称搜索"%>' value="" class="mc_text" style="width:300px;height:26px;margin-left:14px;" />
+                <div style="margin-left:14px;margin-top:0px;height:24px;text-align:left;color:#000000;font-size:12px"><%=L"选择区域搜索："%></div>
+                <div style="margin-left:4px;margin-top:0px;height:24px;text-align:left;color:#000000;">
+                    <select name="province" style="margin-left: 10px;width:90px;height: 24px;" DataSource="<%=ParaWorldList.provinces%>" onselect="ParaWorldList.SelectProvince"></select>
+                    <select name="city" DataSource="<%=ParaWorldList.cities%>" style="margin-left: 15px;width:90px;height: 24px;" onselect="ParaWorldList.SelectCity"></select>
+                    <select name="area" DataSource="<%=ParaWorldList.areas%>" style="margin-left: 15px;width:90px;height: 24px;" onselect="ParaWorldList.SelectArea"></select>
+                </div>
+            </div>
             <div style="margin-left:0px;">
                 <pe:gridview style="width:860px;height:380px;" name="item_gridview" CellPadding="14" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="3" DefaultNodeHeight="160"
                              DataSource='<%=ParaWorldList.Current_Item_DS%>'>
