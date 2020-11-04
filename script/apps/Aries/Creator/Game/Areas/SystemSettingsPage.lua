@@ -265,10 +265,12 @@ function SystemSettingsPage.InitPageParams()
 	if mouse_select_list then
 		SystemSettingsPage.mouse_select_list = mouse_select_list
 	end
-	
-	for k, v in pairs(SystemSettingsPage.mouse_select_list) do
-		page:SetNodeValue(k, v)	
-	end
+	-- for k, v in pairs(SystemSettingsPage.mouse_select_list) do
+	-- 	page:SetNodeValue(k, v)	
+	-- end
+	local is_on = SystemSettingsPage.mouse_select_list["DeleteBlock"] == "right"
+	-- UpdateCheckBox("btn_MouseChange", is_on);
+	page:SetNodeValue("ChangeMouseLeftRight", is_on);
 end
 
 function SystemSettingsPage.OnClose()
@@ -1310,7 +1312,7 @@ function SystemSettingsPage.OnChangeMouseSetting(name, value)
 			SystemSettingsPage.mouse_select_list[k] = old_value
 		end
 
-		page:SetNodeValue(k, SystemSettingsPage.mouse_select_list[k])
+		-- page:SetNodeValue(k, SystemSettingsPage.mouse_select_list[k])
 		value_to_key_list[SystemSettingsPage.mouse_select_list[k]] = k
 	end
 
@@ -1326,4 +1328,11 @@ function SystemSettingsPage.GetMouseSetting(name)
 	end
 
 	return SystemSettingsPage.mouse_select_list[name] or ""
+end
+
+function SystemSettingsPage.OnClickEnableMouseChange(value)
+	page:SetNodeValue("ChangeMouseLeftRight", value);
+
+	local change_event = value and "right" or "left"
+	SystemSettingsPage.OnChangeMouseSetting("DeleteBlock", change_event)
 end
