@@ -9,6 +9,7 @@ local ParaWorldNPC = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorl
 ParaWorldNPC.ShowPage();
 -------------------------------------------------------
 ]]
+local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
 local TeachingQuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestPage.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityNPC.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
@@ -35,6 +36,7 @@ function ParaWorldNPC.CreateDefaultNPC(x, y, z)
 	ParaWorldNPC.npcList[3] = {npcName = "动画导师", npcType = "animation", npcModel = "character/CC/02human/paperman/Male_teacher.x", x = x-5, y = y, z = z+5, show = true};
 	ParaWorldNPC.npcList[4] = {npcName = "CAD", npcType = "CAD", npcModel = "character/CC/02human/paperman/Female_teachers.x", x = x+5, y = y, z = z-5, show = true};
 	ParaWorldNPC.npcList[5] = {npcName = "玩学课堂", npcType = "code_war", npcModel = "character/CC/codewar/sunbinjunshixingtai_movie.x", x = x-5, y = y, z = z-5, show = true};
+	ParaWorldNPC.npcList[6] = {npcName = "实战导师", npcType = "code_learn", npcModel = "character/CC/02human/paperman/nuannuan.x", x = x, y = y, z = z-10, show = true};
 	for i = 1, #ParaWorldNPC.npcList do
 		entityList[i] = ParaWorldNPC.CreateNPCImp(ParaWorldNPC.npcList[i]);
 	end
@@ -102,6 +104,20 @@ function ParaWorldNPC.CreateNPCImp(npc)
 			GameLogic.RunCommand("/loadworld -force 19405");
 			return true;
 		end
+	elseif (npc.npcType == "code_learn") then
+		for i = 4, #TeachingQuestPage.TaskTypeNames do
+			ParaWorldNPC.CreateTeacherNPC(nil, nil, TeachingQuestPage.TaskTypeNames[i]);
+		end
+		local headon_mcml = string.format(
+			[[<pe:mcml><div style="margin-left:-100px;margin-top:-60px;width:200px;height:20px;">
+				<div style="margin-top:20px;width:200px;height:20px;text-align:center;font-size:15px;base-font-size:15;font-weight:bold;shadow-quality:8;color:%s;shadow-color:#8000468e;text-shadow:true">%s</div>
+			</div></pe:mcml>]],
+			npc.npcColor or "#fcf73c", npc.npcName);
+		entity:SetHeadOnDisplay({url=ParaXML.LuaXML_ParseString(headon_mcml)})
+		entity.OnClick = function(entity, x, y, z, mouse_button)
+			TeachingQuestLinkPage.ShowPage();
+			return true;
+		end
 	end
 
 	return entity;
@@ -154,9 +170,14 @@ function ParaWorldNPC.CreateTeacherNPC(entity, npcName, npcType)
 
 	getTaskFromUrl(npcType, function(data)
 		TeachingQuestPage.RegisterTasksChanged(function(state)
-			showHeadOn(entity, npcName, state, data.npcColor);
+			if (entity) then
+				showHeadOn(entity, npcName, state, data.npcColor);
+			end
 		end, TeachingQuestPage.TaskTypeIndex[npcType]);
 		TeachingQuestPage.AddTasks(data.npcTasks, TeachingQuestPage.TaskTypeIndex[npcType]);
+		if (not entity) then
+			return;
+		end
 		entity.OnClick = function(entity, x, y, z, mouse_button)
 			if (data.npcScript) then
 				runExternalFunc(data.npcScript);

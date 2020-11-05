@@ -65,7 +65,6 @@ TeachingQuestPage.EnglishType = 6;
 TeachingQuestPage.ScienceType = 7;
 TeachingQuestPage.HumanitiesType = 8;
 TeachingQuestPage.UnknowType = 9;
-TeachingQuestPage.RobotType = 100;
 
 TeachingQuestPage.TaskTypeTexts = {L"编程", L"动画", L"CAD", L"语文", L"数学", L"英语", L"科学", L"人文"};
 TeachingQuestPage.TaskTypeNames = {"program", "animation", "CAD", "language", "Math", "english", "science", "humanities"};
@@ -78,8 +77,6 @@ TeachingQuestPage.TaskTypeIndex = {
 	english = TeachingQuestPage.EnglishType,
 	science = TeachingQuestPage.ScienceType,
 	humanities = TeachingQuestPage.HumanitiesType,
-
-	robot = TeachingQuestPage.RobotType
 };
 
 local has_special_jurisdiction = false
