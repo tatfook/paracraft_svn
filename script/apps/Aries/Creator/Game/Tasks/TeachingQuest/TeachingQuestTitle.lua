@@ -90,7 +90,10 @@ function TeachingQuestTitle.OnWorldLoaded()
 				commonlib.TimerManager.SetTimeout(function()  
 					TaskTime = 0
 					if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.WeekWork) then
-						GameLogic.AddBBS("desktop", L"至少需要学习20秒才能获得学习任务奖励哦~", 3000, "0 255 0"); 
+						local task = TeachingQuestPage.GetCurrentSelectTask(TeachingQuestPage.currentIndex);
+						if (task and task.url ~= "") then
+							GameLogic.AddBBS("desktop", L"至少需要学习20秒才能获得学习任务奖励哦~", 3000, "0 255 0"); 
+						end
 					end
 
 					TeachingQuestTitle.ShowPage("?info=task");
@@ -325,11 +328,15 @@ function TeachingQuestTitle.StartTask()
 			end);
 			TeachingQuestTitle.CreateOrGetBrowserPage():OnResize();
 			]]
-
 			firstStart = first;
 			taskInProcess = true;
-			ParaGlobal.ShellExecute("open", task.url, "", "", 1);
-			TeachingQuestTitle.ShowPage("?info=task");
+			
+			if task.url == "" then
+				TeachingQuestTitle.FinishedTask(true)
+			else
+				ParaGlobal.ShellExecute("open", task.url, "", "", 1);
+				TeachingQuestTitle.ShowPage("?info=task");
+			end
 		end
 
 		if (not TeachingQuestTitle.IsTaskFinished()) then
@@ -365,7 +372,7 @@ function TeachingQuestTitle.StartTask()
 	end
 end
 
-function TeachingQuestTitle.FinishedTask()
+function TeachingQuestTitle.FinishedTask(complete_task_directly)
 	if (firstStart) then
 		firstStart = false;
 		-- if (TeachingQuestPage.IsVip()) then
@@ -382,7 +389,7 @@ function TeachingQuestTitle.FinishedTask()
 		-- 	]]
 		-- end
 		
-		if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.WeekWork) and os.time() - TaskTime >= TimeLimit then
+		if not DailyTaskManager.CheckTaskCompelete(DailyTaskManager.task_id_list.WeekWork) and (os.time() - TaskTime >= TimeLimit or complete_task_directly) then
 			DailyTaskManager.AchieveTask(DailyTaskManager.task_id_list.WeekWork, function ()
 				TeachingQuestTitle.ShowPage("?info=task");
 			end)
