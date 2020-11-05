@@ -20,6 +20,7 @@ local BlockTemplatePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Deskt
 local ParaWorldMiniChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldMiniChunkGenerator");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 local ParaWorldTakeSeat = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTakeSeat.lua");
+local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local ParaWorldSites = NPL.export();
 
 ParaWorldSites.SitesNumber = {};
@@ -588,6 +589,13 @@ function ParaWorldSites.LoadMiniWorldOnPos(x, z, callback)
 			loadMiniWorld(row + i, column);
 			loadMiniWorld(row, column + i);
 		end
+		if (row > 0 and column > 0 and row <= 10 and column <= 10) then
+			local _this = ParaUI.GetUIObject("ParaWorldSites_Arrow");
+			if (_this:IsValid()) then
+				_this.x = 30 + (column - 1) * 28;
+				_this.y = 68 + (row- 1) * 28;
+			end
+		end
 	end
 end
 
@@ -668,4 +676,21 @@ function ParaWorldSites.LoadAdvertisementWorld()
 			end);
 		end
 	end);
+end
+
+function ParaWorldSites.CreateArrow(param, mcmlNode)
+	local row, column = 6, 5;
+	local player = EntityManager.GetPlayer();
+	if (player) then
+		local x, y, z = player:GetBlockPos();
+		local gen = GameLogic.GetBlockGenerator();
+		local gridX, gridY = gen:FromWorldPosToGridXY(x, z);
+		row, column = gen:Get2DIndexByGridXY(gridX, gridY);
+	end
+	local _this = ParaUI.CreateUIObject("container", "ParaWorldSites_Arrow", "_lt", param.left,param.top,26,26);
+	_this.background = "Texture/Aries/Creator/keepwork/map/maparrow_32bits.png";
+	_this.enabled = true;
+	_this.x = 30 + (column -1) * 28;
+	_this.y = 68 + (row -1) * 28;
+	param.parent:AddChild(_this);
 end
