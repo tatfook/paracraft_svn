@@ -396,9 +396,7 @@ function ParaWorldSites.ShowAdminSeat(item, index)
 			end
 			keepwork.world.paraWorldMinis({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, username=username, status="checked", sn=id}, function(err, msg, data)
 				if (err == 200) then
-					_guihelper.MessageBox(L"入驻成功！");
-				else
-					_guihelper.MessageBox(L"该座位已被占用，请选择其他座位入驻！");
+					_guihelper.MessageBox(L"修改成功！");
 				end
 				ParaWorldSites.UpdateSitesState();
 			end);

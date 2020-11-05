@@ -48,7 +48,7 @@ function ParaWorldAdminSeat.ShowPage(onClose)
 end
 
 function ParaWorldAdminSeat.OnOK()
-	username = page:GetValue("username", "");
+	username = page:GetValue("user_name", "");
 	if (username == "") then
 		_guihelper.MessageBox(L"请输入有效的用户名");
 		return;

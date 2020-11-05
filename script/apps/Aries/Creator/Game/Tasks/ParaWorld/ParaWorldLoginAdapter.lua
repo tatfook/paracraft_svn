@@ -18,13 +18,11 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/GameDesktop.lua");
 local Desktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop");
 local MainLogin = commonlib.gettable("MyCompany.Aries.Game.MainLogin");
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
-local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 
 -- paraWorld
 -- { id, name, objectId, objectType, cover, commitId, projectId ... }
 
-local isTutorial = true;
 -- projectId
 ParaWorldLoginAdapter.MainWorldId = nil;
 -- id
@@ -124,14 +122,6 @@ function ParaWorldLoginAdapter:EnterWorld(close)
 		return;
     end
     
-    -- 新用户进入新手世界
-    local isFirstLogin = KeepWorkItemManager.HasGSItem(37);
-    local tutorial = ParaEngine.GetAppCommandLineByParam("tutorial", "false");
-    if (isTutorial and (tutorial == "true" or (tutorial ~= "false" and isFirstLogin))) then
-        isTutorial = false;
-        return GameLogic.RunCommand(string.format("/loadworld %s", 24062)); 
-    end
-
     ParaWorldLoginAdapter:SearchWorldID(function(world_id)
 	    LOG.std(nil, "info", "ParaWorldLoginAdapter", " found world_id:%s", tostring(world_id));
         if(not world_id)then
