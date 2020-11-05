@@ -42,7 +42,7 @@ TeachingQuestPage.VipTaskExids = {10013, 10014, 10015, 10016};
 -- TeachingQuestPage.cadGsid = 30204;
 -- TeachingQuestPage.robotGsid = 30205;
 TeachingQuestPage.totalTaskGsid = 30201;
-TeachingQuestPage.TaskGsids = {30202, 30203, 30204, 30205};
+TeachingQuestPage.TaskGsids = {30202, 30203, 30204, 30205, 30206, 30207, 30205, 30208};
 
 -- teacher state
 TeachingQuestPage.HasNewTask = 1;
@@ -59,15 +59,26 @@ TeachingQuestPage.Locked = 4;
 TeachingQuestPage.ProgramType = 1;
 TeachingQuestPage.AnimationType = 2;
 TeachingQuestPage.CADType = 3;
-TeachingQuestPage.RobotType = 4;
-TeachingQuestPage.UnknowType = 5;
+TeachingQuestPage.LanguageType = 4;
+TeachingQuestPage.MathType = 5;
+TeachingQuestPage.EnglishType = 6;
+TeachingQuestPage.ScienceType = 7;
+TeachingQuestPage.HumanitiesType = 8;
+TeachingQuestPage.UnknowType = 9;
+TeachingQuestPage.RobotType = 100;
 
-TeachingQuestPage.TaskTypeTexts = {L"编程", L"动画", L"CAD", L"机器人"};
-TeachingQuestPage.TaskTypeNames = {"program", "animation", "CAD", "robot"};
+TeachingQuestPage.TaskTypeTexts = {L"编程", L"动画", L"CAD", L"语文", L"数学", L"英语", L"科学", L"人文"};
+TeachingQuestPage.TaskTypeNames = {"program", "animation", "CAD", "language", "Math", "english", "science", "humanities"};
 TeachingQuestPage.TaskTypeIndex = {
 	program = TeachingQuestPage.ProgramType,
 	animation = TeachingQuestPage.AnimationType,
 	CAD = TeachingQuestPage.CADType,
+	language = TeachingQuestPage.LanguageType,
+	Math = TeachingQuestPage.MathType,
+	english = TeachingQuestPage.EnglishType,
+	science = TeachingQuestPage.ScienceType,
+	humanities = TeachingQuestPage.HumanitiesType,
+
 	robot = TeachingQuestPage.RobotType
 };
 
