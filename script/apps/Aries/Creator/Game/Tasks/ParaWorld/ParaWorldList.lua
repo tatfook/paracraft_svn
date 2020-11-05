@@ -35,9 +35,9 @@ function ParaWorldList.ShowPage()
 		directPosition = true,
 		align = "_ct",
 		x = -860 / 2,
-		y = -480 / 2,
+		y = -560 / 2,
 		width = 860,
-		height = 480,
+		height = 560,
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
@@ -51,6 +51,7 @@ function ParaWorldList.ShowPage()
 			if (err == 200 and data) then
 				for i = 1, #data do
 					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data[i];
+					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS].top = true;
 				end
 				myParaWorldCount = #data;
 			end
@@ -234,29 +235,61 @@ function ParaWorldList.SelectArea(name, value)
 end
 
 function ParaWorldList.SeachParaWorld(keyWord, regionId)
-	currentRegion = regionId or currentRegion;
-	for i = #(ParaWorldList.Current_Item_DS), myParaWorldCount+1, -1 do
+	for i = #(ParaWorldList.Current_Item_DS), 1, -1 do
 		ParaWorldList.Current_Item_DS[i] = nil;
 	end
-	keepwork.world.list({keyword = keyWord, regionId = currentRegion}, function(err, msg, data)
-		if (data and data.rows) then
-			for i = 1, #(data.rows) do
-				local exist = false;
-				for j = 1, #ParaWorldList.Current_Item_DS do
-					if (ParaWorldList.Current_Item_DS[j].projectId == data.rows[i].projectId and ParaWorldList.Current_Item_DS[j].name == data.rows[i].name) then
-						exist = true;
-						break;
+	currentRegion = regionId or currentRegion;
+	if ((keyWord == nil or keyWord == "") and currentRegion == nil) then
+		keepwork.world.mylist(nil, function(err, msg, data)
+			if (err == 200 and data) then
+				for i = 1, #data do
+					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data[i];
+					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS].top = true;
+				end
+				myParaWorldCount = #data;
+			end
+
+			keepwork.world.list(nil, function(err, msg, data)
+				if (data and data.rows) then
+					for i = 1, #(data.rows) do
+						local exist = false;
+						for j = 1, #ParaWorldList.Current_Item_DS do
+							if (ParaWorldList.Current_Item_DS[j].projectId == data.rows[i].projectId and ParaWorldList.Current_Item_DS[j].name == data.rows[i].name) then
+								exist = true;
+								break;
+							end
+						end
+						if (not exist) then
+							ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
+						end
+					end
+					page:Refresh(0);
+					page:SetValue("seach_text", nil);
+				end
+			end);
+		end);
+	else
+		keepwork.world.list({keyword = keyWord, regionId = currentRegion}, function(err, msg, data)
+			if (data and data.rows) then
+				for i = 1, #(data.rows) do
+					local exist = false;
+					for j = 1, #ParaWorldList.Current_Item_DS do
+						if (ParaWorldList.Current_Item_DS[j].projectId == data.rows[i].projectId and ParaWorldList.Current_Item_DS[j].name == data.rows[i].name) then
+							exist = true;
+							break;
+						end
+					end
+					if (not exist) then
+						ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
 					end
 				end
-				if (not exist) then
-					ParaWorldList.Current_Item_DS[#ParaWorldList.Current_Item_DS+1] = data.rows[i];
+				page:Refresh(0);
+				if (keyWord) then
+					page:SetValue("seach_text", keyWord);
+					page:FindControl('seach_text'):Focus();
+					page:FindControl('seach_text'):SetCaretPosition(-1);
 				end
 			end
-			page:Refresh(0);
-			if (keyWord) then
-				page:SetValue("seach_text", keyWord);
-				page:FindControl('seach_text'):SetCaretPosition(-1);
-			end
-		end
-	end);
+		end);
+	end
 end
