@@ -635,13 +635,16 @@ function ParaWorldSites.LoadMiniWorldOnPos(x, z, callback)
 			loadMiniWorld(row + i, column);
 			loadMiniWorld(row, column + i);
 		end
-		if (row > 0 and column > 0 and row <= 10 and column <= 10) then
 			local _this = ParaUI.GetUIObject("ParaWorldSites_Arrow");
 			if (_this:IsValid()) then
 				_this.x = 30 + (column - 1) * 28;
 				_this.y = 68 + (row- 1) * 28;
+				if (row > 0 and column > 0 and row <= 10 and column <= 10) then
+					_this.visible = true;
+				else
+					_this.visible = false;
+				end
 			end
-		end
 	end
 end
 
@@ -739,4 +742,9 @@ function ParaWorldSites.CreateArrow(param, mcmlNode)
 	_this.x = 30 + (column -1) * 28;
 	_this.y = 68 + (row -1) * 28;
 	param.parent:AddChild(_this);
+	if (row > 0 and column > 0 and row <= 10 and column <= 10) then
+		_this.visible = true;
+	else
+		_this.visible = false;
+	end
 end
