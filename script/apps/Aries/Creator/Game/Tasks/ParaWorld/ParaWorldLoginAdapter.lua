@@ -24,6 +24,7 @@ local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.Par
 -- paraWorld
 -- { id, name, objectId, objectType, cover, commitId, projectId ... }
 
+local isTutorial = true;
 -- projectId
 ParaWorldLoginAdapter.MainWorldId = nil;
 -- id
@@ -126,7 +127,8 @@ function ParaWorldLoginAdapter:EnterWorld(close)
     -- 新用户进入新手世界
     local isFirstLogin = KeepWorkItemManager.HasGSItem(37);
     local tutorial = ParaEngine.GetAppCommandLineByParam("tutorial", "false");
-    if (tutorial == "true" or (tutorial ~= "false" and isFirstLogin)) then
+    if (isTutorial and (tutorial == "true" or (tutorial ~= "false" and isFirstLogin))) then
+        isTutorial = false;
         return GameLogic.RunCommand(string.format("/loadworld %s", 24062)); 
     end
 
