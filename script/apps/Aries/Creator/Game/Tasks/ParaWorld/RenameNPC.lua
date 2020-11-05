@@ -52,6 +52,7 @@ function RenameNPC.OnOK()
 	result = page:GetValue("npc_name");
 	if (commonlib.utf8.len(result) > 10) then
 		_guihelper.MessageBox(L"输入的名称太长，请控制在10个字以内");
+		result = nil;
 		return;
 	end
 	page:CloseWindow();
