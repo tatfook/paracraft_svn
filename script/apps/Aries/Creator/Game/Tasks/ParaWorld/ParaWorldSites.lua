@@ -341,7 +341,7 @@ function ParaWorldSites.OnClickItem(index)
 							end
 						end);
 					else
-						ParaWorldSites.ShowTakeSeat(item, index);
+						ParaWorldSites.ShowAdminSeat(item, index);
 					end
 				end, _guihelper.MessageBoxButtons.OKCancel_CustomLabel,nil,nil,nil,nil,{ ok = L"锁定", cancel = L"占座", });
 			else
