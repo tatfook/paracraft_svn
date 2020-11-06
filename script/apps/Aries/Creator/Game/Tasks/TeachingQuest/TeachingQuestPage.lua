@@ -355,9 +355,10 @@ function TeachingQuestPage.OnClickItem(index)
 			has_special_jurisdiction = result
 			
 			local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
-			if (TeachingQuestPage.IsVip() or has_special_jurisdiction) then
+			if (TeachingQuestPage.IsVip()) then
 				exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
 			end
+			
 			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
 				if (canExchange.data) then
 					StartTask();

@@ -361,14 +361,15 @@ function TeachingQuestTitle.StartTask()
 			taskInProcess = true;
 			TaskTime = os.time()
 
-			GameLogic.IsVip("VipWeeklyTraining", false, function(result)
-				local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
-				if (TeachingQuestPage.IsVip() or result) then
-					exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
-				end
-				KeepWorkItemManager.DoExtendedCost(exid, function()
-					ShowTaskVideo(true);
-				end);
+			-- GameLogic.IsVip("VipWeeklyTraining", false, function(result)
+
+			-- end);
+			local exid = TeachingQuestPage.TaskExids[TeachingQuestPage.currentType]
+			if (TeachingQuestPage.IsVip()) then
+				exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
+			end
+			KeepWorkItemManager.DoExtendedCost(exid, function()
+				ShowTaskVideo(true);
 			end);
 
 		else
