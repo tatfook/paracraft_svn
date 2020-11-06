@@ -79,7 +79,7 @@ function SelectBlocksManipContainer:mousePressEvent(event)
 	local setting = mouse_setting_list[mouse_event]
 
 	-- 按住ctrl的时候 还是按照以前使用左键的逻辑 以前左键是用作 DeleteBlock
-	if event.ctrl_pressed then
+	if event.ctrl_pressed and mouse_setting_list["left"] == "CreateBlock" then
 		if setting == "CreateBlock" then
 			setting = "DeleteBlock"
 		elseif setting == "DeleteBlock" then

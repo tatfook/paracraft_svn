@@ -274,8 +274,8 @@ function EditContext:mouseReleaseEvent(event)
 			local mouse_setting_list = GameLogic.options:GetMouseSettingList();
 			local mouse_event = event.mouse_button or ""
 			local setting = mouse_setting_list[mouse_event]
-			-- 按住ctrl的时候 还是按照以前使用左键的逻辑 以前左键是用作 DeleteBlock
-			if event.ctrl_pressed then
+			-- 按住ctrl的时候 并且反转了鼠标之后 还是按照以前使用左键的逻辑 以前左键是用作 DeleteBlock
+			if event.ctrl_pressed and mouse_setting_list["left"] == "CreateBlock" then
 				if setting == "CreateBlock" then
 					setting = "DeleteBlock"
 				elseif setting == "DeleteBlock" then
