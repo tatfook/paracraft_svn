@@ -22,7 +22,6 @@ local TeachingQuestTitle = NPL.export()
 local page;
 local TaskTime = 0
 local TimeLimit = 20 -- 观看20秒算是完成任务
-local IsStartExchange = false -- 是否开始执行兑换接口DoExtendedCost的标志 防连点
 function TeachingQuestTitle.OnInit()
 	page = document:GetPageCtrl();
 
@@ -198,7 +197,6 @@ function TeachingQuestTitle.ShowPage(param, offsetX, offsetY, show)
 	if (show == nil) then show = true end
 	TeachingQuestTitle.IsPanelVisible = show;
 	TeachingQuestTitle.showParam = param or TeachingQuestTitle.showParam;
-	IsStartExchange = false
 	
 	local params = {
 		url = "script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestTitle.html"..TeachingQuestTitle.showParam, 
@@ -357,6 +355,10 @@ function TeachingQuestTitle.StartTask()
 				end
 			end, _guihelper.MessageBoxButtons.YesNo);
 			]]
+			if (taskInProcess) then
+				return;
+			end
+			taskInProcess = true;
 			TaskTime = os.time()
 
 			GameLogic.IsVip("VipWeeklyTraining", false, function(result)
@@ -364,14 +366,9 @@ function TeachingQuestTitle.StartTask()
 				if (TeachingQuestPage.IsVip() or result) then
 					exid = TeachingQuestPage.VipTaskExids[TeachingQuestPage.currentType]
 				end
-				if not IsStartExchange then
-					IsStartExchange = true
-
-					KeepWorkItemManager.DoExtendedCost(exid, function()
-						ShowTaskVideo(true);
-						IsStartExchange = false
-					end);
-				end
+				KeepWorkItemManager.DoExtendedCost(exid, function()
+					ShowTaskVideo(true);
+				end);
 			end);
 
 		else
