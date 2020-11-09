@@ -1101,10 +1101,10 @@ end
 function GameLogic.SetMode(mode, bFireModeChangeEvent)
 	if mode == 'editor' then
 		if(GameLogic.options:GetProjectId()) then
-			GameLogic.GetFilters():apply_filters("user_behavior", 1, "editWorld");
+			GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.edit");
 		end
 	else
-		GameLogic.GetFilters():apply_filters("user_behavior", 1, "playWorld");
+		GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.play");
 	end
 	GameLogic.mode = mode;
 	GameMode:SetInnerMode(mode);
