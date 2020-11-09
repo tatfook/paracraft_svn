@@ -291,6 +291,9 @@ function ParaWorldSites.OnClickItem(index)
 						keepwork.world.paraWorldMinis({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, status="clear", sn=id}, function(err, msg, data)
 							if (err == 200) then
 								ParaWorldSites.UpdateSitesState();
+								local gen = GameLogic.GetBlockGenerator();
+								gen:ResetGridXY(5 - item.x, 5 - item.y);
+								item.loaded = false;
 							end
 						end);
 					elseif (res == _guihelper.DialogResult.No) then
@@ -368,6 +371,11 @@ function ParaWorldSites.ShowTakeSeat(item, index)
 			keepwork.world.take_seat({paraMiniId=worldId, paraWorldId=ParaWorldLoginAdapter.ParaWorldId, sn=id}, function(err, msg, data)
 				if (err == 200) then
 					_guihelper.MessageBox(L"入驻成功！");
+					if (item.loaded) then
+						local gen = GameLogic.GetBlockGenerator();
+						gen:ResetGridXY(5 - item.x, 5 - item.y);
+						item.loaded = false;
+					end
 				else
 					_guihelper.MessageBox(L"该座位已被占用，请选择其他座位入驻！");
 				end
@@ -397,6 +405,11 @@ function ParaWorldSites.ShowAdminSeat(item, index)
 			keepwork.world.paraWorldMinis({paraWorldId=ParaWorldLoginAdapter.ParaWorldId, username=username, status="checked", sn=id}, function(err, msg, data)
 				if (err == 200) then
 					_guihelper.MessageBox(L"修改成功！");
+					if (item.loaded) then
+						local gen = GameLogic.GetBlockGenerator();
+						gen:ResetGridXY(5 - item.x, 5 - item.y);
+						item.loaded = false;
+					end
 				end
 				ParaWorldSites.UpdateSitesState();
 			end);
@@ -474,7 +487,7 @@ function ParaWorldSites.LoadMiniWorldOnSeat(row, column, center, callback)
 							file:close();
 							local gen = GameLogic.GetBlockGenerator();
 							local x, y = 5 - row, 5 - column;
-							gen:LoadTemplateAtGridXY(x, y, template_file);
+							gen:LoadTemplateAtGridXY(x, y, template_file, seat.openCode == 1);
 							currentItem.loaded = true;
 							currentItem.projectName = seat.paraMini.name;
 							currentItem.bornAt = seat.paraMini.bornAt;

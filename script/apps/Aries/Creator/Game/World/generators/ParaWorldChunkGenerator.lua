@@ -155,7 +155,7 @@ end
 
 -- reset a grid
 function ParaWorldChunkGenerator:ResetGridImp(minX, minY, minZ)
-	size = size or 120;
+	size = size or 124;
 	local ground_block_id = 62;
 
 	for x = minX+4, minX + size - 1 do
