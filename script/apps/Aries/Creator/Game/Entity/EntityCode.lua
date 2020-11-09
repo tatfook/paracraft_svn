@@ -216,10 +216,16 @@ function Entity:LoadFromXMLNode(node)
 	self.isBlocklyEditMode = (node.attr.isBlocklyEditMode == "true" or node.attr.isBlocklyEditMode == true);
 	self.languageConfigFile = node.attr.languageConfigFile;
 	self.codeLanguageType = node.attr.codeLanguageType;
+	
     
 	local isPowered = (node.attr.isPowered == "true" or node.attr.isPowered == true);
 	if(isPowered) then
-		self:ScheduleRefresh();
+		self.delayLoad = node.attr.delayLoad;
+		if(self.delayLoad) then
+			self.isPowered = true;
+		else
+			self:ScheduleRefresh();
+		end
 	end
 	for i=1, #node do
 		if(node[i].name == "blockly") then
@@ -262,6 +268,9 @@ function Entity:LoadFromXMLNode(node)
 end
 
 function Entity:ScheduleRefresh(x,y,z)
+	if(self.delayLoad) then
+		return
+	end
 	if(not x) then
 		x,y,z = self:GetBlockPos();
 	end
@@ -563,6 +572,9 @@ end
 
 -- run regardless of whether it is powered. 
 function Entity:Restart()
+	if(self.delayLoad) then
+		self.delayLoad = nil;
+	end
 	self:Stop();
 
 	local blocks = self:GetAllNearbyCodeEntities()
