@@ -14,30 +14,6 @@ NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 local ParaWorldList = NPL.export();
 
 ParaWorldList.Current_Item_DS = {};
-ParaWorldList.provinces = {
-	{
-		text = L"省",
-		value = 0,
-		selected = true,
-	}
-}
-
-ParaWorldList.cities = {
-	{
-		text = L"市",
-		value = 0,
-		selected = true,
-	}
-}
-
-ParaWorldList.areas = {
-	{
-		text = L"区",
-		value = 0,
-		selected = true,
-	}
-}
-
 
 local myParaWorldCount = 0;
 local currentRegion = nil;
@@ -47,6 +23,33 @@ function ParaWorldList.OnInit()
 end
 
 function ParaWorldList.ShowPage()
+	ParaWorldList.provinces = {
+		{
+			text = L"省",
+			value = 0,
+			selected = true,
+		}
+	}
+
+	ParaWorldList.cities = {
+		{
+			text = L"市",
+			value = 0,
+			selected = true,
+		}
+	}
+
+	ParaWorldList.areas = {
+		{
+			text = L"区",
+			value = 0,
+			selected = true,
+		}
+	}
+	for i = #(ParaWorldList.Current_Item_DS), 1, -1 do
+		ParaWorldList.Current_Item_DS[i] = nil;
+	end
+
 	local params = {
 		url = "script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldList.html",
 		name = "ParaWorldList.ShowPage", 
@@ -65,9 +68,6 @@ function ParaWorldList.ShowPage()
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
-	for i = #(ParaWorldList.Current_Item_DS), 1, -1 do
-		ParaWorldList.Current_Item_DS[i] = nil;
-	end
 	myParaWorldCount = 0;
 	currentRegion = nil;
 	commonlib.TimerManager.SetTimeout(function()
