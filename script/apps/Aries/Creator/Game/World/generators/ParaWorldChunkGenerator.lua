@@ -96,7 +96,9 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 	GameLogic.RunCommand("/speedscale 2");
 	GameLogic.options:SetViewBobbing(false, true)
 
+
 	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and KeepworkService:IsSignedIn()) then
+		GameLogic.options:SetLockedGameMode("game");
 		GameLogic.RunCommand("/ggs connect -silent=false");
 	end
 
@@ -547,18 +549,16 @@ function ParaWorldChunkGenerator:ApplyOnLoadBlocks(params)
 					-- for code blocks, 
 					local serverData = b[6];
 					if(serverData and serverData.attr and serverData.attr.isPowered) then
-						if(not bEnableLogics) then
-							serverData.attr.delayLoad = true;
-							ParaWorldChunkGenerator.RegisterCodeBlocksOnGrid(gridX, gridY, {x=x, y=y, z=z})
-							hasDelayedCodeBlocks = true;
-						end
+						serverData.attr.delayLoad = true;
+						ParaWorldChunkGenerator.RegisterCodeBlocksOnGrid(gridX, gridY, {x=x, y=y, z=z}, bEnableLogics)
+						hasDelayedCodeBlocks = true;
 					end
 				end
 				block_template:OnBlockAdded(x,y,z, block_data, b[6]);
 			end
 		end
 	end
-	if(hasDelayedCodeBlocks and not bEnableLogics and lastGridParams and lastGridParams.x == gridX and lastGridParams.y == gridY) then
+	if(hasDelayedCodeBlocks and lastGridParams and lastGridParams.x == gridX and lastGridParams.y == gridY) then
 		ParaWorldChunkGenerator.EnableCodeBlocksInGrid(gridX, gridY, true)
 	end
 end
@@ -586,11 +586,11 @@ local function GetGridIndex(x, y)
 end
 
 -- @param codeBlockPos: {x, y, z}
-function ParaWorldChunkGenerator.RegisterCodeBlocksOnGrid(x, y, codeBlockPos)
+function ParaWorldChunkGenerator.RegisterCodeBlocksOnGrid(x, y, codeBlockPos, bEnableLogics)
 	local index = GetGridIndex(x, y)
 	local blockList = gridCodeBlocks[index];
 	if(not blockList) then
-		blockList = {}
+		blockList = {bEnableLogics = bEnableLogics}
 		gridCodeBlocks[index] = blockList
 	end
 	blockList[#blockList+1] = codeBlockPos;
@@ -633,21 +633,29 @@ function ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
 		end
 		if(count > 0) then
 			LOG.std(nil, "info", "ParaWorldChunkGenerator", "Enable (%d) CodeBlocks In Grid: %d %d %s", count, x, y, tostring(bEnable));
-			-- GameLogic.AddBBS(tostring(index), format("Enable (%d) CodeBlocks In Grid: %d %d %s", count, x, y, tostring(bEnable)), 2000, "0 255 0");
+			if(bEnable) then
+				GameLogic.AddBBS("ParaWorldEnableCode", format(L"加载了(%d)个代码方块，在%d,%d", count, x, y), 3000, "0 255 0");
+			else
+				GameLogic.AddBBS("ParaWorldDisableCode", format(L"卸载了(%d)个代码方块，在%d,%d", count, x, y), 3000, "0 255 0");
+			end
 		end
 	end
 end
 
 function ParaWorldChunkGenerator.EnableCodeBlocksInGrid(x, y, bEnable)
-	-- TODO: ask user for permission?
 	local index = GetGridIndex(x, y)
 	if(gridCodeBlocks[index]) then
 		if(bEnable) then
-			_guihelper.MessageBox(format(L"是否加载当前地块中的代码?"), function(res)
-				if(res and res == _guihelper.DialogResult.Yes) then
-					ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
-				end
-			end, _guihelper.MessageBoxButtons.YesNo);
+			if(gridCodeBlocks[index].bEnableLogics) then
+				ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
+			else
+				-- ask user for permission if logics are not enabled.
+				_guihelper.MessageBox(format(L"是否加载当前地块中的代码?"), function(res)
+					if(res and res == _guihelper.DialogResult.Yes) then
+						ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
+					end
+				end, _guihelper.MessageBoxButtons.YesNo);
+			end
 		else
 			ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
 		end
