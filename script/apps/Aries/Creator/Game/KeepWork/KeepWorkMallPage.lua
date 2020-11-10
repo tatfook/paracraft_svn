@@ -23,6 +23,7 @@ local bean_gsid = 998;
 local coin_gsid = 888
 local menu_node_data = {}
 KeepWorkMallPage.isOpen = false
+KeepWorkMallPage.all_mod_list = {}
 
 KeepWorkMallPage.menu_data_sources = {}
 KeepWorkMallPage.menu_data_sources = {
@@ -60,6 +61,21 @@ KeepWorkMallPage.menu_item_index = KeepWorkMallPage.defaul_select_menu_item_inde
 function KeepWorkMallPage.OnInit()
 	page = document:GetPageCtrl();
 	page.OnClose = KeepWorkMallPage.CloseView
+	page.OnCreate = KeepWorkMallPage.OnCreate
+
+end
+
+function KeepWorkMallPage.OnCreate()
+	-- local TreeViewNode = page:GetNode("item_gridviewtreeview");
+	-- if TreeViewNode then
+	-- 	local uiobject = ParaUI.GetUIObject(TreeViewNode.control.name)
+	-- 	local VScrollBar = uiobject:GetChild("VScrollBar")
+	-- 	VScrollBar.visible = false
+	-- 	-- KeepWorkMallPage.OnRefresh()
+	-- 	TreeViewNode.control:RefreshUI()
+	-- end	
+
+	KeepWorkMallPage.RefreshBeanNum()
 end
 
 function KeepWorkMallPage.Show()
@@ -162,10 +178,11 @@ function KeepWorkMallPage.OnRefresh()
     end
 end
 function KeepWorkMallPage.ChangeMenuType(level, index)
+	KeepWorkItemManager.is_select_show_model = false
 	KeepWorkMallPage.cur_select_level = level
 	KeepWorkMallPage.cur_select_type_index = index
 	KeepWorkMallPage.changeMenuNodeType(KeepWorkMallPage.menu_data_sources, level, index)
-    KeepWorkMallPage.OnRefresh()
+	KeepWorkMallPage.OnRefresh()
 end
 
 -- 切换到某个类别的时候会自动收起其他的展开的类别 确定是不能收起当前类别
@@ -302,6 +319,7 @@ function KeepWorkMallPage.HandleDataSources()
 	if nil == KeepWorkMallPage.grid_data_sources then
 		return
 	end
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditModel/EditModelTask.lua");
 
 	for k, v in pairs(KeepWorkMallPage.grid_data_sources) do
 			
@@ -349,7 +367,6 @@ function KeepWorkMallPage.HandleDataSources()
 						v.enabled = true
 						v.can_use = true
 						-- 如果有使用中的显示的需求
-						NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditModel/EditModelTask.lua");
 						local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
 						if EditModelTask and EditModelTask.GetModelFileInHand then
 							local file = EditModelTask:GetModelFileInHand()
@@ -525,6 +542,82 @@ end
 function KeepWorkMallPage.CloseView()
 	KeepWorkMallPage.isOpen = false
 end
+
+function KeepWorkMallPage.Close()
+	if page then
+		page:CloseWindow();
+		KeepWorkMallPage.CloseView()
+	end
+end
+
 function KeepWorkMallPage.GetPageCtrl()
     return page;
+end
+
+-- 展示已购买的模型
+function KeepWorkMallPage.ShowBuyModel()
+    if nil == KeepWorkItemManager.globalstore then
+        return nil
+	end
+
+	KeepWorkItemManager.is_select_show_model = true
+
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/EditModel/EditModelTask.lua");
+	local is_handle_list = #KeepWorkMallPage.all_mod_list > 0
+	local list = is_handle_list and KeepWorkMallPage.all_mod_list or KeepWorkItemManager.globalstore
+	KeepWorkMallPage.grid_data_sources = {}
+    for k,v in pairs(list) do
+		if v.fileType == "bmax" then
+			if not is_handle_list then
+				KeepWorkMallPage.all_mod_list[#KeepWorkMallPage.all_mod_list + 1] = v
+			end
+			
+			local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(v.gsId)
+			local bag_nums = copies and copies or 0
+			if bag_nums > 0 then
+				local data = {}
+				data.isModelProduct = true
+				-- 售完或者到达购买上限的情况下不允许购买
+				data.icon = string.format("Texture/Aries/Creator/keepwork/items/item_%s_32bits.png", v.gsId)
+				data.bag_nums = bag_nums
+				data.name = v.name
+				
+				if GameLogic.IsReadOnly() then
+					data.buy_txt = "已拥有"
+					data.enabled = false
+					data.is_has = true
+				else
+					data.buy_txt = "使用"
+					data.enabled = true
+					data.can_use = true
+					-- 如果有使用中的显示的需求
+					local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
+					if EditModelTask and EditModelTask.GetModelFileInHand then
+						local file = EditModelTask:GetModelFileInHand()
+						if file == string.format("blocktemplates/%s.%s", data.name, v.fileType) then
+							data.buy_txt = "已使用"
+							data.enabled = false
+							data.is_use = true
+							data.can_use = false
+						end
+					end
+				end
+	
+				KeepWorkMallPage.grid_data_sources[#KeepWorkMallPage.grid_data_sources + 1] = data
+			end
+        end
+	end
+
+	KeepWorkMallPage.cur_select_level = 0
+	KeepWorkMallPage.cur_select_type_index = 0
+	KeepWorkMallPage.FlushView()
+end
+
+function KeepWorkMallPage.RefreshBeanNum()
+	local TreeViewNode = page:GetNode("bean_label");
+
+    local template = KeepWorkItemManager.GetItemTemplate(bean_gsid);
+    local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(bean_gsid)
+    copies = copies or 0;
+	page:SetValue("bean_label", copies)
 end
