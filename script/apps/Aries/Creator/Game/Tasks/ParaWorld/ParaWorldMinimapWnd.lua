@@ -153,3 +153,19 @@ function ParaWorldMinimapWnd.SetMapName(name, userId)
 		pageWnd:SetValue("mapName", name or L"地图")
 	end
 end
+
+function ParaWorldMinimapWnd.OnClickEnableSound()
+	if (ParaAudio.GetVolume()>0) then
+		ParaAudio.SetVolume(0);
+	else
+		ParaAudio.SetVolume(1);
+	end
+	if (pageWnd) then
+		pageWnd:Refresh(0);
+	end
+end
+
+function ParaWorldMinimapWnd.OnClickEvnTime()
+	local ParaWorldEnvTime = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldEnvTime.lua");
+	ParaWorldEnvTime.ShowPage();
+end
