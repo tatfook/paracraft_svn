@@ -297,7 +297,7 @@ function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
 	local url = string.format("https://keepwork.com/official/tips/s1/1_%d",index);
 	local start_time = os.time()
     local title = ParacraftLearningRoomDailyPage.GetTitle(index);
-	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, title, false, true, { closeBtnTitle = L"关闭" }, function(state)
+	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, title, false, true, { closeBtnTitle = L"退出" }, function(state)
 		if(state == "ONCLOSE")then
             NplBrowserManager:CreateOrGet("DailyCheckBrowser"):GotoEmpty();
 			
