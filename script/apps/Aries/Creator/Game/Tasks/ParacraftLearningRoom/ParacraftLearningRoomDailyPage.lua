@@ -167,6 +167,10 @@ function ParacraftLearningRoomDailyPage.OnInit()
 	page = document:GetPageCtrl();
 end
 
+function ParacraftLearningRoomDailyPage.GetTitle(index)
+    local s = string.format(L"第%d天:%s", index, ParacraftLearningRoomDailyPage.lessons_title[index] or "");
+    return s;
+end
 function ParacraftLearningRoomDailyPage.ShowPage()
 	ParacraftLearningRoomDailyPage.FillDays()
 	local params = {
@@ -292,8 +296,8 @@ function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
 	LOG.std(nil, "debug", "ParacraftLearningRoomDailyPage.OnOpenWeb", index);
 	local url = string.format("https://keepwork.com/official/tips/s1/1_%d",index);
 	local start_time = os.time()
-
-	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, "", false, true, nil, function(state)
+    local title = ParacraftLearningRoomDailyPage.GetTitle(index);
+	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, title, false, true, { closeBtnTitle = L"关闭" }, function(state)
 		if(state == "ONCLOSE")then
             NplBrowserManager:CreateOrGet("DailyCheckBrowser"):GotoEmpty();
 			
