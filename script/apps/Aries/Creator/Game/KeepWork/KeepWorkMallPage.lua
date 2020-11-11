@@ -329,8 +329,6 @@ function KeepWorkMallPage.HandleDataSources()
 			
 			for index, value in ipairs(goods) do
 				local goods_data = KeepWorkItemManager.GetItemTemplateById(goods[1].id) or {}
-				-- print("bbbbbbbbb")
-				-- commonlib.echo(goods_data, true)
 				v.goods_data[#v.goods_data + 1] = goods_data
 			end
 		end
@@ -342,7 +340,8 @@ function KeepWorkMallPage.HandleDataSources()
 		v.is_show_hot_tag = string.find(v.tags, "hot") and string.find(v.tags, "hot") > 0
 		v.is_show_latest_tag = string.find(v.tags, "latest") and string.find(v.tags, "latest") > 0
 		v.isLink = v.purchaseUrl ~= nil and v.purchaseUrl ~= ""
-		v.isModelProduct = #v.goods_data == 1 and v.goods_data[1].modelUrl ~= nil and v.goods_data[1].modelUrl ~= ""
+		local modelUrl = v.goods_data[1] and v.goods_data[1].modelUrl or ""
+		v.isModelProduct = #v.goods_data == 1 and modelUrl ~= ""
 		-- 售完或者到达购买上限的情况下不允许购买
 		v.buy_txt = "购买"
 		if v.rule and v.rule.storage == 0 then
@@ -365,12 +364,13 @@ function KeepWorkMallPage.HandleDataSources()
 					else
 						v.buy_txt = "使用"
 						v.enabled = true
+						v.is_use = false
 						v.can_use = true
 						-- 如果有使用中的显示的需求
 						local EditModelTask = commonlib.gettable("MyCompany.Aries.Game.Tasks.EditModelTask");
 						if EditModelTask and EditModelTask.GetModelFileInHand then
 							local file = EditModelTask:GetModelFileInHand()
-							if file == string.format("blocktemplates/%s.%s", good_data.name, good_data.fileType) then
+							if file == modelUrl or file == string.format("blocktemplates/%s.%s", good_data.name, good_data.fileType) then
 								v.buy_txt = "已使用"
 								v.enabled = false
 								v.is_use = true
@@ -426,8 +426,15 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 		end
 		local good_data = item_data.goods_data[1]
 		local model_url = good_data.modelUrl or ""
-		local command = string.format("/install -ext %s -filename %s %s", good_data.fileType, good_data.name, model_url)
-		GameLogic.RunCommand(command)
+		-- model_url = "character/CC/05effect/fire.x"   
+		if model_url:match("^https?://") then
+			local command = string.format("/install -ext %s -filename %s %s", good_data.fileType, good_data.name, model_url)
+			GameLogic.RunCommand(command)
+		elseif model_url:match("character/") then         
+			GameLogic.RunCommand(string.format("/take BlockModel {tooltip=%q}", model_url));  
+			KeepWorkMallPage.HandleDataSources()
+			KeepWorkMallPage.FlushView(true)
+		end
 		
 		return
 	end
