@@ -135,7 +135,7 @@ function ParaWorldList.IsDefaultWorld(index)
 	if (not index) then return end
 	local default = Mod.WorldShare.Store:Get("user/paraWorldId");
 	local item = ParaWorldList.Current_Item_DS[index];
-	if (item and item.id == default) then
+	if (item and item.id == default and default > 0) then
 		return true;
 	else
 		return false;
