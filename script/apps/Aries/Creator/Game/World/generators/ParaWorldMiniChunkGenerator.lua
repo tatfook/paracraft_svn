@@ -146,6 +146,9 @@ function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd()
 --		local filename = self:GetTemplateFilepath()
 --		self:LoadFromTemplateFile(filename)
 --	end)
+	if (GameLogic.IsReadOnly()) then
+		return;
+	end
 	local ParaWorldTemplates = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldTemplates.lua");
 	ParaWorldTemplates.ShowPage(function(filename)
 		if (filename) then
