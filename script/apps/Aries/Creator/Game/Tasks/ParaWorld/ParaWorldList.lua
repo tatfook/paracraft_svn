@@ -97,7 +97,7 @@ function ParaWorldList.SetDefaultWorld(index)
 	if (item and item.projectId) then
 		keepwork.world.defaultParaWorld({paraWorldId = item.id}, function(err, msg, data)
 			if (err == 200) then
-				Mod.WorldShare.Store:Set("user/paraWorldId", item.id);
+				Mod.WorldShare.Store:Set("world/paraWorldId", item.id);
 				for i = #(ParaWorldList.Current_Item_DS), 1, -1 do
 					ParaWorldList.Current_Item_DS[i] = nil;
 				end
@@ -117,7 +117,7 @@ function ParaWorldList.ResetDefaultWorld(index)
 	if (item and item.projectId) then
 		keepwork.world.defaultParaWorld({paraWorldId = 0}, function(err, msg, data)
 			if (err == 200) then
-				Mod.WorldShare.Store:Set("user/paraWorldId", 0);
+				Mod.WorldShare.Store:Set("world/paraWorldId", 0);
 				for i = #(ParaWorldList.Current_Item_DS), 1, -1 do
 					ParaWorldList.Current_Item_DS[i] = nil;
 				end
@@ -133,7 +133,7 @@ end
 
 function ParaWorldList.IsDefaultWorld(index)
 	if (not index) then return end
-	local default = Mod.WorldShare.Store:Get("user/paraWorldId");
+	local default = Mod.WorldShare.Store:Get("world/paraWorldId");
 	local item = ParaWorldList.Current_Item_DS[index];
 	if (item and item.id == default and default > 0) then
 		return true;
