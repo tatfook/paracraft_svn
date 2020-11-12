@@ -296,9 +296,12 @@ function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
 	LOG.std(nil, "debug", "ParacraftLearningRoomDailyPage.OnOpenWeb", index);
 	local url = string.format("https://keepwork.com/official/tips/s1/1_%d",index);
 	local start_time = os.time()
-    local title = ParacraftLearningRoomDailyPage.GetTitle(index);
+	local title = ParacraftLearningRoomDailyPage.GetTitle(index);
+	
+	GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.learning_daily", { started = true, learningIndex = index });
 	NplBrowserManager:CreateOrGet("DailyCheckBrowser"):Show(url, title, false, true, { closeBtnTitle = L"退出" }, function(state)
 		if(state == "ONCLOSE")then
+			GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.learning_daily", { ended = true, learningIndex = index });
             NplBrowserManager:CreateOrGet("DailyCheckBrowser"):GotoEmpty();
 			
 			
