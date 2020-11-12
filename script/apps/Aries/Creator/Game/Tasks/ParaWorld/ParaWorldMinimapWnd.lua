@@ -99,7 +99,7 @@ end
 function ParaWorldMinimapWnd.OnClickSpawnpoint()
 	GameLogic.RunCommand("/home")
 
-	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.minimap.spawnpoint");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.mini_map.spawn_point");
 end
 
 function ParaWorldMinimapWnd.OnLocalWorldInfo()
@@ -118,7 +118,7 @@ function ParaWorldMinimapWnd.OnLocalWorldInfo()
 		end
 	end
 
-	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.minimap.localworldinfo");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.mini_map.local_worldinfo");
 end
 
 function ParaWorldMinimapWnd.OnClickParaWorldList()
@@ -130,7 +130,7 @@ function ParaWorldMinimapWnd.OnClickParaWorldList()
 	local ParaWorldList = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldList.lua");
 	ParaWorldList.ShowPage();
 
-	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.minimap.paraworldlist");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.mini_map.paraworld_list");
 end
 
 function ParaWorldMinimapWnd.OnClickMapName()

@@ -122,18 +122,18 @@ function DockPage.OnClickTop(id)
     elseif(id == "week_quest")then
         local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
         TeachingQuestLinkPage.ShowPage();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.weekquest");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.week_quest");
     elseif(id == "codewar")then
         local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
         StudyPage.clickArtOfWar();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.codewar");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.code_war");
     elseif(id == "web_keepwork_home")then
 	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com", "", 1); 
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.webkeepworkhome");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.web_keepwork_home");
     elseif(id == "user_tip")then
         local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
         DailyTask.Show();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.usertip");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.user_tip");
     end
 end
 function DockPage.OnClick(id)
