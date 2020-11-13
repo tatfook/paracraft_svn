@@ -130,7 +130,7 @@ function KeepWorkMallPage.ShowView()
 				style = CommonCtrl.WindowFrame.ContainerStyle,
 				allowDrag = true,
 				enable_esc_key = true,
-				zorder = 1,
+				zorder = 0,
 				app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 				directPosition = true,
 					align = "_ct",
