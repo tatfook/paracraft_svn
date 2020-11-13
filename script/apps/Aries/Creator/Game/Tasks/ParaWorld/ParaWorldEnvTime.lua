@@ -35,7 +35,7 @@ function ParaWorldEnvTime.ShowPage()
 			x = -260,
 			y = 256,
 			width = 220,
-			height = 50,
+			height = 80,
 		};
 		System.App.Commands.Call("File.MCMLWindowFrame", params);
 
