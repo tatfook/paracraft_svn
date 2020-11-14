@@ -550,6 +550,8 @@ function ParaWorldChunkGenerator:ApplyOnLoadBlocks(params)
 					local serverData = b[6];
 					if(serverData and serverData.attr and serverData.attr.isPowered) then
 						serverData.attr.delayLoad = true;
+						-- make open source by default, so that we can right click to view code content. 
+						serverData.attr.isOpenSource = true;
 						ParaWorldChunkGenerator.RegisterCodeBlocksOnGrid(gridX, gridY, {x=x, y=y, z=z}, bEnableLogics)
 						hasDelayedCodeBlocks = true;
 					end

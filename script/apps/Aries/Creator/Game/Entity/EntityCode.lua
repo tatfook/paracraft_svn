@@ -31,6 +31,7 @@ Entity:Property({"languageConfigFile", "", "GetLanguageConfigFile", "SetLanguage
 Entity:Property({"isAllowClientExecution", false, "IsAllowClientExecution", "SetAllowClientExecution"})
 Entity:Property({"isAllowFastMode", false, "IsAllowFastMode", "SetAllowFastMode"})
 Entity:Property({"hasDiskFileMirror", false, "HasDiskFileMirror", "SetHasDiskFileMirror"})
+Entity:Property({"isOpenSource", false, "IsOpenSource", "SetOpenSource"})
 Entity:Signal("beforeRemoved")
 Entity:Signal("editModeChanged")
 Entity:Signal("remotelyUpdated")
@@ -181,6 +182,9 @@ function Entity:SaveToXMLNode(node, bSort)
 	if(self:HasDiskFileMirror()) then
 		node.attr.hasDiskFileMirror= true;
 	end
+	if(self:IsOpenSource()) then
+		node.attr.isOpenSource = true;
+	end
 
 	if(self:GetLanguageConfigFile()~="") then
 		node.attr.languageConfigFile = self:GetLanguageConfigFile();
@@ -213,6 +217,7 @@ function Entity:LoadFromXMLNode(node)
 	self.isAllowClientExecution = (node.attr.allowClientExecution == "true" or node.attr.allowClientExecution == true);
 	self.isAllowFastMode = (node.attr.allowFastMode == "true" or node.attr.allowFastMode == true);
 	self.hasDiskFileMirror = (node.attr.hasDiskFileMirror == "true" or node.attr.hasDiskFileMirror == true);
+	self.isOpenSource = (node.attr.isOpenSource == "true" or node.attr.isOpenSource == true);
 	self.isBlocklyEditMode = (node.attr.isBlocklyEditMode == "true" or node.attr.isBlocklyEditMode == true);
 	self.languageConfigFile = node.attr.languageConfigFile;
 	self.codeLanguageType = node.attr.codeLanguageType;
@@ -460,7 +465,7 @@ function Entity:OnClick(x, y, z, mouse_button, entity, side)
 		end
 		return true;
 	else
-		if(self:IsAllowGameModeEdit()) then
+		if(self:IsAllowGameModeEdit() or self:IsOpenSource()) then
 			self:OpenEditor("entity", entity);
 		elseif(mouse_button=="right" and GameLogic.GameMode:CanEditBlock()) then
 			self:OpenEditor("entity", entity);
@@ -816,6 +821,14 @@ end
 
 function Entity:HasDiskFileMirror()
 	return self.hasDiskFileMirror;
+end
+
+function Entity:SetOpenSource(bOpenSource)
+	self.isOpenSource = bOpenSource == true;
+end
+
+function Entity:IsOpenSource()
+	return self.isOpenSource;
 end
 
 function Entity:GetText()
