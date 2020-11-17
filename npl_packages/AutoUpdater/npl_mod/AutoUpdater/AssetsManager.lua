@@ -203,6 +203,10 @@ function AssetsManager:downloadVersion(callback)
 			self._latestVersion = nil
 	        if(err == 200)then
                 if(data)then
+                    if(type(data) == "table")then
+                        NPL.load("(gl)script/ide/serialization.lua");
+                        data = commonlib.serialize(data);
+                    end
                     local body = "<root>" .. data .. "</root>";
                     local xmlRoot = ParaXML.LuaXML_ParseString(body);
                     if(xmlRoot)then
