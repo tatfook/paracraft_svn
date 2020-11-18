@@ -177,6 +177,10 @@ function DockPage.OnClick(id)
     elseif(id == "home")then
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.home");
         
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Login/LocalLoadWorld.lua");
+        local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
+        LocalLoadWorld.CreateGetHomeWorld();
+
         local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
         SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
             GameLogic.RunCommand("/loadworld home");
