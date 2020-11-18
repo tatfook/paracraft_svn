@@ -204,7 +204,7 @@ function DockAssetsPreloader.Start(callback)
         DockAssetsPreloader.cur_time = DockAssetsPreloader.cur_time + timer.delta;
         local percent = fileLoader:GetPercent();
         Map3DSystem.App.MiniGames.SwfLoadingBarPage.Update(percent);
-        Map3DSystem.App.MiniGames.SwfLoadingBarPage.UpdateText(L"下载贴图中，请稍等");
+        Map3DSystem.App.MiniGames.SwfLoadingBarPage.UpdateText(L"下载贴图中，首次加载会比较慢，请耐心等待");
 
         if(percent >= 1 or DockAssetsPreloader.cur_time > DockAssetsPreloader.timeout)then
             if(callback)then
