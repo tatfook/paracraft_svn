@@ -627,6 +627,7 @@ end
 function MainLogin:PreloadTextures()
 	if(System.options.servermode) then
 		self:next_step({IsPreloadedTextures = true});
+        return
 	end
     local DockAssetsPreloader = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockAssetsPreloader.lua");
     DockAssetsPreloader.Start(function()
