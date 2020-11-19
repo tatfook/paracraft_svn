@@ -62,6 +62,12 @@ function ParaWorldCodeList.GetCodeList()
 	return codeList;
 end
 
+function ParaWorldCodeList.CanOpenCodeBlock(index)
+	local codeBlock = codeList[index];
+	local entity = EntityManager.GetBlockEntity(codeBlock.x, codeBlock.y, codeBlock.z);
+	return entity and entity:IsOpenSource();
+end
+
 function ParaWorldCodeList.OpenCode(index)
 	local codeBlock = codeList[index];
 	local entity = EntityManager.GetBlockEntity(codeBlock.x, codeBlock.y, codeBlock.z);
