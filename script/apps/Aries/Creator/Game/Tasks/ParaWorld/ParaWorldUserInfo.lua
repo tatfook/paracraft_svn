@@ -13,6 +13,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/World/generators/ParaWorldChunkGene
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.user.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.world.lua");
 local ParaWorldChunkGenerator = commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator");
+local ParaWorldCodeList = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldCodeList.lua");
 local ParaWorldUserInfo = NPL.export();
 
 local page;
@@ -87,8 +88,8 @@ function ParaWorldUserInfo.Refresh(userId, gridX, gridY)
 			keepwork.user.getinfo({router_params = {id = id}}, function(err, msg, data)
 				if (data and data.extra and data.extra.ParacraftPlayerEntityInfo and data.extra.ParacraftPlayerEntityInfo.asset) then
 					asset = data.extra.ParacraftPlayerEntityInfo.asset;
-					page:CallMethod("MyPlayer", "SetAssetFile", asset);
 				end
+				page:CallMethod("MyPlayer", "SetAssetFile", asset);
 			end);
 		end);
 	end);
@@ -132,7 +133,7 @@ function ParaWorldUserInfo.OnClickUserInfo()
 end
 
 function ParaWorldUserInfo.IsCodeEnabled()
-	return worldParams.openCode == true;
+	return worldParams.openCode == true and ParaWorldUserInfo.GetCodeCount() > 0;
 end
 
 function ParaWorldUserInfo.IsCodeTurnOn()
@@ -153,6 +154,17 @@ function ParaWorldUserInfo.OnClickDisableCode()
 	page:CallMethod("MyPlayer", "SetAssetFile", asset);
 end
 
+function ParaWorldUserInfo.GetCodeCount()
+	local codeBlocks = ParaWorldChunkGenerator.GetCodeBlockListInGrid(5 - worldParams.x, 5 - worldParams.y);
+	if (codeBlocks) then
+		return #codeBlocks;
+	else
+		return 0;
+	end
+end
+
 function ParaWorldUserInfo.OnClickCodeList()
+	local codeBlocks = ParaWorldChunkGenerator.GetCodeBlockListInGrid(5 - worldParams.x, 5 - worldParams.y);
+	ParaWorldCodeList.ShowPage(codeBlocks);
 end
 

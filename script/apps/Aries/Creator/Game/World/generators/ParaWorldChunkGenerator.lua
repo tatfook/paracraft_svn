@@ -647,6 +647,8 @@ function ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
 end
 
 function ParaWorldChunkGenerator.EnableCodeBlocksInGrid(x, y, bEnable)
+	commonlib.echo("EnableCodeBlocksInGrid");
+	commonlib.echo(bEnable);
 	local index = GetGridIndex(x, y)
 	if(gridCodeBlocks[index]) then
 		if(bEnable) then
@@ -693,7 +695,7 @@ function ParaWorldChunkGenerator:OnCodeTimer()
 	end
 end
 
-function ParaWorldChunkGenerator.GetCodeBlockListByGrid(x, y)
+function ParaWorldChunkGenerator.GetCodeBlockListInGrid(x, y)
 	local index = GetGridIndex(x, y)
 	return gridCodeBlocks[index];
 end
