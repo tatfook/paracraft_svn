@@ -188,16 +188,18 @@ function DockPage.OnClick(id)
         _guihelper.MessageBox(
             format(L"即将离开【%s】进入【%s】", WorldCommon.GetWorldTag(), format(L"%s的家园", System.User.username)),
             function(res)
-                NPL.load("(gl)script/apps/Aries/Creator/Game/Login/LocalLoadWorld.lua");
-                local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
-                LocalLoadWorld.CreateGetHomeWorld();
-
-                local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
-                SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
-                    GameLogic.RunCommand("/loadworld home");
-                end);
+                if(res == _guihelper.DialogResult.OK)then
+                    NPL.load("(gl)script/apps/Aries/Creator/Game/Login/LocalLoadWorld.lua");
+                    local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
+                    LocalLoadWorld.CreateGetHomeWorld();
+    
+                    local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
+                    SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
+                        GameLogic.RunCommand("/loadworld home");
+                    end);
+                end
             end,
-            _guihelper.MessageBoxButtons.YesNo
+            _guihelper.MessageBoxButtons.OKCancel
         )
     elseif(id == "friends")then
         local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
