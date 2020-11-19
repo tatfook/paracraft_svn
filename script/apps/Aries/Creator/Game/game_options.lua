@@ -690,7 +690,7 @@ end
 
 -- get the current npl runtime version
 function options.GetBaseVersion()
-	local baseVersion = ParaEngine.GetAppCommandLineByParam("base_version", "0.0.0")
+	local baseVersion = ParaEngine.GetAppCommandLineByParam("base_version", "2.0.0")
 	
 	return baseVersion
 end

@@ -1098,24 +1098,30 @@ end
 
 -- set mode 
 function GameLogic.SetMode(mode, bFireModeChangeEvent)
-	if mode == 'editor' then
-		GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.edit");
+	if Mod and Mod.WorldShare then
+		local loadWorldFinish = Mod.WorldShare.Store:Get('world/loadWorldFinish')
 
-		-- stop play event tracking
-		if GameLogic.GameMode:GetMode() ~= mode then
-			GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.play", { ended = true });
+		if loadWorldFinish then
+			if mode == 'editor' then
+				GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.edit");
+
+				-- stop play event tracking
+				if GameLogic.GameMode:GetMode() ~= mode then
+					GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.play", { ended = true });
+				end
+		
+				GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.edit", { started = true });
+			else
+				GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.play");
+
+				-- stop edit event tracking
+				if GameLogic.GameMode:GetMode() ~= mode then
+					GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.edit", { ended = true });
+				end
+		
+				GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.play", { started = true });
+			end
 		end
-
-		GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.edit", { started = true });
-	else
-		GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.world.play");
-
-		-- stop edit event tracking
-		if GameLogic.GameMode:GetMode() ~= mode then
-			GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.edit", { ended = true });
-		end
-
-		GameLogic.GetFilters():apply_filters("user_behavior", 2, "duration.world.play", { started = true });
 	end
 
 	GameLogic.mode = mode;
