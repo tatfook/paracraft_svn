@@ -207,6 +207,7 @@ function DockAssetsPreloader.Start(callback)
         Map3DSystem.App.MiniGames.SwfLoadingBarPage.UpdateText(L"下载贴图中，首次加载会比较慢，请耐心等待");
 
         if(percent >= 1 or DockAssetsPreloader.cur_time > DockAssetsPreloader.timeout)then
+            Map3DSystem.App.MiniGames.SwfLoadingBarPage.ClosePage();
             if(callback)then
                 callback();
             end 
