@@ -85,7 +85,7 @@ function DockPage.Show()
     end
 end
 function DockPage.Hide()
-    DockPa  ge.is_show = false;
+    DockPage.is_show = false;
     if(DockPage._root)then
         DockPage._root.visible = false;
     end
