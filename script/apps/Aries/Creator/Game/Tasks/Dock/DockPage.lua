@@ -183,15 +183,22 @@ function DockPage.OnClick(id)
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.study");
     elseif(id == "home")then
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.home");
-        
-        NPL.load("(gl)script/apps/Aries/Creator/Game/Login/LocalLoadWorld.lua");
-        local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
-        LocalLoadWorld.CreateGetHomeWorld();
+        local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 
-        local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
-        SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
-            GameLogic.RunCommand("/loadworld home");
-        end);
+        _guihelper.MessageBox(
+            format(L"即将离开【%s】进入【%s】", WorldCommon.GetWorldTag(), format(L"%s的家园", System.User.username)),
+            function(res)
+                NPL.load("(gl)script/apps/Aries/Creator/Game/Login/LocalLoadWorld.lua");
+                local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
+                LocalLoadWorld.CreateGetHomeWorld();
+
+                local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
+                SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
+                    GameLogic.RunCommand("/loadworld home");
+                end);
+            end,
+            _guihelper.MessageBoxButtons.YesNo
+        )
     elseif(id == "friends")then
         local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
         FriendsPage.show_callback = function()
