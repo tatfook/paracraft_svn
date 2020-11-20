@@ -276,7 +276,7 @@ function NplBrowserFrame:GotoEmpty()
 --        url = NplBrowserManager.empty_html;
 --    end
     --run self:Goto will crash exe if url include chinese character
-    self:Goto("empty");
+    self:Goto("about:blank");
     commonlib.TimerManager.SetTimeout(function()  
 		ParaUI.GetUIObject("root"):Focus();
 	end, 1000)
