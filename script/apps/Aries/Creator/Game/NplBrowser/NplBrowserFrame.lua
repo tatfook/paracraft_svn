@@ -270,12 +270,13 @@ function NplBrowserFrame:GotoEmpty()
     local NplBrowserManager = NPL.load("(gl)script/apps/Aries/Creator/Game/NplBrowser/NplBrowserManager.lua");
     local local_file_path = string.format("%scef3/empty.html",ParaIO.GetCurDirectory(0));
     local url;
-    if(ParaIO.DoesFileExist(local_file_path))then
-        url = string.format("file:///%s",local_file_path);
-    else
-        url = NplBrowserManager.empty_html;
-    end
-    self:Goto(url);
+--    if(ParaIO.DoesFileExist(local_file_path))then
+--        url = string.format("file:///%s",local_file_path);
+--    else
+--        url = NplBrowserManager.empty_html;
+--    end
+    --run self:Goto will crash exe if url include chinese character
+    self:Goto("empty");
     commonlib.TimerManager.SetTimeout(function()  
 		ParaUI.GetUIObject("root"):Focus();
 	end, 1000)
