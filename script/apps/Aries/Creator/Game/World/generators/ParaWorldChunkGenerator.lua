@@ -507,6 +507,9 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 							end
 						end
 					end
+					-- uncomment to test async loading
+					-- ParaEngine.Sleep(5)
+
 					attRegion:SetField("IsLocked", false)
 					if(not is_suspended_before) then
 						ParaTerrain.GetBlockAttributeObject():CallField("ResumeLightUpdate");
@@ -515,7 +518,7 @@ function ParaWorldChunkGenerator:LoadTemplateAsyncImp(params, msg)
 						cmd="CustomFunc", funcName = "ApplyOnLoadBlocks", 
 						params= {addList=addList, x=bx, y=by, z=bz, bEnableLogics=bEnableLogics}, 
 						gen_id = msg.gen_id, address = msg.address,
-					});
+					}); 
 					return true;
 				end
 			end
@@ -560,6 +563,10 @@ function ParaWorldChunkGenerator:ApplyOnLoadBlocks(params)
 			end
 		end
 	end
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldMinimapWnd.lua");
+	local ParaWorldMinimapWnd = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldMinimapWnd");
+	ParaWorldMinimapWnd:RefreshMap(0.5)
+
 	if(hasDelayedCodeBlocks and lastGridParams and lastGridParams.x == gridX and lastGridParams.y == gridY) then
 		ParaWorldChunkGenerator.EnableCodeBlocksInGrid(gridX, gridY, true)
 	end
