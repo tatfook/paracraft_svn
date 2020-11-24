@@ -654,8 +654,6 @@ function ParaWorldChunkGenerator.EnableCodeBlocksInGridImp(x, y, bEnable)
 end
 
 function ParaWorldChunkGenerator.EnableCodeBlocksInGrid(x, y, bEnable)
-	commonlib.echo("EnableCodeBlocksInGrid");
-	commonlib.echo(bEnable);
 	local index = GetGridIndex(x, y)
 	if(gridCodeBlocks[index]) then
 		if(bEnable) then
