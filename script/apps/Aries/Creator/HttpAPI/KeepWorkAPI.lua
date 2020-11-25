@@ -21,3 +21,4 @@ NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.friends.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.tatfook.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.buriedData.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.notic.lua");
+NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/keepwork.msgcenter.lua");

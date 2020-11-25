@@ -30,10 +30,10 @@ DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },
-    { label = L"", },
     { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangrenwu_32bits.png#0 0 85 75", },
     { label = L"用户社区", id = "web_keepwork_home", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_yonghushequ_32bits.png#0 0 85 75", },
     { label = L"大赛", id = "competition", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_dasai_32bits.png#0 0 85 75", },
+    { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_xiaoxi_32bits.png#0 0 85 75", },
 }
 DockPage.top_line_2 = {
     { label = L"", },
@@ -73,6 +73,8 @@ function DockPage.Show()
         UserData = data
         -- DockPage.HandleFriendsFansLocalData()
         DockPage.HandleFriendsRedTip(true);
+
+        DockPage.HandMsgCenterMsgData(true);
     end)
 
     -- 每日首次登陆自动打开任务面板
@@ -141,6 +143,9 @@ function DockPage.OnClickTop(id)
         local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
         DailyTask.Show();
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.user_tip");
+    elseif(id == "msg_center")then
+        local MsgCenter = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MsgCenter/MsgCenter.lua");
+        MsgCenter.Show();
     end
 end
 function DockPage.OnClick(id)
@@ -338,6 +343,16 @@ function DockPage.RenderButton_1(index)
         </script>
         <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= RedTip_Activity_Checked()%%>' ></kp:redtip>
         ]],"");
+    elseif (id == "msg_center") then
+        tip_str = string.format([[
+        <script type="text/npl" refresh="false">
+            local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+            function HasMsgCenterUnReadMsg()
+                return DockPage.HasMsgCenterUnReadMsg();
+            end
+        </script>
+        <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= HasMsgCenterUnReadMsg()%%>' ></kp:redtip>
+        ]],"");
     end
     local s = string.format([[
         <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
@@ -531,3 +546,44 @@ function DockPage.ChangeFriendRedTipState(state)
     end
 end
 
+function DockPage.HasMsgCenterUnReadMsg()
+    return DockPage.GetMsgCenterUnReadNum() > 0
+end
+
+function DockPage.HandMsgCenterMsgData(is_need_repeat)
+    if not DockPage.is_show then
+        return
+    end  
+
+    keepwork.msgcenter.unReadCount({
+    },function(err, msg, data)
+        print("sssssssssssssss", err)
+        echo(data, true)
+        if err == 200 then
+            local all_count = 0
+            for k, v in pairs(data.data) do
+                all_count = all_count + v
+            end
+            DockPage.SetMsgCenterUnReadNum(all_count)
+            print("aaaaaaaaaaaaa", all_count)
+            if DockPage.is_show then
+                DockPage.page:Refresh(0);
+            end 
+        end
+    end)
+
+    if is_need_repeat then
+        commonlib.TimerManager.SetTimeout(function()          
+            DockPage.HandMsgCenterMsgData(true)
+        end, 60000)
+    end
+
+end
+
+function DockPage.SetMsgCenterUnReadNum(num)
+    DockPage.MsgCenterUnReadNum = num or 0
+end
+
+function DockPage.GetMsgCenterUnReadNum()
+    return DockPage.MsgCenterUnReadNum or 0
+end
