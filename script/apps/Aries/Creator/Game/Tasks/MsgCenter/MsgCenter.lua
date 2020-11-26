@@ -182,7 +182,10 @@ function MsgCenter.RequestMsgByType(type)
 		-- orgId = 0,
 	},function(err, msg, data)
 		MsgCenter.server_data = data.data
-		MsgCenter.HandleData(MsgCenter.server_data, MsgCenter.FlushView)
+		MsgCenter.HandleData(MsgCenter.server_data, function()
+			MsgCenter.FlushView()
+			MsgCenter.ChangeMsgState()
+		end)
 	end)
 end
 -- {
@@ -472,4 +475,8 @@ function MsgCenter.ChangeMsgState()
 			DockPage.HandMsgCenterMsgData()
 		end
 	end)
+end
+
+function MsgCenter.IsVisible()
+	return page:IsVisible()
 end

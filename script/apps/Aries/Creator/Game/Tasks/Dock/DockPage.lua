@@ -74,7 +74,7 @@ function DockPage.Show()
         -- DockPage.HandleFriendsFansLocalData()
         DockPage.HandleFriendsRedTip(true);
 
-        DockPage.HandMsgCenterMsgData(true);
+        DockPage.HandMsgCenterMsgData();
     end)
 
     -- 每日首次登陆自动打开任务面板
@@ -569,11 +569,11 @@ function DockPage.HandMsgCenterMsgData(is_need_repeat)
         end
     end)
 
-    if is_need_repeat then
-        commonlib.TimerManager.SetTimeout(function()          
-            DockPage.HandMsgCenterMsgData(true)
-        end, 60000)
-    end
+    -- if is_need_repeat then
+    --     commonlib.TimerManager.SetTimeout(function()          
+    --         DockPage.HandMsgCenterMsgData(true)
+    --     end, 60000)
+    -- end
 
 end
 
