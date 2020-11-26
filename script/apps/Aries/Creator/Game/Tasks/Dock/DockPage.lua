@@ -557,15 +557,12 @@ function DockPage.HandMsgCenterMsgData(is_need_repeat)
 
     keepwork.msgcenter.unReadCount({
     },function(err, msg, data)
-        print("sssssssssssssss", err)
-        echo(data, true)
         if err == 200 then
             local all_count = 0
             for k, v in pairs(data.data) do
                 all_count = all_count + v
             end
             DockPage.SetMsgCenterUnReadNum(all_count)
-            print("aaaaaaaaaaaaa", all_count)
             if DockPage.is_show then
                 DockPage.page:Refresh(0);
             end 

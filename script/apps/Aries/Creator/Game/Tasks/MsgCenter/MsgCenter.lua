@@ -235,6 +235,8 @@ function MsgCenter.HandleData(data, updata_cb)
 	local msg_type = click_data.msg_type or 1
 	local search_id_list = {}
 	local pro_id_list = {}
+	local profile = KeepWorkItemManager.GetProfile();
+	local name = profile.nickname or profile.username
 	for i, v in ipairs(data.rows) do
 		local msg_data = {}
 		msg_data.msg_type = v.msgType
@@ -266,17 +268,22 @@ function MsgCenter.HandleData(data, updata_cb)
 
 			
 		else
-			msg_data.msg_content1 = msg.text or ""
+			-- 新注册用户信息 前端特殊处理
+			if v.msgType == MsgCenter.MsgType.system and msg.type == 1 then
+				
+				msg_data.msg_content1 = string.format([[欢迎来到Paracraft，<div style="float:left;color:#16be3d; text-singleline:true">%s</div>：<br />
+				我们很荣幸有你的参与！通过Paracraft，你可以创建自己的3D动画项目、编程项目、网站项目，并将你的作品分享给大家。<br />
+				接下来呢？快去创造及探索Paracraft精彩3D世界吧！]], name)
+
+				
+			else
+				msg_data.msg_content1 = msg.text or ""
+			end
 		end
 		
 		-- msgId: 46, msgType: 3
 		-- 未读
 		if v.readStatus == 0 then
-			-- if MsgStateList[0] == nil then
-			-- 	MsgStateList[0] = {msgId = v.id, msgType = v.msgType}
-			-- else
-			-- 	MsgStateList[#MsgStateList + 1] = {msgId = v.id, msgType = v.msgType}
-			-- end
 			MsgStateList[#MsgStateList + 1] = {msgId = v.id, msgType = v.msgType}
 		end
 		
