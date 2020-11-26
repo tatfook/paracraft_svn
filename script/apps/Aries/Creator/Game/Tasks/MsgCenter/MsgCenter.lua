@@ -348,23 +348,23 @@ function MsgCenter.GetDivBtnDesc(data)
 		local is_follow = MsgCenter.IsFollow(id)
 
 		desc = 	[[<input type="button" value='关注' name = '<%=XPath("this") %>' onclick="<%=OnClickFollow%>" param1='<%=Eval("index") %>' 
-		style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+		style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 		background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lan_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 
 		if is_follow then
 			data.is_friend = true
 
 			desc = 	[[<input type="button" value='互相关注' name = '<%=XPath("this") %>' onclick="<%=OnClickCancelFollow%>" param1='<%=Eval("index") %>' 
-			style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+			style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 			background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lan_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 		end
 	elseif data.interaction_type == MsgCenter.InteractionType.comment then
 		desc = 	[[<input type="button" value='查看' name = '<%=XPath("this") %>' onclick="<%=OnCommentCheck%>" param1='<%=Eval("index") %>' 
-		style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+		style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 		background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_hui_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 	elseif data.interaction_type == MsgCenter.InteractionType.jion then
 		desc = 	[[<input type="button" value='允许' name = '<%=XPath("this") %>' onclick="OnClickAllowJoin" param1='<%=Eval("index") %>' 
-		style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+		style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 		background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lv_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 
 		-- 要判断是否已允许
@@ -373,15 +373,15 @@ function MsgCenter.GetDivBtnDesc(data)
 		local pro_data = MsgCenter.GetProjectData(pro_id, id, msg_id)
 		if pro_data.state == 1 then
 			desc = 	[[<input type="button" value='已允许' name = '<%=XPath("this") %>' onclick="" enabled="false" param1='<%=Eval("index") %>' 
-			style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+			style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 			background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lv_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 		elseif pro_data.state == 2 then
 			desc = 	[[<input type="button" value='已拒绝' name = '<%=XPath("this") %>' onclick="" enabled="false" param1='<%=Eval("index") %>' 
-			style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+			style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 			background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lv_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 		elseif pro_data.state == nil then
 			desc = 	[[<input type="button" value='已拒绝' name = '<%=XPath("this") %>' onclick="" enabled="false" param1='<%=Eval("index") %>' 
-			style="float: left;margin-left: 18px; margin-top:20px;width:70px;height:28px;
+			style="float: left;margin-left: 18px; margin-top:32px;width:70px;height:28px;
 			background:url(Texture/Aries/Creator/keepwork/MsgCenter/btn_lv_32X32_32bits.png#0 0 32 32:8 8 8 8);" />]]
 		end	
 	end
