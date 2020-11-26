@@ -17,6 +17,7 @@ local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/G
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
 local RegisterModal = NPL.load("(gl)Mod/WorldShare/cellar/RegisterModal/RegisterModal.lua")
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
+local Notice = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Notice/Notice.lua");
 local DockPage = NPL.export();
 local UserData = nil
 DockPage.FriendsFansData = nil
@@ -84,6 +85,11 @@ function DockPage.Show()
     if (System.User.realname == nil or System.User.realname == "") and not DockPage.IsShowClassificationPage then
         DockPage.IsShowClassificationPage = true
         RegisterModal:ShowClassificationPage()
+    end
+
+    -- 每次登陆判断是否弹出活动框
+    if Notice and Notice.CheckCanShow() then
+        Notice.Show()
     end
 end
 function DockPage.Hide()

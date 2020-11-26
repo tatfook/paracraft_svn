@@ -1,6 +1,6 @@
 --[[
 Title: Notice
-Author(s): yangguiyi
+Author(s): yangguiyi & pengbb
 Date: 2020/11/23
 Desc:  
 Use Lib:
@@ -11,44 +11,206 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Notice/Notice.lua").Show();
 local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
 local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+local NoticeTimeId = 2001
 local Notice = NPL.export();
+Notice.isSelectShowToday = true;
+Notice.nSelectIndex = 1;
+Notice.tblNoticeDt = {};
+Notice.isFirstIn = true
+Notice.nDataNum = 1
+
+
+
 function Notice.OnInit()
     page = document:GetPageCtrl();
-    page.OnClose = Notice.CloseView
+    page.OnClose = Notice.CloseView 
+         
+end
+
+--处理获得的数据
+function Notice.GetPageData(data)
+    if data and type(data) == "table" then
+        local tblSize = #data;
+        if tblSize > 1 then
+            table.sort(data,function(a,b)
+                if a.priority < b.priority then
+                    return true;
+                elseif a.priority == b.priority then
+                    if Notice.GetTimeStamp(a.createdAt) < Notice.GetTimeStamp(b.createdAt) then
+                        return true;
+                    end
+                    return false;
+                else
+                    return false;
+                end
+            end)           
+        end
+    end
+
+    Notice.tblNoticeDt = {};
+    for k , v in pairs(data) do
+        local temp = {};
+        temp.id = v.id;
+        temp.cover = v.cover;
+        temp.url = v.url or "";
+        temp.name = v.name
+        temp.index = k
+        table.insert(Notice.tblNoticeDt,temp);
+    end
+    Notice.nDataNum = #Notice.tblNoticeDt
+    -- commonlib.echo(Notice.tblNoticeDt,true)
+end
+
+function Notice.GetTimeStamp(strTime)
+    strTime = strTime or "";
+    local year, month, day, hour, min, sec = strTime:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)"); 
+    local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}); -- 这个时间是带时区的 要加8小时
+    time_stamp = time_stamp + min * 60 + sec;
+    return time_stamp;
 end
 
 function Notice.Show()
     keepwork.notic.announcements({
-    },function(info_err, info_msg, info_data)
-        print("ggggggggggggggg", info_err)
-        commonlib.echo(info_data, true)
+    },function(info_err, info_msg, info_data)        
         if info_err == 200 then
-            local params = {
-                url = "script/apps/Aries/Creator/Game/Tasks/Notice/Notice.html",
-                name = "Notice.Show", 
-                isShowTitleBar = false,
-                DestroyOnClose = true,
-                style = CommonCtrl.WindowFrame.ContainerStyle,
-                allowDrag = true,
-                enable_esc_key = true,
-                zorder = -1,
-                app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-                directPosition = true,
-                
-                align = "_ct",
-                x = -700/2,
-                y = -399/2,
-                width = 700,
-                height = 399,
-            };
-            
-            System.App.Commands.Call("File.MCMLWindowFrame", params)
+            Notice.GetPageData(info_data); 
+            if Notice.nDataNum > 0 then
+                local params = {
+                    url = "script/apps/Aries/Creator/Game/Tasks/Notice/Notice.html",
+                    name = "Notice.Show", 
+                    isShowTitleBar = false,
+                    DestroyOnClose = true,
+                    style = CommonCtrl.WindowFrame.ContainerStyle,
+                    allowDrag = true,
+                    enable_esc_key = true,
+                    zorder = -1,
+                    app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
+                    directPosition = true,                
+                    align = "_ct",
+                    x = -700/2,
+                    y = -399/2,
+                    width = 700,
+                    height = 399,
+                };                
+                System.App.Commands.Call("File.MCMLWindowFrame", params)            
+                NPL.SetTimer(NoticeTimeId, 5.0, ";RegisterTime();"); --注册定时器
+            else
+                print("no notice data~~~~~~~~~~~~~")
+            end            
         else
+            _guihelper.MessageBox("活动或者公告数据异常，请重试或者联系客服~");
         end
     end) 
 
 end
 
+function RegisterTime()
+    local clickindex = Notice.nSelectIndex  
+    clickindex = Notice.isFirstIn and clickindex or clickindex + 1; --首次进来会调用定时器，导致直接刷新到了下一个活动页面，加一个首次判断
+    if clickindex > Notice.nDataNum then
+        clickindex= 1;
+    end
+    Notice.OnClick(string.format("button_%d",clickindex));
+    Notice.isFirstIn = false
+end
+
 function Notice.CloseView()
     -- body
+    Notice.nSelectIndex = 1;
+    Notice.tblNoticeDt = {};
+    Notice.isFirstIn = true
+    NPL.KillTimer(NoticeTimeId);
+    Notice.SaveLocalData()
+end
+
+
+function Notice.OnClick(id)
+    local index = tonumber(string.sub(id,8,-1));
+    Notice.nSelectIndex = index;
+    Notice.RefreshPage();    
+end
+
+function Notice.RefreshPage()
+    if not page then
+        return
+    end
+    page:Refresh(0)
+end
+
+function Notice.RenderButton(index)
+    local strSelBg = "Texture/Aries/Creator/keepwork/Notice/dian2_10X10_32bits.png#2 2 10 10";
+    local strNorBg = "Texture/Aries/Creator/keepwork/Notice/dian2_8X8_32bits.png#0 0 8 8";
+    local nodeBg = index == Notice.nSelectIndex and strSelBg or strNorBg;
+    local strName = string.format("button_%d",index);
+    local s = string.format([[<input type="button" name='%s' onclick="OnClick" style="width:8px;height:8px;background:url(%s)"/>]],strName,nodeBg);
+    if index == Notice.nSelectIndex then
+        s = string.format([[<input type="button" name='%s' onclick="OnClick" style="width:10px;height:10px;background:url(%s)"/>]],strName,nodeBg);
+    end
+    return s
+end
+
+--预留修改的地方，用来根据数据动态修改gridvirew元素的位置和空格
+function Notice.RenderGridView() 
+
+end
+
+function Notice.RenderBgImg(index)
+    local strBg = string.format("%s#0 0 630 376",Notice.tblNoticeDt[index].cover);
+    local s = string.format([[
+        <img zorder="-1" src='%s' width="630" height="376"/>]],strBg);
+    return s
+end
+
+--点击公告图片，此处需要添加埋点事件
+function Notice.OnImageBgClick()
+    local url = Notice.tblNoticeDt[Notice.nSelectIndex].url;
+    if(url and #url ~= 0) then
+        ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);
+    else
+        return 
+    end
+    keepwork.notic.announcements({
+        router_params = {
+            id = Notice.tblNoticeDt[Notice.nSelectIndex].id,
+        }
+    },function(err, msg, data)
+        if err ~= 200 then
+            print("请求失败~~~~~~~~~~~")
+        end
+    end)
+end
+
+--保存数据
+function Notice.SaveLocalData()
+    local key = "Paracraft_Notice_Show";
+    local value = "" ;
+    local nowtime = os.time();
+    if Notice.isSelectShowToday then
+        value = string.format("1#%d",nowtime);
+    else
+        value = string.format("0#%d",nowtime) ;       
+    end
+    GameLogic.GetPlayerController():SaveLocalData(key, value, true, true);
+end
+
+function Notice.CheckCanShow()
+    local key = "Paracraft_Notice_Show"
+    local value = GameLogic.GetPlayerController():LoadLocalData(key,true,true);
+    if value == true or value =="true" then
+        Notice.isSelectShowToday = false
+        print("没有数据")
+        return true
+    else
+        local isSelect = tonumber(string.sub(value,1,1));
+        local saveTime = os.date("%Y-%m-%d",tonumber(string.sub(value,3,-1)));
+        local nowTime = os.date("%Y-%m-%d",tonumber(os.date()));
+        if tostring(saveTime) ~= tostring(nowTime) then
+            Notice.isSelectShowToday = false ;
+            print("时间不相等") ;          
+        else
+            Notice.isSelectShowToday = (isSelect == 1 and true or false);
+            print("时间相等")  ;
+        end
+        return not Notice.isSelectShowToday;
+    end   
 end
