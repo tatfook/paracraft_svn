@@ -239,11 +239,14 @@ function QuickSelectBar.ShowPage(bShow)
 		height = 78;
 		url = "script/apps/Aries/Creator/Game/Areas/QuickSelectBar.mobile.html"; 
 	else
+		--[[
 		if (QuickSelectBar.ShowTemplate()) then
 			width = 500;
 		else
 			width = 455;
 		end
+		]]
+		width = 455;
 		height = 96;
 		url = "script/apps/Aries/Creator/Game/Areas/QuickSelectBar.html";
 	end
