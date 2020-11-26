@@ -882,7 +882,6 @@ end
 -- handle all global key events that should always be available to the user regardless of whatever scene context. 
 -- return true if key is handled. 
 function BaseContext:HandleGlobalKey(event)
-	print("aaaaaaaaaaaaaaaaaaaaaaaaaaBaseContext")
 	local dik_key = event.keyname;
 	local ctrl_pressed = event.ctrl_pressed;
 	if(System.options.isAB_SDK or System.options.mc) then
