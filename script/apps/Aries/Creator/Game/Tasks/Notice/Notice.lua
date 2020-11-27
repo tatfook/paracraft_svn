@@ -18,6 +18,7 @@ Notice.nSelectIndex = 1;
 Notice.tblNoticeDt = {};
 Notice.isFirstIn = true
 Notice.nDataNum = 1
+Notice.isCanClickNext = true
 
 
 
@@ -119,6 +120,7 @@ function Notice.CloseView()
     Notice.nSelectIndex = 1;
     Notice.tblNoticeDt = {};
     Notice.isFirstIn = true
+    Notice.isCanClickNext = true
     NPL.KillTimer(NoticeTimeId);
     Notice.SaveLocalData()
 end
@@ -180,6 +182,25 @@ function Notice.OnImageBgClick()
     end)
 end
 
+--点击下一页或者上一页
+function Notice.OnClickNextPage(page)
+    if Notice.isCanClickNext then
+        local curPage = Notice.nSelectIndex;
+        curPage = curPage + page
+        if curPage > Notice.nDataNum then
+            curPage = 1
+        end
+        if curPage < 1 then
+            curPage = Notice.nDataNum
+        end
+        Notice.OnClick(string.format("button_%d",curPage))
+        Notice.isCanClickNext = false
+        commonlib.TimerManager.SetTimeout(function()
+			Notice.isCanClickNext = true
+		end, 500);
+    end    
+end
+
 --保存数据
 function Notice.SaveLocalData()
     local key = "Paracraft_Notice_Show";
@@ -190,26 +211,24 @@ function Notice.SaveLocalData()
     else
         value = string.format("0#%d",nowtime) ;       
     end
-    GameLogic.GetPlayerController():SaveLocalData(key, value, true, true);
+    --保存数据的方式
+    GameLogic.GetPlayerController():SaveRemoteData(key,value,true);
 end
 
 function Notice.CheckCanShow()
     local key = "Paracraft_Notice_Show"
-    local value = GameLogic.GetPlayerController():LoadLocalData(key,true,true);
+    local value = GameLogic.GetPlayerController():LoadRemoteData(key,"true");
     if value == true or value =="true" then
         Notice.isSelectShowToday = false
-        print("没有数据")
         return true
     else
         local isSelect = tonumber(string.sub(value,1,1));
         local saveTime = os.date("%Y-%m-%d",tonumber(string.sub(value,3,-1)));
         local nowTime = os.date("%Y-%m-%d",tonumber(os.date()));
         if tostring(saveTime) ~= tostring(nowTime) then
-            Notice.isSelectShowToday = false ;
-            print("时间不相等") ;          
+            Notice.isSelectShowToday = false ;        
         else
             Notice.isSelectShowToday = (isSelect == 1 and true or false);
-            print("时间相等")  ;
         end
         return not Notice.isSelectShowToday;
     end   
