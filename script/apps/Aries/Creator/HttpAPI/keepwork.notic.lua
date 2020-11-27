@@ -16,6 +16,6 @@ local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.
 -- 获取当前活动正在报名的抽奖
 HttpWrapper.Create("keepwork.notic.announcements", "%MAIN%/core/v0/announcements", "GET", true)
 
--- --http://yapi.kp-para.cn/project/32/interface/api/3637
--- -- 用户参与抽奖
--- HttpWrapper.Create("keepwork.notic.lucky_push", "%MAIN%/core/v0/lotteries/join", "POST", true)
+-- http://yapi.kp-para.cn/project/32/interface/api/3637
+-- -- 用户点击活动图片
+HttpWrapper.Create("keepwork.notic.click", "%MAIN%/core/v0//announcements/:id/click", "POST", true)
