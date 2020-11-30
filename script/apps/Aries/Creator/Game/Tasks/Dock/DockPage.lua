@@ -39,7 +39,7 @@ DockPage.top_line_1 = {
 DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
-    { label = L"", },
+    { label = L"活动公告", id = "notice", enabled2 = true, bg ="Texture/Aries/Creator/keepwork/dock/btn2_gonggao_32bits.png#0 0 85 75"},
     { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangriji_32bits.png#0 0 85 75", },
     { label = L"实战提升", id = "week_quest", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
@@ -152,6 +152,13 @@ function DockPage.OnClickTop(id)
     elseif(id == "msg_center")then
         local MsgCenter = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MsgCenter/MsgCenter.lua");
         MsgCenter.Show();
+    elseif(id == "notice")then
+        if Notice and Notice.GetNoticeNum() > 0 then
+            Notice.Show();
+        else
+            _guihelper.MessageBox("目前暂无公告及活动哦");
+            -- GameLogic.AddBBS(nil,"目前暂无公告及活动哦",3000,"255,0,0")
+        end
     end
 end
 function DockPage.OnClick(id)

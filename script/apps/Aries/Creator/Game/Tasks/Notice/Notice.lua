@@ -17,7 +17,7 @@ Notice.isSelectShowToday = true;
 Notice.nSelectIndex = 1;
 Notice.tblNoticeDt = {};
 Notice.isFirstIn = true
-Notice.nDataNum = 1
+Notice.nDataNum = 0
 Notice.isCanClickNext = true
 
 
@@ -72,7 +72,7 @@ end
 
 function Notice.Show()
     keepwork.notic.announcements({
-    },function(info_err, info_msg, info_data)        
+    },function(info_err, info_msg, info_data)
         if info_err == 200 then
             Notice.GetPageData(info_data); 
             if Notice.nDataNum > 0 then
@@ -232,4 +232,8 @@ function Notice.CheckCanShow()
         end
         return not Notice.isSelectShowToday;
     end   
+end
+
+function Notice.GetNoticeNum()
+    return Notice.nDataNum or 0
 end
