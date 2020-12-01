@@ -15,7 +15,6 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
-local RegisterModal = NPL.load("(gl)Mod/WorldShare/cellar/RegisterModal/RegisterModal.lua")
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local Notice = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Notice/Notice.lua");
 local DockPage = NPL.export();
@@ -84,7 +83,7 @@ function DockPage.Show()
     -- 每次登陆如果没有实名认证的弹实名认证窗口
     if (System.User.realname == nil or System.User.realname == "") and not DockPage.IsShowClassificationPage then
         DockPage.IsShowClassificationPage = true
-        RegisterModal:ShowClassificationPage()
+        GameLogic.GetFilters():apply_filters('show_certificate_page');
     end
 
     -- 每次登陆判断是否弹出活动框
@@ -177,19 +176,13 @@ function DockPage.OnClick(id)
             
 		if(mouse_button == "right") then
             -- the new version
-            local UserConsoleCreate = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Create/Create.lua")
-            UserConsoleCreate:Show();
-            last_page_ctrl = Mod.WorldShare.Store:Get('page/Mod.WorldShare.UserConsole')
+            last_page_ctrl = GameLogic.GetFilters():apply_filters('show_create_page')
         else
-            local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
-            UserConsole:ShowPage();
-            last_page_ctrl = Mod.WorldShare.Store:Get('page/Mod.WorldShare.UserConsole')
+            last_page_ctrl = GameLogic.GetFilters():apply_filters('show_console_page')
         end
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.work");
     elseif(id == "explore")then
-        local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
-        UserConsole.OnClickOfficialWorlds();
-        last_page_ctrl = Mod.WorldShare.Store:Get("page/MainPage")
+        last_page_ctrl = GameLogic.GetFilters():apply_filters('show_offical_worlds_page')
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.explore");
     elseif(id == "study")then
         local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
@@ -204,10 +197,9 @@ function DockPage.OnClick(id)
         local LocalLoadWorld = commonlib.gettable("MyCompany.Aries.Game.MainLogin.LocalLoadWorld")
         LocalLoadWorld.CreateGetHomeWorld();
 
-        local SyncMain = NPL.load("(gl)Mod/WorldShare/cellar/Sync/Main.lua");
-        SyncMain:CheckAndUpdatedBeforeEnterMyHome(function()
+        GameLogic.GetFilters():apply_filters('check_and_updated_before_enter_my_home', function()
             GameLogic.RunCommand("/loadworld home");
-        end);
+        end)
     elseif(id == "friends")then
         local FriendsPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendsPage.lua");
         FriendsPage.show_callback = function()
@@ -224,9 +216,7 @@ function DockPage.OnClick(id)
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.friends");
         return
     elseif(id == "school")then
-        local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
-        MySchool:Show();
-        last_page_ctrl = Mod.WorldShare.Store:Get('page/Mod.WorldShare.MySchool')
+        last_page_ctrl = GameLogic.GetFilters():apply_filters('show_school_page');
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.school");
     elseif(id == "system")then
         DockPage.OnClick_system_menu();
@@ -284,12 +274,7 @@ function DockPage.OnClick_Menuitem_server()
     ServerPage.ShowPage();
 end
 function DockPage.OnClick_Menuitem_server_join()
-    local Server = NPL.load("(gl)Mod/WorldShare/cellar/Server/Server.lua")
-    Server:ShowPage()
-
-    --local UserConsole = NPL.load("(gl)Mod/WorldShare/cellar/UserConsole/Main.lua")
-    --UserConsole:ShowHistoryManager()
-
+    GameLogic.GetFilters():apply_filters('show_server_page')
 end
 function DockPage.OnClick_Menuitem_plugin()
     NPL.load("(gl)script/apps/Aries/Creator/Game/Login/SelectModulePage.lua");

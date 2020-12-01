@@ -7,9 +7,6 @@ Use Lib:
 -------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Notice/Notice.lua").Show();
 --]]
-
-local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
-local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local NoticeTimeId = 2001
 local Notice = NPL.export();

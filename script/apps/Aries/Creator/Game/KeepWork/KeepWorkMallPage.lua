@@ -9,8 +9,7 @@ local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/K
 KeepWorkMallPage.Show();
 --]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-local KeepworkServiceSession = NPL.load("(gl)Mod/WorldShare/service/KeepworkService/Session.lua")
-local LoginModal = NPL.load("(gl)Mod/WorldShare/cellar/LoginModal/LoginModal.lua")
+
 local KeepWorkMallPage = NPL.export();
 local pe_gridview = commonlib.gettable("Map3DSystem.mcml_controls.pe_gridview");
 
@@ -79,17 +78,15 @@ function KeepWorkMallPage.OnCreate()
 end
 
 function KeepWorkMallPage.Show()
-    if(KeepworkServiceSession:IsSignedIn())then
+    if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
         KeepWorkMallPage.ShowView()
         return
-    end
-    LoginModal:CheckSignedIn(L"请先登录", function(result)
-        if result == true then
-            Mod.WorldShare.Utils.SetTimeOut(function()
-                if result then
-					KeepWorkMallPage.ShowView()
-                end
-            end, 500)
+	end
+	GameLogic.GetFilters():apply_filters('is_signed_in', L"请先登录", function(result)
+		if result == true then
+			commonlib.TimerManager.SetTimeout(function()
+				KeepWorkMallPage.ShowView()
+			end, 500)
         end
 	end)
 end
@@ -142,12 +139,12 @@ function KeepWorkMallPage.ShowView()
 		System.App.Commands.Call("File.MCMLWindowFrame", params);
 
 		GameLogic.GetFilters():add_filter("OnInstallModel", function ()
-            Mod.WorldShare.Utils.SetTimeOut(function()
+			commonlib.TimerManager.SetTimeout(function()
 				if KeepWorkMallPage.isOpen then
 					KeepWorkMallPage.HandleDataSources()
 					KeepWorkMallPage.FlushView(true)
 				end
-            end, 500)
+			end, 500)
 		end);
 
 		KeepWorkMallPage.OnChangeTopBt(1);
