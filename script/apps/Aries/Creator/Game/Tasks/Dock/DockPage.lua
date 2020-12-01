@@ -89,7 +89,7 @@ function DockPage.Show()
 
     -- 每次登陆判断是否弹出活动框
     if Notice and Notice.CheckCanShow() then
-        Notice.Show()
+        Notice.Show(0)
     end
 end
 function DockPage.Hide()
@@ -153,11 +153,8 @@ function DockPage.OnClickTop(id)
         local MsgCenter = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MsgCenter/MsgCenter.lua");
         MsgCenter.Show();
     elseif(id == "notice")then
-        if Notice and Notice.GetNoticeNum() > 0 then
-            Notice.Show();
-        else
-            _guihelper.MessageBox("目前暂无公告及活动哦");
-            -- GameLogic.AddBBS(nil,"目前暂无公告及活动哦",3000,"255,0,0")
+        if Notice then
+            Notice.Show(1);
         end
     end
 end

@@ -70,7 +70,7 @@ function Notice.GetTimeStamp(strTime)
     return time_stamp;
 end
 
-function Notice.Show()
+function Notice.Show(nType)
     keepwork.notic.announcements({
     },function(info_err, info_msg, info_data)
         if info_err == 200 then
@@ -96,7 +96,10 @@ function Notice.Show()
                 System.App.Commands.Call("File.MCMLWindowFrame", params)            
                 NPL.SetTimer(NoticeTimeId, 5.0, ";RegisterTime();"); --注册定时器
             else
-                print("no notice data~~~~~~~~~~~~~")
+                if nType == 1 then --点击活动按钮进入的
+                    _guihelper.MessageBox("目前暂无公告及活动哦");
+                    -- GameLogic.AddBBS(nil,"目前暂无公告及活动哦",3000,"255,0,0")
+                end
             end            
         else
             _guihelper.MessageBox("活动或者公告数据异常，请重试或者联系客服~");
@@ -232,8 +235,4 @@ function Notice.CheckCanShow()
         end
         return not Notice.isSelectShowToday;
     end   
-end
-
-function Notice.GetNoticeNum()
-    return Notice.nDataNum or 0
 end
