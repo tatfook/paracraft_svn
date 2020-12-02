@@ -45,6 +45,14 @@ MsgCenter.MsgList = {
 	-- {msg_content1 = "希望小学的 ", msg_content2 = " 关注了你", msg_type = MsgCenter.MsgType.guan_zhu, time = 0, color_name = " 啊啊 "},
 }
 
+local interaction_type_desc = {
+	[MsgCenter.InteractionType.fans] = "关注了你",
+	[MsgCenter.InteractionType.comment] = "评论了你的《%s》",
+	[MsgCenter.InteractionType.like] = "觉得你的《%s》很赞", 	
+	[MsgCenter.InteractionType.collect] = "收藏了你的《%s》", 
+	[MsgCenter.InteractionType.jion] = "申请加入项目《%s》", 	
+}
+
 -- <div style="line-height:14px;font-size:12px;color:#fced4b;" class='bordertext'>
 --     <div style="width: 300;margin-top: 300;margin-left: 100;">
 --         <div onclick="test" style="float:left;margin-left:0px;">[公告]恭喜啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊<a style="margin-left:0px;float:left;height:12px;background:url()" name="x" 
@@ -218,14 +226,6 @@ function MsgCenter.HandleData(data, updata_cb)
 		return
 	end
 	MsgCenter.MsgList = {}
-
-	local interaction_type_desc = {
-		[MsgCenter.InteractionType.fans] = "关注了你",
-		[MsgCenter.InteractionType.comment] = "评论了你的《%s》",
-		[MsgCenter.InteractionType.like] = "觉得你的《%s》很赞", 	
-		[MsgCenter.InteractionType.collect] = "收藏了你的《%s》", 
-		[MsgCenter.InteractionType.jion] = "申请加入项目《%s》", 	
-	}
 
 	local click_data = MsgCenter.ButtonData[MsgCenter.select_button_index] or {}
 	local msg_type = click_data.msg_type or 1

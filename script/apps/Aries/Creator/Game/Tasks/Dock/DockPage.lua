@@ -78,12 +78,15 @@ function DockPage.Show()
     end)
 
     -- 每日首次登陆自动打开任务面板
-    DailyTaskManager.OpenDailyTaskView()
+    DailyTaskManager.DelayOpenDailyTaskView()
 
     -- 每次登陆如果没有实名认证的弹实名认证窗口
     if (System.User.realname == nil or System.User.realname == "") and not DockPage.IsShowClassificationPage then
         DockPage.IsShowClassificationPage = true
-        GameLogic.GetFilters():apply_filters('show_certificate_page');
+        GameLogic.GetFilters():apply_filters('show_certificate_page', function()
+            local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
+            DailyTaskManager.AutoOpenDailyTaskView()
+        end);
     end
 
     -- 每次登陆判断是否弹出活动框
