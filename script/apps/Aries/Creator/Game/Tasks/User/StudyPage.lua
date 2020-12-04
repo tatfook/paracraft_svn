@@ -103,8 +103,8 @@ function StudyPage.clickArtOfWar()
 	local info = string.format(L"即将离开【%s】进入【%s】", WorldCommon.GetWorldTag("name") or "", L"孙子兵法");
 	_guihelper.MessageBox(info, function(res)
 		if(res and res == _guihelper.DialogResult.OK) then
-			local word_id = 19405
-			GameLogic.RunCommand('/loadworld -s -force %d', world_id)
+			local world_id = 19405
+			GameLogic.RunCommand(format('/loadworld -s -force %d', world_id))
 		end
 	end, _guihelper.MessageBoxButtons.OKCancel);
 end
