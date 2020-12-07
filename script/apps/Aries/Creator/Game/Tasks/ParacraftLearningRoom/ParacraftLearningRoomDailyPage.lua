@@ -130,6 +130,7 @@ NPL语言简介
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 
 }
+ParacraftLearningRoomDailyPage.max_lesson = 100 --最大课程数，添加或者删除课程时记得修改这个
 
 function ParacraftLearningRoomDailyPage.OnInit()
 	page = document:GetPageCtrl();
@@ -221,6 +222,22 @@ function ParacraftLearningRoomDailyPage.DoCheckin(callback)
 	end
 	show_page();
 end
+
+function ParacraftLearningRoomDailyPage.GetLearnDays()
+	local gsid = ParacraftLearningRoomDailyPage.gsid;
+	local template = KeepWorkItemManager.GetItemTemplate(gsid);
+	if(not template)then
+		return 0
+	end
+	local bHas,guid,bagid,copies,item = KeepWorkItemManager.HasGSItem(gsid)
+	-- print("数据是===================",bHas,guid,bagid,copies)
+	-- commonlib.echo(item,true)
+	if not bHas then
+		return 0
+	end
+	return copies or 0
+end
+
 function ParacraftLearningRoomDailyPage.OnCheckinToday()
     local index = ParacraftLearningRoomDailyPage.GetNextDay();
 	LOG.std(nil, "debug", "ParacraftLearningRoomDailyPage.OnCheckinToday", index);
@@ -254,6 +271,10 @@ function ParacraftLearningRoomDailyPage.HasCheckedToday()
 	local key = string.format("LearningRoom_HasCheckedToday_%s", date);
 	local gsid = ParacraftLearningRoomDailyPage.gsid;
 	local clientData = KeepWorkItemManager.GetClientData(gsid) or {};
+	local nLearnDays = ParacraftLearningRoomDailyPage.GetLearnDays()
+	if nLearnDays >= ParacraftLearningRoomDailyPage.max_lesson then
+		return true
+	end
 	return clientData[key];
 end
 function ParacraftLearningRoomDailyPage.SaveToLocal(callback)
