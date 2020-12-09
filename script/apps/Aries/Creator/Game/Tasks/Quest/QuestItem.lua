@@ -72,17 +72,22 @@ function QuestItem:GetData()
     local data = {
         id = self.id,
         value = self.value,
-        finished_value = self.finished_value,
     }
     return data;
 end
 function QuestItem:Refresh()
-    echo("===QuestItem:Refresh()");
-    echo({self.template.type,self.id});
     if(self.template.type == QuestItemTemplate.Types.REAL)then
         local bOwn, guid, bag, copies, item = KeepWorkItemManager.HasGSItem(self.id)
         if(bOwn)then
             self.value = copies or 0;
         end
     end
+end
+function QuestItem:GetDumpData()
+    local data = {
+        id = self.id,
+        value = self.value,
+        finished_value = self.finished_value,
+    }
+    return data;
 end

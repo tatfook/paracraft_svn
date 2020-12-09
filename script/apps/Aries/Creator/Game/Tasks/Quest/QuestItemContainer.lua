@@ -10,12 +10,13 @@ local QuestItemContainer = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.
 ]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 NPL.load("(gl)script/ide/EventDispatcher.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItemTemplate.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItem.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 local QuestItem = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItem");
 local QuestItemContainer = commonlib.inherit(commonlib.gettable("commonlib.EventSystem"),commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItemContainer"))
-
+local QuestItemTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItemTemplate");
 QuestItemContainer.Events = {
     OnChanged = "OnChanged",
     OnFinish = "OnFinish",
@@ -33,7 +34,7 @@ function QuestItemContainer:Parse(client_data)
     if(not client_data)then
         return
     end
-    if(type(client_data) == "object")then
+    if(type(client_data) == "table")then
         for k,v in ipairs(client_data) do
             local id = v.id;
             local value = v.value;
@@ -98,8 +99,14 @@ end
 function QuestItemContainer:GetData()
     local result = {};
     for k,v in ipairs(self.children) do
-        result.children = result.children or {};
-        table.insert(result.children,v:GetData());
+        table.insert(result,v:GetData());
+    end
+    return result;
+end
+function QuestItemContainer:GetDumpData()
+    local result = {};
+    for k,v in ipairs(self.children) do
+        table.insert(result,v:GetDumpData());
     end
     return result;
 end
@@ -133,5 +140,12 @@ end
 function QuestItemContainer:Refresh()
     for k,v in ipairs(self.children) do
         v:Refresh();
+    end
+end
+function QuestItemContainer:HasVirtualTarget()
+    for k,v in ipairs(self.children) do
+        if(v.template.type == QuestItemTemplate.Types.VIRTUAL)then
+            return true;
+        end
     end
 end

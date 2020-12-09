@@ -4,7 +4,6 @@ Author(s): leio
 Date: 2020/12/8
 use the lib:
 ------------------------------------------------------------
-
 NOTE£∫
 Quest Item is in UserBagNo 1005, gsid start from 60000
 ExID from 40000 to 49999
@@ -12,34 +11,26 @@ ExID from 40000 to 49999
 extra in ∂“ªªπÊ‘Ú
 {
   "preconditions": [
-    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5 },
+    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, },
     { "id": "60003_2", "title": "", "desc": "", "finished_value": "abc" },
     { "id": "60003_3", "title": "", "desc": "", "finished_value": 5 }
   ]
 }
-
-local clientdata_list = {
-    { gsId = 1, data = nil, },
-    { gsId = 2, data = nil, },
-    { gsId = 3, data = nil, },
-    { gsId = 4, data = nil, },
-}
-
+------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
-
 QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function()
+
+    echo("=============QuestProvider:Dump");
+    echo(QuestProvider:GetInstance():Dump(),true);
+    echo("=============QuestProvider:DumpTemplates");
+    echo(QuestProvider:GetInstance():DumpTemplates(),true);
+
     commonlib.echo("==============GetQuestItems");
-    echo(#(QuestProvider:GetInstance():GetQuestItems()))
+    echo(QuestProvider:GetInstance():GetQuestItems(true),true)
 end)
 
-QuestProvider:GetInstance():OnInit(clientdata_list);
-
-echo("=============QuestProvider:Dump");
-echo(QuestProvider:GetInstance():Dump(),true);
-echo("=============QuestProvider:DumpTemplates");
-echo(QuestProvider:GetInstance():DumpTemplates(),true);
-
+QuestProvider:GetInstance():OnInit();
 
 QuestProvider:GetInstance():IncreaseNumberValue("60003_1",1);
 QuestProvider:GetInstance():SetValue("60003_2","ABC");
@@ -77,7 +68,7 @@ function QuestProvider:GetInstance()
     end
     return QuestProvider.provider_instance;
 end
-function QuestProvider:OnInit(clientdata_list)
+function QuestProvider:OnInit()
     if(self.is_init)then
         return
     end
@@ -90,14 +81,41 @@ function QuestProvider:OnInit(clientdata_list)
     self.max_exid = 49999;
     self.questItemContainer_map = {};
 
-    self.quest_graph = Quest:new():Init(KeepWorkItemManager.extendedcost);
-    --self.quest_graph:SaveQuestToDgml("test/quest.dgml");
+    keepwork.questitem.list({},function(err, msg, data)
+	    LOG.std(nil, "info", "QuestProvider load err:", err);
+	    LOG.std(nil, "info", "QuestProvider load data:", data);
+        local clientdata_list = {};
+        if(err == 200)then
+            for k,v in ipairs(data) do
+                local gsid = v.gsId;
+                if(v.data)then
+                    local quest_targets = v.data.quest_targets;
+                    if(gsid and quest_targets)then
+                        local out = {};
+                        if(NPL.FromJson(quest_targets, out)) then
+                            table.insert(clientdata_list,{
+                                gsid = gsid,
+                                data = out,
+                            })
+                        end    
+                    end
+                end
+                
+            end
+        end
+	    LOG.std(nil, "info", "QuestProvider clientdata_list:", clientdata_list);
+        self.quest_graph = Quest:new():Init(KeepWorkItemManager.extendedcost);
+        --self.quest_graph:SaveQuestToDgml("test/quest.dgml");
 
-    self:FillTemplates();
-    self:FillData(clientdata_list)
-    KeepWorkItemManager.GetFilter():add_filter("LoadItems_Finished", function()
+        self:FillTemplates();
+        self:FillData(clientdata_list)
+
+        KeepWorkItemManager.GetFilter():add_filter("LoadItems_Finished", function()
+            self:Refresh();
+        end);
         self:Refresh();
-    end);
+    end)
+    
 end
 --[[
 local quest_nodes = {
@@ -110,12 +128,20 @@ local quest_nodes = {
 function QuestProvider:GetActivedQuestNodes()
     return self.quest_graph:GetQuestNodes();
 end
+--[[
+local clientdata_list = {
+    { gsid = 1, data = nil, },
+    { gsid = 2, data = nil, },
+    { gsid = 3, data = nil, },
+    { gsid = 4, data = nil, },
+}
+]]
 function QuestProvider:FillData(clientdata_list)
     if(not clientdata_list)then
         return
     end
      for k,v in ipairs(clientdata_list) do
-        local gsid = v.gsId;
+        local gsid = v.gsid;
         local data = v.data;
         local item = self:CreateOrGetQuestItemContainer(gsid);  
         item:Parse(data);
@@ -317,10 +343,29 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
         item = QuestItemContainer:new():OnInit(self, gsid, data);  
 
         item:AddEventListener(QuestItemContainer.Events.OnChanged,function(__,event)
+            if(item:HasVirtualTarget())then
+                keepwork.questitem.save({
+                    gsId = gsid,
+                    data = {
+                        quest_targets = NPL.ToJson(item:GetData());
+                    };
+                },function(err, msg, data)
+	                LOG.std(nil, "info", "QuestProvider saving virtual target item:GetData():", item:GetData());
+	                LOG.std(nil, "info", "QuestProvider saving virtual target err:", err);
+	                LOG.std(nil, "info", "QuestProvider saving virtual target msg:", msg);
+	                LOG.std(nil, "info", "QuestProvider saving virtual target data:", data);
+                end)
+            end
             self:Refresh();
         end)
         item:AddEventListener(QuestItemContainer.Events.OnFinish,function(__,event)
-            self:Refresh();
+
+            local exid = self:SearchExidFromQuestGsid(item.gsid);
+            if(exid)then
+                KeepWorkItemManager.DoExtendedCost(exid, function()
+                    self:Refresh();
+                end)
+            end
         end)
 
         self.questItemContainer_map[gsid] = item;
@@ -354,17 +399,21 @@ function QuestProvider:DumpTemplates()
     end 
     return result;
 end
-function QuestProvider:GetQuestItems()
+function QuestProvider:GetQuestItems(isDump)
     local result = {};
     for k,v in pairs(self.questItemContainer_map) do
         local gsid = v.gsid;
         local exid = self:SearchExidFromQuestGsid(gsid);
         if(exid)then
             local extra = self:GetExtra(exid)
+            local questItemContainer = v;
+            if(isDump)then
+                questItemContainer = v:GetDumpData();
+            end
             table.insert(result,{
                 gsid = gsid,
                 exid = exid, 
-                questItemContainer = v,
+                questItemContainer = questItemContainer,
             })
         end
     end
