@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: quest data
 Author(s): chenjinxian
 Date: 2020/12/7
@@ -34,9 +34,15 @@ function Quest:Init(extendedcost)
 	for _, data in ipairs(extendedcost) do
 		if (data.exId >= questStartId and data.exId <= questEndId) then
 			extendedDatas[#extendedDatas + 1] = data;
+			local name = data.name;
+			local desc = data.desc;
+			local exId = data.exId;
+			local gsId = 0;
+			if (#data.exchangeTargets > 0 and #(data.exchangeTargets[1].goods) > 0) then
+				gsId = data.exchangeTargets[1].goods[1].goods.gsId;
+			end
 			local node = self.graphData:AddNode();
-			node.data = {questId= data.exId};
-			node.data = {templateData = {Id = data.exId, Title = data.name, Description = data.desc}};
+			node.data = {name = name, desc = desc, exid = exId, gsId = gsId, templateData = {Id = exId, Title = string.format("%s（%d）", name, gsId)}};
 			nodes[data.exId] = node;
 		end
 	end
@@ -52,8 +58,12 @@ function Quest:Init(extendedcost)
 				for _, target in ipairs(data.exchangeTargets) do
 					for _, good in ipairs(target.goods) do
 						if (good.goods.gsId == gsId) then
-							arcs[#arcs + 1] = {preNodeId = nodeId, targetId = data.exId, tag = {condition = "and"}};
-								hasArc = true;
+							local state = "invalid";
+							if (KeepWorkItemManager.HasGSItem(gsId)) then
+								state = "valid";
+							end
+							arcs[#arcs + 1] = {preNodeId = nodeId, targetId = data.exId, tag = {condition = "and", state = state}};
+							hasArc = true;
 							break;
 						end
 					end
@@ -84,8 +94,19 @@ function Quest:GetQuestNodes()
 	GraphHelp.Search_DepthFirst_FromRoot(self.graphData, function(node)
 		if (node) then
 			local data = node:GetData();
-			if (data and data.templateData and data.templateData.Id) then
-				questNodes[#questNodes + 1] = {exId = data.templateData.Id};
+			if (data and data.exid and data.gsId) then
+				local isValid = true;
+				local arc;
+				for arc in node:NextArc() do
+					local tag = arc:GetTag();
+					if (tag.state and tag.state ~= "valid") then
+						isValid = false;
+						break;
+					end
+				end
+				if (isValid) then
+					questNodes[#questNodes + 1] = {exid = data.exid, gsId = data.gsId, name = data.name, desc = data.desc};
+				end
 			end
 		end
 	end);
