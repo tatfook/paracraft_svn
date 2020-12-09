@@ -24,18 +24,13 @@ local clientdata_list = {
     { gsId = 3, data = nil, },
     { gsId = 4, data = nil, },
 }
-local quest_nodes = {
-    { exid = 40000, },
-    { exid = 40001, },
-    { exid = 40002, },
-    { exid = 40003, },
-}
+
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 
 QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function()
     commonlib.echo("==============GetQuestItems");
-    echo(QuestProvider:GetInstance():GetQuestItems(),true)
+    echo(#(QuestProvider:GetInstance():GetQuestItems()))
 end)
 
 QuestProvider:GetInstance():OnInit(clientdata_list);
@@ -96,6 +91,7 @@ function QuestProvider:OnInit(clientdata_list)
     self.questItemContainer_map = {};
 
     self.quest_graph = Quest:new():Init(KeepWorkItemManager.extendedcost);
+    --self.quest_graph:SaveQuestToDgml("test/quest.dgml");
 
     self:FillTemplates();
     self:FillData(clientdata_list)
@@ -103,6 +99,14 @@ function QuestProvider:OnInit(clientdata_list)
         self:Refresh();
     end);
 end
+--[[
+local quest_nodes = {
+    { exid = 40000, },
+    { exid = 40001, },
+    { exid = 40002, },
+    { exid = 40003, },
+}
+-]]
 function QuestProvider:GetActivedQuestNodes()
     return self.quest_graph:GetQuestNodes();
 end
@@ -259,7 +263,7 @@ function QuestProvider:Refresh()
         return
     end
      for k,v in ipairs(quest_nodes) do
-        local exid = v.exId;
+        local exid = v.exid;
         local quest_gsid = self:SearchQuestGsidFromExid(exid)
         if(quest_gsid)then
             local itemContainer = self:CreateOrGetQuestItemContainer(quest_gsid);
@@ -360,7 +364,7 @@ function QuestProvider:GetQuestItems()
             table.insert(result,{
                 gsid = gsid,
                 exid = exid, 
-                item = v:GetData(),
+                questItemContainer = v,
             })
         end
     end
