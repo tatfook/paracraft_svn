@@ -79,10 +79,17 @@ function Quest:Init(extendedcost)
 	return self;
 end
 
-function Quest:GetQuestList()
-end
-
-function Quest:UpdateQuestState()
+function Quest:GetQuestNodes()
+	local questNodes = {};
+	GraphHelp.Search_DepthFirst_FromRoot(self.graphData, function(node)
+		if (node) then
+			local data = node:GetData();
+			if (data and data.templateData and data.templateData.Id) then
+				questNodes[#questNodes + 1] = {exId = data.templateData.Id};
+			end
+		end
+	end);
+	return questNodes;
 end
 
 function Quest:SaveQuestToDgml(filepath)
