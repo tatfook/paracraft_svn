@@ -22,9 +22,9 @@ QuestItemContainer.Events = {
 }
 function QuestItemContainer:ctor()
 end
-function QuestItemContainer:OnInit(gsid, client_data)
+function QuestItemContainer:OnInit(provider, gsid, client_data)
+    self.provider = provider;
     self.gsid = gsid;
-    self.state = nil -- 1 means finished
     self.children = {};
     self:Parse(client_data)
     return self;
@@ -34,16 +34,12 @@ function QuestItemContainer:Parse(client_data)
         return
     end
     if(type(client_data) == "object")then
-        if(client_data.state == 1)then
-            self.state = client_data.state;
-        else
-            for k,v in ipairs(client_data) do
-                local id = v.id;
-                local value = v.value;
-                local template = QuestProvider:GetQuestItemTemplate(id);
-                local quest_item = QuestItem:new():OnInit(id, value, template);      
-                self:AddChild(quest_item);
-            end
+        for k,v in ipairs(client_data) do
+            local id = v.id;
+            local value = v.value;
+            local template = self.provider:GetQuestItemTemplate(self.gsid, id);
+            local quest_item = QuestItem:new():OnInit(id, value, template);      
+            self:AddChild(quest_item);
         end
     end
 end
@@ -89,27 +85,21 @@ function QuestItemContainer:CanFinish()
     return true;
 end
 function QuestItemContainer:IsFinished()
-    return self.state == 1;
+    local bOwn, guid, bag, copies, item = KeepWorkItemManager.HasGSItem(self.gsid)
+    return bOwn;
 end
 function QuestItemContainer:DoFinish()
     if(not self:CanFinish())then
         return
     end
-    self.state = 1;
     self:DispatchEvent({ type = QuestItemContainer.Events.OnFinish, gsid = self.gsid, });
 end
 -- only saving this data to server
 function QuestItemContainer:GetData()
-    local state = self.state
-    local result = {
-        state = state,
-        
-    };
-    if(state ~= 1)then
-        for k,v in ipairs(self.children) do
-            result.children = result.children or {};
-            table.insert(result.children,v:GetData());
-        end
+    local result = {};
+    for k,v in ipairs(self.children) do
+        result.children = result.children or {};
+        table.insert(result.children,v:GetData());
     end
     return result;
 end
@@ -138,5 +128,10 @@ function QuestItemContainer:SetValue(id, value)
         if(v.id == id)then
             v:SetValue(value);
         end
+    end
+end
+function QuestItemContainer:Refresh()
+    for k,v in ipairs(self.children) do
+        v:Refresh();
     end
 end
