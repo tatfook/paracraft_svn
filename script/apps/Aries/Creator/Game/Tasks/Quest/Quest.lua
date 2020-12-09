@@ -5,7 +5,8 @@ Date: 2020/12/7
 Desc: 
 use the lib:
 ------------------------------------------------------------
-local Quest = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest.lua");
+local Quest = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Quest");
 local quest = Quest:new():Init(extendedcost);
 -------------------------------------------------------
 ]]
@@ -63,7 +64,7 @@ function Quest:Init(extendedcost)
 	end
 	for _, data in ipairs(extendedDatas) do
 		if (data.preconditions and #data.preconditions > 0) then
-			for _, condition in ipairs(node.preconditions) do
+			for _, condition in ipairs(data.preconditions) do
 				getArc(condition.goods.gsId, data.exId);
 			end
 		end
@@ -74,6 +75,8 @@ function Quest:Init(extendedcost)
 			self.graphData:AddArc(nodes[arc.preNodeId], nodes[arc.targetId], arc.tag);
 		end
 	end
+
+	return self;
 end
 
 function Quest:GetQuestList()
