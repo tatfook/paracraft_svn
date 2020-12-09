@@ -50,8 +50,8 @@ function Quest:Init(extendedcost)
 			if (data.exchangeTargets and #data.exchangeTargets > 0) then
 				local hasArc = false;
 				for _, target in ipairs(data.exchangeTargets) do
-					for _, good in ipairs(target) do
-						if (good.gsId == gsId) then
+					for _, good in ipairs(target.goods) do
+						if (good.goods.gsId == gsId) then
 							arcs[#arcs + 1] = {preNodeId = nodeId, targetId = data.exId, tag = {condition = "and"}};
 								hasArc = true;
 							break;
