@@ -126,6 +126,32 @@ Scratch与Paracraft的区别
 Minecraft与Paracraft的区别
 孩子应该学习什么编程语言？
 NPL语言简介
+Scratch与Paracraft的区别
+Minecraft与Paracraft的区别
+孩子应该学习什么编程语言？
+NPL语言简介
+代码方块教学1
+Paracraft由多少行代码构成的
+代码方块教学2
+语法、注释、Log语句
+代码方块教学3《乒乓球游戏》
+什么是编译？
+代码方块教学4《钢琴》
+程序的本质
+代码方块教学5《迷宫小游戏》
+数字与数学
+代码方块教学6《全局变量》
+变量与名字
+代码方块教学7《双重机关与事件》
+变量的作用域
+代码方块教学8《制作图形界面》
+变量的使用方法
+代码方块教学9《代码方块的输出》
+变量举例
+字符串与文字
+字符串常用操作
+字符串练习
+表的基本概念
 ]]
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 
