@@ -63,7 +63,7 @@ function QuestItemContainer:AddChild(quest_item)
     end
     quest_item:AddEventListener(QuestItem.Events.OnChanged,function(__,event)
         local gsid = self.gsid;
-        self:DispatchEvent({ type = QuestItemContainer.Events.OnChanged, gsid = gsid, });
+        self:DispatchEvent({ type = QuestItemContainer.Events.OnChanged, quest_item = quest_item, });
     end)
     table.insert(self.children,quest_item);
 end
@@ -91,9 +91,10 @@ function QuestItemContainer:IsFinished()
 end
 function QuestItemContainer:DoFinish()
     if(not self:CanFinish())then
+	    LOG.std(nil, "warn", "QuestItemContainer", "DoFinish failed!");
         return
     end
-    self:DispatchEvent({ type = QuestItemContainer.Events.OnFinish, gsid = self.gsid, });
+    self:DispatchEvent({ type = QuestItemContainer.Events.OnFinish, });
 end
 -- only saving this data to server
 function QuestItemContainer:GetData()

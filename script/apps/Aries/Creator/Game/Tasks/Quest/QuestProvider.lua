@@ -7,7 +7,7 @@ use the lib:
 NOTE：
 Quest Item is in UserBagNo 1005, gsid start from 60000
 ExID from 40000 to 49999
-------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 extra in 兑换规则
 {
   "preconditions": [
@@ -16,10 +16,15 @@ extra in 兑换规则
     { "id": "60003_3", "title": "", "desc": "", "finished_value": 5 }
   ]
 }
-------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
-QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function()
+QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
+    echo("=============QuestProvider.Events.OnInit");
+end)
+QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
+
+    echo("=============QuestProvider.Events.OnRefresh");
 
     echo("=============QuestProvider:Dump");
     echo(QuestProvider:GetInstance():Dump(),true);
@@ -30,19 +35,35 @@ QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,func
     echo(QuestProvider:GetInstance():GetQuestItems(true),true)
 end)
 
+QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function(__, event)
+    local quest_item_container = event.quest_item_container;
+    local quest_item = event.quest_item;
+
+    echo("=============QuestProvider.Events.OnChanged");
+    echo("=============quest_item_container");
+
+    echo(quest_item_container:GetDumpData(),true);
+
+    echo("=============quest_item");
+    echo(quest_item:GetDumpData(),true);
+
+end)
+
+QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
+    local quest_item_container = event.quest_item_container;
+    echo("=============QuestProvider.Events.OnFinished");
+    echo(quest_item_container:GetDumpData(),true);
+
+end)
+
 QuestProvider:GetInstance():OnInit();
 
 QuestProvider:GetInstance():IncreaseNumberValue("60003_1",1);
 QuestProvider:GetInstance():SetValue("60003_2","ABC");
 QuestProvider:GetInstance():IncreaseNumberValue("60003_3",100);
 
-local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-KeepWorkItemManager.DoExtendedCost(10100);
 
-local item = QuestProvider:CreateOrGetQuestItemContainer(60001);
-if(item)then
-    item:DoFinish();
-end
+QuestProvider:GetInstance():Refresh();
 -------------------------------------------------------
 ]]
 
@@ -59,7 +80,10 @@ local QuestItemTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Q
 local QuestProvider = commonlib.inherit(commonlib.gettable("commonlib.EventSystem"),commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider"))
 
 QuestProvider.Events = {
+    OnInit = "OnInit",
     OnChanged = "OnChanged",
+    OnFinished = "OnFinished",
+    OnRefresh = "OnRefresh",
 }
 
 function QuestProvider:GetInstance()
@@ -109,6 +133,8 @@ function QuestProvider:OnInit()
 
         self:FillTemplates();
         self:FillData(clientdata_list)
+
+        self:DispatchEvent({ type = QuestProvider.Events.OnInit });
 
         KeepWorkItemManager.GetFilter():add_filter("LoadItems_Finished", function()
             self:Refresh();
@@ -331,7 +357,7 @@ function QuestProvider:Refresh()
             itemContainer:Refresh();
         end
     end
-    self:DispatchEvent({ type = QuestProvider.Events.OnChanged, });
+    self:DispatchEvent({ type = QuestProvider.Events.OnRefresh, });
 
 end
 function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
@@ -343,6 +369,7 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
         item = QuestItemContainer:new():OnInit(self, gsid, data);  
 
         item:AddEventListener(QuestItemContainer.Events.OnChanged,function(__,event)
+            local quest_item = event.quest_item;
             if(item:HasVirtualTarget())then
                 keepwork.questitem.save({
                     gsId = gsid,
@@ -356,6 +383,7 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
 	                LOG.std(nil, "info", "QuestProvider saving virtual target data:", data);
                 end)
             end
+            self:DispatchEvent({ type = QuestProvider.Events.OnChanged, quest_item_container = item, quest_item = quest_item, });
             self:Refresh();
         end)
         item:AddEventListener(QuestItemContainer.Events.OnFinish,function(__,event)
@@ -363,6 +391,7 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
             local exid = self:SearchExidFromQuestGsid(item.gsid);
             if(exid)then
                 KeepWorkItemManager.DoExtendedCost(exid, function()
+                    self:DispatchEvent({ type = QuestProvider.Events.OnFinished, quest_item_container = item, });
                     self:Refresh();
                 end)
             end
@@ -373,11 +402,23 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
     return item;
 end
 function QuestProvider:IncreaseNumberValue(id,value)
+    if(not self.is_init)then
+	    LOG.std(nil, "error", "QuestProvider:IncreaseNumberValue", "QuestProvider isn't init");
+        return
+    end
+    
+    if(not id)then
+        return 
+    end
     for k,v in pairs(self.questItemContainer_map) do
         v:IncreaseNumberValue(id,value);
     end
 end
 function QuestProvider:SetValue(id,value)
+    if(not self.is_init)then
+	    LOG.std(nil, "error", "QuestProvider:SetValue", "QuestProvider isn't init");
+        return
+    end
     for k,v in pairs(self.questItemContainer_map) do
         v:SetValue(id,value);
     end
