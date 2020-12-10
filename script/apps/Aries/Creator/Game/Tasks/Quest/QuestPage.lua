@@ -9,7 +9,7 @@ local QuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest
 QuestPage.Show();
 --]]
 local QuestPage = NPL.export();
-
+local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 -- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
@@ -176,11 +176,21 @@ function QuestPage.CloseView()
 	QuestPage.isOpen = false
 end
 
+local VersionToWorldId = {
+    ONLINE = 29477,
+    STAGE = 1376,
+    RELEASE = 1376,
+    LOCAL = 1376,
+}
+
 function QuestPage.EnterNewPlayerGuide()
 	DailyTaskManager.AchieveNewPlayerTask()
 
+	local httpwrapper_version = HttpWrapper.GetDevVersion() or "ONLINE"
+	local world_id = VersionToWorldId[httpwrapper_version] or 29477
+	
 	local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
-	CommandManager:RunCommand('/loadworld -s 29477')
+	CommandManager:RunCommand(string.format('/loadworld -s %s', world_id))
 
 	QuestPage.RefreshData()
 end
@@ -306,10 +316,10 @@ function QuestPage.HandleTaskData(data)
 				name = "成长日记"
 				desc = "成长日记"
 			end
-			if v == DailyTaskManager.task_id_list.NewPlayerGuid then
-				name = "完成新手引导"
-				desc = "完成新手引导"
-			end
+			-- if v == DailyTaskManager.task_id_list.NewPlayerGuid then
+			-- 	name = "完成新手引导"
+			-- 	desc = "完成新手引导"
+			-- end
 
 			desc = ""
 			task_data.name = index .. ". " .. name
@@ -376,15 +386,12 @@ function QuestPage.GetTaskState(task_id)
 	local is_complete = DailyTaskManager.CheckTaskCompelete(task_id)
 	-- return data.questItemContainer:CanFinish() and QuestPage.TaskState.can_complete or QuestPage.TaskState.not_complete
 	-- 新手引导任务特殊处理
-	if task_id == DailyTaskManager.task_id_list.NewPlayerGuid then
-		local task_data = DailyTaskManager.GetTaskData(task_id)
-		if is_complete then
-			return task_data.is_get_reward and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_complete
-		end	
-	end
-	if task_id == TaskIdList.GrowthDiary then
-		is_complete = ParacraftLearningRoomDailyPage.HasCheckedToday()-- 成长日记 以是否签到了为标准 现在是否签到成功改成看20秒之后才算成功
-	end
+	-- if task_id == DailyTaskManager.task_id_list.NewPlayerGuid then
+	-- 	local task_data = DailyTaskManager.GetTaskData(task_id)
+	-- 	if is_complete then
+	-- 		return task_data.is_get_reward and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_complete
+	-- 	end	
+	-- end
 
 	return is_complete and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_go
 end

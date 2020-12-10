@@ -12,12 +12,12 @@ local DailyTaskManager = NPL.export();
 commonlib.setfield("MyCompany.Aries.Creator.Game.DailyTask.DailyTaskManager", DailyTaskManager);
 
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-
+local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
 local TaskKey = "daily_task_data"
 DailyTaskManager.gsid = 40002;
 
 DailyTaskManager.task_id_list = {
-	NewPlayerGuid = "100",
+	-- NewPlayerGuid = "100",
 	GrowthDiary = "101",
 	WeekWork = "102",
 	Classroom = "103",
@@ -26,7 +26,7 @@ DailyTaskManager.task_id_list = {
 }
 
 DailyTaskManager.task_data = {
-	[DailyTaskManager.task_id_list.NewPlayerGuid] = {complete_times = 0, max_times = 1, is_get_reward = false},
+	-- [DailyTaskManager.task_id_list.NewPlayerGuid] = {complete_times = 0, max_times = 1, is_get_reward = false},
 	[DailyTaskManager.task_id_list.GrowthDiary] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.WeekWork] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.Classroom] = {complete_times = 0, max_times = 1},
@@ -46,7 +46,7 @@ DailyTaskManager.exid_list = {
 }
 
 DailyTaskManager.desc_list = {
-	[DailyTaskManager.task_id_list.NewPlayerGuid] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
+	-- [DailyTaskManager.task_id_list.NewPlayerGuid] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.GrowthDiary] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.WeekWork] = "为你的学习点赞，奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.Classroom] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
@@ -182,7 +182,11 @@ function DailyTaskManager.CheckTaskCompelete(task_id)
 	if data == nil then
 		return true
 	end
-	print("fffffffffffffff", task_id, data.complete_times, data.max_times)
+
+	if task_id == DailyTaskManager.task_id_list.GrowthDiary then
+		return ParacraftLearningRoomDailyPage.HasCheckedToday()-- 成长日记 以是否签到了为标准 现在是否签到成功改成看20秒之后才算成功
+	end
+
 	if data.complete_times >= data.max_times then
 		return true
 	end
@@ -277,4 +281,17 @@ function DailyTaskManager.AchieveNewPlayerTask()
 
 	data.complete_times = data.complete_times + 1
 	KeepWorkItemManager.SetClientData(DailyTaskManager.gsid, clientData)
+end
+
+function DailyTaskManager.IsAllTaskComplete()
+	local id_list = DailyTaskManager.GetTaskIdList()
+	local is_all_complete = true
+	for k, v in pairs(id_list) do
+		if not DailyTaskManager.CheckTaskCompelete(v) then
+			is_all_complete = false
+			break
+		end
+	end
+
+	return is_all_complete
 end
