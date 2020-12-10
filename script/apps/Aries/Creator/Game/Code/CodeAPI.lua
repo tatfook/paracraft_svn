@@ -42,6 +42,10 @@ local s_env_methods = {
 	"cmd",
 	"getPlayTimer",
 
+    "QuestAction_IncreaseNumberValue",
+    "QuestAction_SetValue",
+    "QuestAction_DoFinish",
+
 	-- Motion
 	"move",
 	"moveTo",

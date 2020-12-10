@@ -403,7 +403,7 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
 end
 function QuestProvider:IncreaseNumberValue(id,value)
     if(not self.is_init)then
-	    LOG.std(nil, "error", "QuestProvider:IncreaseNumberValue", "QuestProvider isn't init");
+	    LOG.std(nil, "error", "QuestProvider:IncreaseNumberValue", "QuestProvider isn't init, target_id:%s",tostring(id));
         return
     end
     
@@ -416,7 +416,7 @@ function QuestProvider:IncreaseNumberValue(id,value)
 end
 function QuestProvider:SetValue(id,value)
     if(not self.is_init)then
-	    LOG.std(nil, "error", "QuestProvider:SetValue", "QuestProvider isn't init");
+	    LOG.std(nil, "error", "QuestProvider:SetValue", "QuestProvider isn't init, target_id:%s",tostring(id));
         return
     end
     for k,v in pairs(self.questItemContainer_map) do

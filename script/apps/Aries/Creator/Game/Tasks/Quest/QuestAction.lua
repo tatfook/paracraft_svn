@@ -8,7 +8,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAction.lua");
 local QuestAction = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestAction");
 
 QuestAction.IncreaseNumberValue("60003_1",1);
-QuestAction.SetValue("60003_2","ABC");
+QuestAction.SetValue("60003_2","abc");
 QuestAction.IncreaseNumberValue("60003_3",100);
 
 QuestAction.DoFinish(60003);
