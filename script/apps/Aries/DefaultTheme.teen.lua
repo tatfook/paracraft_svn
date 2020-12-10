@@ -1522,6 +1522,9 @@ function DefaultTheme:Load()
 		["animated_white_overlay"] = {
 			["background"] = "Texture/Aries/Common/ThemeTeen/animated/white/anim_32bits_fps10_a007.png",
 		},
+		["animated_task_icon_overlay"] = {
+			["background"] = "Texture/Aries/Creator/keepwork/Effect/DockTaskIcon/renwu_32bits_fps12_a028.png",
+		},
 	};
 	
 

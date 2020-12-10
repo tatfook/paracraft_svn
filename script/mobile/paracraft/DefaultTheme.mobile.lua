@@ -52,8 +52,8 @@ function DefaultTheme:Load()
 	System.options.tradable_bag_family = {0,1,3,23,25,12,13,14};
 
 	local version = commonlib.getfield("System.options.version");
-    System.options.haqi_RMB_Currency="Ä§¶¹";
-    System.options.haqi_GameCurrency="Ææ¶¹";
+    System.options.haqi_RMB_Currency="Ä§ï¿½ï¿½";
+    System.options.haqi_GameCurrency="ï¿½æ¶¹";
 
 	-- how many minutes are there in a day.
 	-- ParaScene.SetDayLength(900);
@@ -755,6 +755,9 @@ function DefaultTheme:Load()
 		},
 		["animated_upgrade_overlay"] = {
 			["background"] = "Texture/Aries/Common/ThemeTeen/animated/UIefx_QiangHua_Red/UIefx_QiangHua_Red_64bits_fps10_a006.png",
+		},
+		["animated_task_icon_overlay"] = {
+			["background"] = "Texture/Aries/Creator/keepwork/Effect/DockTaskIcon/renwu_32bits_fps12_a028.png",
 		},
 	}
 

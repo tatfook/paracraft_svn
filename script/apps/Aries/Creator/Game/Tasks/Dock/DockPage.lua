@@ -22,6 +22,7 @@ local UserData = nil
 DockPage.FriendsFansData = nil
 DockPage.RefuseFansList = {}
 DockPage.IsShowClassificationPage = false
+DockPage.hasOpenTaskPage = false
 DockPage.hide_vip_world_ids = {
     ONLINE = { 18626 },
     RELEASE = { 1236 },
@@ -30,7 +31,7 @@ DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },
-    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangrenwu_32bits.png#0 0 85 75", },
+    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_renwu_32bits.png#0 0 85 75", },
     { label = L"用户社区", id = "web_keepwork_home", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_yonghushequ_32bits.png#0 0 85 75", },
     { label = L"大赛", id = "competition", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_dasai_32bits.png#0 0 85 75", },
     { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_xiaoxi_32bits.png#0 0 85 75", },
@@ -148,9 +149,12 @@ function DockPage.OnClickTop(id)
 	    ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com", "", 1); 
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.web_keepwork_home");
     elseif(id == "user_tip")then
-        local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
-        DailyTask.Show();
+        local QuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.lua");
+        QuestPage.Show();
+        
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.user_tip");
+        DockPage.hasOpenTaskPage = true
+        DockPage.page:Refresh(0);
     elseif(id == "msg_center")then
         local MsgCenter = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MsgCenter/MsgCenter.lua");
         MsgCenter.Show();
@@ -323,6 +327,7 @@ function DockPage.RenderButton_1(index)
     local node = DockPage.top_line_1[index];
     local tip_str = "";
     local id = node.id;
+    local bg = node.bg
     if(id == "competition")then
         tip_str = string.format([[
         <script type="text/npl" refresh="false">
@@ -343,11 +348,23 @@ function DockPage.RenderButton_1(index)
         </script>
         <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= HasMsgCenterUnReadMsg()%%>' ></kp:redtip>
         ]],"");
+    elseif (id == "user_tip") then
+        if not DockPage.hasOpenTaskPage then
+            bg = ""
+            tip_str = [[
+                <div style="position:relative;margin-left:0px;margin-top:-75px;width:85px;height:75px;background: Texture/Aries/Creator/keepwork/dock/btn2_di_32bits.png#0 0 85 75" ></div>                
+                <div style="position:relative;margin-left:8px;margin-top:-85px;width:64px;height:64px;background:" >
+                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_task_icon_overlay" width="64" height="64"/>
+                </div>
+                ]]
+        end
+
     end
+
     local s = string.format([[
         <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
         %s
-    ]],node.id,node.bg,tip_str);
+    ]],node.id,bg,tip_str);
     return s;
 end
 

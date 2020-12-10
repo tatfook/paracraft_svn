@@ -17,6 +17,7 @@ local TaskKey = "daily_task_data"
 DailyTaskManager.gsid = 40002;
 
 DailyTaskManager.task_id_list = {
+	NewPlayerGuid = "100",
 	GrowthDiary = "101",
 	WeekWork = "102",
 	Classroom = "103",
@@ -25,6 +26,7 @@ DailyTaskManager.task_id_list = {
 }
 
 DailyTaskManager.task_data = {
+	[DailyTaskManager.task_id_list.NewPlayerGuid] = {complete_times = 0, max_times = 1, is_get_reward = false},
 	[DailyTaskManager.task_id_list.GrowthDiary] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.WeekWork] = {complete_times = 0, max_times = 1},
 	[DailyTaskManager.task_id_list.Classroom] = {complete_times = 0, max_times = 1},
@@ -43,6 +45,7 @@ DailyTaskManager.exid_list = {
 }
 
 DailyTaskManager.desc_list = {
+	[DailyTaskManager.task_id_list.NewPlayerGuid] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.GrowthDiary] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.WeekWork] = "为你的学习点赞，奖励你%s个知识豆，再接再厉哦~",
 	[DailyTaskManager.task_id_list.Classroom] = "你太棒了！奖励你%s个知识豆，再接再厉哦~",
@@ -81,6 +84,11 @@ end
 
 -- 完成某个任务
 function DailyTaskManager.AchieveTask(task_id, callback, exid)
+	-- 没登录的话不记录数据
+    if not GameLogic.GetFilters():apply_filters('is_signed_in') then
+        return
+	end
+
 	local clientData = DailyTaskManager.GetClientData()
 	local task_data = clientData[TaskKey]
 	local data = task_data[task_id]
@@ -126,6 +134,14 @@ function DailyTaskManager.GetClientData()
 	local clientData = KeepWorkItemManager.GetClientData(DailyTaskManager.gsid) or {};
 	local is_new_day, time_stamp = DailyTaskManager.CheckIsNewDay(clientData)
 	if is_new_day then
+		-- 新手引导任务 完成了之后 不清除数据
+		if clientData[TaskKey] then
+			local new_player_guid_task_data = clientData[TaskKey][DailyTaskManager.task_id_list.NewPlayerGuid]
+			if new_player_guid_task_data then
+				DailyTaskManager.task_data[DailyTaskManager.task_id_list.NewPlayerGuid] = new_player_guid_task_data
+			end
+		end
+
 		clientData[TaskKey] = DailyTaskManager.task_data
 		clientData[TaskKey].time_stamp = time_stamp
 		clientData[TaskKey].is_auto_open_view = false
@@ -186,8 +202,10 @@ function DailyTaskManager.AutoOpenDailyTaskView()
 		return
 	end
 
-	local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
-	DailyTask.Show();
+	-- local DailyTask = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTask.lua");
+	-- DailyTask.Show();
+	local QuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.lua");
+	QuestPage.Show();
 
 	local clientData = DailyTaskManager.GetClientData()
 	clientData[TaskKey].is_auto_open_view = true
@@ -233,4 +251,8 @@ function DailyTaskManager.AchieveVisitWorldTask(world_id)
 		task_data.visit_world_list[world_id] = 1
 		DailyTaskManager.AchieveTask(task_id)
 	end
+end
+
+function DailyTaskManager.GetTaskExidList()
+	return DailyTaskManager.exid_list
 end
