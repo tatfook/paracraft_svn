@@ -10,7 +10,7 @@ QuestPage.Show();
 --]]
 local QuestPage = NPL.export();
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
-local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
+-- local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 -- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
 --     commonlib.echo("==============GetQuestItems");
@@ -99,6 +99,10 @@ function QuestPage.ShowView()
 		QuestPage.CloseView()
 	end
 
+	-- if QuestProvider.GetInstance == nil then
+	-- 	return
+	-- end
+
 	if not QuestPage.is_add_event then
 		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
 			if not page then
@@ -110,7 +114,7 @@ function QuestPage.ShowView()
 			end
 
 			QuestPage.RefreshData()
-		end)
+		end, nil, "QuestPage_Event_Init")
 
 		QuestPage.is_add_event = true
 	end
@@ -190,7 +194,7 @@ function QuestPage.EnterNewPlayerGuide()
 	local world_id = VersionToWorldId[httpwrapper_version] or 29477
 	
 	local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
-	CommandManager:RunCommand(string.format('/loadworld -s %s', world_id))
+	CommandManager:RunCommand(string.format('/loadworld -force -s %s', world_id))
 
 	QuestPage.RefreshData()
 end
@@ -274,7 +278,7 @@ function QuestPage.HandleTaskData(data)
 		local name = exchange_data.name
 		local desc = exchange_data.desc
 
-		task_data.name = index .. ". " .. name
+		task_data.name = name
 		task_data.task_id = v.exid
 		task_data.task_desc = desc
 		task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v)
@@ -322,7 +326,7 @@ function QuestPage.HandleTaskData(data)
 			-- end
 
 			desc = ""
-			task_data.name = index .. ". " .. name
+			task_data.name = name
 			task_data.task_id = v
 			task_data.task_desc = desc
 			task_data.task_pro_desc = QuestPage.GetTaskProDesc(v)
