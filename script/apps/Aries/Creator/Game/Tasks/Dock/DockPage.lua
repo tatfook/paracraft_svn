@@ -44,6 +44,14 @@ DockPage.top_line_2 = {
     { label = L"实战提升", id = "week_quest", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
 }
+DockPage.top_line_3 = {
+    { label = L"", },
+    { label = L"", },
+    { label = L"", },
+    { label = L"", },
+    { label = L"", },
+    { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", },
+}
 
 DockPage.show_friend_red_tip = false
 
@@ -162,6 +170,13 @@ function DockPage.OnClickTop(id)
         if Notice then
             Notice.Show(1);
         end
+    elseif (id == 'present') then
+        GameLogic.GetFilters():apply_filters(
+            'show_certificate',
+            function()
+                GameLogic.AddBBS(nil, L'领取成功', 3000, '0 255 0');
+            end
+        );
     end
 end
 function DockPage.OnClick(id)
@@ -400,6 +415,26 @@ function DockPage.RenderButton_2(index)
     return s;
 end
 
+function DockPage.RenderButton_3(index)
+    local node = DockPage.top_line_3[index];
+    local tip_str = "";
+    local id = node.id;
+
+    if (id == "present") then
+        return string.format([[
+            <div style="position:relative;">
+                <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -5px;margin-left: -5px;" width="80" height="80"/>
+            </div>
+            <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
+        ]],node.id,node.bg);
+    end
+
+    local s = string.format([[
+        <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
+        %s
+    ]],node.id,node.bg,tip_str);
+    return s;
+end
 
 function DockPage.LoadActivityList(callback)
     keepwork.user.activity_list({},function(err, msg, data)
