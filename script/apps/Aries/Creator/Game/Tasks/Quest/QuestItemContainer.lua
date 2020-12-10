@@ -39,7 +39,7 @@ function QuestItemContainer:Parse(client_data)
             local id = v.id;
             local value = v.value;
             local template = self.provider:GetQuestItemTemplate(self.gsid, id);
-            local quest_item = QuestItem:new():OnInit(id, value, template);      
+            local quest_item = QuestItem:new():OnInit(id, value, template, self);      
             self:AddChild(quest_item);
         end
     end
@@ -111,17 +111,13 @@ function QuestItemContainer:GetDumpData()
     end
     return result;
 end
-
-function QuestItemContainer:IncreaseNumberValue(id, value)
+function QuestItemContainer:FindItemById(id)
     if(not id)then
-        return
-    end
-    if(self:CanFinish() or self:IsFinished())then
         return
     end
     for k,v in ipairs(self.children) do
         if(v.id == id)then
-            v:IncreaseNumberValue(value);
+            return v;
         end
     end
 end

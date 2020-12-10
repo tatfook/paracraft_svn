@@ -128,6 +128,10 @@ function KeepWorkItemManager.OnKeepWorkLogin_Callback(res)
 	    LOG.std(nil, "debug", "KeepWorkItemManager.bags", KeepWorkItemManager.bags);
 	    LOG.std(nil, "debug", "KeepWorkItemManager.items", KeepWorkItemManager.items);
 	    LOG.std(nil, "debug", "KeepWorkItemManager.profile", KeepWorkItemManager.profile);
+
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
+        local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
+        QuestProvider:OnInit();
     end)            
     return res;
 end

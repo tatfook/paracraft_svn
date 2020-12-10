@@ -10,14 +10,12 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Code/CodeAPI_Data.lua");
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Code/CodeUI.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Code/CodeGlobals.lua");
-NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAction.lua");
 local CodeGlobals = commonlib.gettable("MyCompany.Aries.Game.Code.CodeGlobals");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local CodeUI = commonlib.gettable("MyCompany.Aries.Game.Code.CodeUI");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic");
 local env_imp = commonlib.gettable("MyCompany.Aries.Game.Code.env_imp");
 
-local QuestAction = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestAction");
 
 -- simple log any object, similar to echo. 
 function env_imp:log(...)
@@ -112,13 +110,4 @@ function env_imp:getActor(name)
 	else
 		return GameLogic.GetCodeGlobal():GetActorByName(name);
 	end
-end
-function env_imp:QuestAction_IncreaseNumberValue(id,value)
-    QuestAction.IncreaseNumberValue(id,value)
-end
-function env_imp:QuestAction_SetValue(id,value)
-    QuestAction.SetValue(id,value)
-end
-function env_imp:QuestAction_DoFinish(quest_gsid)
-    QuestAction.DoFinish(id,quest_gsid)
 end

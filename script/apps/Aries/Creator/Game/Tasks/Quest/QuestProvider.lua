@@ -19,54 +19,11 @@ extra in ∂“ªªπÊ‘Ú
 ------------------------------------------------------------------------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
-QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
-    echo("=============QuestProvider.Events.OnInit");
-end)
-QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
 
-    echo("=============QuestProvider.Events.OnRefresh");
-
-    echo("=============QuestProvider:Dump");
-    echo(QuestProvider:GetInstance():Dump(),true);
-    echo("=============QuestProvider:DumpTemplates");
-    echo(QuestProvider:GetInstance():DumpTemplates(),true);
-
-    commonlib.echo("==============GetQuestItems");
-    echo(QuestProvider:GetInstance():GetQuestItems(true),true)
-end)
-
-QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function(__, event)
-    local quest_item_container = event.quest_item_container;
-    local quest_item = event.quest_item;
-
-    echo("=============QuestProvider.Events.OnChanged");
-    echo("=============quest_item_container");
-
-    echo(quest_item_container:GetDumpData(),true);
-
-    echo("=============quest_item");
-    echo(quest_item:GetDumpData(),true);
-
-end)
-
-QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
-    local quest_item_container = event.quest_item_container;
-    echo("=============QuestProvider.Events.OnFinished");
-    echo(quest_item_container:GetDumpData(),true);
-
-end)
-
-QuestProvider:GetInstance():OnInit();
-
-QuestProvider:GetInstance():IncreaseNumberValue("60003_1",1);
 QuestProvider:GetInstance():SetValue("60003_2","ABC");
-QuestProvider:GetInstance():IncreaseNumberValue("60003_3",100);
-
-
 QuestProvider:GetInstance():Refresh();
 -------------------------------------------------------
 ]]
-
 NPL.load("(gl)script/ide/EventDispatcher.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItem.lua");
@@ -93,6 +50,47 @@ function QuestProvider:GetInstance()
     return QuestProvider.provider_instance;
 end
 function QuestProvider:OnInit()
+    QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
+        echo("=============QuestProvider.Events.OnInit");
+    end)
+    QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
+
+        echo("=============QuestProvider.Events.OnRefresh");
+
+        echo("=============QuestProvider:Dump");
+        echo(QuestProvider:GetInstance():Dump(),true);
+        echo("=============QuestProvider:DumpTemplates");
+        echo(QuestProvider:GetInstance():DumpTemplates(),true);
+
+        commonlib.echo("==============GetQuestItems");
+        echo(QuestProvider:GetInstance():GetQuestItems(true),true)
+    end)
+
+    QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function(__, event)
+        local quest_item_container = event.quest_item_container;
+        local quest_item = event.quest_item;
+
+        echo("=============QuestProvider.Events.OnChanged");
+        echo("=============quest_item_container");
+
+        echo(quest_item_container:GetDumpData(),true);
+
+        echo("=============quest_item");
+        echo(quest_item:GetDumpData(),true);
+
+    end)
+
+    QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
+        local quest_item_container = event.quest_item_container;
+        echo("=============QuestProvider.Events.OnFinished");
+        echo(quest_item_container:GetDumpData(),true);
+
+    end)
+
+    QuestProvider:GetInstance():OnInit__();
+
+end
+function QuestProvider:OnInit__()
     if(self.is_init)then
         return
     end
@@ -415,12 +413,34 @@ function QuestProvider:IncreaseNumberValue(id,value)
     end
 end
 function QuestProvider:SetValue(id,value)
+    if(not id)then
+        return
+    end
     if(not self.is_init)then
 	    LOG.std(nil, "error", "QuestProvider:SetValue", "QuestProvider isn't init, target_id:%s",tostring(id));
         return
     end
     for k,v in pairs(self.questItemContainer_map) do
         v:SetValue(id,value);
+    end
+end
+function QuestProvider:GetValue(id)
+    if(not self.is_init)then
+	    LOG.std(nil, "error", "QuestProvider:GetValue", "QuestProvider isn't init, target_id:%s",tostring(id));
+        return
+    end
+    local item = self:FindItemById(id)
+    if(item)then
+        return item:GetValue();
+    end
+    
+end
+function QuestProvider:FindItemById(id)
+    for k,v in pairs(self.questItemContainer_map) do
+        local item = v:FindItemById(id);
+        if(item )then
+            return item;
+        end
     end
 end
 function QuestProvider:Dump()
