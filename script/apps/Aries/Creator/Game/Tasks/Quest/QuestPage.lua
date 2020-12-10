@@ -86,6 +86,12 @@ function QuestPage.Show()
 	end)
 end
 
+function QuestPage.RefreshData()
+	QuestPage.HandleTaskData()
+	QuestPage.HandleGiftData()
+	QuestPage.OnRefresh()
+end
+
 function QuestPage.ShowView()
 	if page then
 		page:CloseWindow();
@@ -164,7 +170,12 @@ function QuestPage.CloseView()
 end
 
 function QuestPage.EnterNewPlayerGuide()
+	DailyTaskManager.AchieveNewPlayerTask()
+
+	local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
 	CommandManager:RunCommand('/loadworld -s 29477')
+
+	QuestPage.RefreshData()
 end
 
 function QuestPage.GrowthDiary()
@@ -256,6 +267,12 @@ function QuestPage.HandleTaskData(data)
 				name = "成长日记"
 				desc = "成长日记"
 			end
+			if v == DailyTaskManager.task_id_list.NewPlayerGuid then
+				name = "完成新手引导"
+				desc = "完成新手引导"
+			end
+
+			desc = ""
 			task_data.name = index .. ". " .. name
 			task_data.task_id = v
 			task_data.task_desc = desc
@@ -267,8 +284,8 @@ function QuestPage.HandleTaskData(data)
 			-- 限定最多1个
 			task_data.goods_data = {}
 			for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
-				if i <= 1 then
-					task_data.goods_data[i] = v
+				if v.goods.gsId == 998 then
+					task_data.goods_data[#task_data.goods_data + 1] = v
 				end
 			end
 			-- print("aaaaaaaaaaaaaaaaaa", v)
@@ -323,6 +340,9 @@ function QuestPage.GetTaskState(task_id)
 		if is_complete then
 			return task_data.is_get_reward and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_complete
 		end	
+	end
+	if task_id == TaskIdList.GrowthDiary then
+		is_complete = ParacraftLearningRoomDailyPage.HasCheckedToday()-- 成长日记 以是否签到了为标准 现在是否签到成功改成看20秒之后才算成功
 	end
 
 	return is_complete and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_go
@@ -390,6 +410,8 @@ function QuestPage.GetReard(task_id)
 				
 				local clientData = DailyTaskManager.GetClientData()
 				KeepWorkItemManager.SetClientData(DailyTaskManager.gsid, clientData)
+
+				QuestPage.RefreshData()
 			end);
 		end
 	end

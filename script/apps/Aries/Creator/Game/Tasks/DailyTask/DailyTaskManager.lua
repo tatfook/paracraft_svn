@@ -37,6 +37,7 @@ DailyTaskManager.task_data = {
 }
 
 DailyTaskManager.exid_list = {
+	[DailyTaskManager.task_id_list.NewPlayerGuid] = 40001,
 	[DailyTaskManager.task_id_list.GrowthDiary] = 10001,
 	[DailyTaskManager.task_id_list.WeekWork] = 10024,
 	[DailyTaskManager.task_id_list.Classroom] = 10025,
@@ -181,7 +182,7 @@ function DailyTaskManager.CheckTaskCompelete(task_id)
 	if data == nil then
 		return true
 	end
-	
+	print("fffffffffffffff", task_id, data.complete_times, data.max_times)
 	if data.complete_times >= data.max_times then
 		return true
 	end
@@ -255,4 +256,25 @@ end
 
 function DailyTaskManager.GetTaskExidList()
 	return DailyTaskManager.exid_list
+end
+
+function DailyTaskManager.AchieveNewPlayerTask()
+	-- 没登录的话不记录数据
+    if not GameLogic.GetFilters():apply_filters('is_signed_in') then
+        return
+	end
+	local task_id = DailyTaskManager.task_id_list.NewPlayerGuid
+	local clientData = DailyTaskManager.GetClientData()
+	local task_data = clientData[TaskKey]
+	local data = task_data[task_id]
+	if data == nil then
+		return
+	end
+
+	if DailyTaskManager.CheckTaskCompelete(task_id) then
+		return
+	end
+
+	data.complete_times = data.complete_times + 1
+	KeepWorkItemManager.SetClientData(DailyTaskManager.gsid, clientData)
 end
