@@ -23,7 +23,7 @@ local GraphHelp = commonlib.gettable("commonlib.GraphHelp");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local Quest = commonlib.inherit(nil, commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Quest"));
 
-local questStartId = 40000;
+local questStartId = 40001;
 local questEndId = 49999;
 
 function Quest:ctor()

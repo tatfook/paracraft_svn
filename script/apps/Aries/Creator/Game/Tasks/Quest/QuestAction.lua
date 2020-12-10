@@ -35,7 +35,9 @@ GameLogic.QuestAction.GetValue("60001_1");
 -- 完成任务60001
 GameLogic.QuestAction.DoFinish(60001);
 
-
+if(GameLogic.QuestAction and GameLogic.QuestAction.SetValue)then
+    GameLogic.QuestAction.SetValue("60001_1",1);
+end
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");

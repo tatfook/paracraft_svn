@@ -99,7 +99,7 @@ function QuestProvider:OnInit__()
     self.templates_map = {};
     self.gsid_exid_map = {};
     self.bags = { 1005 };
-    self.min_exid = 40000;
+    self.min_exid = 40001;
     self.max_exid = 49999;
     self.questItemContainer_map = {};
 
