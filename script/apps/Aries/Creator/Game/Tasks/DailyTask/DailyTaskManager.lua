@@ -37,7 +37,7 @@ DailyTaskManager.task_data = {
 }
 
 DailyTaskManager.exid_list = {
-	[DailyTaskManager.task_id_list.NewPlayerGuid] = 40001,
+	-- [DailyTaskManager.task_id_list.NewPlayerGuid] = 40001,
 	[DailyTaskManager.task_id_list.GrowthDiary] = 10001,
 	[DailyTaskManager.task_id_list.WeekWork] = 10024,
 	[DailyTaskManager.task_id_list.Classroom] = 10025,

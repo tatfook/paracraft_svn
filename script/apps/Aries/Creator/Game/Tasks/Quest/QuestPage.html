@@ -82,6 +82,23 @@ end
 
 function OpenView(name, mcmlNode)
     local param = mcmlNode:GetAttribute("param1")
+
+    local click_cb = QuestPage.TaskIdToClickCb[param]
+
+    if click_cb and type(click_cb) == 'string' then
+        if click_cb == 'GrowthDiary' then
+            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.growth_diary");
+        elseif click_cb == 'WeekWork' then
+            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.week_work");
+        elseif click_cb == 'Classroom' then
+            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.class_room");
+        elseif click_cb == 'UpdataWorld' then
+            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.update_world");
+        elseif click_cb == 'VisitWorld' then
+            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.visit_world");
+        end
+    end
+
     QuestPage.OpenView(param)
 end
 
@@ -116,7 +133,7 @@ end
 
                             <div style="width: 330px; height:90px; float: left;">
                                 <div style="width: 160px;height:90px;float: left">
-                                    <div style="base-font-size:16px; font-size:16px; margin-left: 18px; margin-top: 33px;color:#666666"><%=Eval("task_pro_desc") %></div>
+                                    <div style="width: 160px;height:90px;base-font-size:16px; font-size:16px; margin-left: 18px; margin-top: 33px;color:#666666;text-align: center;"><%=Eval("task_pro_desc") %></div>
                                 </div>
                                 <div style="width: 170px;height:90px;float: left;">
                                     <!-- <div style="color: #000000;">啊啊啊啊啊</div> -->

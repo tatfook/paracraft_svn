@@ -10,9 +10,9 @@ QuestPage.Show();
 --]]
 local QuestPage = NPL.export();
 
--- local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
--- local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
--- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function()
+local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
+local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
+-- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
 --     commonlib.echo("==============GetQuestItems");
 --     echo(QuestProvider:GetInstance():GetQuestItems(),true)
 -- end)
@@ -27,9 +27,10 @@ commonlib.setfield("MyCompany.Aries.Creator.Game.Task.Quest.QuestPage", QuestPag
 local page;
 QuestPage.isOpen = false
 QuestPage.TaskData = {}
+QuestPage.is_add_event = false
 
-local TaskIdToClickCb = {
-	[TaskIdList.NewPlayerGuid] = "EnterNewPlayerGuide",
+QuestPage.TaskIdToClickCb = {
+	[40001] = "EnterNewPlayerGuide",
 	[TaskIdList.GrowthDiary] = "GrowthDiary",
 	[TaskIdList.WeekWork] = "WeekWork",
 	[TaskIdList.Classroom] = "Classroom",
@@ -97,19 +98,25 @@ function QuestPage.ShowView()
 		page:CloseWindow();
 		QuestPage.CloseView()
 	end
-	
-	-- if QuestProvider:GetInstance().questItemContainer_map then
 
-	-- end
+	if not QuestPage.is_add_event then
+		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
+			if not page then
+				return
+			end
+
+			if not page:IsVisible() then
+				return
+			end
+
+			QuestPage.RefreshData()
+		end)
+
+		QuestPage.is_add_event = true
+	end
+
 	QuestPage.HandleTaskData()
 	QuestPage.HandleGiftData()
-	-- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
-	-- 	if QuestProvider:GetInstance().questItemContainer_map then
-	-- 		QuestPage.HandleTaskData(QuestProvider:GetInstance():GetQuestItems())
-	-- 		QuestPage.HandleGiftData()
-	-- 		QuestPage.OnRefresh()
-	-- 	end
-	-- end)
 	
 
 	QuestPage.isOpen = true
@@ -243,6 +250,41 @@ function QuestPage.UpdateExpProgress(target_pro)
 end
 
 function QuestPage.HandleTaskData(data)
+	QuestPage.TaskData = {}
+	-- 先把新手引导任务插进去 新手引导任务用的是新的数据读取方式	
+	local quest_datas = QuestProvider:GetInstance():GetQuestItems()
+	-- print("ggggggggggggggg")
+	-- echo(quest_datas, true)
+	for i, v in ipairs(quest_datas) do
+		-- 获取兑换规则
+		local exid = v.exid
+		local index = #QuestPage.TaskData + 1
+		local task_data = {}
+		local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(exid)
+		local name = exchange_data.name
+		local desc = exchange_data.desc
+
+		task_data.name = index .. ". " .. name
+		task_data.task_id = v.exid
+		task_data.task_desc = desc
+		task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v)
+		task_data.task_state = QuestPage.GetTaskStateByQuest(v)
+		task_data.is_main_task = true
+		task_data.bg_img = QuestPage.GetBgImg(task_data)
+		-- task_data.quest_data = v
+		-- 限定最多1个
+		task_data.goods_data = {}
+		for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
+			if v.goods.gsId == 998 then
+				task_data.goods_data[#task_data.goods_data + 1] = v
+			end
+		end
+		-- print("aaaaaaaaaaaaaaaaaa", v)
+		-- echo(task_data.goods_data, true)
+		QuestPage.TaskData[index] = task_data
+	end
+
+	---------------------------------------这块代码使用的是旧版的任务数据---------------------------------------
 	local task_id_list = DailyTaskManager.GetTaskIdList()
 	local id_list = {}
 	for k, v in pairs(task_id_list) do
@@ -251,9 +293,6 @@ function QuestPage.HandleTaskData(data)
 	table.sort(id_list, function(a, b)
 		return b > a
 	end)
-
-	QuestPage.TaskData = {}
-	
 	for k, v in pairs(id_list) do
 		-- 获取兑换规则
 		local exid = DailyTaskManager.GetTaskExidByTaskId(v)
@@ -293,6 +332,8 @@ function QuestPage.HandleTaskData(data)
 			QuestPage.TaskData[index] = task_data
 		end
 	end
+
+	---------------------------------------这块代码使用的是旧版的任务数据/end---------------------------------------
 end
 
 function QuestPage.GetTaskProDesc(task_id)
@@ -348,8 +389,45 @@ function QuestPage.GetTaskState(task_id)
 	return is_complete and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_go
 end
 
-function QuestPage.GetBgImg(task_data)
+function QuestPage.GetTaskProDescByQuest(data)
+	local childrens = data.questItemContainer.children
+	-- print("gggggggggggggggggggggggg", #childrens)
+	-- echo(childrens, true)
+	local desc = ""
+	-- childrens = {
+	-- 	{template = {desc = "跑一跑"},value = 1,finished_value = 10,},
+	-- 	{template = {desc = "跳一跳"},value = 1,finished_value = 10,},
+	-- 	{template = {desc = "走一走"},value = 1,finished_value = 10,},
+	-- 	{template = {desc = "走一走"},value = 1,finished_value = "哈哈哈哈",},
+	-- }
 
+	for i, v in ipairs(childrens) do
+		local child_task_desc = ""
+		if type(v.finished_value) == "number" then
+			local value = v.value or 0
+			local temp_desc = "进度： "
+			if v.template.desc and v.template.desc ~= "" then
+				temp_desc = v.template.desc .. ": "
+			end
+			child_task_desc = string.format("%s%s/%s", temp_desc, value, v.finished_value)
+		else
+			child_task_desc = v.finished_value
+		end
+		
+		local div_desc = [[
+			<div>%s</div>
+		]]
+		desc = desc .. string.format(div_desc, child_task_desc)
+	end
+
+	return desc
+end
+
+function QuestPage.GetTaskStateByQuest(data)
+	return data.questItemContainer:CanFinish() and QuestPage.TaskState.can_complete or QuestPage.TaskState.can_go
+end
+
+function QuestPage.GetBgImg(task_data)
 	local img = "Texture/Aries/Creator/keepwork/Quest/bjtiao2_226X90_32bits.png#0 0 226 90:195 20 16 20"
 	if task_data.is_main_task then
 		img = "Texture/Aries/Creator/keepwork/Quest/bjtiao_226X90_32bits.png#0 0 226 90:195 20 16 20"
@@ -393,32 +471,21 @@ end
 function QuestPage.SetExpProgress(value)
 	page:SetValue("expbar", value);
 end
-
+-- 这里的task_id 其实就是exid
 function QuestPage.GetReard(task_id)
 	-- 目前只有新手引导任务是要主动领取奖励
-	if task_id == DailyTaskManager.task_id_list.NewPlayerGuid then
-		local task_data = DailyTaskManager.GetTaskData(task_id)
-		local exid = DailyTaskManager.GetTaskExidByTaskId(task_id)
-		
-		if task_data.is_get_reward == false then
-			KeepWorkItemManager.DoExtendedCost(exid, function()
-				task_data.is_get_reward = true
-				
-				local desc = DailyTaskManager.desc_list[task_id] or "你太棒了！奖励你%s个知识豆，再接再厉哦~"
-				desc = string.format(desc, reward_num)
-				GameLogic.AddBBS("desktop", desc, 3000, "0 255 0");
-				
-				local clientData = DailyTaskManager.GetClientData()
-				KeepWorkItemManager.SetClientData(DailyTaskManager.gsid, clientData)
 
-				QuestPage.RefreshData()
-			end);
+	local quest_datas = QuestProvider:GetInstance():GetQuestItems()
+	for i, v in ipairs(quest_datas) do
+		if v.exid == task_id then
+			v.questItemContainer:DoFinish()
+			break
 		end
 	end
 end
 
 function QuestPage.OpenView(task_id)
-	if TaskIdToClickCb[task_id] and QuestPage[TaskIdToClickCb[task_id]] then
-		QuestPage[TaskIdToClickCb[task_id]]()
+	if QuestPage.TaskIdToClickCb[task_id] and QuestPage[QuestPage.TaskIdToClickCb[task_id]] then
+		QuestPage[QuestPage.TaskIdToClickCb[task_id]]()
 	end
 end
