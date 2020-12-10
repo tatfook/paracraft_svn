@@ -48,7 +48,7 @@ function Quest:Init(extendedcost)
 	end
 
 	local arcs = {};
-	function getArc(gsId, nodeId)
+	function getArc(gsId, nodeId, targetId)
 		if (not gsId) then
 			return
 		end
@@ -61,6 +61,9 @@ function Quest:Init(extendedcost)
 							local state = "invalid";
 							if (KeepWorkItemManager.HasGSItem(gsId)) then
 								state = "valid";
+							end
+							if (KeepWorkItemManager.HasGSItem(targetId)) then
+								state = "finished";
 							end
 							arcs[#arcs + 1] = {preNodeId = nodeId, targetId = data.exId, tag = {condition = "and", state = state}};
 							hasArc = true;
@@ -75,7 +78,7 @@ function Quest:Init(extendedcost)
 	for _, data in ipairs(extendedDatas) do
 		if (data.preconditions and #data.preconditions > 0) then
 			for _, condition in ipairs(data.preconditions) do
-				getArc(condition.goods.gsId, data.exId);
+				getArc(condition.goods.gsId, data.exId, targetId);
 			end
 		end
 	end
@@ -96,10 +99,15 @@ function Quest:GetQuestNodes()
 			local data = node:GetData();
 			if (data and data.exid and data.gsId) then
 				local isValid = true;
+				if (KeepWorkItemManager.HasGSItem(data.gsId)) then
+					isValid = false;
+				end
 				local arc;
 				for arc in node:NextArc() do
-					local tag = arc:GetTag();
-					if (tag.state and tag.state ~= "valid") then
+					local preNode = arc:GetNode();
+					local preData = preNode:GetData();
+					local bOwn = KeepWorkItemManager.HasGSItem(preData.gsId);
+					if (not bOwn) then
 						isValid = false;
 						break;
 					end
