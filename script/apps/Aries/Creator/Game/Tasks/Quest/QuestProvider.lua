@@ -52,7 +52,7 @@ end
 function QuestProvider:OnInit()
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
         echo("=============QuestProvider.Events.OnInit");
-    end)
+    end, nil, "QuestProvider_OnInit")
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
 
         echo("=============QuestProvider.Events.OnRefresh");
@@ -64,7 +64,7 @@ function QuestProvider:OnInit()
 
         commonlib.echo("==============GetQuestItems");
         echo(QuestProvider:GetInstance():GetQuestItems(true),true)
-    end)
+    end, nil, "QuestProvider_OnRefresh")
 
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function(__, event)
         local quest_item_container = event.quest_item_container;
@@ -78,14 +78,14 @@ function QuestProvider:OnInit()
         echo("=============quest_item");
         echo(quest_item:GetDumpData(),true);
 
-    end)
+    end, nil, "QuestProvider_OnChanged")
 
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
         local quest_item_container = event.quest_item_container;
         echo("=============QuestProvider.Events.OnFinished");
         echo(quest_item_container:GetDumpData(),true);
 
-    end)
+    end, nil, "QuestProvider_OnFinished")
 
     QuestProvider:GetInstance():OnInit__();
 

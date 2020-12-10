@@ -24,6 +24,18 @@ local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 GameLogic.QuestAction.SetValue(id,value);
 GameLogic.QuestAction.GetValue(id);
 GameLogic.QuestAction.DoFinish(quest_gsid);
+
+
+-- 设置任务目标"60001_1"的值为:1
+GameLogic.QuestAction.SetValue("60001_1",1);
+
+-- 获取任务目标"60001_1"的值
+GameLogic.QuestAction.GetValue("60001_1");
+
+-- 完成任务60001
+GameLogic.QuestAction.DoFinish(60001);
+
+
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
