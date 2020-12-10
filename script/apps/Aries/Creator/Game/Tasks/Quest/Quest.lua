@@ -13,6 +13,8 @@ local quest = Quest:new():Init(extendedcost);
 NPL.load("(gl)script/ide/GraphHelp.lua");
 NPL.load("(gl)script/ide/Graph.lua");
 NPL.load("(gl)script/apps/Aries/Quest/QuestHelp.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
+local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 local QuestHelp = commonlib.gettable("MyCompany.Aries.Quest.QuestHelp");
 local Graph = commonlib.gettable("commonlib.Graph");
 local GraphNode = commonlib.gettable("commonlib.GraphNode");
@@ -37,10 +39,7 @@ function Quest:Init(extendedcost)
 			local name = data.name;
 			local desc = data.desc;
 			local exId = data.exId;
-			local gsId = 0;
-			if (#data.exchangeTargets > 0 and #(data.exchangeTargets[1].goods) > 0) then
-				gsId = data.exchangeTargets[1].goods[1].goods.gsId;
-			end
+			local gsId = QuestProvider:GetInstance():SearchQuestGsidFromExid(exId);
 			local node = self.graphData:AddNode();
 			node.data = {name = name, desc = desc, exid = exId, gsId = gsId, templateData = {Id = exId, Title = string.format("%s（%d）", name, gsId)}};
 			nodes[data.exId] = node;
@@ -78,7 +77,10 @@ function Quest:Init(extendedcost)
 	for _, data in ipairs(extendedDatas) do
 		if (data.preconditions and #data.preconditions > 0) then
 			for _, condition in ipairs(data.preconditions) do
-				getArc(condition.goods.gsId, data.exId, targetId);
+				local bagNo = KeepWorkItemManager.SearchBagNo(condition.goods.bagId);
+				if (QuestProvider:GetInstance():IsValidBag(bagNo)) then
+					getArc(condition.goods.gsId, data.exId, targetId);
+				end
 			end
 		end
 	end
