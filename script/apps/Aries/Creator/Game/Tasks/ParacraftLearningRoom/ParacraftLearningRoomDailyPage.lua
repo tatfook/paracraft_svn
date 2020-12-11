@@ -151,7 +151,7 @@ Paracraft由多少行代码构成的
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 
 }
-ParacraftLearningRoomDailyPage.max_lesson = 100 --最大课程数，添加或者删除课程时记得修改这个
+ParacraftLearningRoomDailyPage.max_lesson = 0 --最大课程数，添加或者删除课程时记得修改这个
 
 function ParacraftLearningRoomDailyPage.OnInit()
 	page = document:GetPageCtrl();
@@ -244,6 +244,19 @@ function ParacraftLearningRoomDailyPage.DoCheckin(callback)
 	show_page();
 end
 
+function ParacraftLearningRoomDailyPage.GetMaxLearnDays()
+	if ParacraftLearningRoomDailyPage.max_lesson == 0 then
+		local nLesson = 0
+		for title in string.gfind(ParacraftLearningRoomDailyPage.lessons, "([^\r\n]+)") do
+            if(title and title ~= "")then
+                nLesson = nLesson + 1
+            end
+		end
+		ParacraftLearningRoomDailyPage.max_lesson = nLesson
+	end
+	-- print("最大课程数是================",ParacraftLearningRoomDailyPage.max_lesson)
+end
+
 function ParacraftLearningRoomDailyPage.GetLearnDays()
 	local gsid = ParacraftLearningRoomDailyPage.gsid;
 	local template = KeepWorkItemManager.GetItemTemplate(gsid);
@@ -288,6 +301,7 @@ function ParacraftLearningRoomDailyPage.HasCheckedToday()
     if(not KeepWorkItemManager.IsLoaded())then
 		return true
 	end
+	ParacraftLearningRoomDailyPage.GetMaxLearnDays()
 	local date = ParaGlobal.GetDateFormat("yyyy-M-d");
 	local key = string.format("LearningRoom_HasCheckedToday_%s", date);
 	local gsid = ParacraftLearningRoomDailyPage.gsid;
