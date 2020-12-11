@@ -96,9 +96,9 @@ function ParaWorldUserInfo.Refresh(userId, gridX, gridY)
 end
 
 function ParaWorldUserInfo.GetProjectName()
-	if (_guihelper.GetTextWidth(worldParams.projectName, "System;16") > 108) then
+	if (_guihelper.GetTextWidth(worldParams.projectName, "System;16") > 132) then
 		if (string.find(worldParams.projectName, L"的家园") or string.find(worldParams.projectName, "_main")) then
-			local text = string.sub(worldParams.projectName, 1, 8);
+			local text = commonlib.utf8.sub(worldParams.projectName, 1, 8);
 			return string.format(L"%s...的家园", text);
 		else
 			return commonlib.utf8.sub(worldParams.projectName, 1, 8);
