@@ -372,13 +372,28 @@ function DockPage.RenderButton_1(index)
         ]],"");
     elseif (id == "user_tip") then
         if not DockPage.hasOpenTaskPage then
-            bg = ""
-            tip_str = [[
-                <div style="position:relative;margin-left:0px;margin-top:-75px;width:85px;height:75px;background: Texture/Aries/Creator/keepwork/dock/btn2_di_32bits.png#0 0 85 75" ></div>                
-                <div style="position:relative;margin-left:8px;margin-top:-85px;width:64px;height:64px;background:" >
-                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_task_icon_overlay" width="64" height="64"/>
-                </div>
-                ]]
+            -- 判断下是否有未完成的任务
+            -- 日常任务
+            local is_all_task_complete = DailyTaskManager.IsAllTaskComplete()
+            -- 任务
+            local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
+            local quest_datas = QuestProvider:GetInstance():GetQuestItems() or {}
+            for i, v in ipairs(quest_datas) do
+                if not v.questItemContainer:IsFinished() then
+                    is_all_task_complete = false
+                    break
+                end
+            end
+
+            if not is_all_task_complete then
+                bg = ""
+                tip_str = [[
+                    <div style="position:relative;margin-left:0px;margin-top:-75px;width:85px;height:75px;background: Texture/Aries/Creator/keepwork/dock/btn2_di_32bits.png#0 0 85 75" ></div>                
+                    <div style="position:relative;margin-left:8px;margin-top:-85px;width:64px;height:64px;background:" >
+                        <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_task_icon_overlay" width="64" height="64"/>
+                    </div>
+                    ]]
+            end
         end
 
     end
