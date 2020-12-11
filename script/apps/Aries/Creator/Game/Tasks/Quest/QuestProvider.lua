@@ -29,11 +29,13 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItem.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItemContainer.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItemTemplate.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 local Quest = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Quest");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local QuestItemContainer = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItemContainer");
 local QuestItem = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItem");
 local QuestItemTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItemTemplate");
+local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local QuestProvider = commonlib.inherit(commonlib.gettable("commonlib.EventSystem"),commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider"))
 
 QuestProvider.Events = {
@@ -387,6 +389,8 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
         item:AddEventListener(QuestItemContainer.Events.OnFinish,function(__,event)
 
             local exid = self:SearchExidFromQuestGsid(item.gsid);
+            -- post log
+	        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.quest_action.do_finish", { quest_gsid = item.gsid, exid = exid, });
             if(exid)then
                 KeepWorkItemManager.DoExtendedCost(exid, function()
                     self:DispatchEvent({ type = QuestProvider.Events.OnFinished, quest_item_container = item, });
@@ -420,6 +424,8 @@ function QuestProvider:SetValue(id,value)
 	    LOG.std(nil, "error", "QuestProvider:SetValue", "QuestProvider isn't init, target_id:%s",tostring(id));
         return
     end
+    -- post log
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.quest_action.setvalue", { id = id, value = value, });
     for k,v in pairs(self.questItemContainer_map) do
         v:SetValue(id,value);
     end

@@ -52,8 +52,6 @@ function QuestAction.SetValue(id,value)
     if(not id)then
         return
     end
-    -- post log
-	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.quest_action.setvalue", { id = id, value = value, });
     QuestProvider:GetInstance():SetValue(id,value);
 end
 function QuestAction.GetValue(id)
@@ -78,8 +76,6 @@ function QuestAction.DoFinish(quest_gsid)
     if(not quest_gsid)then
         return
     end
-    -- post log
-	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.quest_action.do_finish", { quest_gsid = quest_gsid});
     local item = QuestProvider:GetInstance():CreateOrGetQuestItemContainer(quest_gsid);
     if(item)then
         item:DoFinish();
