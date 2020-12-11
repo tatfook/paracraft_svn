@@ -77,9 +77,11 @@ function Quest:Init(extendedcost)
 	for _, data in ipairs(extendedDatas) do
 		if (data.preconditions and #data.preconditions > 0) then
 			for _, condition in ipairs(data.preconditions) do
-				local bagNo = KeepWorkItemManager.SearchBagNo(condition.goods.bagId);
-				if (QuestProvider:GetInstance():IsValidBag(bagNo)) then
-					getArc(condition.goods.gsId, data.exId, targetId);
+				if(condition.goods) then
+					local bagNo = KeepWorkItemManager.SearchBagNo(condition.goods.bagId);
+					if (QuestProvider:GetInstance():IsValidBag(bagNo)) then
+						getArc(condition.goods.gsId, data.exId, targetId);
+					end
 				end
 			end
 		end

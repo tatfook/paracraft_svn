@@ -126,10 +126,6 @@ Scratch与Paracraft的区别
 Minecraft与Paracraft的区别
 孩子应该学习什么编程语言？
 NPL语言简介
-Scratch与Paracraft的区别
-Minecraft与Paracraft的区别
-孩子应该学习什么编程语言？
-NPL语言简介
 代码方块教学1
 Paracraft由多少行代码构成的
 代码方块教学2
@@ -151,7 +147,6 @@ Paracraft由多少行代码构成的
 字符串与文字
 字符串常用操作
 字符串练习
-表的基本概念
 ]]
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 

@@ -31,7 +31,8 @@ DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },
-    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_renwu_32bits.png#0 0 85 75", },
+	{ label = L"", },
+    --{ label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_renwu_32bits.png#0 0 85 75", },
     { label = L"用户社区", id = "web_keepwork_home", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_yonghushequ_32bits.png#0 0 85 75", },
     { label = L"大赛", id = "competition", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_dasai_32bits.png#0 0 85 75", },
     { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_xiaoxi_32bits.png#0 0 85 75", },
@@ -87,16 +88,18 @@ function DockPage.Show()
     end)
 
     -- 每日首次登陆自动打开任务面板
-    DailyTaskManager.DelayOpenDailyTaskView()
+	-- Deleted By LiXizhi: 2020.12.11. 
+    -- DailyTaskManager.DelayOpenDailyTaskView()
 
     -- 每次登陆如果没有实名认证的弹实名认证窗口
-    if (System.User.realname == nil or System.User.realname == "") and not DockPage.IsShowClassificationPage then
-        DockPage.IsShowClassificationPage = true
-        GameLogic.GetFilters():apply_filters('show_certificate_page', function()
-            local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
-            DailyTaskManager.AutoOpenDailyTaskView()
-        end);
-    end
+	-- Deleted By LiXizhi: 2020.12.11. 
+--    if (System.User.realname == nil or System.User.realname == "") and not DockPage.IsShowClassificationPage then
+--        DockPage.IsShowClassificationPage = true
+--        GameLogic.GetFilters():apply_filters('show_certificate_page', function()
+--            local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
+--            DailyTaskManager.AutoOpenDailyTaskView()
+--        end);
+--    end
 
     -- 每次登陆判断是否弹出活动框
     if Notice and Notice.CheckCanShow() then
