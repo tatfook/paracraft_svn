@@ -178,7 +178,8 @@ function DockPage.OnClickTop(id)
                 'show_certificate',
                 function(result)
                     if (result) then
-                        GameLogic.AddBBS(nil, L'领取成功', 3000, '0 255 0');
+                        GameLogic.AddBBS(nil, L'领取成功', 5000, '0 255 0');
+                        DockPage.page:Refresh(0.01)
                     end
                 end
             );
