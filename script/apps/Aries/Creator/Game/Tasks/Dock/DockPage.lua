@@ -174,12 +174,16 @@ function DockPage.OnClickTop(id)
             Notice.Show(1);
         end
     elseif (id == 'present') then
-        GameLogic.GetFilters():apply_filters(
-            'show_certificate',
-            function()
-                GameLogic.AddBBS(nil, L'领取成功', 3000, '0 255 0');
-            end
-        );
+        if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
+            GameLogic.GetFilters():apply_filters(
+                'show_certificate',
+                function(result)
+                    if (result) then
+                        GameLogic.AddBBS(nil, L'领取成功', 3000, '0 255 0');
+                    end
+                end
+            );
+        end
     end
 end
 function DockPage.OnClick(id)
@@ -424,12 +428,16 @@ function DockPage.RenderButton_3(index)
     local id = node.id;
 
     if (id == "present") then
-        return string.format([[
-            <div style="position:relative;">
-                <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -5px;margin-left: -5px;" width="80" height="80"/>
-            </div>
-            <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
-        ]],node.id,node.bg);
+        if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
+            return string.format([[
+                <div style="position:relative;">
+                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -5px;margin-left: -5px;" width="80" height="80"/>
+                </div>
+                <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
+            ]],node.id,node.bg);
+        else
+            return ''
+        end
     end
 
     local s = string.format([[
