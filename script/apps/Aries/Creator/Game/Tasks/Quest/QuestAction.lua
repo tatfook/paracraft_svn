@@ -48,6 +48,15 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
 local QuestAction = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestAction");
 
+-- read world_id from template.goto_world
+-- template.goto_world = ["ONLINE","RELEASE","LOCAL"]
+function QuestAction.GetGoToWorldId(target_id)
+    local template = QuestAction.GetItemTemplate(target_id);
+    if(template)then
+        return template:GetCurVersionValue("goto_world");
+        
+    end
+end
 function QuestAction.SetValue(id,value)
     if(not id)then
         return

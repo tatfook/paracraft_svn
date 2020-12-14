@@ -11,7 +11,7 @@ ExID from 40000 to 49999
 extra in ∂“ªªπÊ‘Ú
 {
   "preconditions": [
-    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, },
+    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, "goto_world": [29477,1376,1376], "click":"" },
     { "id": "60003_2", "title": "", "desc": "", "finished_value": "abc" },
     { "id": "60003_3", "title": "", "desc": "", "finished_value": 5 }
   ]
@@ -267,6 +267,8 @@ function QuestProvider:FillQuestItemTemplateBy_Virtual_Condition(exid)
                     quest_template.finished_value = v.finished_value;
                     quest_template.name = v.name;
                     quest_template.desc = v.desc;
+                    quest_template.goto_world = v.goto_world;
+                    quest_template.click = v.click;
                     self:AddQuestItemTemplate(quest_template);
                 end
             end

@@ -12,6 +12,7 @@ local QuestItemTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Q
 NPL.load("(gl)script/ide/EventDispatcher.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
+local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 
 local QuestItemTemplate = commonlib.inherit(nil,commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestItemTemplate"))
 QuestItemTemplate.Types = {
@@ -30,6 +31,8 @@ function QuestItemTemplate:ctor()
     self.finished_value = nil;
     self.title = nil;
     self.desc = nil;
+    self.goto_world = nil; -- ["ONLINE","RELEASE","LOCAL"]
+    self.click = nil;
 end
 function QuestItemTemplate:GetUniqueKey()
     local key = string.format("%s_%s",tostring(self.gsid), tostring(self.id));
@@ -44,6 +47,28 @@ function QuestItemTemplate:GetData()
         finished_value = self.finished_value,
         title = self.title,
         desc = self.desc,
+        goto_world = self.goto_world,
+        click = self.click,
     }
     return data;
+end
+function QuestItemTemplate:GetCurVersionValue(key)
+    local arr = self[key]
+    if(type(arr) == "table")then
+        local values = self:ArrayToVersions(arr);
+        local httpwrapper_version = HttpWrapper.GetDevVersion() or "ONLINE"
+	    local v = values[httpwrapper_version];
+        return v;
+    end
+    return arr;
+end
+function QuestItemTemplate:ArrayToVersions(arr)
+    if(not arr)then
+        return {};
+    end
+    local result = {};
+    result["ONLINE"] = arr[1];
+    result["RELEASE"] = arr[2];
+    result["LOCAL"] = arr[3];
+    return result;
 end
