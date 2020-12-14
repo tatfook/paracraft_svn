@@ -471,26 +471,28 @@ end
 -- only return actived quest
 function QuestProvider:GetQuestItems(isDump)
     local result = {};
-    for k,v in pairs(self.questItemContainer_map) do
-        if(not v:IsFinished())then
-            local gsid = v.gsid;
-            local exid = self:SearchExidFromQuestGsid(gsid);
-            if(exid)then
-                local extra = self:GetExtra(exid)
-                local questItemContainer = v;
-                if(isDump)then
-                    questItemContainer = v:GetDumpData();
+    if(self.questItemContainer_map)then
+        for k,v in pairs(self.questItemContainer_map) do
+            if(not v:IsFinished())then
+                local gsid = v.gsid;
+                local exid = self:SearchExidFromQuestGsid(gsid);
+                if(exid)then
+                    local extra = self:GetExtra(exid)
+                    local questItemContainer = v;
+                    if(isDump)then
+                        questItemContainer = v:GetDumpData();
+                    end
+                    table.insert(result,{
+                        gsid = gsid,
+                        exid = exid, 
+                        questItemContainer = questItemContainer,
+                    })
                 end
-                table.insert(result,{
-                    gsid = gsid,
-                    exid = exid, 
-                    questItemContainer = questItemContainer,
-                })
             end
         end
+        table.sort(result,function(a,b)
+            return a.gsid < b.gsid
+        end)
     end
-    table.sort(result,function(a,b)
-        return a.gsid < b.gsid
-    end)
     return result;
 end
