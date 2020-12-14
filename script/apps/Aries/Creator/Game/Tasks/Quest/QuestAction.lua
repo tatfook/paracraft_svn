@@ -26,13 +26,13 @@ GameLogic.QuestAction.GetValue(id);
 GameLogic.QuestAction.DoFinish(quest_gsid);
 
 
--- è®¾ç½®ä»»åŠ¡ç›®æ ‡"60001_1"çš„å€¼ä¸º:1
+-- ÉèÖÃÈÎÎñÄ¿±ê"60001_1"µÄÖµÎª:1
 GameLogic.QuestAction.SetValue("60001_1",1);
 
--- è·å–ä»»åŠ¡ç›®æ ‡"60001_1"çš„å€¼
+-- »ñÈ¡ÈÎÎñÄ¿±ê"60001_1"µÄÖµ
 GameLogic.QuestAction.GetValue("60001_1");
 
--- å®Œæˆä»»åŠ¡60001
+-- Íê³ÉÈÎÎñ60001
 GameLogic.QuestAction.DoFinish(60001);
 
 if(GameLogic.QuestAction and GameLogic.QuestAction.SetValue)then
