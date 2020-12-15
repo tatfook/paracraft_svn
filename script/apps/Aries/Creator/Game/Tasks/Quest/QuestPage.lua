@@ -30,7 +30,7 @@ QuestPage.TaskData = {}
 QuestPage.is_add_event = false
 
 QuestPage.TaskIdToClickCb = {
-	[40001] = "EnterNewPlayerGuide",
+	-- [40001] = "EnterWorld",
 	[TaskIdList.GrowthDiary] = "GrowthDiary",
 	[TaskIdList.WeekWork] = "WeekWork",
 	[TaskIdList.Classroom] = "Classroom",
@@ -58,6 +58,12 @@ QuestPage.GiftData = {
 	{is_catch = false, catch_value = 60, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
 	{is_catch = false, catch_value = 80, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
 	{is_catch = false, catch_value = 100, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
+}
+
+local VersionToKey = {
+	ONLINE = 1,
+	RELEASE = 2,
+	LOCAL = 3,
 }
 
 local TargetProgerssValue = 60
@@ -180,19 +186,7 @@ function QuestPage.CloseView()
 	QuestPage.isOpen = false
 end
 
-local VersionToWorldId = {
-    ONLINE = 29477,
-    STAGE = 1376,
-    RELEASE = 1376,
-    LOCAL = 1376,
-}
-
-function QuestPage.EnterNewPlayerGuide()
-	DailyTaskManager.AchieveNewPlayerTask()
-
-	local httpwrapper_version = HttpWrapper.GetDevVersion() or "ONLINE"
-	local world_id = VersionToWorldId[httpwrapper_version] or 29477
-	
+function QuestPage.EnterWorld(world_id)
 	local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
 	CommandManager:RunCommand(string.format('/loadworld -force -s %s', world_id))
 
@@ -285,7 +279,7 @@ function QuestPage.HandleTaskData(data)
 		task_data.task_state = QuestPage.GetTaskStateByQuest(v)
 		task_data.is_main_task = true
 		task_data.bg_img = QuestPage.GetBgImg(task_data)
-		-- task_data.quest_data = v
+		task_data.questItemContainer = v.questItemContainer
 		-- 限定最多1个
 		task_data.goods_data = {}
 		for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
@@ -417,6 +411,7 @@ function QuestPage.GetTaskProDescByQuest(data)
 		if type(v.finished_value) == "number" then
 			local value = v.value or 0
 			local temp_desc = "进度： "
+			
 			if v.template.desc and v.template.desc ~= "" then
 				temp_desc = v.template.desc .. ": "
 			end
@@ -486,17 +481,44 @@ end
 function QuestPage.GetReard(task_id)
 	-- 目前只有新手引导任务是要主动领取奖励
 
-	local quest_datas = QuestProvider:GetInstance():GetQuestItems()
-	for i, v in ipairs(quest_datas) do
-		if v.exid == task_id then
-			v.questItemContainer:DoFinish()
-			break
+	-- local quest_datas = QuestProvider:GetInstance():GetQuestItems()
+	local quest_data = QuestPage.GetQuestData(task_id)
+	if quest_data then
+		quest_data.questItemContainer:DoFinish()
+	end
+end
+
+function QuestPage.Goto(task_id)
+	if QuestPage.TaskIdToClickCb[task_id] and QuestPage[QuestPage.TaskIdToClickCb[task_id]] then
+		QuestPage[QuestPage.TaskIdToClickCb[task_id]]()
+	else
+		local quest_data = QuestPage.GetQuestData(task_id)
+		if quest_data then
+			local httpwrapper_version = HttpWrapper.GetDevVersion() or "ONLINE"
+			local target_index = VersionToKey[httpwrapper_version]
+			local questItemContainer = quest_data.questItemContainer
+			local childrens = questItemContainer.children or {}
+		
+			for i, v in ipairs(childrens) do
+				if v.template.goto_world then
+					local world_id = v.template.goto_world[target_index]
+					if world_id then
+						QuestPage.EnterWorld(world_id)
+					end
+
+					break
+				end
+				-- echo(v, true)
+			end
 		end
 	end
 end
 
-function QuestPage.OpenView(task_id)
-	if QuestPage.TaskIdToClickCb[task_id] and QuestPage[QuestPage.TaskIdToClickCb[task_id]] then
-		QuestPage[QuestPage.TaskIdToClickCb[task_id]]()
+function QuestPage.GetQuestData(task_id)
+	local quest_datas = QuestProvider:GetInstance():GetQuestItems()
+	for i, v in ipairs(quest_datas) do
+		if v.exid == task_id then
+			return v
+		end
 	end
 end

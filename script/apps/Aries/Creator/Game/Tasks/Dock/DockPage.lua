@@ -22,7 +22,7 @@ local UserData = nil
 DockPage.FriendsFansData = nil
 DockPage.RefuseFansList = {}
 DockPage.IsShowClassificationPage = false
-DockPage.hasOpenTaskPage = false
+DockPage.isShowTaskIconEffect = true
 DockPage.hide_vip_world_ids = {
     ONLINE = { 18626 },
     RELEASE = { 1236 },
@@ -104,6 +104,19 @@ function DockPage.Show()
     if Notice and Notice.CheckCanShow() then
         Notice.Show(0)
     end
+
+    local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
+    if QuestProvider:GetInstance().questItemContainer_map then
+        -- body    
+        local quest_datas = QuestProvider:GetInstance():GetQuestItems() or {}
+        for i, v in ipairs(quest_datas) do
+            -- 有可以领取任务的时候
+            if v.questItemContainer:CanFinish() then
+                DockPage.isShowTaskIconEffect = true
+                break
+            end
+        end    
+    end
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -163,7 +176,7 @@ function DockPage.OnClickTop(id)
         QuestPage.Show();
         
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.user_tip");
-        DockPage.hasOpenTaskPage = true
+        DockPage.isShowTaskIconEffect = false
         DockPage.page:Refresh(0);
     elseif(id == "msg_center")then
         local MsgCenter = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MsgCenter/MsgCenter.lua");
@@ -371,20 +384,24 @@ function DockPage.RenderButton_1(index)
         <kp:redtip style="position:relative;margin-left:53px;margin-top:-74px;" onupdate='<%%= HasMsgCenterUnReadMsg()%%>' ></kp:redtip>
         ]],"");
     elseif (id == "user_tip") then
-        if not DockPage.hasOpenTaskPage then
+        -- 任务
+
+        if DockPage.isShowTaskIconEffect then
             -- 判断下是否有未完成的任务
             -- 日常任务
             local is_all_task_complete = DailyTaskManager.IsAllTaskComplete()
-            -- 任务
             local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
-            local quest_datas = QuestProvider:GetInstance():GetQuestItems() or {}
-            for i, v in ipairs(quest_datas) do
-                if not v.questItemContainer:IsFinished() then
-                    is_all_task_complete = false
-                    break
+            if QuestProvider:GetInstance().questItemContainer_map then
+                local quest_datas = QuestProvider:GetInstance():GetQuestItems() or {}
+                for i, v in ipairs(quest_datas) do
+                    -- 有可以领取任务的时候
+        
+                    if not v.questItemContainer:IsFinished() then
+                        is_all_task_complete = false
+                        break
+                    end
                 end
             end
-
             if not is_all_task_complete then
                 bg = ""
                 tip_str = [[
