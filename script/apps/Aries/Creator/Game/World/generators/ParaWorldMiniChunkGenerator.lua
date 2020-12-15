@@ -138,6 +138,9 @@ function ParaWorldMiniChunkGenerator:OnLoadWorld()
 		self:OnLockTimer()
 	end})
 	self.lock_timer:Change(1000, 1000);
+
+	local ParaWorldUserInfo = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldUserInfo.lua");
+	ParaWorldUserInfo.ShowInMiniWorld();
 end
 
 function ParaWorldMiniChunkGenerator:ShowCreateFromTemplateWnd(delay)
