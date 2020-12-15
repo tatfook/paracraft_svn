@@ -13,3 +13,6 @@ local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.
 
 -- https://api.keepwork.com/core/v0/projects?userId=3
 HttpWrapper.Create("keepwork.project.list", "%MAIN%/core/v0/projects", "GET", true);
+
+--https://api.keepwork.com/core/v0/projects/favorite
+HttpWrapper.Create("keepwork.project.list_favorite", "%MAIN%/core/v0/projects/favorite", "GET", true);
