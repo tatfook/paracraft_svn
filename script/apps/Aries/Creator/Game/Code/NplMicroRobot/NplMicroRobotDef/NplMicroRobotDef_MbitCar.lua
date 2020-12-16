@@ -80,21 +80,71 @@ NPL.export({
     ]]}},
 },
 
+
 {
-	type = "mbit_小车类.RGB_Car_Program", 
-	message0 = L"七彩流水灯",
+	type = "mbit_传感器类.Ultrasonic", 
+	message0 = L"超声波 发射管脚 %1 接收管脚 %2",
+    arg0 = {
+        {
+			name = "op_1",
+			type = "field_dropdown",
+			options = {
+				{ L"P0", "P0" },
+				{ L"P1", "P1" },
+				{ L"P2", "P2" },
+				{ L"P3", "P3" },
+				{ L"P4", "P4" },
+				{ L"P5", "P5" },
+				{ L"P6", "P6" },
+				{ L"P7", "P7" },
+				{ L"P8", "P8" },
+				{ L"P9", "P9" },
+				{ L"P10", "P10" },
+				{ L"P11", "P11" },
+				{ L"P12", "P12" },
+				{ L"P13", "P13" },
+				{ L"P14", "P14" },
+				{ L"P15", "P15" },
+				{ L"P16", "P16" },
+			},
+		},
+        {
+			name = "op_2",
+			type = "field_dropdown",
+			options = {
+				{ L"P0", "P0" },
+				{ L"P1", "P1" },
+				{ L"P2", "P2" },
+				{ L"P3", "P3" },
+				{ L"P4", "P4" },
+				{ L"P5", "P5" },
+				{ L"P6", "P6" },
+				{ L"P7", "P7" },
+				{ L"P8", "P8" },
+				{ L"P9", "P9" },
+				{ L"P10", "P10" },
+				{ L"P11", "P11" },
+				{ L"P12", "P12" },
+				{ L"P13", "P13" },
+				{ L"P14", "P14" },
+				{ L"P15", "P15" },
+				{ L"P16", "P16" },
+			},
+		},
+	},
     output = {type = "null",},
 	category = "NplMicroRobot.MbitCar", 
 	helpUrl = "", 
 	canRun = false,
-	funcName = "mbit_小车类.RGB_Car_Program",
-	func_description = 'mbit_小车类.RGB_Car_Program()',
+	funcName = "mbit_传感器类.Ultrasonic",
+	func_description = 'mbit_传感器类.Ultrasonic(DigitalPin.%s, DigitalPin.%s)',
 	ToNPL = function(self)
 		return ""
 	end,
 	examples = {{desc = "", canRun = true, code = [[
     ]]}},
 },
+
 
 {
 	type = "mbit_小车类.Ultrasonic_Car", 
@@ -111,52 +161,6 @@ NPL.export({
 	examples = {{desc = "", canRun = true, code = [[
     ]]}},
 },
-
-{
-	type = "mbit_小车类.Music_Car", 
-	message0 = L"小车音乐播放%1",
-    arg0 = {
-        {
-			name = "op",
-			type = "field_dropdown",
-			options = {
-				{ L"dadadum", "dadadum" },
-                { L"entertainer", "entertainer" },
-                { L"prelude", "prelude" },
-                { L"ode", "ode" },
-                { L"nyan", "nyan" },
-                { L"ringtone", "ringtone" },
-                { L"funk", "funk" },
-                { L"blues", "blues" },
-                { L"birthday", "birthday" },
-                { L"wedding", "wedding" },
-                { L"funereal", "funereal" },
-                { L"punchline", "punchline" },
-                { L"baddy", "baddy" },
-                { L"chase", "chase" },
-                { L"ba_ding", "ba_ding" },
-                { L"wawawawaa", "wawawawaa" },
-                { L"jump_up", "jump_up" },
-                { L"jump_down", "jump_down" },
-                { L"power_up", "power_up" },
-                { L"power_down", "power_down" },
-			},
-		},
-	},
-    previousStatement = true,
-	nextStatement = true,
-	category = "NplMicroRobot.MbitCar", 
-	helpUrl = "", 
-	canRun = false,
-	funcName = "mbit_小车类.Music_Car",
-	func_description = 'mbit_小车类.Music_Car(mbit_小车类.enMusic.%s)',
-	ToNPL = function(self)
-		return "";
-	end,
-	examples = {{desc = "", canRun = true, code = [[
-    ]]}},
-},
-
 
 {
 	type = "mbit_小车类.Servo_Car", 
