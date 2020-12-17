@@ -33,6 +33,7 @@ function QuestItemTemplate:ctor()
     self.desc = nil;
     self.goto_world = nil; -- ["ONLINE","RELEASE","LOCAL"]
     self.click = nil;
+    self.task_type = nil; --main branch loop
 end
 function QuestItemTemplate:GetUniqueKey()
     local key = string.format("%s_%s",tostring(self.gsid), tostring(self.id));
@@ -49,6 +50,7 @@ function QuestItemTemplate:GetData()
         desc = self.desc,
         goto_world = self.goto_world,
         click = self.click,
+        task_type = self.task_type,
     }
     return data;
 end

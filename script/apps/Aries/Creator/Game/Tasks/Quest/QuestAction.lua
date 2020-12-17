@@ -26,13 +26,13 @@ GameLogic.QuestAction.GetValue(id);
 GameLogic.QuestAction.DoFinish(quest_gsid);
 
 
--- ÉèÖÃÈÎÎñÄ¿±ê"60001_1"µÄÖµÎª:1
+-- è®¾ç½®ä»»åŠ¡ç›®æ ‡"60001_1"çš„å€¼ä¸º:1
 GameLogic.QuestAction.SetValue("60001_1",1);
 
--- »ñÈ¡ÈÎÎñÄ¿±ê"60001_1"µÄÖµ
+-- è·å–ä»»åŠ¡ç›®æ ‡"60001_1"çš„å€¼
 GameLogic.QuestAction.GetValue("60001_1");
 
--- Íê³ÉÈÎÎñ60001
+-- å®Œæˆä»»åŠ¡60001
 GameLogic.QuestAction.DoFinish(60001);
 
 if(GameLogic.QuestAction and GameLogic.QuestAction.SetValue)then
@@ -91,3 +91,42 @@ function QuestAction.DoFinish(quest_gsid)
     end
 end
 
+function QuestAction.OpenPage(name)
+    if name == 'certificate' then
+        GameLogic.GetFilters():apply_filters('show_certificate', function()
+            QuestAction.AchieveTask("40002_1", 1, true)
+        end);
+    elseif name == 'school' then
+        local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
+        MySchool:ShowJoinSchool(function()
+            QuestAction.AchieveTask("40003_1", 1, true)
+        end)
+    elseif name == 'region' then
+        local profile = KeepWorkItemManager.GetProfile()
+        local Page = NPL.load("Mod/GeneralGameServerMod/UI/Page.lua");
+        Page.Show({
+            UserRegion = profile.region,
+            userId = profile.id,
+            confirm = function(region)
+                if region and region.hasChildren == 0 then
+                    GameLogic.QuestAction.AchieveTask("40004_1", 1, true)
+                end
+            end
+        }, {
+            url = "%vue%/Page/User/AreaSelect.html",
+            width = 500,
+            height = 242,
+            draggable = false,
+        });
+    end
+end
+
+function QuestAction.AchieveTask(task_id, value, fresh_dock)
+    QuestAction.SetValue(task_id, value);
+
+    if fresh_dock then
+        local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+        DockPage.isShowTaskIconEffect = true
+        DockPage.page:Refresh(0.01)
+    end
+end

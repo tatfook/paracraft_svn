@@ -60,6 +60,11 @@ QuestPage.GiftData = {
 	{is_catch = false, catch_value = 100, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
 }
 
+local ShowRewardIdList = {
+	[998] = 1,
+	[888] = 1,
+}
+
 local VersionToKey = {
 	ONLINE = 1,
 	RELEASE = 2,
@@ -96,6 +101,7 @@ end
 function QuestPage.RefreshData()
 	QuestPage.HandleTaskData()
 	QuestPage.HandleGiftData()
+	QuestPage.CheckIsTaskCompelete()
 	QuestPage.OnRefresh()
 end
 
@@ -109,6 +115,10 @@ function QuestPage.ShowView()
 	-- 	return
 	-- end
 
+	QuestPage.HandleTaskData()
+	QuestPage.HandleGiftData()
+	QuestPage.CheckIsTaskCompelete()
+	
 	if not QuestPage.is_add_event then
 		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
 			if not page then
@@ -124,9 +134,6 @@ function QuestPage.ShowView()
 
 		QuestPage.is_add_event = true
 	end
-
-	QuestPage.HandleTaskData()
-	QuestPage.HandleGiftData()
 	
 
 	QuestPage.isOpen = true
@@ -277,13 +284,15 @@ function QuestPage.HandleTaskData(data)
 		task_data.task_desc = desc
 		task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v)
 		task_data.task_state = QuestPage.GetTaskStateByQuest(v)
-		task_data.is_main_task = true
+		task_data.task_type = QuestPage.GetTaskType(v)
+		task_data.is_main_task = task_data.task_type == "main"
+
 		task_data.bg_img = QuestPage.GetBgImg(task_data)
 		task_data.questItemContainer = v.questItemContainer
 		-- 限定最多1个
 		task_data.goods_data = {}
 		for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
-			if v.goods.gsId == 998 then
+			if ShowRewardIdList[v.goods.gsId] then
 				task_data.goods_data[#task_data.goods_data + 1] = v
 			end
 		end
@@ -293,53 +302,53 @@ function QuestPage.HandleTaskData(data)
 	end
 
 	---------------------------------------这块代码使用的是旧版的任务数据---------------------------------------
-	local task_id_list = DailyTaskManager.GetTaskIdList()
-	local id_list = {}
-	for k, v in pairs(task_id_list) do
-		id_list[#id_list + 1] = v
-	end
-	table.sort(id_list, function(a, b)
-		return b > a
-	end)
-	for k, v in pairs(id_list) do
-		-- 获取兑换规则
-		local exid = DailyTaskManager.GetTaskExidByTaskId(v)
-		if exid ~= 0 then
-			local index = #QuestPage.TaskData + 1
-			local task_data = {}
-			local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(exid)
-			local name = exchange_data.name
-			local desc = exchange_data.desc
-			if v == DailyTaskManager.task_id_list.GrowthDiary then
-				name = "成长日记"
-				desc = "成长日记"
-			end
-			-- if v == DailyTaskManager.task_id_list.NewPlayerGuid then
-			-- 	name = "完成新手引导"
-			-- 	desc = "完成新手引导"
-			-- end
+	-- local task_id_list = DailyTaskManager.GetTaskIdList()
+	-- local id_list = {}
+	-- for k, v in pairs(task_id_list) do
+	-- 	id_list[#id_list + 1] = v
+	-- end
+	-- table.sort(id_list, function(a, b)
+	-- 	return b > a
+	-- end)
+	-- for k, v in pairs(id_list) do
+	-- 	-- 获取兑换规则
+	-- 	local exid = DailyTaskManager.GetTaskExidByTaskId(v)
+	-- 	if exid ~= 0 then
+	-- 		local index = #QuestPage.TaskData + 1
+	-- 		local task_data = {}
+	-- 		local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(exid)
+	-- 		local name = exchange_data.name
+	-- 		local desc = exchange_data.desc
+	-- 		if v == DailyTaskManager.task_id_list.GrowthDiary then
+	-- 			name = "成长日记"
+	-- 			desc = "成长日记"
+	-- 		end
+	-- 		-- if v == DailyTaskManager.task_id_list.NewPlayerGuid then
+	-- 		-- 	name = "完成新手引导"
+	-- 		-- 	desc = "完成新手引导"
+	-- 		-- end
 
-			desc = ""
-			task_data.name = name
-			task_data.task_id = v
-			task_data.task_desc = desc
-			task_data.task_pro_desc = QuestPage.GetTaskProDesc(v)
-			task_data.task_state = QuestPage.GetTaskState(v)
-			task_data.is_main_task = false
-			task_data.bg_img = QuestPage.GetBgImg(task_data)
+	-- 		desc = ""
+	-- 		task_data.name = name
+	-- 		task_data.task_id = v
+	-- 		task_data.task_desc = desc
+	-- 		task_data.task_pro_desc = QuestPage.GetTaskProDesc(v)
+	-- 		task_data.task_state = QuestPage.GetTaskState(v)
+	-- 		task_data.is_main_task = false
+	-- 		task_data.bg_img = QuestPage.GetBgImg(task_data)
 	
-			-- 限定最多1个
-			task_data.goods_data = {}
-			for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
-				if v.goods.gsId == 998 then
-					task_data.goods_data[#task_data.goods_data + 1] = v
-				end
-			end
-			-- print("aaaaaaaaaaaaaaaaaa", v)
-			-- echo(task_data.goods_data, true)
-			QuestPage.TaskData[index] = task_data
-		end
-	end
+	-- 		-- 限定最多1个
+	-- 		task_data.goods_data = {}
+	-- 		for i, v in ipairs(exchange_data.exchangeTargets[1].goods) do
+	-- 			if v.goods.gsId == 998 then
+	-- 				task_data.goods_data[#task_data.goods_data + 1] = v
+	-- 			end
+	-- 		end
+	-- 		-- print("aaaaaaaaaaaaaaaaaa", v)
+	-- 		-- echo(task_data.goods_data, true)
+	-- 		QuestPage.TaskData[index] = task_data
+	-- 	end
+	-- end
 
 	---------------------------------------这块代码使用的是旧版的任务数据/end---------------------------------------
 end
@@ -486,6 +495,9 @@ function QuestPage.GetReard(task_id)
 	if quest_data then
 		quest_data.questItemContainer:DoFinish()
 	end
+
+    local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+    DockPage.page:Refresh(0.01)
 end
 
 function QuestPage.Goto(task_id)
@@ -500,13 +512,15 @@ function QuestPage.Goto(task_id)
 			local childrens = questItemContainer.children or {}
 		
 			for i, v in ipairs(childrens) do
-				if v.template.goto_world then
+				if v.template.goto_world and #v.template.goto_world > 0 then
 					local world_id = v.template.goto_world[target_index]
 					if world_id then
 						QuestPage.EnterWorld(world_id)
 					end
 
 					break
+				elseif v.template.click and v.template.click ~= "" then
+					NPL.DoString(v.template.click)
 				end
 				-- echo(v, true)
 			end
@@ -521,4 +535,39 @@ function QuestPage.GetQuestData(task_id)
 			return v
 		end
 	end
+end
+
+function QuestPage.GetTaskType(data)
+	local childrens = data.questItemContainer.children
+	for i, v in ipairs(childrens) do
+		if v.template.task_type then
+			return v.template.task_type
+		end
+	end
+end
+
+function QuestPage.IsOpen()
+	if nil == page then
+		return false
+	end
+
+	return page:IsVisible()
+end
+
+function QuestPage.CheckIsTaskCompelete()
+    local profile = KeepWorkItemManager.GetProfile()
+    -- 是否实名认证
+   if GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
+        GameLogic.QuestAction.SetValue("40002_1",1);
+   end 
+
+   -- 是否选择了学校
+   if profile and profile.schoolId and profile.schoolId > 0 then
+        GameLogic.QuestAction.SetValue("40003_1",1);
+   end
+
+   -- 是否已选择了区域
+   if profile and profile.region and profile.region.hasChildren == 0 then
+        GameLogic.QuestAction.SetValue("40004_1",1);
+   end
 end

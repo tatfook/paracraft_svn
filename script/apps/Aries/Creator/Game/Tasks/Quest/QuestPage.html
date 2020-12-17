@@ -106,11 +106,17 @@ function OnClikcGift(name, mcmlNode)
     local param = mcmlNode:GetAttribute("param1")
 end
 
+function IsNotTask()
+    return #QuestPage.TaskData == 0
+end
+
 ]]></script>
 <kp:window name="iframe" width="960" height="450" icon="Texture/Aries/Creator/keepwork/Quest/biaoti_renwu2_32bits.png#0 0 142 64"   onclose="ClosePage">
     <div style="color:#ffffff;width:960;height:630px" class="kp_window_container">
         <!-- <div style="color: #101010;margin-left: 15px;margin-top: 12px;width: 661px;height: 23px; background: Texture/Aries/Creator/keepwork/Quest/zi_renwu_661X23_32bits.png#0 0 661 23;"></div> -->
-
+        <pe:if condition='<%=IsNotTask()%>'>
+            <div style="margin-top: 140px;margin-left: 360px; width: 277px;height: 87px;background:Texture/Aries/Creator/keepwork/Quest/zi_zanshi_277X87_32bits.png#0 0 277 87;"></div>
+        </pe:if>
         <div type ="box" style="width:960px;height:400px;margin-left: 4px;margin-top: 0px;float: left;">
              <pe:gridview style="margin:0px;width:960px;height:400px;float:left" RememberScrollPos="true" name="item_gridview" CellPadding="6" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="8" AllowPaging="false" ItemsPerLine="1" DefaultNodeHeight = "35" 
                  DataSource='<%=Button_DS_Items%>'>
@@ -119,12 +125,12 @@ end
                             <div style="position:relative;margin-left:0px;margin-top:0px;">
                                 <img zorder="-1" src='<%=Eval("bg_img") %>'width="926" height="90"/>
                             </div>
+                            <pe:if condition='<%=Eval("is_main_task")%>'>
+                                <div style="position:relative;margin-top: -1px;margin-left: -2px; width: 69px;height: 62px; background: Texture/Aries/Creator/keepwork/Quest/zhuxian_69X62_32bits.png#0 0 69 62;"></div>
+                            </pe:if>
                             <div style="width: 430px; height:90px; float: left;">
                                 <div style="width: 430px; height:45px;">
-                                    <div style="base-font-size:20px; font-size:20px; margin-left: 18px; margin-top: 16px;color:#000000;float: left;font-weight: bold;"><%=Eval("name") %></div>
-                                    <pe:if condition='<%=Eval("is_main_task")%>'>
-                                        <div style="margin-top: 18px;margin-left: 5px; width: 26px;height: 23px; background: Texture/Aries/Creator/keepwork/Quest/xing_26X23_32bits.png#0 0 26 23;float: left;"></div>
-                                    </pe:if>
+                                    <div style="base-font-size:20px; font-size:20px; margin-left: 45px; margin-top: 16px;color:#000000;float: left;font-weight: bold;"><%=Eval("name") %></div>
                                     
                                 </div>
                                 
@@ -169,7 +175,7 @@ end
                                     <div style="margin-top: 18px;margin-left: 50px; width: 60px;height: 58px;background:Texture/Aries/Creator/keepwork/Quest/yiwancheng_60X58_32bits.png#0 0 60 58;"></div>
                                 </pe:if>
                                 <pe:if condition = '<%=Eval("task_state") == 3%>'>
-                                    <input type="button" value="前往" onclick="Goto" param1 = '<%=Eval("task_id") %>' style="base-font-size:24px;font-size: 24px; margin-left: 10px; margin-top: 20px;width: 134px;height: 54px; background:url(Texture/Aries/Creator/keepwork/Quest/btn_hui_134X54_32bits.png#0 0 134 54)" />
+                                    <input type="button" value="前往" onclick="Goto" param1 = '<%=Eval("task_id") %>' style="base-font-size:24px;font-size: 24px; margin-left: 10px; margin-top: 20px;width: 134px;height: 54px; background:url(Texture/Aries/Creator/keepwork/Quest/btn_lvse_134X54_32bits.png#0 0 134 54)" />
                                 </pe:if>
                             </div>
                          </div>

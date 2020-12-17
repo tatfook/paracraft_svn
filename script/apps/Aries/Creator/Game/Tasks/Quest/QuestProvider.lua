@@ -4,14 +4,14 @@ Author(s): leio
 Date: 2020/12/8
 use the lib:
 ------------------------------------------------------------
-NOTE£∫
+NOTEÔºö
 Quest Item is in UserBagNo 1005, gsid start from 60000
 ExID from 40000 to 49999
 ------------------------------------------------------------------------------------------------------------------------
-extra in ∂“ªªπÊ‘Ú
+extra in ÂÖëÊç¢ËßÑÂàô
 {
   "preconditions": [
-    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, "goto_world": [29477,1376,1376], "click":"" },
+    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, "goto_world": [29477,1376,1376], "click":"" , "task_type":"main"},
     { "id": "60003_2", "title": "", "desc": "", "finished_value": "abc" },
     { "id": "60003_3", "title": "", "desc": "", "finished_value": 5 }
   ]
@@ -274,6 +274,7 @@ function QuestProvider:FillQuestItemTemplateBy_Virtual_Condition(exid)
                     quest_template.desc = v.desc;
                     quest_template.goto_world = v.goto_world;
                     quest_template.click = v.click;
+                    quest_template.task_type = v.task_type;
                     self:AddQuestItemTemplate(quest_template);
                 end
             end
