@@ -124,7 +124,7 @@ function QuestAction.OpenPage(name)
         }, {
             url = "%vue%/Page/User/AreaSelect.html",
             width = 500,
-            height = 242,
+            height = 342,
             draggable = false,
         });
     end
