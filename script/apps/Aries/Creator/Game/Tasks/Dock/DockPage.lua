@@ -236,7 +236,16 @@ function DockPage.OnClick(id)
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.friends");
         return
     elseif(id == "school")then
-        last_page_ctrl = GameLogic.GetFilters():apply_filters('show_school_page');
+        last_page_ctrl = GameLogic.GetFilters():apply_filters('cellar.my_school.after_selected_school', function ()
+            
+            KeepWorkItemManager.LoadProfile(false, function()
+                local profile = KeepWorkItemManager.GetProfile()
+                -- 是否选择了学校
+                if profile and profile.schoolId and profile.schoolId > 0 then
+                    GameLogic.QuestAction.AchieveTask("40003_1", 1, true)
+                end
+            end)
+        end);
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.school");
     elseif(id == "system")then
         DockPage.OnClick_system_menu();

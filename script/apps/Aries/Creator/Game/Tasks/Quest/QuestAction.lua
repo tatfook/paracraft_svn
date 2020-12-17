@@ -93,13 +93,22 @@ end
 
 function QuestAction.OpenPage(name)
     if name == 'certificate' then
-        GameLogic.GetFilters():apply_filters('show_certificate', function()
-            QuestAction.AchieveTask("40002_1", 1, true)
+        GameLogic.GetFilters():apply_filters('show_certificate', function(result)
+            if result then
+                QuestAction.AchieveTask("40002_1", 1, true)
+            end
+            
         end);
     elseif name == 'school' then
         local MySchool = NPL.load("(gl)Mod/WorldShare/cellar/MySchool/MySchool.lua")
         MySchool:ShowJoinSchool(function()
-            QuestAction.AchieveTask("40003_1", 1, true)
+            KeepWorkItemManager.LoadProfile(false, function()
+                local profile = KeepWorkItemManager.GetProfile()
+                -- 是否选择了学校
+                if profile and profile.schoolId and profile.schoolId > 0 then
+                    GameLogic.QuestAction.AchieveTask("40003_1", 1, true)
+                end
+            end)
         end)
     elseif name == 'region' then
         local profile = KeepWorkItemManager.GetProfile()
