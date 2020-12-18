@@ -354,31 +354,6 @@ function QuestPage.HandleTaskData(data)
 end
 
 function QuestPage.GetTaskProDesc(task_id)
-	-- local childrens = data.questItemContainer.children
-	-- echo(childrens, true)
-	-- local desc = ""
-	-- childrens = {
-	-- 	{template = {desc = "跑一跑"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "跳一跳"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "走一走"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "走一走"},value = 1,finished_value = "哈哈哈哈",},
-	-- }
-
-	-- for i, v in ipairs(childrens) do
-	-- 	local child_task_desc = ""
-	-- 	if type(v.finished_value) == "number" then
-	-- 		child_task_desc = string.format("%s: %s/%s", v.template.desc, v.value, v.finished_value)
-	-- 	else
-	-- 		child_task_desc = v.finished_value
-	-- 	end
-		
-	-- 	local div_desc = [[
-	-- 		<div>%s</div>
-	-- 	]]
-	-- 	desc = desc .. string.format(div_desc, child_task_desc)
-	-- end
-	-- print("dddddddddddddddddddddddddddd", desc)
-
 	task_id = task_id or "0"
 	local task_data = DailyTaskManager.GetTaskData(task_id)
 	local complete_times = task_data.complete_times or 0
@@ -408,12 +383,6 @@ function QuestPage.GetTaskProDescByQuest(data)
 	-- print("gggggggggggggggggggggggg", #childrens)
 	-- echo(childrens, true)
 	local desc = ""
-	-- childrens = {
-	-- 	{template = {desc = "跑一跑"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "跳一跳"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "走一走"},value = 1,finished_value = 10,},
-	-- 	{template = {desc = "走一走"},value = 1,finished_value = "哈哈哈哈",},
-	-- }
 
 	for i, v in ipairs(childrens) do
 		local child_task_desc = ""
@@ -424,7 +393,12 @@ function QuestPage.GetTaskProDescByQuest(data)
 			if v.template.desc and v.template.desc ~= "" then
 				temp_desc = v.template.desc .. ": "
 			end
-			child_task_desc = string.format("%s%s/%s", temp_desc, value, v.finished_value)
+
+			local value_desc = string.format("%s/%s", value, v.finished_value)
+			if v.template.custom_show == true then
+				value_desc = GameLogic.QuestAction.GetLabel(v.template.id, v);
+			end
+			child_task_desc = string.format("%s%s", temp_desc, value_desc)
 		else
 			child_task_desc = v.finished_value
 		end
@@ -432,6 +406,7 @@ function QuestPage.GetTaskProDescByQuest(data)
 		local div_desc = [[
 			<div>%s</div>
 		]]
+
 		desc = desc .. string.format(div_desc, child_task_desc)
 	end
 

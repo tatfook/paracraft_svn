@@ -139,13 +139,20 @@ function QuestAction.AchieveTask(task_id, value, fresh_dock)
         DockPage.page:Refresh(0.01)
     end
 end
-function QuestAction.GetLabel(task_id)
+function QuestAction.GetLabel(task_id, task_data)
     if(not task_id)then
         return
     end
     if(task_id == "60001_1")then
-        return QuestAction.GetLabel_60001(task_id)
+        return QuestAction.GetLabel_60001_1(task_id, task_data)
     end
 end
-function QuestAction.GetLabel_60001(task_id)
+function QuestAction.GetLabel_60001_1(task_id, task_data)
+    if task_data == nil then
+        return
+    end
+    
+    local value = task_data.value == 52 and 1 or 0
+    local finished_value = 1
+    return string.format("%s/%s", value, finished_value)
 end
