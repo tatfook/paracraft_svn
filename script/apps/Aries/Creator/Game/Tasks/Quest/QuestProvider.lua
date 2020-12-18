@@ -11,7 +11,7 @@ ExID from 40000 to 49999
 extra in 兑换规则
 {
   "preconditions": [
-    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, "goto_world": [29477,1376,1376], "click":"" , "task_type":"main"},
+    { "id": "60003_1", "title": "", "desc": "", "finished_value": 5, "goto_world": [29477,1376,1376], "click":"" , "task_type":"main", "custom_show": true, },
     { "id": "60003_2", "title": "", "desc": "", "finished_value": "abc" },
     { "id": "60003_3", "title": "", "desc": "", "finished_value": 5 }
   ]

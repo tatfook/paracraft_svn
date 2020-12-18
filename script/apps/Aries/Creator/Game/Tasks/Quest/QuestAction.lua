@@ -139,3 +139,13 @@ function QuestAction.AchieveTask(task_id, value, fresh_dock)
         DockPage.page:Refresh(0.01)
     end
 end
+function QuestAction.GetLabel(task_id)
+    if(not task_id)then
+        return
+    end
+    if(task_id == "60001_1")then
+        return QuestAction.GetLabel_60001(task_id)
+    end
+end
+function QuestAction.GetLabel_60001(task_id)
+end
