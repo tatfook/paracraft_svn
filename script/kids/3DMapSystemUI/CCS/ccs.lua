@@ -96,7 +96,7 @@ if(not CCS.ApplyCCSInfoString) then
 		end	
 	end
 end
-
+CCS.ApplyCCSInfoString_MC = CCS.ApplyCCSInfoString;
 function Map3DSystem.UI.CCS.LoadIdentityInfo()
 	local identity = {
 		["characterslot_info"] = {
