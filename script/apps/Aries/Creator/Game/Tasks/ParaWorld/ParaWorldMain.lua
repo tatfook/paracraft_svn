@@ -47,8 +47,7 @@ function ParaWorldMain:OnWorldLoaded()
 		self:ShowAllAreas()
 	end
 
-	local generatorName = WorldCommon.GetWorldTag("world_generator");
-	if (generatorName ~= "paraworld") then
+	if (self:IsMiniWorld()) then
 		local ParaWorldUserInfo = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldUserInfo.lua");
 		ParaWorldUserInfo.ShowInMiniWorld();
 	end
