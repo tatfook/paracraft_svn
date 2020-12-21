@@ -834,6 +834,13 @@ function BaseContext:handlePlayerKeyEvent(event)
 			-- fly mode
 			if(GameMode:CanFly()) then
 				GameLogic.ToggleFly();
+			else
+				GameLogic.GetFilters():apply_filters("VipNotice", true, function()
+					local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+					if (KeepWorkItemManager.IsVip()) then
+						GameLogic.options:SetCanJumpInAir(true);
+					end
+				end);
 			end
 			event:accept();
 		elseif(dik_key == "DIK_B") then
