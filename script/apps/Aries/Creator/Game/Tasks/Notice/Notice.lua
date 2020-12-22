@@ -56,7 +56,7 @@ function Notice.GetPageData(data)
         table.insert(Notice.tblNoticeDt,temp);
     end
     Notice.nDataNum = #Notice.tblNoticeDt
-    -- commonlib.echo(Notice.tblNoticeDt,true)
+    commonlib.echo(Notice.tblNoticeDt,true)
 end
 
 function Notice.GetTimeStamp(strTime)
@@ -156,15 +156,18 @@ function Notice.RenderGridView()
 
 end
 
-function Notice.RenderBgImg(index)
-    local strBg = string.format("%s#0 0 630 376",Notice.tblNoticeDt[index].cover);
-    local s = string.format([[
-        <img zorder="-1" src='%s' width="630" height="376"/>]],strBg);
-    return s
+function Notice.getCover(index)
+    return Notice.tblNoticeDt[index].cover
 end
 
 --点击公告图片，此处需要添加埋点事件
 function Notice.OnImageBgClick()
+    local name = Notice.tblNoticeDt[Notice.nSelectIndex].name
+    if name == "帮爷爷找帽子" then
+        local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
+        ActRedhatExchange.ShowView()
+        return 
+    end
     local url = Notice.tblNoticeDt[Notice.nSelectIndex].url;
     if(url and #url ~= 0) then
         ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);

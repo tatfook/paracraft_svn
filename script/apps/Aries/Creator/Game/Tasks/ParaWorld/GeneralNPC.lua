@@ -21,6 +21,7 @@ local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local EntityNPC = commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntityNPC");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local GeneralNPC = commonlib.inherit(nil, commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.GeneralNPC"));
+local ActRedhat = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhat.lua")
 
 function GeneralNPC:ctor()
 end
@@ -201,7 +202,8 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 					local npc = GeneralNPC:new():Init("驯鹿", "character/v3/Elf/Female/ElfFemale.xml", x, y+1, z);
 					npc:SetClickFunction(function()
 						KeepWorkItemManager.DoExtendedCost(exid, function()
-							_guihelper.MessageBox(L"获得了一顶帽子~");
+							--_guihelper.MessageBox(L"获得了一顶帽子~");
+							ActRedhat.ShowPage()
 							if (not bOwn) then
 								clientData[key] = os.time();
 								KeepWorkItemManager.SetClientData(gsid, clientData);

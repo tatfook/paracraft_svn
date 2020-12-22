@@ -49,7 +49,7 @@ DockPage.top_line_3 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"", },
+    { label = L"寻找帽子", id = "find_hat", enabled3 = true, bg= "Texture/Aries/Creator/keepwork/ActRedhat/btn2_maozi_32bits.png#0 0 85 75"},
     { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", },
 }
 
@@ -175,6 +175,9 @@ function DockPage.OnClickTop(id)
                 end
             );
         end
+    elseif (id == 'find_hat') then
+        local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
+        ActRedhatExchange.ShowView()
     end
 end
 function DockPage.OnClick(id)
