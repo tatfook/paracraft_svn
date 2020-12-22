@@ -132,12 +132,9 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 
 	GameLogic.GetFilters():add_filter("OnEnterParaWorldGrid", ParaWorldChunkGenerator.OnEnterParaWorldGrid);
 
-	-- will show in activity day
-	--[[
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/GeneralNPC.lua");
 	local GeneralNPC = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.GeneralNPC");
 	self.christmas_timer = GeneralNPC.ShowChristmasHatNPC(self.christmas_timer);
-	]]
 end
 
 -- get params for generating flat terrain

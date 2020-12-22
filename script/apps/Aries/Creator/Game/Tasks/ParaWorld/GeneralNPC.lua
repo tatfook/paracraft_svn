@@ -199,7 +199,7 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 				for i = 1, interval do
 					local index = math.random((i-1)*frequency+1, i*frequency);
 					local x, y, z = positions[index][1], positions[index][2], positions[index][3]
-					local npc = GeneralNPC:new():Init("驯鹿", "character/v3/Elf/Female/ElfFemale.xml", x, y+1, z);
+					local npc = GeneralNPC:new():Init("驯鹿", "character/v5/02animals/Elk/Elk.x", x, y+1, z);
 					npc:SetClickFunction(function()
 						KeepWorkItemManager.DoExtendedCost(exid, function()
 							--_guihelper.MessageBox(L"获得了一顶帽子~");
@@ -209,7 +209,7 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 								KeepWorkItemManager.SetClientData(gsid, clientData);
 							end
 							KeepWorkItemManager.CheckExchange(exid, function(canExchange)
-								if (not canExchange.data) then
+								if (not canExchange.data and canExchange.data.ret) then
 									for i = 1, #npcList do
 										npcList[i]:DestroyNPC();
 									end
@@ -229,7 +229,7 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 			end});
 
 			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
-				if (canExchange.data) then
+				if (canExchange.data and canExchange.data.ret) then
 					local frequencyTime = 60 * 10;
 					local lastTime = clientData[key] or 0;
 					local currentTime = os.time();
