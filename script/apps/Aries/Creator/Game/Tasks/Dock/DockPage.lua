@@ -17,6 +17,7 @@ local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/G
 NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local Notice = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Notice/Notice.lua");
+local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
 local DockPage = NPL.export();
 local UserData = nil
 DockPage.FriendsFansData = nil
@@ -176,8 +177,9 @@ function DockPage.OnClickTop(id)
             );
         end
     elseif (id == 'find_hat') then
-        local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
-        ActRedhatExchange.ShowView()
+        if ActRedhatExchange then
+            ActRedhatExchange.ShowView()
+        end
     end
 end
 function DockPage.OnClick(id)
@@ -249,10 +251,10 @@ function DockPage.OnClick(id)
                 end
             end)
         end);
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.school");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.school");        
     elseif(id == "system")then
         DockPage.OnClick_system_menu();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.system");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.system");        
     elseif(id == "vip")then
         ParacraftLearningRoomDailyPage.OnVIP();
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.vip");
@@ -461,6 +463,16 @@ function DockPage.RenderButton_3(index)
                 </div>
                 <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
             ]],node.id,node.bg);
+        else
+            return ''
+        end
+    end
+    if(id == "find_hat") then
+        if ActRedhatExchange and ActRedhatExchange.CheckCanShow() then
+            return string.format([[
+                <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
+                %s
+            ]],node.id,node.bg,tip_str);
         else
             return ''
         end

@@ -56,9 +56,9 @@ function ActRedhatExchange.OnInit()
 end
 
 function ActRedhatExchange.CheckCanShow()
-    local day_time_stamp = os.time({year = 2021, month = 1, day = 5, hour=6, minute=0, second=0})
+    local day_time_stamp = os.time({year = 2021, month = 1, day = 6, hour=0, minute=0, second=0})
     local cur_time_stamp = os.time()
-    print("time=================",cur_time_stamp,day_time_stamp)
+    -- print("time=================",cur_time_stamp,day_time_stamp)
     if cur_time_stamp >= day_time_stamp then
         return false
     end
