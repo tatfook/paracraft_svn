@@ -208,12 +208,13 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 								clientData[key] = os.time();
 								KeepWorkItemManager.SetClientData(gsid, clientData);
 							end
-							bOwn,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gsid);
-							if (copies and copies == 200) then
-								for i = 1, #npcList do
-									npcList[i]:DestroyNPC();
+							KeepWorkItemManager.CheckExchange(exid, function(canExchange)
+								if (not canExchange.data) then
+									for i = 1, #npcList do
+										npcList[i]:DestroyNPC();
+									end
 								end
-							end
+							end);
 						end);
 					end);
 					npcList[#npcList + 1] = npc;
@@ -227,14 +228,18 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 				createNPC(interval);
 			end});
 
-			local frequencyTime = 60 * 10;
-			local lastTime = clientData[key] or 0;
-			local currentTime = os.time();
-			if (currentTime - lastTime > frequencyTime) then
-				christmas_timer:Change(1000, frequencyTime * 1000);
-			else
-				christmas_timer:Change(1000 * (frequencyTime - (currentTime - lastTime)), frequencyTime * 1000);
-			end
+			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
+				if (canExchange.data) then
+					local frequencyTime = 60 * 10;
+					local lastTime = clientData[key] or 0;
+					local currentTime = os.time();
+					if (currentTime - lastTime > frequencyTime) then
+						christmas_timer:Change(1000, frequencyTime * 1000);
+					else
+						christmas_timer:Change(1000 * (frequencyTime - (currentTime - lastTime)), frequencyTime * 1000);
+					end
+				end
+			end);
 			return christmas_timer;
 		end
 	end
