@@ -73,7 +73,7 @@ function GeneralNPC:DestroyNPC()
 	end
 end
 
-function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
+function GeneralNPC.ShowChristmasHatNPC()
 	local positions = {};
 	local projectId = GameLogic.options:GetProjectId();
 	if (projectId == tostring(ParaWorldLoginAdapter.GetDefaultWorldID())) then
@@ -214,7 +214,7 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 				for i = 1, interval do
 					local index = math.random((i-1)*frequency+1, i*frequency);
 					local x, y, z = positions[index][1], positions[index][2], positions[index][3]
-					local npc = GeneralNPC:new():Init("驯鹿", "character/v5/02animals/Elk/Elk.x", x, y+1, z);
+					local npc = GeneralNPC:new():Init(L"驯鹿", "character/v5/02animals/Elk/Elk.x", x, y+1, z);
 					npc:SetClickFunction(function()
 						KeepWorkItemManager.DoExtendedCost(exid, function()
 							--_guihelper.MessageBox(L"获得了一顶帽子~");
@@ -239,23 +239,21 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 				KeepWorkItemManager.SetClientData(gsid, clientData);
 			end
 
-			christmas_timer = christmas_timer or commonlib.Timer:new({callbackFunc = function(timer)
-				createNPC(interval);
-			end});
-
 			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
 				if (canExchange.data and canExchange.data.ret) then
+					GeneralNPC.christmas_timer = GeneralNPC.christmas_timer or commonlib.Timer:new({callbackFunc = function(timer)
+						createNPC(interval);
+					end});
 					local frequencyTime = 60 * 60;
 					local lastTime = clientData[key] or 0;
 					local currentTime = os.time();
 					if (currentTime - lastTime > frequencyTime) then
-						christmas_timer:Change(1000, frequencyTime * 1000);
+						GeneralNPC.christmas_timer:Change(1000, frequencyTime * 1000);
 					else
-						christmas_timer:Change(1000 * (frequencyTime - (currentTime - lastTime)), frequencyTime * 1000);
+						GeneralNPC.christmas_timer:Change(1000 * (frequencyTime - (currentTime - lastTime)), frequencyTime * 1000);
 					end
 				end
 			end);
-			return christmas_timer;
 		end
 	end
 end

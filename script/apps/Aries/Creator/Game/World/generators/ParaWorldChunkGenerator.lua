@@ -66,8 +66,12 @@ function ParaWorldChunkGenerator:OnExit()
 	if(self.lock_timer) then
 		self.lock_timer:Change();
 	end
-	if (self.christmas_timer) then
-		self.christmas_timer:Change();
+
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/GeneralNPC.lua");
+	local GeneralNPC = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.GeneralNPC");
+	if (GeneralNPC.christmas_timer) then
+		commonlib.echo("GeneralNPC.christmas_timer:Change");
+		GeneralNPC.christmas_timer:Change();
 	end
 end
 
@@ -134,7 +138,7 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/GeneralNPC.lua");
 	local GeneralNPC = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.GeneralNPC");
-	self.christmas_timer = GeneralNPC.ShowChristmasHatNPC(self.christmas_timer);
+	GeneralNPC.ShowChristmasHatNPC();
 end
 
 -- get params for generating flat terrain
