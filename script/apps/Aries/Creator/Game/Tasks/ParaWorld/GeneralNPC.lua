@@ -118,6 +118,11 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 			{19253,13,19311},
 			{19092,20,19246},
 			{19101,30,19154},
+			{19256,32,19152},
+			{19242,9,19220},
+			{19266,12,19224},
+			{19271,14,19241},
+			{19319,16,19223},
 		};
 	elseif (projectId == "23501") then
 		positions = {
@@ -146,6 +151,11 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 			{19128,11,19289},
 			{19209,25,19106},
 			{19230,43,19234},
+			{19250,15,19131},
+			{19255,15,19153},
+			{19210,11,19252},
+			{19162,14,19211},
+			{19187,24,19213},
 		}
 	elseif (projectId == "23540") then
 		positions = {
@@ -174,12 +184,17 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 			{19192,29,19141},
 			{19247,29,19233},
 			{19215,32,19260},
+			{19188,11,19143},
+			{19173,44,19121},
+			{19173,21,19137},
+			{19255,49,19197},
+			{19254,26,19250},
 		}
 	end
 
 	if (GameLogic.GetFilters():apply_filters('is_signed_in')) then
 		local len = #positions;
-		local frequency = 5;
+		local frequency = 3;
 		local interval = len / frequency;
 		if (interval > 0) then
 			local exid = 30000;
@@ -230,7 +245,7 @@ function GeneralNPC.ShowChristmasHatNPC(christmas_timer)
 
 			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
 				if (canExchange.data and canExchange.data.ret) then
-					local frequencyTime = 60 * 10;
+					local frequencyTime = 60 * 60;
 					local lastTime = clientData[key] or 0;
 					local currentTime = os.time();
 					if (currentTime - lastTime > frequencyTime) then
