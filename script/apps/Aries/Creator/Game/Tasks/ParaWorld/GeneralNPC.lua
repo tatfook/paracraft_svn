@@ -248,14 +248,15 @@ function GeneralNPC.ShowChristmasHatNPC()
 							end);
 						else
 							KeepWorkItemManager.DoExtendedCost(exid, function()
-								npc:Say(word[math.random(1, 3)], 3000);
-								ActRedhat.ShowPage()
 								if (items) then
 									clientData[id_key] = items..","..id;
 								else
 									clientData[id_key] = id;
 								end
-								KeepWorkItemManager.SetClientData(gsid, clientData);
+								KeepWorkItemManager.SetClientData(gsid, clientData, function()
+									ActRedhat.ShowPage();
+								end);
+								npc:Say(word[math.random(1, 3)], 3000);
 							end);
 						end
 					end);
