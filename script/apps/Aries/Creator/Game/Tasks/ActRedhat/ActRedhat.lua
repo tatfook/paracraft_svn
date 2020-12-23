@@ -4,10 +4,11 @@
 ]]
 
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+local ParaWorldLoginAdapter = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.ParaWorldLoginAdapter");
 local ActRedhat = NPL.export()
 
 local hat_gisd = 90000
-local maxHatNum = 200
+local maxHatNum = 105
 local my_hat = 0
 local page
 
@@ -51,8 +52,33 @@ function ActRedhat.OnClickOk()
     end
 end
 
-function ActRedhat:getExcDesc()
-    local str = string.format("恭喜获得爷爷的帽子X1，当前拥有的帽子总数%d/%d",ActRedhat.getLeftHat(),maxHatNum)
-    return str
+function ActRedhat.getHatDescDefault()
+    local max = 45
+    return string.format( "创意空间 （%d/%d）",ActRedhat.getHatNum(1),max)
+end
+
+function ActRedhat.getHatDescShanghai()
+    local max = 30
+    return string.format( "上海市黄浦区 （%d/%d）",ActRedhat.getHatNum(2),max)
+end
+
+function ActRedhat.getHatDescLiyuan()
+    local max = 30
+    return string.format( "荔园小学 （%d/%d）",ActRedhat.getHatNum(3),max)
+end
+
+function ActRedhat.getHatNum(index)
+    local project = {tostring(ParaWorldLoginAdapter.GetDefaultWorldID()),"23501","23540"} 
+    local clientData = KeepWorkItemManager.GetClientData(hat_gisd) or {};
+
+    local id_key= "id"..project[index];
+    local items = clientData[id_key];
+    local datas = commonlib.split(items, ",");
+    local num = 0
+    if datas and type(datas) == "table" then
+        --print("0000000000000000000000111111111111111111")
+        num = #datas
+    end
+    return num
 end
 
