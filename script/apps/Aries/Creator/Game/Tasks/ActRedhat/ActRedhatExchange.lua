@@ -20,7 +20,7 @@ ActRedhatExchange.exchangeDatas =
         needhat = "2个",
         num = 2,
         itemId = 174,
-        icon = "Texture/Aries/Creator/keepwork/items/item_30002_32bits.png",
+        icon = "Texture/Aries/Creator/keepwork/items/exid_30001_32bits.png",
         isrepeat = true,
     },
     {
@@ -30,7 +30,7 @@ ActRedhatExchange.exchangeDatas =
         needhat = "10个",
         num = 10,
         itemId = 173,
-        icon = "Texture/Aries/Creator/keepwork/items/item_30001_32bits.png",
+        icon = "Texture/Aries/Creator/keepwork/items/exid_30002_32bits.png",
         isrepeat = true,
     },    
     {
@@ -40,7 +40,7 @@ ActRedhatExchange.exchangeDatas =
         needhat = "50个",
         num = 50,
         itemId = 175,
-        icon = "Texture/Aries/Creator/keepwork/items/item_30003_32bits.png",
+        icon = "Texture/Aries/Creator/keepwork/items/exid_30003_32bits.png",
         isrepeat = false,
     },
 }
