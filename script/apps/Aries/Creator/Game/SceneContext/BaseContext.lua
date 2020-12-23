@@ -835,12 +835,16 @@ function BaseContext:handlePlayerKeyEvent(event)
 			if(GameMode:CanFly()) then
 				GameLogic.ToggleFly();
 			else
-				GameLogic.GetFilters():apply_filters("VipNotice", true, function()
-					local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-					if (KeepWorkItemManager.IsVip()) then
-						GameLogic.options:SetCanJumpInAir(true);
+				_guihelper.MessageBox(L"需要开通会员才能在并行世界中飞行哦，快去开通会员吧！", function(res)
+					if(res and res == _guihelper.DialogResult.OK) then
+						GameLogic.GetFilters():apply_filters("VipNotice", true, function()
+							local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+							if (KeepWorkItemManager.IsVip()) then
+								GameLogic.options:SetCanJumpInAir(true);
+							end
+						end);
 					end
-				end);
+				end, _guihelper.MessageBoxButtons.OKCancel_CustomLabel,nil,nil,nil,nil,{ ok = L"开通会员", cancel = L"放弃飞行", });
 			end
 			event:accept();
 		elseif(dik_key == "DIK_B") then
