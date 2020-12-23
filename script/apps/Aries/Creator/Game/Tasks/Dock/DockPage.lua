@@ -654,7 +654,7 @@ function DockPage.HandMsgCenterMsgData(is_need_repeat)
                 all_count = all_count + v
             end
             DockPage.SetMsgCenterUnReadNum(all_count)
-            if DockPage.is_show then
+            if DockPage.is_show and DockPage.page then
                 DockPage.page:Refresh(0);
             end 
         end
