@@ -66,13 +66,6 @@ function ParaWorldChunkGenerator:OnExit()
 	if(self.lock_timer) then
 		self.lock_timer:Change();
 	end
-
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/GeneralNPC.lua");
-	local GeneralNPC = commonlib.gettable("MyCompany.Aries.Game.Tasks.ParaWorld.GeneralNPC");
-	if (GeneralNPC.christmas_timer) then
-		commonlib.echo("GeneralNPC.christmas_timer:Change");
-		GeneralNPC.christmas_timer:Change();
-	end
 end
 
 -- for temporary world files

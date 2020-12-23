@@ -58,7 +58,6 @@ end
 function GeneralNPC:SetClickFunction(func)
 	if (self.entity) then
 		self.entity.OnClick = function(entity, x, y, z, mouse_button)
-			entity:Destroy();
 			if (func) then
 				func();
 			end
@@ -70,6 +69,12 @@ end
 function GeneralNPC:DestroyNPC()
 	if (self.entity) then
 		self.entity:Destroy();
+	end
+end
+
+function GeneralNPC:Say(word)
+	if (self.entity) then
+		self.entity:Say(word);
 	end
 end
 
@@ -194,51 +199,73 @@ function GeneralNPC.ShowChristmasHatNPC()
 
 	if (GameLogic.GetFilters():apply_filters('is_signed_in')) then
 		local len = #positions;
-		local frequency = 3;
+		local frequency = 1;
 		local interval = len / frequency;
 		if (interval > 0) then
 			local exid = 30000;
 			local gsid = 90000;
 			local npcList = {};
-			local key = "Christmas_Hat_Time";
+			--local key = "Christmas_Hat_Time";
 			local bOwn,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gsid);
 			if (copies and copies > 200) then
 				return;
 			end
 
-			local clientData = KeepWorkItemManager.GetClientData(gsid) or {};
+			local word = {"这顶帽子给你，快去寻找我的伙伴们吧！", "我等的都快睡着了，快拿去", "爷爷的帽子真的很暖和"};
+
+			function checkItem(items, id)
+				if (items == nil or items == "") then
+					return false;
+				end
+				local datas = commonlib.split(items, ",");
+				for i = 1, #datas do
+					if (id == datas[i]) then
+						return true;
+					end
+				end
+				return false;
+			end
+
 			function createNPC(interval)
+				--[[
 				for i = 1, #npcList do
 					npcList[i]:DestroyNPC();
 				end
+				]]
+				local clientData = KeepWorkItemManager.GetClientData(gsid) or {};
+				local id_key= "id"..projectId;
 				for i = 1, interval do
-					local index = math.random((i-1)*frequency+1, i*frequency);
+					--local index = math.random((i-1)*frequency+1, i*frequency);
+					local index = i;
 					local x, y, z = positions[index][1], positions[index][2], positions[index][3]
 					local npc = GeneralNPC:new():Init(L"驯鹿", "character/v5/02animals/Elk/Elk.x", x, y+1, z);
 					npc:SetClickFunction(function()
-						KeepWorkItemManager.DoExtendedCost(exid, function()
-							--_guihelper.MessageBox(L"获得了一顶帽子~");
-							ActRedhat.ShowPage()
-							if (not bOwn) then
-								clientData[key] = os.time();
-								KeepWorkItemManager.SetClientData(gsid, clientData);
-							end
-							KeepWorkItemManager.CheckExchange(exid, function(canExchange)
-								if (not canExchange.data and canExchange.data.ret) then
-									for i = 1, #npcList do
-										npcList[i]:DestroyNPC();
-									end
-								end
+						local items = clientData[id_key];
+						local id = tostring(index);
+						if (checkItem(items, id)) then
+							npc:SetClickFunction(function()
+								npc:Say(L"已经领过了，快去寻找其他的驯鹿吧！", -1);
 							end);
-						end);
+						else
+							KeepWorkItemManager.DoExtendedCost(exid, function()
+								npc:Say(word[math.random(1, 3)], 3000);
+								ActRedhat.ShowPage()
+								if (items) then
+									clientData[id_key] = items..","..id;
+								else
+									clientData[id_key] = id;
+								end
+								KeepWorkItemManager.SetClientData(gsid, clientData);
+							end);
+						end
 					end);
 					npcList[#npcList + 1] = npc;
 				end
-
-				clientData[key] = os.time();
-				KeepWorkItemManager.SetClientData(gsid, clientData);
 			end
 
+			createNPC(interval);
+
+			--[[
 			KeepWorkItemManager.CheckExchange(exid, function(canExchange)
 				if (canExchange.data and canExchange.data.ret) then
 					GeneralNPC.christmas_timer = GeneralNPC.christmas_timer or commonlib.Timer:new({callbackFunc = function(timer)
@@ -254,6 +281,7 @@ function GeneralNPC.ShowChristmasHatNPC()
 					end
 				end
 			end);
+			]]
 		end
 	end
 end
