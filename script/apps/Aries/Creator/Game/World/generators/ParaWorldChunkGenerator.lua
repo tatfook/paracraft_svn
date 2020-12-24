@@ -26,13 +26,15 @@ NPL.load("(gl)script/ide/System/System.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/ChunkGenerator.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/World/Chunk.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ChatSystem/ChatWindow.lua");
 local Chunk = commonlib.gettable("MyCompany.Aries.Game.World.Chunk");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine");
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local names = commonlib.gettable("MyCompany.Aries.Game.block_types.names");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
-	
+local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");	
+
 local ParaWorldChunkGenerator = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.World.ChunkGenerator"), commonlib.gettable("MyCompany.Aries.Game.World.Generators.ParaWorldChunkGenerator"))
 
 -- this is the host side ignore list, which could be different from ParaWorldMiniChunkGenerator's ignoreList
@@ -66,6 +68,9 @@ function ParaWorldChunkGenerator:OnExit()
 	if(self.lock_timer) then
 		self.lock_timer:Change();
 	end
+
+	DockPage.Hide();
+	MyCompany.Aries.ChatSystem.ChatWindow.ResetPosition(false);
 end
 
 -- for temporary world files
@@ -99,6 +104,8 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and GameLogic.GetFilters():apply_filters('is_signed_in')) then
 		GameLogic.options:SetLockedGameMode("game");
 		GameLogic.RunCommand("/ggs connect -silent=false");
+		DockPage.Show();
+		MyCompany.Aries.ChatSystem.ChatWindow.ResetPosition(true);
 	end
 
 	NPL.load("(gl)script/apps/Aries/Creator/WorldCommon.lua");
