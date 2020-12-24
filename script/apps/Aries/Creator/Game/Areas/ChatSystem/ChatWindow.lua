@@ -112,6 +112,7 @@ function ChatWindow.InitSystem()
 	ChatChannel.AddFilter(ChatWindow.ChatCommandFilter);
 	-- ChatChannel.AddFilter(ChatWindow.BattleFieldFilter);
 
+	--[[
     NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
     local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic");
 	GameLogic.GetFilters():add_filter("ggs", function(msg)
@@ -132,6 +133,7 @@ function ChatWindow.InitSystem()
 
 		return msg;  -- 保证其它filter也能收到此消息
     end)
+	]]
 
 end
 
