@@ -692,6 +692,7 @@ function DockPage.CheckIsTaskCompelete()
    if profile and profile.region and profile.region.hasChildren == 0 then
         GameLogic.QuestAction.SetValue("40004_1",1);
    end
-
-   DockPage.page:Refresh(0.01)
+   if(DockPage.page)then
+        DockPage.page:Refresh(0.01)
+   end
 end
