@@ -112,16 +112,15 @@ function ChatWindow.InitSystem()
 	ChatChannel.AddFilter(ChatWindow.ChatCommandFilter);
 	-- ChatChannel.AddFilter(ChatWindow.BattleFieldFilter);
 
-	--[[
     NPL.load("(gl)script/apps/Aries/Creator/Game/game_logic.lua");
     local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic");
 	GameLogic.GetFilters():add_filter("ggs", function(msg)
 	    LOG.std("", "info", "ChatWindow recieve ggs filter", msg);
         
-        local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
-        local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-
         msg = msg or {};
+	--[[
+        local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+
         if(msg.action == "LoadWorld")then
             DockPage.Show();
             ChatWindow.ResetPosition(true);
@@ -129,11 +128,12 @@ function ChatWindow.InitSystem()
             DockPage.Hide();
             ChatWindow.ResetPosition(false);
         end
-        KeepWorkItemManager.OnGGSMsg(msg);
+ 	]]
+        local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+		KeepWorkItemManager.OnGGSMsg(msg);
 
 		return msg;  -- 保证其它filter也能收到此消息
     end)
-	]]
 
 end
 
