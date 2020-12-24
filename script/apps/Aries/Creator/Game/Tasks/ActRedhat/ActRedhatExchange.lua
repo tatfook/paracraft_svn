@@ -22,6 +22,7 @@ ActRedhatExchange.exchangeDatas =
         itemId = 174,
         icon = "Texture/Aries/Creator/keepwork/items/exid_30001_32bits.png",
         isrepeat = true,
+		user_behavior = "click.promotion.horm",
     },
     {
         idx = 2,
@@ -32,6 +33,7 @@ ActRedhatExchange.exchangeDatas =
         itemId = 173,
         icon = "Texture/Aries/Creator/keepwork/items/exid_30002_32bits.png",
         isrepeat = true,
+		user_behavior = "click.promotion.knowledge_bean",
     },    
     {
         idx = 3,
@@ -42,6 +44,7 @@ ActRedhatExchange.exchangeDatas =
         itemId = 175,
         icon = "Texture/Aries/Creator/keepwork/items/exid_30003_32bits.png",
         isrepeat = false,
+		user_behavior = "click.promotion.skin",
     },
 }
 
