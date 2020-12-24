@@ -244,7 +244,9 @@ function BaseContext:CheckMousePick()
 	
 	-- highlight the block or terrain that the mouse picked
 	if(result.length and result.length<SelectionManager:GetPickingDist() and GameLogic.GameMode:CanSelect()) then
-		self:HighlightPickBlock(result);
+		if (GameLogic.GameMode:IsEditor()) then
+			self:HighlightPickBlock(result);
+		end
 		self:HighlightPickEntity(result);
 		return result;
 	else
