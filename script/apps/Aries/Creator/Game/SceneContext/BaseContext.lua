@@ -839,7 +839,7 @@ function BaseContext:handlePlayerKeyEvent(event)
 			else
 				_guihelper.MessageBox(L"需要开通会员才能在并行世界中飞行哦，快去开通会员吧！", function(res)
 					if(res and res == _guihelper.DialogResult.OK) then
-						GameLogic.GetFilters():apply_filters("VipNotice", true, function()
+						GameLogic.GetFilters():apply_filters("VipNotice", true, "fly_on_paraworld",function()
 							local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 							if (KeepWorkItemManager.IsVip()) then
 								GameLogic.options:SetCanJumpInAir(true);
