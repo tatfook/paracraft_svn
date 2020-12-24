@@ -82,23 +82,6 @@ end
 
 function Goto(name, mcmlNode)
     local param = mcmlNode:GetAttribute("param1")
-
-    local click_cb = QuestPage.TaskIdToClickCb[param]
-
-    if click_cb and type(click_cb) == 'string' then
-        if click_cb == 'GrowthDiary' then
-            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.growth_diary");
-        elseif click_cb == 'WeekWork' then
-            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.week_work");
-        elseif click_cb == 'Classroom' then
-            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.class_room");
-        elseif click_cb == 'UpdataWorld' then
-            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.update_world");
-        elseif click_cb == 'VisitWorld' then
-            GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.daily_task.visit_world");
-        end
-    end
-
     QuestPage.Goto(param)
 end
 

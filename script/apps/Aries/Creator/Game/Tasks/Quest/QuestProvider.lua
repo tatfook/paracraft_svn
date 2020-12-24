@@ -87,6 +87,11 @@ function QuestProvider:OnInit()
         echo("=============quest_item");
         echo(quest_item:GetDumpData(),true);
 
+        -- 埋点
+        if quest_item.value == quest_item.finished_value then
+            GameLogic.GetFilters():apply_filters('user_behavior', 'click.quest_action.when_finish')
+        end
+
     end, nil, "QuestProvider_OnChanged")
 
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
@@ -94,6 +99,8 @@ function QuestProvider:OnInit()
         echo("=============QuestProvider.Events.OnFinished");
         echo(quest_item_container:GetDumpData(),true);
 
+        -- 埋点
+        GameLogic.GetFilters():apply_filters('user_behavior', 'click.quest_action.when_finish')
     end, nil, "QuestProvider_OnFinished")
 
     QuestProvider:GetInstance():OnInit__();

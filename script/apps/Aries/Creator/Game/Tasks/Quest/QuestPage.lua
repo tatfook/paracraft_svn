@@ -501,6 +501,8 @@ function QuestPage.Goto(task_id)
 			end
 		end
 	end
+
+	GameLogic.GetFilters():apply_filters('user_behavior', 'click.quest_action.click_go_button')
 end
 
 function QuestPage.GetQuestData(task_id)
