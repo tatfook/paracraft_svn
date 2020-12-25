@@ -256,7 +256,7 @@ function DockPage.OnClick(id)
         DockPage.OnClick_system_menu();
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.system");        
     elseif(id == "vip")then
-        ParacraftLearningRoomDailyPage.OnVIP();
+        ParacraftLearningRoomDailyPage.OnVIP("dock");
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.vip");
     elseif(id == "mall")then
         local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");

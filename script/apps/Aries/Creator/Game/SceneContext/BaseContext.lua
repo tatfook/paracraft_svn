@@ -837,16 +837,17 @@ function BaseContext:handlePlayerKeyEvent(event)
 			if(GameMode:CanFly()) then
 				GameLogic.ToggleFly();
 			else
-				_guihelper.MessageBox(L"需要开通会员才能在并行世界中飞行哦，快去开通会员吧！", function(res)
-					if(res and res == _guihelper.DialogResult.OK) then
-						GameLogic.GetFilters():apply_filters("VipNotice", true, "fly_on_paraworld",function()
-							local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
-							if (KeepWorkItemManager.IsVip()) then
-								GameLogic.options:SetCanJumpInAir(true);
-							end
-						end);
-					end
-				end, _guihelper.MessageBoxButtons.OKCancel_CustomLabel,nil,nil,nil,nil,{ ok = L"开通会员", cancel = L"放弃飞行", });
+				local generatorName = WorldCommon.GetWorldTag("world_generator");
+				if (generatorName == "paraworld") then
+					GameLogic.GetFilters():apply_filters("VipNotice", true, "fly_on_paraworld",function()
+						local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+						if (KeepWorkItemManager.IsVip()) then
+							GameLogic.options:SetCanJumpInAir(true);
+						end
+					end);
+				else
+					_guihelper.MessageBox(L"此世界禁止飞行哦！");
+				end
 			end
 			event:accept();
 		elseif(dik_key == "DIK_B") then
