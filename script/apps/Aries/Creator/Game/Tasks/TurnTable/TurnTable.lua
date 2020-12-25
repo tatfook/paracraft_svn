@@ -225,7 +225,6 @@ function TurnTable.MotionFinish()
     TurnTable.IsInDraw = false
     if TurnTable.DrawData.exid then
         local exid = TurnTable.DrawData.exid
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         local callback = function()
             if exid == 0 then
                 GameLogic.AddBBS(nil, "很遗憾没有抽中奖励，别灰心，明天还可以再来哦");

@@ -386,6 +386,9 @@ function QuestPage.GetTaskProDescByQuest(data)
 
 	for i, v in ipairs(childrens) do
 		local child_task_desc = ""
+		if v.id == "40005_1" then
+			return ""
+		end
 		if type(v.finished_value) == "number" then
 			local value = v.value or 0
 			local temp_desc = "进度： "
