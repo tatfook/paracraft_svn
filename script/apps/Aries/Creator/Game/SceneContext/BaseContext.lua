@@ -837,6 +837,8 @@ function BaseContext:handlePlayerKeyEvent(event)
 			if(GameMode:CanFly()) then
 				GameLogic.ToggleFly();
 			else
+				NPL.load("(gl)script/apps/Aries/Creator/WorldCommon.lua");
+				local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 				local generatorName = WorldCommon.GetWorldTag("world_generator");
 				if (generatorName == "paraworld") then
 					GameLogic.GetFilters():apply_filters("VipNotice", true, "fly_on_paraworld",function()
