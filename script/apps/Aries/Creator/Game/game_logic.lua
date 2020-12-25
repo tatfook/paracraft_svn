@@ -1737,6 +1737,10 @@ function GameLogic.IsVip(name, bOpenUIIfNot, callbackFunc)
 				_guihelper.MessageBox(L"您需要登录并成为VIP用户，才能使用此功能")
 			end
 		end
+	else
+		if(System.User.isVip) then
+			return true;
+		end
 	end
 end
 

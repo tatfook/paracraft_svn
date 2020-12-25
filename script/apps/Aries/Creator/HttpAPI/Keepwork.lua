@@ -23,6 +23,32 @@ function Keepwork:IsFirstLoginParacraft()
     return not bExist;
 end
 
+-- 获取所有玩家模型
+function Keepwork:GetAllAssets()
+    local bagId, bagNo = 0, 1007;
+    local assets = {}; 
+    for _, bag in ipairs(KeepWorkItemManager.bags) do
+        if (bagNo == bag.bagNo) then 
+            bagId = bag.id;
+            break;
+        end
+    end
+
+    for _, tpl in ipairs(KeepWorkItemManager.globalstore) do
+        -- echo(tpl, true)
+        if (tpl.bagId == bagId) then
+            table.insert(assets, {
+                id = tpl.id,
+                gsId = tpl.gsId,
+                modelUrl = tpl.modelUrl,
+                name = tpl.name,
+            });
+        end
+    end
+
+    return assets;
+end
+
 -- 首次登录回调
 function Keepwork:FirstLoginCallback()
     local userinfo = self:GetUserInfo();
@@ -45,10 +71,19 @@ end
 
 -- 用户登录成功
 function Keepwork:OnLogin()
+    self.isLogin = true;
+
     if (self:IsFirstLoginParacraft()) then
         self:FirstLoginCallback();
     end
 end
 
+-- 用户退出
 function Keepwork:OnLogout()
+    self.isLogin = false;
+end
+
+-- 是否登录
+function Keepwork:IsLogin()
+    return self.isLogin;
 end
