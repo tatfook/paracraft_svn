@@ -27,7 +27,7 @@ ActRedhatExchange.exchangeDatas =
     {
         idx = 2,
         exid = 30001,
-        name = "知识豆",
+        name = "知识豆X100",
         needhat = "10个",
         num = 10,
         itemId = 173,

@@ -163,7 +163,7 @@ end
 --点击公告图片，此处需要添加埋点事件
 function Notice.OnImageBgClick()
     local name = Notice.tblNoticeDt[Notice.nSelectIndex].name
-    if name == "帮爷爷找帽子" then
+    if name == "双旦活动" then
         local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
         ActRedhatExchange.ShowView()
 		GameLogic.GetFilters():apply_filters("user_behavior", "click.promotion.announcement");
