@@ -127,6 +127,8 @@ function QuestAction.OpenPage(name)
             height = 342,
             draggable = false,
         });
+    elseif name == 'turntable' then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TurnTable/TurnTable.lua").Show();
     end
 end
 
