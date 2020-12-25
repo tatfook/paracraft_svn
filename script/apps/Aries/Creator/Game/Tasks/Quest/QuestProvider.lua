@@ -244,14 +244,18 @@ function QuestProvider:SearchQuestGsidFromExid(exid)
     local goal = KeepWorkItemManager.GetGoal(exid);
     for k,group in ipairs(goal) do
         local goods = group.goods;
-        for kk,item in ipairs(goods) do
-            local bagId = item.goods.bagId;
-            local gsId = item.goods.gsId;
-            local bagNo = KeepWorkItemManager.SearchBagNo(bagId)
-            if(self:IsValidBag(bagNo))then
-                -- map quest gsid and exid
-                self.gsid_exid_map[gsId] = exid;
-                return gsId;
+        if(goods)then
+            for kk,item in ipairs(goods) do
+                if(item.goods)then
+                    local bagId = item.goods.bagId;
+                    local gsId = item.goods.gsId;
+                    local bagNo = KeepWorkItemManager.SearchBagNo(bagId)
+                    if(self:IsValidBag(bagNo))then
+                        -- map quest gsid and exid
+                        self.gsid_exid_map[gsId] = exid;
+                        return gsId;
+                    end
+                end
             end
         end
     end
@@ -325,8 +329,7 @@ end
 -- refresh the state of valid quest node
 function QuestProvider:Refresh()
     local quest_nodes = self:GetActivedQuestNodes();
-    echo("==========quest_nodes");
-    echo(quest_nodes);
+	LOG.std(nil, "info", "QuestProvider quest_nodes:", quest_nodes);
     if(not quest_nodes)then
         return
     end
