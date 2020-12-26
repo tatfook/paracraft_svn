@@ -102,7 +102,7 @@ function ParaWorldChunkGenerator:OnLoadWorld()
 
 
 	if(GameLogic.IsReadOnly() and GameLogic.options:GetProjectId() and GameLogic.GetFilters():apply_filters('is_signed_in')) then
-		GameLogic.options:SetLockedGameMode("game");
+		GameLogic.RunCommand("/mode strictgame")
 		GameLogic.RunCommand("/ggs connect -silent=false");
 		DockPage.Show();
 		MyCompany.Aries.ChatSystem.ChatWindow.ResetPosition(true);
