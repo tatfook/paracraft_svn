@@ -206,7 +206,7 @@ function KeepWorkStackableItemPage.OnOK()
 		end)
 		]]
 		page:CloseWindow()
-		GameLogic.GetFilters():apply_filters("VipNotice", true);
+		--GameLogic.GetFilters():apply_filters("VipNotice", true);
 
 		
 		return
