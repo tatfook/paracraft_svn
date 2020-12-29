@@ -143,7 +143,7 @@ function ParaWorldUserInfo.OnClickStar()
 			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
-	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.thumbs_up");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.home.thumbs_up");
 end
 
 function ParaWorldUserInfo.OnClickFavorite()
@@ -155,7 +155,7 @@ function ParaWorldUserInfo.OnClickFavorite()
 			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
-	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.favorited");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.home.favorited");
 end
 
 function ParaWorldUserInfo.OnClickUnFavorite()
@@ -172,7 +172,7 @@ end
 function ParaWorldUserInfo.OnClickUserInfo()
 	local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
 	page.ShowUserInfoPage({userId = currentId});
-	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.click_avatar");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.home.click_avatar");
 end
 
 function ParaWorldUserInfo.IsCodeEnabled()
@@ -209,5 +209,5 @@ end
 function ParaWorldUserInfo.OnClickCodeList()
 	local codeBlocks = ParaWorldChunkGenerator.GetCodeBlockListInGrid(5 - worldParams.x, 5 - worldParams.y);
 	ParaWorldCodeList.ShowPage(codeBlocks);
-	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.click_code_block");
+	GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.home.click_code_block");
 end
