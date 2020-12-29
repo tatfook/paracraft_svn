@@ -61,30 +61,40 @@ function getCover()
     return Notice.getCover(Notice.nSelectIndex)
 end
 
+function isRendNext()
+    local datasize = #Notice.tblNoticeDt
+    if datasize > 1 then
+        return true
+    end
+    return false
+end
+
 ]]></script>
-<div style="width: 700px; height: 399px;">
-    <div  type ="box" style="width:673px;height:399px;background: url(Texture/Aries/Creator/keepwork/Notice/bjk_673X399_32bits.png#0 0 673 399);">
-        <div  style="width:673px;height:360px;">
-            <div  onclick="OnImageClick" style="position:relative;margin-left:16px;margin-top:12px;">
-                <img zorder="-1"  style="width:630px;height:376px"  src='<%=getCover()%>'/>
+<div style="width: 1068px; height: 560px;">
+    <div  type ="box" style="width:1068px;height:560px;background: url(Texture/Aries/Creator/keepwork/Notice/bjk2_1024X512_32bits.png#0 0 1068 560);">
+        <div  style="width:1024px;height:512px;">
+            <div  onclick="OnImageClick" style="position:relative;margin-left:18px;margin-top:22px;">
+                <img zorder="-1"  style="width:1024px;height:512px"  src='<%=getCover()%>'/>
             </div>
-            <input type="button" value="" onclick="ClosePage" style="margin-top: 22px; margin-left:610px;width:32px;height:32px;background: url(Texture/Aries/Creator/keepwork/Notice/guanbi_32bits.png#0 0 32 32);"/>
-            <input type="button" value="" onclick="GoPrePage"  style="margin-top: 120px; margin-left: 20px;width: 64px;height: 64px; background: url(Texture/Aries/Creator/keepwork/Notice/button_pre_64X64.png#0 0 64 64);"/>
-            <input type="button" value="" onclick="GoNextPage"  style="margin-top: -64px; margin-left: 580px;width: 64px;height:64px ;background: url(Texture/Aries/Creator/keepwork/Notice/button_next_64X64.png#0 0 64 64);"/>
-            <div style="width:400px;height:43px; position: relative; margin-top: 90px;margin-left: 440px;">
-                <pe:gridview name="gridview_1"  AllowPaging="false" CellPadding="10" ItemsPerLine="10" DefaultNodeHeight = "11"
-                    DataSource='<%=getNoticeDt%>'>
-                    <Columns>
-                        <%= RenderButton(Eval("index"))%>
-                    </Columns>
-                </pe:gridview>
-            </div>        
+            <input type="button" value="" onclick="ClosePage" style="margin-top: 36px; margin-left:1000px;width:32px;height:32px;background: url(Texture/Aries/Creator/keepwork/Notice/guanbi_32bits.png#0 0 32 32);"/>            
+            <pe:if condition ='<%=isRendNext()%>'>
+                <input type="button" value="" onclick="GoPrePage"  style="margin-top: 160px; margin-left: 20px;width: 64px;height: 64px; background: url(Texture/Aries/Creator/keepwork/Notice/button_pre_64X64.png#0 0 64 64);"/>
+                <input type="button" value="" onclick="GoNextPage"  style="margin-top: -60px; margin-left: 972px;width: 64px;height:64px ;background: url(Texture/Aries/Creator/keepwork/Notice/button_next_64X64.png#0 0 64 64);"/>
+                <div style="width:400px;height:43px; position: relative; margin-top: 170px;margin-left: 780px;">
+                    <pe:gridview name="gridview_1"  AllowPaging="false" CellPadding="10" ItemsPerLine="12" DefaultNodeHeight = "11"
+                        DataSource='<%=getNoticeDt%>'>
+                        <Columns>
+                            <%= RenderButton(Eval("index"))%>
+                        </Columns>
+                    </pe:gridview>
+                </div>  
+            </pe:if>      
         </div>
-        <div style="color: #181818;float: left;base-font-size: 16pt;font-size: 16pt;font-weight: bold; margin-left: 50px;">活动名字:</div>
-        <div style="color: #181818;float: left;base-font-size: 16pt;font-size: 16pt;font-weight: bold; margin-left: 0px;"><%=getNoticeName()%></div>     
-        <div style="margin-top: -22px; margin-left: 520px;">
-            <input type="checkbox" name = "checkRemind" checked='<%=isShowToday%>' onclick="NoRemind" style="float: left; margin-top: 3px; width:14px;height:14px;" UncheckedBG="Texture/Aries/Creator/keepwork/Notice/dian1_normal_14X14_32bits.png#0 0 14 14" CheckedBG="Texture/Aries/Creator/keepwork/Notice/dian1_select_14X14_32bits.png#0 0 14 14"/>
-            <div onclick="NoRemind" style="float: left;font-size: 12pt; color: #3e3e3e;margin-left: 5px;">今日不再弹出</div>
+        <!-- <div style="color: #181818;float: left;base-font-size: 16pt;font-size: 16pt;font-weight: bold; margin-left: 50px; margin-top: -6px;">活动:</div> -->
+        <div style="color: #181818;float: left;base-font-size: 16pt;font-size: 16pt;font-weight: bold; margin-left: 30px; margin-top: -6px;"><%=getNoticeName()%></div>     
+        <div style="margin-top: -22px; margin-left: 920px;">
+            <input type="checkbox" name = "checkRemind" checked='<%=isShowToday%>' onclick="NoRemind" style="float: left; margin-top: 4px; width:14px;height:14px;" UncheckedBG="Texture/Aries/Creator/keepwork/Notice/dian1_normal_14X14_32bits.png#0 0 14 14" CheckedBG="Texture/Aries/Creator/keepwork/Notice/dian1_select_14X14_32bits.png#0 0 14 14"/>
+            <div onclick="NoRemind" style="float: left;font-size: 12pt; color: #3e3e3e;margin-left: 5px;margin-top: 1px;">今日不再弹出</div>
         </div>
     </div>
 </div>

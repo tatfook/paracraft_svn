@@ -73,6 +73,8 @@ function Notice.Show(nType)
         if info_err == 200 then
             Notice.GetPageData(info_data); 
             if Notice.nDataNum > 0 then
+                local viewwidth = 1068
+                local viewheight = 560
                 local params = {
                     url = "script/apps/Aries/Creator/Game/Tasks/Notice/Notice.html",
                     name = "Notice.Show", 
@@ -85,10 +87,10 @@ function Notice.Show(nType)
                     app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
                     directPosition = true,                
                     align = "_ct",
-                    x = -700/2,
-                    y = -399/2,
-                    width = 700,
-                    height = 399,
+                    x = -viewwidth/2,
+                    y = -viewheight/2,
+                    width = viewwidth,
+                    height = viewheight,
                 };                
                 System.App.Commands.Call("File.MCMLWindowFrame", params)            
                 NPL.SetTimer(NoticeTimeId, 5.0, ";RegisterTime();"); --注册定时器
