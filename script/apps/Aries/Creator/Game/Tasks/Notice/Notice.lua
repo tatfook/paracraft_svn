@@ -168,12 +168,13 @@ function Notice.OnImageBgClick()
     if name == "双旦活动" or name == "帮爷爷找帽子" then
         local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
         ActRedhatExchange.ShowView()
-		GameLogic.GetFilters():apply_filters("user_behavior", "click.promotion.announcement");
+		GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
         return 
     end
     local url = Notice.tblNoticeDt[Notice.nSelectIndex].url;
     if(url and #url ~= 0) then
         ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
     else
         return 
     end

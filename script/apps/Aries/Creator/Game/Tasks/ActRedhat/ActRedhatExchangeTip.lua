@@ -77,7 +77,7 @@ function ActRedhatExchangeTip.onClickExchange()
     page:CloseWindow()
     KeepWorkItemManager.DoExtendedCost(exid, function()        
         ActRedhatExchangeTip.openGetItemView(ActRedhatExchangeTip.itemData)
-		GameLogic.GetFilters():apply_filters("user_behavior", ActRedhatExchangeTip.itemData.user_behavior);
+		GameLogic.GetFilters():apply_filters("user_behavior", 1 ,ActRedhatExchangeTip.itemData.user_behavior);
     end,function() 
         GameLogic.AddBBS("statusBar", L"兑换失败!", 3000, "0 255 0");
     end);

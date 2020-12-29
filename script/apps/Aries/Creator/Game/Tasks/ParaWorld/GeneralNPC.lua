@@ -259,7 +259,7 @@ function GeneralNPC.ShowChristmasHatNPC()
 								npc:Say(word[math.random(1, 3)], 3000);
 
 								if (not bOwn) then
-									GameLogic.GetFilters():apply_filters("user_behavior", "click.promotion.partake");
+									GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.partake");
 								end
 							end);
 						end
