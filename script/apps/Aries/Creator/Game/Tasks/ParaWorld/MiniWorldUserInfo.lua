@@ -164,7 +164,7 @@ function MiniWorldUserInfo.OnClickStar()
 			isStared = true;
 			starCount = starCount + 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 end
@@ -175,7 +175,7 @@ function MiniWorldUserInfo.OnClickFavorite()
 			isFavorited = true;
 			favoriteCount = favoriteCount + 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 end
@@ -186,7 +186,7 @@ function MiniWorldUserInfo.OnClickUnFavorite()
 			isFavorited = false;
 			favoriteCount = favoriteCount - 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 end

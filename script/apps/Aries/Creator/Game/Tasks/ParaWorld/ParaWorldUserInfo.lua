@@ -140,7 +140,7 @@ function ParaWorldUserInfo.OnClickStar()
 			isStared = true;
 			starCount = starCount + 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.thumbs_up");
@@ -152,7 +152,7 @@ function ParaWorldUserInfo.OnClickFavorite()
 			isFavorited = true;
 			favoriteCount = favoriteCount + 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 	GameLogic.GetFilters():apply_filters("user_behavior", "click.home.favorited");
@@ -164,7 +164,7 @@ function ParaWorldUserInfo.OnClickUnFavorite()
 			isFavorited = false;
 			favoriteCount = favoriteCount - 1;
 			page:Refresh(0);
-			page:CallMethod("MyPlayer", "SetAssetFile", asset);
+			page:CallMethod("UserPlayer", "SetAssetFile", asset);
 		end
 	end);
 end
@@ -187,14 +187,14 @@ function ParaWorldUserInfo.OnClickEnableCode()
 	ParaWorldChunkGenerator.EnableCodeBlocksInGrid(5 - worldParams.x, 5 - worldParams.y, true);
 	isCodeOn = true;
 	page:Refresh(0);
-	page:CallMethod("MyPlayer", "SetAssetFile", asset);
+	page:CallMethod("UserPlayer", "SetAssetFile", asset);
 end
 
 function ParaWorldUserInfo.OnClickDisableCode()
 	ParaWorldChunkGenerator.EnableCodeBlocksInGrid(5 - worldParams.x, 5 - worldParams.y, false);
 	isCodeOn = false;
 	page:Refresh(0);
-	page:CallMethod("MyPlayer", "SetAssetFile", asset);
+	page:CallMethod("UserPlayer", "SetAssetFile", asset);
 end
 
 function ParaWorldUserInfo.GetCodeCount()
