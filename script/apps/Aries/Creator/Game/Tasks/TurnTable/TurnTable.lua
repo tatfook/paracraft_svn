@@ -226,6 +226,7 @@ function TurnTable.MotionFinish()
     if TurnTable.DrawData.exid then
         local exid = TurnTable.DrawData.exid
         local callback = function()
+            GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.turnable')
             if exid == 0 then
                 GameLogic.AddBBS(nil, "很遗憾没有抽中奖励，别灰心，明天还可以再来哦");
             else
