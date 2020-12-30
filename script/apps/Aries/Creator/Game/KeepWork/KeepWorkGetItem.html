@@ -60,15 +60,21 @@ function IsShowModelDesc()
     return KeepWorkGetItem.IsShowModelDesc()
 end
 
+function IsUseInPlayer()
+    return KeepWorkGetItem.IsUseInPlayer()
+end
+
 -- tricky code to decrease the count actually the min value
 --OnDecrease();
 ]]></script>
 <kp:window mode="lite" width="400" height="304" title='<%=L"提示"%>' onclose="ClosePage">
     <div style="color:#ffffff;padding-left:2px;padding-top:39px;padding-right:2px;padding-bottom:2px;">
-    <div style="margin-top:40px;float:left;padding-left:20px;padding-top:20px;margin-left:40px;width:114px;height:104px;margin:21px;background:url(Texture/Aries/Creator/keepwork/Mall/kuang2_114X144_32bits.png#0 0 114 114);">
-        <div style="position:relative;margin-left:6px;margin-top:0px;">
-            <img zorder="0" src='<%=getIcon()%>'width="79" height="70"/>
-        </div>   
+    <div style="margin-top:40px;float:left;margin-left:40px;width:114px;height:114px;margin:21px;background:url(Texture/Aries/Creator/keepwork/Mall/kuang2_114X144_32bits.png#0 0 114 114);">
+        <div style="position:relative;width:114px">
+            <div style="position:relative;margin-left:0px;margin-top:27px;">
+                <img zorder="0" src='<%=getIcon()%>'width="114" height="57"/>
+            </div>                              
+        </div>
      </div>
      <div style="float:left">
         <div style="margin-left:8px;margin-top:60px;color:#000000;font-size:14px;"><%="你获得了"%></div>
@@ -76,17 +82,22 @@ end
     </div>
     <div style="width:400px;height:20px;margin-top:5px;margin-left:75px; color: #000000;font-weight:bold;font-size: 20pt;">
         <pe:if condition = '<%=IsShowModelDesc()%>'>
-            <div style="float:left;">前往</div>
-            <div style="float:left;color: #ff0000;">
-                <input type="button" value="创造" style="margin-left:-12px;width:35px;height:20px;color: #ff0000; background:;font-weight:bold;font-size: 14pt;margin-top: 1px;" onclick="OpenCrteate"/>
-            </div>
-            <div style="float:left;margin-left:1px">或</div>
-            <div style="float:left;color: #ff0000;">
-                <input type="button" value="家园" style="margin-left:-1px;width:35px;height:20px;color: #ff0000; background:;font-weight:bold;font-size: 14pt;margin-top: 1px;" onclick="OpenHome"/>
-            </div>
-            <div style="float:left;margin-left:2px;">点击</div>
-            <div style="float:left;margin-top:-3px;margin-left:-12px;width:26px;height:26px;background:url(Texture/Aries/Creator/keepwork/map/btn_R_32X32_32bits.png#0 0 36 36)"></div>
-            <div style="float:left;margin-left:3px">即可使用哦</div>
+            <pe:if condition = '<%=IsUseInPlayer()%>'>
+                <div style="float:left;">可前往人物面板中使用</div>
+            </pe:if>
+            <pe:if condition = '<%=not IsUseInPlayer()%>'>
+                <div style="float:left;">前往</div>
+                <div style="float:left;color: #ff0000;">
+                    <input type="button" value="创造" style="margin-left:-12px;width:35px;height:20px;color: #ff0000; background:;font-weight:bold;font-size: 14pt;margin-top: 1px;" onclick="OpenCrteate"/>
+                </div>
+                <div style="float:left;margin-left:1px">或</div>
+                <div style="float:left;color: #ff0000;">
+                    <input type="button" value="家园" style="margin-left:-1px;width:35px;height:20px;color: #ff0000; background:;font-weight:bold;font-size: 14pt;margin-top: 1px;" onclick="OpenHome"/>
+                </div>
+                <div style="float:left;margin-left:2px;">点击</div>
+                <div style="float:left;margin-top:-3px;margin-left:-12px;width:26px;height:26px;background:url(Texture/Aries/Creator/keepwork/map/btn_R_32X32_32bits.png#0 0 36 36)"></div>
+                <div style="float:left;margin-left:3px">即可使用哦</div>
+            </pe:if>
         </pe:if>
     </div>
     <div style="width:400px;height:32px;margin-top:20px;margin-left:80px">
