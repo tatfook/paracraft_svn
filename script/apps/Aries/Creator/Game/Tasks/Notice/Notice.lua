@@ -73,8 +73,8 @@ function Notice.Show(nType)
         if info_err == 200 then
             Notice.GetPageData(info_data); 
             if Notice.nDataNum > 0 then
-                local viewwidth = 1068
-                local viewheight = 560
+                local viewwidth = 1024
+                local viewheight = 512
                 local params = {
                     url = "script/apps/Aries/Creator/Game/Tasks/Notice/Notice.html",
                     name = "Notice.Show", 
