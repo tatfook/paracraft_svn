@@ -60,33 +60,13 @@ function QuestProvider:GetInstance()
 end
 function QuestProvider:OnInit()
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
-        echo("=============QuestProvider.Events.OnInit");
     end, nil, "QuestProvider_OnInit")
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
-
-        echo("=============QuestProvider.Events.OnRefresh");
-
-        echo("=============QuestProvider:Dump");
-        echo(QuestProvider:GetInstance():Dump(),true);
-        echo("=============QuestProvider:DumpTemplates");
-        echo(QuestProvider:GetInstance():DumpTemplates(),true);
-
-        commonlib.echo("==============GetQuestItems");
-        echo(QuestProvider:GetInstance():GetQuestItems(true),true)
     end, nil, "QuestProvider_OnRefresh")
 
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnChanged,function(__, event)
         local quest_item_container = event.quest_item_container;
         local quest_item = event.quest_item;
-
-        echo("=============QuestProvider.Events.OnChanged");
-        echo("=============quest_item_container");
-
-        echo(quest_item_container:GetDumpData(),true);
-
-        echo("=============quest_item");
-        echo(quest_item:GetDumpData(),true);
-
         -- 埋点
         if quest_item.value == quest_item.finished_value then
             GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
@@ -95,10 +75,6 @@ function QuestProvider:OnInit()
     end, nil, "QuestProvider_OnChanged")
 
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
-        local quest_item_container = event.quest_item_container;
-        echo("=============QuestProvider.Events.OnFinished");
-        echo(quest_item_container:GetDumpData(),true);
-
         -- 埋点
         GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
     end, nil, "QuestProvider_OnFinished")
