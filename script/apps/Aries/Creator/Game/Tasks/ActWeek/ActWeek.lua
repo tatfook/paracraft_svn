@@ -69,7 +69,7 @@ function ActWeek.ShowView()
         end
 
         local view_width = 870
-        local view_height = 483
+        local view_height = 523
         local params = {
             url = "script/apps/Aries/Creator/Game/Tasks/ActWeek/ActWeek.html",
             name = "ActWeek.ShowView", 
@@ -89,49 +89,6 @@ function ActWeek.ShowView()
         };
         System.App.Commands.Call("File.MCMLWindowFrame", params);
     end)
-end
-
-function ActWeek.getLeftHat()
-    local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(ActWeek.gisd)
-	ActWeek.my_hat = copies or 0;
-
-	return ActWeek.my_hat
-end
-
-function ActWeek.OnClickExchange(data)
-    local itemData = data
-    local isrepeat = itemData.isrepeat
-    local needNum = itemData.num
-    local exid = itemData.exid
-    local myhatNum = ActWeek.getLeftHat()
-
-    if myhatNum < needNum then
-        -- if ActRedhatNoEnough then 
-        --     --page:CloseWindow()           
-        --     ActRedhatNoEnough.ShowView()
-        -- end        
-        return
-    end
-
-    if isrepeat then
-        if ActWeekTip then
-            --page:CloseWindow()aa
-            ActWeekTip.ShowView(itemData)
-        end
-    else
-        local gisd1 = 58002
-        local gisd2 = 58003
-        local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gisd1)   
-        local bHas1,guid1,bagid1,copies1 = KeepWorkItemManager.HasGSItem(gisd2)       
-        if not bHas and not bHas1 then
-            if ActWeekTip then
-                --page:CloseWindow()
-                ActWeekTip.ShowView(itemData)
-            end
-        else
-            _guihelper.MessageBox("圣诞皮肤只可以兑换一次，您已经兑换过了哟")
-        end
-    end
 end
 
 function ActWeek.FlushView()

@@ -18,44 +18,6 @@ function getExchangeData(index)
     end
 end
 
-
-function onClickExchange(name,mcmlNode)
-    local data = mcmlNode:GetAttribute("param1")            
-    ActWeek.OnClickExchange(data)
-end
-
-function getLeftNumStr()
-    local strLeftNum = string.format("%d个",ActWeek.getLeftHat())
-    return strLeftNum
-end
-
-function isCanExchange(data)
-    local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(58002)   
-    local bHas1,guid1,bagid1,copies1 = KeepWorkItemManager.HasGSItem(58003)       
-    local have_num = ActWeek.getLeftHat()
-    local needhat = data.num
-    if(have_num >= needhat)then
-        if not data.isrepeat then
-            if bHas or bHas1 then
-                return false
-            end
-        end
-        return true
-    end
-    return false
-end
-
-function isShowExchange(data)
-    local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(58002)   
-    local bHas1,guid1,bagid1,copies1 = KeepWorkItemManager.HasGSItem(58003) 
-    if not data.isrepeat then
-        if bHas or bHas1 then
-            return false
-        end
-    end
-    return true
-end
-
 function DataSource(index)
     if index == nil then
         return #ActWeek.poster
@@ -79,12 +41,12 @@ end
 <!-- <kp:window name="iframe" width="740" height="483" icon="" onclose="ClosePage" style="margin-left: 0px;">
 
 </kp:window> -->
-<div style="width: 810px;height: 483px;">
-    <div style="width: 740px;height: 483px; margin-left: 140px; background: url(Texture/Aries/Creator/keepwork/Window/dakuang_32bits.png#0 0 440 93:378 43 33 44);">
+<div style="width: 810px;height: 523px;">
+    <div style="width: 740px;height: 523px; margin-left: 140px; background: url(Texture/Aries/Creator/keepwork/Window/dakuang_32bits.png#0 0 440 93:378 43 33 44);">
         <input type="button" onclick="ClosePage" style="width: 22px;height: 22px; margin-left: 700px;margin-top: 8px; position: relative;background: url(Texture/Aries/Creator/keepwork/Window/guanbi_32bits.png#0 0 22 22);"/>
         <div style="color:#ffffff;position: relative;" class="kp_window_container">
-            <div style="width: 785px; height: 443px; position: relative; margin-top: -10px; margin-left: -45px;">
-                <pe:gridview name = "" RememberScrollPos="true" style="height:483px;margin-top: 8px;margin-left: -40px;" VerticalScrollBarStep="100" AllowPaging="false" CellPadding="2" ItemsPerLine="1" DefaultNodeHeight = "10" 
+            <div style="width: 785px; height: 483px; position: relative; margin-top: -10px; margin-left: -45px;">
+                <pe:gridview name = "" RememberScrollPos="true" style="height:523px;margin-top: 8px;margin-left: -40px;" VerticalScrollBarStep="100" AllowPaging="false" CellPadding="2" ItemsPerLine="1" DefaultNodeHeight = "10" 
                     DataSource='<%=DataSource%>'>
                     <Columns>
                         <div style="width: 801px;height: 438px;background: url(Texture/Aries/Creator/keepwork/ActWeek/haibao_801X438_32bits.png#0 0 801 438);">
