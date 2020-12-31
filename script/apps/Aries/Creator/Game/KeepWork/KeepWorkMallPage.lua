@@ -398,6 +398,7 @@ function KeepWorkMallPage.HandleDataSources()
 						v.buy_txt = "已拥有"
 						v.enabled = false
 						v.is_has = true
+						v.can_use = false
 						v.show_state = KeepWorkMallPage.show_state.has
 					else
 						v.buy_txt = "使用"
