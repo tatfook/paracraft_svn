@@ -171,6 +171,13 @@ function Notice.OnImageBgClick()
 		GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
         return 
     end
+
+    if string.find(name, "创造周末") and string.find(name, "创造周末") > 0 then
+        local ActWeek = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActWeek/ActWeek.lua")
+        ActWeek.ShowView()
+        return
+    end
+
     local url = Notice.tblNoticeDt[Notice.nSelectIndex].url;
     if(url and #url ~= 0) then
         ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);
