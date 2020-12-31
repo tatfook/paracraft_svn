@@ -490,7 +490,6 @@ function DockPage.RenderButton_3(index)
     end
     
     if(id == "act_week") then
-        print("ssssssaaaaaaaaaaa", ActWeek.GetActState(), ActWeek.ActState.going)
         if ActWeek.GetActState() == ActWeek.ActState.going then
             return string.format([[
                 <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>

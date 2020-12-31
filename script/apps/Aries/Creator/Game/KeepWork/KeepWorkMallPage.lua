@@ -454,7 +454,7 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 	end
 
 	if item_data.enabled == false then
-		if item_data.vip_enabled then
+		if item_data.vip_enabled and not item_data.is_has then
 			GameLogic.GetFilters():apply_filters("VipNotice", true, "vip_goods",function()
 				if (KeepWorkItemManager.IsVip()) then
 					local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");

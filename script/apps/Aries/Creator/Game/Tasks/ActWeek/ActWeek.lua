@@ -54,7 +54,7 @@ function ActWeek.ShowView()
     if not bOwn then
         return
     end
-
+    GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.weekend')
     keepwork.user.server_time({},function(err, msg, data)
         server_time = ActWeek.GetTimeStamp(data.now)
         local act_state = ActWeek.GetActState()
@@ -235,7 +235,9 @@ function ActWeek.GetTimeStamp(at_time)
         return os.time()
     end
 
-    at_time = at_time or ""
+    if at_time == nil then
+        return 0
+    end
     -- at_time = "2020-09-09T06:52:43.000Z"
     local year, month, day, hour, min, sec = at_time:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)") 
     local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}) -- 这个时间是带时区的 要加8小时
