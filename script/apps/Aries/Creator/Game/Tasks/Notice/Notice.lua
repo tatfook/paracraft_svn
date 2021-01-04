@@ -179,8 +179,8 @@ function Notice.OnImageBgClick()
     end
 
     local url = Notice.tblNoticeDt[Notice.nSelectIndex].url;
-    if(url and #url ~= 0) then
-        ParaGlobal.ShellExecute("open", "iexplore.exe", url, "", 1);
+    if(url and #url ~= 0) then 
+        ParaGlobal.ShellExecute("open",url, "","", 1);
         GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
     else
         return 
