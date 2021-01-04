@@ -190,7 +190,7 @@ function ParaCamera.GetLookAtPos()
 end
 
 -- it returns polar coordinate system.
--- @return camobjDist, LifeupAngle, CameraRotY
+-- @return camobjDist, LiftupAngle, CameraRotY
 function ParaCamera.GetEyePos()
 	local att = ParaCamera.GetAttributeObject();
 	return att:GetField("CameraObjectDistance", 0), att:GetField("CameraLiftupAngle", 0), att:GetField("CameraRotY", 0);
