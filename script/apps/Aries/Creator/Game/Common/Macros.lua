@@ -23,7 +23,25 @@ function Macros:BeginRecord()
 	self.macros = {};
 end
 
-function Macros:AddMacro(text)
+-- @param text: macro command text or just macro function name
+-- @param ...: additional input parameters to macro function name
+function Macros:AddMacro(text, ...)
+	local args = {...}
+	if(#args > 0) then
+		local params;
+		for _, param in ipairs(args) do
+			if(params) then
+				params = params..","..commonlib.serialize_compact(param);
+			else
+				params = commonlib.serialize_compact(param);
+			end
+		end
+		text = format("%s(%s)", text, params or "");
+	else
+		if(not text:match("%(")) then
+			text = text.."()";
+		end
+	end
 	self.macros[#self.macros + 1] = text;
 end
 
