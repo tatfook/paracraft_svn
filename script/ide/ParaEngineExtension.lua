@@ -217,10 +217,10 @@ end
 
 -- set the camera eye position by camera object distance, life up angle and rotation around the y axis. One must call ParaCamera.SetLookAtPos() before calling this function. 
 -- e.g.ParaCamera.SetEyePos(5, 1.3, 0.4);
-function ParaCamera.SetEyePos(camobjDist, LifeupAngle, CameraRotY)
+function ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
 	local att = ParaCamera.GetAttributeObject();
 	att:SetField("CameraObjectDistance", camobjDist);
-	att:SetField("CameraLiftupAngle", LifeupAngle);
+	att:SetField("CameraLiftupAngle", LiftupAngle);
 	att:SetField("CameraRotY", CameraRotY);
 end
 
