@@ -163,7 +163,9 @@ function ParaWorldLoginAdapter.CheckAndReset()
 						ParaWorldLoginAdapter.MainWorldId = data[i].projectId;
 						ParaWorldLoginAdapter.ParaWorldId = data[i].id;
 						local ParaWorldSites = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSites.lua");
-						ParaWorldSites.LoadAdvertisementWorld();
+						if (data[i].isFilling == 1) then
+							ParaWorldSites.LoadAdvertisementWorld();
+						end
 						return;
 					end
 				end
@@ -176,7 +178,9 @@ function ParaWorldLoginAdapter.CheckAndReset()
 							ParaWorldLoginAdapter.MainWorldId = data.rows[i].projectId;
 							ParaWorldLoginAdapter.ParaWorldId = data.rows[i].id;
 							local ParaWorldSites = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldSites.lua");
-							ParaWorldSites.LoadAdvertisementWorld();
+							if (data[i].isFilling == 1) then
+								ParaWorldSites.LoadAdvertisementWorld();
+							end
 							break;
 						end
 					end
