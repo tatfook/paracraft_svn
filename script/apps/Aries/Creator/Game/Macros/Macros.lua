@@ -92,6 +92,7 @@ function Macros:AddMacro(text, ...)
 		self:AddMacro("Idle", idleTime);
 	end
 	self.macros[#self.macros + 1] = text;
+	GameLogic.GetFilters():apply_filters("Macro_AddRecord", #self.macros);
 end
 
 function Macros:EndRecord()
@@ -112,6 +113,15 @@ end
 
 function Macros:IsPlaying()
 	return self.isPlaying;
+end
+
+function Macros:LockInput()
+	ParaScene.GetAttributeObject():SetField("BlockInput", true);
+	ParaCamera.GetAttributeObject():SetField("BlockInput", true);
+end
+function Macros:UnlockInput()
+	ParaScene.GetAttributeObject():SetField("BlockInput", false);
+	ParaCamera.GetAttributeObject():SetField("BlockInput", false);
 end
 
 
@@ -148,7 +158,13 @@ function Macros:PlayMacros(macros, fromLine)
 	if(fromLine == 1) then
 		self:EndRecord()
 		self:Init();
+
 		self.isPlaying = true;
+		
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
+		local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
+		MacroPlayer.ShowPage();
+		self:LockInput()
 	end
 
 	while(true) do
@@ -157,6 +173,7 @@ function Macros:PlayMacros(macros, fromLine)
 			self.isPlaying = true;
 
 			local isAsync = nil;
+			GameLogic.GetFilters():apply_filters("Macro_PlayMacro", fromLine, macros);
 			m:Run(function()
 				if(isAsync) then
 					self:PlayMacros(macros, fromLine+1)
@@ -171,7 +188,7 @@ function Macros:PlayMacros(macros, fromLine)
 				break;
 			end
 		else
-			self.isPlaying = false;
+			self:Stop()
 			break;
 		end
 	end
@@ -183,6 +200,8 @@ function Macros:Stop()
 		self:EndRecord()
 	elseif(self:IsPlaying()) then
 		self.isPlaying = false;
+		self:UnlockInput();
+		GameLogic.GetFilters():apply_filters("Macro_EndPlay");
 	end
 end
 
@@ -218,7 +237,7 @@ end
 
 
 function Macros:OnTimer()
-	if(self:IsRecording() and not self.isPlaying) then
+	if(self:IsRecording() and not self:IsPlaying()) then
 		self:Tick_RecordPlayerMove()
 	end
 end

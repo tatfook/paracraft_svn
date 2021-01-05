@@ -19,6 +19,7 @@ local page;
 function MacroRecorder.OnInit()
 	page = document:GetPageCtrl();
 	GameLogic.GetFilters():add_filter("Macro_EndRecord", MacroRecorder.OnMacroStopped);
+	GameLogic.GetFilters():add_filter("Macro_AddRecord", MacroRecorder.OnNewMacroRecorded);
 end
 
 -- @param duration: in seconds
@@ -37,13 +38,20 @@ function MacroRecorder.ShowPage(bShow)
 				align = "_lt",
 				x = 10,
 				y = 10,
-				width = 48,
-				height = 48,
+				width = 64,
+				height = 32,
 		});
 end
 
 function MacroRecorder.OnMacroStopped()
 	MacroRecorder.CloseWindow();
+end
+
+function MacroRecorder.OnNewMacroRecorded(count)
+	if(page and count) then
+		page:SetUIValue("text", tostring(count))
+	end
+	return count;
 end
 
 function MacroRecorder.CloseWindow()
@@ -57,3 +65,4 @@ function MacroRecorder.OnStop()
 	MacroRecorder.CloseWindow();
 	Macros:Stop();
 end
+
