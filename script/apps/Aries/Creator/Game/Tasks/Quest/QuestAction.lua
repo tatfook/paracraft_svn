@@ -95,7 +95,8 @@ function QuestAction.OpenPage(name)
     if name == 'certificate' then
         GameLogic.GetFilters():apply_filters('show_certificate', function(result)
             if result then
-                QuestAction.AchieveTask("40002_1", 1, true)
+                -- QuestAction.AchieveTask("40002_1", 1, true)
+                QuestAction.AchieveTask("40006_1", 1, true)
             end
             
         end);
