@@ -407,7 +407,11 @@ end
 function FriendsPage.PrivateLetter(chat_user_data)
 	-- page:CloseWindow()
 	-- FriendsPage.CloseView()
-	FriendChatPage.Show(UserData, chat_user_data);
+
+	-- 要先判断是否好友
+	if chat_user_data.isFriend or FriendsPage.index == TopBtListType.RecentContact or FriendsPage.index == TopBtListType.Friend then
+		FriendChatPage.Show(UserData, chat_user_data);
+	end
 end
 
 function FriendsPage.ToFollow(userId)
