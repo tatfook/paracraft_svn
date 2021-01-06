@@ -124,7 +124,7 @@ function ParaWorldMinimapWnd.OnLocalWorldInfo()
 				local ParaWorldApply = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParaWorld/ParaWorldApply.lua");
 				ParaWorldApply.ShowPage();
 			else
-				_guihelper.MessageBox(L"只有老师才可以提交申请！");
+				_guihelper.MessageBox(L"成为老师就可以申请啦！");
 			end
 		elseif (generatorName == "paraworldMini") then
 			_guihelper.MessageBox(L"请到并行世界中选择要入驻的大世界，在并行世界列表中可以点击进入并行世界！");
