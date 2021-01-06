@@ -29,6 +29,8 @@ QuestPage.isOpen = false
 QuestPage.TaskData = {}
 QuestPage.is_add_event = false
 
+local OwlTaskId = 40005
+
 QuestPage.TaskIdToClickCb = {
 	-- [40001] = "EnterWorld",
 	[TaskIdList.GrowthDiary] = "GrowthDiary",
@@ -184,6 +186,30 @@ end
 function QuestPage.OnCreate()
 	-- local exp_num = 88
 	-- QuestPage.SetExpProgress(exp_num)
+
+
+	-- 找到猫头鹰item 创建toolsbag
+	local owl_item_index = 0
+	for k, v in pairs(QuestPage.TaskData) do
+		if v.task_id == OwlTaskId then
+			owl_item_index = k
+			break
+		end
+	end
+
+	if owl_item_index > 0 then
+		commonlib.TimerManager.SetTimeout(function()
+			local tree_view = page:GetNode("item_gridview"):GetChild("pe:treeview")
+			local owl_item = tree_view[owl_item_index]
+			local button = owl_item:GetChildWithAttribute("name", "item_root"):GetChildWithAttribute("name", "canvas")
+
+			local QuestItemToolTip = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestItemToolTip.lua");
+			local desc_data = {
+				"如果家里电脑没有安装帕拉卡，让爸爸妈妈百度搜索<div style='color: #ffff00 ;float: left;'>帕拉卡</div>帮你下载安装哦。",
+			}
+			QuestItemToolTip.Show(button.uiobject_id, desc_data)
+		end, 10)
+	end
 end
 
 function QuestPage.OnRefresh()
