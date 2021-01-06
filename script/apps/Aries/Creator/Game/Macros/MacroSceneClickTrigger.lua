@@ -10,14 +10,10 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macro.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 -------------------------------------------------------
 ]]
--------------------------------------
--- single Macro base
--------------------------------------
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
---@param btnName: button name
 --@param mouse_button: "left", "right", default to "left"
-function Macros.ButtonClickTrigger(btnName, mouse_button)
+function Macros.SceneClickTrigger(x, y, z, mouse_button)
 
 end
 

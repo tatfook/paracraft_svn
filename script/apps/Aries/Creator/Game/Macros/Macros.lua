@@ -31,6 +31,12 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroIdle.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMove.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMoveTrigger.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroButtonClick.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroButtonClickTrigger.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSceneClick.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSceneClickTrigger.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPress.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPressTrigger.lua");
 	-- TODO: add more here
 end
 

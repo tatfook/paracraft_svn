@@ -486,10 +486,13 @@ function BaseContext:mousePressEvent(event)
 	if GameLogic.GetFilters():apply_filters("BaseContextMousePressEvent", false, event) then
 		return
 	end
-	local temp = ParaUI.GetUIObjectAtPoint(event.x, event.y);
-	if(temp:IsValid()) then
-		return;
+	if(not event.isEmulated) then
+		local temp = ParaUI.GetUIObjectAtPoint(event.x, event.y);
+		if(temp:IsValid()) then
+			return;
+		end
 	end
+
 	if(self:handleHookedMouseEvent(event)) then
 		return;
 	end

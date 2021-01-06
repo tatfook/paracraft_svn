@@ -262,6 +262,10 @@ function EditContext:mouseReleaseEvent(event)
 		local result = self:CheckMousePick();
 		local isClickProcessed;
 		
+		if(GameLogic.Macros:IsRecording()) then
+			GameLogic.Macros:AddMacro("SceneClick", "left", GameLogic.Macros.GetSceneClickParams())
+		end
+
 		-- escape alt key for entity event, since alt key is for picking entity. 
 		if( not event.alt_pressed and result and result.obj and result.entity and (not result.block_id or result.block_id == 0)) then
 			-- for entities. 
