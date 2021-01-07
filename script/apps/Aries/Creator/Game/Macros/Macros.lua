@@ -88,7 +88,11 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	if(eventname == "onclick") then
 		local name = obj.name or "";
 		if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
-			Macros:AddMacro("ButtonClick", name, mouse_button)
+			if(name ~= "MacroRecorder.Stop") then
+				Macros:AddMacro("ButtonClick", name, mouse_button)
+			end
+		else
+			GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
 		end
 	end
 end
