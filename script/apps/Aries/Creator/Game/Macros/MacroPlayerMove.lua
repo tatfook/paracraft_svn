@@ -26,6 +26,7 @@ function Macros.PlayerMove(bx, by, bz, facing)
 		if(facing) then
 			player:SetFacing(facing);
 		end
+		return Macros.Idle(1);
 	end
 end
 
@@ -40,6 +41,7 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 	end
 	-- TODO: use animation?
 	ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
+	return Macros.Idle(1);
 end
 
 -- @param x,y,z: camera look at position. if nil it will default to last camera lookat call. 
@@ -52,6 +54,7 @@ function Macros.CameraLookat(x, y, z)
 	end
 	if(x) then
 		ParaCamera.SetLookAtPos(x, y, z);
+		return Macros.Idle(1);
 	end
 end
 

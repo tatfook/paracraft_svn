@@ -17,7 +17,7 @@ local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 -- @param timeMs: milliseconds
 -- @return nil or {OnFinish=function() end}
 function Macros.Idle(timeMs)
-	if(timeMs and timeMs > 10) then
+	if(timeMs and timeMs > 0) then
 		local callback = {};
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			if(callback.OnFinish) then

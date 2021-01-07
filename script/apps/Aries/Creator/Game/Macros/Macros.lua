@@ -18,7 +18,7 @@ local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local lastPlayerPos = {pos = {x=0, y=0, z=0}, facing=0, recorded=false};
-local lastCameraPos = {camobjDist=10, LiftupAngle=0, CameraRotY=0, recorded = false};
+local lastCameraPos = {camobjDist=10, LiftupAngle=0, CameraRotY=0, recorded = false, lookatX=0, lookatY = 0, lookatZ = 0};
 local startTime = 0;
 local idleStartTime = 0;
 
@@ -68,6 +68,7 @@ function Macros:BeginRecord()
 		lastPlayerPos.recorded = false;
 	end
 	lastCameraPos.camobjDist, lastCameraPos.LiftupAngle, lastCameraPos.CameraRotY = ParaCamera.GetEyePos();
+	lastCameraPos.lookatX, lastCameraPos.lookatY, lastCameraPos.lookatZ =  0,0,0;
 	lastCameraPos.recorded = false;
 
 	commonlib.__onuievent__ = Macros.OnGUIEvent;
@@ -80,6 +81,11 @@ function Macros:BeginRecord()
 	GameLogic.GetFilters():apply_filters("Macro_BeginRecord");
 end
 
+local ignoreBtnList = {
+	["MacroRecorder.Stop"] = true,
+	["_click_to_continue_delay_"] = true,
+}
+
 -- called whenever GUI event is received from c++ engine. 
 function Macros.OnGUIEvent(obj, eventname, callInfo)
 	if(not Macros:IsRecording()) then
@@ -88,7 +94,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	if(eventname == "onclick") then
 		local name = obj.name or "";
 		if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
-			if(name ~= "MacroRecorder.Stop") then
+			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("ButtonClick", name, mouse_button)
 			end
 		else
@@ -97,6 +103,10 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	end
 end
 
+-- macros that needs to sync camera and viewport settings
+local cameraViewMacros = {
+	["SceneClick"] = true,
+}
 
 -- @param text: macro command text or just macro function name
 -- @param ...: additional input parameters to macro function name
@@ -121,6 +131,10 @@ function Macros:AddMacro(text, ...)
 	if(idleTime > 100) then
 		idleStartTime = commonlib.TimerManager.GetCurrentTime();
 		self:AddMacro("Idle", idleTime);
+	end
+	local name = text:match("^([^%(]+)");
+	if(cameraViewMacros[name]) then
+		self:CheckAddCameraView();
 	end
 	self.macros[#self.macros + 1] = text;
 	GameLogic.GetFilters():apply_filters("Macro_AddRecord", #self.macros);
@@ -215,7 +229,9 @@ function Macros:PlayMacros(macros, fromLine)
 			GameLogic.GetFilters():apply_filters("Macro_PlayMacro", fromLine, macros);
 			m:Run(function()
 				if(isAsync) then
-					self:PlayMacros(macros, fromLine+1)
+					if(self.isPlaying) then
+						self:PlayMacros(macros, fromLine+1)
+					end
 				else
 					isAsync = false;
 				end
@@ -279,11 +295,31 @@ function Macros:Tick_RecordPlayerMove()
 			lastPlayerPos.recorded = true;
 			local facing = player:GetFacing();
 			self:AddMacro("PlayerMove", x, y, z, facing);
-			self:AddMacro("CameraLookat", ParaCamera.GetLookAtPos());
+
+			--local lookatX, lookatY, lookatZ = ParaCamera.GetLookAtPos();
+			--lastCameraPos.lookatX, lastCameraPos.lookatY, lastCameraPos.lookatZ = lookatX, lookatY, lookatZ
+			--self:AddMacro("CameraLookat", lookatX, lookatY, lookatZ);
 		end
 	end
 end
 
+-- only add camera lookat and positions if the current is different from last. 
+-- this function is usually called automatically before any scene clicking macros. 
+function Macros:CheckAddCameraView()
+	local camobjDist, LiftupAngle, CameraRotY = ParaCamera.GetEyePos();
+	local diff = math.abs(lastCameraPos.camobjDist - camobjDist) + math.abs(lastCameraPos.LiftupAngle - LiftupAngle) + math.abs(lastCameraPos.CameraRotY - CameraRotY);
+	if(diff > 0.001 or not lastCameraPos.recorded) then
+		lastCameraPos.camobjDist, lastCameraPos.LiftupAngle, lastCameraPos.CameraRotY = camobjDist, LiftupAngle, CameraRotY
+		lastCameraPos.recorded = true;
+		self:AddMacro("CameraMove", camobjDist, LiftupAngle, CameraRotY);
+	end
+	local lookatX, lookatY, lookatZ = ParaCamera.GetLookAtPos();
+	local diff = math.abs(lastCameraPos.lookatX - lookatX) + math.abs(lastCameraPos.lookatY - lookatY) + math.abs(lastCameraPos.lookatZ - lookatZ);
+	if(diff > 0.001) then
+		lastCameraPos.lookatX, lastCameraPos.lookatY, lastCameraPos.lookatZ = lookatX, lookatY, lookatZ
+		self:AddMacro("CameraLookat", lookatX, lookatY, lookatZ);
+	end
+end
 
 
 function Macros:OnTimer()

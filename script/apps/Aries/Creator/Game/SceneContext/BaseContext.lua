@@ -690,7 +690,8 @@ function BaseContext:OnCreateSingleBlock(x,y,z, block_id, result)
 	end
 end
 
-function BaseContext:OnCreateBlock(result)
+-- @param event: optional event object
+function BaseContext:OnCreateBlock(result, event)
 	if result.blockX == nil or result.blockY == nil or result.blockZ == nil then
 		return;
 	end	
@@ -715,9 +716,14 @@ function BaseContext:OnCreateBlock(result)
 		task:Run();
 		GameLogic.GetFilters():apply_filters("user_event_stat", "block", "create:"..tostring(block_id), 1, nil);
 	else
-		local ctrl_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RCONTROL);
-		local shift_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LSHIFT) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RSHIFT);
-		local alt_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU);
+		local ctrl_pressed, shift_pressed, alt_pressed;
+		if(event) then
+			ctrl_pressed, shift_pressed, alt_pressed = event.ctrl_pressed, event.shift_pressed, event.alt_pressed
+		else
+			ctrl_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RCONTROL);
+			shift_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LSHIFT) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RSHIFT);
+			alt_pressed = ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU);
+		end
 		
 		GameLogic.GetFilters():apply_filters("user_event_stat", "block", "create:"..tostring(block_id or result.block_id), 1, nil);
 
@@ -808,7 +814,7 @@ function BaseContext:handleRightClickScene(event, result)
 	end
 	if(not isProcessed and click_data.right_holding_time<400 and result and result.blockX) then
 		if(GameMode:CanRightClickToCreateBlock()) then
-			self:OnCreateBlock(result);
+			self:OnCreateBlock(result, event);
 		end
 	end
 end

@@ -62,5 +62,6 @@ function MacroPlayer.CloseWindow()
 	end
 end
 
-
-
+function MacroPlayer.OnClickStop()
+	GameLogic.Macros:Stop()
+end
