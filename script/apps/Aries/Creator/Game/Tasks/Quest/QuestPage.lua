@@ -341,6 +341,15 @@ function QuestPage.HandleTaskData(data)
 		end
 	end
 
+	-- 主线任务在前
+	table.sort(QuestPage.TaskData, function(a, b)
+		if a.is_main_task then
+			return true
+		end
+
+		return false
+	end)
+
 	---------------------------------------这块代码使用的是旧版的任务数据---------------------------------------
 	-- local task_id_list = DailyTaskManager.GetTaskIdList()
 	-- local id_list = {}
