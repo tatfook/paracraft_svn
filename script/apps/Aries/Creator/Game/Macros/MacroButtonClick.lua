@@ -18,6 +18,10 @@ local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 --@param btnName: button name
 --@param mouse_button: "left", "right", default to "left"
 function Macros.ButtonClick(btnName, mouse_button)
+	local obj = ParaUI.GetUIObject(btnName)
+	if(obj and obj:IsValid()) then
+		__onuievent__(obj.id, "onclick");
+	end
 end
 
 

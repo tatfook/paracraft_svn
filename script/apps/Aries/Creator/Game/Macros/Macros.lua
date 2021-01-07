@@ -70,11 +70,27 @@ function Macros:BeginRecord()
 	lastCameraPos.camobjDist, lastCameraPos.LiftupAngle, lastCameraPos.CameraRotY = ParaCamera.GetEyePos();
 	lastCameraPos.recorded = false;
 
+	commonlib.__onuievent__ = Macros.OnGUIEvent;
+	
+
 	self.tickTimer = self.tickTimer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnTimer();
 	end})
 	self.tickTimer:Change(500, 500);
 	GameLogic.GetFilters():apply_filters("Macro_BeginRecord");
+end
+
+-- called whenever GUI event is received from c++ engine. 
+function Macros.OnGUIEvent(obj, eventname, callInfo)
+	if(not Macros:IsRecording()) then
+		return
+	end
+	if(eventname == "onclick") then
+		local name = obj.name or "";
+		if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
+			Macros:AddMacro("ButtonClick", name, mouse_button)
+		end
+	end
 end
 
 
@@ -111,6 +127,7 @@ function Macros:EndRecord()
 		return;
 	end
 	self.isRecording = false;
+	commonlib.__onuievent__ = nil;
 	if(self.tickTimer) then
 		self.tickTimer:Change();
 	end
