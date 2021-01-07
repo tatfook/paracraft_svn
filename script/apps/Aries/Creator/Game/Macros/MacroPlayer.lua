@@ -23,13 +23,13 @@ function MacroPlayer.OnInit()
 end
 
 -- @param duration: in seconds
-function MacroPlayer.ShowPage(bShow)
+function MacroPlayer.ShowPage()
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
 			name = "MacroPlayerTask.ShowPage", 
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			isShowTitleBar = false,
-			bShow = bShow,
+			bShow = true,
 			DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			zorder = 1000,

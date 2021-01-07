@@ -52,6 +52,11 @@ function Macros:BeginRecord()
 	self:Init()
 	self.isRecording = true;
 	self.macros = {};
+	
+	local lastCamera = self:GetLastCameraParams()
+	lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ = nil, nil, nil;
+	lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY = 8, 0.4, 0;
+
 	startTime = commonlib.TimerManager.GetCurrentTime();
 	idleStartTime = startTime;
 
@@ -121,6 +126,13 @@ function Macros:IsPlaying()
 	return self.isPlaying;
 end
 
+local lastCamera = {camobjDist=8, LiftupAngle=0.4, CameraRotY=0}
+
+-- @return {camobjDist=8, LiftupAngle=0.4, CameraRotY=0, lookatX, lookatY, lookatZ}
+function Macros:GetLastCameraParams()
+	return lastCamera;
+end
+
 function Macros:LockInput()
 	ParaScene.GetAttributeObject():SetField("BlockInput", true);
 	ParaCamera.GetAttributeObject():SetField("BlockInput", true);
@@ -139,7 +151,7 @@ function Macros:LoadMacrosFromText(text)
 	end
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
 	local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
-
+	Macros:Init();
 	local macros = {};
 	for line in text:gmatch("[^\r\n]+") do
 		line = line:gsub("^%s+", "")
@@ -207,6 +219,16 @@ function Macros:Stop()
 	elseif(self:IsPlaying()) then
 		self.isPlaying = false;
 		self:UnlockInput();
+
+		local player = EntityManager.GetPlayer();
+		player:SetFocus();
+		local obj = player:GetInnerObject();
+		if(obj) then
+			if(obj.ToCharacter) then
+				obj:ToCharacter():SetFocus();
+			end
+		end
+
 		GameLogic.GetFilters():apply_filters("Macro_EndPlay");
 	end
 end
@@ -236,6 +258,7 @@ function Macros:Tick_RecordPlayerMove()
 			lastPlayerPos.recorded = true;
 			local facing = player:GetFacing();
 			self:AddMacro("PlayerMove", x, y, z, facing);
+			self:AddMacro("CameraLookat", ParaCamera.GetLookAtPos());
 		end
 	end
 end

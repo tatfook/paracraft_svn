@@ -16,8 +16,6 @@ local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
-local lastCamera = {camobjDist=8, LiftupAngle=0.4, CameraRotY=0}
-
 --@param bx, by, bz: block world position
 --@param facing: player facing
 function Macros.PlayerMove(bx, by, bz, facing)
@@ -34,14 +32,26 @@ end
 
 -- @param camobjDist, LiftupAngle, CameraRotY: if nil, we will restore the last CameraMove macro's values
 function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
+	local lastCamera = Macros:GetLastCameraParams();
 	if(not camobjDist) then
 		camobjDist, LiftupAngle, CameraRotY = lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY;
 	else
 		lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY = camobjDist, LiftupAngle, CameraRotY
 	end
 	-- TODO: use animation?
-	ParaCamera.SetEyePos(camobjDist, LifeupAngle, CameraRotY)
+	ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
 end
 
-
+-- @param x,y,z: camera look at position. if nil it will default to last camera lookat call. 
+function Macros.CameraLookat(x, y, z)
+	local lastCamera = Macros:GetLastCameraParams();
+	if(not x) then
+		x, y, z = lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ
+	else
+		lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ = x, y, z;
+	end
+	if(x) then
+		ParaCamera.SetLookAtPos(x, y, z);
+	end
+end
 

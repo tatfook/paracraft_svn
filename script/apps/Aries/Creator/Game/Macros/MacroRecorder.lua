@@ -23,13 +23,13 @@ function MacroRecorder.OnInit()
 end
 
 -- @param duration: in seconds
-function MacroRecorder.ShowPage(bShow)
+function MacroRecorder.ShowPage()
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroRecorder.html", 
 			name = "MacroRecorderTask.ShowPage", 
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			isShowTitleBar = false,
-			bShow = bShow,
+			bShow = true,
 			DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			zorder = 1000,
