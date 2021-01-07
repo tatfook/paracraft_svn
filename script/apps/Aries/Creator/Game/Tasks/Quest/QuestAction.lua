@@ -170,7 +170,7 @@ function QuestAction.GetLabel_60007_1(task_id, task_data)
         return
     end
     
-    local value = task_data.value == 24 and 1 or 0
+    local value = task_data.value == 26 and 1 or 0
     local finished_value = 1
     return string.format("%s/%s", value, finished_value)
 end
