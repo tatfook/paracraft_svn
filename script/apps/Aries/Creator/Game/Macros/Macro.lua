@@ -30,6 +30,9 @@ function Macro:Init(text)
 				self.name = name;
 				self.params = params;
 				self.func = Macros[self.name];
+				if(Macros[self.name.."Trigger"]) then
+					self.hasTrigger = true
+				end
 			end
 		end
 	end
@@ -38,6 +41,17 @@ end
 
 function Macro:IsValid()
 	return type(self.func) == "function";
+end
+
+function Macro:HasTrigger()
+	return self.hasTrigger;
+end
+
+function Macro:CreateTriggerMacro()
+	if(self:HasTrigger()) then
+		local m = Macro:new():Init(format("%sTrigger(%s)", self.name, self.params or ""));
+		return m;
+	end
 end
 
 

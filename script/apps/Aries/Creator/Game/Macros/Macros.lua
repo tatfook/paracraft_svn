@@ -4,6 +4,14 @@ Author(s): LiXizhi
 Date: 2021/1/2
 Desc: namespace for all macros
 
+Idle(500)
+CameraMove(8,0.54347,0.18799)
+CameraLookat(19980.29883,-126.59001,19998.52929)
+PlayerMove(19181,5,19198,0.23781)
+SceneClick("shift+right",-0.19781,0.07273)
+Tip("some text")
+Broadcast("globalGameEvent")
+
 Use Lib:
 -------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macros.lua");
@@ -29,6 +37,7 @@ function Macros:Init()
 	end
 	isInited = true;
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroIdle.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroTip.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMove.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMoveTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroButtonClick.lua");
@@ -177,7 +186,6 @@ function Macros:UnlockInput()
 	ParaCamera.GetAttributeObject():SetField("BlockInput", false);
 end
 
-
 -- @param text: text lines of macros.
 -- @return array of Macro objects
 function Macros:LoadMacrosFromText(text)
@@ -321,6 +329,14 @@ function Macros:CheckAddCameraView()
 	end
 end
 
+
+function Macros:SetInteractiveMode(isInteractive)
+	self.isInteractive = isInteractive == true;
+end
+
+function Macros:IsInteractiveMode()
+	return self.isInteractive;
+end
 
 function Macros:OnTimer()
 	if(self:IsRecording() and not self:IsPlaying()) then

@@ -13,7 +13,7 @@ local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 --@param mouse_button: "left", "right", default to "left"
-function Macros.SceneClickTrigger(x, y, z, mouse_button)
+function Macros.SceneClickTrigger(mouseX, mouseY, button)
 
 end
 

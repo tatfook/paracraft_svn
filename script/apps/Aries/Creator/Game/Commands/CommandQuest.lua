@@ -15,14 +15,16 @@ local Commands = commonlib.gettable("MyCompany.Aries.Game.Commands");
 
 Commands["macro"] = {
 	name="macro", 
-	quick_ref="/macro [record|play|stop] [filename]", 
+	quick_ref="/macro [record|play|stop] [-i|interactive] [filename]", 
 	desc=[[record user actions and then playback. 
 e.g.
 /macro    toggle recording mode
+/macro play -i   play in interactive mode
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params, fromEntity)
-		local name;
+		local name, options;
 		name, cmd_text = CmdParser.ParseString(cmd_text);
+		options, cmd_text = CmdParser.ParseOptions(cmd_text);
 
 		local function StartRecord()
 			GameLogic.Macros:BeginRecord()
@@ -30,11 +32,18 @@ e.g.
 			local MacroRecorder = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroRecorder");
 			MacroRecorder.ShowPage();
 		end
+
+		local isInteractive;
+		if(options and (options.i or options.interactive)) then
+			isInteractive = true;
+		end
+
 		if(name == "record") then
 			StartRecord()
 		elseif(name == "stop") then
 			GameLogic.Macros:Stop();
 		elseif(name == "play") then
+			GameLogic.Macros:SetInteractiveMode(isInteractive);
 			GameLogic.Macros:Play();
 		elseif(not name or name == "") then
 			if(GameLogic.Macros:IsRecording()) then
