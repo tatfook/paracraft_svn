@@ -17,27 +17,32 @@ Commands["macro"] = {
 	name="macro", 
 	quick_ref="/macro [record|play|stop] [-i|interactive] [filename]", 
 	desc=[[record user actions and then playback. 
+@param i|interactive: we will automatically insert trigger macros
 e.g.
 /macro    toggle recording mode
-/macro play -i   play in interactive mode
+/macro record -i
+/macro record
+/macro play
+/macro stop
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params, fromEntity)
 		local name, options;
 		name, cmd_text = CmdParser.ParseString(cmd_text);
 		options, cmd_text = CmdParser.ParseOptions(cmd_text);
-
-		local function StartRecord()
-			GameLogic.Macros:BeginRecord()
-			NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroRecorder.lua");
-			local MacroRecorder = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroRecorder");
-			MacroRecorder.ShowPage();
-		end
-
+		
 		local isInteractive;
 		if(options and (options.i or options.interactive)) then
 			isInteractive = true;
 		end
 
+		local function StartRecord()
+			GameLogic.Macros:SetInteractiveMode(isInteractive);
+			GameLogic.Macros:BeginRecord()
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroRecorder.lua");
+			local MacroRecorder = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroRecorder");
+			MacroRecorder.ShowPage();
+		end
+		
 		if(name == "record") then
 			StartRecord()
 		elseif(name == "stop") then

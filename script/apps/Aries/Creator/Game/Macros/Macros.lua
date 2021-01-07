@@ -21,6 +21,8 @@ if(GameLogic.Macros:IsRecording()) then
 end
 -------------------------------------------------------
 ]]
+NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
+local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
@@ -145,8 +147,16 @@ function Macros:AddMacro(text, ...)
 	if(cameraViewMacros[name]) then
 		self:CheckAddCameraView();
 	end
-	self.macros[#self.macros + 1] = text;
-	GameLogic.GetFilters():apply_filters("Macro_AddRecord", #self.macros);
+	local macro = Macro:new():Init(text);
+	if(macro:IsValid()) then
+		if(self:IsRecording() and self:IsInteractiveMode() and macro:HasTrigger()) then
+			self.macros[#self.macros + 1] = macro:CreateTriggerMacro();
+		end
+		self.macros[#self.macros + 1] = macro;
+		GameLogic.GetFilters():apply_filters("Macro_AddRecord", #self.macros);
+	else
+		GameLogic.AddBBS("Macro", format("Unknown macro: %s", text), 5000, "255 0 0");
+	end
 end
 
 function Macros:EndRecord()
@@ -159,7 +169,11 @@ function Macros:EndRecord()
 		self.tickTimer:Change();
 	end
 	if(self.macros) then
-		local text = table.concat(self.macros, "\n");
+		local out = {};
+		for _, m in ipairs(self.macros) do
+			out[#out+1] = m:ToString();
+		end
+		local text = table.concat(out, "\n");
 		ParaMisc.CopyTextToClipboard(text);
 		GameLogic.AddBBS(nil, format("%d macros are copied to clipboard", #(self.macros)), 5000, "0 255 0")
 	end
@@ -192,8 +206,6 @@ function Macros:LoadMacrosFromText(text)
 	if(not text) then
 		return
 	end
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
-	local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 	Macros:Init();
 	local macros = {};
 	for line in text:gmatch("[^\r\n]+") do

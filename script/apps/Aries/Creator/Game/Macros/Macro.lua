@@ -39,6 +39,10 @@ function Macro:Init(text)
 	return self;
 end
 
+function Macro:ToString()
+	return format("%s(%s)", self.name, self.params or "")
+end
+
 function Macro:IsValid()
 	return type(self.func) == "function";
 end
