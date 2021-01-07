@@ -598,11 +598,8 @@ function FriendsPage.OnMsg(payload, full_msg)
 
 	-- 收到消息 最近联系列表得刷新一下
 	if FriendsPage.index == TopBtListType.RecentContact then
-		print("...收到消息 最近联系列表得刷新一下")
 		FriendsPage.AddUnReadMsg(payload.id, 1, payload.content)
-		commonlib.echo(FriendsPage.UnreadMsg, true)
 		local list = FriendsPage.GetRecentFromFriendsList()
-		commonlib.echo(list, true)
 		FriendsPage.SetListDataAndFlushGridView(list)
 	else
 		FriendsPage.AddUnReadMsg(payload.id, 1, payload.content)
