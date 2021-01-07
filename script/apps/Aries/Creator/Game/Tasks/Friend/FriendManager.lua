@@ -317,8 +317,6 @@ function FriendManager.ChatWithFriend(chat_uid)
   end
 
   local user_data = KeepWorkItemManager.GetProfile()
-  print("aaaaaaaaaaa", user_data.id == chat_uid)
-  echo(user_data, true)
 
   if chat_uid == user_data.id then
     GameLogic.AddBBS(nil, L"自己不能和自己聊天，谢谢", 5000, "0 255 0");
