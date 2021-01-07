@@ -50,8 +50,8 @@ DockPage.top_line_3 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", },
-    { label = L"寻找帽子", id = "find_hat", enabled3 = true, bg= "Texture/Aries/Creator/keepwork/ActRedhat/btn2_maozi_32bits.png#0 0 85 75"},
+    { label = L"", },
+    { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", },    
     { label = L"周末活动", id = "act_week", enabled3 = true, bg= "Texture/Aries/Creator/keepwork/dock/btn2_chuangzaozhoumo_32bits.png#0 0 85 75"},
 }
 
@@ -325,7 +325,7 @@ function DockPage.OnClick_Menuitem_plugin()
     SelectModulePage.ShowPage()
 end
 function DockPage.OnClick_Menuitem_service()
-	ParaGlobal.ShellExecute("open", "explorer.exe", "https://keepwork.com/official/docs/FAQ/questions", "", 1); 
+	ParaGlobal.ShellExecute("open", "https://keepwork.com/official/docs/FAQ/questions", "","", 1); 
 end
 function DockPage.OnClick_Menuitem_system()
     GameLogic.RunCommand("/menu file.settings");
@@ -472,18 +472,6 @@ function DockPage.RenderButton_3(index)
                 </div>
                 <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
             ]],node.id,node.bg);
-        else
-            return ''
-        end
-    end
-
-    
-    if(id == "find_hat") then
-        if ActRedhatExchange and ActRedhatExchange.CheckCanShow() then
-            return string.format([[
-                <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
-                %s
-            ]],node.id,node.bg,tip_str);
         else
             return ''
         end

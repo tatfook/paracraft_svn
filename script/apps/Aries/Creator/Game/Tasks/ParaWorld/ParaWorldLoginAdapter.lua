@@ -135,19 +135,22 @@ function ParaWorldLoginAdapter:EnterWorld(close)
 end
 
 function ParaWorldLoginAdapter.ShowExitWorld(restart)
-	_guihelper.MessageBox(L"是否离开当前世界，返回登录界面？", function(res)
-		if(res and res == _guihelper.DialogResult.Yes)then
-			ParaWorldLoginAdapter.MainWorldId = nil;
-			ParaWorldLoginAdapter.ParaWorldId = nil;
-			Desktop.is_exiting = true;			
-
-            GameLogic.GetFilters():apply_filters('logout', nil, function()
-                GameLogic.GetFilters():apply_filters("OnKeepWorkLogout", true);
-            end);
-
-			Desktop.ForceExit(restart);
-		end
-	end, _guihelper.MessageBoxButtons.YesNo);
+    local DockExitPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockExitPage.lua")
+    DockExitPage.ShowPage(function()
+        _guihelper.MessageBox(L"是否离开当前世界，返回登录界面？", function(res)
+            if(res and res == _guihelper.DialogResult.Yes)then
+                ParaWorldLoginAdapter.MainWorldId = nil;
+                ParaWorldLoginAdapter.ParaWorldId = nil;
+                Desktop.is_exiting = true;			
+    
+                GameLogic.GetFilters():apply_filters('logout', nil, function()
+                    GameLogic.GetFilters():apply_filters("OnKeepWorkLogout", true);
+                end);
+    
+                Desktop.ForceExit(restart);
+            end
+        end, _guihelper.MessageBoxButtons.YesNo);        
+    end)    
 end
 
 
