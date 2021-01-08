@@ -20,7 +20,6 @@ function Scene:ctor()
     self.RootNode  = SceneNode:new();
     self.RootNode.Scene = self;
     self.RootNode.IsRoot = true;
-
 end
 function Scene:clear()
     self.RootNode:clearAllChildren();

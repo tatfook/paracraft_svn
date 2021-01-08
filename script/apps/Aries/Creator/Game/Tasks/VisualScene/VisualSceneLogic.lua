@@ -6,6 +6,13 @@ Desc:
 use the lib:
 ------------------------------------------------------------
 local VisualSceneLogic = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VisualScene/VisualSceneLogic.lua");
+local editor = VisualSceneLogic.activedEditor("first_editor");
+local node, code_component, movieclip_component = editor:createBlockCodeNode();
+if(node and code_component)then
+    code_component:setCodeFileName("test/follow.lua")
+    node:run();
+end
+echo(editor:toJson(),true);
 ------------------------------------------------------------
 --]]
 local Editor = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VisualScene/UI/Editor.lua");
@@ -25,7 +32,7 @@ function VisualSceneLogic.createOrGetEditor(name)
     VisualSceneLogic.editors[name] = editor;
     return editor;
 end
-function VisualSceneLogic.activeEditor(name)
+function VisualSceneLogic.activedEditor(name)
     VisualSceneLogic.cur_editor = VisualSceneLogic.createOrGetEditor(name);
     return VisualSceneLogic.cur_editor;
 end

@@ -7,16 +7,17 @@ use the lib:
 ------------------------------------------------------------
 local Editor = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VisualScene/UI/Editor.lua");
 local editor = Editor:new();
-local node, code_component, movieclip_component = editor:createNode(editor.Scene.RootNode, "", { 19128, 5, 19197 }, { 19128, 5, 19196 });
+local node, code_component, movieclip_component = editor:createBlockCodeNode();
 code_component:setCodeFileName("test/follow.lua")
 
-local node, code_component, movieclip_component = editor:createNode(editor.Scene.RootNode, "", { 19125, 5, 19202 }, { 19125, 5, 19203 });
+local node, code_component, movieclip_component = editor:createBlockCodeNode();
 code_component:setCode('say("hi"); wait(2); say("bye")wait(2); say("")')
 editor:run();
 
 echo(editor:toJson(),true);
 ------------------------------------------------------------
 --]]
+local SkySpacePairBlock = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VisualScene/BlockPositionAllocations/SkySpacePairBlock.lua");
 local ComponentFactory = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VisualScene/ComponentFactory.lua");
 ComponentFactory.registerComponents();
 
@@ -32,6 +33,9 @@ Editor:Property({"Scene", auto = true, type = "Scene", camelCase = true, });
 
 function Editor:ctor()
     self.Scene = Scene:new();
+
+    self.pair_block_pos_allocation = SkySpacePairBlock:new();
+
 end
 function Editor:run()
     self.Scene.RootNode:run();
@@ -42,12 +46,17 @@ end
 function Editor:clear()
     self.Scene:clear();
 end
-function Editor:createNode(parent, name, position_code, position_movieclip)
+function Editor:createBlockCodeNode(parent, name)
+    parent = parent or self.Scene.RootNode;
+    local position_code, position_movieclip = self.pair_block_pos_allocation:getNextPairPosition();
+    if(not position_code or not position_movieclip)then
+        return
+    end
     local node = SceneNode:new();
     node.Name = name;
     parent:addChild(node);
+    
     local code_component = ComponentFactory.getComponent("CodeComponent"):new()
-    code_component:setName("code_component");
     code_component:setBlockPosition(position_code);
     node:addComponent(code_component);
 
