@@ -24,7 +24,8 @@ local ParacraftLearningRoomDailyPage = NPL.export()
 local page;
 ParacraftLearningRoomDailyPage.exid = 10001;
 ParacraftLearningRoomDailyPage.gsid = 30102;
-ParacraftLearningRoomDailyPage.max_cnt = 32;
+ParacraftLearningRoomDailyPage.max_cnt_preset = 133;
+ParacraftLearningRoomDailyPage.max_cnt = 0;
 ParacraftLearningRoomDailyPage.copies = 0;
 ParacraftLearningRoomDailyPage.lessons = [[关于移动
 F3信息状态栏
@@ -176,7 +177,12 @@ function ParacraftLearningRoomDailyPage.FillDays()
 	end
 	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(gsid)
 
-	ParacraftLearningRoomDailyPage.max_cnt = template.max or 0;
+    -- getting preset value first from client
+    local cnt = ParacraftLearningRoomDailyPage.max_cnt_preset;
+    if(template.max and template.max > cnt)then
+        cnt = template.max;
+    end
+	ParacraftLearningRoomDailyPage.max_cnt = cnt;
 	ParacraftLearningRoomDailyPage.copies = copies or 0;
 
 	ParacraftLearningRoomDailyPage.Current_Item_DS = {};
