@@ -225,19 +225,37 @@ function Macros:Play(text)
 	self:PlayMacros(macros);
 end
 
+function Macros:BeginPlay()
+	self:EndRecord()
+	self:Init();
+
+	self.isPlaying = true;
+		
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
+	local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
+	MacroPlayer.ShowPage();
+	self:LockInput()
+
+	GameLogic.GetFilters():add_filter("ShowExitDialog", Macros.OnShowExitDialog);
+end
+
+function Macros.OnShowExitDialog(p1)
+	if(Macros:IsPlaying()) then
+		_guihelper.MessageBox(L"是否退出示教系统?", function(res)
+			if(res and res == _guihelper.DialogResult.Yes) then
+				Macros:Stop();
+			end
+		end, _guihelper.MessageBoxButtons.YesNo);
+		return;
+	end
+	return p1;
+end
+
 -- @param fromLine: optional
 function Macros:PlayMacros(macros, fromLine)
 	fromLine = fromLine or 1
 	if(fromLine == 1) then
-		self:EndRecord()
-		self:Init();
-
-		self.isPlaying = true;
-		
-		NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
-		local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
-		MacroPlayer.ShowPage();
-		self:LockInput()
+		self:BeginPlay()
 	end
 
 	while(true) do
