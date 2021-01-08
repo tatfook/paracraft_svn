@@ -148,6 +148,18 @@ Paracraft由多少行代码构成的
 字符串与文字
 字符串常用操作
 字符串练习
+表的基本概念
+表与数组的创建方法
+表的用法举例
+如何定义函数
+调用函数
+有返回值的函数
+内置函数 and or
+内置函数 if
+如何避免 if
+内置函数 while for
+学习NPL语言的总结
+学习编程的建议
 ]]
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 
