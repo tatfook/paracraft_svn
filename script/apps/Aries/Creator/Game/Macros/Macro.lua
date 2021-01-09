@@ -33,6 +33,9 @@ function Macro:Init(text)
 				if(Macros[self.name.."Trigger"]) then
 					self.hasTrigger = true
 				end
+				if(name:match("Trigger$")) then
+					self.isTrigger = true;
+				end
 			end
 		end
 	end
@@ -49,6 +52,10 @@ end
 
 function Macro:HasTrigger()
 	return self.hasTrigger;
+end
+
+function Macro:IsTrigger()
+	return self.isTrigger;
 end
 
 function Macro:CreateTriggerMacro()

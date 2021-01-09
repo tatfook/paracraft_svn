@@ -14,19 +14,23 @@ GameLogic.Macros.Idle(1000)
 -------------------------------------
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
--- @param timeMs: milliseconds
+-- @param timeMs: milliseconds or nil. 
 -- @return nil or {OnFinish=function() end}
 function Macros.Idle(timeMs)
 	if(timeMs and timeMs > 0) then
-		local callback = {};
-		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
-			if(callback.OnFinish) then
-				callback.OnFinish();
-			end
-		end})
-		mytimer:Change(timeMs);
-		return callback;
+		local nextMacro = Macros:PeekNextMacro()
+		if(nextMacro and nextMacro:IsTrigger()) then
+			return Macros.Idle();
+		end
 	end
+	local callback = {};
+	local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end})
+	mytimer:Change(timeMs or 1);
+	return callback;
 end
 
 
