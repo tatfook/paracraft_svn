@@ -9,6 +9,7 @@ use the lib:
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
 local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 MacroPlayer.ShowPage();
+MacroPlayer.ShowController(false);
 -------------------------------------------------------
 ]]
 local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
@@ -53,6 +54,9 @@ function MacroPlayer.ShowPage()
 	end
 	MacroPlayer.ShowCursor(false);
 	MacroPlayer.ShowKeyPress(false);
+	if(GameLogic.IsReadOnly()) then
+		MacroPlayer.ShowController(false);
+	end
 end
 
 function MacroPlayer.OnPlayMacro(fromLine, macros)
@@ -171,6 +175,15 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 			else
 				keyPress:SetField("CanHaveFocus", false); 
 			end
+		end
+	end
+end
+
+function MacroPlayer.ShowController(bShow)
+	if(page) then
+		local progressController = page:FindControl("progressController");
+		if(progressController) then
+			progressController.visible = bShow;
 		end
 	end
 end
