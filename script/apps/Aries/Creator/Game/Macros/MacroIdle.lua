@@ -14,13 +14,17 @@ GameLogic.Macros.Idle(1000)
 -------------------------------------
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
+-- milliseconds between triggers
+local DefaultTriggerInterval = 200;
+
 -- @param timeMs: milliseconds or nil. 
+-- @param bForceWait: if true, we will not skip even if there is trigger in the next macro. 
 -- @return nil or {OnFinish=function() end}
-function Macros.Idle(timeMs)
-	if(timeMs and timeMs > 0) then
+function Macros.Idle(timeMs, bForceWait)
+	if(timeMs and timeMs > 0 and not bForceWait) then
 		local nextMacro = Macros:PeekNextMacro()
 		if(nextMacro and nextMacro:IsTrigger()) then
-			return Macros.Idle();
+			return Macros.Idle(DefaultTriggerInterval, true);
 		end
 	end
 	local callback = {};

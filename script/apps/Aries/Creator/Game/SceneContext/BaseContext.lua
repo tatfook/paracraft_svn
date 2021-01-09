@@ -588,13 +588,10 @@ end
 -- virtual: actually means key stroke. 
 function BaseContext:keyPressEvent(event)
 	GameLogic.GetFilters():apply_filters("KeyPressEvent", false, event)
-	if(event:isAccepted()) then
-		return true;
-	end
-	if(self:handleHookedKeyEvent(event)) then
-		return true;
-	end
-	if(self:HandleGlobalKey(event)) then
+	if(event:isAccepted() or self:handleHookedKeyEvent(event) or self:HandleGlobalKey(event)) then
+		if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+			GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
+		end
 		return true;
 	end
 end
@@ -868,7 +865,7 @@ function BaseContext:handlePlayerKeyEvent(event)
 			end
 		elseif(dik_key == "DIK_W") then
 			GameLogic.WalkForward();
-			event:accept();
+			
 		elseif(dik_key == "DIK_E") then
 			GameLogic.ToggleDesktop("builder");
 			event:accept();

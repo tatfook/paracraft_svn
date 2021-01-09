@@ -262,7 +262,7 @@ function EditContext:mouseReleaseEvent(event)
 		local result = self:CheckMousePick();
 		local isClickProcessed;
 		
-		if(GameLogic.Macros:IsRecording()) then
+		if(GameLogic.Macros:IsRecording() and not event.recorded) then
 			GameLogic.Macros:AddMacro("SceneClick", GameLogic.Macros.GetButtonTextFromClickEvent(event), GameLogic.Macros.GetSceneClickParams())
 		end
 
@@ -355,6 +355,10 @@ function EditContext:keyPressEvent(event)
 	
 	if( self:handleHistoryKeyEvent(event) or
 		self:handlePlayerKeyEvent(event)) then
+
+		if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+			GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
+		end
 		return;
 	end
 
@@ -393,6 +397,9 @@ function EditContext:keyPressEvent(event)
 	elseif(event.ctrl_pressed or event.shift_pressed) then
 		-- when ctrl is pressed, enter select block manipulator
 		self:UpdateSelectManipulators();
+	end
+	if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+		GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
 	end
 end
 

@@ -6,19 +6,22 @@ Desc: a trigger for key(s) press.
 
 Use Lib:
 -------------------------------------------------------
-NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macro.lua");
-local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
+
 -------------------------------------------------------
 ]]
--------------------------------------
--- single Macro base
--------------------------------------
+NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
+local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
---@param keyName1: key name1
---@param keyName2: key name2
-function Macros.KeyPressTrigger(keyName1, keyName2)
-
+--@param button: string like "C" or "ctrl+C"
+function Macros.KeyPressTrigger(button)
+	local callback = {};
+	MacroPlayer.SetKeyPressTrigger(button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
 end
 
 

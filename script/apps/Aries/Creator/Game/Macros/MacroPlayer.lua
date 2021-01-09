@@ -11,6 +11,7 @@ local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer")
 MacroPlayer.ShowPage();
 -------------------------------------------------------
 ]]
+local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local MacroPlayer = commonlib.inherit(nil, commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer"));
@@ -24,6 +25,8 @@ end
 
 -- @param duration: in seconds
 function MacroPlayer.ShowPage()
+	MacroPlayer.expectedButton = nil;
+	MacroPlayer.expectedKeyButton = nil;
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
 			name = "MacroPlayerTask.ShowPage", 
@@ -41,7 +44,15 @@ function MacroPlayer.ShowPage()
 				width = 0,
 				height = 0,
 		});
+	local keyPress = page:FindControl("keyPress");
+	if(keyPress) then
+		keyPress:SetScript("onkeydown", function()
+			local event = KeyEvent:init("keyPressEvent")
+			MacroPlayer.OnKeyDown(event)
+		end);
+	end
 	MacroPlayer.ShowCursor(false);
+	MacroPlayer.ShowKeyPress(false);
 end
 
 function MacroPlayer.OnPlayMacro(fromLine, macros)
@@ -110,6 +121,56 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 				cursorTick = 0;
 			end
 			MacroPlayer.animCursorTimer:Change(30);
+		end
+	end
+end
+
+function MacroPlayer.AnimKeyPressBtn(bRestart)
+	if(page) then
+		local keyPress = page:FindControl("keyPress");
+		if(keyPress and keyPress.visible) then
+			-- this is important to always focus to the key press control in case the user has clicked elsewhere.
+			keyPress:Focus();
+			MacroPlayer.animKeyPressTimer = MacroPlayer.animKeyPressTimer or commonlib.Timer:new({callbackFunc = function(timer)
+				MacroPlayer.AnimKeyPressBtn()
+			end})
+			MacroPlayer.animKeyPressTimer:Change(100);
+		end
+	end
+end
+function MacroPlayer.ShowKeyPress(bShow, button)
+	if(page) then
+		local keyPress = page:FindControl("keyPress");
+		if(keyPress) then
+			keyPress.visible = bShow;
+			if(bShow) then
+				keyPress:SetField("CanHaveFocus", true); 
+				keyPress:Focus();
+
+				button = button or ""
+				local buttons = {};
+				for text in button:gmatch("([%w_]+)") do
+					buttons[#buttons+1] = text;
+				end
+				local left = 5;
+				for i=1, 3 do
+					local keyBtn = page:FindControl("key"..i);
+					local btnText = buttons[i];
+					if(btnText) then
+						btnText = btnText:gsub("DIK_", "")
+						keyBtn.text = string.upper(btnText);
+						keyBtn.visible = true;
+						keyBtn.translationx = left;
+						keyBtn:ApplyAnim();
+						left = left + keyBtn.width + 5;
+					else
+						keyBtn.visible = false
+					end
+				end
+				MacroPlayer.AnimKeyPressBtn(true)
+			else
+				keyPress:SetField("CanHaveFocus", false); 
+			end
 		end
 	end
 end
@@ -196,7 +257,31 @@ function MacroPlayer.OnClickCursor()
 		isOK = false
 	end
 	if(isOK) then
+		MacroPlayer.expectedButton = nil;
 		MacroPlayer.ShowCursor(false)
+		MacroPlayer.InvokeTriggerCallback()
+	end
+end
+
+function MacroPlayer.OnKeyDown(event)
+	local button = MacroPlayer.expectedKeyButton or "";
+	local isOK = true;
+	if(button:match("ctrl") and not event.ctrl_pressed) then
+		isOK = false
+	end
+	if(button:match("shift") and not event.shift_pressed) then
+		isOK = false
+	end
+	if(button:match("alt") and not event.alt_pressed) then
+		isOK = false
+	end
+	local keyname = button:match("(DIK_%w+)");
+	if(keyname and keyname~=event.keyname) then
+		isOK = false
+	end
+	if(isOK) then
+		MacroPlayer.expectedKeyButton = nil;
+		MacroPlayer.ShowKeyPress(false)
 		MacroPlayer.InvokeTriggerCallback()
 	end
 end
@@ -206,5 +291,13 @@ function MacroPlayer.SetClickTrigger(mouseX, mouseY, button, callbackFunc)
 		MacroPlayer.expectedButton = button;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, button)
+	end
+end
+
+function MacroPlayer.SetKeyPressTrigger(button, callbackFunc)
+	if(page) then
+		MacroPlayer.expectedKeyButton = button;
+		MacroPlayer.SetTriggerCallback(callbackFunc)
+		MacroPlayer.ShowKeyPress(true, button)
 	end
 end
