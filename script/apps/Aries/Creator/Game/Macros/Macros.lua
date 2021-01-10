@@ -376,3 +376,12 @@ function Macros:OnTimer()
 		self:Tick_RecordPlayerMove()
 	end
 end
+
+local lastMouseDownEvent = {};
+function Macros:MarkMousePress(event)
+	lastMouseDownEvent.x = event.x;
+	lastMouseDownEvent.y = event.y;
+	lastMouseDownEvent.mouse_button = event.mouse_button;
+	lastMouseDownEvent.clickTime = commonlib.TimerManager.GetCurrentTime();
+end
+
