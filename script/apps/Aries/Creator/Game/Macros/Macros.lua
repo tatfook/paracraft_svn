@@ -192,12 +192,10 @@ function Macros:GetLastCameraParams()
 end
 
 function Macros:LockInput()
-	ParaScene.GetAttributeObject():SetField("BlockInput", true);
-	ParaCamera.GetAttributeObject():SetField("BlockInput", true);
+	System.os.options.DisableInput(true);
 end
 function Macros:UnlockInput()
-	ParaScene.GetAttributeObject():SetField("BlockInput", false);
-	ParaCamera.GetAttributeObject():SetField("BlockInput", false);
+	System.os.options.DisableInput(false);
 end
 
 -- @param text: text lines of macros.
