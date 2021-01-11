@@ -258,6 +258,14 @@ end
 function EditContext:mouseReleaseEvent(event)
 	EditContext._super.mouseReleaseEvent(self, event);
 	if(event:isAccepted()) then
+		if(GameLogic.Macros:IsRecording() and not self.is_click and not event.recorded) then
+			local mousePressEvent = GameLogic.Macros:GetLastMousePressEvent()
+			local startAngleX, startAngleY = GameLogic.Macros.GetSceneClickParams(mousePressEvent.x, mousePressEvent.y)
+			local endAngleX, endAngleY = GameLogic.Macros.GetSceneClickParams()
+			event.recorded = true;
+			GameLogic.Macros:AddMacro("SceneDrag", GameLogic.Macros.GetButtonTextFromClickEvent(event), startAngleX, startAngleY, endAngleX, endAngleY)
+		end
+
 		return
 	end
 
@@ -266,6 +274,7 @@ function EditContext:mouseReleaseEvent(event)
 		local isClickProcessed;
 		
 		if(GameLogic.Macros:IsRecording() and not event.recorded) then
+			event.recorded = true;
 			GameLogic.Macros:AddMacro("SceneClick", GameLogic.Macros.GetButtonTextFromClickEvent(event), GameLogic.Macros.GetSceneClickParams())
 		end
 
@@ -360,6 +369,7 @@ function EditContext:keyPressEvent(event)
 		self:handlePlayerKeyEvent(event)) then
 
 		if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+			event.recorded = true;
 			GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
 		end
 		return;
@@ -402,6 +412,7 @@ function EditContext:keyPressEvent(event)
 		self:UpdateSelectManipulators();
 	end
 	if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+		event.recorded = true;
 		GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
 	end
 end

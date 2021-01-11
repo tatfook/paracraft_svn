@@ -377,7 +377,13 @@ function Macros:OnTimer()
 	end
 end
 
-local lastMouseDownEvent = {};
+
+local lastMouseDownEvent = {x=0, y=0,};
+
+function Macros:GetLastMousePressEvent()
+	return lastMouseDownEvent;
+end
+
 function Macros:MarkMousePress(event)
 	lastMouseDownEvent.x = event.x;
 	lastMouseDownEvent.y = event.y;

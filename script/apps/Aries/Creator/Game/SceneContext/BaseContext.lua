@@ -513,13 +513,15 @@ end
 
 -- virtual: 
 function BaseContext:mouseReleaseEvent(event)
+	self.is_click = self:EndMouseClickCheck(event); 
+
 	if GameLogic.GetFilters():apply_filters("BaseContextMouseReleaseEvent", false, event) then
 		return
 	end
 	if(self:handleHookedMouseEvent(event)) then
 		return;
 	end
-	self.is_click = self:EndMouseClickCheck(event); 
+
 	self.left_holding_time = click_data.left_holding_time;
 	self.right_holding_time = click_data.right_holding_time;
 	
