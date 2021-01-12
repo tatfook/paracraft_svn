@@ -117,6 +117,8 @@ end
 -- macros that needs to sync camera and viewport settings
 local cameraViewMacros = {
 	["SceneClick"] = true,
+	["SceneDrag"] = true,
+	["ButtonClick"] = true,
 }
 
 -- @param text: macro command text or just macro function name

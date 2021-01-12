@@ -75,8 +75,13 @@ local function SetMouseEventFromButtonText(event, button)
 	event.ctrl_pressed = button and button:match("ctrl") and true
 	if(button and button:match("left") ) then
 		event.buttons_state = 1;
+		event.mouse_button = "left"
 	elseif(button and button:match("right") ) then
 		event.buttons_state = 2;
+		event.mouse_button = "right"
+	elseif(button and button:match("middle") ) then
+		event.buttons_state = 0;
+		event.mouse_button = "middle"
 	else
 		event.buttons_state = 0;
 	end
@@ -152,12 +157,12 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 		local startX, startY = mouse_x, mouse_y;
 		local endX, endY, endMouseButton = Macros.MouseAngleToScreenPos(endAngleX, endAngleY)
 
-		local ticks = 1;
+		local ticks = 0;
 		local totalTicks = 15;
 	
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			ticks = ticks + 1;
-			if(ticks < totalTicks) then
+			if(ticks <= totalTicks) then
 				mouse_button = endMouseButton;
 				local ratio = ticks / totalTicks;
 				mouse_x = math.floor(startX * (1 - ratio) + endX * ratio + 0.5)
@@ -168,9 +173,8 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 				SetKeyboardFromButtonText(emulatedKeys, button)
 				local ctx = GameLogic.GetSceneContext()
 				ctx:handleMouseEvent(event);
-
 				timer:Change(33);
-			else
+			elseif(ticks == (totalTicks + 1)) then
 				mouse_x, mouse_y, mouse_button = endX, endY, endMouseButton
 				ParaUI.SetMousePosition(mouse_x, mouse_y);
 				local event = MouseEvent:init("mouseReleaseEvent");
@@ -179,6 +183,8 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 				local ctx = GameLogic.GetSceneContext()
 				ctx:handleMouseEvent(event);
 				
+				timer:Change(200);
+			else
 				-- clear all keyboard emulations
 				SetKeyboardFromButtonText(emulatedKeys, "")
 				if(callback.OnFinish) then

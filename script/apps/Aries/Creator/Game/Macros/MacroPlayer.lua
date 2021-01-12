@@ -124,7 +124,9 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 				cursorBtn.translationy = 0;
 				cursorTick = 0;
 			end
-			MacroPlayer.animCursorTimer:Change(30);
+			if(MacroPlayer.animCursorTimer) then
+				MacroPlayer.animCursorTimer:Change(30);
+			end
 		end
 	end
 end
