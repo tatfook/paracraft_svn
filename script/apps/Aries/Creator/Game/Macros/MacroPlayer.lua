@@ -56,6 +56,7 @@ function MacroPlayer.ShowPage()
 	MacroPlayer.ShowCursor(false);
 	MacroPlayer.ShowKeyPress(false);
 	MacroPlayer.ShowDrag(false);
+	MacroPlayer.ShowTip()
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
 	end
@@ -446,4 +447,18 @@ function MacroPlayer.OnDragEnd()
 	end
 	MacroPlayer.AnimDragBtn(true)
 	MacroPlayer.AnimCursorBtn(true);
+end
+
+-- @param text: text or mcml text.  if nil, we will hide it. 
+function MacroPlayer.ShowTip(text)
+	if(page) then
+		local tipWnd = page:FindControl("tipWnd");
+		if(text and text~="") then
+			tipWnd.visible = true;
+			page:SetUIValue("tipText", text)
+		else
+			tipWnd.visible = false;
+			page:SetUIValue("tipText", "")
+		end
+	end	
 end
