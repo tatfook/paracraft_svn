@@ -610,13 +610,20 @@ function BaseContext:handleItemKeyEvent(event)
 	end
 end
 
+function BaseContext:handleKeyEvent(event)
+	BaseContext._super.handleKeyEvent(self, event);
+	if(event:isAccepted()) then
+		if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
+			event.recorded = true;
+			GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
+		end
+	end
+end
+
 -- virtual: actually means key stroke. 
 function BaseContext:keyPressEvent(event)
 	GameLogic.GetFilters():apply_filters("KeyPressEvent", false, event)
 	if(event:isAccepted() or self:handleHookedKeyEvent(event) or self:HandleGlobalKey(event)) then
-		if(GameLogic.Macros:IsRecording() and event:isAccepted() and not event.recorded) then
-			GameLogic.Macros:AddMacro("KeyPress", GameLogic.Macros.GetButtonTextFromKeyEvent(event));
-		end
 		return true;
 	end
 end
