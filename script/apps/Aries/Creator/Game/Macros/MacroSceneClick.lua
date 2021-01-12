@@ -102,8 +102,8 @@ function Macros.MouseAngleToScreenPos(angleX, angleY, button)
 	local curAspectRatio = Cameras:GetCurrent():GetAspectRatio()
 	
 	local mouse_x, mouse_y, mouse_button;
-	mouse_x = math.floor(angleX / (curFov * curAspectRatio  / 2) * (curScreenWidth / 2) + (curScreenWidth / 2));
-	mouse_y = math.floor(angleY / (curFov / 2) * (curScreenHeight / 2) + (curScreenHeight / 2));
+	mouse_x = math.floor(angleX / (curFov * curAspectRatio  / 2) * (curScreenWidth / 2) + (curScreenWidth / 2) + 0.5);
+	mouse_y = math.floor(angleY / (curFov / 2) * (curScreenHeight / 2) + (curScreenHeight / 2) + 0.5);
 	
 	if(button) then
 		if(button:match("left")) then
