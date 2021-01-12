@@ -381,7 +381,7 @@ function QuestPage.HandleTaskData(data)
 					end
 				end
 			end
-			task_data.exp = 20
+			-- task_data.exp = 20
 			if task_data.exp > 0 then
 				local exp_data = {reward_exp = task_data.exp}
 				
