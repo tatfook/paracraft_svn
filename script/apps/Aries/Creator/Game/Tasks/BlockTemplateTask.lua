@@ -238,21 +238,22 @@ function BlockTemplate:LoadTemplate()
 			for key, item in ipairs(blocks) do
 				if (item and item[4] == 0) then
 					item[4] = 10
-				end
+				elseif (item and item[4] ~= 0 and item[4] ~= 10) then
+					local beExist = false
 
-				local beExist = false
-
-				if (item and type(item[4]) == 'number') then
-					for iKey, iItem in ipairs(ItemClient.GetBlockDS()) do
-						if (iItem and iItem.block_id == item[4]) then
-							beExist = true;
-							break;
+					if (item and type(item[4]) == 'number') then
+						for iKey, iItem in ipairs(ItemClient.GetBlockDS()) do
+							if (iItem and iItem.block_id == item[4]) then
+								beExist = true;
+								break;
+							end
 						end
 					end
-				end
 
-				if (not beExist) then
-					item[4] = 10
+					if (not beExist) then
+						item[5] = item[4] % 4096;
+						item[4] = 10;
+					end
 				end
 			end
 			
