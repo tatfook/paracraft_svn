@@ -9,6 +9,7 @@ Use Lib:
 NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macros.lua");
 -------------------------------------------------------
 ]]
+local Keyboard = commonlib.gettable("System.Windows.Keyboard");
 local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
@@ -27,6 +28,24 @@ function Macros.GetButtonTextFromKeyEvent(event)
 	end
 	return buttons;
 end
+
+-- @param buttons: nil or a string to append button text. 
+-- @return string like "ctrl+shift", ""
+function Macros.GetButtonTextFromKeyboard(buttons)
+	buttons = buttons or "";
+	if(Keyboard:IsCtrlKeyPressed()) then
+		buttons = "ctrl+"..buttons;
+	end
+	if(Keyboard:IsAltKeyPressed()) then
+		buttons = "alt+"..buttons;
+	end
+	if(Keyboard:IsShiftKeyPressed()) then
+		buttons = "shift+"..buttons;
+	end
+	buttons = buttons:gsub("%+$", "")
+	return buttons;
+end
+
 
 local function SetKeyEventFromButtonText(event, button)
 	-- mouse_button is a global variable
