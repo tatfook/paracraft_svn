@@ -35,6 +35,7 @@ function QuestItemTemplate:ctor()
     self.click = nil;
     self.task_type = nil; --main branch loop
     self.custom_show = nil; -- true to custom showing label, see QuestAction.GetLabel(task_id)
+    self.exp = nil;  -- exp for gift
 end
 function QuestItemTemplate:GetUniqueKey()
     local key = string.format("%s_%s",tostring(self.gsid), tostring(self.id));
@@ -52,6 +53,7 @@ function QuestItemTemplate:GetData()
         goto_world = self.goto_world,
         click = self.click,
         task_type = self.task_type,
+        exp = self.exp,
         custom_show = self.custom_show,
     }
     return data;

@@ -17,6 +17,21 @@ local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.Quest
 --     echo(QuestProvider:GetInstance():GetQuestItems(),true)
 -- end)
 
+-- local QuestDateCondition = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestDateCondition");
+-- keepwork.user.server_time({},function(err, msg, data)
+-- 	if(err == 200)then
+-- 		QuestDateCondition.cur_time = data.now;
+-- 		QuestDateCondition.values = {
+-- 			{date="2021-1-12",duration = "10:00:00-12:00:00"},
+-- 			{date="2021-1-12",duration = "14:00:00-16:00:00"},
+-- 			{date="2021-1-12",duration = "20:00:00-22:00:00"},
+-- 		}
+-- 		QuestDateCondition.strict = true;
+-- 		QuestDateCondition.endtime = "2021-01-13 11:28:21"
+-- 		print(QuestDateCondition:IsValid())
+-- 	end
+-- end)
+
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 local pe_gridview = commonlib.gettable("Map3DSystem.mcml_controls.pe_gridview");
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
@@ -77,6 +92,8 @@ local HideTaskList = {
 	[40002] = 1,
 }
 
+local ProInitData = {}
+
 local TargetProgerssValue = 60
 local MaxProgressValue = 100
 local RewardNums = 5
@@ -113,9 +130,8 @@ function QuestPage.RefreshData()
 end
 
 function QuestPage.ShowView()
-	if page then
-		page:CloseWindow();
-		QuestPage.CloseView()
+	if page and page:IsVisible() then
+		return
 	end
 
 	-- if QuestProvider.GetInstance == nil then
@@ -125,6 +141,13 @@ function QuestPage.ShowView()
 	QuestPage.HandleTaskData()
 	QuestPage.HandleGiftData()
 	
+	ProInitData = {
+		width = 0,
+		to_percent = 0,
+		ui_object = nil,
+		change_width = 4, --每次timer增加的宽度
+		target_width = 0,
+	}
 	
 	if not QuestPage.is_add_event then
 		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
@@ -153,7 +176,7 @@ function QuestPage.ShowView()
 
 	QuestPage.isOpen = true
 	local view_width = 960
-	local view_height = 450
+	local view_height = 580
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.html",
 			name = "QuestPage.Show", 
@@ -178,9 +201,13 @@ function QuestPage.ShowView()
 	-- expbar.Maximum = MaxProgressValue
 	-- -- TargetProgerssValue = MaxProgressValue
 	-- QuestPage.UpdateExpProgress()
-
-	
-	
+	local pro_mcml_node = page:GetNode("pro")
+	local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
+	-- print("aaaaaaaaaaaaaaaaaaa", pro_ui_object:setRect(0, 0, 200, 10))
+	ProInitData.width = pro_ui_object.width - 1
+	ProInitData.ui_object = pro_ui_object
+	pro_ui_object.width = 0;
+	QuestPage.ProgressToPercent(true, 20)
 end
 
 function QuestPage.OnCreate()
@@ -199,6 +226,10 @@ function QuestPage.OnCreate()
 
 	if owl_item_index > 0 then
 		commonlib.TimerManager.SetTimeout(function()
+			if not page:IsVisible() then
+				return
+			end
+
 			local tree_view = page:GetNode("item_gridview"):GetChild("pe:treeview")
 			local owl_item = tree_view[owl_item_index]
 			local button = owl_item:GetChildWithAttribute("name", "item_root"):GetChildWithAttribute("name", "canvas")
@@ -208,6 +239,11 @@ function QuestPage.OnCreate()
 				"如果家里电脑没有安装帕拉卡，让爸爸妈妈百度搜索<div style='color: #ffff00 ;float: left;'>帕拉卡</div>帮你下载安装哦。",
 			}
 			QuestItemToolTip.Show(button.uiobject_id, desc_data)
+			local pro_mcml_node = page:GetNode("pro")
+			local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
+			ProInitData.ui_object = pro_ui_object
+
+			
 		end, 10)
 	end
 end
@@ -230,6 +266,11 @@ end
 
 function QuestPage.CloseView()
 	QuestPage.isOpen = false
+	NPL.KillTimer(10086);
+
+	local file_fold_name = "Texture/Aries/Creator/keepwork/Quest/"
+	local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
+	Files:UnloadFoldAssets(file_fold_name);
 end
 
 function QuestPage.EnterWorld(world_id)
@@ -325,15 +366,27 @@ function QuestPage.HandleTaskData(data)
 			task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v)
 			task_data.task_state = QuestPage.GetTaskStateByQuest(v)
 			task_data.task_type = QuestPage.GetTaskType(v)
+
+			task_data.exp = QuestPage.GetTaskExp(v)
 			task_data.is_main_task = task_data.task_type == "main"
 	
 			task_data.bg_img = QuestPage.GetBgImg(task_data)
 			task_data.questItemContainer = v.questItemContainer
-			-- 限定最多1个
+
 			task_data.goods_data = {}
 			for i2, v2 in ipairs(exchange_data.exchangeTargets[1].goods) do
 				if v2.goods.gsId < 60001 or v2.goods.gsId > 70000 then
-					task_data.goods_data[#task_data.goods_data + 1] = v2
+					if #task_data.goods_data < 3 then
+						task_data.goods_data[#task_data.goods_data + 1] = v2
+					end
+				end
+			end
+			task_data.exp = 20
+			if task_data.exp > 0 then
+				local exp_data = {reward_exp = task_data.exp}
+				
+				if #task_data.goods_data < 3 then
+					task_data.goods_data[#task_data.goods_data + 1] = exp_data
 				end
 			end
 
@@ -575,6 +628,22 @@ function QuestPage.GetTaskType(data)
 	end
 end
 
+function QuestPage.GetTaskExp(data)
+	local exp = 0
+	local childrens = data.questItemContainer.children
+	for i, v in ipairs(childrens) do
+		if v.template.exp then
+			exp = v.template.exp
+		end
+	end
+
+	if exp == "" then
+		exp = 0
+	end
+
+	return exp
+end
+
 function QuestPage.IsOpen()
 	if nil == page then
 		return false
@@ -612,4 +681,32 @@ function QuestPage.IsRoleModel(item_data)
 	end
 
 	return false
+end
+
+function QuestPage.ProgressToPercent(is_play_ani, to_percent)
+	if ProInitData.is_playing then
+		return
+	end
+
+	ProInitData.to_percent = to_percent
+	local all_width = ProInitData.width
+	ProInitData.target_width = to_percent/100 * all_width
+	if is_play_ani then
+		ProInitData.is_playing = true
+		NPL.SetTimer(10086, 0.05, ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.lua").Timer()');
+	else
+		ProInitData.ui_object.width = ProInitData.target_width
+	end
+	
+end
+
+function QuestPage.Timer()
+	local width = ProInitData.ui_object.width + ProInitData.change_width
+	if width < ProInitData.target_width then
+		ProInitData.ui_object.width = width
+	else
+		ProInitData.ui_object.width = ProInitData.target_width
+		NPL.KillTimer(10086)
+		ProInitData.is_playing = false
+	end
 end

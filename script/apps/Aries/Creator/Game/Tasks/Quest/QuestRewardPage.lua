@@ -24,6 +24,8 @@ end
 
 function QuestRewardPage.Show(data)
 	QuestRewardPage.RewardData = data
+	-- QuestRewardPage.RewardData = {{goods={gsId=998, name="知识豆"}, amount = 10}}
+
     if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
         QuestRewardPage.ShowView()
         return
