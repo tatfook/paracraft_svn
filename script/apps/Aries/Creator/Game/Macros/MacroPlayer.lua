@@ -28,6 +28,7 @@ end
 function MacroPlayer.ShowPage()
 	MacroPlayer.expectedButton = nil;
 	MacroPlayer.expectedKeyButton = nil;
+	MacroPlayer.expectedDragButton = nil;
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
 			name = "MacroPlayerTask.ShowPage", 
@@ -54,6 +55,7 @@ function MacroPlayer.ShowPage()
 	end
 	MacroPlayer.ShowCursor(false);
 	MacroPlayer.ShowKeyPress(false);
+	MacroPlayer.ShowDrag(false);
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
 	end
@@ -98,11 +100,15 @@ local cursorTick = 0;
 function MacroPlayer.AnimCursorBtn(bRestart)
 	if(page) then
 		local cursor = page:FindControl("cursorClick");
-		if(cursor and cursor.visible) then
+		if(MacroPlayer.isDragging) then
+			local cursorBtn = page:FindControl("cursorBtn")
+			cursorBtn.visible = false
+		elseif(cursor and cursor.visible) then
 			local x, y, width, height = cursor:GetAbsPosition();
 			x = x + 12;
 			y = y + 15;
 			local cursorBtn = page:FindControl("cursorBtn")
+			cursorBtn.visible = true;
 
 			local mouseX, mouseY = ParaUI.GetMousePosition();
 			
@@ -253,8 +259,9 @@ function MacroPlayer.ShowCursor(bShow, x, y, button)
 	end
 end
 
-function MacroPlayer.OnClickCursor()
-	local button = MacroPlayer.expectedButton or "";
+-- @return true if user is pressing correct button or false if not. 
+function MacroPlayer.CheckButton(button)
+	button = button or "";
 	local isOK = true;
 	if(button:match("left") and mouse_button ~= "left") then
 		isOK = false
@@ -271,6 +278,17 @@ function MacroPlayer.OnClickCursor()
 	if(button:match("alt") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU))) then
 		isOK = false
 	end
+	return isOK;
+end
+
+function MacroPlayer.OnClickCursor()
+	if(MacroPlayer.expectedDragButton) then
+		-- TODO: tell the user to drag instead of move
+		GameLogic.AddBBS("Macro", L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", 5000, "255 0 0");
+		return;
+	end
+
+	local isOK = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
 	if(isOK) then
 		MacroPlayer.expectedButton = nil;
 		MacroPlayer.ShowCursor(false)
@@ -315,4 +333,117 @@ function MacroPlayer.SetKeyPressTrigger(button, callbackFunc)
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowKeyPress(true, button)
 	end
+end
+
+local dragTick = 0;
+function MacroPlayer.AnimDragBtn(bRestart)
+	if(page) then
+		local startPoint = page:FindControl("startPoint");
+		local endPoint = page:FindControl("endPoint");
+		if(MacroPlayer.isDragging) then
+			startPoint.translationx = 0
+			startPoint.translationy = 0
+		elseif(startPoint and startPoint.visible) then
+			local startX, startY = startPoint:GetAbsPosition();
+			local endX, endY = endPoint:GetAbsPosition();
+			
+			local diffDistance = math.sqrt((endX - startX)^2 + (endY - startY)^2)
+
+			local totalTicks = 80;
+			dragTick = bRestart and 0 or (dragTick + 1);
+			local progress = (dragTick) / totalTicks;
+			if(dragTick >= totalTicks) then
+				dragTick = 0;
+			end
+			
+			if( diffDistance > 16 ) then
+				startPoint.translationx = math.floor((endX - startX) * progress + 0.5);
+				startPoint.translationy = math.floor((endY - startY) * progress + 0.5);
+				MacroPlayer.animDragTimer = MacroPlayer.animDragTimer or commonlib.Timer:new({callbackFunc = function(timer)
+					MacroPlayer.AnimDragBtn()
+				end})
+			else
+				startPoint.translationx = 0;
+				startPoint.translationy = 0;
+				dragTick = 0;
+			end
+			if(MacroPlayer.animDragTimer) then
+				MacroPlayer.animDragTimer:Change(30);
+			end
+		end
+	end
+end
+
+function MacroPlayer.ShowDrag(bShow, startX, startY, endX, endY, button)
+	if(page) then
+		local dragPoints = page:FindControl("dragPoints");
+		if(dragPoints) then
+			dragPoints.visible = bShow;
+			if(bShow) then
+				local startPoint = page:FindControl("startPoint")
+				startPoint.x = startX - 16;
+				startPoint.y = startY - 16;
+				
+				local endPoint = page:FindControl("endPoint")
+				endPoint.x = endX - 16;
+				endPoint.y = endY - 16;
+
+				MacroPlayer.AnimDragBtn(true)
+			end
+		end
+	end
+end
+
+function MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, callbackFunc)
+	if(page) then
+		MacroPlayer.expectedDragButton = button;
+		MacroPlayer.SetTriggerCallback(callbackFunc)
+		MacroPlayer.ShowDrag(true, startX, startY, endX, endY, button)
+		MacroPlayer.ShowCursor(true, startX, startY, button)
+	end
+end
+
+function MacroPlayer.OnDragBegin()
+	MacroPlayer.isDragging = true;
+	MacroPlayer.isDragButtonCorrect = MacroPlayer.CheckButton(MacroPlayer.expectedDragButton);
+	MacroPlayer.isReachedDragTarget = false;
+end
+
+function MacroPlayer.OnDragMove()
+	if(page) then
+		local curPoint = page:FindControl("cursorClick");
+		local endPoint = page:FindControl("endPoint");
+		if(curPoint) then
+			local startX, startY = curPoint:GetAbsPosition();
+			local endX, endY = endPoint:GetAbsPosition();
+			local diffDistance = math.sqrt((endX - startX)^2 + (endY - startY)^2)
+			MacroPlayer.isReachedDragTarget = (diffDistance < 16);
+		end
+	end
+
+	MacroPlayer.isDragButtonCorrect = MacroPlayer.isDragButtonCorrect and MacroPlayer.CheckButton(MacroPlayer.expectedDragButton);
+	if(not MacroPlayer.isDragButtonCorrect) then
+		-- TODO: tell user to press correct user
+	end
+end
+
+function MacroPlayer.OnDragEnd()
+	MacroPlayer.isDragging = false;
+	MacroPlayer.isDragButtonCorrect = MacroPlayer.isDragButtonCorrect and MacroPlayer.CheckButton(MacroPlayer.expectedDragButton);
+	if(MacroPlayer.isDragButtonCorrect) then
+		if(MacroPlayer.isReachedDragTarget) then
+			MacroPlayer.expectedDragButton = nil;
+			MacroPlayer.isReachedDragTarget = nil;
+			MacroPlayer.ShowDrag(false)
+			MacroPlayer.ShowCursor(false)
+			MacroPlayer.InvokeTriggerCallback()
+			return
+		else
+			-- TODO: tell the user to drag to the target location. 
+		end
+	else
+		-- TODO: tell user to press correct user
+	end
+	MacroPlayer.AnimDragBtn(true)
+	MacroPlayer.AnimCursorBtn(true);
 end

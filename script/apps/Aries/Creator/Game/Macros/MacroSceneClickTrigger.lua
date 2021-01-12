@@ -26,19 +26,12 @@ local Screen = commonlib.gettable("System.Windows.Screen");
 local Mouse = commonlib.gettable("System.Windows.Mouse");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
+
 --@param mouse_button: "left", "right", default to "left", such as "ctrl+left"
 --@param angleX, angleY
 -- @return nil or {OnFinish=function() end}
 function Macros.SceneClickTrigger(button, angleX, angleY)
-	local viewport = ViewportManager:GetSceneViewport();
-	local curScreenWidth, curScreenHeight = Screen:GetWidth()-viewport:GetMarginRight(), Screen:GetHeight() - viewport:GetMarginBottom();
-
-	local curFov = Cameras:GetCurrent():GetFieldOfView()
-	local curAspectRatio = Cameras:GetCurrent():GetAspectRatio()
-	
-	-- mouse_x and mouse_y are global variable
-	local mouseX = math.floor(angleX / (curFov * curAspectRatio  / 2) * (curScreenWidth / 2) + (curScreenWidth / 2));
-	local mouseY = math.floor(angleY / (curFov / 2) * (curScreenHeight / 2) + (curScreenHeight / 2));
+	local mouseX, mouseY = Macros.MouseAngleToScreenPos(angleX, angleY, button)
 
 	local callback = {};
 	MacroPlayer.SetClickTrigger(mouseX, mouseY, button, function()
@@ -49,6 +42,18 @@ function Macros.SceneClickTrigger(button, angleX, angleY)
 	return callback;
 end
 
+function Macros.SceneDragTrigger(button, startAngleX, startAngleY, endAngleX, endAngleY)
+	local startX, startY = Macros.MouseAngleToScreenPos(startAngleX, startAngleY)
+	local endX, endY = Macros.MouseAngleToScreenPos(endAngleX, endAngleY)
+
+	local callback = {};
+	MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end
 
 
 
