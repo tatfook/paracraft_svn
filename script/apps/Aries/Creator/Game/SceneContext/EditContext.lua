@@ -124,9 +124,6 @@ function EditContext:mousePressEvent(event)
 		event.mouse_button = "middle"
 	end
 
-	if(GameLogic.Macros:IsRecording()) then
-		GameLogic.Macros:MarkMousePress(event)
-	end
 	EditContext._super.mousePressEvent(self, event);
 	if(event:isAccepted()) then
 		return
@@ -258,14 +255,6 @@ end
 function EditContext:mouseReleaseEvent(event)
 	EditContext._super.mouseReleaseEvent(self, event);
 	if(event:isAccepted()) then
-		if(GameLogic.Macros:IsRecording() and not self.is_click and not event.recorded) then
-			local mousePressEvent = GameLogic.Macros:GetLastMousePressEvent()
-			local startAngleX, startAngleY = GameLogic.Macros.GetSceneClickParams(mousePressEvent.x, mousePressEvent.y)
-			local endAngleX, endAngleY = GameLogic.Macros.GetSceneClickParams()
-			event.recorded = true;
-			GameLogic.Macros:AddMacro("SceneDrag", GameLogic.Macros.GetButtonTextFromClickEvent(event), startAngleX, startAngleY, endAngleX, endAngleY)
-		end
-
 		return
 	end
 
@@ -273,11 +262,6 @@ function EditContext:mouseReleaseEvent(event)
 		local result = self:CheckMousePick();
 		local isClickProcessed;
 		
-		if(GameLogic.Macros:IsRecording() and not event.recorded) then
-			event.recorded = true;
-			GameLogic.Macros:AddMacro("SceneClick", GameLogic.Macros.GetButtonTextFromClickEvent(event), GameLogic.Macros.GetSceneClickParams())
-		end
-
 		-- escape alt key for entity event, since alt key is for picking entity. 
 		if( not event.alt_pressed and result and result.obj and result.entity and (not result.block_id or result.block_id == 0)) then
 			-- for entities. 
@@ -286,6 +270,7 @@ function EditContext:mouseReleaseEvent(event)
 
 		if(isClickProcessed) then	
 			-- do nothing
+			event:accept();
 		else
 			local mouse_setting_list = GameLogic.options:GetMouseSettingList();
 			local mouse_event = event.mouse_button or ""
@@ -302,16 +287,17 @@ function EditContext:mouseReleaseEvent(event)
 			if setting == "DeleteBlock" then
 				event.mouse_button = "left"
 				self:handleLeftClickScene(event, result);
+				event:accept();
 			elseif setting == "CreateBlock" then
 				event.mouse_button = "right"
 				self:handleRightClickScene(event, result);
+				event:accept();
 			elseif setting == "ChooseBlock" then
 				event.mouse_button = "middle"
 				self:handleMiddleClickScene(event, result);
+				event:accept();
 			end
 		end
-
-		
 	end
 end
 

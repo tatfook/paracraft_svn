@@ -160,8 +160,8 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 			if(ticks < totalTicks) then
 				mouse_button = endMouseButton;
 				local ratio = ticks / totalTicks;
-				mouse_x = startX * (1 - ratio) + endX * ratio
-				mouse_y = startY * (1 - ratio) + endY * ratio
+				mouse_x = math.floor(startX * (1 - ratio) + endX * ratio + 0.5)
+				mouse_y = math.floor(startY * (1 - ratio) + endY * ratio + 0.5)
 				ParaUI.SetMousePosition(mouse_x, mouse_y);
 				local event = MouseEvent:init("mouseMoveEvent");
 				SetMouseEventFromButtonText(event, button)

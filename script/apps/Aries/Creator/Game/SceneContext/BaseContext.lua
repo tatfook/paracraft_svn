@@ -212,6 +212,29 @@ function BaseContext:handleItemMouseEvent(event)
 	return event:isAccepted();
 end
 
+function BaseContext:handleMouseEvent(event)
+	BaseContext._super.handleMouseEvent(self, event);
+	
+	if(GameLogic.Macros:IsRecording() and not event.recorded) then
+		local eventType = event:GetType() 
+		if(eventType == "mousePressEvent") then
+			if(GameLogic.Macros:IsRecording()) then
+				GameLogic.Macros:MarkMousePress(event)
+			end
+		elseif(event:isAccepted() and eventType == "mouseReleaseEvent") then
+			event.recorded = true;
+			if(self.is_click) then
+				GameLogic.Macros:AddMacro("SceneClick", GameLogic.Macros.GetButtonTextFromClickEvent(event), GameLogic.Macros.GetSceneClickParams())
+			else
+				local mousePressEvent = GameLogic.Macros:GetLastMousePressEvent()
+				local startAngleX, startAngleY = GameLogic.Macros.GetSceneClickParams(mousePressEvent.x, mousePressEvent.y)
+				local endAngleX, endAngleY = GameLogic.Macros.GetSceneClickParams()
+				GameLogic.Macros:AddMacro("SceneDrag", GameLogic.Macros.GetButtonTextFromClickEvent(event), startAngleX, startAngleY, endAngleX, endAngleY)
+			end
+		end
+	end
+end
+
 -- this function is called repeatedly if MousePickTimer is enabled. 
 -- it can also be called independently. 
 -- @return the picking result table
