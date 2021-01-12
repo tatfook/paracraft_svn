@@ -57,6 +57,7 @@ function MacroPlayer.ShowPage()
 	MacroPlayer.ShowKeyPress(false);
 	MacroPlayer.ShowDrag(false);
 	MacroPlayer.ShowTip()
+	
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
 	end
@@ -284,9 +285,11 @@ end
 
 function MacroPlayer.OnClickCursor()
 	if(MacroPlayer.expectedDragButton) then
-		-- TODO: tell the user to drag instead of move
 		GameLogic.AddBBS("Macro", L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", 5000, "255 0 0");
 		return;
+	elseif(MacroPlayer.expectedKeyButton) then
+		GameLogic.AddBBS("Macro", L"鼠标移动到这里，但不要点击", 5000, "255 0 0");
+		return
 	end
 
 	local isOK = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
@@ -313,9 +316,20 @@ function MacroPlayer.OnKeyDown(event)
 	if(keyname and keyname~=event.keyname) then
 		isOK = false
 	end
+	local mouseX, mouseY = GameLogic.Macros.GetNextKeyPressWithMouseMove()
+	if(mouseX and mouseY) then
+		local mX, mY = ParaUI.GetMousePosition()
+		local diffDistance = math.sqrt((mouseX - mX)^2 + (mouseY - mY)^2)
+		if(diffDistance > 16) then
+			isOK = false
+			GameLogic.AddBBS("Macro", L"请讲鼠标移动到目标点，再按键盘", 5000, "255 0 0");
+		end
+	end
+
 	if(isOK) then
 		MacroPlayer.expectedKeyButton = nil;
 		MacroPlayer.ShowKeyPress(false)
+		MacroPlayer.ShowCursor(false);
 		MacroPlayer.InvokeTriggerCallback()
 	end
 end
@@ -331,6 +345,10 @@ end
 function MacroPlayer.SetKeyPressTrigger(button, callbackFunc)
 	if(page) then
 		MacroPlayer.expectedKeyButton = button;
+		local mouseX, mouseY = GameLogic.Macros.GetNextKeyPressWithMouseMove()
+		if(mouseX and mouseY) then
+			MacroPlayer.ShowCursor(true, mouseX, mouseY)	
+		end
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowKeyPress(true, button)
 	end

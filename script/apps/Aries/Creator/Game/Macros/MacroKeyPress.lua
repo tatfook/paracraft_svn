@@ -57,8 +57,32 @@ local function SetKeyEventFromButtonText(event, button)
 	event.key_sequence = event:GetKeySequence();
 end
 
+local nextKeyPressMouseX, nextKeyPressMouseY;
+
+
+function Macros.GetNextKeyPressWithMouseMove()
+	return nextKeyPressMouseX, nextKeyPressMouseY
+end
+
+-- this macro will force the next key stroke to have a given mouse position. 
+-- such as some ctrl+C and ctrl+v operations in the scene. 
+function Macros.NextKeyPressWithMouseMove(angleX, angleY)
+	nextKeyPressMouseX, nextKeyPressMouseY = Macros.MouseAngleToScreenPos(angleX, angleY);
+end
+
+local function AdjustMousePosition_()
+	if(nextKeyPressMouseX and nextKeyPressMouseY) then
+		-- mouse_x, mouse_y, mouse_button are global variables
+		mouse_x, mouse_y = nextKeyPressMouseX, nextKeyPressMouseY;
+		ParaUI.SetMousePosition(mouse_x, mouse_y);
+		nextKeyPressMouseX, nextKeyPressMouseY = nil, nil;
+	end
+end
+
 --@param button: string like "C" or "ctrl+C"
 function Macros.KeyPress(button)
+	AdjustMousePosition_();
+
 	local event = KeyEvent:init("keyPressEvent")
 	SetKeyEventFromButtonText(event, button)
 	local ctx = GameLogic.GetSceneContext()

@@ -1021,18 +1021,23 @@ function BaseContext:HandleGlobalKey(event)
 						GameLogic.RunCommand("/menu window.find");
 					end
 					event:accept();
-				elseif(dik_key == "DIK_C") then
-					-- copy current mouse cursor block to clipboard
+				elseif(dik_key == "DIK_C" or dik_key == "DIK_V") then
 					NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/SelectBlocksTask.lua");
 					local SelectBlocks = commonlib.gettable("MyCompany.Aries.Game.Tasks.SelectBlocks");
-					SelectBlocks.CopyToClipboard();
+						
+					if(dik_key == "DIK_C") then
+						-- copy current mouse cursor block to clipboard
+						SelectBlocks.CopyToClipboard();
+					elseif(dik_key == "DIK_V") then
+						-- paste from clipboard
+						SelectBlocks.PasteFromClipboard();
+					end
 					event:accept();
-				elseif(dik_key == "DIK_V") then
-					-- paste from clipboard
-					NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/SelectBlocksTask.lua");
-					local SelectBlocks = commonlib.gettable("MyCompany.Aries.Game.Tasks.SelectBlocks");
-					SelectBlocks.PasteFromClipboard();
-					event:accept();
+					
+					if(GameLogic.Macros:IsRecording()) then
+						local angleX, angleY = GameLogic.Macros.GetSceneClickParams();
+						GameLogic.Macros:AddMacro("NextKeyPressWithMouseMove", angleX, angleY);
+					end
 				end
 			end
 		end
