@@ -213,6 +213,10 @@ function BaseContext:handleItemMouseEvent(event)
 end
 
 function BaseContext:handleMouseEvent(event)
+	if(GameLogic.Macros:IsRecording()) then
+		GameLogic.Macros:SaveViewportParams();
+	end
+
 	BaseContext._super.handleMouseEvent(self, event);
 	
 	if(GameLogic.Macros:IsRecording() and not event.recorded) then
