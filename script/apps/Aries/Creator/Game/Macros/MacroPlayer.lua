@@ -57,6 +57,7 @@ function MacroPlayer.ShowPage()
 	MacroPlayer.ShowKeyPress(false);
 	MacroPlayer.ShowDrag(false);
 	MacroPlayer.ShowTip()
+	MacroPlayer.ShowEditBox(false);
 	
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
@@ -287,13 +288,23 @@ function MacroPlayer.OnClickCursor()
 	if(MacroPlayer.expectedDragButton) then
 		GameLogic.AddBBS("Macro", L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", 5000, "255 0 0");
 		return;
-	elseif(MacroPlayer.expectedKeyButton) then
+	elseif(MacroPlayer.expectedKeyButton and not MacroPlayer.expectedEditBoxText) then
 		GameLogic.AddBBS("Macro", L"鼠标移动到这里，但不要点击", 5000, "255 0 0");
 		return
 	end
-
+	
 	local isOK = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
 	if(isOK) then
+		if(MacroPlayer.expectedEditBoxText) then
+			if(not MacroPlayer.expectedButton) then
+				GameLogic.AddBBS("Macro", L"请按照指示输入文字", 5000, "255 0 0");
+				return;
+			else
+				MacroPlayer.expectedEditBoxText = nil;
+				MacroPlayer.expectedEditBoxTextDiff = nil;
+				MacroPlayer.ShowEditBox(false)
+			end
+		end
 		MacroPlayer.expectedButton = nil;
 		MacroPlayer.ShowCursor(false)
 		MacroPlayer.InvokeTriggerCallback()
@@ -327,6 +338,11 @@ function MacroPlayer.OnKeyDown(event)
 	end
 
 	if(isOK) then
+		if(MacroPlayer.expectedEditBoxText) then
+			MacroPlayer.expectedEditBoxText = nil;
+			MacroPlayer.expectedEditBoxTextDiff = nil;
+			MacroPlayer.ShowEditBox(false)
+		end
 		MacroPlayer.expectedKeyButton = nil;
 		MacroPlayer.ShowKeyPress(false)
 		MacroPlayer.ShowCursor(false);
@@ -351,6 +367,30 @@ function MacroPlayer.SetKeyPressTrigger(button, callbackFunc)
 		end
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowKeyPress(true, button)
+	end
+end
+
+function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackFunc)
+	if(page) then
+		MacroPlayer.expectedEditBoxText = text;
+		MacroPlayer.expectedEditBoxTextDiff = textDiff;
+		MacroPlayer.ShowEditBox(true, text, textDiff)
+		MacroPlayer.SetTriggerCallback(callbackFunc)
+
+		-- if we do not need user to enter text, just click to enter
+		local clickToEnter = true
+		local keyButtons = Macros.TextToKeyName(textDiff)
+		if(keyButtons) then
+			clickToEnter = false;
+		end
+		if(clickToEnter) then
+			MacroPlayer.expectedButton = "left";
+			MacroPlayer.ShowCursor(true, mouseX, mouseY);
+		else
+			MacroPlayer.expectedKeyButton = keyButtons; 
+			MacroPlayer.ShowKeyPress(true, keyButtons)
+			MacroPlayer.ShowCursor(true, mouseX, mouseY);
+		end
 	end
 end
 
@@ -477,6 +517,16 @@ function MacroPlayer.ShowTip(text)
 		else
 			tipWnd.visible = false;
 			page:SetUIValue("tipText", "")
+		end
+	end	
+end
+
+function MacroPlayer.ShowEditBox(bShow, text, textDiff)
+	if(page) then
+		local editBox = page:FindControl("editBox");
+		editBox.visible = bShow;
+		if(bShow) then
+			page:SetUIValue("editboxText", text or "")
 		end
 	end	
 end

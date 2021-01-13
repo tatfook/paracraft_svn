@@ -126,7 +126,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 		else
 			GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
 		end
-	elseif(eventname == "onchange") then
+	elseif(eventname == "onmodify") then
 		local name = obj.name or "";
 		if(not IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
@@ -254,7 +254,9 @@ function Macros:BeginPlay()
 	self:Init();
 
 	self.isPlaying = true;
-		
+	
+	self:UpdateEditBoxTextDiff(nil, nil);
+	
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
 	local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 	MacroPlayer.ShowPage();
@@ -417,3 +419,24 @@ function Macros:MarkMousePress(event)
 	lastMouseDownEvent.clickTime = commonlib.TimerManager.GetCurrentTime();
 end
 
+local lastEditBox = {};
+-- return the text diff since the last call, which is usually the text that need to be entered by the user
+function Macros:UpdateEditBoxTextDiff(uiName, text)
+	if(lastEditBox.uiName ~= uiName) then
+		lastEditBox.uiName = uiName;	
+		lastEditBox.text = text;
+		lastEditBox.diff = text;
+	else
+		if(lastEditBox.text and text) then
+			if(text:sub(1, #(lastEditBox.text)) == lastEditBox.text) then
+				lastEditBox.diff = text:sub(#(lastEditBox.text)+1, -1);
+			else
+				lastEditBox.diff = text;
+			end
+		else
+			lastEditBox.diff = text;
+		end
+		lastEditBox.text = text;
+	end
+	return lastEditBox.diff;
+end

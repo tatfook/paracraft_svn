@@ -20,6 +20,8 @@ function Macros.EditBox(uiName, text)
 	local obj = ParaUI.GetUIObject(uiName)
 	if(obj and obj:IsValid()) then
 		obj.text = text or ""
+		obj:SetCaretPosition(-1);
+		obj:Focus()
 	end
 end
 
