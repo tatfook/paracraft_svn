@@ -276,6 +276,7 @@ function QuestProvider:FillQuestItemTemplateBy_Virtual_Condition(exid)
                     quest_template.click = v.click;
                     quest_template.task_type = v.task_type;
                     quest_template.custom_show = v.custom_show;
+                    quest_template.exp = v.exp;
                     self:AddQuestItemTemplate(quest_template);
                 end
             end

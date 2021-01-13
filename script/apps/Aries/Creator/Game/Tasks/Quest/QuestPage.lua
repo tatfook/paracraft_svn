@@ -12,7 +12,7 @@ local QuestPage = NPL.export();
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 -- local QuestProvider = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestProvider.lua");
 local QuestProvider = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestProvider");
--- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
+-- QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefreshGridView,function()
 --     commonlib.echo("==============GetQuestItems");
 --     echo(QuestProvider:GetInstance():GetQuestItems(),true)
 -- end)
@@ -37,6 +37,8 @@ local pe_gridview = commonlib.gettable("Map3DSystem.mcml_controls.pe_gridview");
 local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
 local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/DailyTask/DailyTaskManager.lua");
 local TaskIdList = DailyTaskManager.GetTaskIdList()
+local QuestAction = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestAction");
+local QuestRewardPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestRewardPage.lua");
 
 commonlib.setfield("MyCompany.Aries.Creator.Game.Task.Quest.QuestPage", QuestPage);
 local page;
@@ -70,16 +72,11 @@ QuestPage.TaskState = {
 }
 
 QuestPage.GiftData = {
-	{is_catch = false, catch_value = 20, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
-	{is_catch = false, catch_value = 40, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
-	{is_catch = false, catch_value = 60, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
-	{is_catch = false, catch_value = 80, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
-	{is_catch = false, catch_value = 100, state = QuestPage.GiftState.can_not_get, img = "", is_get = true},
-}
-
-local ShowRewardIdList = {
-	[998] = 1,
-	[888] = 1,
+	{catch_value = 20, state = QuestPage.GiftState.can_not_get, img = "", gift_id = 1, exid = 30023},
+	{catch_value = 40, state = QuestPage.GiftState.can_not_get, img = "", gift_id = 2, exid = 30024},
+	{catch_value = 60, state = QuestPage.GiftState.can_not_get, img = "", gift_id = 3, exid = 30025},
+	{catch_value = 80, state = QuestPage.GiftState.can_not_get, img = "", gift_id = 4, exid = 30026},
+	{catch_value = 100, state = QuestPage.GiftState.can_not_get, img = "", gift_id = 5, exid = 30027},
 }
 
 local VersionToKey = {
@@ -103,7 +100,7 @@ local modele_bag_id = 0
 function QuestPage.OnInit()
 	page = document:GetPageCtrl();
 	page.OnClose = QuestPage.CloseView
-	page.OnCreate = QuestPage.OnCreate()
+	-- page.OnCreate = QuestPage.OnCreate()
 end
 
 function QuestPage.Show()
@@ -123,10 +120,15 @@ function QuestPage.Show()
 end
 
 function QuestPage.RefreshData()
+	if page == nil or not page:IsVisible() then
+		return
+	end
+
 	QuestPage.CheckIsTaskCompelete()
 	QuestPage.HandleTaskData()
 	QuestPage.HandleGiftData()
-	QuestPage.OnRefresh()
+	QuestPage.OnRefreshGridView()
+	QuestPage.OnRefreshGiftGridView()
 end
 
 function QuestPage.ShowView()
@@ -143,7 +145,7 @@ function QuestPage.ShowView()
 	
 	ProInitData = {
 		width = 0,
-		to_percent = 0,
+		to_exp = 0,
 		ui_object = nil,
 		change_width = 4, --每次timer增加的宽度
 		target_width = 0,
@@ -151,16 +153,21 @@ function QuestPage.ShowView()
 	
 	if not QuestPage.is_add_event then
 		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function()
-			if not page then
+			if not page or not page:IsVisible() then
 				return
 			end
-
-			if not page:IsVisible() then
-				return
-			end
-
 			QuestPage.RefreshData()
 		end, nil, "QuestPage_Event_Init")
+
+		QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
+			if not page or not page:IsVisible() then
+				return
+			end
+
+			local questItemContainer = event.quest_item_container
+			local childrens = questItemContainer.children
+			QuestPage.RefreshData()
+		end, nil, "QuestPage_OnFinished")
 
 		QuestPage.is_add_event = true
 	end
@@ -197,6 +204,7 @@ function QuestPage.ShowView()
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 
+	
 	-- local expbar = page:FindControl("expbar");
 	-- expbar.Maximum = MaxProgressValue
 	-- -- TargetProgerssValue = MaxProgressValue
@@ -204,13 +212,18 @@ function QuestPage.ShowView()
 	local pro_mcml_node = page:GetNode("pro")
 	local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
 	-- print("aaaaaaaaaaaaaaaaaaa", pro_ui_object:setRect(0, 0, 200, 10))
-	ProInitData.width = pro_ui_object.width - 1
+	ProInitData.width = 704
 	ProInitData.ui_object = pro_ui_object
 	pro_ui_object.width = 0;
-	QuestPage.ProgressToPercent(true, 20)
+	-- QuestPage.ProgressToExp(true, 20)
+
+	QuestPage.OnGridViewCreate()
+
+	local exp = QuestAction.GetExp()
+	QuestPage.ProgressToExp(false, exp)
 end
 
-function QuestPage.OnCreate()
+function QuestPage.OnGridViewCreate()
 	-- local exp_num = 88
 	-- QuestPage.SetExpProgress(exp_num)
 
@@ -239,29 +252,35 @@ function QuestPage.OnCreate()
 				"如果家里电脑没有安装帕拉卡，让爸爸妈妈百度搜索<div style='color: #ffff00 ;float: left;'>帕拉卡</div>帮你下载安装哦。",
 			}
 			QuestItemToolTip.Show(button.uiobject_id, desc_data)
-			local pro_mcml_node = page:GetNode("pro")
-			local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
-			ProInitData.ui_object = pro_ui_object
-
-			
 		end, 10)
 	end
+
+	local pro_mcml_node = page:GetNode("pro")
+	local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
+	ProInitData.ui_object = pro_ui_object
+	QuestPage.ProgressToExp(false, ProInitData.to_exp)
 end
 
-function QuestPage.OnRefresh()
-    if(page)then
-        page:Refresh(0);
-    end
+function QuestPage.OnRefreshGridView()
+    -- if(page)then
+    --     page:Refresh(0);
+	-- end
+	
+	local gvw_name = "item_gridview";
+	local node = page:GetNode(gvw_name);
+	pe_gridview.DataBind(node, gvw_name, false);
+
+	QuestPage.OnGridViewCreate()
 end
 
-function QuestPage.FlushView(only_refresh_grid)
-	if only_refresh_grid then
-		local gvw_name = "item_gridview";
-		local node = page:GetNode(gvw_name);
-		pe_gridview.DataBind(node, gvw_name, false);
-	else
-		QuestPage.OnRefresh()
-	end
+function QuestPage.OnRefreshGiftGridView()
+    -- if(page)then
+    --     page:Refresh(0);
+	-- end
+	
+	local gvw_name = "gift_gridview";
+	local node = page:GetNode(gvw_name);
+	pe_gridview.DataBind(node, gvw_name, false);
 end
 
 function QuestPage.CloseView()
@@ -340,7 +359,7 @@ function QuestPage.UpdateExpProgress(target_pro)
 			QuestPage.UpdateExpProgress(target_pro)
 		end, 2)
 	elseif value >= target_pro then
-		QuestPage.OnRefresh()
+		QuestPage.OnRefreshGridView()
 	end
 end
 
@@ -363,12 +382,14 @@ function QuestPage.HandleTaskData(data)
 			task_data.name = name
 			task_data.task_id = v.exid
 			task_data.task_desc = desc
-			task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v)
-			task_data.task_state = QuestPage.GetTaskStateByQuest(v)
+
 			task_data.task_type = QuestPage.GetTaskType(v)
+			task_data.is_main_task = task_data.task_type == "main"
+
+			task_data.task_pro_desc = QuestPage.GetTaskProDescByQuest(v, task_data.task_type)
+			task_data.task_state = QuestPage.GetTaskStateByQuest(v, task_data.task_type)
 
 			task_data.exp = QuestPage.GetTaskExp(v)
-			task_data.is_main_task = task_data.task_type == "main"
 	
 			task_data.bg_img = QuestPage.GetBgImg(task_data)
 			task_data.questItemContainer = v.questItemContainer
@@ -396,11 +417,25 @@ function QuestPage.HandleTaskData(data)
 
 	-- 主线任务在前
 	table.sort(QuestPage.TaskData, function(a, b)
+		local value_a = 100
+		local value_b = 100
 		if a.is_main_task then
-			return true
+			value_a = value_a + 100
 		end
 
-		return false
+		if b.is_main_task then
+			value_b = value_b + 100
+		end
+
+		if a.task_state == QuestPage.TaskState.has_complete then
+			value_a = value_a - 10
+		end
+
+		if b.task_state == QuestPage.TaskState.has_complete then
+			value_b = value_b - 10
+		end
+
+		return value_a > value_b
 	end)
 
 	---------------------------------------这块代码使用的是旧版的任务数据---------------------------------------
@@ -480,45 +515,57 @@ function QuestPage.GetTaskState(task_id)
 	return is_complete and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_go
 end
 
-function QuestPage.GetTaskProDescByQuest(data)
+function QuestPage.GetTaskProDescByQuest(data, task_type)
 	local childrens = data.questItemContainer.children
 	-- print("gggggggggggggggggggggggg", #childrens)
 	-- echo(childrens, true)
 	local desc = ""
 
-	for i, v in ipairs(childrens) do
-		local child_task_desc = ""
-		if v.id == "40005_1" then
-			return ""
-		end
-		if type(v.finished_value) == "number" then
-			local value = v.value or 0
-			local temp_desc = "进度： "
-			
-			if v.template.desc and v.template.desc ~= "" then
-				temp_desc = v.template.desc .. ": "
-			end
-
-			local value_desc = string.format("%s/%s", value, v.finished_value)
-			if v.template.custom_show == true then
-				value_desc = GameLogic.QuestAction.GetLabel(v.template.id, v);
-			end
-			child_task_desc = string.format("%s%s", temp_desc, value_desc)
-		else
-			child_task_desc = v.finished_value
-		end
-		
-		local div_desc = [[
-			<div>%s</div>
-		]]
-
-		desc = desc .. string.format(div_desc, child_task_desc)
+	local data_item = childrens[1]
+	local child_task_desc = ""
+	if data_item.id == "40005_1" then
+		return ""
 	end
+	if type(data_item.finished_value) == "number" then
+		local value = data_item.value or 0
+		if task_type == "loop" then
+			value = QuestAction.GetDailyTaskValue(data_item.id)
+		end
+		local temp_desc = "进度： "
+		
+		if data_item.template.desc and data_item.template.desc ~= "" then
+			temp_desc = data_item.template.desc .. ": "
+		end
+
+		local value_desc = string.format("%s/%s", value, data_item.finished_value)
+		if data_item.template.custom_show == true then
+			value_desc = QuestAction.GetLabel(data_item.template.id, data_item);
+		end
+		child_task_desc = string.format("%s%s", temp_desc, value_desc)
+	else
+		child_task_desc = data_item.finished_value
+	end
+	
+	local div_desc = [[
+		<div>%s</div>
+	]]
+
+	desc = desc .. string.format(div_desc, child_task_desc)
 
 	return desc
 end
 
-function QuestPage.GetTaskStateByQuest(data)
+function QuestPage.GetTaskStateByQuest(data, task_type)
+	if task_type == "loop" then
+		local childrens = data.questItemContainer.children	
+		local data_item = childrens[1]
+		
+		local state = QuestAction.GetDailyTaskState(data_item.id)
+		if state == QuestPage.TaskState.not_complete and data_item.template.click and data_item.template.click ~= "" then
+			state = QuestPage.TaskState.can_go
+		end
+		return state
+	end
 	return data.questItemContainer:CanFinish() and QuestPage.TaskState.can_complete or QuestPage.TaskState.can_go
 end
 
@@ -532,16 +579,15 @@ function QuestPage.GetBgImg(task_data)
 end
 
 function QuestPage.HandleGiftData()
+	local exp = QuestAction.GetExp()
+	local gift_state_list = QuestAction.GetGiftStateList()
 	for i, v in ipairs(QuestPage.GiftData) do
-		-- v.state = QuestPage.GetGiftState(v)
+		v.state = gift_state_list[i] or QuestPage.GiftState.can_not_get
 		v.img = QuestPage.GetIconImg(i, v)
 		v.number_img = QuestPage.GetNumImg(v)
 	end
 end
 
-function QuestPage.GetGiftState(gift_data)
-	return QuestPage.GiftState.can_not_get
-end
 
 function QuestPage.GetIconImg(index, item)
 	-- 最后一个礼拜要做不同显示
@@ -567,17 +613,58 @@ function QuestPage.SetExpProgress(value)
 	page:SetValue("expbar", value);
 end
 -- 这里的task_id 其实就是exid
-function QuestPage.GetReard(task_id)
-	-- 目前只有新手引导任务是要主动领取奖励
-
-	-- local quest_datas = QuestProvider:GetInstance():GetQuestItems()
-	local quest_data = QuestPage.GetQuestData(task_id)
-	if quest_data then
-		quest_data.questItemContainer:DoFinish()
+function QuestPage.GetReward(task_id)
+	local task_data = nil
+	for key, v in pairs(QuestPage.TaskData) do
+		if v.task_id == task_id then
+			task_data = v
+			break
+		end
+	end
+	
+	if nil == task_data then
+		return
 	end
 
-    local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
-    DockPage.page:Refresh(0.01)
+	-- 先加上探索力
+	if task_data.exp and task_data.exp > 0 then
+		QuestAction.AddExp(task_data.exp, function()
+			local exp = QuestAction.GetExp()
+			QuestPage.ProgressToExp(true, exp)
+			QuestPage.HandleGiftData()
+			QuestPage.OnRefreshGiftGridView()
+		end)
+	end
+
+	-- local quest_data = QuestPage.GetQuestData(task_data.task_id)
+	if task_data.task_type == "loop" then
+		local childrens = task_data.questItemContainer.children or {}
+		
+		for i, v in ipairs(childrens) do
+			QuestAction.FinishDailyTask(v.template.id)
+		end
+		
+		QuestPage.RefreshData()
+	else
+		-- local questItemContainer = task_data.questItemContainer
+		-- print("axxxxxxxxxxxxxxxx", questItemContainer)
+		-- if questItemContainer then
+		-- 	questItemContainer:DoFinish()
+		-- end
+		
+		if task_data.questItemContainer then
+			task_data.questItemContainer:DoFinish()
+		end
+		-- local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+		-- DockPage.page:Refresh(0.01)
+	end
+
+	-- local quest_data = QuestPage.GetQuestData(task_id)
+	-- if quest_data then
+	-- 	quest_data.questItemContainer:DoFinish()
+	-- end
+
+
 end
 
 function QuestPage.Goto(task_id)
@@ -633,7 +720,8 @@ function QuestPage.GetTaskExp(data)
 	local childrens = data.questItemContainer.children
 	for i, v in ipairs(childrens) do
 		if v.template.exp then
-			exp = v.template.exp
+			exp = tonumber(v.template.exp)
+			break
 		end
 	end
 
@@ -656,22 +744,22 @@ function QuestPage.CheckIsTaskCompelete()
     local profile = KeepWorkItemManager.GetProfile()
     -- 是否实名认证
 --    if GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
---         GameLogic.QuestAction.SetValue("40002_1",1);
+--         QuestAction.SetValue("40002_1",1);
 --    end 
 
     -- 是否新的实名认证
 	if GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
-        GameLogic.QuestAction.SetValue("40006_1",1);
+        QuestAction.SetValue("40006_1",1);
    end 
 
    -- 是否选择了学校
    if profile and profile.schoolId and profile.schoolId > 0 then
-        GameLogic.QuestAction.SetValue("40003_1",1);
+        QuestAction.SetValue("40003_1",1);
    end
 
    -- 是否已选择了区域
    if profile and profile.region and profile.region.hasChildren == 0 then
-        GameLogic.QuestAction.SetValue("40004_1",1);
+        QuestAction.SetValue("40004_1",1);
    end
 end
 
@@ -683,15 +771,15 @@ function QuestPage.IsRoleModel(item_data)
 	return false
 end
 
-function QuestPage.ProgressToPercent(is_play_ani, to_percent)
-	if ProInitData.is_playing then
-		return
-	end
-
-	ProInitData.to_percent = to_percent
+function QuestPage.ProgressToExp(is_play_ani, to_exp)
+	ProInitData.to_exp = to_exp
 	local all_width = ProInitData.width
-	ProInitData.target_width = to_percent/100 * all_width
+	ProInitData.target_width = to_exp/100 * all_width
+	
 	if is_play_ani then
+		if ProInitData.is_playing then
+			return
+		end
 		ProInitData.is_playing = true
 		NPL.SetTimer(10086, 0.05, ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.lua").Timer()');
 	else
@@ -708,5 +796,18 @@ function QuestPage.Timer()
 		ProInitData.ui_object.width = ProInitData.target_width
 		NPL.KillTimer(10086)
 		ProInitData.is_playing = false
+	end
+end
+
+function QuestPage.OnClikcGift(gift_data)
+	if gift_data.state == QuestPage.GiftState.can_get then
+		local exid = gift_data.exid
+		KeepWorkItemManager.DoExtendedCost(exid,function()
+			local template = KeepWorkItemManager.GetGoal(exid);
+			QuestRewardPage.Show(template[1].goods);
+
+			QuestAction.SetGiftState(gift_data.gift_id, QuestPage.GiftState.has_get)
+			QuestPage.RefreshData()
+		end)
 	end
 end

@@ -345,10 +345,10 @@ function KeepWorkMallPage.HandleDataSources()
 			
 		v.goods_data = {}
 		if v.rule and v.rule.exchangeTargets and v.rule.exchangeTargets[1] then
-			local goods = v.rule.exchangeTargets[1].goods
-			
+			local goods = v.rule.exchangeTargets[1].goods			
 			for index, value in ipairs(goods) do
-				local goods_data = KeepWorkItemManager.GetItemTemplateById(goods[1].id) or {}
+				
+				local goods_data = KeepWorkItemManager.GetItemTemplate(goods[1].gsId) or {}
 				v.goods_data[#v.goods_data + 1] = goods_data
 			end
 		end
@@ -362,7 +362,6 @@ function KeepWorkMallPage.HandleDataSources()
 		v.isLink = v.purchaseUrl ~= nil and v.purchaseUrl ~= ""
 		local modelUrl = v.goods_data[1] and v.goods_data[1].modelUrl or ""
 		v.isModelProduct = #v.goods_data == 1 and modelUrl ~= ""
-
 		v.vip_enabled = false
 		-- 售完或者到达购买上限的情况下不允许购买
 		v.buy_txt = "购买"
@@ -374,12 +373,12 @@ function KeepWorkMallPage.HandleDataSources()
 			v.show_state = KeepWorkMallPage.show_state.sell_out
 		else
 			v.enabled = KeepWorkMallPage.checkIsGetLimit(v)
-
+			
 			if v.isModelProduct then
 				local good_data = v.goods_data[1]
 				local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(good_data.gsId)
 				local bag_nums = copies and copies or 0
-
+				
 				if good_data.extra and good_data.extra.vip_enabled == true then
 					v.vip_enabled = true
 					v.enabled = false
@@ -418,7 +417,7 @@ function KeepWorkMallPage.HandleDataSources()
 		if v.rule and v.rule.exchangeCosts and v.rule.exchangeCosts[1] then
 			v.cost = v.rule.exchangeCosts[1].amount
 			
-			local cost_item_data = KeepWorkItemManager.GetItemTemplateById(v.rule.exchangeCosts[1].id) or {}
+			local cost_item_data = KeepWorkItemManager.GetItemTemplate(v.rule.exchangeCosts[1].gsId) or {}
 			v.cost_name = cost_item_data.name or ""
 
 			if cost_item_data.gsId == bean_gsid then

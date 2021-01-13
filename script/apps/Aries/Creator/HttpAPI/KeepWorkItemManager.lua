@@ -483,7 +483,7 @@ function KeepWorkItemManager.LoadGlobalStore(bForced, callback)
     end
     keepwork.globalstore.get({
         cache_policy = cache_policy,
-        ["x-per-page"] = 10000,
+        ["x-per-page"] = 1000,
     },function(err, msg, data)
         if(err ~= 200)then
             return
@@ -505,6 +505,7 @@ function KeepWorkItemManager.LoadExtendedCost(bForced, callback)
     end
     keepwork.extendedcost.get({
         cache_policy = cache_policy,
+        ["x-per-page"] = 1000,
     },function(err, msg, data)
         if(err ~= 200)then
             return
