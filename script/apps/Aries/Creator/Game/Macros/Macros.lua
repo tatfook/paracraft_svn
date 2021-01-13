@@ -2,13 +2,18 @@
 Title: all Macros 
 Author(s): LiXizhi
 Date: 2021/1/2
-Desc: namespace for all macros
+Desc: namespace for all macros.
 
+The following are supported macros, they can run in a command block or with GameLogic.Macros:Play(text). 
+----------------
 Idle(500)
 CameraMove(8,0.54347,0.18799)
 CameraLookat(19980.29883,-126.59001,19998.52929)
 PlayerMove(19181,5,19198,0.23781)
+SceneClickTrigger("shift+right",-0.19781,0.07273)
 SceneClick("shift+right",-0.19781,0.07273)
+SceneDragTrigger("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
+SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 Tip("some text")
 Broadcast("globalGameEvent")
 
@@ -19,6 +24,7 @@ local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 if(GameLogic.Macros:IsRecording()) then
 	GameLogic.Macros:AddMacro("PlayerMove", x, y, z);
 end
+GameLogic.Macros:Play(text)
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
@@ -48,6 +54,8 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSceneClickTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPress.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPressTrigger.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBox.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBoxTrigger.lua");
 	-- TODO: add more here
 end
 
@@ -97,6 +105,13 @@ local ignoreBtnList = {
 	["_click_to_continue_delay_"] = true,
 }
 
+local function IsRecordableUIObject(obj)
+	local name = obj.name or "";
+	if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
+		return true;
+	end
+end
+
 -- called whenever GUI event is received from c++ engine. 
 function Macros.OnGUIEvent(obj, eventname, callInfo)
 	if(not Macros:IsRecording()) then
@@ -104,12 +119,21 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	end
 	if(eventname == "onclick") then
 		local name = obj.name or "";
-		if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
+		if(IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("ButtonClick", name, Macros.GetButtonTextFromKeyboard(mouse_button))
 			end
 		else
 			GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
+		end
+	elseif(eventname == "onchange") then
+		local name = obj.name or "";
+		if(IsRecordableUIObject(name)) then
+			if(not ignoreBtnList[name]) then
+				Macros:AddMacro("EditBox", name, obj.text)
+			end
+		else
+			GameLogic.AddBBS("macros", format(L"警告：没有录制的文本输入框事件:%s", name or ""), 4000, "255 0 0");
 		end
 	end
 end
