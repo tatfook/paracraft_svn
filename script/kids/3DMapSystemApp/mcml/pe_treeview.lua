@@ -320,6 +320,7 @@ function pe_treeview.createTreeNode(parentNode, mcmlNode, bindingContext)
 			end
 
 			node.Name = mcmlNode:GetAttributeWithCode("name");
+			node.uiname = mcmlNode:GetAttributeWithCode("uiname", nil, true);
 			node.Text = mcmlNode:GetAttributeWithCode("text");
 			node.tooltip = mcmlNode:GetAttributeWithCode("tooltip");
 			node.TextColor = css["color"];
@@ -527,7 +528,7 @@ function pe_treeview.DrawNodeHandler(_parent,treeNode)
 				end	
 			end
 
-			_this=ParaUI.CreateUIObject("button","b","_lt", left, 0 , width - left-2, height - 1);
+			_this=ParaUI.CreateUIObject("button", treeNode.uiname or "b","_lt", left, 0 , width - left-2, height - 1);
 			_parent:AddChild(_this);
 
 			if(treeNode.Selected) then
@@ -542,9 +543,13 @@ function pe_treeview.DrawNodeHandler(_parent,treeNode)
 			end
 			_guihelper.SetUIFontFormat(_this, 36); -- single line and vertical align
 			if(treeNode.mcmlNode:GetBool("can_select")) then
-				_this.onclick = string.format(";CommonCtrl.TreeView.OnSelectNode(%q, %q)", treeNode.TreeView.name, treeNode:GetNodePath());
+				_this:SetScript("onclick", function()
+					CommonCtrl.TreeView.OnSelectNode(treeNode.TreeView.name, treeNode:GetNodePath());
+				end)
 			else
-				_this.onclick = string.format(";CommonCtrl.TreeView.OnClickNode(%q, %q)", treeNode.TreeView.name, treeNode:GetNodePath());
+				_this:SetScript("onclick", function()
+					CommonCtrl.TreeView.OnClickNode(treeNode.TreeView.name, treeNode:GetNodePath())
+				end)
 			end
 			if(treeNode.Text) then
 				_this.text = treeNode.Text;
