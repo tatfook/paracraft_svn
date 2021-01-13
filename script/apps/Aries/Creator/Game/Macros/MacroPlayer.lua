@@ -318,7 +318,6 @@ function MacroPlayer.OnClickCursor()
 				return;
 			else
 				MacroPlayer.expectedEditBoxText = nil;
-				MacroPlayer.expectedEditBoxTextDiff = nil;
 				MacroPlayer.ShowEditBox(false)
 			end
 		end
@@ -357,7 +356,6 @@ function MacroPlayer.OnKeyDown(event)
 	if(isOK) then
 		if(MacroPlayer.expectedEditBoxText) then
 			MacroPlayer.expectedEditBoxText = nil;
-			MacroPlayer.expectedEditBoxTextDiff = nil;
 			MacroPlayer.ShowEditBox(false)
 		end
 		MacroPlayer.expectedKeyButton = nil;
@@ -390,7 +388,6 @@ end
 function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackFunc)
 	if(page) then
 		MacroPlayer.expectedEditBoxText = text;
-		MacroPlayer.expectedEditBoxTextDiff = textDiff;
 		MacroPlayer.ShowEditBox(true, text, textDiff)
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 

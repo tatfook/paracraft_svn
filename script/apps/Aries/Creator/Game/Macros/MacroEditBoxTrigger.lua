@@ -28,7 +28,7 @@ function Macros.TextToKeyName(text)
 		elseif(text == "_") then
 			keyname = "shift+DIK_MINUS"
 		elseif(text == "/") then
-			keyname = "shift+DIK_SLASH"
+			keyname = "DIK_SLASH"
 		elseif(text == ",") then
 			keyname = "DIK_COMMA"
 		elseif(text == ".") then	
@@ -42,14 +42,12 @@ function Macros.TextToKeyName(text)
 end
 
 
--- return text - lastText
+-- return text - lastText.  or nil if text does not begin with lastText
 local function GetTextDiff(text, lastText)
 	local diff;
 	if(lastText and text) then
 		if(text:sub(1, #(lastText)) == lastText) then
 			diff = text:sub(#(lastText)+1, -1);
-		else
-			diff = text;
 		end
 	end
 	if(diff~="") then
@@ -66,19 +64,45 @@ function Macros.EditBoxTrigger(uiName, text)
 		local x, y, width, height = obj:GetAbsPosition();
 		local mouseX = math.floor(x + width /2)
 		local mouseY = math.floor(y + height /2)
+		ParaUI.SetMousePosition(mouseX, mouseY);
 		obj:SetCaretPosition(-1);
 		--obj:Focus()
-		local textDiff = GetTextDiff(text, obj.text);
-		
-		local callback = {};
-		MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, function()
-			if(callback.OnFinish) then
-				callback.OnFinish();
-			end
-		end);
-		return callback;
+
+		if(text == obj.text) then
+			-- skip if equal
+			return Macros.Idle();
+		else
+			local textDiff = GetTextDiff(text, obj.text);
+			local callback = {};
+			MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
 	end
 end
+
+--@param uiName: UI name
+--@param text: content text
+function Macros.EditBoxKeyupTrigger(uiName, keyname)
+	if(keyname == "DIK_RETURN") then
+		-- we will only trigger the enter key
+		local obj = ParaUI.GetUIObject(uiName)
+		if(obj and obj:IsValid()) then
+			local x, y, width, height = obj:GetAbsPosition();
+			local mouseX = math.floor(x + width /2)
+			local mouseY = math.floor(y + height /2)
+			ParaUI.SetMousePosition(mouseX, mouseY);
+			obj:SetCaretPosition(-1);
+		
+			Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
+			return Macros.KeyPressTrigger(keyname)
+		end
+	end
+end
+
 
 
 

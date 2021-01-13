@@ -159,11 +159,15 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 		else
 			GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
 		end
-	elseif(eventname == "onmodify") then
+	elseif(eventname == "onmodify" or eventname == "onkeyup") then
 		local name = obj.name or "";
 		if(not IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
-				Macros:AddMacro("EditBox", name, obj.text)
+				if(eventname == "onmodify") then
+					Macros:AddMacro("EditBox", name, obj.text)
+				elseif(eventname == "onkeyup") then
+					Macros:AddMacro("EditBoxKeyup", name, VirtualKeyToScaneCodeStr[virtual_key])
+				end
 			end
 		else
 			GameLogic.AddBBS("macros", format(L"警告：没有录制的文本输入框事件:%s", name or ""), 4000, "255 0 0");
@@ -287,7 +291,7 @@ function Macros:BeginPlay()
 	self:Init();
 
 	self.isPlaying = true;
-	
+	Macros.SetNextKeyPressWithMouseMove(nil, nil)
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
 	local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 	MacroPlayer.ShowPage();
