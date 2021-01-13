@@ -699,6 +699,7 @@ function SelectBlocks:handleLeftClickScene(event)
 		-- clicking without ctrl key will cancel the selection mode. 
 		SelectBlocks.CancelSelection();
 	end
+	event:accept();
 end
 
 function SelectBlocks:keyPressEvent(event)

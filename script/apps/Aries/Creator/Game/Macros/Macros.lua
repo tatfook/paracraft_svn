@@ -8,8 +8,8 @@ by calling GameLogic.Macros:Play(text).
 ## What are good macros?
 Macros are almost independent of screen resolution. However, it is good practice to click in the center of a scene block, 
 and do not click around the edge of the scene, because the viewport aspect ratio may be different on the user's computer
-and the click location may not be seen on it. Always clicking the around the center of the scene to ensure valid mouse clicks on all aspect ratio. 
-Also, remove redundent steps like refrequently moving the player or changing camera view, because they will generate unnecessary
+and the click location may not be seen on it. Always clicking around the center of the scene to ensure valid mouse clicks on all aspect ratios. 
+Also, remove redundant steps like frequently moving the player or changing camera view, because they will generate unnecessary
 macro commands. 
 
 ## Interactive mode

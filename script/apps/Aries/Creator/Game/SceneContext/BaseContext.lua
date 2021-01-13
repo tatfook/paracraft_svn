@@ -223,6 +223,7 @@ function BaseContext:handleMouseEvent(event)
 		local eventType = event:GetType() 
 		if(eventType == "mousePressEvent") then
 			if(GameLogic.Macros:IsRecording()) then
+				self.is_click = false;
 				GameLogic.Macros:MarkMousePress(event)
 			end
 		elseif(event:isAccepted() and eventType == "mouseReleaseEvent") then
