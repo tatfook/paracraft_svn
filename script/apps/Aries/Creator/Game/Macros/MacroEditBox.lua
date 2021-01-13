@@ -21,7 +21,7 @@ function Macros.EditBox(uiName, text)
 	if(obj and obj:IsValid()) then
 		obj.text = text or ""
 		obj:SetCaretPosition(-1);
-		obj:Focus()
+		--obj:Focus()
 	end
 end
 

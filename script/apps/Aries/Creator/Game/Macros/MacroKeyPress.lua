@@ -63,6 +63,9 @@ local nextKeyPressMouseX, nextKeyPressMouseY;
 function Macros.GetNextKeyPressWithMouseMove()
 	return nextKeyPressMouseX, nextKeyPressMouseY
 end
+function Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY)
+	nextKeyPressMouseX, nextKeyPressMouseY = mouseX, mouseY
+end
 
 -- this macro will force the next key stroke to have a given mouse position. 
 -- such as some ctrl+C and ctrl+v operations in the scene. 

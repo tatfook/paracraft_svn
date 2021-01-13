@@ -41,6 +41,23 @@ function Macros.TextToKeyName(text)
 	return keyname
 end
 
+
+-- return text - lastText
+local function GetTextDiff(text, lastText)
+	local diff;
+	if(lastText and text) then
+		if(text:sub(1, #(lastText)) == lastText) then
+			diff = text:sub(#(lastText)+1, -1);
+		else
+			diff = text;
+		end
+	end
+	if(diff~="") then
+		return diff;
+	end
+end
+
+
 --@param uiName: UI name
 --@param text: content text
 function Macros.EditBoxTrigger(uiName, text)
@@ -50,8 +67,8 @@ function Macros.EditBoxTrigger(uiName, text)
 		local mouseX = math.floor(x + width /2)
 		local mouseY = math.floor(y + height /2)
 		obj:SetCaretPosition(-1);
-		obj:Focus()
-		local textDiff = Macros:UpdateEditBoxTextDiff(uiName, text);
+		--obj:Focus()
+		local textDiff = GetTextDiff(text, obj.text);
 		
 		local callback = {};
 		MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, function()

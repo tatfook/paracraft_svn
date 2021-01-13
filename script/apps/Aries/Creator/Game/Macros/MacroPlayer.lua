@@ -350,7 +350,7 @@ function MacroPlayer.OnKeyDown(event)
 		local diffDistance = math.sqrt((mouseX - mX)^2 + (mouseY - mY)^2)
 		if(diffDistance > 16) then
 			isOK = false
-			GameLogic.AddBBS("Macro", L"请讲鼠标移动到目标点，再按键盘", 5000, "255 0 0");
+			GameLogic.AddBBS("Macro", L"请将鼠标移动到目标点，再按键盘", 5000, "255 0 0");
 		end
 	end
 
@@ -395,17 +395,14 @@ function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackF
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 
 		-- if we do not need user to enter text, just click to enter
-		local clickToEnter = true
 		local keyButtons = Macros.TextToKeyName(textDiff)
 		if(keyButtons) then
-			clickToEnter = false;
-		end
-		if(clickToEnter) then
-			MacroPlayer.expectedButton = "left";
+			MacroPlayer.expectedKeyButton = keyButtons; 
+			Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
+			MacroPlayer.ShowKeyPress(true, keyButtons)
 			MacroPlayer.ShowCursor(true, mouseX, mouseY);
 		else
-			MacroPlayer.expectedKeyButton = keyButtons; 
-			MacroPlayer.ShowKeyPress(true, keyButtons)
+			MacroPlayer.expectedButton = "left";
 			MacroPlayer.ShowCursor(true, mouseX, mouseY);
 		end
 	end
