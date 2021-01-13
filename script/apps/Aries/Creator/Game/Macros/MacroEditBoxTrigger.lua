@@ -29,6 +29,12 @@ function Macros.TextToKeyName(text)
 			keyname = "shift+DIK_MINUS"
 		elseif(text == "/") then
 			keyname = "shift+DIK_SLASH"
+		elseif(text == ",") then
+			keyname = "DIK_COMMA"
+		elseif(text == ".") then	
+			keyname = "DIK_PERIOD"
+		elseif(text == " ") then	
+			keyname = "DIK_SPACE"
 		end
 		-- TODO: add more supported keys?
 	end

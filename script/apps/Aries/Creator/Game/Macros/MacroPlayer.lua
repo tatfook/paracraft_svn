@@ -153,6 +153,23 @@ function MacroPlayer.AnimKeyPressBtn(bRestart)
 		end
 	end
 end
+
+local keyMaps = {
+	["SLASH"] = "/",
+	["MINUS"] = "_",
+	["PERIOD"] = ".",
+	["COMMA"] = ",",
+	["SPACE"] = L"空格",
+}
+local function ConvertKeyNameToButtonText(btnText)
+	if(btnText) then
+		btnText = btnText:gsub("DIK_", "")
+		btnText = string.upper(btnText);
+		btnText = keyMaps[btnText] or btnText;
+	end
+	return btnText
+end
+
 function MacroPlayer.ShowKeyPress(bShow, button)
 	if(page) then
 		local keyPress = page:FindControl("keyPress");
@@ -172,8 +189,8 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 					local keyBtn = page:FindControl("key"..i);
 					local btnText = buttons[i];
 					if(btnText) then
-						btnText = btnText:gsub("DIK_", "")
-						keyBtn.text = string.upper(btnText);
+						btnText = ConvertKeyNameToButtonText(btnText)
+						keyBtn.text = btnText;
 						keyBtn.visible = true;
 						keyBtn.translationx = left;
 						keyBtn:ApplyAnim();

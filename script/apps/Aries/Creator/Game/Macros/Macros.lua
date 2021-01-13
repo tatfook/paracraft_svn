@@ -2,10 +2,32 @@
 Title: all Macros 
 Author(s): LiXizhi
 Date: 2021/1/2
-Desc: namespace for all macros.
+Desc: Macros are sequences of key and mouse text command that can be replayed in a command block or 
+by calling GameLogic.Macros:Play(text). 
 
-The following are supported macros, they can run in a command block or with GameLogic.Macros:Play(text). 
-----------------
+## What are good macros?
+Macros are almost independent of screen resolution. However, it is good practice to click in the center of a scene block, 
+and do not click around the edge of the scene, because the viewport aspect ratio may be different on the user's computer
+and the click location may not be seen on it. Always clicking the around the center of the scene to ensure valid mouse clicks on all aspect ratio. 
+Also, remove redundent steps like refrequently moving the player or changing camera view, because they will generate unnecessary
+macro commands. 
+
+## Interactive mode
+One can record macro in Interactive mode by "/macro record -i" command.  This will generate additional [XXX]trigger command.
+These trigger commands will ignore previous Idle(wait) command. Once played, trigger commands require the user to 
+perform the same mouse or key actions in order to continue playing the next macro. 
+
+Interactive mode is usually used as a tutorial for teaching users. 
+In this mode, it is good practice to manually edit the triggers in a text editor and inject "Tip" or "Broadcast" commands. 
+The Tip command will just display some comment text at the left top corner of the screen. 
+The Broadcast command can /sendevent to the world, so that external code, like in a code block, can know the progress of the playing macros. 
+This enables us to add more visual or audio effects in external code, while macros are being played. 
+
+## Play Macro Controller
+If the world is not readonly, the play macro controller will display a progress bar and a stop button. 
+
+## Macro Lists
+---
 Idle(500)
 CameraMove(8,0.54347,0.18799)
 CameraLookat(19980.29883,-126.59001,19998.52929)
@@ -16,6 +38,17 @@ SceneDragTrigger("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 Tip("some text")
 Broadcast("globalGameEvent")
+---
+
+## How to make UI control recordable?
+In mcml v1, recordable button(like input/div) should have "uiname" attribute. 
+aries:window close button attribute name is "uiname_onclose".
+editbox like (input text) should have both "uiname" and "onchange" attribute. You can assign a dummy function to "onchange", but it needs one. 
+
+## How to record scene event (both key and mouse)?
+We can add macros in SceneContext's handleMouseEvent() and handleKeyEvent() method. 
+Since all scene contexts in paracraft are derived from BaseContext, we did above in BaseContext. 
+
 
 Use Lib:
 -------------------------------------------------------
