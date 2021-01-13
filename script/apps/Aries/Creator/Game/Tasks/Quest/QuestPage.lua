@@ -293,10 +293,12 @@ function QuestPage.CloseView()
 end
 
 function QuestPage.EnterWorld(world_id)
+	page:CloseWindow()
+	QuestPage.CloseView()
 	local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
 	CommandManager:RunCommand(string.format('/loadworld -force -s %s', world_id))
 
-	QuestPage.RefreshData()
+	-- QuestPage.RefreshData()
 end
 
 function QuestPage.GrowthDiary()

@@ -87,6 +87,7 @@ function QuestAction.SetValue(id,value)
     if(not id)then
         return
     end
+    
     QuestProvider:GetInstance():SetValue(id,value);
 end
 function QuestAction.GetValue(id)
