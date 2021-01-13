@@ -30,6 +30,17 @@ function Macros.PlayerMove(bx, by, bz, facing)
 	end
 end
 
+function Macros.FocusPlayer(x, y, z)
+	local player = EntityManager.GetPlayer();
+	if(player) then
+		player:SetFocus();
+		local obj = player:GetInnerObject();
+		if(obj and obj.ToCharacter) then
+			obj:SetPosition(x, y, z);
+			obj:ToCharacter():SetFocus();
+		end
+	end
+end
 
 -- @param camobjDist, LiftupAngle, CameraRotY: if nil, we will restore the last CameraMove macro's values
 function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)

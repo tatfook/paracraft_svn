@@ -872,6 +872,17 @@ function BaseContext:handlePlayerKeyEvent(event)
 		end
 		event:accept();
 	elseif(not event.ctrl_pressed and not event.alt_pressed) then
+		if(GameLogic.Macros:IsRecording()) then
+			if(dik_key == "DIK_SPACE" or dik_key == "DIK_F" or dik_key == "DIK_X") then
+				if(EntityManager.GetFocus() == EntityManager.GetPlayer()) then
+					local player = EntityManager.GetPlayer();
+					if(player) then
+						local x, y, z = player:GetPosition()
+						GameLogic.Macros:AddMacro("FocusPlayer", x, y, z);
+					end
+				end
+			end
+		end
 		if(dik_key == "DIK_SPACE") then
 			GameLogic.DoJump();
 			event:accept();

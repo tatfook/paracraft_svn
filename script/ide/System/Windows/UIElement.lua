@@ -82,6 +82,7 @@ UIElement:Property({"transform", nil, auto=true});
 UIElement:Property({"focus_policy", FocusPolicy.NoFocus, "focusPolicy", "setFocusPolicy"});
 UIElement:Property({"mouseTracking", nil, "hasMouseTracking", "setMouseTracking"});
 UIElement:Property({"render_priority", 0, auto=true});
+UIElement:Property({"uiName", nil, "GetUIName", "SetUIName"});
 
 UIElement:Property({"clip", false, "IsClip", "SetClip", auto=true});
 UIElement:Property({"InputMethodEnabled", true, "IsInputMethodEnabled", "SetInputMethodEnabled", auto=true});
@@ -118,6 +119,15 @@ end
 
 function UIElement:GetID()
 	return self.elementId;
+end
+
+-- user interface name
+function UIElement:GetUIName()
+	return self.uiName;
+end
+
+function UIElement:SetUIName(uiName)
+	self.uiName = uiName;
 end
 
 function UIElement:SetParent(parent)

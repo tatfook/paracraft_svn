@@ -171,7 +171,9 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 		local endX, endY, endMouseButton = Macros.MouseAngleToScreenPos(endAngleX, endAngleY)
 
 		local ticks = 0;
-		local totalTicks = 15;
+		local pixelDist = math.sqrt((startX - endX)^2 + (startY - endY)^2)
+		-- 200 pixels per seconds at most. 
+		local totalTicks = math.max( math.floor(pixelDist / 200)*30,  30);
 	
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			ticks = ticks + 1;

@@ -155,11 +155,12 @@ function MacroPlayer.AnimKeyPressBtn(bRestart)
 end
 
 local keyMaps = {
-	["SLASH"] = "/",
-	["MINUS"] = "_",
+	["SLASH"] = "/?",
+	["MINUS"] = "-_",
 	["PERIOD"] = ".",
 	["COMMA"] = ",",
 	["SPACE"] = L"空格",
+	["EQUALS"] = L"=+",
 }
 local function ConvertKeyNameToButtonText(btnText)
 	if(btnText) then
