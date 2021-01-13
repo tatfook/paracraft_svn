@@ -119,7 +119,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	end
 	if(eventname == "onclick") then
 		local name = obj.name or "";
-		if(IsRecordableUIObject(name)) then
+		if(not IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("ButtonClick", name, Macros.GetButtonTextFromKeyboard(mouse_button))
 			end
@@ -128,7 +128,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 		end
 	elseif(eventname == "onchange") then
 		local name = obj.name or "";
-		if(IsRecordableUIObject(name)) then
+		if(not IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("EditBox", name, obj.text)
 			end
