@@ -101,7 +101,9 @@ function Macros.WindowKeyPress(ctrlName, button)
 	if(obj) then
 		local window = obj:GetWindow()
 		if(window and window:testAttribute("WA_WState_Created")) then
+			window.isEmulatedFocus = true;
 			window:handleActivateEvent(true)
+			window.isEmulatedFocus = nil;
 
 			local event = KeyEvent:init("keyPressEvent")
 			SetKeyEventFromButtonText(event, button)
@@ -121,7 +123,9 @@ function Macros.WindowInputMethod(ctrlName, commitString)
 	if(obj) then
 		local window = obj:GetWindow()
 		if(window and window:testAttribute("WA_WState_Created")) then
+			window.isEmulatedFocus = true;
 			window:handleActivateEvent(true)
+			window.isEmulatedFocus = nil;
 
 			local event = InputMethodEvent:new():init(commitString);
 			Application:sendEvent(window:focusWidget(), event);

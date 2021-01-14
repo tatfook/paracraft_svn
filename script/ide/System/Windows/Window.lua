@@ -524,7 +524,9 @@ function Window:SetFocus_sys()
 			self.native_ui_obj:SetField("CanHaveFocus", self.CanHaveFocus); 
 			self.native_ui_obj:SetField("InputMethodEnabled", self.CanHaveFocus and self:IsInputMethodEnabled()); 
 		end
-		self.native_ui_obj:Focus();
+		if(not self.isEmulatedFocus) then
+			self.native_ui_obj:Focus();
+		end
 	end
 end
 
