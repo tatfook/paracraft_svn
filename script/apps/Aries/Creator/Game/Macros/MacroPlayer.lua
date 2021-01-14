@@ -47,12 +47,14 @@ function MacroPlayer.ShowPage()
 				width = 0,
 				height = 0,
 		});
-	local keyPress = page:FindControl("keyPress");
-	if(keyPress) then
-		keyPress:SetScript("onkeydown", function()
+	local KeyInput = page:FindControl("KeyInput");
+	if(KeyInput) then
+		KeyInput:SetField("CanHaveFocus", true); 
+		KeyInput:SetScript("onkeydown", function()
 			local event = KeyEvent:init("keyPressEvent")
 			MacroPlayer.OnKeyDown(event)
 		end);
+		KeyInput:Focus();
 	end
 	MacroPlayer.ShowCursor(false);
 	MacroPlayer.ShowKeyPress(false);
@@ -142,12 +144,21 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 	end
 end
 
+-- this is important to always focus to the key press control in case the user has clicked elsewhere.
+function MacroPlayer.Focus()
+	if(page) then
+		local KeyInput = page:FindControl("KeyInput");
+		if(KeyInput) then
+			KeyInput:Focus();
+		end
+	end
+end
+
 function MacroPlayer.AnimKeyPressBtn(bRestart)
 	if(page) then
 		local keyPress = page:FindControl("keyPress");
 		if(keyPress and keyPress.visible) then
-			-- this is important to always focus to the key press control in case the user has clicked elsewhere.
-			keyPress:Focus();
+			MacroPlayer.Focus()
 			MacroPlayer.animKeyPressTimer = MacroPlayer.animKeyPressTimer or commonlib.Timer:new({callbackFunc = function(timer)
 				MacroPlayer.AnimKeyPressBtn()
 			end})
@@ -191,8 +202,7 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 		if(keyPress) then
 			keyPress.visible = bShow;
 			if(bShow) then
-				keyPress:SetField("CanHaveFocus", true); 
-				keyPress:Focus();
+				MacroPlayer.Focus()
 
 				button = button or ""
 				local buttons = {};
@@ -219,8 +229,6 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 					end
 				end
 				MacroPlayer.AnimKeyPressBtn(true)
-			else
-				keyPress:SetField("CanHaveFocus", false); 
 			end
 		end
 	end
