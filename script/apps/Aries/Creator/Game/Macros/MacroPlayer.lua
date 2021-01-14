@@ -90,9 +90,10 @@ end
 
 
 function MacroPlayer.InvokeTriggerCallback()
-	if(MacroPlayer.triggerCallbackFunc) then
-		MacroPlayer.triggerCallbackFunc()
+	local callback = MacroPlayer.triggerCallbackFunc;
+	if(callback) then
 		MacroPlayer.triggerCallbackFunc = nil;
+		callback();
 	end
 end
 

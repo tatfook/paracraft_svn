@@ -251,7 +251,8 @@ function Macros:AddMacro(text, ...)
 			if(mTrigger.name == "WindowKeyPressTrigger") then
 				local lastMacro = self.macros[#self.macros - 1]
 				if(lastMacro and lastMacro.name == "WindowInputMethod") then
-					self.macros[#self.macros - 1], self.macros[#self.macros] = mTrigger, lastMacro;
+					local nCount = #self.macros;
+					self.macros[nCount - 1], self.macros[nCount] = mTrigger, lastMacro;
 				end
 			end
 		end
