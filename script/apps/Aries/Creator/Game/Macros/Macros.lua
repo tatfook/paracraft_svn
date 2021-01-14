@@ -244,7 +244,16 @@ function Macros:AddMacro(text, ...)
 	local macro = Macro:new():Init(text);
 	if(macro:IsValid()) then
 		if(self:IsRecording() and self:IsInteractiveMode() and macro:HasTrigger()) then
-			self.macros[#self.macros + 1] = macro:CreateTriggerMacro();
+			local mTrigger = macro:CreateTriggerMacro();
+			self.macros[#self.macros + 1] = mTrigger;
+
+			-- tricky: swap WindowInputMethod and WindowKeyPressTrigger, so that trigger is always before input method
+			if(mTrigger.name == "WindowKeyPressTrigger") then
+				local lastMacro = self.macros[#self.macros - 1]
+				if(lastMacro and lastMacro.name == "WindowInputMethod") then
+					self.macros[#self.macros - 1], self.macros[#self.macros] = mTrigger, lastMacro;
+				end
+			end
 		end
 		self.macros[#self.macros + 1] = macro;
 		GameLogic.GetFilters():apply_filters("Macro_AddRecord", #self.macros);

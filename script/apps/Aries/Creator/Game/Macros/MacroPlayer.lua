@@ -163,6 +163,17 @@ local keyMaps = {
 	["SPACE"] = L"空格",
 	["EQUALS"] = "=+",
 	["ESCAPE"] = "ESC",
+	["DELETE"] = "DEL",
+	["LSHIFT"] = "SHIFT",
+	["RSHIFT"] = "SHIFT",
+	["shift"] = "SHIFT",
+	["ctrl"] = "CTRL",
+	["alt"] = "ALT",
+	["UP"] = "↑",
+	["DOWN"] = "↓",
+	["LEFT"] = "←",
+	["RIGHT"] = "→",
+	["RETURN"] = L"回车",
 }
 local function ConvertKeyNameToButtonText(btnText)
 	if(btnText) then
@@ -184,15 +195,19 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 
 				button = button or ""
 				local buttons = {};
+				local duplicatedMap = {};
 				for text in button:gmatch("([%w_]+)") do
-					buttons[#buttons+1] = text;
+					text = ConvertKeyNameToButtonText(text)
+					if(not duplicatedMap[text]) then
+						duplicatedMap[text] = true
+						buttons[#buttons+1] = text;
+					end
 				end
 				local left = 5;
 				for i=1, 3 do
 					local keyBtn = page:FindControl("key"..i);
 					local btnText = buttons[i];
 					if(btnText) then
-						btnText = ConvertKeyNameToButtonText(btnText)
 						keyBtn.text = btnText;
 						keyBtn.visible = true;
 						keyBtn.translationx = left;

@@ -24,7 +24,13 @@ function Macros.KeyPressTrigger(button)
 	return callback;
 end
 
-
-
-
+function Macros.WindowKeyPressTrigger(ctrlName, button)
+	local callback = {};
+	MacroPlayer.SetKeyPressTrigger(button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end
 
