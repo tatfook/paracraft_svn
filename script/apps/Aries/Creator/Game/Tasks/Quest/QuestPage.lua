@@ -100,7 +100,10 @@ local modele_bag_id = 0
 function QuestPage.OnInit()
 	page = document:GetPageCtrl();
 	page.OnClose = QuestPage.CloseView
-	-- page.OnCreate = QuestPage.OnCreate()
+	page.OnCreate = QuestPage.OnCreate()
+end
+
+function QuestPage.OnCreate()
 end
 
 function QuestPage.Show()
@@ -129,6 +132,7 @@ function QuestPage.RefreshData()
 	QuestPage.HandleGiftData()
 	QuestPage.OnRefreshGridView()
 	QuestPage.OnRefreshGiftGridView()
+	QuestPage.FreshExpShow()
 end
 
 function QuestPage.ShowView()
@@ -209,6 +213,7 @@ function QuestPage.ShowView()
 	-- expbar.Maximum = MaxProgressValue
 	-- -- TargetProgerssValue = MaxProgressValue
 	-- QuestPage.UpdateExpProgress()
+
 	local pro_mcml_node = page:GetNode("pro")
 	local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
 	-- print("aaaaaaaaaaaaaaaaaaa", pro_ui_object:setRect(0, 0, 200, 10))
@@ -218,9 +223,12 @@ function QuestPage.ShowView()
 	-- QuestPage.ProgressToExp(true, 20)
 
 	QuestPage.OnGridViewCreate()
-
 	local exp = QuestAction.GetExp()
 	QuestPage.ProgressToExp(false, exp)
+	commonlib.TimerManager.SetTimeout(function()
+		QuestPage.FreshExpShow()
+	end, 10)
+	
 end
 
 function QuestPage.OnGridViewCreate()
@@ -392,7 +400,7 @@ function QuestPage.HandleTaskData(data)
 			task_data.task_state = QuestPage.GetTaskStateByQuest(v, task_data.task_type)
 
 			task_data.exp = QuestPage.GetTaskExp(v)
-	
+			task_data.order = QuestPage.GetTaskOrder(v)
 			task_data.bg_img = QuestPage.GetBgImg(task_data)
 			task_data.questItemContainer = v.questItemContainer
 
@@ -419,22 +427,41 @@ function QuestPage.HandleTaskData(data)
 
 	-- 主线任务在前
 	table.sort(QuestPage.TaskData, function(a, b)
-		local value_a = 100
-		local value_b = 100
+		local value_a = 10000
+		local value_b = 10000
 		if a.is_main_task then
-			value_a = value_a + 100
+			value_a = value_a + 10000
+		end
+		if b.is_main_task then
+			value_b = value_b + 10000
 		end
 
-		if b.is_main_task then
+		if a.task_type == "branch" then
+			value_a = value_a + 1000
+		end
+		if b.task_type == "branch" then
+			value_b = value_b + 1000
+		end
+
+		if a.task_type == "loop" then
+			value_a = value_a + 100
+		end
+		if b.task_type == "loop" then
 			value_b = value_b + 100
 		end
 
-		if a.task_state == QuestPage.TaskState.has_complete then
-			value_a = value_a - 10
+		if a.order > b.order then
+			value_a = value_a + 10
+		end
+		if b.order > a.order then
+			value_b = value_b + 10
 		end
 
+		if a.task_state == QuestPage.TaskState.has_complete then
+			value_a = value_a - 10000
+		end
 		if b.task_state == QuestPage.TaskState.has_complete then
-			value_b = value_b - 10
+			value_b = value_b - 10000
 		end
 
 		return value_a > value_b
@@ -555,6 +582,16 @@ function QuestPage.GetTaskProDescByQuest(data, task_type)
 	desc = desc .. string.format(div_desc, child_task_desc)
 
 	return desc
+end
+
+function QuestPage.GetTaskOrder(data)
+	local childrens = data.questItemContainer.children
+	local data_item = childrens[1]
+	if data_item and data_item.template.order then
+		return tonumber(data_item.template.order)
+	end
+
+	return 0
 end
 
 function QuestPage.GetTaskStateByQuest(data, task_type)
@@ -812,4 +849,16 @@ function QuestPage.OnClikcGift(gift_data)
 			QuestPage.RefreshData()
 		end)
 	end
+end
+
+function QuestPage.GetExp()
+	return QuestAction.GetExp()
+end
+
+function QuestPage.FreshExpShow()
+	if page == nil or not page:IsVisible() then
+		return
+	end
+	print("ssssssssssssssssssssssss", QuestAction.GetExp())
+	page:SetUIValue("exp_desc", QuestAction.GetExp())
 end

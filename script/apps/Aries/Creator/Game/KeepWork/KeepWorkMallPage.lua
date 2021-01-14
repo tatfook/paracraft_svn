@@ -373,7 +373,6 @@ function KeepWorkMallPage.HandleDataSources()
 			v.show_state = KeepWorkMallPage.show_state.sell_out
 		else
 			v.enabled = KeepWorkMallPage.checkIsGetLimit(v)
-			
 			if v.isModelProduct then
 				local good_data = v.goods_data[1]
 				local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(good_data.gsId)
@@ -569,7 +568,7 @@ function KeepWorkMallPage.checkIsGetLimit(data)
 	local greedy = data.rule.greedy
 	local target_list = exchange_targets[1].goods or {}
 	for k, v in pairs(target_list) do
-		local goods_data = KeepWorkItemManager.GetItemTemplateById(v.id) or {}
+		local goods_data = KeepWorkItemManager.GetItemTemplate(v.gsId) or {}
 		local max = goods_data.max or 0
 		
 		local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(goods_data.gsId)

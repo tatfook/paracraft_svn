@@ -76,8 +76,8 @@ function KeepWorkStackableItemPage.GetBuyDesc1()
 	local result_price = price * buy_num
 	local good_name = item_data.name
 
-	local id = exchange_costs[1] and exchange_costs[1].id or 0
-	local cost_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
+	local id = exchange_costs[1] and exchange_costs[1].gsId or 0
+	local cost_data = KeepWorkItemManager.GetItemTemplate(id) or {}
 	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(cost_data.gsId)
 	local my_money = copies and copies or 0
 
@@ -107,8 +107,8 @@ function KeepWorkStackableItemPage.IsEnough()
 	local price = exchange_costs[1] and exchange_costs[1].amount or 0
 	local result_price = price * buy_num
 
-	local id = exchange_costs[1] and exchange_costs[1].id or 0
-	local cost_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
+	local id = exchange_costs[1] and exchange_costs[1].gsId or 0
+	local cost_data = KeepWorkItemManager.GetItemTemplate(id) or {}
 	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(cost_data.gsId)
 	local my_money = copies and copies or 0
 
@@ -221,8 +221,8 @@ function KeepWorkStackableItemPage.OnOK()
 	local result_price = price * buy_num
 	
 	-- 判断是否不够钱
-	local id = exchange_costs[1] and exchange_costs[1].id or 0
-	local cost_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
+	local id = exchange_costs[1] and exchange_costs[1].gsId or 0
+	local cost_data = KeepWorkItemManager.GetItemTemplate(id) or {}
 	local cost_name = cost_data.name or ""
 	local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(cost_data.gsId)
 	local my_money = copies and copies or 0
@@ -382,8 +382,8 @@ end
 function KeepWorkStackableItemPage.canChooseNums()
 	local rule = item_data.rule or {}
 	local exchange_targets = rule.exchangeTargets or {}
-	local id = exchange_targets[1] and exchange_targets[1].goods[1].id or 0
-	local cost_item_data = KeepWorkItemManager.GetItemTemplateById(id) or {}
+	local id = exchange_targets[1] and exchange_targets[1].goods[1].gsId or 0
+	local cost_item_data = KeepWorkItemManager.GetItemTemplate(id) or {}
 
 	if cost_item_data.max and cost_item_data.max > 1 then
 		return true
