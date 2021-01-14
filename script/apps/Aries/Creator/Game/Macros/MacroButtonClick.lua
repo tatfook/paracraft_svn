@@ -10,7 +10,9 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macro.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 -------------------------------------------------------
 ]]
+local Application = commonlib.gettable("System.Windows.Application");
 local Keyboard = commonlib.gettable("System.Windows.Keyboard");
+local MouseEvent = commonlib.gettable("System.Windows.MouseEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local function SetKeyboardFromButtonText(emulatedKeys, button)
@@ -20,6 +22,7 @@ local function SetKeyboardFromButtonText(emulatedKeys, button)
 	emulatedKeys.ctrl_pressed = button and button:match("ctrl") and true
 end
 
+-- native ParaUIObject's onclick event
 --@param btnName: button name
 --@param button: "left", "right", "shift+left"
 function Macros.ButtonClick(btnName, button)
@@ -38,6 +41,55 @@ function Macros.ButtonClick(btnName, button)
 		__onuievent__(obj.id, "onclick");
 
 		SetKeyboardFromButtonText(emulatedKeys, "")
+	end
+end
+
+
+local function SetMouseEventFromButtonText(event, button)
+	-- mouse_button is a global variable
+	event.isEmulated= true;
+	event.shift_pressed = button and button:match("shift") and true 
+	event.alt_pressed = button and button:match("alt") and true
+	event.ctrl_pressed = button and button:match("ctrl") and true
+	if(button and button:match("left") ) then
+		event.buttons_state = 1;
+		event.mouse_button = "left"
+	elseif(button and button:match("right") ) then
+		event.buttons_state = 2;
+		event.mouse_button = "right"
+	elseif(button and button:match("middle") ) then
+		event.buttons_state = 0;
+		event.mouse_button = "middle"
+	else
+		event.buttons_state = 0;
+	end
+end
+
+-- System.Window's click event
+function Macros.UIClick(btnName, button)
+	local obj = Application.GetUIObject(btnName);
+	if(obj) then
+		local window = obj:GetWindow()
+		if(window and window:testAttribute("WA_WState_Created")) then
+			local x, y, width, height = obj:GetAbsPosition()
+			-- mouse_x, mouse_y, mouse_button are global variables
+			mouse_x, mouse_y, mouse_button = math.floor(x+width/2+0.5), math.floor(y+height/2+0.5), button
+			
+			ParaUI.SetMousePosition(mouse_x, mouse_y);
+
+			local emulatedKeys = Keyboard:GetEmulatedKeys()
+			SetKeyboardFromButtonText(emulatedKeys, button)
+
+			local event = MouseEvent:init("mousePressEvent", window)
+			SetMouseEventFromButtonText(event, button)
+			window:handleMouseEvent(event);
+
+			local event = MouseEvent:init("mouseReleaseEvent", window)
+			SetMouseEventFromButtonText(event, button)
+			window:handleMouseEvent(event);
+
+			SetKeyboardFromButtonText(emulatedKeys, "")
+		end
 	end
 end
 

@@ -41,7 +41,7 @@ Broadcast("globalGameEvent")
 ---
 
 ## How to make UI control recordable?
-In mcml v1, recordable button(like input/div) should have "uiname" attribute. 
+In mcml v1 or v2, recordable button(like input/div) should have "uiname" attribute. 
 aries:window close button attribute name is "uiname_onclose".
 editbox like (input text) should have both "uiname" and "onchange" attribute. You can assign a dummy function to "onchange", but it needs one. 
 
@@ -64,6 +64,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
+local Application = commonlib.gettable("System.Windows.Application");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local lastPlayerPos = {pos = {x=0, y=0, z=0}, facing=0, recorded=false};
@@ -124,7 +125,7 @@ function Macros:BeginRecord()
 	lastCameraPos.recorded = false;
 
 	commonlib.__onuievent__ = Macros.OnGUIEvent;
-	
+	System.Windows.Window.__onuievent__ = Macros.OnWindowGUIEvent;
 
 	self.tickTimer = self.tickTimer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnTimer();
@@ -142,6 +143,21 @@ local function IsRecordableUIObject(obj)
 	local name = obj.name or "";
 	if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
 		return true;
+	end
+end
+
+-- called whenever window GUI event is received
+function Macros.OnWindowGUIEvent(window, event)
+	if(event:isAccepted()) then
+		local event_type = event:GetType()
+		if(event_type == "mouseReleaseEvent") then
+			if(Application.lastMouseReceiver) then
+				local name = Application.lastMouseReceiver:GetUIName()
+				if(name and not ignoreBtnList[name]) then
+					Macros:AddMacro("UIClick", name, event:button())
+				end
+			end
+		end
 	end
 end
 
@@ -228,6 +244,7 @@ function Macros:EndRecord()
 	end
 	self.isRecording = false;
 	commonlib.__onuievent__ = nil;
+	System.Windows.Window.__onuievent__ = nil;
 	if(self.tickTimer) then
 		self.tickTimer:Change();
 	end

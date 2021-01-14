@@ -277,10 +277,18 @@ function Window:create_sys(native_window, initializeWindow, destroyOldWindow)
 		self:handleRender();
 	end);
 	_this:SetScript("onmousedown", function()
-		self:handleMouseEvent(MouseEvent:init("mousePressEvent", self));
+		local event = MouseEvent:init("mousePressEvent", self)
+		self:handleMouseEvent(event);
+		if(Window.__onuievent__) then
+			Window.__onuievent__(self, event)
+		end
 	end);
 	_this:SetScript("onmouseup", function()
-		self:handleMouseEvent(MouseEvent:init("mouseReleaseEvent", self));
+		local event = MouseEvent:init("mouseReleaseEvent", self)
+		self:handleMouseEvent(event);
+		if(Window.__onuievent__) then
+			Window.__onuievent__(self, event)
+		end
 	end);
 	_this:SetScript("onmousemove", function()
 		self:handleMouseEvent(MouseEvent:init("mouseMoveEvent", self));
@@ -300,6 +308,10 @@ function Window:create_sys(native_window, initializeWindow, destroyOldWindow)
 		self:HandlePagePressKeyEvent(event);
 		if(not event:isAccepted()) then
 			Application:sendEvent(self:focusWidget(), event);
+		end
+
+		if(Window.__onuievent__) then
+			Window.__onuievent__(self, event)
 		end
 
 		if(not event:isAccepted()) then
@@ -342,7 +354,9 @@ end
 
 -- @param event_type: "mousePressEvent", "mouseMoveEvent", "mouseWheelEvent", "mouseReleaseEvent"
 function Window:handleMouseEvent(event)
-	event:updateModifiers();
+	if(not event.isEmulated) then
+		event:updateModifiers();
+	end
 	
 	-- which child should have it?
 	local widget = self:childAt(event:pos()) or self;

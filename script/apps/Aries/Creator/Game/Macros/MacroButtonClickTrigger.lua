@@ -12,8 +12,10 @@ local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
 local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
+local Application = commonlib.gettable("System.Windows.Application");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
+-- native ParaUIObject's onclick event
 --@param btnName: button name
 --@param button: "left", "right", default to "left"
 function Macros.ButtonClickTrigger(btnName, button)
@@ -32,7 +34,25 @@ function Macros.ButtonClickTrigger(btnName, button)
 	end
 end
 
-
-
+-- System.Window's click event
+function Macros.UIClickTrigger(btnName, button)
+	local obj = Application.GetUIObject(btnName);
+	if(obj) then
+		local window = obj:GetWindow()
+		if(window and window:testAttribute("WA_WState_Created")) then
+			local x, y, width, height = obj:GetAbsPosition()
+			local mouseX = math.floor(x + width /2)
+			local mouseY = math.floor(y + height /2)
+			
+			local callback = {};
+			MacroPlayer.SetClickTrigger(mouseX, mouseY, button, function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
 
 

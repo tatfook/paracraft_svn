@@ -128,6 +128,9 @@ end
 
 function UIElement:SetUIName(uiName)
 	self.uiName = uiName;
+	if(uiName) then
+		Application.SetUIObject(uiName, self);
+	end
 end
 
 function UIElement:SetParent(parent)
@@ -1016,6 +1019,11 @@ function UIElement:underMouse()
 	return self:testAttribute("WA_UnderMouse");
 end
 
+function UIElement:GetAbsPosition()
+	local pos = self:mapToGlobal(Point:new_from_pool(0,0))
+	local x, y = pos:x(), pos:y();
+	return x, y, self:width(), self:height();
+end
 
 -- convert to global position
 -- @return the returned Point is temporary, do not hold it for long
