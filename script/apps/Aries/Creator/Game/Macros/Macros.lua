@@ -139,9 +139,8 @@ local ignoreBtnList = {
 	["_click_to_continue_delay_"] = true,
 }
 
-local function IsRecordableUIObject(obj)
-	local name = obj.name or "";
-	if(name and name~="" and #name > 1 and ParaUI.GetUIObject(name):IsValid() and not name:match("^%d+/")) then
+local function IsRecordableUIObject(name)
+	if(name and name~="" and #name > 1 and not name:match("^%d+/")) then
 		return true;
 	end
 end
@@ -168,7 +167,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	end
 	if(eventname == "onclick") then
 		local name = obj.name or "";
-		if(not IsRecordableUIObject(name)) then
+		if(IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("ButtonClick", name, Macros.GetButtonTextFromKeyboard(mouse_button))
 			end
@@ -177,7 +176,7 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 		end
 	elseif(eventname == "onmodify" or eventname == "onkeyup") then
 		local name = obj.name or "";
-		if(not IsRecordableUIObject(name)) then
+		if(IsRecordableUIObject(name)) then
 			if(not ignoreBtnList[name]) then
 				if(eventname == "onmodify") then
 					Macros:AddMacro("EditBox", name, obj.text)
