@@ -388,7 +388,7 @@ end
 function KeepWorkItemManager.GetItem(guid)
     guid = tonumber(guid)
     for k,v in ipairs(KeepWorkItemManager.items) do
-        if( v.goodsId == guid)then
+        if( v.id == guid)then
             return v;
         end
     end
