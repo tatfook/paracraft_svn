@@ -421,10 +421,10 @@ function QuestPage.HandleTaskData(data)
 			value_b = value_b + 100
 		end
 
-		if a.order > b.order then
+		if a.order < b.order then
 			value_a = value_a + 10
 		end
-		if b.order > a.order then
+		if b.order < a.order then
 			value_b = value_b + 10
 		end
 
