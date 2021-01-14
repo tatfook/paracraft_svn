@@ -168,9 +168,9 @@ function QuestPage.ShowView()
 				return
 			end
 
-			local questItemContainer = event.quest_item_container
-			local childrens = questItemContainer.children
-			QuestPage.RefreshData()
+			-- local questItemContainer = event.quest_item_container
+			-- local childrens = questItemContainer.children
+			-- QuestPage.RefreshData()
 		end, nil, "QuestPage_OnFinished")
 
 		QuestPage.is_add_event = true
@@ -222,6 +222,13 @@ function QuestPage.ShowView()
 	end, 50)
 end
 
+function QuestPage.IsVisible()
+	if page == nil then
+		return false
+	end
+	return page:IsVisible()
+end
+
 function QuestPage.OnGridViewCreate()
 	-- local exp_num = 88
 	-- QuestPage.SetExpProgress(exp_num)
@@ -254,10 +261,10 @@ function QuestPage.OnGridViewCreate()
 		end, 10)
 	end
 
-	local pro_mcml_node = page:GetNode("pro")
-	local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
-	ProInitData.ui_object = pro_ui_object
-	QuestPage.ProgressToExp(false, ProInitData.to_exp)
+	-- local pro_mcml_node = page:GetNode("pro")
+	-- local pro_ui_object = ParaUI.GetUIObject(pro_mcml_node.uiobject_id)
+	-- ProInitData.ui_object = pro_ui_object
+	-- QuestPage.ProgressToExp(false, ProInitData.to_exp)
 end
 
 function QuestPage.OnRefreshGridView()
@@ -727,7 +734,11 @@ function QuestPage.ProgressToExp(is_play_ani, to_exp)
 	ProInitData.to_exp = to_exp
 	local all_width = ProInitData.width
 	ProInitData.target_width = to_exp/100 * all_width
-	
+	if ProInitData.target_width > all_width then
+		ProInitData.target_width = all_width
+		is_play_ani = false
+	end
+
 	if is_play_ani then
 		if ProInitData.is_playing then
 			return
