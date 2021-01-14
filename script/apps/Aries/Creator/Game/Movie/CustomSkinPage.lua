@@ -49,7 +49,7 @@ function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
 	if (geosets) then
 		for geoset in string.gfind(geosets, "([^#]+)") do
 			local id = tonumber(geoset);
-			currentSkins.geosets[id/100 + 1] = id % 100;
+			currentSkins.geosets[math.floor(id/100 + 1)] = id % 100;
 		end
 	end
 
@@ -101,7 +101,7 @@ end
 function CustomSkinPage.UpdateCustomGeosets(index)
 	local item = currentModel[currentTab][index];
 	if (item.geoset) then
-		currentSkins.geosets[item.geoset/100 + 1] = item.geoset / 100;
+		currentSkins.geosets[math.floor(item.geoset/100) + 1] = item.geoset % 100;
 	end
 	if (item.texture) then
 		local id, filename = string.match(item.texture, "(%d+):(.*)");
