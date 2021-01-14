@@ -348,7 +348,7 @@ function KeepWorkMallPage.HandleDataSources()
 			local goods = v.rule.exchangeTargets[1].goods			
 			for index, value in ipairs(goods) do
 				
-				local goods_data = KeepWorkItemManager.GetItemTemplate(goods[1].gsId) or {}
+				local goods_data = KeepWorkMallPage.GetItemTemplate(goods[1]) or {}
 				v.goods_data[#v.goods_data + 1] = goods_data
 			end
 		end
@@ -416,7 +416,7 @@ function KeepWorkMallPage.HandleDataSources()
 		if v.rule and v.rule.exchangeCosts and v.rule.exchangeCosts[1] then
 			v.cost = v.rule.exchangeCosts[1].amount
 			
-			local cost_item_data = KeepWorkItemManager.GetItemTemplate(v.rule.exchangeCosts[1].gsId) or {}
+			local cost_item_data = KeepWorkMallPage.GetItemTemplate(v.rule.exchangeCosts[1]) or {}
 			v.cost_name = cost_item_data.name or ""
 
 			if cost_item_data.gsId == bean_gsid then
@@ -568,7 +568,7 @@ function KeepWorkMallPage.checkIsGetLimit(data)
 	local greedy = data.rule.greedy
 	local target_list = exchange_targets[1].goods or {}
 	for k, v in pairs(target_list) do
-		local goods_data = KeepWorkItemManager.GetItemTemplate(v.gsId) or {}
+		local goods_data = KeepWorkMallPage.GetItemTemplate(v) or {}
 		local max = goods_data.max or 0
 		
 		local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(goods_data.gsId)
@@ -620,4 +620,14 @@ function KeepWorkMallPage.RefreshBeanNum()
     local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(bean_gsid)
     copies = copies or 0;
 	page:SetValue("bean_label", copies)
+end
+
+function KeepWorkMallPage.GetItemTemplate(item)
+	if item.gsId then
+		return KeepWorkItemManager.GetItemTemplate(item.gsId)
+	end
+
+	if item.id then
+		return KeepWorkItemManager.GetItemTemplateById(item.id)
+	end
 end
