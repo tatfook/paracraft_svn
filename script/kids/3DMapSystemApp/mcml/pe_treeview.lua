@@ -450,7 +450,7 @@ function pe_treeview.DrawNodeHandler(_parent,treeNode)
 				local spacing = math.floor((height - item_size)/2);
 				local spacing_right = treeNode.TreeView.ItemToggleRightSpacing or 6;
 				-- _this=ParaUI.CreateUIObject("button","b","_lt", left, top+6, 10, 10);
-				_this=ParaUI.CreateUIObject("button","b","_lt", left, top+spacing, item_size, item_size);
+				_this=ParaUI.CreateUIObject("button", "b","_lt", left, top+spacing, item_size, item_size);
 				if(treeNode.mcmlNode:GetBool("can_select")) then
 					_this.onclick = string.format(";CommonCtrl.TreeView.OnToggleNode(%q, %q, true)", treeNode.TreeView.name, treeNode:GetNodePath());
 				else
@@ -481,7 +481,7 @@ function pe_treeview.DrawNodeHandler(_parent,treeNode)
 				end	
 			end
 
-			_this=ParaUI.CreateUIObject("button","b","_lt", left, top , width - left-2, height - 1);
+			_this=ParaUI.CreateUIObject("button",treeNode.uiname or "b","_lt", left, top , width - left-2, height - 1);
 			_parent:AddChild(_this);
 			
 			if(treeNode.Selected) then
@@ -500,9 +500,13 @@ function pe_treeview.DrawNodeHandler(_parent,treeNode)
 			
 			_guihelper.SetUIFontFormat(_this, 36 + treeNode.alignFormat); -- single line and vertical align
 			if(treeNode.mcmlNode:GetBool("can_select")) then
-				_this.onclick = string.format(";CommonCtrl.TreeView.OnToggleNode(%q, %q, true)", treeNode.TreeView.name, treeNode:GetNodePath());
+				_this:SetScript("onclick", function()
+					CommonCtrl.TreeView.OnToggleNode(treeNode.TreeView.name, treeNode:GetNodePath(), true);
+				end)
 			else
-				_this.onclick = string.format(";CommonCtrl.TreeView.OnToggleNode(%q, %q)", treeNode.TreeView.name, treeNode:GetNodePath());
+				_this:SetScript("onclick", function()
+					CommonCtrl.TreeView.OnToggleNode(treeNode.TreeView.name, treeNode:GetNodePath());
+				end)
 			end
 			if(treeNode.Text) then
 				_this.text = treeNode.Text;

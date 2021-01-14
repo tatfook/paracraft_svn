@@ -1102,10 +1102,13 @@ function BaseContext:HandleGlobalKey(event)
 		
 	elseif(dik_key == "DIK_F12" and ctrl_pressed) then
 		System.App.Commands.Call("ScreenShot.HideAllUI");
+		event:accept();
 	elseif(dik_key == "DIK_I" and ctrl_pressed and event.shift_pressed) then
 		GameLogic.RunCommand("/open npl://debugger");
+		event:accept();
 	elseif(dik_key == "DIK_F1") then
 		GameLogic.RunCommand("/menu help.help");
+		event:accept();
 	end
 
 	if (ctrl_pressed and event.alt_pressed) then
