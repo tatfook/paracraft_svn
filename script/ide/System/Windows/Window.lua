@@ -325,7 +325,11 @@ function Window:create_sys(native_window, initializeWindow, destroyOldWindow)
 		Application:sendEvent(self:focusWidget(), KeyEvent:init("keyReleaseEvent"));
 	end);
 	_this:SetScript("oninputmethod", function()
-		Application:sendEvent(self:focusWidget(), InputMethodEvent:new():init(msg));
+		local event = InputMethodEvent:new():init(msg);
+		Application:sendEvent(self:focusWidget(), event);
+		if(Window.__onuievent__) then
+			Window.__onuievent__(self, event)
+		end
 	end);
 	_this:SetScript("onactivate", function()
 		local isActive = (param1 and param1>0);

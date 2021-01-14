@@ -153,9 +153,11 @@ function Macros.OnWindowGUIEvent(window, event)
 			if(Application.lastMouseReceiver) then
 				local name = Application.lastMouseReceiver:GetUIName()
 				if(name and not ignoreBtnList[name]) then
-					Macros:AddMacro("UIClick", name, event:button())
+					Macros:AddMacro("WindowClick", name, event:button())
 				end
 			end
+		elseif(event_type == "onkeydown") then
+		elseif(event_type == "oninputmethod") then
 		end
 	end
 end

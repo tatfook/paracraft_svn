@@ -68,7 +68,7 @@ local function SetMouseEventFromButtonText(event, button)
 end
 
 -- System.Window's click event
-function Macros.UIClick(btnName, button)
+function Macros.WindowClick(btnName, button)
 	local obj = Application.GetUIObject(btnName);
 	if(obj) then
 		local window = obj:GetWindow()

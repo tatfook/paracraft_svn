@@ -35,7 +35,7 @@ function Macros.ButtonClickTrigger(btnName, button)
 end
 
 -- System.Window's click event
-function Macros.UIClickTrigger(btnName, button)
+function Macros.WindowClickTrigger(btnName, button)
 	local obj = Application.GetUIObject(btnName);
 	if(obj) then
 		local window = obj:GetWindow()
