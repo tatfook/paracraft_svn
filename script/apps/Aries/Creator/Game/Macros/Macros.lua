@@ -161,7 +161,9 @@ function Macros.OnWindowGUIEvent(window, event)
 			if(focusCtrl) then
 				local name = focusCtrl:GetUIName(true);
 				if(name and not ignoreBtnList[name]) then
-					Macros:AddMacro("WindowKeyPress", name, Macros.GetButtonTextFromKeyEvent(event))
+					if(not event:IsShiftCtrlAltKey()) then
+						Macros:AddMacro("WindowKeyPress", name, Macros.GetButtonTextFromKeyEvent(event))
+					end
 				end
 			end
 		elseif(event_type == "inputMethodEvent") then
