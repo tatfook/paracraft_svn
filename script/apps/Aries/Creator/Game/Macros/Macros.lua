@@ -329,8 +329,13 @@ function Macros.OnShowExitDialog(p1)
 end
 
 -- peek next macro in execution. Usually used by Idle macro to merge with triggers
-function Macros:PeekNextMacro()
-	return self.nextMacro;
+-- @param nOffset: nil or 0 or 1.  if 1, it will return the next's next macro. 
+function Macros:PeekNextMacro(nOffset)
+	if(not nOffset or nOffset == 0) then
+		return self.nextMacro;
+	elseif(nOffset == 1) then
+		return self.nextMacro1;
+	end
 end
 
 -- @param fromLine: optional
@@ -345,6 +350,7 @@ function Macros:PlayMacros(macros, fromLine)
 		if(m) then
 			self.isPlaying = true;
 			self.nextMacro = macros[fromLine + 1];
+			self.nextMacro1 = macros[fromLine + 2];
 			local isAsync = nil;
 			GameLogic.GetFilters():apply_filters("Macro_PlayMacro", fromLine, macros);
 			m:Run(function()
