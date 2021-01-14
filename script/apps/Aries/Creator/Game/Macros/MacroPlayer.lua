@@ -39,6 +39,7 @@ function MacroPlayer.ShowPage()
 			style = CommonCtrl.WindowFrame.ContainerStyle,
 			zorder = 1000,
 			allowDrag = false,
+			isTopLevel = true,
 			directPosition = true,
 				align = "_fi",
 				x = 0,
@@ -160,7 +161,8 @@ local keyMaps = {
 	["PERIOD"] = ".",
 	["COMMA"] = ",",
 	["SPACE"] = L"空格",
-	["EQUALS"] = L"=+",
+	["EQUALS"] = "=+",
+	["ESCAPE"] = "ESC",
 }
 local function ConvertKeyNameToButtonText(btnText)
 	if(btnText) then
@@ -217,12 +219,26 @@ function MacroPlayer.ShowController(bShow)
 	end
 end
 
+-- make it top level anyway, since some other top level window may be called before. 
+function MacroPlayer.SetTopLevel()
+	if(page) then
+		local win = page:GetRootUIObject()
+		if(win) then
+			-- tricky: this will force bring this window to the top of all top level windows.
+			win:SetTopLevel(false);
+			win:SetTopLevel(true);
+		end
+	end
+end
+
 function MacroPlayer.ShowCursor(bShow, x, y, button)
 	if(page) then
 		local cursor = page:FindControl("cursorClick");
 		if(cursor) then
 			cursor.visible = bShow;
 			if(bShow) then
+				MacroPlayer.SetTopLevel();
+				
 				if(x and y) then
 					cursor.x = x - 16;
 					cursor.y = y - 16;
