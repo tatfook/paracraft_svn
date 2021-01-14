@@ -122,8 +122,22 @@ function UIElement:GetID()
 end
 
 -- user interface name
-function UIElement:GetUIName()
-	return self.uiName;
+-- @param bSearchParent: if true, we will also find its parent by at most 4 levels. This is useful for compositive controls
+function UIElement:GetUIName(bSearchParent)
+	if(self.uiName) then
+		return self.uiName;
+	elseif(bSearchParent) then
+		local parent = self.parent
+		local i=0;
+		while(parent and i <= 4) do
+			if(parent.uiName) then
+				return parent.uiName;
+			else
+				parent = self.parent
+				i = i + 1
+			end
+		end
+	end
 end
 
 function UIElement:SetUIName(uiName)

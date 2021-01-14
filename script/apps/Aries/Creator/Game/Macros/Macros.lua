@@ -151,13 +151,27 @@ function Macros.OnWindowGUIEvent(window, event)
 		local event_type = event:GetType()
 		if(event_type == "mouseReleaseEvent") then
 			if(Application.lastMouseReceiver) then
-				local name = Application.lastMouseReceiver:GetUIName()
+				local name = Application.lastMouseReceiver:GetUIName(true)
 				if(name and not ignoreBtnList[name]) then
 					Macros:AddMacro("WindowClick", name, event:button())
 				end
 			end
-		elseif(event_type == "onkeydown") then
-		elseif(event_type == "oninputmethod") then
+		elseif(event_type == "keyPressEvent") then
+			local focusCtrl = window:focusWidget()
+			if(focusCtrl) then
+				local name = focusCtrl:GetUIName(true);
+				if(name and not ignoreBtnList[name]) then
+					Macros:AddMacro("WindowKeyPress", name, Macros.GetButtonTextFromKeyEvent(event))
+				end
+			end
+		elseif(event_type == "inputMethodEvent") then
+			local focusCtrl = window:focusWidget()
+			if(focusCtrl) then
+				local name = focusCtrl:GetUIName(true);
+				if(name and not ignoreBtnList[name]) then
+					Macros:AddMacro("WindowInputMethod", name, event:commitString())
+				end
+			end
 		end
 	end
 end

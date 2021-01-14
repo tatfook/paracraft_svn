@@ -90,6 +90,8 @@ function Macros.WindowClick(btnName, button)
 			SetMouseEventFromButtonText(event, button)
 			window:handleMouseEvent(event);
 
+			window:handleActivateEvent(true)
+
 			SetKeyboardFromButtonText(emulatedKeys, "")
 		end
 	end

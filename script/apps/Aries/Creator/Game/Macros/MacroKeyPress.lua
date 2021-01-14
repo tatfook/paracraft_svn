@@ -9,8 +9,11 @@ Use Lib:
 NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macros.lua");
 -------------------------------------------------------
 ]]
+local Application = commonlib.gettable("System.Windows.Application");
+local MouseEvent = commonlib.gettable("System.Windows.MouseEvent");
 local Keyboard = commonlib.gettable("System.Windows.Keyboard");
 local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
+local InputMethodEvent = commonlib.gettable("System.Windows.InputMethodEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 -- @param event: key press event object
@@ -91,6 +94,41 @@ function Macros.KeyPress(button)
 	local ctx = GameLogic.GetSceneContext()
 	ctx:keyPressEvent(event);
 end
+
+-- System.Window's key down event
+function Macros.WindowKeyPress(ctrlName, button)
+	local obj = Application.GetUIObject(ctrlName);
+	if(obj) then
+		local window = obj:GetWindow()
+		if(window and window:testAttribute("WA_WState_Created")) then
+			window:handleActivateEvent(true)
+
+			local event = KeyEvent:init("keyPressEvent")
+			SetKeyEventFromButtonText(event, button)
+
+			window:HandlePagePressKeyEvent(event);
+			if(not event:isAccepted()) then
+				Application:sendEvent(window:focusWidget(), event);
+			end
+			
+		end
+	end
+end
+
+-- System.Window's input method event
+function Macros.WindowInputMethod(ctrlName, commitString)
+	local obj = Application.GetUIObject(ctrlName);
+	if(obj) then
+		local window = obj:GetWindow()
+		if(window and window:testAttribute("WA_WState_Created")) then
+			window:handleActivateEvent(true)
+
+			local event = InputMethodEvent:new():init(commitString);
+			Application:sendEvent(window:focusWidget(), event);
+		end
+	end
+end
+
 
 
 
