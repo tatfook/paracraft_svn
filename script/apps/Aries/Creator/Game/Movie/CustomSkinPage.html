@@ -1,0 +1,111 @@
+﻿<!-- "script/apps/Aries/Creator/Game/Movie/CustomSkinPage.html" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <pe:mcml>
+        <script refresh="false" type="text/npl" src="CustomSkinPage.lua">
+            <![CDATA[
+            CustomSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.CustomSkinPage");
+            CustomSkinPage.OnInit();
+
+            ]]>
+        </script>
+        <kp:window width="820" height="500" title='<%=L"人物属性"%>' onclose="CustomSkinPage.OnClose">
+            <div style="position:relative;margin-top:40px;">
+                <div style="float:left;margin-left:10px;margin-top:20px;width:288px;height:456px;">
+                    <div style="margin-left:0px;margin-top:0px;width:256px;height:256px;">
+                        <div>
+                            <pe:mc_player name="MyPlayer" miniscenegraphname="AvatarMyselfTabCharacter" style="width:256px;height:256px;" isinteractive="false" />
+                        </div>
+                    </div>
+                </div>
+                <div style="float:left;width:2px;height:456px;background-color:#888888"></div>
+                <div style="float:left;width:510px;height:456px;">
+                    <pe:tabs name="AdvTools" style="margin:8px" onclick="CustomSkinPage.SetTabIndex">
+                        <pe:tab-item name="1" text="形象" width="50" height="30" selected="true" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(1)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("形象%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets"/>
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="2" text="头发" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(2)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("头发%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="3" text="帽子" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(3)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("帽子%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="4" text="面部" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(4)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("面部%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="5" text="上衣" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(5)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("上衣%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="6" text="裤子" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                                <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                             DataSource='<%=CustomSkinPage.GetSkinDS(6)%>'>
+                                    <Columns>
+                                        <input type="button" name='<%= Eval("index")%>' value='<%=string.format("裤子%d", Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                                    </Columns>
+                                    <EmptyDataTemplate>
+                                    </EmptyDataTemplate>
+                                </pe:gridview>
+                            </div>
+                        </pe:tab-item>
+                        <pe:tab-item name="" text="背包" width="50" height="30" style="padding:6px">
+                            <div style="" class="default">
+                            </div>
+                        </pe:tab-item>
+                    </pe:tabs>
+                </div>
+            </div>
+        </kp:window>
+    </pe:mcml>
+</body>
+</html>
