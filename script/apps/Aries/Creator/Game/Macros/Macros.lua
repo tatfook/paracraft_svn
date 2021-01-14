@@ -153,7 +153,11 @@ function Macros.OnWindowGUIEvent(window, event)
 			if(Application.lastMouseReceiver) then
 				local name = Application.lastMouseReceiver:GetUIName(true)
 				if(name and not ignoreBtnList[name]) then
-					Macros:AddMacro("WindowClick", name, event:button())
+					local obj = Application.GetUIObject(name);
+					if(obj) then
+						local x, y, width, height = obj:GetAbsPosition()
+						Macros:AddMacro("WindowClick", name, event:button(), event.x - x, event.y - y)
+					end
 				end
 			end
 		elseif(event_type == "keyPressEvent") then

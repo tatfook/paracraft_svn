@@ -35,14 +35,24 @@ function Macros.ButtonClickTrigger(btnName, button)
 end
 
 -- System.Window's click event
-function Macros.WindowClickTrigger(btnName, button)
+-- @param localX, localY: local mouse click position relative to the control
+function Macros.WindowClickTrigger(btnName, button, localX, localY)
 	local obj = Application.GetUIObject(btnName);
 	if(obj) then
 		local window = obj:GetWindow()
 		if(window and window:testAttribute("WA_WState_Created")) then
 			local x, y, width, height = obj:GetAbsPosition()
-			local mouseX = math.floor(x + width /2)
-			local mouseY = math.floor(y + height /2)
+			
+			if( not localX or (localX + 6) > width) then
+				localX = math.floor(width/2+0.5)
+			end
+
+			if( not localY or (localY + 6) > height) then
+				localY =  math.floor(height/2+0.5)
+			end
+
+			local mouseX = x + localX
+			local mouseY = y + localY
 			
 			local callback = {};
 			MacroPlayer.SetClickTrigger(mouseX, mouseY, button, function()

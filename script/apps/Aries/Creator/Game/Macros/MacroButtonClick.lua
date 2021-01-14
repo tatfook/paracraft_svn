@@ -68,14 +68,24 @@ local function SetMouseEventFromButtonText(event, button)
 end
 
 -- System.Window's click event
-function Macros.WindowClick(btnName, button)
+-- @param localX, localY: local mouse click position relative to the control
+function Macros.WindowClick(btnName, button, localX, localY)
 	local obj = Application.GetUIObject(btnName);
 	if(obj) then
 		local window = obj:GetWindow()
 		if(window and window:testAttribute("WA_WState_Created")) then
 			local x, y, width, height = obj:GetAbsPosition()
+			
+			if( not localX or (localX + 6) > width) then
+				localX = math.floor(width/2+0.5)
+			end
+
+			if( not localY or (localY + 6) > height) then
+				localY =  math.floor(height/2+0.5)
+			end
+
 			-- mouse_x, mouse_y, mouse_button are global variables
-			mouse_x, mouse_y, mouse_button = math.floor(x+width/2+0.5), math.floor(y+height/2+0.5), button
+			mouse_x, mouse_y, mouse_button = x + localX, y + localY, button
 			
 			ParaUI.SetMousePosition(mouse_x, mouse_y);
 
