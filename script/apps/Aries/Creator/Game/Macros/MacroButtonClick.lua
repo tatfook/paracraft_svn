@@ -38,7 +38,9 @@ function Macros.ButtonClick(btnName, button)
 		local emulatedKeys = Keyboard:GetEmulatedKeys()
 		SetKeyboardFromButtonText(emulatedKeys, button)
 
-		__onuievent__(obj.id, "onclick");
+		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
+		id = obj.id; 
+		__onuievent__(id, "onclick");
 
 		SetKeyboardFromButtonText(emulatedKeys, "")
 	end
