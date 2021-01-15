@@ -231,6 +231,9 @@ function Macros.OnKeyFrameCtrlEvent(ctrl, eventName, p1, p2)
 		elseif(eventName == "ShiftKeyFrame") then
 			-- p1, p2: begin_shift_time, offset_time
 			Macros:AddMacro("KeyFrameCtrlShift", uiname, p1, p2)
+		elseif(eventName == "CopyKeyFrame") then
+			-- p1, p2: new_time, shift_begin_time
+			Macros:AddMacro("KeyFrameCtrlCopy", uiname, p1, p2)
 		end
 	end
 end

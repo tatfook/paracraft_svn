@@ -17,7 +17,7 @@ local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 function Macros.KeyFrameCtrlClick(name, time, mouseButton)
 	local ctl = CommonCtrl.GetControl(name)
 	if(ctl and ctl.handleEvent) then
-		mouse_button = "right";
+		mouse_button = mouseButton;
 		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
 		id = ctl:GetCurTimeButtonId() or id;
 		ctl:handleEvent("ClickKeyFrame", time);
@@ -73,8 +73,8 @@ end
 function Macros.KeyFrameCtrlMoveTrigger(name, new_time, begin_shift_time)
 	local ctl = CommonCtrl.GetControl(name)
 	if(ctl and ctl.handleEvent) then
-		local startX, startY = ctl:GetXYPosByTime(new_time)
-		local endX, endY = ctl:GetXYPosByTime(begin_shift_time)
+		local startX, startY = ctl:GetXYPosByTime(begin_shift_time)
+		local endX, endY = ctl:GetXYPosByTime(new_time)
 		if(startX) then
 			local callback = {};
 			MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "alt+left", function()
@@ -97,11 +97,35 @@ end
 function Macros.KeyFrameCtrlShiftTrigger(name, begin_shift_time, offset_time)
 	local ctl = CommonCtrl.GetControl(name)
 	if(ctl and ctl.handleEvent) then
-		local startX, startY = ctl:GetXYPosByTime(begin_shift_time+offset_time)
-		local endX, endY = ctl:GetXYPosByTime(begin_shift_time)
+		local startX, startY = ctl:GetXYPosByTime(begin_shift_time)
+		local endX, endY = ctl:GetXYPosByTime(begin_shift_time+offset_time)
 		if(startX) then
 			local callback = {};
 			MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "left", function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
+
+function Macros.KeyFrameCtrlCopy(name, new_time, shift_begin_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		ctl:handleEvent("CopyKeyFrame", new_time, shift_begin_time);
+	end
+end
+
+function Macros.KeyFrameCtrlCopyTrigger(name, new_time, begin_shift_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		local startX, startY = ctl:GetXYPosByTime(begin_shift_time)
+		local endX, endY = ctl:GetXYPosByTime(new_time)
+		if(startX) then
+			local callback = {};
+			MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "ctrl+left", function()
 				if(callback.OnFinish) then
 					callback.OnFinish();
 				end

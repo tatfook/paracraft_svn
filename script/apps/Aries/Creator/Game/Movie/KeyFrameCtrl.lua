@@ -250,6 +250,12 @@ function KeyFrameCtrl:ShiftKeyFrame(shift_begin_time, offset_time)
 	end
 end
 
+function KeyFrameCtrl:CopyKeyFrame(new_time, shift_begin_time)
+	if(self.oncopy_keyframe) then
+		self.oncopy_keyframe(new_time, shift_begin_time);
+	end
+end
+
 -- @param bIsOK:true to perform the final shift operation. otherwise cancel it. 
 function KeyFrameCtrl:OnEndShiftFrame(bIsOK)
 	if(not self.is_shifting) then
@@ -271,9 +277,7 @@ function KeyFrameCtrl:OnEndShiftFrame(bIsOK)
 		if(self.single_shift) then
 			self:handleEvent("MoveKeyFrame", new_time, self.shift_begin_time)
 		elseif(self.single_copy) then
-			if(self.oncopy_keyframe) then
-				self.oncopy_keyframe(new_time, self.shift_begin_time);
-			end
+			self:handleEvent("CopyKeyFrame", new_time, self.shift_begin_time)
 		else
 			self:handleEvent("ShiftKeyFrame", self.shift_begin_time, offset_time)
 		end
