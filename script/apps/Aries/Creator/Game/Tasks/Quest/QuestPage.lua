@@ -373,7 +373,7 @@ function QuestPage.HandleTaskData(data)
 			task_data.exp = QuestPage.GetTaskExp(v)
 			task_data.order = QuestPage.GetTaskOrder(v)
 			task_data.bg_img = QuestPage.GetBgImg(task_data)
-			task_data.questItemContainer = v.questItemContainer
+			-- task_data.questItemContainer = v.questItemContainer
 
 			task_data.goods_data = {}
 			for i2, v2 in ipairs(exchange_data.exchangeTargets[1].goods) do
@@ -452,14 +452,6 @@ end
 
 function QuestPage.GetTaskState(task_id)
 	local is_complete = DailyTaskManager.CheckTaskCompelete(task_id)
-	-- return data.questItemContainer:CanFinish() and QuestPage.TaskState.can_complete or QuestPage.TaskState.not_complete
-	-- 新手引导任务特殊处理
-	-- if task_id == DailyTaskManager.task_id_list.NewPlayerGuid then
-	-- 	local task_data = DailyTaskManager.GetTaskData(task_id)
-	-- 	if is_complete then
-	-- 		return task_data.is_get_reward and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_complete
-	-- 	end	
-	-- end
 
 	return is_complete and QuestPage.TaskState.has_complete or QuestPage.TaskState.can_go
 end
@@ -595,9 +587,9 @@ function QuestPage.GetReward(task_id)
 		end)
 	end
 
-	-- local quest_data = QuestPage.GetQuestData(task_data.task_id)
+	local quest_data = QuestPage.GetQuestData(task_data.task_id)
 	if task_data.task_type == "loop" then
-		local childrens = task_data.questItemContainer.children or {}
+		local childrens = quest_data.questItemContainer.children or {}
 		
 		for i, v in ipairs(childrens) do
 			QuestAction.FinishDailyTask(v.template.id)
@@ -605,14 +597,14 @@ function QuestPage.GetReward(task_id)
 		
 		QuestPage.RefreshData()
 	else
-		-- local questItemContainer = task_data.questItemContainer
+		-- local questItemContainer = quest_data.questItemContainer
 		-- print("axxxxxxxxxxxxxxxx", questItemContainer)
 		-- if questItemContainer then
 		-- 	questItemContainer:DoFinish()
 		-- end
 		
-		if task_data.questItemContainer then
-			task_data.questItemContainer:DoFinish()
+		if quest_data.questItemContainer then
+			quest_data.questItemContainer:DoFinish()
 		end
 		-- local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
 		-- DockPage.page:Refresh(0.01)
