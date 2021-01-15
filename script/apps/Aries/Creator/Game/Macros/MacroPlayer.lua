@@ -402,7 +402,10 @@ function MacroPlayer.OnClickCursor()
 end
 
 function MacroPlayer.OnKeyDown(event)
-	local button = MacroPlayer.expectedKeyButton or "";
+	local button = MacroPlayer.expectedKeyButton
+	if(not button) then
+		return
+	end
 	local isOK = true;
 	if(button:match("ctrl") and not event.ctrl_pressed) then
 		isOK = false
