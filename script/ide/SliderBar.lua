@@ -110,7 +110,7 @@ end
 function SliderBar:handleEvent(eventName, ...)
 	local func = self[eventName];
 	if(func) then
-		func(self);
+		func(self, ...);
 	end
 	if(SliderBar.__onuievent__) then
 		SliderBar.__onuievent__(self, eventName, ...);

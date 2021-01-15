@@ -587,7 +587,7 @@ function MacroPlayer.OnDragMove()
 
 	MacroPlayer.isDragButtonCorrect = MacroPlayer.isDragButtonCorrect and MacroPlayer.CheckButton(MacroPlayer.expectedDragButton);
 	if(not MacroPlayer.isDragButtonCorrect) then
-		-- TODO: tell user to press correct user
+		GameLogic.AddBBS("Macro", L"拖动鼠标时需要按正确的按键", 5000, "255 0 0");
 	end
 end
 
@@ -603,10 +603,11 @@ function MacroPlayer.OnDragEnd()
 			MacroPlayer.InvokeTriggerCallback()
 			return
 		else
-			-- TODO: tell the user to drag to the target location. 
+			-- tell the user to drag to the target location. 
+			GameLogic.AddBBS("Macro", L"请拖动鼠标到目标点", 5000, "255 0 0");
 		end
 	else
-		-- TODO: tell user to press correct user
+		GameLogic.AddBBS("Macro", L"拖动鼠标时需要按正确的按键", 5000, "255 0 0");
 	end
 	MacroPlayer.AnimDragBtn(true)
 	MacroPlayer.AnimCursorBtn(true);

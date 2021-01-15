@@ -248,6 +248,7 @@ function MovieClipTimeLine.GetKeyFrameCtrl()
 	if(not MovieClipTimeLine.ctlKeyFrame) then
 		MovieClipTimeLine.ctlKeyFrame = KeyFrameCtrl:new({
 			name="keyframe_timeline_",
+			uiname = "MovieClipTimeLine.keyframe",
 			onclick_frame = MovieClipTimeLine.OnClickCameraKeyFrame,
 			onshift_keyframe = MovieClipTimeLine.OnShiftKeyFrame, 
 			onremove_keyframe = MovieClipTimeLine.OnRemoveKeyFrame,
@@ -280,6 +281,7 @@ function MovieClipTimeLine.GetSubFrameCtrl()
 	if(not MovieClipTimeLine.ctlSubFrame) then
 		MovieClipTimeLine.ctlSubFrame = KeyFrameCtrl:new({
 			name="subframe_timeline_",
+			uiname = "MovieClipTimeLine.subframe",
 			onclick_frame = MovieClipTimeLine.OnClickEditSubFrameKey,
 			onshift_keyframe = MovieClipTimeLine.OnShiftSubFrame, 
 			onremove_keyframe = MovieClipTimeLine.OnRemoveSubFrame,

@@ -14,19 +14,99 @@ local Keyboard = commonlib.gettable("System.Windows.Keyboard");
 local MouseEvent = commonlib.gettable("System.Windows.MouseEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
-function Macros.KeyFrameCtrlClickKey(name, keyIndex, mouseButton)
+function Macros.KeyFrameCtrlClick(name, time, mouseButton)
 	local ctl = CommonCtrl.GetControl(name)
-	if(ctl) then
-		--ctl:handleEvent("OnMouseWheel");
+	if(ctl and ctl.handleEvent) then
+		mouse_button = "right";
+		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
+		id = ctl:GetCurTimeButtonId() or id;
+		ctl:handleEvent("ClickKeyFrame", time);
 	end
 end
 
-function Macros.KeyFrameCtrlClickKeyTrigger(name, mouseWheel)
+function Macros.KeyFrameCtrlClickTrigger(name, time, mouseButton)
 	local ctl = CommonCtrl.GetControl(name)
 	if(ctl and ctl.handleEvent) then
-		local _this = ctl:GetInnerControl()
-		if(_this) then
-			
+		local mouseX, mouseY = ctl:GetXYPosByTime(time)
+		if(mouseX) then
+			local callback = {};
+			MacroPlayer.SetClickTrigger(mouseX, mouseY, mouseButton, function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
+
+function Macros.KeyFrameCtrlRemove(name, time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		ctl:handleEvent("RemoveKeyFrame", time);
+	end
+end
+
+function Macros.KeyFrameCtrlRemoveTrigger(name, time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		local mouseX, mouseY = ctl:GetXYPosByTime(time)
+		if(mouseX) then
+			local callback = {};
+			MacroPlayer.SetClickTrigger(mouseX, mouseY, "shift+left", function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
+
+function Macros.KeyFrameCtrlMove(name, new_time, begin_shift_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		ctl:handleEvent("MoveKeyFrame", new_time, begin_shift_time);
+	end
+end
+
+function Macros.KeyFrameCtrlMoveTrigger(name, new_time, begin_shift_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		local startX, startY = ctl:GetXYPosByTime(new_time)
+		local endX, endY = ctl:GetXYPosByTime(begin_shift_time)
+		if(startX) then
+			local callback = {};
+			MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "alt+left", function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
+
+function Macros.KeyFrameCtrlShift(name, begin_shift_time, offset_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		ctl:handleEvent("ShiftKeyFrame", begin_shift_time, offset_time);
+	end
+end
+
+function Macros.KeyFrameCtrlShiftTrigger(name, begin_shift_time, offset_time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		local startX, startY = ctl:GetXYPosByTime(begin_shift_time+offset_time)
+		local endX, endY = ctl:GetXYPosByTime(begin_shift_time)
+		if(startX) then
+			local callback = {};
+			MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "left", function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
 		end
 	end
 end

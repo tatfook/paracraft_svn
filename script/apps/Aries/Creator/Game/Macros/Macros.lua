@@ -71,6 +71,7 @@ local Application = commonlib.gettable("System.Windows.Application");
 local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager");
 local Cameras = commonlib.gettable("System.Scene.Cameras");
 local Screen = commonlib.gettable("System.Windows.Screen");
+local KeyFrameCtrl = commonlib.gettable("MyCompany.Aries.Game.Movie.KeyFrameCtrl");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local lastPlayerPos = {pos = {x=0, y=0, z=0}, facing=0, recorded=false};
@@ -97,6 +98,7 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBox.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBoxTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSliderBar.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyFrameCtrl.lua");
 	-- TODO: add more here
 end
 
@@ -134,6 +136,7 @@ function Macros:BeginRecord()
 	commonlib.__onuievent__ = Macros.OnGUIEvent;
 	System.Windows.Window.__onuievent__ = Macros.OnWindowGUIEvent;
 	CommonCtrl.SliderBar.__onuievent__ = Macros.OnSliderbarEvent;
+	KeyFrameCtrl.__onuievent__ = Macros.OnKeyFrameCtrlEvent;
 
 	self.tickTimer = self.tickTimer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnTimer();
@@ -150,7 +153,7 @@ local ignoreBtnList = {
 local function IsRecordableUIObject(obj, name)
 	name = name or obj.name
 	-- name should be at least 5 letters, and not mcml v1's default instance name like 1/2/3/4
-	if(name and name~="" and #name >= 5 and not name:match("^%d+/")) then
+	if(name and name~="" and #name >= 5 and not name:match("^%d+")) then
 		if(not obj:GetAttributeObject():GetDynamicField("isWindow", false)) then
 			return true;
 		end
@@ -208,6 +211,26 @@ function Macros.OnSliderbarEvent(sliderBar, eventName)
 			end
 		elseif(eventName == "OnMouseWheel") then
 			Macros:AddMacro("SliderBarMouseWheel", uiname, mouse_wheel)
+		end
+	end
+end
+
+-- only for KeyFrameCtrl in movie block
+function Macros.OnKeyFrameCtrlEvent(ctrl, eventName, p1, p2)
+	local uiname = ctrl.uiname;
+	if(uiname) then
+		if(eventName == "ClickKeyFrame") then
+			-- p1, p2: time, time_index
+			Macros:AddMacro("KeyFrameCtrlClick", uiname, p1, mouse_button)
+		elseif(eventName == "RemoveKeyFrame") then
+			-- p1, p2: time, time_index
+			Macros:AddMacro("KeyFrameCtrlRemove", uiname, p1, p2)
+		elseif(eventName == "MoveKeyFrame") then
+			-- p1, p2: new_time, begin_shift_time
+			Macros:AddMacro("KeyFrameCtrlMove", uiname, p1, p2)
+		elseif(eventName == "ShiftKeyFrame") then
+			-- p1, p2: begin_shift_time, offset_time
+			Macros:AddMacro("KeyFrameCtrlShift", uiname, p1, p2)
 		end
 	end
 end
@@ -347,6 +370,7 @@ function Macros:EndRecord()
 	commonlib.__onuievent__ = nil;
 	System.Windows.Window.__onuievent__ = nil;
 	CommonCtrl.SliderBar.__onuievent__ = nil;
+	KeyFrameCtrl.__onuievent__ = nil;
 	if(self.tickTimer) then
 		self.tickTimer:Change();
 	end
