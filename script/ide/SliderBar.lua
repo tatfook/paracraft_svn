@@ -150,14 +150,22 @@ function SliderBar:Show(bShow)
 		_parent:AddChild(_this);
 		
 		if(self.step_btn_size>0) then
-			_this = ParaUI.CreateUIObject("button","left","_lt",-icon_size,0,icon_size,icon_size);
+			self.leftBtnName = "left";
+			if(self.uiname) then
+				self.leftBtnName = self.uiname..".left"
+			end
+			_this = ParaUI.CreateUIObject("button",self.leftBtnName,"_lt",-icon_size,0,icon_size,icon_size);
 			_this.background = self.step_left_button_bg or self.button_bg;
 			_this:SetScript("onclick", function()
 				self:OnStepLeft();
 			end);
 			_parent:AddChild(_this);
 
-			_this = ParaUI.CreateUIObject("button","right","_lt",self.button_width,0,icon_size,icon_size);
+			self.rightBtnName = "right";
+			if(self.uiname) then
+				self.rightBtnName = self.uiname..".right"
+			end
+			_this = ParaUI.CreateUIObject("button",self.rightBtnName,"_lt",self.button_width,0,icon_size,icon_size);
 			_this.background = self.step_right_button_bg or self.button_bg;
 			_this:SetScript("onclick", function()
 				self:OnStepRight();
@@ -212,10 +220,10 @@ function SliderBar:UpdateUI()
 				btn.text = string.format(self.buttontext_format, self.value, self.max);
 			end
 			if(self.show_step_button) then
-				local left_btn = _this:GetChild("left");	
+				local left_btn = _this:GetChild(self.leftBtnName);	
 				left_btn.x = btn.x - self.step_btn_size;
 				left_btn.y = btn.y;
-				local right_btn = _this:GetChild("right");	
+				local right_btn = _this:GetChild(self.rightBtnName);	
 				right_btn.x = btn.x + self.button_width;
 				right_btn.y = btn.y;
 			end
