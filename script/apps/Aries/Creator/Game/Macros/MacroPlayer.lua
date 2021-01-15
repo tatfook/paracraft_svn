@@ -398,6 +398,8 @@ function MacroPlayer.OnClickCursor()
 		MacroPlayer.expectedButton = nil;
 		MacroPlayer.ShowCursor(false)
 		MacroPlayer.InvokeTriggerCallback()
+	elseif(MacroPlayer.expectedButton) then
+		GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮，同时点击鼠标", 5000, "255 0 0");
 	end
 end
 
