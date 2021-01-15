@@ -18,7 +18,7 @@ local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 -- native ParaUIObject's onclick event
 --@param btnName: button name
 --@param button: "left", "right", default to "left"
-function Macros.ButtonClickTrigger(btnName, button)
+function Macros.ButtonClickTrigger(btnName, button, eventName)
 	local obj = ParaUI.GetUIObject(btnName)
 	if(obj and obj:IsValid()) then
 		local x, y, width, height = obj:GetAbsPosition();
@@ -26,6 +26,24 @@ function Macros.ButtonClickTrigger(btnName, button)
 		local mouseY = math.floor(y + height /2)
 		local callback = {};
 		MacroPlayer.SetClickTrigger(mouseX, mouseY, button, function()
+			if(callback.OnFinish) then
+				callback.OnFinish();
+			end
+		end);
+		return callback;
+	end
+end
+
+function Macros.ContainerDragEndTrigger(btnName, offsetX, offsetY)
+	local obj = ParaUI.GetUIObject(btnName)
+	if(obj and obj:IsValid()) then
+		local x, y, width, height = obj:GetAbsPosition();
+		local startX = math.floor(x + width /2)
+		local startY = math.floor(y + height /2)
+		local endX, endY = x + offsetX, y + offsetY
+
+		local callback = {};
+		MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "left", function()
 			if(callback.OnFinish) then
 				callback.OnFinish();
 			end

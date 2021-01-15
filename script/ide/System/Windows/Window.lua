@@ -269,6 +269,7 @@ function Window:create_sys(native_window, initializeWindow, destroyOldWindow)
 		self:SetAutoClearBackground(self.AutoClearBackground);
 	end
 
+	_this:GetAttributeObject():SetDynamicField("isWindow", true)
 	-- redirect events from native ParaUI object to this object. 
 	_this:SetScript("onsize", function()
 		self:handleGeometryChangeEvent();

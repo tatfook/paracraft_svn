@@ -139,9 +139,13 @@ local ignoreBtnList = {
 	["_click_to_continue_delay_"] = true,
 }
 
-local function IsRecordableUIObject(name)
-	if(name and name~="" and #name > 1 and not name:match("^%d+/")) then
-		return true;
+local function IsRecordableUIObject(obj, name)
+	name = name or obj.name
+	-- name should be at least 5 letters, and not mcml v1's default instance name like 1/2/3/4
+	if(name and name~="" and #name >= 5 and not name:match("^%d+/")) then
+		if(not obj:GetAttributeObject():GetDynamicField("isWindow", false)) then
+			return true;
+		end
 	end
 end
 
@@ -187,18 +191,22 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 	if(not Macros:IsRecording()) then
 		return
 	end
-	if(eventname == "onclick") then
+	if(eventname == "onclick" or eventname == "onmouseup") then
 		local name = obj.name or "";
-		if(IsRecordableUIObject(name)) then
+		if(IsRecordableUIObject(obj, name)) then
 			if(not ignoreBtnList[name]) then
-				Macros:AddMacro("ButtonClick", name, Macros.GetButtonTextFromKeyboard(mouse_button))
+				local eventName_;
+				if(eventname == "onmouseup") then
+					eventName_ = eventname;
+				end
+				Macros:AddMacro("ButtonClick", name, Macros.GetButtonTextFromKeyboard(mouse_button), eventName_)
 			end
 		else
-			GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
+			-- GameLogic.AddBBS("macros", format(L"警告：没有录制的宏点击事件:%s", name or ""), 4000, "255 0 0");
 		end
 	elseif(eventname == "onmodify" or eventname == "onkeyup") then
 		local name = obj.name or "";
-		if(IsRecordableUIObject(name)) then
+		if(IsRecordableUIObject(obj, name)) then
 			if(not ignoreBtnList[name]) then
 				if(eventname == "onmodify") then
 					Macros:AddMacro("EditBox", name, obj.text)
@@ -207,7 +215,22 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 				end
 			end
 		else
-			GameLogic.AddBBS("macros", format(L"警告：没有录制的文本输入框事件:%s", name or ""), 4000, "255 0 0");
+			-- GameLogic.AddBBS("macros", format(L"警告：没有录制的文本输入框事件:%s", name or ""), 4000, "255 0 0");
+		end
+	elseif(eventname == "ondragend") then
+		local name = obj.name or "";
+		if(IsRecordableUIObject(obj, name)) then
+			if(not ignoreBtnList[name]) then
+				local x, y, width, height = obj:GetAbsPosition()
+				Macros:AddMacro("ContainerDragEnd", name, mouse_x-x, mouse_y-y)
+			end
+		end
+	elseif(eventname == "onmousewheel") then
+		local name = obj.name or "";
+		if(IsRecordableUIObject(obj, name)) then
+			if(not ignoreBtnList[name]) then
+				Macros:AddMacro("ContainerMouseWheel", name, mouse_wheel)
+			end
 		end
 	end
 end

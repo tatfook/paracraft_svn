@@ -25,7 +25,8 @@ end
 -- native ParaUIObject's onclick event
 --@param btnName: button name
 --@param button: "left", "right", "shift+left"
-function Macros.ButtonClick(btnName, button)
+--@param eventname: nil or "onmouseup" or "onclick"
+function Macros.ButtonClick(btnName, button, eventname)
 	local obj = ParaUI.GetUIObject(btnName)
 	if(obj and obj:IsValid()) then
 		if(button:match("left")) then
@@ -40,12 +41,35 @@ function Macros.ButtonClick(btnName, button)
 
 		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
 		id = obj.id; 
-		__onuievent__(id, "onclick");
+		__onuievent__(id, eventname or "onclick");
 
 		SetKeyboardFromButtonText(emulatedKeys, "")
 	end
 end
 
+
+function Macros.ContainerDragEnd(btnName, offsetX, offsetY)
+	local obj = ParaUI.GetUIObject(btnName)
+	if(obj and obj:IsValid()) then
+		local x, y = obj:GetAbsPosition();
+		mouse_x, mouse_y = x + offsetX, y + offsetY
+		ParaUI.SetMousePosition(mouse_x, mouse_y);
+
+		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
+		id = obj.id; 
+		__onuievent__(id, "ondragend");
+	end
+end
+
+
+function Macros.ContainerMouseWheel(btnName, mouseWheel)
+	local obj = ParaUI.GetUIObject(btnName)
+	if(obj and obj:IsValid()) then
+		mouse_wheel = mouseWheel
+		id = obj.id; 
+		__onuievent__(id, "onmousewheel");
+	end
+end
 
 local function SetMouseEventFromButtonText(event, button)
 	-- mouse_button is a global variable
@@ -108,6 +132,7 @@ function Macros.WindowClick(btnName, button, localX, localY)
 		end
 	end
 end
+
 
 
 
