@@ -120,12 +120,12 @@ function Macros.SceneClick(button, angleX, angleY)
 	local event = MouseEvent:init("mousePressEvent");
 	SetMouseEventFromButtonText(event, button)
 	local ctx = GameLogic.GetSceneContext()
-	ctx:mousePressEvent(event);
+	ctx:handleMouseEvent(event);
 
 	local event = MouseEvent:init("mouseReleaseEvent");
 	event.dragDist = 0;
 	SetMouseEventFromButtonText(event, button)
-	ctx:mouseReleaseEvent(event);
+	ctx:handleMouseEvent(event);
 	
 	return Macros.Idle(1);
 end
