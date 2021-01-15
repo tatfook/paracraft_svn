@@ -350,26 +350,33 @@ function MacroPlayer.ShowCursor(bShow, x, y, button)
 	end
 end
 
--- @return true if user is pressing correct button or false if not. 
+-- @return true, reason:  if user is pressing correct button or false if not. 
+-- reason = "mouseButtonWrong", "keyboardButtonWrong" or nil.
 function MacroPlayer.CheckButton(button)
 	button = button or "";
 	local isOK = true;
+	local reason;
 	if(button:match("left") and mouse_button ~= "left") then
 		isOK = false
+		reason = "mouseButtonWrong"
 	end
 	if(button:match("right") and mouse_button ~= "right") then
 		isOK = false
+		reason = "mouseButtonWrong"
 	end
 	if(button:match("ctrl") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RCONTROL))) then
 		isOK = false
+		reason = "keyboardButtonWrong"
 	end
 	if(button:match("shift") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LSHIFT) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RSHIFT))) then
 		isOK = false
+		reason = "keyboardButtonWrong"
 	end
 	if(button:match("alt") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU))) then
 		isOK = false
+		reason = "keyboardButtonWrong"
 	end
-	return isOK;
+	return isOK, reason;
 end
 
 function MacroPlayer.OnClickCursor()
@@ -384,7 +391,7 @@ function MacroPlayer.OnClickCursor()
 		return
 	end
 	
-	local isOK = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
+	local isOK, reason = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
 	if(isOK) then
 		if(MacroPlayer.expectedEditBoxText) then
 			if(not MacroPlayer.expectedButton) then
@@ -398,8 +405,12 @@ function MacroPlayer.OnClickCursor()
 		MacroPlayer.expectedButton = nil;
 		MacroPlayer.ShowCursor(false)
 		MacroPlayer.InvokeTriggerCallback()
-	elseif(MacroPlayer.expectedButton) then
-		GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮，同时点击鼠标", 5000, "255 0 0");
+	elseif(MacroPlayer.expectedButton and reason) then
+		if(reason == "keyboardButtonWrong") then
+			GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮，同时点击鼠标", 5000, "255 0 0");
+		elseif(reason == "mouseButtonWrong") then
+			GameLogic.AddBBS("Macro", L"请点击正确的鼠标按键", 5000, "255 0 0");
+		end
 	end
 end
 
