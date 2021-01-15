@@ -36,7 +36,10 @@ function Macros.Idle(timeMs, bForceWait)
 			callback.OnFinish();
 		end
 	end})
-	mytimer:Change(timeMs or 1);
+	
+	timeMs = math.max(math.floor((timeMs or 1) / Macros.GetPlaySpeed()), 1)
+
+	mytimer:Change(timeMs);
 	return callback;
 end
 

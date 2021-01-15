@@ -38,6 +38,7 @@ SceneDragTrigger("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 Tip("some text")
 Broadcast("globalGameEvent")
+SetPlaySpeed(1.25)
 ---
 
 ## How to make UI control recordable?
@@ -187,6 +188,18 @@ function Macros.OnWindowGUIEvent(window, event)
 			end
 		end
 	end
+end
+
+local playSpeed = 1;
+
+function Macros.GetPlaySpeed()
+	return playSpeed
+end
+
+-- this can be called in the macro
+-- @param speed: like 0.5, 1, 1.5, 2;
+function Macros.SetPlaySpeed(speed)
+	playSpeed = speed or 1
 end
 
 -- called whenever GUI event is received from c++ engine. 
@@ -364,10 +377,10 @@ function Macros:LoadMacrosFromText(text)
 end
 
 -- @param text: text lines of macros. if nil, it will play from clipboard
-function Macros:Play(text)
+function Macros:Play(text, speed)
 	text = text or ParaMisc.GetTextFromClipboard() or "";
 	local macros = self:LoadMacrosFromText(text)
-	self:PlayMacros(macros);
+	self:PlayMacros(macros, 1, speed);
 end
 
 function Macros:BeginPlay()
@@ -407,10 +420,11 @@ function Macros:PeekNextMacro(nOffset)
 end
 
 -- @param fromLine: optional
-function Macros:PlayMacros(macros, fromLine)
+function Macros:PlayMacros(macros, fromLine, speed)
 	fromLine = fromLine or 1
 	if(fromLine == 1) then
 		self:BeginPlay()
+		Macros.SetPlaySpeed(speed);
 	end
 
 	while(true) do

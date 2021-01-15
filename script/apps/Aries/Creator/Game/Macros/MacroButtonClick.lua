@@ -31,7 +31,7 @@ function Macros.ButtonClick(btnName, button, eventname)
 	if(obj and obj:IsValid()) then
 		if(button:match("left")) then
 			mouse_button = "left"
-		elseif(button:match("left")) then
+		elseif(button:match("right")) then
 			mouse_button = "right"
 		else
 			mouse_button = "middle"
