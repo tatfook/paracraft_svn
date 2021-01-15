@@ -419,6 +419,7 @@ function MovieClipTimeLine.OnClickToggleSubVariable()
 			for index, var in ipairs(varList) do
 				if(var.index) then
 					node:AddChild(CommonCtrl.TreeNode:new({Text = self:GetVariableDisplayName(var.name, true), 
+						uiname=ctl.name.."."..(var.name or ""),
 						actor=var.actor, originalActor = var.originalActor, originalIndex = var.originalIndex,
 						Name = var.index, Type = "Menuitem", onclick = nil, }));
 					totalHeight = totalHeight + (ctl.DefaultNodeHeight or ctl.style.DefaultNodeHeight);

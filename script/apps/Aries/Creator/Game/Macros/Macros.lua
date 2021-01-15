@@ -25,9 +25,10 @@ This enables us to add more visual or audio effects in external code, while macr
 
 ## Play Macro Controller
 If the world is not readonly, the play macro controller will display a progress bar and a stop button. 
+One can use the macro command `SetPlaySpeed(1.25)` to change the playback speed at runtime.
 
 ## Macro Lists
----
+```
 Idle(500)
 CameraMove(8,0.54347,0.18799)
 CameraLookat(19980.29883,-126.59001,19998.52929)
@@ -39,7 +40,7 @@ SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 Tip("some text")
 Broadcast("globalGameEvent")
 SetPlaySpeed(1.25)
----
+```
 
 ## How to make UI control recordable?
 In mcml v1 or v2, recordable button(like input/div) should have "uiname" attribute. 
