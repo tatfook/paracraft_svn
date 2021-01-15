@@ -29,6 +29,7 @@ function MacroPlayer.ShowPage()
 	MacroPlayer.expectedButton = nil;
 	MacroPlayer.expectedKeyButton = nil;
 	MacroPlayer.expectedDragButton = nil;
+	MacroPlayer.expectedMouseWheelDelta = nil;
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
 			name = "MacroPlayerTask.ShowPage", 
@@ -61,6 +62,13 @@ function MacroPlayer.ShowPage()
 	MacroPlayer.ShowDrag(false);
 	MacroPlayer.ShowTip()
 	MacroPlayer.ShowEditBox(false);
+	MacroPlayer.ShowMouseWheel(false);
+	local cursorClick = page:FindControl("cursorClick");
+	if(cursorClick) then
+		cursorClick:SetScript("onmousewheel", function()
+			MacroPlayer.OnMouseWheel()
+		end);
+	end
 	
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
@@ -371,6 +379,9 @@ function MacroPlayer.OnClickCursor()
 	elseif(MacroPlayer.expectedKeyButton and not MacroPlayer.expectedEditBoxText) then
 		GameLogic.AddBBS("Macro", L"鼠标移动到这里，但不要点击", 5000, "255 0 0");
 		return
+	elseif(MacroPlayer.expectedMouseWheelDelta) then
+		GameLogic.AddBBS("Macro", L"不要点击鼠标, 而是滚动鼠标中间的滚轮", 5000, "255 0 0");
+		return
 	end
 	
 	local isOK = MacroPlayer.CheckButton(MacroPlayer.expectedButton);
@@ -603,4 +614,35 @@ function MacroPlayer.ShowEditBox(bShow, text, textDiff)
 			page:SetUIValue("editboxText", text or "")
 		end
 	end	
+end
+
+function MacroPlayer.OnMouseWheel()
+	if(MacroPlayer.expectedMouseWheelDelta) then
+		if((MacroPlayer.expectedMouseWheelDelta > 0 and mouse_wheel > 0) or (MacroPlayer.expectedMouseWheelDelta < 0 and mouse_wheel < 0)) then
+			MacroPlayer.expectedMouseWheelDelta = nil;
+			MacroPlayer.ShowMouseWheel(false)
+			MacroPlayer.ShowCursor(false)
+			MacroPlayer.InvokeTriggerCallback()
+		else
+			GameLogic.AddBBS("Macro", L"请向另外一个方向滚动鼠标中间的滚轮", 5000, "255 0 0");
+		end
+	end
+end
+
+function MacroPlayer.ShowMouseWheel(bShow)
+	if(page) then
+		local mouseWheel = page:FindControl("mouseWheel");
+		if(mouseWheel) then
+			mouseWheel.visible = (bShow == true);
+		end
+	end	
+end
+
+function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callbackFunc)
+	if(page) then
+		MacroPlayer.expectedMouseWheelDelta = mouseWheelDelta;
+		MacroPlayer.SetTriggerCallback(callbackFunc)
+		MacroPlayer.ShowMouseWheel(true)
+		MacroPlayer.ShowCursor(true, mouseX, mouseY, "")
+	end
 end

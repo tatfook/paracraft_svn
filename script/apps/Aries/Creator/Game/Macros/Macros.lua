@@ -273,15 +273,25 @@ function Macros:AddMacro(text, ...)
 	local macro = Macro:new():Init(text);
 	if(macro:IsValid()) then
 		if(self:IsRecording() and self:IsInteractiveMode() and macro:HasTrigger()) then
-			local mTrigger = macro:CreateTriggerMacro();
-			self.macros[#self.macros + 1] = mTrigger;
+			local bCreateTrigger = true;
+			if(macro.name=="ContainerMouseWheel") then
+				-- do not create mouse wheel trigger for connected ContainerMouseWheel event
+				local lastMacro = self.macros[#self.macros];
+				if(lastMacro and lastMacro.name == "ContainerMouseWheel") then
+					bCreateTrigger = false;
+				end
+			end
+			if(bCreateTrigger) then
+				local mTrigger = macro:CreateTriggerMacro();
+				self.macros[#self.macros + 1] = mTrigger;
 
-			-- tricky: swap WindowInputMethod and WindowKeyPressTrigger, so that trigger is always before input method
-			if(mTrigger.name == "WindowKeyPressTrigger") then
-				local lastMacro = self.macros[#self.macros - 1]
-				if(lastMacro and lastMacro.name == "WindowInputMethod") then
-					local nCount = #self.macros;
-					self.macros[nCount - 1], self.macros[nCount] = mTrigger, lastMacro;
+				-- tricky: swap WindowInputMethod and WindowKeyPressTrigger, so that trigger is always before input method
+				if(mTrigger.name == "WindowKeyPressTrigger") then
+					local lastMacro = self.macros[#self.macros - 1]
+					if(lastMacro and lastMacro.name == "WindowInputMethod") then
+						local nCount = #self.macros;
+						self.macros[nCount - 1], self.macros[nCount] = mTrigger, lastMacro;
+					end
 				end
 			end
 		end

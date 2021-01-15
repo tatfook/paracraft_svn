@@ -38,12 +38,28 @@ function Macros.ContainerDragEndTrigger(btnName, offsetX, offsetY)
 	local obj = ParaUI.GetUIObject(btnName)
 	if(obj and obj:IsValid()) then
 		local x, y, width, height = obj:GetAbsPosition();
-		local startX = math.floor(x + width /2)
-		local startY = math.floor(y + height /2)
+		local startX = math.floor(x + width / 2 + 0.5)
+		local startY = math.floor(y + height / 2 + 0.5)
 		local endX, endY = x + offsetX, y + offsetY
 
 		local callback = {};
 		MacroPlayer.SetDragTrigger(startX, startY, endX, endY, "left", function()
+			if(callback.OnFinish) then
+				callback.OnFinish();
+			end
+		end);
+		return callback;
+	end
+end
+
+function Macros.ContainerMouseWheelTrigger(btnName, mouseWheel)
+	local obj = ParaUI.GetUIObject(btnName)
+	if(obj and obj:IsValid()) then
+		local x, y, width, height = obj:GetAbsPosition();
+		local mouseX = math.floor(x + width /2)
+		local mouseY = math.floor(y + height /2)
+		local callback = {};
+		MacroPlayer.SetMouseWheelTrigger(mouseWheel, mouseX, mouseY, function()
 			if(callback.OnFinish) then
 				callback.OnFinish();
 			end
