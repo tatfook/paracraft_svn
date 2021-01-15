@@ -588,6 +588,11 @@ function QuestPage.GetReward(task_id)
 	end
 
 	local quest_data = QuestPage.GetQuestData(task_data.task_id)
+
+	if quest_data == nil then
+		return
+	end
+
 	if task_data.task_type == "loop" then
 		local childrens = quest_data.questItemContainer.children or {}
 		
