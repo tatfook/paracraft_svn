@@ -63,6 +63,7 @@ GameLogic.Macros:Play(text)
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
+NPL.load("(gl)script/ide/SliderBar.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
@@ -95,6 +96,7 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPressTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBox.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBoxTrigger.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSliderBar.lua");
 	-- TODO: add more here
 end
 
@@ -131,6 +133,7 @@ function Macros:BeginRecord()
 
 	commonlib.__onuievent__ = Macros.OnGUIEvent;
 	System.Windows.Window.__onuievent__ = Macros.OnWindowGUIEvent;
+	CommonCtrl.SliderBar.__onuievent__ = Macros.OnSliderbarEvent;
 
 	self.tickTimer = self.tickTimer or commonlib.Timer:new({callbackFunc = function(timer)
 		self:OnTimer();
@@ -191,8 +194,25 @@ function Macros.OnWindowGUIEvent(window, event)
 	end
 end
 
-local playSpeed = 1;
+-- only for CommonCtrl.SliderBar exclusively
+function Macros.OnSliderbarEvent(sliderBar, eventName)
+	local uiname = sliderBar.uiname;
+	if(uiname) then
+		if(eventName == "OnClickButton") then
+			if(mouse_button == "right") then
+				Macros:AddMacro("SliderBarClickButton", uiname, mouse_button)
+			end
+		elseif(eventName == "OnMouseUp") then
+			if(sliderBar.value) then
+				Macros:AddMacro("SliderBarMouseUp", uiname, sliderBar.value)
+			end
+		elseif(eventName == "OnMouseWheel") then
+			Macros:AddMacro("SliderBarMouseWheel", uiname, mouse_wheel)
+		end
+	end
+end
 
+local playSpeed = 1;
 function Macros.GetPlaySpeed()
 	return playSpeed
 end
@@ -291,10 +311,10 @@ function Macros:AddMacro(text, ...)
 	if(macro:IsValid()) then
 		if(self:IsRecording() and self:IsInteractiveMode() and macro:HasTrigger()) then
 			local bCreateTrigger = true;
-			if(macro.name=="ContainerMouseWheel") then
-				-- do not create mouse wheel trigger for connected ContainerMouseWheel event
+			if(macro.name:match("MouseWheel$")) then
+				-- do not create mouse wheel trigger for connected ***MouseWheel event
 				local lastMacro = self.macros[#self.macros];
-				if(lastMacro and lastMacro.name == "ContainerMouseWheel") then
+				if(lastMacro and lastMacro.name:match("MouseWheel$")) then
 					bCreateTrigger = false;
 				end
 			end
@@ -326,6 +346,7 @@ function Macros:EndRecord()
 	self.isRecording = false;
 	commonlib.__onuievent__ = nil;
 	System.Windows.Window.__onuievent__ = nil;
+	CommonCtrl.SliderBar.__onuievent__ = nil;
 	if(self.tickTimer) then
 		self.tickTimer:Change();
 	end
