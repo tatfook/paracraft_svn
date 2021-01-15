@@ -215,6 +215,10 @@ end
 function BaseContext:handleMouseEvent(event)
 	if(GameLogic.Macros:IsRecording()) then
 		GameLogic.Macros:SaveViewportParams();
+		local eventType = event:GetType() 
+		if(eventType == "mousePressEvent") then
+			self.is_click = false;
+		end
 	end
 
 	BaseContext._super.handleMouseEvent(self, event);
@@ -226,7 +230,7 @@ function BaseContext:handleMouseEvent(event)
 			GameLogic.Macros:MarkMousePress(event)
 		elseif(event:isAccepted() and eventType == "mouseReleaseEvent") then
 			event.recorded = true;
-			local is_click = self:EndMouseClickCheck(event); 
+			local is_click = self.is_click or self:EndMouseClickCheck(event); 
 			if(is_click) then
 				GameLogic.Macros:AddMacro("SceneClick", GameLogic.Macros.GetButtonTextFromClickEvent(event), GameLogic.Macros.GetSceneClickParams())
 			else

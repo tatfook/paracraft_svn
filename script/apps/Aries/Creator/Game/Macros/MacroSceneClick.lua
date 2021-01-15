@@ -33,24 +33,6 @@ local Screen = commonlib.gettable("System.Windows.Screen");
 local Mouse = commonlib.gettable("System.Windows.Mouse");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
-local currentViewportParams = {fov=1.5, aspectRatio=1, screenWidth=800, screenHeight=600};
-
--- it is usually called before handling user event, just in case the user changed viewport during processing. 
-function Macros:SaveViewportParams()
-	local viewport = ViewportManager:GetSceneViewport();
-	currentViewportParams.screenWidth, currentViewportParams.screenHeight = Screen:GetWidth()-viewport:GetMarginRight(), Screen:GetHeight() - viewport:GetMarginBottom();
-	currentViewportParams.fov = Cameras:GetCurrent():GetFieldOfView()
-	currentViewportParams.aspectRatio = Cameras:GetCurrent():GetAspectRatio()
-	currentViewportParams.saveTime = commonlib.TimerManager.GetCurrentTime();
-end
-
---@return {fov, aspectRatio, screenWidth, screenHeight}
-function Macros:GetViewportParams()
-	if(currentViewportParams.saveTime ~= commonlib.TimerManager.GetCurrentTime()) then
-		self:SaveViewportParams();
-	end
-	return currentViewportParams;
-end
 
 -- @return angleX, angleY: angle offset from the center
 function Macros.GetSceneClickParams(mouse_x, mouse_y)
@@ -59,8 +41,6 @@ function Macros.GetSceneClickParams(mouse_x, mouse_y)
 	end
 	local viewParams = Macros:GetViewportParams()
 	
-	local camobjDist, LiftupAngle, CameraRotY = ParaCamera.GetEyePos();
-	local lookatX, lookatY, lookatZ = ParaCamera.GetLookAtPos();
 	return (mouse_x / viewParams.screenWidth * 2 - 1) * viewParams.fov * viewParams.aspectRatio * 0.5, (mouse_y /viewParams.screenHeight * 2 - 1) * (viewParams.fov) * 0.5;
 end
 

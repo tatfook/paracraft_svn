@@ -556,6 +556,10 @@ end
 
 function MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, callbackFunc)
 	if(page) then
+		if(button == "right") then
+			-- TODO: default C++ dragging does not support right drag, we may find a manual implementation for right mouse drag. 
+			button = "left";
+		end
 		MacroPlayer.expectedDragButton = button;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowDrag(true, startX, startY, endX, endY, button)

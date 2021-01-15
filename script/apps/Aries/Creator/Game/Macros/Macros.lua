@@ -65,6 +65,9 @@ local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local Application = commonlib.gettable("System.Windows.Application");
+local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager");
+local Cameras = commonlib.gettable("System.Scene.Cameras");
+local Screen = commonlib.gettable("System.Windows.Screen");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local lastPlayerPos = {pos = {x=0, y=0, z=0}, facing=0, recorded=false};
@@ -494,17 +497,49 @@ function Macros:Tick_RecordPlayerMove()
 	end
 end
 
+local currentViewportParams = {fov=1.5, aspectRatio=1, screenWidth=800, screenHeight=600};
+
+-- it is usually called before handling user event, just in case the user changed viewport during processing. 
+function Macros:SaveViewportParams()
+	local viewport = ViewportManager:GetSceneViewport();
+	currentViewportParams.screenWidth, currentViewportParams.screenHeight = Screen:GetWidth()-viewport:GetMarginRight(), Screen:GetHeight() - viewport:GetMarginBottom();
+	currentViewportParams.fov = Cameras:GetCurrent():GetFieldOfView()
+	currentViewportParams.aspectRatio = Cameras:GetCurrent():GetAspectRatio()
+	currentViewportParams.saveTime = commonlib.TimerManager.GetCurrentTime();
+
+	currentViewportParams.camobjDist, currentViewportParams.LiftupAngle, currentViewportParams.CameraRotY = ParaCamera.GetEyePos();
+	currentViewportParams.lookatX, currentViewportParams.lookatY, currentViewportParams.lookatZ = ParaCamera.GetLookAtPos();
+end
+
+--@return {fov, aspectRatio, screenWidth, screenHeight}
+function Macros:GetViewportParams()
+	if(currentViewportParams.saveTime ~= commonlib.TimerManager.GetCurrentTime()) then
+		self:SaveViewportParams();
+	end
+	return currentViewportParams;
+end
+
 -- only add camera lookat and positions if the current is different from last. 
 -- this function is usually called automatically before any scene clicking macros. 
 function Macros:CheckAddCameraView()
-	local camobjDist, LiftupAngle, CameraRotY = ParaCamera.GetEyePos();
+	local viewParams = self:GetViewportParams()
+	local camobjDist, LiftupAngle, CameraRotY;
+	local lookatX, lookatY, lookatZ;
+	if(viewParams.saveTime == commonlib.TimerManager.GetCurrentTime()) then
+		camobjDist, LiftupAngle, CameraRotY = viewParams.camobjDist, viewParams.LiftupAngle, viewParams.CameraRotY
+		lookatX, lookatY, lookatZ = currentViewportParams.lookatX, currentViewportParams.lookatY, currentViewportParams.lookatZ; 
+	else
+		camobjDist, LiftupAngle, CameraRotY = ParaCamera.GetEyePos();
+		lookatX, lookatY, lookatZ = ParaCamera.GetLookAtPos();
+	end
+
 	local diff = math.abs(lastCameraPos.camobjDist - camobjDist) + math.abs(lastCameraPos.LiftupAngle - LiftupAngle) + math.abs(lastCameraPos.CameraRotY - CameraRotY);
 	if(diff > 0.001 or not lastCameraPos.recorded) then
 		lastCameraPos.camobjDist, lastCameraPos.LiftupAngle, lastCameraPos.CameraRotY = camobjDist, LiftupAngle, CameraRotY
 		lastCameraPos.recorded = true;
 		self:AddMacro("CameraMove", camobjDist, LiftupAngle, CameraRotY);
 	end
-	local lookatX, lookatY, lookatZ = ParaCamera.GetLookAtPos();
+	
 	local diff = math.abs(lastCameraPos.lookatX - lookatX) + math.abs(lastCameraPos.lookatY - lookatY) + math.abs(lastCameraPos.lookatZ - lookatZ);
 	if(diff > 0.001) then
 		lastCameraPos.lookatX, lastCameraPos.lookatY, lastCameraPos.lookatZ = lookatX, lookatY, lookatZ
