@@ -73,6 +73,7 @@ local Cameras = commonlib.gettable("System.Scene.Cameras");
 local Screen = commonlib.gettable("System.Windows.Screen");
 local KeyFrameCtrl = commonlib.gettable("MyCompany.Aries.Game.Movie.KeyFrameCtrl");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
+local pe_mc_slot = commonlib.gettable("MyCompany.Aries.Game.mcml.pe_mc_slot");
 
 local lastPlayerPos = {pos = {x=0, y=0, z=0}, facing=0, recorded=false};
 local lastCameraPos = {camobjDist=10, LiftupAngle=0, CameraRotY=0, recorded = false, lookatX=0, lookatY = 0, lookatZ = 0};
@@ -88,17 +89,13 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroIdle.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroTip.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMove.lua");
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayerMoveTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroButtonClick.lua");
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroButtonClickTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSceneClick.lua");
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSceneClickTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPress.lua");
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyPressTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBox.lua");
-	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroEditBoxTrigger.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSliderBar.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyFrameCtrl.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroMCSlot.lua");
 	-- TODO: add more here
 end
 
@@ -148,6 +145,7 @@ end
 local ignoreBtnList = {
 	["MacroRecorder.Stop"] = true,
 	["_click_to_continue_delay_"] = true,
+	["_g_GlobalDragCanvas"] = true,
 }
 
 local function IsRecordableUIObject(obj, name)
@@ -293,6 +291,21 @@ function Macros.OnGUIEvent(obj, eventname, callInfo)
 		if(IsRecordableUIObject(obj, name)) then
 			if(not ignoreBtnList[name]) then
 				Macros:AddMacro("ContainerMouseWheel", name, mouse_wheel)
+			end
+		end
+	elseif(eventname == "onmousedown") then
+		local name = obj.name or "";
+		if(name == "_g_GlobalDragCanvas") then
+			-- tricky: this is for pe_mc_slot
+			local mcmlNode = pe_mc_slot.GetNodeByMousePosition();
+			if(mcmlNode) then
+				local btn = mcmlNode:GetControl()
+				if(btn) then
+					local btn_name = btn.name
+					if(IsRecordableUIObject(btn, btn_name)) then
+						Macros:AddMacro("MCSlotDragTarget", btn_name, Macros.GetButtonTextFromKeyboard(mouse_button))
+					end
+				end
 			end
 		end
 	end

@@ -24,6 +24,7 @@ NPL.load("(gl)script/ide/System/Scene/Viewports/ViewportManager.lua");
 NPL.load("(gl)script/ide/System/Core/SceneContextManager.lua");
 NPL.load("(gl)script/ide/System/Windows/MouseEvent.lua");
 NPL.load("(gl)script/ide/System/Scene/Cameras/Cameras.lua");
+local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 local Cameras = commonlib.gettable("System.Scene.Cameras");
 local MouseEvent = commonlib.gettable("System.Windows.MouseEvent");
 local Keyboard = commonlib.gettable("System.Windows.Keyboard");
@@ -195,3 +196,30 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 end
 
 
+--@param mouse_button: "left", "right", default to "left", such as "ctrl+left"
+--@param angleX, angleY
+-- @return nil or {OnFinish=function() end}
+function Macros.SceneClickTrigger(button, angleX, angleY)
+	local mouseX, mouseY = Macros.MouseAngleToScreenPos(angleX, angleY, button)
+
+	local callback = {};
+	MacroPlayer.SetClickTrigger(mouseX, mouseY, button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end
+
+function Macros.SceneDragTrigger(button, startAngleX, startAngleY, endAngleX, endAngleY)
+	local startX, startY = Macros.MouseAngleToScreenPos(startAngleX, startAngleY)
+	local endX, endY = Macros.MouseAngleToScreenPos(endAngleX, endAngleY)
+
+	local callback = {};
+	MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end

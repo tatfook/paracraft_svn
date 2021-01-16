@@ -9,6 +9,7 @@ Use Lib:
 NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macros.lua");
 -------------------------------------------------------
 ]]
+local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
 local Application = commonlib.gettable("System.Windows.Application");
 local MouseEvent = commonlib.gettable("System.Windows.MouseEvent");
 local Keyboard = commonlib.gettable("System.Windows.Keyboard");
@@ -133,6 +134,27 @@ function Macros.WindowInputMethod(ctrlName, commitString)
 	end
 end
 
+
+--@param button: string like "C" or "ctrl+C"
+function Macros.KeyPressTrigger(button)
+	local callback = {};
+	MacroPlayer.SetKeyPressTrigger(button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end
+
+function Macros.WindowKeyPressTrigger(ctrlName, button)
+	local callback = {};
+	MacroPlayer.SetKeyPressTrigger(button, function()
+		if(callback.OnFinish) then
+			callback.OnFinish();
+		end
+	end);
+	return callback;
+end
 
 
 

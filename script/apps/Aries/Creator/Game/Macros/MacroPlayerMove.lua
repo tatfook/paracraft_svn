@@ -81,3 +81,7 @@ function Macros.CameraLookat(x, y, z)
 	end
 end
 
+--@param bx, by, bz: block world position
+function Macros.PlayerMoveTrigger(bx, by, bz)
+
+end
