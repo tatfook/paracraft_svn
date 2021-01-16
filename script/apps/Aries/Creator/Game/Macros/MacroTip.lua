@@ -20,13 +20,13 @@ function Macros.Tip(text)
 	-- GameLogic.AddBBS("MacroTip", text, 10000, "0 255 0");
 	MacroPlayer.ShowTip(text)
 end
-
+Macros.tip = Macros.Tip;
 
 -- @param msg: global message name, same as /sendevent msg
 function Macros.Broadcast(msg)
 	GameLogic.RunCommand("sendevent", msg);
 end
-
+Macros.broadcast = Macros.Broadcast
 
 
 

@@ -10,6 +10,18 @@
 <script refresh="true" type="text/npl" src="MacroPlayer.lua"><![CDATA[
 MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer")
 MacroPlayer.OnInit();
+
+local objParams = {
+    name = "aiTeacher",
+    IsCharacter = true,
+    AssetFile = "character/CC/02human/keepwork/avatar/pp.x",
+    x = 0,
+    y = 0,
+    z = 0,
+}
+function GetModelParams()
+    return objParams;
+end
 ]]></script>
 <style type="text/mcss">
 {
@@ -55,7 +67,8 @@ MacroPlayer.OnInit();
     <input name="stop" type="button" tooltip="停止示教宏播放" style="margin-top:0px;width:32px;height:32px;background:url(Texture/Aries/Creator/player/stop_off.png)" onclick="MacroPlayer.OnClickStop()"/>
 </pe:container>
 <pe:container class="mc_item" name="tipWnd" style="position:relative;margin-top:55px;margin:10px;padding:5px;width:360px;">
-    <pe:label name="tipText" style="font-size:14;text-align:center;color:#ffffff;height:36px;"></pe:label>
+    <div style="float:left;width:80px;height:20px;margin-left:-15px;margin-top:-40px;"><pe:canvas3d miniscenegraphname="DownloadWorld128" DefaultRotY="-0.9" DefaultCameraObjectDist="4" IsInteractive="false" RenderTargetSize="128" style="width:80px;height:80px;" value='<%=GetModelParams()%>' /></div>
+    <pe:label name="tipText" style="font-size:14;text-align:center;color:#f5c4bd;height:36px;"></pe:label>
 </pe:container>
 </pe:mcml> 
 </body>
