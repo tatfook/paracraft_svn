@@ -138,7 +138,9 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 				cursorBtn.translationx = math.floor((mouseX - x) * progress + 0.5);
 				cursorBtn.translationy = math.floor((mouseY - y) * progress + 0.5);
 				MacroPlayer.animCursorTimer = MacroPlayer.animCursorTimer or commonlib.Timer:new({callbackFunc = function(timer)
-					MacroPlayer.AnimCursorBtn()
+					if(Macros.IsShowButtonTip()) then
+						MacroPlayer.AnimCursorBtn()
+					end
 				end})
 			else
 				cursorBtn.translationx = 0;
@@ -216,6 +218,8 @@ local keyMaps = {
 	["8"] = "8 *",
 	["9"] = "9 (",
 	["0"] = "0 )",
+	["WIN_LWINDOW"] = "左Win",
+	["WIN_RWINDOW"] = "右win",
 }
 local function ConvertKeyNameToButtonText(btnText)
 	if(btnText) then
@@ -298,6 +302,9 @@ function MacroPlayer.ShowCursor(bShow, x, y, button)
 					cursor.y = y - 16;
 				end
 				button = button or "";
+				if(not Macros.IsShowButtonTip()) then
+					button = ""
+				end
 				local left = 16 + 32;
 				
 				local shiftKey = page:FindControl("shiftKey")
@@ -344,7 +351,13 @@ function MacroPlayer.ShowCursor(bShow, x, y, button)
 					mouseBtn.visible = false;
 				end
 
-				MacroPlayer.AnimCursorBtn(true);
+				local cursorBtn = page:FindControl("cursorBtn")
+				if(cursorBtn) then
+					cursorBtn.visible = Macros.IsShowButtonTip()
+				end
+				if(Macros.IsShowButtonTip()) then
+					MacroPlayer.AnimCursorBtn(true);
+				end
 			end
 		end
 	end
@@ -520,7 +533,9 @@ function MacroPlayer.AnimDragBtn(bRestart)
 				startPoint.translationx = math.floor((endX - startX) * progress + 0.5);
 				startPoint.translationy = math.floor((endY - startY) * progress + 0.5);
 				MacroPlayer.animDragTimer = MacroPlayer.animDragTimer or commonlib.Timer:new({callbackFunc = function(timer)
-					MacroPlayer.AnimDragBtn()
+					if(Macros.IsShowButtonTip()) then
+						MacroPlayer.AnimDragBtn()
+					end
 				end})
 			else
 				startPoint.translationx = 0;
@@ -548,7 +563,9 @@ function MacroPlayer.ShowDrag(bShow, startX, startY, endX, endY, button)
 				endPoint.x = endX - 16;
 				endPoint.y = endY - 16;
 
-				MacroPlayer.AnimDragBtn(true)
+				if(Macros.IsShowButtonTip()) then
+					MacroPlayer.AnimDragBtn(true)
+				end
 			end
 		end
 	end
@@ -609,8 +626,10 @@ function MacroPlayer.OnDragEnd()
 	else
 		GameLogic.AddBBS("Macro", L"拖动鼠标时需要按正确的按键", 5000, "255 0 0");
 	end
-	MacroPlayer.AnimDragBtn(true)
-	MacroPlayer.AnimCursorBtn(true);
+	if(Macros.IsShowButtonTip()) then
+		MacroPlayer.AnimDragBtn(true)
+		MacroPlayer.AnimCursorBtn(true);
+	end
 end
 
 -- @param text: text or mcml text.  if nil, we will hide it. 
@@ -663,7 +682,9 @@ function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callb
 	if(page) then
 		MacroPlayer.expectedMouseWheelDelta = mouseWheelDelta;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
-		MacroPlayer.ShowMouseWheel(true)
+		if(Macros.IsShowButtonTip()) then
+			MacroPlayer.ShowMouseWheel(true)
+		end
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, "")
 	end
 end

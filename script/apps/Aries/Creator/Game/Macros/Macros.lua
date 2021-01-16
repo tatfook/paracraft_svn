@@ -25,7 +25,9 @@ This enables us to add more visual or audio effects in external code, while macr
 
 ## Play Macro Controller
 If the world is not readonly, the play macro controller will display a progress bar and a stop button. 
-One can use the macro command `SetPlaySpeed(1.25)` to change the playback speed at runtime.
+- `SetPlaySpeed(1.25)` : change the playback speed at runtime.
+- `SetAutoPlay(true)` : play triggers through
+- `SetHelpLevel(0)`: disable help tips
 
 ## Macro Lists
 ```
@@ -40,6 +42,8 @@ SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 Tip("some text")
 Broadcast("globalGameEvent")
 SetPlaySpeed(1.25)
+SetAutoPlay(true)
+SetHelpLevel(0)
 ```
 
 ## How to make UI control recordable?
@@ -245,6 +249,33 @@ end
 -- @param speed: like 0.5, 1, 1.5, 2;
 function Macros.SetPlaySpeed(speed)
 	playSpeed = speed or 1
+end
+
+local nHelpLevel = 1;
+function Macros.SetHelpLevel(nLevel)
+	nHelpLevel = nLevel
+end
+
+-- @return default to 1
+function Macros.GetHelpLevel()
+	return nHelpLevel
+end
+
+function Macros.IsShowButtonTip()
+	return nHelpLevel >= 1
+end
+
+local isAutoPlay = false;
+
+-- whether triggers are played automatically
+function Macros.IsAutoPlay()
+	return isAutoPlay;
+end
+
+
+-- whether triggers are played automatically
+function Macros.SetAutoPlay(bAutoPlay)
+	isAutoPlay = bAutoPlay
 end
 
 -- called whenever GUI event is received from c++ engine. 
@@ -486,7 +517,9 @@ function Macros:PlayMacros(macros, fromLine, speed)
 	fromLine = fromLine or 1
 	if(fromLine == 1) then
 		self:BeginPlay()
-		Macros.SetPlaySpeed(speed);
+		if(speed) then
+			Macros.SetPlaySpeed(speed);
+		end
 	end
 
 	while(true) do
