@@ -27,7 +27,21 @@ This enables us to add more visual or audio effects in external code, while macr
 If the world is not readonly, the play macro controller will display a progress bar and a stop button. 
 - `SetPlaySpeed(1.25)` : change the playback speed at runtime.
 - `SetAutoPlay(true)` : play triggers through
-- `SetHelpLevel(0)`: disable help tips
+- `SetHelpLevel(0)`: -1 to display key and mouse tips, 0 to disable mouse tips, 1 (default) to show all possible tips
+
+Following code is good for playing the sequence as a movie
+```
+SetHelpLevel(-1)
+SetAutoPlay(true)
+SetPlaySpeed(1.25)
+```
+Following code is default
+
+```
+SetHelpLevel(1)
+SetAutoPlay(false)
+SetPlaySpeed(1)
+```
 
 ## Macro Lists
 ```
@@ -263,6 +277,10 @@ end
 
 function Macros.IsShowButtonTip()
 	return nHelpLevel >= 1
+end
+
+function Macros.IsShowKeyButtonTip()
+	return nHelpLevel >= 0
 end
 
 local isAutoPlay = false;

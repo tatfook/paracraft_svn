@@ -26,10 +26,7 @@ end
 
 -- @param duration: in seconds
 function MacroPlayer.ShowPage()
-	MacroPlayer.expectedButton = nil;
-	MacroPlayer.expectedKeyButton = nil;
-	MacroPlayer.expectedDragButton = nil;
-	MacroPlayer.expectedMouseWheelDelta = nil;
+	
 	System.App.Commands.Call("File.MCMLWindowFrame", {
 			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
 			name = "MacroPlayerTask.ShowPage", 
@@ -57,12 +54,7 @@ function MacroPlayer.ShowPage()
 		end);
 		KeyInput:Focus();
 	end
-	MacroPlayer.ShowCursor(false);
-	MacroPlayer.ShowKeyPress(false);
-	MacroPlayer.ShowDrag(false);
-	MacroPlayer.ShowTip()
-	MacroPlayer.ShowEditBox(false);
-	MacroPlayer.ShowMouseWheel(false);
+	MacroPlayer.HideAll()
 	local cursorClick = page:FindControl("cursorClick");
 	if(cursorClick) then
 		cursorClick:SetScript("onmousewheel", function()
@@ -73,6 +65,19 @@ function MacroPlayer.ShowPage()
 	if(GameLogic.IsReadOnly()) then
 		MacroPlayer.ShowController(false);
 	end
+end
+
+function MacroPlayer.HideAll()
+	MacroPlayer.expectedButton = nil;
+	MacroPlayer.expectedKeyButton = nil;
+	MacroPlayer.expectedDragButton = nil;
+	MacroPlayer.expectedMouseWheelDelta = nil;
+	MacroPlayer.ShowCursor(false);
+	MacroPlayer.ShowKeyPress(false);
+	MacroPlayer.ShowDrag(false);
+	MacroPlayer.ShowTip()
+	MacroPlayer.ShowEditBox(false);
+	MacroPlayer.ShowMouseWheel(false);
 end
 
 function MacroPlayer.OnPlayMacro(fromLine, macros)
@@ -470,6 +475,7 @@ end
 
 function MacroPlayer.SetClickTrigger(mouseX, mouseY, button, callbackFunc)
 	if(page) then
+		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		MacroPlayer.expectedButton = button;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, button)
@@ -478,18 +484,22 @@ end
 
 function MacroPlayer.SetKeyPressTrigger(button, callbackFunc)
 	if(page) then
+		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		MacroPlayer.expectedKeyButton = button;
 		local mouseX, mouseY = GameLogic.Macros.GetNextKeyPressWithMouseMove()
 		if(mouseX and mouseY) then
 			MacroPlayer.ShowCursor(true, mouseX, mouseY)	
 		end
 		MacroPlayer.SetTriggerCallback(callbackFunc)
-		MacroPlayer.ShowKeyPress(true, button)
+		if(Macros.IsShowKeyButtonTip()) then
+			MacroPlayer.ShowKeyPress(true, button)
+		end
 	end
 end
 
 function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackFunc)
 	if(page) then
+		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		MacroPlayer.expectedEditBoxText = text;
 		MacroPlayer.ShowEditBox(true, text, textDiff)
 		MacroPlayer.SetTriggerCallback(callbackFunc)
@@ -499,7 +509,9 @@ function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackF
 		if(keyButtons) then
 			MacroPlayer.expectedKeyButton = keyButtons; 
 			Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
-			MacroPlayer.ShowKeyPress(true, keyButtons)
+			if(Macros.IsShowKeyButtonTip()) then
+				MacroPlayer.ShowKeyPress(true, keyButtons)
+			end
 			MacroPlayer.ShowCursor(true, mouseX, mouseY);
 		else
 			MacroPlayer.expectedButton = "left";
@@ -573,6 +585,7 @@ end
 
 function MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, callbackFunc)
 	if(page) then
+		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		if(button == "right") then
 			-- TODO: default C++ dragging does not support right drag, we may find a manual implementation for right mouse drag. 
 			button = "left";
@@ -678,8 +691,24 @@ function MacroPlayer.ShowMouseWheel(bShow)
 	end	
 end
 
+function MacroPlayer.CheckDoAutoPlay(callbackFunc)
+	if(Macros.IsAutoPlay()) then
+		local defaultInterval = 200;
+		defaultInterval = math.max(math.floor(defaultInterval / Macros.GetPlaySpeed() + 0.5), 10)
+		commonlib.TimerManager.SetTimeout(function()  
+			if(Macros.IsAutoPlay()) then
+				if(MacroPlayer.triggerCallbackFunc) then
+					MacroPlayer.HideAll()
+					MacroPlayer.InvokeTriggerCallback();
+				end
+			end
+		end, defaultInterval)
+	end
+end
+
 function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callbackFunc)
 	if(page) then
+		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		MacroPlayer.expectedMouseWheelDelta = mouseWheelDelta;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		if(Macros.IsShowButtonTip()) then
