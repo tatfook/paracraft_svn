@@ -530,7 +530,8 @@ end
 -- only record when the user has moved and been still for at least 500 ms. 
 function Macros:Tick_RecordPlayerMove()
 	local player = EntityManager.GetPlayer();
-	if(player and EntityManager.GetFocus() == player) then
+	local focusEntity = EntityManager.GetFocus();
+	if(player and focusEntity == player) then
 		-- for scene camera. 
 		local camobjDist, LiftupAngle, CameraRotY = ParaCamera.GetEyePos();
 		local diff = math.abs(lastCameraPos.camobjDist - camobjDist) + math.abs(lastCameraPos.LiftupAngle - LiftupAngle) + math.abs(lastCameraPos.CameraRotY - CameraRotY);
@@ -557,6 +558,8 @@ function Macros:Tick_RecordPlayerMove()
 			--lastCameraPos.lookatX, lastCameraPos.lookatY, lastCameraPos.lookatZ = lookatX, lookatY, lookatZ
 			--self:AddMacro("CameraLookat", lookatX, lookatY, lookatZ);
 		end
+	elseif(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+		self:CheckAddCameraView();
 	end
 end
 

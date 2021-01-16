@@ -52,6 +52,12 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 	end
 	-- TODO: use animation?
 	ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
+
+	local focusEntity = EntityManager.GetFocus();
+	if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+		focusEntity:FaceTarget(nil)
+	end
+
 	return Macros.Idle(1);
 end
 
@@ -65,6 +71,12 @@ function Macros.CameraLookat(x, y, z)
 	end
 	if(x) then
 		ParaCamera.SetLookAtPos(x, y, z);
+
+		local focusEntity = EntityManager.GetFocus();
+		if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+			focusEntity:SetPosition(x, y, z);
+		end
+
 		return Macros.Idle(1);
 	end
 end

@@ -111,7 +111,16 @@ function OnClickManageTemplateWnd()
     BuildQuest.ShowPage();
 end
 
-function dummy()
+function GetBlockUIName(id, data, uid)
+    local text;
+    if(uid)then
+        text = "BuilderFramePage.block_"..uid;
+    elseif(data and data~=0) then
+        text = format("BuilderFramePage.block_%d:%d", id, data)
+    else
+        text = format("BuilderFramePage.block_%d", id)
+    end
+    return text;
 end
 ]]></script>
 <div style="">
@@ -138,7 +147,7 @@ end
                 DataSource='<%=DS_Items%>'>
 	            <Columns>
                     <div style="width:32px;height:32px;" >
-                        <pe:mc_block uiname = '<%=format("BuilderFramePage.block_%d", Eval("block_id"))%>' block_id='<%=Eval("block_id")%>' block_data='<%=Eval("block_data")%>' icon='<%=Eval("icon")%>' style="width:32px;height:32px;" tooltip2='<%=L"Ctrl+右键帮助"%>' onclick="OnClickBlock"/>    
+                        <pe:mc_block uiname = '<%=GetBlockUIName(Eval("block_id"), Eval("block_data"), Eval("uid"))%>' block_id='<%=Eval("block_id")%>' block_data='<%=Eval("block_data")%>' icon='<%=Eval("icon")%>' style="width:32px;height:32px;" tooltip2='<%=L"Ctrl+右键帮助"%>' onclick="OnClickBlock"/>    
                     </div>
                 </Columns>
 	            <EmptyDataTemplate>
