@@ -130,6 +130,16 @@ function CreatorDesktop.SetView(view)
 	end
 end
 
+function CreatorDesktop.OnChangeTabview(index)
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/BuilderFramePage.lua");
+    local BuilderFramePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BuilderFramePage");
+    BuilderFramePage.isSearching = false;
+    CreatorDesktop.tabview_index = tonumber(index);
+	if(CreatorDesktop.new_page) then
+		CreatorDesktop.new_page:Refresh(0.01);
+	end
+end
+
 -- change view
 function CreatorDesktop.OnChangeView(value)
 	local _, view;
