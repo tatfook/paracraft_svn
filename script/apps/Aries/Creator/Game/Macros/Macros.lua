@@ -81,6 +81,7 @@ GameLogic.Macros:Play(text)
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroControl.lua");
 NPL.load("(gl)script/ide/SliderBar.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
@@ -138,8 +139,9 @@ function Macros:BeginRecord()
 	idleStartTime = startTime;
 
 	local player = EntityManager.GetPlayer();
+	local x, y, z;
 	if(player) then
-		local x, y, z = player:GetBlockPos();
+		x, y, z = player:GetBlockPos();
 		lastPlayerPos.pos = {x=x, y=y, z=z}
 		lastPlayerPos.facing = player:GetFacing();
 		lastPlayerPos.recorded = false;
@@ -158,6 +160,8 @@ function Macros:BeginRecord()
 	end})
 	self.tickTimer:Change(500, 500);
 	GameLogic.GetFilters():apply_filters("Macro_BeginRecord");
+
+	Macros:AddMacro("SetMacroOrigin", x, y, z)
 end
 
 local ignoreBtnList = {
@@ -252,48 +256,6 @@ function Macros.OnKeyFrameCtrlEvent(ctrl, eventName, p1, p2)
 			Macros:AddMacro("KeyFrameCtrlCopy", uiname, p1, p2)
 		end
 	end
-end
-
-local playSpeed = 1;
-function Macros.GetPlaySpeed()
-	return playSpeed
-end
-
--- this can be called in the macro
--- @param speed: like 0.5, 1, 1.5, 2;
-function Macros.SetPlaySpeed(speed)
-	playSpeed = speed or 1
-end
-
-local nHelpLevel = 1;
-function Macros.SetHelpLevel(nLevel)
-	nHelpLevel = nLevel
-end
-
--- @return default to 1
-function Macros.GetHelpLevel()
-	return nHelpLevel
-end
-
-function Macros.IsShowButtonTip()
-	return nHelpLevel >= 1
-end
-
-function Macros.IsShowKeyButtonTip()
-	return nHelpLevel >= 0
-end
-
-local isAutoPlay = false;
-
--- whether triggers are played automatically
-function Macros.IsAutoPlay()
-	return isAutoPlay;
-end
-
-
--- whether triggers are played automatically
-function Macros.SetAutoPlay(bAutoPlay)
-	isAutoPlay = bAutoPlay
 end
 
 -- called whenever GUI event is received from c++ engine. 
@@ -677,21 +639,11 @@ function Macros:CheckAddCameraView()
 	end
 end
 
-
-function Macros:SetInteractiveMode(isInteractive)
-	self.isInteractive = isInteractive == true;
-end
-
-function Macros:IsInteractiveMode()
-	return self.isInteractive;
-end
-
 function Macros:OnTimer()
 	if(self:IsRecording() and not self:IsPlaying()) then
 		self:Tick_RecordPlayerMove()
 	end
 end
-
 
 local lastMouseDownEvent = {x=0, y=0,};
 

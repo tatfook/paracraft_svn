@@ -36,7 +36,7 @@ e.g.
 		end
 
 		local function StartRecord()
-			GameLogic.Macros:SetInteractiveMode(isInteractive);
+			GameLogic.Macros.SetInteractiveMode(isInteractive);
 			GameLogic.Macros:BeginRecord()
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroRecorder.lua");
 			local MacroRecorder = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroRecorder");
@@ -48,7 +48,7 @@ e.g.
 		elseif(name == "stop") then
 			GameLogic.Macros:Stop();
 		elseif(name == "play") then
-			GameLogic.Macros:SetInteractiveMode(isInteractive);
+			GameLogic.Macros.SetInteractiveMode(isInteractive);
 			GameLogic.Macros:Play();
 		elseif(not name or name == "") then
 			if(GameLogic.Macros:IsRecording()) then
