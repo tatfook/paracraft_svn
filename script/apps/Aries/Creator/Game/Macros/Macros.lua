@@ -406,6 +406,7 @@ function Macros:EndRecord()
 		for _, m in ipairs(self.macros) do
 			out[#out+1] = m:ToString();
 		end
+		out[#out+1] = "Broadcast(\"macroFinished\")";
 		local text = table.concat(out, "\n");
 		ParaMisc.CopyTextToClipboard(text);
 		GameLogic.AddBBS(nil, format(L"%d个示教宏命令已经复制到裁剪版", #(self.macros)), 5000, "0 255 0")
