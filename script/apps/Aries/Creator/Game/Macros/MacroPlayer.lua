@@ -119,6 +119,7 @@ end
 
 function MacroPlayer.SetTriggerCallback(callback)
 	MacroPlayer.triggerCallbackFunc = callback;
+	MacroPlayer.Focus();
 end
 
 local cursorTick = 0;
@@ -147,19 +148,17 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 			if( diffDistance > 16 ) then
 				cursorBtn.translationx = math.floor((mouseX - x) * progress + 0.5);
 				cursorBtn.translationy = math.floor((mouseY - y) * progress + 0.5);
-				MacroPlayer.animCursorTimer = MacroPlayer.animCursorTimer or commonlib.Timer:new({callbackFunc = function(timer)
-					if(Macros.IsShowButtonTip()) then
-						MacroPlayer.AnimCursorBtn()
-					end
-				end})
 			else
 				cursorBtn.translationx = 0;
 				cursorBtn.translationy = 0;
 				cursorTick = 0;
 			end
-			if(MacroPlayer.animCursorTimer) then
-				MacroPlayer.animCursorTimer:Change(30);
-			end
+			MacroPlayer.animCursorTimer = MacroPlayer.animCursorTimer or commonlib.Timer:new({callbackFunc = function(timer)
+				if(Macros.IsShowButtonTip()) then
+					MacroPlayer.AnimCursorBtn()
+				end
+			end})
+			MacroPlayer.animCursorTimer:Change(30);
 		end
 	end
 end
@@ -506,12 +505,12 @@ function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackF
 	if(page) then
 		MacroPlayer.CheckDoAutoPlay(callbackFunc)
 		MacroPlayer.expectedEditBoxText = text;
-		MacroPlayer.ShowEditBox(true, text, textDiff)
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 
 		-- if we do not need user to enter text, just click to enter
 		local keyButtons = Macros.TextToKeyName(textDiff)
 		if(keyButtons) then
+			MacroPlayer.ShowEditBox(true, text, textDiff)
 			MacroPlayer.expectedKeyButton = keyButtons; 
 			Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
 			if(Macros.IsShowKeyButtonTip()) then
@@ -519,8 +518,9 @@ function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackF
 			end
 			MacroPlayer.ShowCursor(true, mouseX, mouseY);
 		else
+			MacroPlayer.ShowEditBox(true, text..L"(点击)")
 			MacroPlayer.expectedButton = "left";
-			MacroPlayer.ShowCursor(true, mouseX, mouseY);
+			MacroPlayer.ShowCursor(true, mouseX, mouseY, "left");
 		end
 	end
 end

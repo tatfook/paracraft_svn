@@ -137,23 +137,27 @@ end
 
 --@param button: string like "C" or "ctrl+C"
 function Macros.KeyPressTrigger(button)
-	local callback = {};
-	MacroPlayer.SetKeyPressTrigger(button, function()
-		if(callback.OnFinish) then
-			callback.OnFinish();
-		end
-	end);
-	return callback;
+	if(button and button ~= "") then
+		local callback = {};
+		MacroPlayer.SetKeyPressTrigger(button, function()
+			if(callback.OnFinish) then
+				callback.OnFinish();
+			end
+		end);
+		return callback;
+	end
 end
 
 function Macros.WindowKeyPressTrigger(ctrlName, button)
-	local callback = {};
-	MacroPlayer.SetKeyPressTrigger(button, function()
-		if(callback.OnFinish) then
-			callback.OnFinish();
-		end
-	end);
-	return callback;
+	if(button and button ~= "") then
+		local callback = {};
+		MacroPlayer.SetKeyPressTrigger(button, function()
+			if(callback.OnFinish) then
+				callback.OnFinish();
+			end
+		end);
+		return callback;
+	end
 end
 
 

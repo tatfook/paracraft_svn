@@ -235,8 +235,11 @@ function ChatEdit.EnableTimer(bEnabled)
 	--end
 end
 
--- true to also fade the chat edit
-ChatEdit.AutoFadeChatEdit = false;
+-- if we can auto hide the chat window when it is not having focus. 
+-- only auto hide when GGS is enabled, when chating is very important. 
+function ChatEdit.CanAutoHide()
+	return ChatWindow.IsGGSMode() and not GameLogic.Macros:IsPlaying();
+end
 
 -- this is a slow timer to highlight the chat area 
 -- if the mouse cursor is within the chat area, we will highlight the background. 
@@ -244,13 +247,13 @@ ChatEdit.AutoFadeChatEdit = false;
 function ChatEdit.OnTimer(timer)
 	if(ChatWindow.is_shown) then
 		if(ChatEdit.HasFocus()) then
-			if(ChatEdit.AutoFadeChatEdit) then
+			if(ChatEdit.CanAutoHide()) then
 				ChatEdit.FadeIn();
 			end
 			ChatWindow.FadeIn();	
 		else
 			ChatWindow.FadeOut(0.2);
-			if(ChatEdit.AutoFadeChatEdit) then
+			if(ChatEdit.CanAutoHide()) then
 				ChatEdit.FadeOut(0.2);
 				CommandHelpPage.ClosePage();
 			end

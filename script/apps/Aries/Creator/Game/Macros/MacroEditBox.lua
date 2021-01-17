@@ -42,7 +42,41 @@ function Macros.EditBoxKeyup(uiName, keyname)
 	return Macros.Idle();
 end
 
-
+local TextToKeyNameMap = {
+	["-"] = "DIK_MINUS",
+	["_"] = "shift+DIK_MINUS",
+	["/"] = "DIK_SLASH",
+	["?"] = "shift+DIK_SLASH",
+	["."] = "DIK_PERIOD",
+	[">"] = "shift+DIK_PERIOD",
+	[","] = "DIK_COMMA",
+	["<"] = "shift+DIK_COMMA",
+	["="] = "DIK_EQUALS",
+	["+"] = "shift+DIK_EQUALS",
+	[" "] = "DIK_SPACE",
+	["'"] = "DIK_APOSTROPHE",
+	["\""] = "shift+DIK_APOSTROPHE",
+	["["] = "DIK_LBRACKET",
+	["{"] = "shift+DIK_LBRACKET",
+	["]"] = "DIK_RBRACKET",
+	["}"] = "shift+DIK_RBRACKET",
+	[";"] = "DIK_SEMICOLON",
+	[":"] = "shift+DIK_SEMICOLON",
+	["`"] = "DIK_GRAVE",
+	["~"] = "shift+DIK_GRAVE",
+	["\\"] = "DIK_BACKSLASH",
+	["|"] = "shift+DIK_BACKSLASH",
+	["!"] = "shift+DIK_1",
+	["@"] = "shift+DIK_2",
+	["#"] = "shift+DIK_3",
+	["$"] = "shift+DIK_4",
+	["%"] = "shift+DIK_5",
+	["^"] = "shift+DIK_6",
+	["&"] = "shift+DIK_7",
+	["*"] = "shift+DIK_8",
+	["("] = "shift+DIK_9",
+	[")"] = "shift+DIK_0",
+}
 -- @param text: like "a" or "Z"
 -- @return string like "DIK_A" "shift+DIK_Z"
 function Macros.TextToKeyName(text)
@@ -54,18 +88,9 @@ function Macros.TextToKeyName(text)
 			keyname = "shift+DIK_"..text;
 		elseif(text:match("^%d")) then
 			keyname = "DIK_"..text;
-		elseif(text == "_") then
-			keyname = "shift+DIK_MINUS"
-		elseif(text == "/") then
-			keyname = "DIK_SLASH"
-		elseif(text == ",") then
-			keyname = "DIK_COMMA"
-		elseif(text == ".") then	
-			keyname = "DIK_PERIOD"
-		elseif(text == " ") then	
-			keyname = "DIK_SPACE"
+		elseif(TextToKeyNameMap[text]) then
+			keyname = TextToKeyNameMap[text]
 		end
-		-- TODO: add more supported keys?
 	end
 	return keyname
 end
@@ -88,6 +113,9 @@ end
 --@param uiName: UI name
 --@param text: content text
 function Macros.EditBoxTrigger(uiName, text)
+	if(not text or text == "") then
+		return;
+	end
 	local obj = ParaUI.GetUIObject(uiName)
 	if(obj and obj:IsValid()) then
 		local x, y, width, height = obj:GetAbsPosition();
