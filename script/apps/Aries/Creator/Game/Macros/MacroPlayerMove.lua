@@ -22,6 +22,7 @@ function Macros.PlayerMove(bx, by, bz, facing)
 	-- TODO: use animation?
 	local player = EntityManager.GetPlayer();
 	if(player) then
+		bx, by, bz = Macros.ComputeBlockPosition(bx, by, bz)
 		player:SetBlockPos(bx, by, bz)
 		if(facing) then
 			player:SetFacing(facing);
@@ -36,6 +37,7 @@ function Macros.FocusPlayer(x, y, z)
 		player:SetFocus();
 		local obj = player:GetInnerObject();
 		if(obj and obj.ToCharacter) then
+			x, y, z = Macros.ComputePosition(x, y, z)
 			obj:SetPosition(x, y, z);
 			obj:ToCharacter():SetFocus();
 		end
@@ -70,6 +72,7 @@ function Macros.CameraLookat(x, y, z)
 		lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ = x, y, z;
 	end
 	if(x) then
+		x, y, z = Macros.ComputePosition(x, y, z)
 		ParaCamera.SetLookAtPos(x, y, z);
 
 		local focusEntity = EntityManager.GetFocus();
