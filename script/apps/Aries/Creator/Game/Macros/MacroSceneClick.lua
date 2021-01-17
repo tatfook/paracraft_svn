@@ -2,7 +2,7 @@
 Title: Macro Scene Click
 Author(s): LiXizhi
 Date: 2021/1/4
-Desc: a macro for the clicking of a named button in GUI. 
+Desc: a macro for the clicking and draging in the 3d scene context. 
 
 Use Lib:
 -------------------------------------------------------
@@ -15,9 +15,6 @@ GameLogic.Macros:AddMacro("SceneDrag", GameLogic.Macros.GetButtonTextFromClickEv
 
 -------------------------------------------------------
 ]]
--------------------------------------
--- single Macro base
--------------------------------------
 NPL.load("(gl)script/ide/System/Windows/Mouse.lua");
 NPL.load("(gl)script/ide/System/Windows/Screen.lua");
 NPL.load("(gl)script/ide/System/Scene/Viewports/ViewportManager.lua");
@@ -155,12 +152,12 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 		local pixelDist = math.sqrt((startX - endX)^2 + (startY - endY)^2)
 		-- 200 pixels per seconds at most. 
 		local totalTicks = math.max( math.floor(pixelDist / 200)*30,  30);
-	
+		
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			ticks = ticks + 1;
 			if(ticks <= totalTicks) then
 				mouse_button = endMouseButton;
-				local ratio = ticks / totalTicks;
+				local ratio = math.min(1, ticks / totalTicks);
 				mouse_x = math.floor(startX * (1 - ratio) + endX * ratio + 0.5)
 				mouse_y = math.floor(startY * (1 - ratio) + endY * ratio + 0.5)
 				ParaUI.SetMousePosition(mouse_x, mouse_y);
@@ -178,7 +175,7 @@ function Macros.SceneDrag(button, startAngleX, startAngleY, endAngleX, endAngleY
 				SetKeyboardFromButtonText(emulatedKeys, button)
 				local ctx = GameLogic.GetSceneContext()
 				ctx:handleMouseEvent(event);
-				
+
 				timer:Change(200);
 			else
 				-- clear all keyboard emulations
