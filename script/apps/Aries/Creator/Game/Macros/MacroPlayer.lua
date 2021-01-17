@@ -26,25 +26,30 @@ end
 
 -- @param duration: in seconds
 function MacroPlayer.ShowPage()
-	
-	System.App.Commands.Call("File.MCMLWindowFrame", {
-			url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
-			name = "MacroPlayerTask.ShowPage", 
-			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-			isShowTitleBar = false,
-			bShow = true,
-			DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
-			style = CommonCtrl.WindowFrame.ContainerStyle,
-			zorder = 1000,
-			allowDrag = false,
-			isTopLevel = true,
-			directPosition = true,
-				align = "_fi",
-				x = 0,
-				y = 0,
-				width = 0,
-				height = 0,
-		});
+	local params = {
+		url = "script/apps/Aries/Creator/Game/Macros/MacroPlayer.html", 
+		name = "MacroPlayerTask.ShowPage", 
+		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
+		isShowTitleBar = false,
+		bShow = true,
+		DestroyOnClose = true, -- prevent many ViewProfile pages staying in memory
+		style = CommonCtrl.WindowFrame.ContainerStyle,
+		zorder = 1000,
+		allowDrag = false,
+		isTopLevel = true,
+		isPinned = true,
+		directPosition = true,
+			align = "_fi",
+			x = 0,
+			y = 0,
+			width = 0,
+			height = 0,
+	};
+	System.App.Commands.Call("File.MCMLWindowFrame", params);
+	params._page.OnClose = function()
+		page = nil;
+	end;
+
 	local KeyInput = page:FindControl("KeyInput");
 	if(KeyInput) then
 		KeyInput:SetField("CanHaveFocus", true); 
