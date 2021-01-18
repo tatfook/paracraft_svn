@@ -47,6 +47,9 @@ function MacroPlayer.ShowPage()
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 	params._page.OnClose = function()
+		if(page.keyboardWnd) then
+			page.keyboardWnd:Show(false);
+		end
 		page = nil;
 	end;
 
@@ -101,7 +104,6 @@ end
 function MacroPlayer.CloseWindow()
 	if(page) then
 		page:CloseWindow();
-		page = nil;
 	end
 end
 
@@ -189,59 +191,19 @@ function MacroPlayer.AnimKeyPressBtn(bRestart)
 	end
 end
 
-local keyMaps = {
-	["SLASH"] = "/ ?",
-	["MINUS"] = "- _",
-	["PERIOD"] = ". >",
-	["COMMA"] = ", <",
-	["SPACE"] = L"空格",
-	["EQUALS"] = "= +",
-	["ESCAPE"] = "ESC",
-	["DELETE"] = "DEL",
-	["LSHIFT"] = "SHIFT",
-	["RSHIFT"] = "SHIFT",
-	["shift"] = "SHIFT",
-	["ctrl"] = "CTRL",
-	["LCONTROL"] = "CTRL",
-	["RCONTROL"] = "CTRL",
-	["BACKSPACE"] = "←---",
-	["alt"] = "ALT",
-	["LMENU"] = "ALT",
-	["RMENU"] = "ALT",
-	["UP"] = "↑",
-	["DOWN"] = "↓",
-	["LEFT"] = "←",
-	["RIGHT"] = "→",
-	["RETURN"] = L"回车",
-	["APOSTROPHE"] = "' \"",
-	["LBRACKET"] = "[ {",
-	["RBRACKET"] = "] }",
-	["SEMICOLON"] = ": ;",
-	["GRAVE"] = "` ~",
-	["BACKSLASH"] = "\\|",
-	["MULTIPLY"] = "*",
-	["1"] = "1 !",
-	["2"] = "2 @",
-	["3"] = "3 #",
-	["4"] = "4 $",
-	["5"] = "5 %",
-	["6"] = "6 ^",
-	["7"] = "7 &",
-	["8"] = "8 *",
-	["9"] = "9 (",
-	["0"] = "0 )",
-	["WIN_LWINDOW"] = "左Win",
-	["WIN_RWINDOW"] = "右win",
-	["PAGE_DOWN"] = "PgDn",
-	["PAGE_UP"] = "PgUp",
-}
-local function ConvertKeyNameToButtonText(btnText)
-	if(btnText) then
-		btnText = btnText:gsub("DIK_", "")
-		btnText = string.upper(btnText);
-		btnText = keyMaps[btnText] or btnText;
+
+function MacroPlayer.ShowKeyboard(bShow, button)
+	if(page) then
+		local parent = MacroPlayer.GetRootUIObject()
+
+		if(not page.keyboardWnd) then
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/VirtualKeyboard.lua");
+			local VirtualKeyboard = commonlib.gettable("MyCompany.Aries.Game.GUI.VirtualKeyboard");
+			page.keyboardWnd = VirtualKeyboard:new():Init("MacroVirtualKeyboard", nil, 150);
+		end
+		page.keyboardWnd:Show(bShow);
+		page.keyboardWnd:ShowButtons(button)
 	end
-	return btnText
 end
 
 function MacroPlayer.ShowKeyPress(bShow, button)
@@ -256,7 +218,7 @@ function MacroPlayer.ShowKeyPress(bShow, button)
 				local buttons = {};
 				local duplicatedMap = {};
 				for text in button:gmatch("([%w_]+)") do
-					text = ConvertKeyNameToButtonText(text)
+					text = Macros.ConvertKeyNameToButtonText(text)
 					if(not duplicatedMap[text]) then
 						duplicatedMap[text] = true
 						buttons[#buttons+1] = text;

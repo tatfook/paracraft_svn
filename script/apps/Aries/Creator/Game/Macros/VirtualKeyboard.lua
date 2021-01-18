@@ -49,18 +49,18 @@ function VirtualKeyboard:ctor()
 		},
 		{
 			{name="`", char="`",col=1, name2 = "~", char2 = "~", vKey = DIK_SCANCODE.DIK_GRAVE},
-			{name="1", char="1",col=1, name2 = "!", char2 = "!", vKey = DIK_SCANCODE.DIK_1, fn={name="F1", vKey = DIK_SCANCODE.DIK_F1, click_to_close = true}},
-			{name="2", char="2",col=1, name2 = "@", char2 = "@", vKey = DIK_SCANCODE.DIK_2, fn={name="F2", vKey = DIK_SCANCODE.DIK_F2}},
-			{name="3", char="3",col=1, name2 = "#", char2 = "#", vKey = DIK_SCANCODE.DIK_3, fn={name="F3", vKey = DIK_SCANCODE.DIK_F3, click_to_close = true}},
-			{name="4", char="4",col=1, name2 = "$", char2 = "$", vKey = DIK_SCANCODE.DIK_4, fn={name="F4", vKey = DIK_SCANCODE.DIK_F4, click_to_close = true}},
-			{name="5", char="5",col=1, name2 = "%", char2 = "%", vKey = DIK_SCANCODE.DIK_5, fn={name="F5", vKey = DIK_SCANCODE.DIK_F5}},
-			{name="6", char="6",col=1, name2 = "^", char2 = "^", vKey = DIK_SCANCODE.DIK_6, fn={name="F6", vKey = DIK_SCANCODE.DIK_F6}},
-			{name="7", char="7",col=1, name2 = "&", char2 = "&", vKey = DIK_SCANCODE.DIK_7, fn={name="F7", vKey = DIK_SCANCODE.DIK_F7}},
-			{name="8", char="8",col=1, name2 = "*", char2 = "*", vKey = DIK_SCANCODE.DIK_8, fn={name="F8", vKey = DIK_SCANCODE.DIK_F8}},
-			{name="9", char="9",col=1, name2 = "(", char2 = "(", vKey = DIK_SCANCODE.DIK_9, fn={name="F9", vKey = DIK_SCANCODE.DIK_F9, click_to_close = true}},
-			{name="0", char="0",col=1, name2 = ")", char2 = ")", vKey = DIK_SCANCODE.DIK_0, fn={name="F10", vKey = DIK_SCANCODE.DIK_F10}},
-			{name="-", char="-",col=1, name2 = "_", char2 = "_", vKey = DIK_SCANCODE.DIK_MINUS, fn={name="F11", vKey = DIK_SCANCODE.DIK_F11, click_to_close = true}},
-			{name="=", char="=",col=1, name2 = "+", char2 = "+", vKey = DIK_SCANCODE.DIK_EQUALS, fn={name="F12", vKey = DIK_SCANCODE.DIK_F12, click_to_close = true}},
+			{name="1", char="1",col=1, name2 = "!", char2 = "!", vKey = DIK_SCANCODE.DIK_1},
+			{name="2", char="2",col=1, name2 = "@", char2 = "@", vKey = DIK_SCANCODE.DIK_2},
+			{name="3", char="3",col=1, name2 = "#", char2 = "#", vKey = DIK_SCANCODE.DIK_3},
+			{name="4", char="4",col=1, name2 = "$", char2 = "$", vKey = DIK_SCANCODE.DIK_4},
+			{name="5", char="5",col=1, name2 = "%", char2 = "%", vKey = DIK_SCANCODE.DIK_5},
+			{name="6", char="6",col=1, name2 = "^", char2 = "^", vKey = DIK_SCANCODE.DIK_6},
+			{name="7", char="7",col=1, name2 = "&", char2 = "&", vKey = DIK_SCANCODE.DIK_7},
+			{name="8", char="8",col=1, name2 = "*", char2 = "*", vKey = DIK_SCANCODE.DIK_8},
+			{name="9", char="9",col=1, name2 = "(", char2 = "(", vKey = DIK_SCANCODE.DIK_9},
+			{name="0", char="0",col=1, name2 = ")", char2 = ")", vKey = DIK_SCANCODE.DIK_0},
+			{name="-", char="-",col=1, name2 = "_", char2 = "_", vKey = DIK_SCANCODE.DIK_MINUS},
+			{name="=", char="=",col=1, name2 = "+", char2 = "+", vKey = DIK_SCANCODE.DIK_EQUALS},
 			{name="Backspace", col=2, colorid=2, vKey = DIK_SCANCODE.DIK_BACK},
 			{name="Del", col=1, colorid=2, vKey = DIK_SCANCODE.DIK_DELETE},
 		},
@@ -128,9 +128,9 @@ function VirtualKeyboard:ctor()
 
 	-- normalBtn, comboBtn, frequentBtn
 	self.colors = { 
-		{normal="#ffffff", pressed="#888888"}, 
-		{normal="#cccccc", pressed="#333333"}, 
-		{normal="#8888ff", pressed="#3333cc"}
+		{normal="#ffffff", pressed="#f5c4bd"}, 
+		{normal="#cccccc", pressed="#f5c4bd"}, 
+		{normal="#8888ff", pressed="#f5c4bd"}
 	};
 	self.finger_size = 10;
 	self.transparency = 1;
@@ -159,14 +159,6 @@ function VirtualKeyboard:Show(bShow)
 	end
 	self.bIsVisible = bShow;
 	_parent.visible = bShow;
-	
-	if(bShow) then
-		-- Keyboard:EnableIME(false)
-	else
-		-- Keyboard:EnableIME(true)
-		self:hidden(); -- signal
-		self:ClearAllKeyDown();
-	end
 end
 
 function VirtualKeyboard:isVisible()
@@ -399,4 +391,35 @@ function VirtualKeyboard:CreateWindow()
 	end
 end
 
+function VirtualKeyboard:ShowButtons(button)
+	self:ClearAllKeyDown()
+	for text in button:gmatch("([%w_]+)") do
+		local item = self:GetButtonByName(text)
+		if(item) then
+			self:SetKeyState(item, true)
+		end
+	end
+end
 
+function VirtualKeyboard:GetButtonByKeyname(keyname)
+	if(keyname and keyname~="") then
+		for row = 1, #self.keylayout do
+			for _, item in ipairs(self.keylayout[row]) do
+				if (DIK_SCANCODE[keyname] == item.vKey) then
+					return item;
+				end
+			end
+		end
+	end
+end
+
+function VirtualKeyboard:GetButtonByName(name)
+	if(name == "ctrl") then
+		name = "DIK_LCONTROL"
+	elseif(name == "shift") then
+		name = "DIK_LSHIFT"
+	elseif(name == "alt") then
+		name = "DIK_LMENU"
+	end
+	return self:GetButtonByKeyname(name)
+end

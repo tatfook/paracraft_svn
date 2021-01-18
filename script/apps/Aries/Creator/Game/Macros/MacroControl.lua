@@ -168,3 +168,9 @@ function Macros.AttachWindow(window)
 		end
 	end
 end
+
+-- show virtual keyboard with button 
+-- @param: "ctrl+DIK_E"
+function Macros.ShowKeyboard(bShow, button)
+	MacroPlayer.ShowKeyboard(bShow, button)
+end

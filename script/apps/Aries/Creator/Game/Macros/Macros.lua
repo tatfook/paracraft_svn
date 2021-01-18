@@ -83,6 +83,7 @@ GameLogic.Macros:Play(text)
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroControl.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeys.lua");
 NPL.load("(gl)script/ide/SliderBar.lua");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");

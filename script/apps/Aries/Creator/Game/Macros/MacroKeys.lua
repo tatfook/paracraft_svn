@@ -1,0 +1,122 @@
+--[[
+Title: Macro Keys
+Author(s): LiXizhi
+Date: 2021/1/4
+Desc: 
+
+Use Lib:
+-------------------------------------------------------
+-------------------------------------------------------
+]]
+local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
+
+
+local keyMaps = {
+	["SLASH"] = "/ ?",
+	["MINUS"] = "- _",
+	["PERIOD"] = ". >",
+	["COMMA"] = ", <",
+	["SPACE"] = L"¿Õ¸ñ",
+	["EQUALS"] = "= +",
+	["ESCAPE"] = "ESC",
+	["DELETE"] = "DEL",
+	["LSHIFT"] = "SHIFT",
+	["RSHIFT"] = "SHIFT",
+	["shift"] = "SHIFT",
+	["ctrl"] = "CTRL",
+	["LCONTROL"] = "CTRL",
+	["RCONTROL"] = "CTRL",
+	["BACKSPACE"] = "¡û---",
+	["alt"] = "ALT",
+	["LMENU"] = "ALT",
+	["RMENU"] = "ALT",
+	["UP"] = "¡ü",
+	["DOWN"] = "¡ý",
+	["LEFT"] = "¡û",
+	["RIGHT"] = "¡ú",
+	["RETURN"] = L"»Ø³µ",
+	["APOSTROPHE"] = "' \"",
+	["LBRACKET"] = "[ {",
+	["RBRACKET"] = "] }",
+	["SEMICOLON"] = ": ;",
+	["GRAVE"] = "` ~",
+	["BACKSLASH"] = "\\|",
+	["MULTIPLY"] = "*",
+	["1"] = "1 !",
+	["2"] = "2 @",
+	["3"] = "3 #",
+	["4"] = "4 $",
+	["5"] = "5 %",
+	["6"] = "6 ^",
+	["7"] = "7 &",
+	["8"] = "8 *",
+	["9"] = "9 (",
+	["0"] = "0 )",
+	["WIN_LWINDOW"] = "×óWin",
+	["WIN_RWINDOW"] = "ÓÒwin",
+	["PAGE_DOWN"] = "PgDn",
+	["PAGE_UP"] = "PgUp",
+}
+
+function Macros.ConvertKeyNameToButtonText(btnText)
+	if(btnText) then
+		btnText = btnText:gsub("DIK_", "")
+		btnText = string.upper(btnText);
+		btnText = keyMaps[btnText] or btnText;
+	end
+	return btnText
+end
+
+local TextToKeyNameMap = {
+	["-"] = "DIK_MINUS",
+	["_"] = "shift+DIK_MINUS",
+	["/"] = "DIK_SLASH",
+	["?"] = "shift+DIK_SLASH",
+	["."] = "DIK_PERIOD",
+	[">"] = "shift+DIK_PERIOD",
+	[","] = "DIK_COMMA",
+	["<"] = "shift+DIK_COMMA",
+	["="] = "DIK_EQUALS",
+	["+"] = "shift+DIK_EQUALS",
+	[" "] = "DIK_SPACE",
+	["'"] = "DIK_APOSTROPHE",
+	["\""] = "shift+DIK_APOSTROPHE",
+	["["] = "DIK_LBRACKET",
+	["{"] = "shift+DIK_LBRACKET",
+	["]"] = "DIK_RBRACKET",
+	["}"] = "shift+DIK_RBRACKET",
+	[";"] = "DIK_SEMICOLON",
+	[":"] = "shift+DIK_SEMICOLON",
+	["`"] = "DIK_GRAVE",
+	["~"] = "shift+DIK_GRAVE",
+	["\\"] = "DIK_BACKSLASH",
+	["|"] = "shift+DIK_BACKSLASH",
+	["!"] = "shift+DIK_1",
+	["@"] = "shift+DIK_2",
+	["#"] = "shift+DIK_3",
+	["$"] = "shift+DIK_4",
+	["%"] = "shift+DIK_5",
+	["^"] = "shift+DIK_6",
+	["&"] = "shift+DIK_7",
+	["*"] = "shift+DIK_8",
+	["("] = "shift+DIK_9",
+	[")"] = "shift+DIK_0",
+}
+
+-- @param text: like "a" or "Z"
+-- @return string like "DIK_A" "shift+DIK_Z"
+function Macros.TextToKeyName(text)
+	local keyname;
+	if(text and #text == 1) then
+		if(text:match("^[a-z]")) then
+			keyname = "DIK_"..text:upper();
+		elseif(text:match("^[A-Z]")) then
+			keyname = "shift+DIK_"..text;
+		elseif(text:match("^%d")) then
+			keyname = "DIK_"..text;
+		elseif(TextToKeyNameMap[text]) then
+			keyname = TextToKeyNameMap[text]
+		end
+	end
+	return keyname
+end

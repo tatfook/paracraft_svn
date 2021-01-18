@@ -42,60 +42,6 @@ function Macros.EditBoxKeyup(uiName, keyname)
 	return Macros.Idle();
 end
 
-local TextToKeyNameMap = {
-	["-"] = "DIK_MINUS",
-	["_"] = "shift+DIK_MINUS",
-	["/"] = "DIK_SLASH",
-	["?"] = "shift+DIK_SLASH",
-	["."] = "DIK_PERIOD",
-	[">"] = "shift+DIK_PERIOD",
-	[","] = "DIK_COMMA",
-	["<"] = "shift+DIK_COMMA",
-	["="] = "DIK_EQUALS",
-	["+"] = "shift+DIK_EQUALS",
-	[" "] = "DIK_SPACE",
-	["'"] = "DIK_APOSTROPHE",
-	["\""] = "shift+DIK_APOSTROPHE",
-	["["] = "DIK_LBRACKET",
-	["{"] = "shift+DIK_LBRACKET",
-	["]"] = "DIK_RBRACKET",
-	["}"] = "shift+DIK_RBRACKET",
-	[";"] = "DIK_SEMICOLON",
-	[":"] = "shift+DIK_SEMICOLON",
-	["`"] = "DIK_GRAVE",
-	["~"] = "shift+DIK_GRAVE",
-	["\\"] = "DIK_BACKSLASH",
-	["|"] = "shift+DIK_BACKSLASH",
-	["!"] = "shift+DIK_1",
-	["@"] = "shift+DIK_2",
-	["#"] = "shift+DIK_3",
-	["$"] = "shift+DIK_4",
-	["%"] = "shift+DIK_5",
-	["^"] = "shift+DIK_6",
-	["&"] = "shift+DIK_7",
-	["*"] = "shift+DIK_8",
-	["("] = "shift+DIK_9",
-	[")"] = "shift+DIK_0",
-}
--- @param text: like "a" or "Z"
--- @return string like "DIK_A" "shift+DIK_Z"
-function Macros.TextToKeyName(text)
-	local keyname;
-	if(text and #text == 1) then
-		if(text:match("^[a-z]")) then
-			keyname = "DIK_"..text:upper();
-		elseif(text:match("^[A-Z]")) then
-			keyname = "shift+DIK_"..text;
-		elseif(text:match("^%d")) then
-			keyname = "DIK_"..text;
-		elseif(TextToKeyNameMap[text]) then
-			keyname = TextToKeyNameMap[text]
-		end
-	end
-	return keyname
-end
-
-
 -- return text - lastText.  or nil if text does not begin with lastText
 local function GetTextDiff(text, lastText)
 	local diff;
@@ -108,7 +54,6 @@ local function GetTextDiff(text, lastText)
 		return diff;
 	end
 end
-
 
 --@param uiName: UI name
 --@param text: content text
