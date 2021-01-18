@@ -53,6 +53,7 @@ function MacroPlayer.ShowPage()
 	local KeyInput = page:FindControl("KeyInput");
 	if(KeyInput) then
 		KeyInput:SetField("CanHaveFocus", true); 
+		KeyInput:SetField("InputMethodEnabled", false); 
 		KeyInput:SetScript("onkeydown", function()
 			local event = KeyEvent:init("keyPressEvent")
 			MacroPlayer.OnKeyDown(event)

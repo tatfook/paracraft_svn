@@ -118,10 +118,10 @@ Commands["sound"] = {
 	quick_ref="/sound name_or_filename [filename] [from_time] [volume:0-1] [pitch:0-1]", 
 	desc=[[play a non-loop sound by a given name. There can be only one sound playing for each name
 @param filename: filepath can be relative to current world or a http:// url. 
-/sound anyname break.ogg 0.2 1.3			play break.ogg in channel anyname
-/sound break							play a predefined sound
-/sound 1.mp3							play 1.mp3 on its own channel.
-/sound 1.mp3 10.1						play 1.mp3 from 10.1 seconds
+/sound anyname break.ogg 0.2 1.3    play break.ogg in channel anyname
+/sound break    play a predefined sound
+/sound 1.mp3    play 1.mp3 on its own channel.
+/sound 1.mp3 10.1    play 1.mp3 from 10.1 seconds
 /sound http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=4&text=hello
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params, fromEntity)
