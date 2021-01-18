@@ -352,7 +352,7 @@ function QuestPage.HandleTaskData(data)
 	local quest_datas = QuestProvider:GetInstance():GetQuestItems()
 	for i, v in ipairs(quest_datas) do
 		-- 获取兑换规则
-		if HideTaskList[v.exid] == nil then
+		if QuestPage.GetTaskVisible(v) then
 			local exid = v.exid
 			local index = #QuestPage.TaskData + 1
 			local task_data = {}
@@ -504,6 +504,17 @@ function QuestPage.GetTaskOrder(data)
 	end
 
 	return 0
+end
+
+function QuestPage.GetTaskVisible(data)
+	local childrens = data.questItemContainer.children
+	local data_item = childrens[1]
+	
+	if data_item and data_item.template.visible ~= nil then
+		return data_item.template.visible
+	end
+
+	return true
 end
 
 function QuestPage.GetTaskStateByQuest(data, task_type)

@@ -278,6 +278,7 @@ function QuestProvider:FillQuestItemTemplateBy_Virtual_Condition(exid)
                     quest_template.custom_show = v.custom_show;
                     quest_template.exp = v.exp;
                     quest_template.order = v.order;
+                    quest_template.visible = v.visible
                     self:AddQuestItemTemplate(quest_template);
                 end
             end

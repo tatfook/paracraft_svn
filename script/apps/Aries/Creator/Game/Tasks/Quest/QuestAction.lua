@@ -118,6 +118,16 @@ function QuestAction.DoFinish(quest_gsid)
     end
 end
 
+function QuestAction.IsFinish(quest_gsid)
+    if(not quest_gsid)then
+        return true
+    end
+    local item = QuestProvider:GetInstance():CreateOrGetQuestItemContainer(quest_gsid);
+    if(item)then
+        return item:IsFinished();
+    end
+end
+
 function QuestAction.OpenPage(name)
     if name == 'certificate' then
         GameLogic.GetFilters():apply_filters('show_certificate', function(result)
@@ -425,3 +435,8 @@ function QuestAction.SetGiftState(gift_id, state)
     KeepWorkItemManager.SetClientData(QuestAction.task_gsid, clientData)
 end
 ----------------------------------------日常任务处理/end-------------------------------------------------
+-- 是否补课界面
+function QuestAction.ShowCourseView(is_make_up)
+    QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
+    QuestCoursePage.Show(is_make_up)
+end
