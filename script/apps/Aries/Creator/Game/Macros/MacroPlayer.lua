@@ -229,6 +229,8 @@ local keyMaps = {
 	["0"] = "0 )",
 	["WIN_LWINDOW"] = "左Win",
 	["WIN_RWINDOW"] = "右win",
+	["PAGE_DOWN"] = "PgDn",
+	["PAGE_UP"] = "PgUp",
 }
 local function ConvertKeyNameToButtonText(btnText)
 	if(btnText) then
@@ -456,7 +458,7 @@ function MacroPlayer.OnKeyDown(event)
 	if(button:match("alt") and not event.alt_pressed) then
 		isOK = false
 	end
-	local keyname = button:match("(DIK_%w+)");
+	local keyname = button:match("(DIK_[%w_]+)");
 	if(keyname and keyname~=event.keyname) then
 		isOK = false
 	end
