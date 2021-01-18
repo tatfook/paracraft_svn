@@ -135,7 +135,7 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 			x = x + 12;
 			y = y + 15;
 			local cursorBtn = page:FindControl("cursorBtn")
-			cursorBtn.visible = true;
+			
 
 			local mouseX, mouseY = ParaUI.GetMousePosition();
 			
@@ -147,9 +147,11 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 			end
 			local diffDistance = math.sqrt((mouseX - x)^2 + (mouseY - y)^2)
 			if( diffDistance > 16 ) then
+				cursorBtn.visible = true;
 				cursorBtn.translationx = math.floor((mouseX - x) * progress + 0.5);
 				cursorBtn.translationy = math.floor((mouseY - y) * progress + 0.5);
 			else
+				cursorBtn.visible = false;
 				cursorBtn.translationx = 0;
 				cursorBtn.translationy = 0;
 				cursorTick = 0;
@@ -581,12 +583,13 @@ function MacroPlayer.ShowDrag(bShow, startX, startY, endX, endY, button)
 			dragPoints.visible = bShow;
 			if(bShow) then
 				local startPoint = page:FindControl("startPoint")
-				startPoint.x = startX - 16;
-				startPoint.y = startY - 16;
+				local width = 24;
+				startPoint.x = startX - width;
+				startPoint.y = startY - width;
 				
 				local endPoint = page:FindControl("endPoint")
-				endPoint.x = endX - 16;
-				endPoint.y = endY - 16;
+				endPoint.x = endX - width;
+				endPoint.y = endY - width;
 
 				if(Macros.IsShowButtonTip()) then
 					MacroPlayer.AnimDragBtn(true)
