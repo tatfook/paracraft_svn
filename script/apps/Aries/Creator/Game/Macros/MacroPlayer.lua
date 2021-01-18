@@ -286,15 +286,20 @@ function MacroPlayer.ShowController(bShow)
 	end
 end
 
--- make it top level anyway, since some other top level window may be called before. 
-function MacroPlayer.SetTopLevel()
+function MacroPlayer.GetRootUIObject()
 	if(page) then
 		local win = page:GetRootUIObject()
-		if(win) then
-			-- tricky: this will force bring this window to the top of all top level windows.
-			win:SetTopLevel(false);
-			win:SetTopLevel(true);
-		end
+		return win
+	end
+end
+
+-- make it top level anyway, since some other top level window may be called before. 
+function MacroPlayer.SetTopLevel()
+	local win = MacroPlayer.GetRootUIObject()
+	if(win) then
+		-- tricky: this will force bring this window to the top of all top level windows.
+		win:SetTopLevel(false);
+		win:SetTopLevel(true);
 	end
 end
 

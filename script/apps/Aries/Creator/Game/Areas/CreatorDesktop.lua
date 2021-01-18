@@ -289,9 +289,11 @@ function CreatorDesktop.ShowNewPage(IsExpanded)
 
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/DesktopMenuPage.lua");
 	local DesktopMenuPage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.DesktopMenuPage");
-	CreatorDesktop.new_page_params._page.OnClose = function()
-		DesktopMenuPage.ActivateMenu(false);
-	end;
+	if(CreatorDesktop.new_page_params._page) then
+		CreatorDesktop.new_page_params._page.OnClose = function()
+			DesktopMenuPage.ActivateMenu(false);
+		end;
+	end
 	DesktopMenuPage.ActivateMenu(IsExpanded);
 
 	GameLogic.events:DispatchEvent({type = "ShowCreatorDesktop" , bShow = IsExpanded});	

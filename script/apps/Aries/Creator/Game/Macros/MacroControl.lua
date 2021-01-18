@@ -9,6 +9,11 @@ Use Lib:
 GameLogic.Macros.SetPlaySpeed(1.25)
 GameLogic.Macros.SetHelpLevel(1)
 GameLogic.Macros.SetAutoPlay(true)
+GameLogic.Macros.cmd("/tip hello")
+
+-- in code block, we can do 
+local wnd = window("<input type='button' value='stop' onclick='OnStopPlay'/>", "(global)_lt", 201, 10, 100, 32);
+GameLogic.Macros.AttachWindow(wnd)
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
@@ -125,5 +130,25 @@ function Macros.ComputeBlockPosition(x, y, z)
 		return x + dx, y + dy, z + dz
 	else
 		return x, y, z
+	end
+end
+
+-- run command text
+function Macros.cmd(cmd_text)
+	GameLogic.RunCommand(cmd_text);
+end
+
+
+-- @param window: attach a mcml v2 window object to it, usually from CodeBlock's window() function
+function Macros.AttachWindow(window)
+	if(window) then
+		local parent = MacroPlayer.GetRootUIObject()
+		if(parent) then
+			local win = window:GetNativeWindow()
+			if(win) then
+				win.zorder = 1001;
+				parent:AddChild(win)
+			end
+		end
 	end
 end
