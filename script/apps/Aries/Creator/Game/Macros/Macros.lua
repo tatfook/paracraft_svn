@@ -58,6 +58,7 @@ Broadcast("globalGameEvent")
 SetPlaySpeed(1.25)
 SetAutoPlay(true)
 SetHelpLevel(0)
+loadtemplate("aaa.bmax")
 ```
 
 ## How to make UI control recordable?
