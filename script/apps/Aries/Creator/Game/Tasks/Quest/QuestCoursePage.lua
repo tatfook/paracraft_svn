@@ -29,7 +29,7 @@ QuestCoursePage.is_add_event = false
 QuestCoursePage.begain_exid = 40015
 QuestCoursePage.end_exid = 40024
 QuestCoursePage.is_always_exist_exid = 40024
-QuestCoursePage.begain_time_t = {year=2021, month=1, day=14, hour=0, min=0, sec=0}
+QuestCoursePage.begain_time_t = {year=2021, month=1, day=28, hour=0, min=0, sec=0}
 
 QuestCoursePage.GiftState = {
 	can_not_get = 0,		--未能领取
@@ -43,13 +43,7 @@ QuestCoursePage.TaskState = {
 	can_not_go = 2,
 }
 
-QuestCoursePage.CourseData = {
-	{catch_value = 20, state = QuestCoursePage.GiftState.can_not_get, img = "", course_id = 1, exid = 30023},
-	{catch_value = 40, state = QuestCoursePage.GiftState.can_not_get, img = "", course_id = 2, exid = 30024},
-	{catch_value = 60, state = QuestCoursePage.GiftState.can_not_get, img = "", course_id = 3, exid = 30025},
-	{catch_value = 80, state = QuestCoursePage.GiftState.can_not_get, img = "", course_id = 4, exid = 30026},
-	{catch_value = 100, state = QuestCoursePage.GiftState.can_not_get, img = "", course_id = 5, exid = 30027},
-}
+QuestCoursePage.CourseData = {}
 
 QuestCoursePage.CourseTimeLimit = {
 	{begain_time = {hour=10,min=30}, end_time = {hour=10,min=45}},
@@ -92,6 +86,26 @@ function QuestCoursePage.Show(is_make_up)
 		if err == 200 then
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
+
+			-- 如果是补课的话 判断下是否在不建议的时间段 正常课程的前45分钟之后 就属于不建议时间段
+			if QuestCoursePage.is_make_up and not QuestCoursePage.IsGraduateTime() then
+				for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
+					local begain_time_stamp = today_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600 - 45 * 60
+					local end_time_stamp = today_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
+			
+					if server_time >= begain_time_stamp and server_time <= end_time_stamp then
+						_guihelper.MessageBox("现在补课可能会耽误新课程的正常学习，请稍后再来", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
+						_guihelper.MsgBoxClick_CallBack = function(res)
+							if(res == _guihelper.DialogResult.OK) then
+								QuestCoursePage.ShowView()
+							end
+						end
+						return
+					end
+				end
+			end
+
+
 			QuestCoursePage.ShowView()
 		end
 	end)
@@ -265,12 +279,28 @@ end
 
 function QuestCoursePage.HandleTaskData(data)
 	QuestCoursePage.TaskData = {}
+
+	if QuestCoursePage.TaskAllData == nil then
+		local quest_datas = QuestProvider:GetInstance().templates_map
+		local exid_list = {}
+		QuestCoursePage.TaskAllData = {}
+		for i, v in pairs(quest_datas) do
+			-- 获取兑换规则
+			if exid_list[v.exid] == nil and v.exid >= QuestCoursePage.begain_exid and v.exid <= QuestCoursePage.end_exid then
+				exid_list[v.exid] = 1
+				local index = #QuestCoursePage.TaskAllData + 1
+				QuestCoursePage.TaskAllData[index] = v
+			end
+		end
+
+        table.sort(QuestCoursePage.TaskAllData,function(a,b)
+            return a.gsid < b.gsid
+        end)
+	end
 	local quest_datas = QuestProvider:GetInstance().templates_map
-	local exid_list = {}
-	for i, v in pairs(quest_datas) do
+	for i, v in pairs(QuestCoursePage.TaskAllData) do
 		-- 获取兑换规则
-		if exid_list[v.exid] == nil and QuestCoursePage.GetTaskVisible(v.exid) then
-			exid_list[v.exid] = 1
+		if QuestCoursePage.GetTaskVisible(v.exid) then
 			local index = #QuestCoursePage.TaskData + 1
 			local task_data = {}
 			local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(v.exid)
@@ -280,11 +310,12 @@ function QuestCoursePage.HandleTaskData(data)
 			task_data.name = name
 			task_data.task_id = v.exid
 			task_data.task_desc = desc
-
+			task_data.id = v.id
+			task_data.gsid = v.gsid
 			task_data.is_finish = QuestAction.IsFinish(v.gsid)
 			task_data.task_type = QuestCoursePage.GetTaskType(v)
 			task_data.is_main_task = task_data.task_type == "main"
-
+			task_data.goto_world = v.goto_world
 			task_data.task_pro_desc = ""
 			task_data.task_state = QuestCoursePage.GetTaskStateByQuest(task_data)
 			task_data.order = QuestCoursePage.GetTaskOrder(v)
@@ -433,7 +464,7 @@ end
 
 function QuestCoursePage.GetBgImg(task_data)
 	local img = "Texture/Aries/Creator/keepwork/Quest/bjtiao2_226X90_32bits.png#0 0 226 90:195 20 16 20"
-	if task_data.is_main_task then
+	if QuestCoursePage.CheckIsMissClass(task_data) then
 		img = "Texture/Aries/Creator/keepwork/Quest/bjtiao_226X90_32bits.png#0 0 226 90:195 20 16 20"
 	end
 
@@ -442,26 +473,29 @@ end
 
 function QuestCoursePage.HandleCourseData()
 	local gift_state_list = QuestAction.GetGiftStateList()
-	for i, v in ipairs(QuestCoursePage.CourseData) do
-		v.state = gift_state_list[i] or QuestCoursePage.GiftState.can_not_get
-		v.img = QuestCoursePage.GetIconImg(i, v)
-		v.number_img = QuestCoursePage.GetNumImg(v)
+	QuestCoursePage.CourseData = {}
+	for i, v in ipairs(QuestCoursePage.TaskAllData) do
+		local data = {}
+		data.is_finish = QuestAction.IsFinish(v.gsid)
+		data.img = QuestCoursePage.GetIconImg(i, v)
+		-- data.number_img = QuestCoursePage.GetNumImg(v)
+		data.desc = string.format("第%s课", i)
+		if i == #QuestCoursePage.TaskAllData then
+			data.desc = "GOAL"
+		end
+		print("saaaaaaaaaaaa", #QuestCoursePage.CourseData)
+		QuestCoursePage.CourseData[#QuestCoursePage.CourseData + 1] = data
 	end
 end
 
 
 function QuestCoursePage.GetIconImg(index, item)
 	-- 最后一个礼拜要做不同显示
-	if index == #QuestCoursePage.CourseData then
-		return "Texture/Aries/Creator/keepwork/Quest/liwu3_86X70_32bits.png#0 0 86 70"
+	if index == #QuestCoursePage.TaskAllData then
+		return "Texture/Aries/Creator/keepwork/Quest/boshimao_81X60_32bits.png#0 0 81 60"
 	end
 
-	local path = "Texture/Aries/Creator/keepwork/Quest/liwu1_55X56_32bits.png#0 0 55 56"
-	if item.state == QuestCoursePage.GiftState.can_not_get then
-		path = "Texture/Aries/Creator/keepwork/Quest/liwu2_55X56_32bits.png#0 0 55 56"
-	end
-
-	return path
+	return ""
 end
 
 function QuestCoursePage.GetNumImg(item)
@@ -523,7 +557,7 @@ function QuestCoursePage.Goto(task_id)
 				_guihelper.MessageBox(desc, nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
 				_guihelper.MsgBoxClick_CallBack = function(res)
 					if(res == _guihelper.DialogResult.OK) then
-						GameLogic.GetFilters():apply_filters("VipNotice", true, "vip_goods",function()
+						GameLogic.GetFilters():apply_filters("VipNotice", true, form,function()
 							QuestCoursePage.Goto(task_id)
 						end);
 					else
@@ -567,8 +601,7 @@ function QuestCoursePage.Goto(task_id)
 						return
 					end
 
-					print(">>>>>>>>>>>>>>>>>>>>>>>task_data.id", task_data.id)
-					local value = QuestAction.GetValue(task_data.id)
+					local value = QuestAction.GetValue(task_data.id) or 0
 					if value >= 1 then
 						show_vip_view("对不起，您已免费体验过今日的课程。立即加入会员，无限次体验全部课程！", "vip_wintercamp1_replay")
 						return
@@ -582,7 +615,7 @@ function QuestCoursePage.Goto(task_id)
 				local world_id = task_data.goto_world[target_index]
 				if world_id then
 					GameLogic.QuestAction.SetValue(task_data.id, 1);
-					print("cccccccccccccccccccccccccQuestAction.GetValue(task_data.id)", QuestAction.GetValue(task_data.id))
+					print("ppppppppppppppppppppppppppp", task_data.gsid, task_data.id)
 					QuestCoursePage.EnterWorld(world_id)
 				end
 
@@ -690,6 +723,7 @@ function QuestCoursePage.ToGraduate()
 
 end
 
+-- 是否所有课程以后的时间
 function QuestCoursePage.IsGraduateTime()
 	local second_day = QuestCoursePage.GetSecondDay(QuestCoursePage.is_always_exist_exid)
 	local date_t = commonlib.copy(QuestCoursePage.begain_time_t)
@@ -732,4 +766,8 @@ function QuestCoursePage.CheckIsInCourseTime()
 	end
 
 	return false
+end
+
+function QuestCoursePage.CheckIsMissClass(data)
+	return QuestCoursePage.is_make_up and not data.is_finish
 end
