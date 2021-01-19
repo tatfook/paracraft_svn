@@ -7,6 +7,7 @@ Desc: voices
 Use Lib:
 -------------------------------------------------------
 GameLogic.Macros.voice("text to speech")
+GameLogic.Macros.sound("1.mp3")
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
@@ -15,17 +16,17 @@ local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
 
 local voices = {
-["ÄãĞèÒªÍ¬Ê±°´ÏÂ2¸ö°´¼ü"] = "Audio/Haqi/creator/MacroPlayer/macrotip_1.ogg",
-["°´×¡Êó±ê×ó¼ü²»Òª·ÅÊÖ£¬ Í¬Ê±ÍÏ¶¯Êó±êµ½Ä¿±êµã"] = "Audio/Haqi/creator/MacroPlayer/macrotip_2.ogg",
-["Êó±êÒÆ¶¯µ½ÕâÀï£¬µ«²»Òªµã»÷"] = "Audio/Haqi/creator/MacroPlayer/macrotip_3.ogg",
-["²»Òªµã»÷Êó±ê, ¶øÊÇ¹ö¶¯Êó±êÖĞ¼äµÄ¹öÂÖ"] = "Audio/Haqi/creator/MacroPlayer/macrotip_4.ogg",
-["Çë°´ÕÕÖ¸Ê¾ÊäÈëÎÄ×Ö"] = "Audio/Haqi/creator/MacroPlayer/macrotip_5.ogg",
-["Çë°´×¡¼üÅÌµÄÖ¸¶¨°´Å¥²»ÒªËÉÊÖ£¬Í¬Ê±µã»÷Êó±ê"] = "Audio/Haqi/creator/MacroPlayer/macrotip_6.ogg",
-["Çëµã»÷ÕıÈ·µÄÊó±ê°´¼ü"] = "Audio/Haqi/creator/MacroPlayer/macrotip_7.ogg",
-["Çë½«Êó±êÒÆ¶¯µ½Ä¿±êµã£¬ÔÙ°´¼üÅÌ"] = "Audio/Haqi/creator/MacroPlayer/macrotip_8.ogg",
-["ÍÏ¶¯Êó±êÊ±ĞèÒª°´ÕıÈ·µÄ°´¼ü"] = "Audio/Haqi/creator/MacroPlayer/macrotip_9.ogg",
-["ÇëÍÏ¶¯Êó±êµ½Ä¿±êµã"] = "Audio/Haqi/creator/MacroPlayer/macrotip_10.ogg",
-["ÇëÏòÁíÍâÒ»¸ö·½Ïò¹ö¶¯Êó±êÖĞ¼äµÄ¹öÂÖ"] = "Audio/Haqi/creator/MacroPlayer/macrotip_11.ogg",
+["ä½ éœ€è¦åŒæ—¶æŒ‰ä¸‹2ä¸ªæŒ‰é”®"] = "Audio/Haqi/creator/MacroPlayer/macrotip_1.ogg",
+["æŒ‰ä½é¼ æ ‡å·¦é”®ä¸è¦æ”¾æ‰‹ï¼Œ åŒæ—¶æ‹–åŠ¨é¼ æ ‡åˆ°ç›®æ ‡ç‚¹"] = "Audio/Haqi/creator/MacroPlayer/macrotip_2.ogg",
+["é¼ æ ‡ç§»åŠ¨åˆ°è¿™é‡Œï¼Œä½†ä¸è¦ç‚¹å‡»"] = "Audio/Haqi/creator/MacroPlayer/macrotip_3.ogg",
+["ä¸è¦ç‚¹å‡»é¼ æ ‡, è€Œæ˜¯æ»šåŠ¨é¼ æ ‡ä¸­é—´çš„æ»šè½®"] = "Audio/Haqi/creator/MacroPlayer/macrotip_4.ogg",
+["è¯·æŒ‰ç…§æŒ‡ç¤ºè¾“å…¥æ–‡å­—"] = "Audio/Haqi/creator/MacroPlayer/macrotip_5.ogg",
+["è¯·æŒ‰ä½é”®ç›˜çš„æŒ‡å®šæŒ‰é’®ä¸è¦æ¾æ‰‹ï¼ŒåŒæ—¶ç‚¹å‡»é¼ æ ‡"] = "Audio/Haqi/creator/MacroPlayer/macrotip_6.ogg",
+["è¯·ç‚¹å‡»æ­£ç¡®çš„é¼ æ ‡æŒ‰é”®"] = "Audio/Haqi/creator/MacroPlayer/macrotip_7.ogg",
+["è¯·å°†é¼ æ ‡ç§»åŠ¨åˆ°ç›®æ ‡ç‚¹ï¼Œå†æŒ‰é”®ç›˜"] = "Audio/Haqi/creator/MacroPlayer/macrotip_8.ogg",
+["æ‹–åŠ¨é¼ æ ‡æ—¶éœ€è¦æŒ‰æ­£ç¡®çš„æŒ‰é”®"] = "Audio/Haqi/creator/MacroPlayer/macrotip_9.ogg",
+["è¯·æ‹–åŠ¨é¼ æ ‡åˆ°ç›®æ ‡ç‚¹"] = "Audio/Haqi/creator/MacroPlayer/macrotip_10.ogg",
+["è¯·å‘å¦å¤–ä¸€ä¸ªæ–¹å‘æ»šåŠ¨é¼ æ ‡ä¸­é—´çš„æ»šè½®"] = "Audio/Haqi/creator/MacroPlayer/macrotip_11.ogg",
 ["success"] = "Audio/Haqi/creator/ArtWar/success.mp3",
 }
 
@@ -34,8 +35,12 @@ function Macros.voice(text)
 	if(not text or text == "") then
 		return
 	end
-	local filename = voices[text]
+	
+	if(Macros.IsAutoPlay()) then
+		return
+	end
 
+	local filename = voices[text]
 	if(filename) then
 		GameLogic.RunCommand("sound", format("macroplayer %s", filename))
 	else
@@ -43,7 +48,15 @@ function Macros.voice(text)
 	end
 end
 
-
+-- @param filename play a mp3 or ogg file name
+function Macros.sound(filename)
+	if(Macros.IsAutoPlay()) then
+		return
+	end
+	if(filename) then
+		GameLogic.RunCommand("sound", format("macroplayer %s", filename))
+	end
+end
 
 
 

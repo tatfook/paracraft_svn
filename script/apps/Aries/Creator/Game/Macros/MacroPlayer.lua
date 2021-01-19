@@ -173,9 +173,11 @@ function MacroPlayer.ShowMoreTips()
 		local count = MacroPlayer.ShowKeyboard(true, MacroPlayer.expectedKeyButton);
 		if(count and count > 1) then
 			GameLogic.AddBBS("Macro", format(L"你需要同时按下%d个按键", count), 5000, "0 255 0");
+			Macros.voice("你需要同时按下2个按键")
 		end
 	end
 	if(MacroPlayer.expectedDragButton) then
+		Macros.voice("按住鼠标左键不要放手， 同时拖动鼠标到目标点")
 		GameLogic.AddBBS("Macro", format(L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", count), 5000, "0 255 0");
 	end
 end
@@ -439,12 +441,15 @@ end
 function MacroPlayer.OnClickCursor()
 	if(MacroPlayer.expectedDragButton) then
 		GameLogic.AddBBS("Macro", L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", 5000, "255 0 0");
+		Macros.voice("按住鼠标左键不要放手， 同时拖动鼠标到目标点")
 		return;
 	elseif(MacroPlayer.expectedKeyButton and not MacroPlayer.expectedEditBoxText) then
 		GameLogic.AddBBS("Macro", L"鼠标移动到这里，但不要点击", 5000, "255 0 0");
+		Macros.voice("鼠标移动到这里，但不要点击")
 		return
 	elseif(MacroPlayer.expectedMouseWheelDelta) then
 		GameLogic.AddBBS("Macro", L"不要点击鼠标, 而是滚动鼠标中间的滚轮", 5000, "255 0 0");
+		Macros.voice("不要点击鼠标, 而是滚动鼠标中间的滚轮")
 		return
 	end
 	
@@ -453,6 +458,7 @@ function MacroPlayer.OnClickCursor()
 		if(MacroPlayer.expectedEditBoxText) then
 			if(not MacroPlayer.expectedButton) then
 				GameLogic.AddBBS("Macro", L"请按照指示输入文字", 5000, "255 0 0");
+				Macros.voice("请按照指示输入文字")
 				return;
 			else
 				MacroPlayer.expectedEditBoxText = nil;
@@ -465,8 +471,10 @@ function MacroPlayer.OnClickCursor()
 	elseif(MacroPlayer.expectedButton and reason) then
 		if(reason == "keyboardButtonWrong") then
 			GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮不要松手，同时点击鼠标", 5000, "255 0 0");
+			Macros.voice("请按住键盘的指定按钮不要松手，同时点击鼠标")
 		elseif(reason == "mouseButtonWrong") then
 			GameLogic.AddBBS("Macro", L"请点击正确的鼠标按键", 5000, "255 0 0");
+			Macros.voice("请点击正确的鼠标按键")
 		end
 	end
 end
@@ -501,6 +509,7 @@ function MacroPlayer.OnKeyDown(event)
 		if(diffDistance > 16) then
 			isOK = false
 			GameLogic.AddBBS("Macro", L"请将鼠标移动到目标点，再按键盘", 5000, "255 0 0");
+			Macros.voice("请将鼠标移动到目标点，再按键盘")
 		end
 	end
 
@@ -689,9 +698,11 @@ function MacroPlayer.OnDragEnd()
 		else
 			-- tell the user to drag to the target location. 
 			GameLogic.AddBBS("Macro", L"请拖动鼠标到目标点", 5000, "255 0 0");
+			Macros.voice("请拖动鼠标到目标点")
 		end
 	else
 		GameLogic.AddBBS("Macro", L"拖动鼠标时需要按正确的按键", 5000, "255 0 0");
+		Macros.voice("拖动鼠标时需要按正确的按键")
 	end
 	if(Macros.IsShowButtonTip()) then
 		MacroPlayer.AnimDragBtn(true)
@@ -732,6 +743,7 @@ function MacroPlayer.OnMouseWheel()
 			MacroPlayer.InvokeTriggerCallback()
 		else
 			GameLogic.AddBBS("Macro", L"请向另外一个方向滚动鼠标中间的滚轮", 5000, "255 0 0");
+			Macros.voice("请向另外一个方向滚动鼠标中间的滚轮")
 		end
 	end
 end

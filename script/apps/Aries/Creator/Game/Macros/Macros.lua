@@ -60,6 +60,7 @@ SetAutoPlay(true)
 SetHelpLevel(0)
 loadtemplate("aaa.bmax")
 voice("text to speech")
+sound("1.mp3")
 ```
 
 ## How to make UI control recordable?
