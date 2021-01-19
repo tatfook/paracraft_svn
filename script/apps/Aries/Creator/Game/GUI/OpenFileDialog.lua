@@ -156,6 +156,10 @@ function OpenFileDialog.OnOK()
 	end
 end
 
+function OpenFileDialog.IsSelectedFromExistingFiles()
+	return OpenFileDialog.lastSelectedFile == OpenFileDialog.result;
+end
+
 function OpenFileDialog.GetExistingFiles()
 	return OpenFileDialog.dsExistingFiles or {};
 end
