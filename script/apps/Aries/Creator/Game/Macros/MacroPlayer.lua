@@ -534,7 +534,7 @@ function MacroPlayer.SetKeyPressTrigger(button, targetText, callbackFunc)
 		
 		if(targetText and targetText~="") then
 			MacroPlayer.ShowEditBox(true, targetText)
-			if(Macros.IsShowButtonTip()) then
+			if(Macros.IsShowKeyButtonTip()) then
 				MacroPlayer.ShowKeyPress(true, button)
 			end
 		else
