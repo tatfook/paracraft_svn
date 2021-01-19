@@ -472,6 +472,10 @@ function MacroPlayer.OnClickCursor()
 end
 
 function MacroPlayer.OnKeyDown(event)
+	if(Macros.IsAutoPlay()) then
+		MacroPlayer.DoAutoPlay();
+		return
+	end
 	local button = MacroPlayer.expectedKeyButton
 	if(not button) then
 		return
@@ -743,16 +747,26 @@ end
 
 function MacroPlayer.CheckDoAutoPlay(callbackFunc)
 	if(Macros.IsAutoPlay()) then
-		local defaultInterval = 200;
+		MacroPlayer.Focus()
+		local defaultInterval = Macros.GetLastIdleTime() or 200;
 		defaultInterval = math.max(math.floor(defaultInterval / Macros.GetPlaySpeed() + 0.5), 10)
-		commonlib.TimerManager.SetTimeout(function()  
-			if(Macros.IsAutoPlay()) then
-				if(MacroPlayer.triggerCallbackFunc) then
-					MacroPlayer.HideAll()
-					MacroPlayer.InvokeTriggerCallback();
-				end
-			end
-		end, defaultInterval)
+
+		MacroPlayer.autoPlayTimer = MacroPlayer.autoPlayTimer or commonlib.Timer:new({callbackFunc = function(timer)
+			MacroPlayer.DoAutoPlay()
+		end})
+		MacroPlayer.autoPlayTimer:Change(defaultInterval)
+	end
+end
+
+function MacroPlayer.DoAutoPlay()
+	if(MacroPlayer.autoPlayTimer) then
+		MacroPlayer.autoPlayTimer:Change()
+	end
+	if(Macros.IsAutoPlay()) then
+		if(MacroPlayer.triggerCallbackFunc) then
+			MacroPlayer.HideAll()
+			MacroPlayer.InvokeTriggerCallback();
+		end
 	end
 end
 

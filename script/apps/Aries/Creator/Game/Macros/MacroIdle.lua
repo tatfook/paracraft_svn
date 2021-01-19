@@ -43,6 +43,31 @@ function Macros.Idle(timeMs, bForceWait)
 	return callback;
 end
 
+-- return nil or time in ms.  
+function Macros.GetLastIdleTime()
+	local offset = 0;
+	local timeMs;
+	while(true) do
+		offset = offset - 1;
+		local m = Macros:PeekNextMacro(offset);
+		if(m) then
+			if(m.name == "Idle") then
+				local params = m:GetParams() or {};
+				if(params[1]) then
+					timeMs = params[1];
+				end
+				break;
+			elseif(m:IsTrigger()) then
+				break
+			end
+		else
+			break;
+		end
+	end
+	return timeMs;
+end
+
+
 
 
 
