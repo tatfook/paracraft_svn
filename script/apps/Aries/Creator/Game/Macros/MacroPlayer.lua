@@ -176,7 +176,7 @@ function MacroPlayer.ShowMoreTips()
 		end
 	end
 	if(MacroPlayer.expectedDragButton) then
-		GameLogic.AddBBS("Macro", format(L"按住鼠标按键的同时移动鼠标到目标点", count), 5000, "0 255 0");
+		GameLogic.AddBBS("Macro", format(L"按住鼠标左键不要放手， 同时拖动鼠标到目标点", count), 5000, "0 255 0");
 	end
 end
 
@@ -464,7 +464,7 @@ function MacroPlayer.OnClickCursor()
 		MacroPlayer.InvokeTriggerCallback()
 	elseif(MacroPlayer.expectedButton and reason) then
 		if(reason == "keyboardButtonWrong") then
-			GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮，同时点击鼠标", 5000, "255 0 0");
+			GameLogic.AddBBS("Macro", L"请按住键盘的指定按钮不要松手，同时点击鼠标", 5000, "255 0 0");
 		elseif(reason == "mouseButtonWrong") then
 			GameLogic.AddBBS("Macro", L"请点击正确的鼠标按键", 5000, "255 0 0");
 		end

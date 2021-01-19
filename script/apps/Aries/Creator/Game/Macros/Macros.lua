@@ -59,6 +59,7 @@ SetPlaySpeed(1.25)
 SetAutoPlay(true)
 SetHelpLevel(0)
 loadtemplate("aaa.bmax")
+voice("text to speech")
 ```
 
 ## How to make UI control recordable?
@@ -82,9 +83,11 @@ GameLogic.Macros:Play(text)
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/Macro.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroVoice.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroControl.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeys.lua");
 NPL.load("(gl)script/ide/SliderBar.lua");
+local Screen = commonlib.gettable("System.Windows.Screen");
 local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")

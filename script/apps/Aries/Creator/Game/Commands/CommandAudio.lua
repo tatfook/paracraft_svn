@@ -99,7 +99,7 @@ You must have internet connection to use this.
 		lang = lang or "zh";
 
 		if(cmd_text~="") then
-			local url = format("http://tts.baidu.com/text2audio?lan=%s&ie=UTF-8&spd=%d&text=%s", lang, speed, commonlib.Encoding.url_encode(cmd_text));
+			local url = format("https://tts.baidu.com/text2audio?per=1&lan=%s&ie=UTF-8&spd=%d&text=%s", lang, speed, commonlib.Encoding.url_encode(cmd_text));
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Common/HttpFiles.lua");
 			local HttpFiles = commonlib.gettable("MyCompany.Aries.Game.Common.HttpFiles");
 			HttpFiles.GetHttpFilePath(url, function(err, diskfilename) 
