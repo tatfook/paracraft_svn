@@ -310,15 +310,6 @@ function VirtualKeyboard:SetKeyState(btnItem, isDown)
 		-- key up event
 		_guihelper.SetUIColor(keyBtn, self.colors[btnItem.colorid or 1].normal);
 	end
-
-	-- TODO: anim each letter to make it offset -self.button_height in y axis;
-	if(btnItem.combo or true) then
-		if(isDown) then
-			self:SetTransparency(self.touchTransparency);
-		else
-			self:SetTransparency(self.defaultTransparency, true);
-		end
-	end
 end
 
 function VirtualKeyboard:GetItemDisplayText(item, bFnPressed, bShiftPressed)
@@ -351,6 +342,7 @@ function VirtualKeyboard:ClearAllKeyDown()
 		for _, item in ipairs(self.keylayout[row]) do
 			if (item.isKeyDown) then
 				item.isKeyDown = false;
+				self:SetKeyState(item, false)
 			end
 		end
 	end
@@ -392,12 +384,17 @@ function VirtualKeyboard:CreateWindow()
 end
 
 function VirtualKeyboard:ShowButtons(button)
-	self:ClearAllKeyDown()
-	for text in button:gmatch("([%w_]+)") do
-		local item = self:GetButtonByName(text)
-		if(item) then
-			self:SetKeyState(item, true)
+	if(button) then
+		self:ClearAllKeyDown()
+		local count = 0
+		for text in button:gmatch("([%w_]+)") do
+			local item = self:GetButtonByName(text)
+			if(item) then
+				self:SetKeyState(item, true)
+				count = count + 1;
+			end
 		end
+		return count;
 	end
 end
 

@@ -357,7 +357,7 @@ function Macros:AddMacro(text, ...)
 	end
 	local name = text:match("^([^%(]+)");
 	if(cameraViewMacros[name]) then
-		self:CheckAddCameraView();
+		self:CheckAddCameraView(true);
 	end
 	local macro = Macro:new():Init(text);
 	if(macro:IsValid()) then
@@ -486,12 +486,10 @@ function Macros.OnShowExitDialog(p1)
 end
 
 -- peek next macro in execution. Usually used by Idle macro to merge with triggers
--- @param nOffset: nil or 0 or 1.  if 1, it will return the next's next macro. 
+-- @param nOffset: nil or 1 or 2.  if 2, it will return the next's next macro. 
 function Macros:PeekNextMacro(nOffset)
-	if(not nOffset or nOffset == 0) then
-		return self.nextMacro;
-	elseif(nOffset == 1) then
-		return self.nextMacro1;
+	if(self.macros and self.curLine) then
+		return self.macros[self.curLine + (nOffset or 1)];
 	end
 end
 
@@ -504,13 +502,13 @@ function Macros:PlayMacros(macros, fromLine, speed)
 			Macros.SetPlaySpeed(speed);
 		end
 	end
-
+	self.macros = macros;
+	
 	while(true) do
 		local m = macros[fromLine];
 		if(m) then
 			self.isPlaying = true;
-			self.nextMacro = macros[fromLine + 1];
-			self.nextMacro1 = macros[fromLine + 2];
+			self.curLine = fromLine
 			local isAsync = nil;
 			GameLogic.GetFilters():apply_filters("Macro_PlayMacro", fromLine, macros);
 			m:Run(function()
@@ -588,7 +586,14 @@ function Macros:Tick_RecordPlayerMove()
 			--self:AddMacro("CameraLookat", lookatX, lookatY, lookatZ);
 		end
 	elseif(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
-		self:CheckAddCameraView();
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/MovieManager.lua");
+		local MovieManager = commonlib.gettable("MyCompany.Aries.Game.Movie.MovieManager");
+		local movieClip = MovieManager:GetActiveMovieClip()
+		if(movieClip and movieClip:IsPlaying() and movieClip:HasCamera()) then
+			-- do not record when movie clip is playing with a camera. 
+		else
+			self:CheckAddCameraView();	
+		end
 	end
 end
 

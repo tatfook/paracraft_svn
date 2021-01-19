@@ -55,6 +55,7 @@ local function GetTextDiff(text, lastText)
 	end
 end
 
+
 --@param uiName: UI name
 --@param text: content text
 function Macros.EditBoxTrigger(uiName, text)
@@ -68,7 +69,30 @@ function Macros.EditBoxTrigger(uiName, text)
 		local mouseY = math.floor(y + height /2)
 		ParaUI.SetMousePosition(mouseX, mouseY);
 		obj:SetCaretPosition(-1);
-		--obj:Focus()
+		
+
+		-- get final text in editbox
+		local nOffset = 0;
+		local targetText = text;
+		while(true) do
+			nOffset = nOffset + 1;
+			local nextMacro = Macros:PeekNextMacro(nOffset)
+			if(nextMacro and (nextMacro.name == "Idle" or nextMacro.name == "EditBoxTrigger" or nextMacro.name == "EditBox"
+				or nextMacro.name == "EditBoxKeyupTrigger" or nextMacro.name == "EditBoxKeyup")) then
+				if(nextMacro.name ~= "Idle") then
+					local nextUIName = nextMacro:GetParams()[1];
+					if(nextUIName == uiName) then
+						if(nextMacro.name == "EditBox") then
+							targetText = nextMacro:GetParams()[2];
+						end
+					else
+						break;
+					end
+				end
+			else
+				break;
+			end
+		end
 
 		if(text == obj.text) then
 			-- skip if equal
@@ -76,7 +100,7 @@ function Macros.EditBoxTrigger(uiName, text)
 		else
 			local textDiff = GetTextDiff(text, obj.text);
 			local callback = {};
-			MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, function()
+			MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, targetText, textDiff, function()
 				if(callback.OnFinish) then
 					callback.OnFinish();
 				end
@@ -99,7 +123,8 @@ function Macros.EditBoxKeyupTrigger(uiName, keyname)
 			ParaUI.SetMousePosition(mouseX, mouseY);
 			obj:SetCaretPosition(-1);
 		
-			Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
+			-- Macros.SetNextKeyPressWithMouseMove(mouseX, mouseY);
+			Macros.SetNextKeyPressWithMouseMove(nil, nil);
 			return Macros.KeyPressTrigger(keyname)
 		end
 	end

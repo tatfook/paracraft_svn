@@ -16,7 +16,7 @@ local keyMaps = {
 	["MINUS"] = "- _",
 	["PERIOD"] = ". >",
 	["COMMA"] = ", <",
-	["SPACE"] = L"¿Õ¸ñ",
+	["SPACE"] = L"ç©ºæ ¼",
 	["EQUALS"] = "= +",
 	["ESCAPE"] = "ESC",
 	["DELETE"] = "DEL",
@@ -26,15 +26,15 @@ local keyMaps = {
 	["ctrl"] = "CTRL",
 	["LCONTROL"] = "CTRL",
 	["RCONTROL"] = "CTRL",
-	["BACKSPACE"] = "¡û---",
+	["BACKSPACE"] = "â†---",
 	["alt"] = "ALT",
 	["LMENU"] = "ALT",
 	["RMENU"] = "ALT",
-	["UP"] = "¡ü",
-	["DOWN"] = "¡ý",
-	["LEFT"] = "¡û",
-	["RIGHT"] = "¡ú",
-	["RETURN"] = L"»Ø³µ",
+	["UP"] = "â†‘",
+	["DOWN"] = "â†“",
+	["LEFT"] = "â†",
+	["RIGHT"] = "â†’",
+	["RETURN"] = L"å›žè½¦",
 	["APOSTROPHE"] = "' \"",
 	["LBRACKET"] = "[ {",
 	["RBRACKET"] = "] }",
@@ -52,8 +52,8 @@ local keyMaps = {
 	["8"] = "8 *",
 	["9"] = "9 (",
 	["0"] = "0 )",
-	["WIN_LWINDOW"] = "×óWin",
-	["WIN_RWINDOW"] = "ÓÒwin",
+	["WIN_LWINDOW"] = "å·¦Win",
+	["WIN_RWINDOW"] = "å³win",
 	["PAGE_DOWN"] = "PgDn",
 	["PAGE_UP"] = "PgUp",
 }
@@ -119,4 +119,28 @@ function Macros.TextToKeyName(text)
 		end
 	end
 	return keyname
+end
+
+local isLetterMap = {
+["SLASH"] = true,
+["MINUS"] = true,
+["PERIOD"] = true,
+["COMMA"] = true,
+["SPACE"] = true,
+["EQUALS"] = true,
+["APOSTROPHE"] = true,
+["LBRACKET"] = true,
+["RBRACKET"] = true,
+["SEMICOLON"] = true,
+["GRAVE"] = true,
+["BACKSLASH"] = true,
+["MULTIPLY"] = true,
+}
+function Macros.IsButtonLetter(button)
+	local text = button:match("DIK_(%w+)");
+	if(text) then
+		if(text:match("^%w$") or isLetterMap[text]) then
+			return true;
+		end
+	end
 end
