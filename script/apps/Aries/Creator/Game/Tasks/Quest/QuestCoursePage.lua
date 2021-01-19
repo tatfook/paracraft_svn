@@ -52,6 +52,13 @@ QuestCoursePage.CourseTimeLimit = {
 	{begain_time = {hour=18,min=0}, end_time = {hour=18,min=15}},
 }
 
+QuestCoursePage.ToCourseState = {
+	before = 0, 	-- 提前
+	in_time = 1,	-- 课程时间内
+	late = 2,		-- 迟到
+	finish = 3,		-- 今日课程结束
+}
+
 local VersionToKey = {
 	ONLINE = 1,
 	RELEASE = 2,
@@ -87,24 +94,48 @@ function QuestCoursePage.Show(is_make_up)
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 
+
+			local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
+			if server_time < begain_day_weehours then
+				GameLogic.QuestAction.ShowDialogPage(L"还没到课程开启时间哟！")
+				return
+			end
+
 			-- 如果是补课的话 判断下是否在不建议的时间段 正常课程的前45分钟之后 就属于不建议时间段
-			if QuestCoursePage.is_make_up and not QuestCoursePage.IsGraduateTime() then
-				for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
-					local begain_time_stamp = today_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600 - 45 * 60
-					local end_time_stamp = today_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
-			
-					if server_time >= begain_time_stamp and server_time <= end_time_stamp then
-						_guihelper.MessageBox("现在补课可能会耽误新课程的正常学习，请稍后再来", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
-						_guihelper.MsgBoxClick_CallBack = function(res)
-							if(res == _guihelper.DialogResult.OK) then
+			if not QuestCoursePage.IsGraduateTime() then
+				if QuestCoursePage.is_make_up then
+					for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
+						local begain_time_stamp = today_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600 - 45 * 60
+						local end_time_stamp = today_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
+				
+						if server_time >= begain_time_stamp and server_time <= end_time_stamp then
+							-- _guihelper.MessageBox("现在补课可能会耽误新课程的正常学习，请稍后再来", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
+							-- _guihelper.MsgBoxClick_CallBack = function(res)
+							-- 	if(res == _guihelper.DialogResult.OK) then
+							-- 		QuestCoursePage.ShowView()
+							-- 	end
+							-- end
+
+							GameLogic.QuestAction.ShowDialogPage(L"现在补课可能会耽误新课程的正常学习，请稍后再来", function()
 								QuestCoursePage.ShowView()
-							end
+							end)
+							return
 						end
+					end
+				else
+					local course_time_state = QuestCoursePage.CheckCourseTimeState()
+					if course_time_state ~= QuestCoursePage.ToCourseState.in_time then
+						if course_time_state == QuestCoursePage.ToCourseState.late then
+							-- GameLogic.AddBBS(nil, L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！");
+							GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+						else
+							GameLogic.QuestAction.ShowDialogPage(L"请在门口课程表上指定的时间段内前来上课哟！")
+						end
+						
 						return
 					end
 				end
 			end
-
 
 			QuestCoursePage.ShowView()
 		end
@@ -125,7 +156,6 @@ function QuestCoursePage.RefreshData()
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 
-			QuestCoursePage.CheckIsTaskCompelete()
 			QuestCoursePage.HandleTaskData()
 			QuestCoursePage.HandleCourseData()
 			QuestCoursePage.OnRefreshGridView()
@@ -142,7 +172,6 @@ function QuestCoursePage.ShowView()
 	-- if QuestProvider.GetInstance == nil then
 	-- 	return
 	-- end
-	QuestCoursePage.CheckIsTaskCompelete()
 	QuestCoursePage.HandleTaskData()
 	QuestCoursePage.HandleCourseData()
 	
@@ -191,12 +220,12 @@ function QuestCoursePage.ShowView()
 			zorder = 0,
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			directPosition = true,
-				align = "_ct",
-				x = -view_width/2,
-				y = -view_height/2,
-				width = view_width,
-				height = view_height,
-				isTopLevel = true
+			align = "_ct",
+			x = -view_width/2,
+			y = -view_height/2,
+			width = view_width,
+			height = view_height,
+			isTopLevel = true
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 end
@@ -454,7 +483,7 @@ function QuestCoursePage.GetTaskStateByQuest(data)
 	-- 	return QuestCoursePage.TaskState.can_go
 	-- end
 
-	-- local is_in_course_time = QuestCoursePage.CheckIsInCourseTime()
+	-- local is_in_course_time = QuestCoursePage.CheckCourseTimeState()
 	-- if not is_in_course_time then
 	-- 	return QuestCoursePage.TaskState.can_not_go
 	-- end
@@ -483,7 +512,6 @@ function QuestCoursePage.HandleCourseData()
 		if i == #QuestCoursePage.TaskAllData then
 			data.desc = "GOAL"
 		end
-		print("saaaaaaaaaaaa", #QuestCoursePage.CourseData)
 		QuestCoursePage.CourseData[#QuestCoursePage.CourseData + 1] = data
 	end
 end
@@ -589,9 +617,14 @@ function QuestCoursePage.Goto(task_id)
 				end
 
 				-- 时间判断
-				local is_in_time = QuestCoursePage.CheckIsInCourseTime()
-				if not is_in_time then
-					GameLogic.AddBBS(nil, L"请在门口课程表上指定的时间段内前来上课哟！");
+				local course_time_state = QuestCoursePage.CheckCourseTimeState()
+				if course_time_state ~= QuestCoursePage.ToCourseState.in_time then
+					if course_time_state == QuestCoursePage.ToCourseState.late then
+						GameLogic.AddBBS(nil, L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！");
+					else
+						GameLogic.AddBBS(nil, L"请在门口课程表上指定的时间段内前来上课哟！");
+					end
+					
 					return
 				end
 				
@@ -615,7 +648,6 @@ function QuestCoursePage.Goto(task_id)
 				local world_id = task_data.goto_world[target_index]
 				if world_id then
 					GameLogic.QuestAction.SetValue(task_data.id, 1);
-					print("ppppppppppppppppppppppppppp", task_data.gsid, task_data.id)
 					QuestCoursePage.EnterWorld(world_id)
 				end
 
@@ -645,29 +677,6 @@ function QuestCoursePage.IsOpen()
 	end
 
 	return page:IsVisible()
-end
-
-function QuestCoursePage.CheckIsTaskCompelete()
-    local profile = KeepWorkItemManager.GetProfile()
-    -- 是否实名认证
---    if GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
---         QuestAction.SetValue("40002_1",1);
---    end 
-
-    -- 是否新的实名认证
-	if GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
-        QuestAction.SetValue("40006_1",1);
-   end 
-
-   -- 是否选择了学校
-   if profile and profile.schoolId and profile.schoolId > 0 then
-        QuestAction.SetValue("40003_1",1);
-   end
-
-   -- 是否已选择了区域
-   if profile and profile.region and profile.region.hasChildren == 0 then
-        QuestAction.SetValue("40004_1",1);
-   end
 end
 
 function QuestCoursePage.IsRoleModel(item_data)
@@ -755,17 +764,25 @@ function QuestCoursePage.CheckIsAllCourseFinish()
 	return is_all_finish
 end
 
-function QuestCoursePage.CheckIsInCourseTime()
+function QuestCoursePage.CheckCourseTimeState()
 	for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
 		local begain_time_stamp = today_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600
 		local end_time_stamp = today_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
 
 		if server_time >= begain_time_stamp and server_time <= end_time_stamp then
-			return true
+			return QuestCoursePage.ToCourseState.in_time
+		end
+
+		if i == 1 and server_time < begain_time_stamp then
+			return QuestCoursePage.ToCourseState.before
+		end
+
+		if i == #QuestCoursePage.CourseTimeLimit and server_time > begain_time_stamp then
+			return QuestCoursePage.ToCourseState.finish
 		end
 	end
 
-	return false
+	return QuestCoursePage.ToCourseState.late
 end
 
 function QuestCoursePage.CheckIsMissClass(data)

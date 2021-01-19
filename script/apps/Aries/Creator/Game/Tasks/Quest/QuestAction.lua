@@ -440,3 +440,8 @@ function QuestAction.ShowCourseView(is_make_up)
     QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
     QuestCoursePage.Show(is_make_up)
 end
+
+function QuestAction.ShowDialogPage(dialog_data, end_callback)
+    local QuestDialogPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestDialogPage.lua");
+    QuestDialogPage.Show(dialog_data, end_callback);
+end
