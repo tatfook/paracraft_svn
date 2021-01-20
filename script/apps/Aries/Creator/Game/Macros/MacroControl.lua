@@ -162,11 +162,13 @@ function Macros.AttachWindow(window)
 		if(parent) then
 			local win = window:GetNativeWindow()
 			if(win) then
-				win.zorder = 1001;
+				win.zorder = 1000;
 				parent:AddChild(win)
+				return true
 			end
 		end
 	end
+	return false
 end
 
 -- show virtual keyboard with button 
