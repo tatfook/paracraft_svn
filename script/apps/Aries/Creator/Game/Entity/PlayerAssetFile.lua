@@ -176,8 +176,9 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	if (not geosets) then
 		geosets = skin;
 	end
+
+	local charater = player:ToCharacter();
 	if (geosets) then
-		local charater = player:ToCharacter();
 		local geoset;
 		for geoset in string.gfind(geosets, "([^#]+)") do
 			local id = tonumber(geoset);
@@ -193,5 +194,12 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	end
 
 	if (attachments) then
+		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
+			id = tonumber(id);
+			local meshModel = ParaAsset.LoadStaticMesh("", filename);
+			if (meshModel) then
+				charater:AddAttachment(meshModel, id);
+			end
+		end
 	end
 end

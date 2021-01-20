@@ -1,4 +1,4 @@
---[[
+﻿--[[
 Title: 
 Author(s): chenjinxian
 Date: 2020/1/11
@@ -25,8 +25,7 @@ local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local CustomSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.CustomSkinPage");
 
 local page;
-local currentModel;
-local currentTab;
+local currentModelFile;
 local currentSkins = {
 		geosets = {1, 0, 1, 1, 1, 1, 0, 0, 3, 2},
 		textures = {"Texture/blocks/Paperman/hair/Avatar_boy_hair_01.png",
@@ -37,13 +36,26 @@ local currentSkins = {
 		attachments = {}
 }
 
+CustomSkinPage.category_ds = {
+	{text = L"形象", name = "head"},
+	{text = L"头发", name = "hair"},
+	{text = L"帽子", name = "hat"},
+	{text = L"面部", name = "face"},
+	{text = L"上衣", name = "shirt"},
+	{text = L"裤子", name = "pants"},
+	{text = L"背包", name = "pack"},
+	{text = L"背部", name = "back"},
+};
+CustomSkinPage.category_index = 1;
+CustomSkinPage.Current_Item_DS = {};
+
 function CustomSkinPage.OnInit()
 	page = document:GetPageCtrl();
 end
 
 function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
-	currentTab = 1;
-	currentModel = CustomCharItems:GetModel(assetFilename);
+	CustomSkinPage.category_index = 1;
+	currentModelFile = assetFilename;
 	skins = skins or PlayerAssetFile:GetDefaultCustomGeosets();
 	local geosets, textures, attachments =  string.match(skins, "([^@]+)@([^@]+)@?(.*)");
 	if (geosets) then
@@ -60,6 +72,13 @@ function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
 		end
 	end
 
+	if (attachments) then
+		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
+			id = tonumber(id)
+			currentSkins.attachments[id] = filename;
+		end
+	end
+
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Movie/CustomSkinPage.html", 
 			name = "CustomSkinPage.ShowPage", 
@@ -71,7 +90,6 @@ function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
 			enable_esc_key = true,
 			bShow = true,
 			click_through = false, 
-			zorder = -1,
 			app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
 			directPosition = true,
 				align = "_ct",
@@ -81,6 +99,8 @@ function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
 				height = 500,
 		};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
+
+	CustomSkinPage.OnChangeCategory(CustomSkinPage.category_index);
 	params._page.OnClose = function()
 		if(OnClose) then
 			OnClose();
@@ -88,18 +108,22 @@ function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
 	end;
 end
 
-function CustomSkinPage.GetSkinDS(index)
-	if (currentModel) then
-		return currentModel[index];
+function CustomSkinPage.OnChangeCategory(index)
+	CustomSkinPage.category_index = index or CustomSkinPage.category_index;
+	local category = CustomSkinPage.category_ds[CustomSkinPage.category_index];
+	if (category) then
+		CustomSkinPage.Current_Item_DS = CustomCharItems:GetModelItems(currentModelFile, category.name) or {};
 	end
-end
+	if (page) then
+		page:Refresh(0);
+	end
 
-function CustomSkinPage.SetTabIndex(name)
-	currentTab = tonumber(name);
+	local customGeosets = CustomSkinPage.SkinTableToGeosets();
+	page:CallMethod("MyPlayer", "SetCustomGeosets", customGeosets);
 end
 
 function CustomSkinPage.UpdateCustomGeosets(index)
-	local item = currentModel[currentTab][index];
+	local item = CustomSkinPage.Current_Item_DS[index];
 	if (item.geoset) then
 		currentSkins.geosets[math.floor(item.geoset/100) + 1] = item.geoset % 100;
 	end

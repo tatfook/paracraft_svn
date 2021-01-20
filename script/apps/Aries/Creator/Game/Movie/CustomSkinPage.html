@@ -12,6 +12,23 @@
             CustomSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.CustomSkinPage");
             CustomSkinPage.OnInit();
 
+            function DS_Items(index)
+                if(index == nil) then
+                    return #CustomSkinPage.Current_Item_DS;
+                else
+                    return CustomSkinPage.Current_Item_DS[index];
+                end
+            end
+
+            function ItemName(index)
+                local category = CustomSkinPage.category_ds[CustomSkinPage.category_index];
+                if (category) then
+                    return string.format("%s%d", category.text, index);
+                else
+                    return string.format("换装%d", index);
+                end
+            end
+
             ]]>
         </script>
         <kp:window width="820" height="500" title='<%=L"人物属性"%>' uiname_onclose="CustomSkinPage.OnClose" onclose="CustomSkinPage.OnClose">
@@ -25,6 +42,29 @@
                 </div>
                 <div style="float:left;width:2px;height:456px;background-color:#888888"></div>
                 <div style="float:left;width:510px;height:456px;">
+                    <div style="width:240px;height:60px;margin-left:13px;margin-top:3px;">
+                        <pe:repeat DataSource="<%=CustomSkinPage.category_ds%>">
+                            <pe:repeatitem style="float:left;width:60px;">
+                                <pe:if condition='<%=CustomSkinPage.category_index == Eval("index") %>'>
+                                    <input type="button" value='<%=Eval("text")%>' name='<%=Eval("index")%>' uiname='<%=format("CustomSkinPage.category_%d", Eval("index"))%>' onclick="CustomSkinPage.OnChangeCategory" style="margin-right:12px;margin-top:8px;margin-bottom:0px;color:#ffffff;font-size:14px;width:43px;height:22px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#208 89 21 21:8 8 8 8)" />
+                                </pe:if>
+                                <pe:if condition='<%=CustomSkinPage.category_index ~= Eval("index") %>'>
+                                    <input type="button" value='<%=Eval("text")%>' uiname='<%=format("CustomSkinPage.category_%d", Eval("index"))%>' name='<%=Eval("index")%>' onclick="CustomSkinPage.OnChangeCategory" style="margin-right:12px;margin-top:8px;margin-bottom:0px;color:#ffffff;font-size:14px;width:43px;height:22px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#179 89 21 21:8 8 8 8)" />
+                                </pe:if>
+                            </pe:repeatitem>
+                        </pe:repeat>
+                    </div>
+                    <div style="margin-left:8px;margin-top:1px;width:240px;height:335px;color:#cccccc">
+                        <pe:gridview style="margin-left:5px;margin-top:5px;" name="item_gridview" CellPadding="2" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="0" AllowPaging="false" ItemsPerLine="5" DefaultNodeHeight="32"
+                                     DataSource='<%=DS_Items%>'>
+                            <Columns>
+                                <input type="button" name='<%= Eval("index")%>' value='<%=ItemName(Eval("index"))%>' style="width:64px;height:32px;" class="kp_green_button" onclick="CustomSkinPage.UpdateCustomGeosets" />
+                            </Columns>
+                            <EmptyDataTemplate>
+                            </EmptyDataTemplate>
+                        </pe:gridview>
+                    </div>
+                    <!--
                     <pe:tabs name="AdvTools" style="margin:8px" onclick="CustomSkinPage.SetTabIndex">
                         <pe:tab-item name="1" text="形象" width="50" height="30" selected="true" style="padding:6px">
                             <div style="" class="default">
@@ -103,6 +143,7 @@
                             </div>
                         </pe:tab-item>
                     </pe:tabs>
+                    -->
                 </div>
             </div>
         </kp:window>
