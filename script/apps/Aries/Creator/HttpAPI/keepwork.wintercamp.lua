@@ -25,3 +25,7 @@ HttpWrapper.Create("keepwork.wintercamp.finishcertificate", "%MAIN%/core/v0/camp
 -- 获取排名
 --http://yapi.kp-para.cn/project/32/interface/api/3757
 HttpWrapper.Create("keepwork.wintercamp.rank", "%MAIN%/core/v0/camp/schools/rank", "GET", false)
+
+--vip销售的剩余情况
+--http://yapi.kp-para.cn/project/32/interface/api/3782
+HttpWrapper.Create("keepwork.wintercamp.restvip", "%MAIN%/core/v0/camp/restVip", "GET", false)

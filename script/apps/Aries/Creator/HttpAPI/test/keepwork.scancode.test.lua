@@ -7,7 +7,7 @@
     -------------------------------------------------------
     local test = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/test/keepwork.scancode.test.lua");
     test.GenerateQRcode()
-    test.GenerateBindWxacode()
+    test.GenerateBindWxacode("FY")
 ]]
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkAPI.lua");
@@ -24,13 +24,25 @@ function test.GenerateQRcode()
     end)   
 end
 
-function test.GenerateBindWxacode()
+--situation FY:防疫; BB：程序员爸爸成长日记
+function test.GenerateBindWxacode(situation)
     local profile = KeepWorkItemManager.GetProfile()
-    local wxacode = profile.wxacode or ""
-    if #wxacode > 0 then
-        print("url==========",wxacode)
-    else
-        keepwork.user.bindWxacode({},function(err, msg, data)
+    local wxacodes = profile.wxacodes or ""
+    local isFind = false
+    if #wxacodes > 0 then
+        --print("url==========",wxacode)
+        for i = 1,#wxacodes do
+            if wxacodes[i].situation == situation then
+                print("url==========",wxacodes[i].wxacode)
+                isFind = true
+                break
+            end
+        end       
+    end  
+    if not isFind then
+        keepwork.user.bindWxacode({
+            situation = situation
+        },function(err, msg, data)
             commonlib.echo(err);
             commonlib.echo(msg);
             commonlib.echo(data,true);  
@@ -40,6 +52,5 @@ function test.GenerateBindWxacode()
                end)
             end
         end)
-    end   
-    
+    end    
 end

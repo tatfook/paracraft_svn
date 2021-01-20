@@ -10,6 +10,7 @@ test.FinishEnterCamp()
 test.FinishStudy()
 test.FinishCertificate()
 test.GetSchoolRank()
+test.GetVipRest()
 --]]
 
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkAPI.lua");
@@ -56,6 +57,15 @@ function test.GetSchoolRank()
         top = 10,
     },function(err, msg, data)
         print("test.GetSchoolRank")
+        commonlib.echo(err);
+        commonlib.echo(msg);
+        commonlib.echo(data,true);
+    end)
+end
+
+function test.GetVipRest()
+    keepwork.wintercamp.restvip({},function(err, msg, data)
+        print("test.GetVipRest")
         commonlib.echo(err);
         commonlib.echo(msg);
         commonlib.echo(data,true);
