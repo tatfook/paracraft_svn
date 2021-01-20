@@ -332,11 +332,11 @@ function QuestProvider:Refresh()
             local itemContainer = self:CreateOrGetQuestItemContainer(quest_gsid);
 
             -- check virtual active condition
+            local extra = self:GetExtra(exid);
             if(extra and extra.activeconditions)then
                 itemContainer:ParseActiveConditions(extra.activeconditions);
             end
             -- check virtual condition
-            local extra = self:GetExtra(exid);
             if(extra and extra.preconditions)then
                 for kk,vv in ipairs(extra.preconditions) do
                     local id = vv.id
@@ -486,7 +486,7 @@ function QuestProvider:GetQuestItems(isDump)
     local result = {};
     if(self.questItemContainer_map)then
         for k,v in pairs(self.questItemContainer_map) do
-            if(not v:IsFinished())then
+            if(not v:IsFinished() and v:IsActivated())then
                 local gsid = v.gsid;
                 local exid = self:SearchExidFromQuestGsid(gsid);
                 if(exid)then

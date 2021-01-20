@@ -107,19 +107,16 @@ function QuestPage.OnCreate()
 end
 
 function QuestPage.Show()
-    if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
-        QuestPage.ShowView()
-        return
+	if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
+		QuestProvider:GetInstance():Refresh();
+		keepwork.user.server_time({
+			cache_policy = "access plus 10 seconds",
+		},function(err, msg, data)
+			if(err == 200)then
+				QuestPage.ShowView()
+			end
+		end)
     end
-    GameLogic.GetFilters():apply_filters('check_signed_in', L"请先登录", function(result)
-        if result == true then
-            commonlib.TimerManager.SetTimeout(function()
-                if result then
-					QuestPage.ShowView()
-                end
-            end, 500)
-        end
-	end)
 end
 
 function QuestPage.RefreshData()

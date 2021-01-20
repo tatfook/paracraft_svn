@@ -122,10 +122,9 @@ function QuestAction.IsFinish(quest_gsid)
     if(not quest_gsid)then
         return true
     end
-    local item = QuestProvider:GetInstance():CreateOrGetQuestItemContainer(quest_gsid);
-    if(item)then
-        return item:IsFinished();
-    end
+    
+    local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(quest_gsid)
+    return bHas
 end
 
 function QuestAction.OpenPage(name)
