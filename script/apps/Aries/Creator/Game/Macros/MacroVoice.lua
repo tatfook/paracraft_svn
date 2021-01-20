@@ -42,7 +42,8 @@ function Macros.voice(text)
 
 	local filename = voices[text]
 	if(filename) then
-		GameLogic.RunCommand("sound", format("macroplayer %s", filename))
+		-- play macro voice and macro sound on two channels
+		GameLogic.RunCommand("sound", format("macroplayerVoice %s", filename))
 	else
 		GameLogic.RunCommand("voice", text)
 	end
