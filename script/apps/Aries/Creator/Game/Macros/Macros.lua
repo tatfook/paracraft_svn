@@ -53,14 +53,18 @@ SceneClickTrigger("shift+right",-0.19781,0.07273)
 SceneClick("shift+right",-0.19781,0.07273)
 SceneDragTrigger("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
 SceneDrag("ctrl+left",-0.35925,0.23271,-0.05236,0.23562)
-Tip("some text")
-Broadcast("globalGameEvent")
+
 SetPlaySpeed(1.25)
 SetAutoPlay(true)
 SetHelpLevel(0)
+
 loadtemplate("aaa.bmax")
+tip("some text")
 voice("text to speech")
 sound("1.mp3")
+text("bottom line big text", 5000)
+broadcast("globalGameEvent")
+
 ```
 
 ## How to make UI control recordable?

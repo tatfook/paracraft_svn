@@ -26,9 +26,71 @@ function MacroPlayer.OnInit()
 	Screen:Connect("sizeChanged", MacroPlayer, MacroPlayer.OnViewportChange, "UniqueConnection");
 end
 
+function MacroPlayer.OnInitEnd()
+	local KeyInput = page:FindControl("KeyInput");
+	if(KeyInput) then
+		KeyInput:SetField("CanHaveFocus", true); 
+		KeyInput:SetField("InputMethodEnabled", false); 
+		KeyInput:SetScript("onkeydown", function()
+			local event = KeyEvent:init("keyPressEvent")
+			MacroPlayer.OnKeyDown(event)
+		end);
+		KeyInput:Focus();
+	end
+	MacroPlayer.HideAll()
+	local cursorClick = page:FindControl("cursorClick");
+	if(cursorClick) then
+		cursorClick:SetScript("onmousewheel", function()
+			MacroPlayer.OnMouseWheel()
+		end);
+	end
+	
+	if(GameLogic.IsReadOnly()) then
+		MacroPlayer.ShowController(false);
+	end
+end
+
+function MacroPlayer.RefreshPage(dTime)
+	if(page) then
+		page:Refresh(dTime)
+	end
+end
+
+function MacroPlayer.OnPageClosed()
+	if(page) then
+		if(page.keyboardWnd) then
+			page.keyboardWnd:Show(false);
+			page.keyboardWnd = nil
+		end
+	end
+	if(MacroPlayer.waitActionTimer) then
+		MacroPlayer.waitActionTimer:Change();
+	end
+	if(MacroPlayer.animCursorTimer) then
+		MacroPlayer.animCursorTimer:Change();
+	end
+	if(MacroPlayer.animKeyPressTimer) then
+		MacroPlayer.animKeyPressTimer:Change();
+	end
+	if(MacroPlayer.animDragTimer) then
+		MacroPlayer.animDragTimer:Change();
+	end
+	if(MacroPlayer.autoPlayTimer) then
+		MacroPlayer.autoPlayTimer:Change();
+	end
+	if(MacroPlayer.textTimer) then
+		MacroPlayer.textTimer:Change();
+	end
+end
+
 function MacroPlayer.OnViewportChange(width, height)
 	if(page and MacroPlayer.triggerCallbackFunc) then
-		MacroPlayer.HideAll();
+		MacroPlayer.RefreshPage(0);
+		
+		if(page and page.keyboardWnd) then
+			page.keyboardWnd:Destroy();
+			page.keyboardWnd = nil;
+		end
 		local m = Macros:PeekNextMacro(0)
 		if(m and m:IsTrigger()) then
 			m:RunAgain()
@@ -59,33 +121,9 @@ function MacroPlayer.ShowPage()
 	};
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 	params._page.OnClose = function()
-		if(page.keyboardWnd) then
-			page.keyboardWnd:Show(false);
-		end
+		MacroPlayer.OnPageClosed();
 		page = nil;
 	end;
-
-	local KeyInput = page:FindControl("KeyInput");
-	if(KeyInput) then
-		KeyInput:SetField("CanHaveFocus", true); 
-		KeyInput:SetField("InputMethodEnabled", false); 
-		KeyInput:SetScript("onkeydown", function()
-			local event = KeyEvent:init("keyPressEvent")
-			MacroPlayer.OnKeyDown(event)
-		end);
-		KeyInput:Focus();
-	end
-	MacroPlayer.HideAll()
-	local cursorClick = page:FindControl("cursorClick");
-	if(cursorClick) then
-		cursorClick:SetScript("onmousewheel", function()
-			MacroPlayer.OnMouseWheel()
-		end);
-	end
-	
-	if(GameLogic.IsReadOnly()) then
-		MacroPlayer.ShowController(false);
-	end
 end
 
 function MacroPlayer.HideAll()
@@ -98,6 +136,7 @@ function MacroPlayer.HideAll()
 	MacroPlayer.ShowKeyPress(false);
 	MacroPlayer.ShowDrag(false);
 	MacroPlayer.ShowTip()
+	MacroPlayer.ShowText()
 	MacroPlayer.ShowEditBox(false);
 	MacroPlayer.ShowMouseWheel(false);
 	MacroPlayer.ShowKeyboard(false);
@@ -716,10 +755,33 @@ function MacroPlayer.ShowTip(text)
 		local tipWnd = page:FindControl("tipWnd");
 		if(text and text~="") then
 			tipWnd.visible = true;
-			page:SetUIValue("tipText", text)
+			page:SetValue("tipText", text)
 		else
 			tipWnd.visible = false;
-			page:SetUIValue("tipText", "")
+			page:SetValue("tipText", "")
+		end
+	end	
+end
+
+-- @param text: text.  if nil, we will hide it. 
+-- @param duration: the max duration
+function MacroPlayer.ShowText(text, duration)
+	if(page) then
+		local textWnd = page:FindControl("textWnd");
+		if(text and text~="") then
+			textWnd.visible = true;
+			page:SetValue("text", text)
+		else
+			textWnd.visible = false;
+			page:SetValue("text", "")
+		end
+		if(duration) then
+			MacroPlayer.textTimer = MacroPlayer.textTimer or commonlib.Timer:new({callbackFunc = function(timer)
+				MacroPlayer.ShowText(nil)
+			end})
+			MacroPlayer.textTimer:Change(duration);
+		elseif(MacroPlayer.textTimer) then
+			MacroPlayer.textTimer:Change();
 		end
 	end	
 end
@@ -729,7 +791,7 @@ function MacroPlayer.ShowEditBox(bShow, text, textDiff)
 		local editBox = page:FindControl("editBox");
 		editBox.visible = bShow;
 		if(bShow) then
-			page:SetUIValue("editboxText", text or "")
+			page:SetValue("editboxText", text or "")
 		end
 	end	
 end
