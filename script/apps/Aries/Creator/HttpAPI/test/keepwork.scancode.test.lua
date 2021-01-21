@@ -27,13 +27,12 @@ end
 --situation FY:防疫; BB：程序员爸爸成长日记
 function test.GenerateBindWxacode(situation)
     local profile = KeepWorkItemManager.GetProfile()
-    local wxacodes = profile.wxacodes or ""
     local isFind = false
-    if #wxacodes > 0 then
+    if #profile.wxacodes > 0 then
         --print("url==========",wxacode)
-        for i = 1,#wxacodes do
-            if wxacodes[i].situation == situation then
-                print("url==========",wxacodes[i].wxacode)
+        for i = 1,#profile.wxacodes do
+            if profile.wxacodes[i].situation == situation then
+                print("url==========",profile.wxacodes[i].wxacode)
                 isFind = true
                 break
             end
