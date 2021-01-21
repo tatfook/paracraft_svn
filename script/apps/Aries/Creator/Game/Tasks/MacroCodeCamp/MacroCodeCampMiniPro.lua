@@ -28,7 +28,7 @@ function MacroCodeCampMiniPro.ShowView()
         style = CommonCtrl.WindowFrame.ContainerStyle,
         allowDrag = false,
         enable_esc_key = true,
-        zorder = 0,
+        zorder = 3,
         app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
         directPosition = true,
             align = "_ct",
