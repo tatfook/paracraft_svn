@@ -123,3 +123,16 @@ function env_imp:runForActor(actor, mainFunc)
 	end
 end
 
+function env_imp:alert(text, callbackFunc)
+	if(text and callbackFunc) then
+		local res;
+		_guihelper.MessageBox(text, self.co:MakeCallbackFuncAsync(function(result)
+			res = result;
+			env_imp.resume(self)
+		end), _guihelper.MessageBoxButtons.OK_CustomLabel)
+		env_imp.yield(self);
+		callbackFunc(res);
+	else
+		_guihelper.MessageBox(text, callbackFunc, buttons)
+	end
+end
