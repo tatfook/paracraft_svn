@@ -58,6 +58,7 @@ local s_env_methods = {
 	"getFacing",
 	"getPos",
 	"setPos",
+	"setBlockPos",
 	-- Looks
 	"say",
 	"show",
