@@ -93,6 +93,10 @@ function DockPage.Show()
         Notice.Show(0)
     end
 
+    if MacroCodeCampActIntro.CheckCanShow() then
+        MacroCodeCampActIntro.ShowView()
+    end
+
     DockPage.isShowTaskIconEffect = true
 
     DockPage.CheckIsTaskCompelete()
