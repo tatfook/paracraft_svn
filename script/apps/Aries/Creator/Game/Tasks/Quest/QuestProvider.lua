@@ -90,6 +90,26 @@ function QuestProvider:OnInit()
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnFinished,function(__, event)
         -- 埋点
         GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
+        if event.quest_item_container and event.quest_item_container.gsid then
+            
+            local exid = QuestProvider:GetInstance().gsid_exid_map[event.quest_item_container.gsid] or 0
+            if exid >= GameLogic.QuestAction.begain_exid and exid < GameLogic.QuestAction.end_exid then
+                keepwork.wintercamp.finishcourse({
+                    gsId=GameLogic.QuestAction.winter_camp_jion_gsid,
+                    courseGsId=event.quest_item_container.gsid,
+                },function(err, msg, data)
+                end)
+            end
+
+            if exid == GameLogic.QuestAction.end_exid then
+                keepwork.wintercamp.finishcertificate({
+                    gsId=GameLogic.QuestAction.winter_camp_jion_gsid,
+                    courseGsId=event.quest_item_container.gsid,
+                },function(err, msg, data)
+                end)
+            end
+            -- body
+        end
     end, nil, "QuestProvider_OnFinished")
 
     QuestProvider:GetInstance():OnInit__();

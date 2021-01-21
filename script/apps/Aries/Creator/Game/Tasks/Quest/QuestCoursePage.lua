@@ -26,9 +26,6 @@ local page;
 QuestCoursePage.isOpen = false
 QuestCoursePage.TaskData = {}
 QuestCoursePage.is_add_event = false
-QuestCoursePage.begain_exid = 40015
-QuestCoursePage.end_exid = 40024
-QuestCoursePage.is_always_exist_exid = 40024
 QuestCoursePage.begain_time_t = {year=2021, month=1, day=28, hour=0, min=0, sec=0}
 
 QuestCoursePage.GiftState = {
@@ -315,7 +312,7 @@ function QuestCoursePage.HandleTaskData(data)
 		QuestCoursePage.TaskAllData = {}
 		for i, v in pairs(quest_datas) do
 			-- 获取兑换规则
-			if exid_list[v.exid] == nil and v.exid >= QuestCoursePage.begain_exid and v.exid <= QuestCoursePage.end_exid then
+			if exid_list[v.exid] == nil and v.exid >= QuestAction.begain_exid and v.exid <= QuestAction.end_exid then
 				exid_list[v.exid] = 1
 				local index = #QuestCoursePage.TaskAllData + 1
 				QuestCoursePage.TaskAllData[index] = v
@@ -431,7 +428,7 @@ end
 
 function QuestCoursePage.GetTaskVisible(exid)
 	
-	if exid < QuestCoursePage.begain_exid or exid > QuestCoursePage.end_exid then
+	if exid < QuestAction.begain_exid or exid > QuestAction.end_exid then
 		return false
 	end
 
@@ -453,7 +450,7 @@ function QuestCoursePage.GetTaskVisible(exid)
 
 		-- 毕业任务常驻
 		
-		if exid == QuestCoursePage.is_always_exist_exid then
+		if exid == QuestAction.is_always_exist_exid then
 			return true
 		end
 		
@@ -466,7 +463,7 @@ function QuestCoursePage.GetTaskVisible(exid)
 end
 
 function QuestCoursePage.GetTaskStateByQuest(data)
-	if data.task_id == QuestCoursePage.is_always_exist_exid then
+	if data.task_id == QuestAction.is_always_exist_exid then
 		if not QuestCoursePage.IsGraduateTime() then
 			return QuestCoursePage.TaskState.can_not_go
 		end
@@ -576,7 +573,7 @@ function QuestCoursePage.Goto(task_id)
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 
-			if task_id == QuestCoursePage.is_always_exist_exid then
+			if task_id == QuestAction.is_always_exist_exid then
 				QuestCoursePage.ToGraduate()
 				return
 			end
@@ -647,12 +644,25 @@ function QuestCoursePage.Goto(task_id)
 			if task_data.goto_world and #task_data.goto_world > 0 then
 				local world_id = task_data.goto_world[target_index]
 				if world_id then
-					GameLogic.QuestAction.SetValue(task_data.id, 1);
-					QuestCoursePage.EnterWorld(world_id)
+					if QuestAction.IsJionWinterCamp() then
+						GameLogic.QuestAction.SetValue(task_data.id, 1);
+						QuestCoursePage.EnterWorld(world_id)
+					else
+						KeepWorkItemManager.DoExtendedCost(QuestAction.winter_camp_jion_exid, function()
+							keepwork.wintercamp.joincamp({
+								gsId=QuestAction.winter_camp_jion_gsid,        
+							},function(err, msg, data)
+								if err == 200 then
+									GameLogic.QuestAction.SetValue(task_data.id, 1);
+									QuestCoursePage.EnterWorld(world_id)
+								end
+							end)							
+						end);
+					end
 				end
 
-			-- elseif task_data.click and task_data.click ~= "" then
-			-- 	NPL.DoString(task_data.click)
+			elseif task_data.click and task_data.click ~= "" then
+				NPL.DoString(task_data.click)
 			end
 			GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.click_go_button')
 		end
@@ -695,7 +705,7 @@ function QuestCoursePage.GetSecondDay(exid)
 	if exid == nil then
 		return 0
 	end
-	return exid - QuestCoursePage.begain_exid + 1
+	return exid - QuestAction.begain_exid + 1
 end
 
 function QuestCoursePage.Close()
@@ -734,7 +744,7 @@ end
 
 -- 是否所有课程以后的时间
 function QuestCoursePage.IsGraduateTime()
-	local second_day = QuestCoursePage.GetSecondDay(QuestCoursePage.is_always_exist_exid)
+	local second_day = QuestCoursePage.GetSecondDay(QuestAction.is_always_exist_exid)
 	local date_t = commonlib.copy(QuestCoursePage.begain_time_t)
 	date_t.day = date_t.day + second_day - 1
 	local day_weehours = os.time(date_t)
@@ -752,7 +762,7 @@ function QuestCoursePage.CheckIsAllCourseFinish()
 	local is_all_finish = true
 	for i, v in pairs(quest_datas) do
 		-- 获取兑换规则
-		if exid_list[v.exid] == nil and v.exid >= QuestCoursePage.begain_exid and v.exid < QuestCoursePage.end_exid then
+		if exid_list[v.exid] == nil and v.exid >= QuestAction.begain_exid and v.exid < QuestAction.end_exid then
 			exid_list[v.exid] = 1
 			if not QuestAction.IsFinish(v.gsid) then
 				is_all_finish = false
