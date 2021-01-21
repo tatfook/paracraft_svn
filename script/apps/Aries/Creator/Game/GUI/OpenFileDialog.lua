@@ -273,6 +273,9 @@ function OpenFileDialog.OnOpenFileDialog()
 			if(fileItem.relativeToWorldPath) then
 				local filename = fileItem.relativeToWorldPath;
 				page:SetValue("text", commonlib.Encoding.DefaultToUtf8(filename));
+			elseif(fileItem.relativeToRootPath) then
+				local filename = fileItem.relativeToRootPath;
+				page:SetValue("text", commonlib.Encoding.DefaultToUtf8(filename));
 			else
 				filename = filename:match("[^/\\]+$")
 				page:SetValue("text", commonlib.Encoding.DefaultToUtf8(filename));
