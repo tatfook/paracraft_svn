@@ -28,6 +28,12 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
+    local debug = ParaEngine.GetAppCommandLineByParam("debug", false);
+    if(debug == true or debug =="true" or debug == "True")then
+        return true
+    else
+        return false
+    end
     local start_time = 2021-1-25 
     local end_time = 2021-2-7
     local year = 2021
@@ -46,6 +52,9 @@ function MacroCodeCampActIntro.OnInit()
 end
 
 function MacroCodeCampActIntro.ShowView()
+    if not MacroCodeCampActIntro.CheckCanShow() then
+        return 
+    end
     local view_width = 1030
 	local view_height = 600
     local params = {

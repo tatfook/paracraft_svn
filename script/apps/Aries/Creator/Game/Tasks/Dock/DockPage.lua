@@ -52,8 +52,8 @@ DockPage.top_line_3 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", }, 
-    { label = L"冬令营", id = "wintercamp", enabled3 = true, bg="Texture/Aries/Creator/keepwork/WinterCamp/btn2_donglingying_32bits.png#0 0 85 75", },     
+    { label = L"冬令营", id = "wintercamp", enabled3 = true, bg="Texture/Aries/Creator/keepwork/WinterCamp/btn2_donglingying_32bits.png#0 0 85 75", },  
+    { label = L"实名礼包", id = "present", enabled3 = true, bg="Texture/Aries/Creator/keepwork/paracraft_guide_32bits.png#484 458 90 91", },        
 }
 
 DockPage.show_friend_red_tip = false
