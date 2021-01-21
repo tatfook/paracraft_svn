@@ -7,13 +7,12 @@ Use Lib:
 -------------------------------------------------------
 NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/Keepwork.lua");
 ]]
+
 NPL.load("(gl)script/apps/Aries/Creator/Game/API/FileDownloader.lua");
 local FileDownloader = commonlib.gettable("MyCompany.Aries.Creator.Game.API.FileDownloader");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 
 local Keepwork = NPL.export();
-local FY_QRCode_Path = "temp/FY.jpg";
-local BB_QRCode_Path = "temp/FY.jpg";
 
 -- 获取用户信息
 function Keepwork:GetUserInfo()
@@ -55,7 +54,6 @@ end
 -- 首次登录回调
 function Keepwork:FirstLoginCallback()
     local userinfo = self:GetUserInfo();
-    
     userinfo.extra = userinfo.extra or {};
     userinfo.extra.ParacraftPlayerEntityInfo = userinfo.extra.ParacraftPlayerEntityInfo or {};
     userinfo.extra.ParacraftPlayerEntityInfo.asset = userinfo.extra.ParacraftPlayerEntityInfo.asset or "character/CC/02human/paperman/boy01.x";
