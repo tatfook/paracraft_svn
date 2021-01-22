@@ -54,8 +54,10 @@ local keyMaps = {
 	["0"] = "0 )",
 	["WIN_LWINDOW"] = "左Win",
 	["WIN_RWINDOW"] = "右win",
-	["PAGE_DOWN"] = "PgDn",
-	["PAGE_UP"] = "PgUp",
+	["PAGE_DOWN"] = "PgDn", --  DIK_NUMPAD3
+	["PAGE_UP"] = "PgUp", --  DIK_NUMPAD9
+	["HOME"] = "HOME", --  DIK_NUMPAD7
+	["END"] = "END", -- DIK_NUMPAD1
 }
 
 function Macros.ConvertKeyNameToButtonText(btnText)
