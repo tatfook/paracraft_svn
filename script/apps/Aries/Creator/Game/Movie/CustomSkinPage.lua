@@ -26,15 +26,7 @@ local CustomSkinPage = commonlib.gettable("MyCompany.Aries.Game.Movie.CustomSkin
 
 local page;
 local currentModelFile;
-local currentSkins = {
-		geosets = {1, 0, 1, 1, 1, 1, 0, 0, 3, 2},
-		textures = {"Texture/blocks/Paperman/hair/Avatar_boy_hair_01.png",
-					"Texture/blocks/Paperman/body/Avatar_boy_body_01.png",
-					"Texture/blocks/Paperman/eye/eye1.png",
-					"Texture/blocks/Paperman/mouth/mouth_01.png",
-					"Texture/blocks/Paperman/leg/Avatar_boy_leg_01.png"},
-		attachments = {}
-}
+local currentSkins;
 
 CustomSkinPage.category_ds = {
 	{text = L"形象", name = "head"},
@@ -54,6 +46,16 @@ function CustomSkinPage.OnInit()
 end
 
 function CustomSkinPage.ShowPage(assetFilename, skins, OnClose)
+	currentSkins = {
+		geosets = {1, 0, 1, 1, 1, 1, 0, 0, 1, 1},
+		textures = {"Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png",
+					"Texture/blocks/CustomGeoset/body/Avatar_boy_body_default.png",
+					"Texture/blocks/Paperman/eye/eye1.png",
+					"Texture/blocks/Paperman/mouth/mouth_01.png",
+					"Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_default.png"},
+		attachments = {}
+	}
+
 	CustomSkinPage.category_index = 1;
 	currentModelFile = assetFilename;
 	skins = skins or PlayerAssetFile:GetDefaultCustomGeosets();

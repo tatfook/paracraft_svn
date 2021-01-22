@@ -165,7 +165,7 @@ function PlayerAssetFile:GetDefaultScale(filename)
 end
 
 function PlayerAssetFile:GetDefaultCustomGeosets()
-	return "1#201#301#401#501#803#902#@1:Texture/blocks/Paperman/hair/Avatar_boy_hair_01.png;2:Texture/blocks/Paperman/body/Avatar_girl_body_xiaofu.png;3:Texture/blocks/Paperman/eye/eye1.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/Paperman/leg/Avatar_girl_leg_xiaofu.png";
+	return "1#201#301#401#501#801#901#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_default.png;3:Texture/blocks/Paperman/eye/eye1.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_default.png";
 end
 
 function PlayerAssetFile:RefreshCustomGeosets(player, skin)
