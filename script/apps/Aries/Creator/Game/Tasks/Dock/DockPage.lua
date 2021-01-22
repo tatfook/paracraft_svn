@@ -192,7 +192,7 @@ function DockPage.OnClickTop(id)
     elseif (id == 'act_week') then
         ActWeek.ShowView()
     elseif (id == 'wintercamp') then        
-        GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.wintercamp1.icon')
+        GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.notification',{ from = "wintercamp_icon"})
         MacroCodeCampActIntro.ShowView()
     end
 end
