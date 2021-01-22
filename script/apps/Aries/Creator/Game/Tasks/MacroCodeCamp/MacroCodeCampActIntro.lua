@@ -72,7 +72,6 @@ function MacroCodeCampActIntro.ShowView()
             height = view_height,
     };
     System.App.Commands.Call("File.MCMLWindowFrame", params);
-    print("data================",httpwrapper_version,projectId)
     MacroCodeCampActIntro.OnRefreshPage()
 end
 
@@ -204,11 +203,12 @@ end
 ]]
 function MacroCodeCampActIntro.OnClick(index)
     local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
-    local world_id = WorldCommon.GetWorldTag("kpProjectId");
+    local world_id = WorldCommon.GetWorldTag("kpProjectId");    
     if index == 4 then
         --print("show programer viwe")
         local MacroCodeCampMiniPro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampMiniPro.lua");
         MacroCodeCampMiniPro.ShowView()
+        GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
         return
     end
     local pos = {
@@ -223,6 +223,7 @@ function MacroCodeCampActIntro.OnClick(index)
     else
         GameLogic.RunCommand(string.format("/loadworld -froce -s %d", campId));
     end
+    GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
 end
 
 function MacroCodeCampActIntro.OnMouseEnter(index)
