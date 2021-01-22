@@ -169,7 +169,7 @@ function MacroCodeCampActIntro.RegisterButton()
 end
 
 function MacroCodeCampActIntro.BtnJoinOnMouseEnter()
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    --print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     MacroCodeCampActIntro.isEnterJoin = true
     MacroCodeCampActIntro.OnRefreshPage()
     MacroCodeCampActIntro.ShowQRCode() 
@@ -183,7 +183,7 @@ function MacroCodeCampActIntro.BtnJoinOnMouseEnter()
 end
 
 function MacroCodeCampActIntro.BtnScanCodeOnMouseLeave()
-    print("zzzzzzzzzzzzzzzzzzzzzzzzzz")
+    --print("zzzzzzzzzzzzzzzzzzzzzzzzzz")
     MacroCodeCampActIntro.isEnterJoin = false
     MacroCodeCampActIntro.OnRefreshPage()
     MacroCodeCampActIntro.HideQRCode() 

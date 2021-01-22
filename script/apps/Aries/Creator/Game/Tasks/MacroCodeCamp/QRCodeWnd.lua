@@ -26,7 +26,7 @@ function QRCodeWnd:Show()
 	self.window:Show({
 		name="QRCodeWnd", 
 		url="script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/QRCodeWnd.html",
-		alignment="_ct", left=-112, top=-126, width = width, height = height, zorder = 2,
+		alignment="_ct", left=-112, top=-126, width = width, height = height, zorder = 3,
 	});
 end
 
