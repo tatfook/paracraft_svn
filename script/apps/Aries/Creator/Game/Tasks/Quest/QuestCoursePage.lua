@@ -582,9 +582,11 @@ function QuestCoursePage.Goto(task_id)
 				_guihelper.MessageBox(desc, nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
 				_guihelper.MsgBoxClick_CallBack = function(res)
 					if(res == _guihelper.DialogResult.OK) then
-						GameLogic.GetFilters():apply_filters("VipNotice", true, form,function()
-							QuestCoursePage.Goto(task_id)
-						end);
+						-- GameLogic.GetFilters():apply_filters("VipNotice", true, form,function()
+						-- 	QuestCoursePage.Goto(task_id)
+						-- end);
+						local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
+						MacroCodeCampActIntro.ShowView()
 					else
 					end
 				end
