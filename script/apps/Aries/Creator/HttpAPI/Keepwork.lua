@@ -78,12 +78,18 @@ function Keepwork:CheckUserQRCode()
     userinfo.qrcodes = qrcodes;
 
     local function download(qrcode, url)
-        local filename = string.format("temp/qrcodes/%s.jpg", qrcode);
+        local realfilename = string.format("temp/qrcodes/%s.jpg", qrcode);
+        local filename = string.format("temp/qrcodes/%s_%s.jpg", userinfo.id, qrcode)
         local file = ParaIO.open(filename, "r");
         if (file:IsValid()) then
             file:close();
+            ParaIO.CopyFile(filename, realfilename, true);
         else
-            FileDownloader:new():Init(nil,  url, filename, nil, "access plus 0");
+            local downloader = FileDownloader:new();
+            downloader:SetSilent();
+            downloader:Init(nil,  url, filename, function()
+                ParaIO.CopyFile(filename, realfilename, true);
+            end, "access plus 0");
         end
     end
 
