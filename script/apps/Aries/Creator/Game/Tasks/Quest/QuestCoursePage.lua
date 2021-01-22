@@ -163,7 +163,8 @@ end
 
 function QuestCoursePage.ShowView()
 	if page and page:IsVisible() then
-		return
+		page:CloseWindow()
+		-- QuestCoursePage.CloseView()
 	end
 
 	-- if QuestProvider.GetInstance == nil then
