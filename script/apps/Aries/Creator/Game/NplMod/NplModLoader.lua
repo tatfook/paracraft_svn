@@ -9,10 +9,6 @@ local NplModLoader = NPL.load("(gl)script/apps/Aries/Creator/Game/NplMod/NplModL
 ------------------------------------------------------------
 --]]
 
-local PATH = NPL.load("(gl)script/ide/STL/path.lua");
-
-NPL.load("(gl)script/ide/System/Core/ObjectPath.lua");
-local ObjectPath = commonlib.gettable("System.Core.ObjectPath")
 local NplModLoader = NPL.export();
 
 NplModLoader.mod_maps = {};
@@ -20,8 +16,7 @@ NplModLoader.storage_root = "npl_extensions"
 -- @param options {table}
 -- @param options.name {string}: "WinterCam2021"
 -- @param options.type {string}: "github"
--- @param options.branch {string}: "master"
--- @param options.source {string}: "https://github.com/NPLPackages/WinterCamp2021"
+-- @param options.source {string}: "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main"
 function NplModLoader:loadMod(options, callback)
     if(not options)then
         if(callback)then
@@ -34,9 +29,10 @@ function NplModLoader:loadMod(options, callback)
     if(not mod_zip)then
 
         local filepath = self:getModZipPath(name);
-        commonlib.echo("==================filepath");
-        commonlib.echo(filepath);
+        
         if(ParaIO.DoesFileExist(filepath, true))then
+            commonlib.echo("==================filepath");
+            commonlib.echo(filepath);
             local config = self:readConfigInZip(name, filepath);
             NplModLoader.mod_maps[name] = config;
             if(callback)then
@@ -54,7 +50,7 @@ function NplModLoader:loadMod(options, callback)
                 end
                 return
             end
-            commonlib.echo("==================filepath");
+            commonlib.echo("==================filepath 111");
             commonlib.echo(filepath);
             commonlib.echo(#data);
 		    ParaIO.CreateDirectory(filepath);
@@ -79,9 +75,7 @@ function NplModLoader:loadMod(options, callback)
     end
 end
 function NplModLoader:getStorageRoot()
-    local root = ParaIO.GetCurDirectory(0)
-    local s = string.format("%s%s", root, self.storage_root);
-    return s;
+    return self.storage_root;
 end
 function NplModLoader:getModZipPath(name)
     if(not name)then
@@ -90,39 +84,39 @@ function NplModLoader:getModZipPath(name)
     local s = string.format("%s/%s.zip", self:getStorageRoot(), name);
     return s;
 end
+
 function NplModLoader:readConfigInZip(name,filepath)
-    local filesout = {};
-
-    commonlib.Files.Find(filesout, "", 0, 10, ":.json", filepath);
-    commonlib.echo("==============filesout");
-    commonlib.echo(filesout,true);
-	ParaAsset.OpenArchive(filepath, true);
-
-    for k,v in ipairs(filesout) do
-        local item = filesout[k];
+	ParaAsset.OpenArchive(filepath, false);
+    local bSetBase = false;
+    local search_path = "nplm.json";
+    local filesout = commonlib.Files.Find(filesout, "", 0, 10000, search_path, filepath) or {};
+    local len = #filesout;
+    if(len == 0)then
+        search_path = "*/nplm.json";
+        filesout = commonlib.Files.Find(filesout, "", 0, 10000, search_path, filepath);
+    end
+    if(filesout and #filesout > 0)then
+        local item = filesout[1];
         local filename = item.filename;
         filename = string.gsub(filename,"\\", "/");
         local dir,_name = commonlib.Files.splitPath(filename)
         _name = string.lower(_name or "");
         if(_name == "nplm.json")then
-            local config_filepath = string.format("%s/%s",self:getStorageRoot(),filename);
-            local file = ParaIO.open(config_filepath, "r");
+            local file = ParaIO.open(filename, "r");
 	        if(file:IsValid() == true) then
 			    local txt = file:GetText();
 		        file:close();
                 local out={};
                 if(NPL.FromJson(txt, out)) then
-	                echo(out);
+                    if(dir and dir ~= "")then
+                        local zip_archive = ParaEngine.GetAttributeObject():GetChild("AssetManager"):GetChild("CFileManager"):GetChild(filepath);
+                        local zipParentDir = zip_archive:GetField("BaseDirectory", "");
+					    zip_archive:SetField("SetBaseDirectory", dir);
+                    end
+                    return out;
                 end
-                if(dir and dir ~= "")then
-                    local search_path = string.format("%s/%s",self:getStorageRoot(),dir);
-                    commonlib.echo("==============search_path");
-                    commonlib.echo(search_path);
-	                ParaIO.AddSearchPath(search_path);
-                    
-                end
+                
 	        end
-            break
         end
     end
 end

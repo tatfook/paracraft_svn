@@ -9,13 +9,15 @@ local NplMod = NPL.load("(gl)script/apps/Aries/Creator/Game/NplMod/NplMod.lua");
 local config = {
     name = "test",
     dependencies = {
-        { name = "WinterCam2021", type = "github", source = "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main", }
+        { name = "WinterCamp2021", type = "github", source = "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main", }
     }
 }
 local nplmod = NplMod:new();
 nplmod:LoadConfig(config, function(bFinished)
     commonlib.echo("=======bFinished");
     commonlib.echo(bFinished);
+    local SchoolRank = NPL.load("(gl)Mod/WinterCamp2021/SchoolRank.lua");
+    SchoolRank.say("ranking is here!");
 end);
 ------------------------------------------------------------
 --]]
@@ -53,9 +55,11 @@ function NplMod:LoadModNext(node, index, callback)
         return
     end
     local dep = node.NplmConfig:getDepByIndex(index);
-    NplModLoader:loadMod(dep, function(nplm_config)
-        if(nplm_config)then
+    NplModLoader:loadMod(dep, function(config)
+        if(config)then
             local nplmod_node = NplModNode:new();
+            local nplm_config = NplModConfig:new();
+            nplm_config:parse(config)
             nplmod_node.NplmConfig = nplm_config;
             nplmod_node.Parent = node;
             if(nplm_config:getDepLen() > 0)then
