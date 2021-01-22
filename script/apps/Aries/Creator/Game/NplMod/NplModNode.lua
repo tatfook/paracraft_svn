@@ -2,7 +2,7 @@
 Title: NplModNode
 Author(s): leio
 Date: 2021/1/7
-Desc: tree node for dependency
+Desc: tree node for mod dependency
 use the lib:
 ------------------------------------------------------------
 local NplModNode = NPL.load("(gl)script/apps/Aries/Creator/Game/NplMod/NplModNode.lua");
@@ -14,6 +14,7 @@ NplModNode:Property({"Uid", "", auto = true,  camelCase = true, });
 NplModNode:Property({"Name", "", auto = true,  camelCase = true, });
 NplModNode:Property({"IsRoot", false, auto = true,  camelCase = true, });
 NplModNode:Property({"Parent", auto = true, type = "NplModNode", camelCase = true, });
+NplModNode:Property({"NplmConfig", auto = true, type = "NplmConfig", camelCase = true, });
 
 function NplModNode:ctor()
     self.Uid = ParaGlobal.GenerateUniqueID();

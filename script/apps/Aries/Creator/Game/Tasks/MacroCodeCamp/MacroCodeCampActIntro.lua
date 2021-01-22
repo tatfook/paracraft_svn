@@ -221,7 +221,7 @@ function MacroCodeCampActIntro.OnClick(index)
     if tonumber(world_id) == campId then
         GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
     else
-        GameLogic.RunCommand(string.format("/loadworld -froce -s %d", campId));
+        GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
     end
     GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
 end
