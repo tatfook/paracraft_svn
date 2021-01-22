@@ -343,6 +343,7 @@ function QuestCoursePage.HandleTaskData(data)
 			task_data.task_type = QuestCoursePage.GetTaskType(v)
 			task_data.is_main_task = task_data.task_type == "main"
 			task_data.goto_world = v.goto_world
+			task_data.click = v.click
 			task_data.task_pro_desc = ""
 			task_data.task_state = QuestCoursePage.GetTaskStateByQuest(task_data)
 			task_data.order = QuestCoursePage.GetTaskOrder(v)
@@ -588,6 +589,7 @@ function QuestCoursePage.Goto(task_id)
 						-- end);
 						local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
 						MacroCodeCampActIntro.ShowView()
+						GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.vip.funnel.open', { from = form })
 					else
 					end
 				end
@@ -642,12 +644,20 @@ function QuestCoursePage.Goto(task_id)
 				end	
 			end
 
+			local function user_behavior()
+				local value = QuestAction.GetValue(task_data.id) or 0
+				if value == 0 then
+					GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.hour_of_code', { from = task_id })
+				end
+			end
+
 			local httpwrapper_version = HttpWrapper.GetDevVersion() or "ONLINE"
 			local target_index = VersionToKey[httpwrapper_version]
 			if task_data.goto_world and #task_data.goto_world > 0 then
 				local world_id = task_data.goto_world[target_index]
 				if world_id then
 					if QuestAction.IsJionWinterCamp() then
+						user_behavior()
 						GameLogic.QuestAction.SetValue(task_data.id, 1);
 						QuestCoursePage.EnterWorld(world_id)
 					else
@@ -656,6 +666,7 @@ function QuestCoursePage.Goto(task_id)
 								gsId=QuestAction.winter_camp_jion_gsid,        
 							},function(err, msg, data)
 								if err == 200 then
+									user_behavior()
 									GameLogic.QuestAction.SetValue(task_data.id, 1);
 									QuestCoursePage.EnterWorld(world_id)
 								end
@@ -666,6 +677,8 @@ function QuestCoursePage.Goto(task_id)
 
 			elseif task_data.click and task_data.click ~= "" then
 				NPL.DoString(task_data.click)
+				user_behavior()
+				GameLogic.QuestAction.SetValue(task_data.id, 1);
 			end
 			GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.click_go_button')
 		end

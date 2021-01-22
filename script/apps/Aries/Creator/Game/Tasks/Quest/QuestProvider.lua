@@ -81,6 +81,11 @@ function QuestProvider:OnInit()
         local quest_item_container = event.quest_item_container;
         local quest_item = event.quest_item;
         -- 埋点
+        -- 抗疫知识埋点
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", event.quest_item_container.gsid, quest_item.id, quest_item.value)
+        if event.quest_item_container and event.quest_item_container.gsid == 60029 then
+            -- body
+        end
         if quest_item.value == quest_item.finished_value then
             GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
         end
