@@ -28,10 +28,7 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
-    local debug = ParaEngine.GetAppCommandLineByParam("debug", false);
-    if(debug == true or debug =="true" or debug == "True")then
-        return true
-    else
+    if httpwrapper_version == "ONLINE" then
         return false
     end
     local start_time = 2021-1-25 
@@ -63,7 +60,7 @@ function MacroCodeCampActIntro.ShowView()
         isShowTitleBar = false,
         DestroyOnClose = true,
         style = CommonCtrl.WindowFrame.ContainerStyle,
-        allowDrag = false,
+        allowDrag = true,
         enable_esc_key = true,
         zorder = 2,
         app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
@@ -88,7 +85,7 @@ end
 
 function MacroCodeCampActIntro.ShowQRCode()  
     if QRCodeWnd then
-        QRCodeWnd:Show();        
+        QRCodeWnd:Show(page:GetParentUIObject());        
     end
 end
 

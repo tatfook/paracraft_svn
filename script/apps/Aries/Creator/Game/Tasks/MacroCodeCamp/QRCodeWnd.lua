@@ -14,7 +14,7 @@ NPL.load("(gl)script/ide/System/Windows/Window.lua");
 local Window = commonlib.gettable("System.Windows.Window");
 local QRCodeWnd = commonlib.inherit(nil, commonlib.gettable("MyCompany.Aries.Creator.Game.Tasks.MacroCodeCamp.QRCodeWnd"))
 
-function QRCodeWnd:Show()
+function QRCodeWnd:Show(parent)
 	local width = 192;
 	local height = 192;
 	if(not self.window) then
@@ -27,6 +27,7 @@ function QRCodeWnd:Show()
 		name="QRCodeWnd", 
 		url="script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/QRCodeWnd.html",
 		alignment="_ct", left=-112, top=-126, width = width, height = height, zorder = 3,
+		parent = parent,
 	});
 end
 
