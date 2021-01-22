@@ -125,7 +125,7 @@ Commands["loadworld"] = {
 @param -e: always use existing world if it exist without checking if it is up to date.  
 @param -s: slient load.
 @param -force: always use online world without checking if it is different to local. 
-@param -inplace: if the entered world is equal to the current world, the subsequent command will be executed directly. otherwise, the command will be executed after entering the world.
+@param -inplace: if the entered world is equal to the current world, the subsequent /sendevent command will be executed directly. otherwise, the command will be executed after entering the world. For security reasons, only event that begins with "global" can be sent
 @param -personal: login required. always sync online world to local folder, then enter.
 e.g.
 /loadworld 530
@@ -135,7 +135,7 @@ e.g.
 /loadworld -force 530
 /loadworld -personal 530
 /loadworld home
-/loadworld -inplace 530 | /sendevent globalSetPos  {x, y, z}
+/loadworld -s -inplace 530 | /sendevent globalSetPos  {x, y, z}
 ]], 
 	handler = function(cmd_name, cmd_text, cmd_params)
 		NPL.load("(gl)script/apps/Aries/Creator/WorldCommon.lua");
