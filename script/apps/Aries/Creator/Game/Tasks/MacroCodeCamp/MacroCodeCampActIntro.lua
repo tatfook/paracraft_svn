@@ -28,7 +28,9 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
-    if httpwrapper_version == "ONLINE" then
+    if System.options.isDevMode then
+        return true
+    else 
         return false
     end
     local start_time = 2021-1-25 
