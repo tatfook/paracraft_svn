@@ -106,7 +106,8 @@ end
 function QuestPage.OnCreate()
 end
 
-function QuestPage.Show()
+function QuestPage.Show(show_exid_t)
+	QuestPage.show_exid_t = show_exid_t
 	if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
 		keepwork.user.server_time({
 			cache_policy = "access plus 10 seconds",
@@ -504,6 +505,16 @@ function QuestPage.GetTaskOrder(data)
 end
 
 function QuestPage.GetTaskVisible(data)
+	if QuestPage.show_exid_t then
+		local begain_exid = QuestPage.show_exid_t.begain_exid or 0
+		local end_exid = QuestPage.show_exid_t.end_exid or 0
+		if data.exid >= begain_exid and data.exid <= end_exid then
+			return true
+		end
+
+		return false
+	end
+
 	local childrens = data.questItemContainer.children
 	local data_item = childrens[1]
 	
