@@ -11,6 +11,7 @@ GameLogic.Macros.SetHelpLevel(1)
 GameLogic.Macros.SetAutoPlay(true)
 GameLogic.Macros.cmd("/tip hello")
 GameLogic.Macros.loadtemplate("abc.bmax");
+GameLogic.Macros.loadtemplate("abc.bmax", "-r");
 
 -- in code block, we can do 
 local wnd = window("<input type='button' value='stop' onclick='OnStopPlay'/>", "(global)_lt", 201, 10, 100, 32);
@@ -142,9 +143,13 @@ end
 
 -- load template relative to MacroOrigin
 -- @param filename: load block model at the macro origin. 
-function Macros.loadtemplate(filename)
+-- @param options: additional template command "-r" to remove. 
+function Macros.loadtemplate(filename, options)
 	local x, y, z = Macros.GetPlayOrigin()
 	local text = "/loadtemplate"
+	if(options) then
+		text = text.." "..options;
+	end
 	if(x) then
 		text = format("%s %d %d %d", text, x, y, z);
 	else
