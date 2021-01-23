@@ -647,7 +647,7 @@ function QuestCoursePage.Goto(task_id)
 			local function user_behavior()
 				local value = QuestAction.GetValue(task_data.id) or 0
 				if value == 0 then
-					GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.hour_of_code', { from = task_id })
+					GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.lessons.hour_of_code', { from = task_id })
 				end
 			end
 

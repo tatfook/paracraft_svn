@@ -65,6 +65,10 @@ QuestProvider.templates_map = {};
 QuestProvider.gsid_exid_map = {};
 QuestProvider.questItemContainer_map = {};
 
+if System.options.isDevMode == nil then
+    System.options.isDevMode = ParaEngine.GetAppCommandLineByParam("isDevMode", "false");
+end
+
 function QuestProvider:GetInstance()
     if(not QuestProvider.provider_instance)then
         QuestProvider.provider_instance = QuestProvider:new(); 
@@ -72,6 +76,8 @@ function QuestProvider:GetInstance()
     return QuestProvider.provider_instance;
 end
 function QuestProvider:OnInit()
+
+
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
     end, nil, "QuestProvider_OnInit")
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
@@ -83,7 +89,7 @@ function QuestProvider:OnInit()
         -- 埋点
         -- 抗疫知识埋点=
         if quest_item_container and quest_item_container.gsid == 60029 then
-            -- body
+            GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.lessons.hour_of_code', { from = quest_item.id })
         end
         if quest_item.value == quest_item.finished_value then
             GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
