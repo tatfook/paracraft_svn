@@ -108,7 +108,6 @@ end
 
 function QuestPage.Show()
 	if(GameLogic.GetFilters():apply_filters('is_signed_in'))then
-		QuestProvider:GetInstance():Refresh();
 		keepwork.user.server_time({
 			cache_policy = "access plus 10 seconds",
 		},function(err, msg, data)
@@ -652,6 +651,10 @@ function QuestPage.Goto(task_id)
 
 					break
 				elseif v.template.click and v.template.click ~= "" then
+					if string.find(v.template.click, "loadworld ") then
+						page:CloseWindow()
+						QuestPage.CloseView()
+					end
 					NPL.DoString(v.template.click)
 				end
 				-- echo(v, true)
