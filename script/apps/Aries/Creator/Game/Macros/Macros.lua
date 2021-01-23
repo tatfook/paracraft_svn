@@ -46,6 +46,7 @@ SetPlaySpeed(1)
 ## Macro Lists
 ```
 Idle(500)
+Wait(5000)
 CameraMove(8,0.54347,0.18799)
 CameraLookat(19980.29883,-126.59001,19998.52929)
 PlayerMove(19181,5,19198,0.23781)

@@ -43,6 +43,11 @@ function Macros.Idle(timeMs, bForceWait)
 	return callback;
 end
 
+-- wait given milli-seconds
+function Macros.Wait(timeMs)
+	return Macros.Idle(timeMs, true)
+end
+
 -- return nil or time in ms.  
 function Macros.GetLastIdleTime()
 	local offset = 0;

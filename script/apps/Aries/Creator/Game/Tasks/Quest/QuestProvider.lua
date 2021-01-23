@@ -65,10 +65,6 @@ QuestProvider.templates_map = {};
 QuestProvider.gsid_exid_map = {};
 QuestProvider.questItemContainer_map = {};
 
-if System.options.isDevMode == nil then
-    System.options.isDevMode = ParaEngine.GetAppCommandLineByParam("isDevMode", "false");
-end
-
 function QuestProvider:GetInstance()
     if(not QuestProvider.provider_instance)then
         QuestProvider.provider_instance = QuestProvider:new(); 
