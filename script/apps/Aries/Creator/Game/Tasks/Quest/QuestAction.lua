@@ -561,3 +561,7 @@ function QuestAction.UpdateServerTime()
         end
     end)
 end
+
+function QuestAction.ShowSpeciapTask()
+    QuestPage.Show({begain_exid = 40028, end_exid = 40030});
+end
