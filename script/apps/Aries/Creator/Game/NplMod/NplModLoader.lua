@@ -13,9 +13,25 @@ local NplModLoader = NPL.export();
 
 NplModLoader.mod_maps = {};
 NplModLoader.storage_root = "npl_extensions"
+function NplModLoader:loadConfig(url, callback)
+    if(not url)then
+        return
+    end
+    commonlib.echo("==========url");
+    commonlib.echo(url);
+    github.get({
+        filepath = url
+    },function(err, msg, data)
+        commonlib.echo("==========github.get");
+        commonlib.echo(err);
+        commonlib.echo(msg);
+        commonlib.echo(data);
+    end)
+end
 -- @param options {table}
 -- @param options.name {string}: "WinterCam2021"
 -- @param options.type {string}: "github"
+-- @param options.nplm {string}: "https://raw.githubusercontent.com/NPLPackages/WinterCamp2021/main/nplm.json"
 -- @param options.source {string}: "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main"
 function NplModLoader:loadMod(options, callback)
     if(not options)then
@@ -24,7 +40,10 @@ function NplModLoader:loadMod(options, callback)
         end
         return
     end
+
+    local nplm = options.nplm;
     local name = options.name;
+    NplModLoader:loadConfig(nplm);
     local mod_zip = NplModLoader.mod_maps[name];
     if(not mod_zip)then
 

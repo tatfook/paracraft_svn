@@ -4,12 +4,13 @@ Author(s): leio
 Date: 2021/1/7
 Desc: 
 use the lib:
+NOTE: downloading the raw file from github is too slow, NplMod project is archived
 ------------------------------------------------------------
 local NplMod = NPL.load("(gl)script/apps/Aries/Creator/Game/NplMod/NplMod.lua");
 local config = {
     name = "test",
     dependencies = {
-        { name = "WinterCamp2021", type = "github", source = "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main", }
+        { name = "WinterCamp2021", type = "github", nplm = "https://raw.githubusercontent.com/NPLPackages/WinterCamp2021/main/nplm.json", source = "https://codeload.github.com/NPLPackages/WinterCamp2021/zip/main", }
     }
 }
 local nplmod = NplMod:new();
