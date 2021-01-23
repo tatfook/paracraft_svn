@@ -16,7 +16,17 @@
 	            local root = ParaIO.GetCurDirectory(0);
                 ParaIO.DeleteFile(root.."bin/script/*.*");
                 local error_count = commonlib.BuildParaWorld.BuildComplete();
+                
                 _guihelper.MessageBox("编译main_full.pkg完成，错误数量：" .. error_count);
+				_guihelper.MsgBoxClick_CallBack = function(res)
+					if(res == _guihelper.DialogResult.OK) then
+                        if error_count <= 0 and ParaIO.DoesFileExist("bin/Commit.bat") then
+                            local path = root .. "bin/Commit.bat"
+                            local cmd = string.format("start %s", path)
+                            os.execute(cmd)
+                        end
+					end
+				end
             end
             function OnOpenFolder(path)
                 local absPathFolder = ParaIO.GetCurDirectory(0)..path;
