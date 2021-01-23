@@ -114,7 +114,7 @@ end
 function MacroCodeCampActIntro.RegisterButton()    
     local parent  = page:GetParentUIObject()
     local strPath = ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua")'
-    if not System.User.isVip then
+    if not System.User.isVip and not System.User.isVipSchool then
         local join_bt = ParaUI.CreateUIObject("button", "JoinAct", "_lt", 390, 500, 223, 80);
         join_bt.visible = true
         join_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_223X80_32bits.png;0 0 223 80";
