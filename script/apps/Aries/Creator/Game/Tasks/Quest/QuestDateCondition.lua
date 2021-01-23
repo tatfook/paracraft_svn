@@ -46,30 +46,14 @@ function QuestDateCondition:Parse(config)
     self.endtime = config.endtime
 end
 function QuestDateCondition:Refresh()
-    keepwork.user.server_time({
-        cache_policy = "access plus 10 seconds",
-    },function(err, msg, data)
-        if(err == 200)then
-            self.cur_time = data.now;
-            self.cur_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(self.cur_time)
-            echo("=============self.cur_time");
-            echo(self.cur_time);
-        end
-    end)
 end
 function QuestDateCondition:IsValid()
     -- check date by self.cur_time
-    if self.cur_time == nil then
-        return false
-    end
-
-    local cur_time_stamp = self.cur_time_stamp
-
-    -- local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
-    -- local httpwrapper_version = HttpWrapper.GetDevVersion();
-    -- if httpwrapper_version == "RELEASE" or httpwrapper_version == "LOCAL" then
-    --     cur_time_stamp = os.time()
+    -- if self.cur_time == nil then
+    --     return false
     -- end
+
+    local cur_time_stamp = GameLogic.QuestAction.GetServerTime()
 
     -- 先判断结束时间
     if self.endtime and self.endtime ~= "" then

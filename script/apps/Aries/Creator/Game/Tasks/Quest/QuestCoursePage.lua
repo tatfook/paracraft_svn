@@ -429,7 +429,6 @@ function QuestCoursePage.GetTaskOrder(data)
 end
 
 function QuestCoursePage.GetTaskVisible(exid)
-	
 	if exid < QuestAction.begain_exid or exid > QuestAction.end_exid then
 		return false
 	end
