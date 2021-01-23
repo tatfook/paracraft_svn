@@ -72,8 +72,8 @@ function QuestProvider:GetInstance()
     return QuestProvider.provider_instance;
 end
 function QuestProvider:OnInit()
-
-
+    GameLogic.QuestAction.UpdateServerTime()
+    
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
     end, nil, "QuestProvider_OnInit")
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)

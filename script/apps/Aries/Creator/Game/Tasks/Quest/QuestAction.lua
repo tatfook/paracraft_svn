@@ -51,6 +51,7 @@ local QuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/Quest
 local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 local TeachingQuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/TeachingQuest/TeachingQuestPage.lua");
 -- read world_id from template.goto_world
+local QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
 -- template.goto_world = ["ONLINE","RELEASE","LOCAL"]
 
 QuestAction.DailyTaskData = {
@@ -82,6 +83,11 @@ QuestAction.winter_camp_jion_exid = 30028
 QuestAction.begain_exid = 40015
 QuestAction.end_exid = 40024
 QuestAction.is_always_exist_exid = 40024
+
+QuestAction.camp_beagin_gsid = 60011
+QuestAction.camp_end_gsid = 60019
+
+QuestAction.server_time_stamp = 0
 
 function QuestAction.GetGoToWorldId(target_id)
     local template = QuestAction.GetItemTemplate(target_id);
@@ -470,7 +476,6 @@ end
 ----------------------------------------日常任务处理/end-------------------------------------------------
 -- 是否补课界面
 function QuestAction.ShowCourseView(is_make_up)
-    QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
     QuestCoursePage.Show(is_make_up)
 end
 
@@ -482,4 +487,77 @@ end
 function QuestAction.IsJionWinterCamp()
     local bHas,guid,bagid,copies = KeepWorkItemManager.HasGSItem(QuestAction.winter_camp_jion_gsid)
     return bHas
+end
+
+function QuestAction.CanAccept(quest_gsid)
+    -- 九天课程判断 需要判断是否五校用户 是否vip 是否到达时间
+    if quest_gsid >= QuestAction.camp_beagin_gsid and quest_gsid <= QuestAction.camp_end_gsid then
+        -- 判断九天课程开启时间
+        local today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(QuestAction.server_time_stamp)
+        local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
+        if QuestAction.server_time_stamp < begain_day_weehours then
+            return false
+        end
+
+        -- 判断是否到达对应课程日期
+        local second_day = QuestAction.GetCourseSecondDay(quest_gsid)
+        local date_t = commonlib.copy(QuestCoursePage.begain_time_t)
+        date_t.day = date_t.day + second_day - 1
+        local day_weehours = os.time(date_t)
+    
+        if QuestAction.server_time_stamp < day_weehours then
+            return false
+        end
+
+        -- 上述条件都满足的话 只要是vip 那就全部满足条件
+        if System.User.isVip then
+           return true
+        end
+        -- 五校用户判断
+        if System.User.isVipSchool then
+            -- 五校用户 第一次允许进入
+            local id = QuestAction.GetIdByGsid(quest_gsid) or 0
+            local value = QuestAction.GetValue(id) or 0
+            if value == 0 then
+                return true
+            end
+            return false
+        end
+
+        return false
+    end
+
+    local questItemContainer_map = QuestProvider:GetInstance().questItemContainer_map
+    if questItemContainer_map[quest_gsid] then
+        return questItemContainer_map[quest_gsid]:IsActivated()
+    end
+end
+
+function QuestAction.GetIdByGsid(quest_gsid)
+    for i, v in pairs(QuestProvider:GetInstance().templates_map) do
+        if v.gsid == quest_gsid then
+            return v.id
+        end
+    end
+
+    return 0
+end
+
+function QuestAction.GetCourseSecondDay(gsid)
+	if gsid == nil then
+		return 0
+	end
+	return gsid - QuestAction.camp_beagin_gsid + 1
+end
+
+function QuestAction.UpdateServerTime()
+    keepwork.user.server_time({
+    },function(err, msg, data)
+        if(err == 200)then
+            QuestAction.server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+            commonlib.TimerManager.SetTimeout(function()  
+                QuestAction.UpdateServerTime()
+            end, 10000)
+        end
+    end)
 end
