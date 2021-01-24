@@ -574,9 +574,13 @@ function QuestCoursePage.Goto(task_id)
 		if err == 200 then
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
+			local task_data = QuestCoursePage.GetQuestData(task_id)
+			if task_data == nil then
+				return
+			end
 
 			if task_id == QuestAction.is_always_exist_exid then
-				QuestCoursePage.ToGraduate()
+				QuestCoursePage.ToGraduate(task_data)
 				return
 			end
 
@@ -593,10 +597,6 @@ function QuestCoursePage.Goto(task_id)
 					else
 					end
 				end
-			end
-			local task_data = QuestCoursePage.GetQuestData(task_id)
-			if task_data == nil then
-				return
 			end
 
 			if task_data.task_state == QuestCoursePage.TaskState.can_not_go then
@@ -736,7 +736,7 @@ function QuestCoursePage.Close()
 	QuestCoursePage.CloseView()
 end
 
-function QuestCoursePage.ToGraduate()
+function QuestCoursePage.ToGraduate(task_data)
 	if not QuestCoursePage.IsGraduateTime() then
 		return
 	end
@@ -760,6 +760,13 @@ function QuestCoursePage.ToGraduate()
 		return
 	end
 
+	local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
+	local codeEntity = BlockEngine:GetBlockEntity(19210, 1, 19189)
+	if codeEntity then
+		GameLogic.QuestAction.SetValue(task_data.id, 1);
+		QuestCoursePage.Close()
+		codeEntity:Restart();
+	end
 end
 
 -- 是否所有课程以后的时间
