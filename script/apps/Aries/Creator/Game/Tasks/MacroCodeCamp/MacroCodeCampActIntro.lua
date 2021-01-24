@@ -29,11 +29,11 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
-    if System.options.isDevMode then
-        return true
-    else 
-        return false
-    end
+    -- if System.options.isDevMode then
+    --     return true
+    -- else 
+    --     return false
+    -- end
     local start_time = 2021-1-25 
     local end_time = 2021-2-7
     local year = 2021
@@ -234,7 +234,15 @@ function MacroCodeCampActIntro.OnClick(index)
     print("OnClick data========",index,world_id)
     local campId = MacroCodeCampActIntro.campIds[httpwrapper_version]
     if tonumber(world_id) == campId then
-        GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
+        if index == 10 then
+            GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
+                if page then
+                    
+                end
+            end);
+        else
+            GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
+        end
     else
         GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
     end
