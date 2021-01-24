@@ -550,21 +550,8 @@ function QuestAction.GetCourseSecondDay(gsid)
 	return gsid - QuestAction.camp_beagin_gsid + 1
 end
 
-function QuestAction.UpdateServerTime()
-    keepwork.user.server_time({
-    },function(err, msg, data)
-        if(err == 200)then
-            QuestAction.server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
-            local time = System.options.isDevMode and 3000 or 30000
-            commonlib.TimerManager.SetTimeout(function()  
-                QuestAction.UpdateServerTime()
-            end, time)
-        end
-    end)
-end
-
 function QuestAction.GetServerTime()
-    return QuestAction.server_time_stamp
+    return QuestProvider:GetInstance():GetServerTime();
 end
 
 function QuestAction.ShowSpeciapTask()

@@ -72,8 +72,8 @@ function QuestProvider:GetInstance()
     return QuestProvider.provider_instance;
 end
 function QuestProvider:OnInit()
-    GameLogic.QuestAction.UpdateServerTime()
-    
+    self:UpdateServerTime()
+
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnInit,function(__, event)
     end, nil, "QuestProvider_OnInit")
     QuestProvider:GetInstance():AddEventListener(QuestProvider.Events.OnRefresh,function(__, event)
@@ -346,12 +346,14 @@ function QuestProvider:FillQuestItemTemplateBy_Real_Condition(exid)
 end
 -- refresh the state of valid quest node
 function QuestProvider:Refresh()
+    
     local quest_nodes = self:GetActivedQuestNodes();
 	LOG.std(nil, "info", "QuestProvider quest_nodes:", quest_nodes);
     if(not quest_nodes)then
         return
     end
      for k,v in ipairs(quest_nodes) do
+        
         local exid = v.exid;
         local quest_gsid = self:SearchQuestGsidFromExid(exid)
         if(quest_gsid)then
@@ -439,7 +441,6 @@ function QuestProvider:CreateOrGetQuestItemContainer(gsid,data)
                 end)
             end
         end)
-
         self.questItemContainer_map[gsid] = item;
     end
     return item;
@@ -534,4 +535,21 @@ function QuestProvider:GetQuestItems(isDump)
         end)
     end
     return result;
+end
+
+function QuestProvider:UpdateServerTime()
+    keepwork.user.server_time({
+    },function(err, msg, data)
+        if(err == 200)then
+            self.server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+            local time = System.options.isDevMode and 3000 or 30000
+            commonlib.TimerManager.SetTimeout(function()  
+                self:UpdateServerTime()
+            end, time)
+        end
+    end)
+end
+
+function QuestProvider:GetServerTime()
+    return self.server_time_stamp or 0
 end
