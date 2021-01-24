@@ -542,7 +542,7 @@ function QuestProvider:UpdateServerTime()
     },function(err, msg, data)
         if(err == 200)then
             self.server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
-            local time = System.options.isDevMode and 3000 or 30000
+            local time = System.options.isDevMode and 3000 or 90000
             commonlib.TimerManager.SetTimeout(function()  
                 self:UpdateServerTime()
             end, time)
