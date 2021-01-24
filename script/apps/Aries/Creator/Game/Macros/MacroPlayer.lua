@@ -12,6 +12,7 @@ MacroPlayer.ShowPage();
 MacroPlayer.ShowController(false);
 -------------------------------------------------------
 ]]
+local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager");
 local Screen = commonlib.gettable("System.Windows.Screen");
 local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
@@ -23,10 +24,18 @@ function MacroPlayer.OnInit()
 	page = document:GetPageCtrl();
 	GameLogic.GetFilters():add_filter("Macro_EndPlay", MacroPlayer.OnEndPlay);
 	GameLogic.GetFilters():add_filter("Macro_PlayMacro", MacroPlayer.OnPlayMacro);
-	Screen:Connect("sizeChanged", MacroPlayer, MacroPlayer.OnViewportChange, "UniqueConnection");
 end
 
 function MacroPlayer.OnInitEnd()
+	local obj = MacroPlayer.GetRootUIObject()
+	if(obj) then
+		-- local viewport = ViewportManager:GetSceneViewport()
+		-- viewport:Connect("sizeChanged", MacroPlayer, MacroPlayer.OnViewportChange, "UniqueConnection");
+		obj:SetScript("onsize", function()
+			MacroPlayer.OnViewportChange();
+		end)
+	end
+
 	local KeyInput = page:FindControl("KeyInput");
 	if(KeyInput) then
 		KeyInput:SetField("CanHaveFocus", true); 
@@ -87,7 +96,7 @@ function MacroPlayer.OnPageClosed()
 	end
 end
 
-function MacroPlayer.OnViewportChange(width, height)
+function MacroPlayer.OnViewportChange()
 	if(page and MacroPlayer.triggerCallbackFunc) then
 		MacroPlayer.RefreshPage(0);
 		
