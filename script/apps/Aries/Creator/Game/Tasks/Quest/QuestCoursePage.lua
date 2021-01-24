@@ -675,6 +675,10 @@ function QuestCoursePage.Goto(task_id)
 				end
 
 			elseif task_data.click and task_data.click ~= "" then
+				if string.find(task_data.click, "loadworld ") then
+					page:CloseWindow()
+					QuestCoursePage.CloseView()
+				end
 				NPL.DoString(task_data.click)
 				user_behavior()
 				-- GameLogic.QuestAction.SetValue(task_data.id, 1);
