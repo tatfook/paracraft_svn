@@ -57,6 +57,10 @@ function MacroPlayer.RefreshPage(dTime)
 end
 
 function MacroPlayer.OnPageClosed()
+	if(MacroPlayer.attachedWnd) then
+		MacroPlayer.attachedWnd:CloseWindow();
+		MacroPlayer.attachedWnd = nil;
+	end
 	if(page) then
 		if(page.keyboardWnd) then
 			page.keyboardWnd:Show(false);
@@ -865,3 +869,21 @@ function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callb
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, "")
 	end
 end
+
+-- @param window: attach a mcml v2 window object to it, usually from CodeBlock's window() function
+function MacroPlayer.AttachWindow(window)
+	if(window) then
+		local parent = MacroPlayer.GetRootUIObject()
+		if(parent) then
+			local win = window:GetNativeWindow()
+			if(win) then
+				MacroPlayer.attachedWnd = window;
+				win.zorder = 1000;
+				parent:AddChild(win)
+				return true
+			end
+		end
+	end
+	return false
+end
+

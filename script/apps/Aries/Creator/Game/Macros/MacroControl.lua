@@ -162,18 +162,7 @@ end
 
 -- @param window: attach a mcml v2 window object to it, usually from CodeBlock's window() function
 function Macros.AttachWindow(window)
-	if(window) then
-		local parent = MacroPlayer.GetRootUIObject()
-		if(parent) then
-			local win = window:GetNativeWindow()
-			if(win) then
-				win.zorder = 1000;
-				parent:AddChild(win)
-				return true
-			end
-		end
-	end
-	return false
+	return MacroPlayer.AttachWindow(window)
 end
 
 -- show virtual keyboard with button 
