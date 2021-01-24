@@ -95,7 +95,7 @@ function QuestCoursePage.Show(is_make_up)
 
 			local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
 			if server_time < begain_day_weehours then
-				GameLogic.QuestAction.ShowDialogPage(L"还没到课程开启时间哟！")
+				GameLogic.QuestAction.ShowDialogPage({"还没到课程开启时间哟！", "从1月28日起，每天记得在10:30 13:30 16:00 18:00 19:00过来听课吧！"})
 				return
 			end
 
