@@ -47,6 +47,7 @@ QuestCoursePage.CourseTimeLimit = {
 	{begain_time = {hour=13,min=30}, end_time = {hour=13,min=45}},
 	{begain_time = {hour=16,min=0}, end_time = {hour=16,min=15}},
 	{begain_time = {hour=18,min=0}, end_time = {hour=18,min=15}},
+	{begain_time = {hour=19,min=0}, end_time = {hour=19,min=15}},
 }
 
 QuestCoursePage.ToCourseState = {
