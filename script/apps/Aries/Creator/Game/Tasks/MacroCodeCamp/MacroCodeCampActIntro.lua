@@ -1,4 +1,5 @@
 --[[
+    活动页
     NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
     local MacroCodeCampActIntro = commonlib.gettable("WinterCamp.MacroCodeCamp")
     MacroCodeCampActIntro.ShowView()
@@ -114,6 +115,13 @@ end
 function MacroCodeCampActIntro.RegisterButton()    
     local parent  = page:GetParentUIObject()
     local strPath = ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua")'
+
+    local detail_btn = ParaUI.CreateUIObject("button", "ShowDetail", "_lt", 760, 80, 150, 40);
+    detail_btn.visible = true
+    detail_btn.onclick = string.format([[%s.OnBtnDetailClick();]],strPath)
+    detail_btn.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_232X78_32bits.png;0 0 232 78";
+    parent:AddChild(detail_btn);
+
     if not System.User.isVip and not System.User.isVipSchool then
         local join_bt = ParaUI.CreateUIObject("button", "JoinAct", "_lt", 390, 500, 223, 80);
         join_bt.visible = true
@@ -164,6 +172,11 @@ function MacroCodeCampActIntro.RegisterButton()
     programerf_bt.onmouseenter = string.format([[%s.OnMouseEnter(4);]],strPath) 
     programerf_bt.onmouseleave = string.format([[%s.OnMouseLeave(4);]],strPath)
     parent:AddChild(programerf_bt)    
+end
+
+function MacroCodeCampActIntro.OnBtnDetailClick()
+    local MacroCodeCampIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampIntro.lua");
+    MacroCodeCampIntro.ShowView()
 end
 
 function MacroCodeCampActIntro.BtnJoinOnMouseEnter()
