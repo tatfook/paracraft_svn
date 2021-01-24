@@ -4,9 +4,15 @@
 <pe:mcml>
     <script refresh="true" type="text/npl" src="MacroCodeCampMiniPro.lua"><![CDATA[
         local MacroCodeCampMiniPro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampMiniPro.lua");
+        local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
+        local userinfo = KeepWorkItemManager.GetProfile();
         MacroCodeCampMiniPro.OnInit()
         function ClosePage()
             Page:CloseWindow();
+        end        
+
+        function GetQRCodeStyle()
+            return string.format("margin-top: -11px; margin-left: 112px; width: 226px;height: 226px; background:url(temp/qrcodes/%s_FY.jpg)", userinfo.id);
         end
         
         ]]></script>
@@ -16,7 +22,7 @@
             <input type="button" style="margin-left: 400px; margin-top: 14px; width:32px;height:32px;background: url(Texture/Aries/Creator/keepwork/WinterCamp/guanbi_32bits.png#0 0 32 32);" onclick="ClosePage()"/>
         </div>
 
-        <div style="margin-top: -11px; margin-left: 112px; width: 226px;height: 226px; background: url(temp/qrcodes/BB.jpg);"></div>
+        <div style='<%=GetQRCodeStyle()%>'></div>
         
     </div>
 </pe:mcml>
