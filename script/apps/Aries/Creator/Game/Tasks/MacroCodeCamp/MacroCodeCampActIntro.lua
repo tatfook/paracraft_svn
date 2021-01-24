@@ -234,10 +234,10 @@ function MacroCodeCampActIntro.OnClick(index)
     print("OnClick data========",index,world_id)
     local campId = MacroCodeCampActIntro.campIds[httpwrapper_version]
     if tonumber(world_id) == campId then
-        if index == 10 then
+        if index == 2 then
             GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
                 if page then
-                    
+                    page:CloseWindow()
                 end
             end);
         else
