@@ -328,7 +328,7 @@ function QuestCoursePage.HandleTaskData(data)
 	local quest_datas = QuestProvider:GetInstance().templates_map
 	for i, v in pairs(QuestCoursePage.TaskAllData) do
 		-- 获取兑换规则
-		if QuestCoursePage.GetTaskVisible(v.exid) then
+		if QuestCoursePage.GetTaskVisible(v) then
 			local index = #QuestCoursePage.TaskData + 1
 			local task_data = {}
 			local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(v.exid)
@@ -429,7 +429,8 @@ function QuestCoursePage.GetTaskOrder(data)
 	return 0
 end
 
-function QuestCoursePage.GetTaskVisible(exid)
+function QuestCoursePage.GetTaskVisible(data)
+	local exid = data.exid
 	if exid < QuestAction.begain_exid or exid > QuestAction.end_exid then
 		return false
 	end
@@ -453,7 +454,7 @@ function QuestCoursePage.GetTaskVisible(exid)
 		-- 毕业任务常驻
 		
 		if exid == QuestAction.is_always_exist_exid then
-			return true
+			return not QuestAction.IsFinish(data.gsid)
 		end
 		
 		if today_weehours == day_weehours then
