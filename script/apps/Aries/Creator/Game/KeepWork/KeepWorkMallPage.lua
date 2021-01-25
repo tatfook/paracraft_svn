@@ -480,7 +480,7 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 		local model_url = good_data.modelUrl or ""
 		-- model_url = "character/CC/05effect/fire.x"   
 		if model_url:match("^https?://") then
-			local command = string.format("/install -ext %s -filename %s %s", good_data.fileType, good_data.name, model_url)
+			local command = string.format("/install -ext %s -filename %s %s", good_data.fileType, good_data.desc, model_url)
 			GameLogic.RunCommand(command)
 		elseif model_url:match("character/") then         
 			GameLogic.RunCommand(string.format("/take BlockModel {tooltip=%q}", model_url));  
