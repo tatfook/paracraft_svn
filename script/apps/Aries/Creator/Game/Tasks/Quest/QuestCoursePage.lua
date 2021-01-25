@@ -593,7 +593,7 @@ function QuestCoursePage.Goto(task_id)
 						-- 	QuestCoursePage.Goto(task_id)
 						-- end);
 						local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
-						MacroCodeCampActIntro.ShowView()
+						MacroCodeCampActIntro.ShowView(true)
 						GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.vip.funnel.open', { from = form })
 					else
 					end
@@ -677,13 +677,31 @@ function QuestCoursePage.Goto(task_id)
 				end
 
 			elseif task_data.click and task_data.click ~= "" then
-				if string.find(task_data.click, "loadworld ") then
-					page:CloseWindow()
-					QuestCoursePage.CloseView()
+				if QuestAction.IsJionWinterCamp() then
+					if string.find(task_data.click, "loadworld ") then
+						page:CloseWindow()
+						QuestCoursePage.CloseView()
+					end
+					NPL.DoString(task_data.click)
+					user_behavior()
+					-- GameLogic.QuestAction.SetValue(task_data.id, 1);
+				else
+					KeepWorkItemManager.DoExtendedCost(QuestAction.winter_camp_jion_exid, function()
+						keepwork.wintercamp.joincamp({
+							gsId=QuestAction.winter_camp_jion_gsid,        
+						},function(err, msg, data)
+							if err == 200 then
+								if string.find(task_data.click, "loadworld ") then
+									page:CloseWindow()
+									QuestCoursePage.CloseView()
+								end
+								NPL.DoString(task_data.click)
+								user_behavior()
+								-- GameLogic.QuestAction.SetValue(task_data.id, 1);
+							end
+						end)							
+					end);
 				end
-				NPL.DoString(task_data.click)
-				user_behavior()
-				-- GameLogic.QuestAction.SetValue(task_data.id, 1);
 			end
 			GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.click_go_button')
 		end

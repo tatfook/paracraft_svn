@@ -20,6 +20,7 @@ MacroCodeCampActIntro.campIds = {
     ONLINE = 41570,
     RELEASE = 1471,
 }
+MacroCodeCampActIntro.isShowVipBtn = false
 
 MacroCodeCampActIntro.keepworkList = {
     ONLINE = "https://keepwork.com",
@@ -51,10 +52,11 @@ function MacroCodeCampActIntro.OnInit()
 	page = document:GetPageCtrl();
 end
 
-function MacroCodeCampActIntro.ShowView()
+function MacroCodeCampActIntro.ShowView(isShowVip)
     if not MacroCodeCampActIntro.CheckCanShow() then
         return 
     end
+    MacroCodeCampActIntro.isShowVipBtn = isShowVip or false
     local view_width = 1030
 	local view_height = 600
     local params = {
@@ -101,7 +103,9 @@ function MacroCodeCampActIntro.ClosePage()
     if page then
         page:CloseWindow()
     end
-    MacroCodeCampActIntro.HideQRCode()  
+    MacroCodeCampActIntro.HideQRCode() 
+    MacroCodeCampActIntro.isShowVipBtn = false
+    MacroCodeCampActIntro.isEnterJoin = false 
 end
 
 function MacroCodeCampActIntro.OnRefreshPage(delaytime)
@@ -122,7 +126,7 @@ function MacroCodeCampActIntro.RegisterButton()
     detail_btn.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_232X78_32bits.png;0 0 232 78";
     parent:AddChild(detail_btn);
 
-    if not System.User.isVip and not System.User.isVipSchool then
+    if (not System.User.isVip and not System.User.isVipSchool) or MacroCodeCampActIntro.isShowVipBtn then
         local join_bt = ParaUI.CreateUIObject("button", "JoinAct", "_lt", 390, 500, 223, 80);
         join_bt.visible = true
         join_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_223X80_32bits.png;0 0 223 80";

@@ -72,7 +72,7 @@ function SchoolRank.getPageData(data)
         temp.schoolname = data[i].school.name 
         temp.schoolid = data[i].schoolId
         temp.grades=data[i].grades.."分"
-        temp.projectId = data[i].schoolParaWorld.projectId
+        temp.projectId = data[i].schoolParaWorld and data[i].schoolParaWorld.projectId or -1
         SchoolRank.rank_data[#SchoolRank.rank_data + 1] = temp
     end
 end

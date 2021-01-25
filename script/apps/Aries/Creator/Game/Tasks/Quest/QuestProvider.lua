@@ -107,13 +107,14 @@ function QuestProvider:OnInit()
                 end)
             end
 
-            if exid == GameLogic.QuestAction.end_exid then
+            if exid == GameLogic.QuestAction.end_exid or exid == 40027 then
                 keepwork.wintercamp.finishcertificate({
                     gsId=GameLogic.QuestAction.winter_camp_jion_gsid,
-                    courseGsId=event.quest_item_container.gsid,
+                    certificateGsId=event.quest_item_container.gsid,
                 },function(err, msg, data)
                 end)
             end
+            
             -- body
         end
     end, nil, "QuestProvider_OnFinished")
