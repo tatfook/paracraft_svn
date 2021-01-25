@@ -466,6 +466,10 @@ function timehelp.GetTimeStampByDateTime(date_time)
     -- if httpwrapper_version == "RELEASE" or httpwrapper_version == "LOCAL" then
     --     return os.time()
 	-- end
+
+	if date_time == nil then
+		return 0
+	end
 	
 	if System.options.isDevMode then
 		return os.time()

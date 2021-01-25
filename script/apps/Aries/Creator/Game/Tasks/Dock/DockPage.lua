@@ -101,9 +101,9 @@ function DockPage.Show()
 
     DockPage.CheckIsTaskCompelete()
 
-    ActWeek.GetServerTime(function()
-        DockPage.page:Refresh(1)
-    end)        
+    -- ActWeek.GetServerTime(function()
+    --     DockPage.page:Refresh(1)
+    -- end)        
 end
 function DockPage.Hide()
     DockPage.is_show = false;
