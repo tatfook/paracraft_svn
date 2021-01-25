@@ -10,6 +10,8 @@
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/QRCodeWnd.lua");
 local QRCodeWnd = commonlib.gettable("MyCompany.Aries.Creator.Game.Tasks.MacroCodeCamp.QRCodeWnd");
+NPL.load("(gl)script/apps/Aries/Creator/Game/block_engine.lua");
+local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
 local MacroCodeCampActIntro = NPL.export()--commonlib.gettable("WinterCamp.MacroCodeCamp")
 
 local page 
@@ -120,10 +122,10 @@ function MacroCodeCampActIntro.RegisterButton()
     local parent  = page:GetParentUIObject()
     local strPath = ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua")'
 
-    local detail_btn = ParaUI.CreateUIObject("button", "ShowDetail", "_lt", 760, 80, 150, 40);
+    local detail_btn = ParaUI.CreateUIObject("button", "ShowDetail", "_lt", 760, 80, 108, 42);
     detail_btn.visible = true
     detail_btn.onclick = string.format([[%s.OnBtnDetailClick();]],strPath)
-    detail_btn.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_232X78_32bits.png;0 0 232 78";
+    detail_btn.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn3_108X42_32bits.png;0 0 108 42";
     parent:AddChild(detail_btn);
 
     if (not System.User.isVip and not System.User.isVipSchool) or MacroCodeCampActIntro.isShowVipBtn then
@@ -221,6 +223,10 @@ end
     /loadworld -inplace  530 | /sendevent globalQuestLogin  {level=1, password="1234"}
 ]]
 function MacroCodeCampActIntro.OnClick(index)
+    if MacroCodeCampActIntro.CheckNeedRealName() then
+        MacroCodeCampActIntro.ClosePage()
+        return
+    end
     local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
     local world_id = WorldCommon.GetWorldTag("kpProjectId");    
     if index == 4 then
@@ -240,12 +246,21 @@ function MacroCodeCampActIntro.OnClick(index)
     if tonumber(world_id) == campId then
         if index == 2 then
             GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
-                if page then
-                    page:CloseWindow()
-                end
+                MacroCodeCampActIntro.ClosePage()
             end);
         else
             GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
+            commonlib.TimerManager.SetTimeout(function()
+                MacroCodeCampActIntro.ClosePage()
+                if index == 1 then
+                    local block = BlockEngine:GetBlock(19328,10,19465);
+                    if(block) then
+                        block:OnActivated(19328,10,19465, nil);
+                    end
+                elseif index == 3 then                                
+                    GameLogic.QuestAction.OpenCampCourseView()
+                end 
+            end,500)                       
         end
     else
         GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
@@ -295,4 +310,23 @@ function MacroCodeCampActIntro.GetVipRestNum()
             ParaUI.GetUIObject("vip_rest").visible = true
         end
     end)
+end
+
+function MacroCodeCampActIntro.CheckNeedRealName()
+    if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
+        GameLogic.GetFilters():apply_filters(
+            'show_certificate',
+            function(result)
+                if (result) then
+                    -- GameLogic.AddBBS(nil, L'领取成功', 5000, '0 255 0');
+                    -------------------------------------------------------
+                    local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+                    DockPage.page:Refresh(0.01)
+                    GameLogic.QuestAction.AchieveTask("40006_1", 1, true)
+                end
+            end
+        );
+        return true
+    end
+    return false
 end
