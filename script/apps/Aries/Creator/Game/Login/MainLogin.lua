@@ -173,6 +173,10 @@ function MainLogin:UpdateCoreClient()
 			updater:onInit(ParaIO.GetWritablePath(), ClientUpdater:GetUpdateConfigFilename(), function(state)	end)
 			updater:check(nil, function(bSucceed)
 				if(bSucceed and updater:isNeedUpdate()) then
+					if GameLogic.GetFilters():apply_filters('cellar.client_update_dialog.show') then
+						return
+					end
+
 					System.App.Commands.Call("File.MCMLWindowFrame", {
 						url = format("script/apps/Aries/Creator/Game/Login/ClientUpdateDialog.html?latestVersion=%s&curVersion=%s&curGame=%s", updater:getLatestVersion(), updater:getCurVersion(), gamename), 
 						name = "ClientUpdateDialog", 
