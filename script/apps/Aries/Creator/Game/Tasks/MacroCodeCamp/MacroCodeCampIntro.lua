@@ -50,8 +50,8 @@ function MacroCodeCampIntro.OnInit()
 end
 
 function MacroCodeCampIntro.ShowView()
-    local view_width = 540
-	local view_height = 580
+    local view_width = 740
+	local view_height = 560
     local params = {
         url = "script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampIntro.html",
         name = "MacroCodeCampIntro.ShowView", 
