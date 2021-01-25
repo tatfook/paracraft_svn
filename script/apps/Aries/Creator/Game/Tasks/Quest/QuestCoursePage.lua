@@ -91,7 +91,7 @@ function QuestCoursePage.Show(is_make_up)
 		if err == 200 then
 			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
-
+			QuestAction.SetServerTime(server_time)
 
 			local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
 			if server_time < begain_day_weehours then

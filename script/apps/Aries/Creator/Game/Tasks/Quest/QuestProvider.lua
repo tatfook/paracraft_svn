@@ -108,9 +108,10 @@ function QuestProvider:OnInit()
             end
 
             if exid == GameLogic.QuestAction.end_exid or exid == 40027 then
+                local gsid = exid == 40027 and 60025 or 60026
                 keepwork.wintercamp.finishcertificate({
                     gsId=GameLogic.QuestAction.winter_camp_jion_gsid,
-                    certificateGsId=event.quest_item_container.gsid,
+                    certificateGsId=gsid,
                 },function(err, msg, data)
                 end)
             end
@@ -553,4 +554,8 @@ end
 
 function QuestProvider:GetServerTime()
     return self.server_time_stamp or 0
+end
+
+function QuestProvider:SetServerTime(server_time_stamp)
+    self.server_time_stamp = server_time_stamp or 0
 end

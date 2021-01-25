@@ -557,3 +557,23 @@ end
 function QuestAction.ShowSpeciapTask()
     QuestPage.Show({begain_exid = 40028, end_exid = 40030});
 end
+
+function QuestAction.SetServerTime(server_time_stamp)
+    QuestProvider:GetInstance():SetServerTime(server_time_stamp)
+end
+
+function QuestAction.OpenCampCourseView()
+    keepwork.user.server_time({
+    },function(err, msg, data)
+        if(err == 200)then
+            local server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+            QuestProvider:GetInstance():SetServerTime(server_time_stamp)
+			local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
+            if server_time_stamp < begain_day_weehours then
+                QuestAction.ShowSpeciapTask()
+            else
+                QuestAction.ShowCourseView()
+			end
+        end
+    end)
+end
