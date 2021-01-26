@@ -40,6 +40,32 @@ function Macros.KeyFrameCtrlClickTrigger(name, time, mouseButton)
 	end
 end
 
+function Macros.KeyFrameCtrlClickTimeLine(name, time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		mouse_button = "left";
+		-- trickly: id is a global variable for _guihelper.GetLastUIObjectPos()
+		id = ctl:GetCurTimeButtonId() or id;
+		ctl:handleEvent("ClickTimeLine", time);
+	end
+end
+
+function Macros.KeyFrameCtrlClickTimeLineTrigger(name, time)
+	local ctl = CommonCtrl.GetControl(name)
+	if(ctl and ctl.handleEvent) then
+		local mouseX, mouseY = ctl:GetXYPosByTime(time)
+		if(mouseX) then
+			local callback = {};
+			MacroPlayer.SetClickTrigger(mouseX, mouseY, "left", function()
+				if(callback.OnFinish) then
+					callback.OnFinish();
+				end
+			end);
+			return callback;
+		end
+	end
+end
+
 function Macros.KeyFrameCtrlRemove(name, time)
 	local ctl = CommonCtrl.GetControl(name)
 	if(ctl and ctl.handleEvent) then

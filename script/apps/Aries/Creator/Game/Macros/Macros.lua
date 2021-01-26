@@ -266,6 +266,9 @@ function Macros.OnKeyFrameCtrlEvent(ctrl, eventName, p1, p2)
 		elseif(eventName == "CopyKeyFrame") then
 			-- p1, p2: new_time, shift_begin_time
 			Macros:AddMacro("KeyFrameCtrlCopy", uiname, p1, p2)
+		elseif(eventName == "ClickTimeLine") then
+			-- p1: time
+			Macros:AddMacro("KeyFrameCtrlClickTimeLine", uiname, p1)
 		end
 	end
 end
