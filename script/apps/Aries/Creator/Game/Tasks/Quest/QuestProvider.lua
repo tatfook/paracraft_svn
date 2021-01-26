@@ -85,7 +85,7 @@ function QuestProvider:OnInit()
         -- 埋点
         -- 抗疫知识埋点=
         if quest_item_container and quest_item_container.gsid == 60029 then
-            GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.lessons.hour_of_code', { from = quest_item.id })
+            GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.lessons.epidemic', { from = quest_item.id })
         end
         if quest_item.value == quest_item.finished_value then
             GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.quest_action.when_finish')
