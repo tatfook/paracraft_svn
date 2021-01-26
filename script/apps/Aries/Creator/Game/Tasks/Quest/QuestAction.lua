@@ -225,13 +225,17 @@ function QuestAction.GetLabel(task_id, task_data)
     if(not task_id)then
         return
     end
-    if(task_id == "60001_1")then
-        return QuestAction.GetLabel_60001_1(task_id, task_data)
-    end
+    -- if(task_id == "60001_1")then
+    --     return QuestAction.GetLabel_60001_1(task_id, task_data)
+    -- end
 
-    if(task_id == "60007_1")then
-        return QuestAction.GetLabel_60007_1(task_id, task_data)
-    end
+    -- if(task_id == "60007_1")then
+    --     return QuestAction.GetLabel_60007_1(task_id, task_data)
+    -- end
+
+    local value = task_data.value == task_data.finished_value and 1 or 0
+    local finished_value = 1
+    return string.format("%s/%s", value, finished_value)
 end
 
 function QuestAction.GetLabel_60001_1(task_id, task_data)
@@ -576,4 +580,8 @@ function QuestAction.OpenCampCourseView()
 			end
         end
     end)
+end
+
+function QuestAction.CanFinish()
+    -- body
 end
