@@ -6,28 +6,86 @@ Desc: a trigger for player movement to a scene position
 
 Use Lib:
 -------------------------------------------------------
-NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macro.lua");
-local Macro = commonlib.gettable("MyCompany.Aries.Game.Macro");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Macros.lua");
+local Macros = commonlib.gettable("MyCompany.Aries.Game.Macros");
 -------------------------------------------------------
 ]]
--------------------------------------
--- single Macro base
--------------------------------------
+local mathlib = commonlib.gettable("mathlib");
+local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Macros = commonlib.gettable("MyCompany.Aries.Game.GameLogic.Macros")
+
+Macros.AnimatePlayerMove = true;
+Macros.AnimateCameraMove = true;
 
 --@param bx, by, bz: block world position
 --@param facing: player facing
 function Macros.PlayerMove(bx, by, bz, facing)
-	-- TODO: use animation?
 	local player = EntityManager.GetPlayer();
 	if(player) then
-		bx, by, bz = Macros.ComputeBlockPosition(bx, by, bz)
-		player:SetBlockPos(bx, by, bz)
-		if(facing) then
-			player:SetFacing(facing);
+		local nOffset = 0;
+		local interval = 0;
+		local fromX, fromY, fromZ, fromFacing;
+		while(true) do
+			nOffset = nOffset - 1;
+			local nextMacro = Macros:PeekNextMacro(nOffset)
+			if(nextMacro and (nextMacro.name == "Idle" or nextMacro.name == "PlayerMoveTrigger" or nextMacro.name == "CameraMove" or nextMacro.name == "PlayerMove")) then
+				if(nextMacro.name == "PlayerMove") then
+					local params = nextMacro:GetParams();
+					fromX, fromY, fromZ, fromFacing = params[1], params[2], params[3], params[4]
+					break;
+				elseif(nextMacro.name == "Idle") then
+					local dTime = nextMacro:GetParams()[1] or 0;
+					interval = interval + dTime;
+				end
+			else
+				break;
+			end
 		end
-		return Macros.Idle(1);
+
+		player:SetFocus();
+		bx, by, bz = Macros.ComputeBlockPosition(bx, by, bz)
+
+		local isFirstPlayerMove = Macros:FindNextMacro("PlayerMove") == Macros:PeekNextMacro(0);
+		if(Macros.AnimatePlayerMove and not isFirstPlayerMove) then
+			-- play animation and smoothly move to target location. 
+			interval = math.min(interval, 1000);
+			if(interval == 0) then
+				interval = 500
+			end
+			local callback = {};
+			local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+				if(Macros:IsPlaying() and callback.OnFinish) then
+					local x1, y1, z1 = player:GetPosition()
+					local x2, y2, z2 = BlockEngine:real_bottom(bx, by, bz);
+					local dist = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2);
+					local speed = 0.3;
+					if(dist > speed) then
+						local r = speed / dist;
+						local x = x2 * r + x1 * (1-r);
+						local y = y2 * r + y1 * (1-r);
+						local z = z2 * r + z1 * (1-r);
+						player:SetPosition(x, y, z)
+						timer:Change(30);
+					else
+						player:SetBlockPos(bx, by, bz)
+						if(facing) then
+							player:SetFacing(facing);
+						end
+						callback.OnFinish();
+					end
+				end
+				
+			end})
+			mytimer:Change(30);
+			return callback;
+		else
+			player:SetBlockPos(bx, by, bz)
+			if(facing) then
+				player:SetFacing(facing);
+			end
+			return Macros.Idle(1);
+		end
 	end
 end
 
@@ -52,15 +110,54 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 	else
 		lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY = camobjDist, LiftupAngle, CameraRotY
 	end
-	-- TODO: use animation?
-	ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
+	
+	local isFirstCameraMove = Macros:FindNextMacro("CameraMove") == Macros:PeekNextMacro(0);
+	if(Macros.AnimateCameraMove and not isFirstCameraMove) then
+		local callback = {};
+		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+			if(Macros:IsPlaying() and callback.OnFinish) then
+				local x1, y1, z1 = ParaCamera.GetEyePos()
+				local x2, y2, z2 = camobjDist, LiftupAngle, CameraRotY;
+				local fDif = mathlib.ToStandardAngle(y2-y1);
+				y1 = y2 - fDif;
+				local fDif = mathlib.ToStandardAngle(z2-z1);
+				z1 = z2 - fDif;
+				
+				-- tricky: dY*4 just treats angle as distance
+				local dist = math.sqrt((x2 - x1)^2 + ((y2 - y1)*4)^2 + ((z2 - z1)*4)^2);
+				local speed = 0.5;
+				if(dist > speed) then
+					local r = speed / dist;
+					local x = x2 * r + x1 * (1-r);
+					local y = y2 * r + y1 * (1-r);
+					local z = z2 * r + z1 * (1-r);
+					ParaCamera.SetEyePos(x, y, z)
+					timer:Change(30);
+				else
+					ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
 
-	local focusEntity = EntityManager.GetFocus();
-	if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
-		focusEntity:FaceTarget(nil)
+					local focusEntity = EntityManager.GetFocus();
+					if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+						focusEntity:FaceTarget(nil)
+					end
+
+					callback.OnFinish();
+				end
+			end
+				
+		end})
+		mytimer:Change(30);
+		return callback;
+	else
+		ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
+
+		local focusEntity = EntityManager.GetFocus();
+		if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+			focusEntity:FaceTarget(nil)
+		end
+
+		return Macros.Idle(1);
 	end
-
-	return Macros.Idle(1);
 end
 
 -- @param x,y,z: camera look at position. if nil it will default to last camera lookat call. 
@@ -77,6 +174,7 @@ function Macros.CameraLookat(x, y, z)
 
 		local focusEntity = EntityManager.GetFocus();
 		if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+			-- TODO: animate this
 			focusEntity:SetPosition(x, y, z);
 		end
 

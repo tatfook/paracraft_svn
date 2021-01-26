@@ -506,6 +506,30 @@ function Macros:PeekNextMacro(nOffset)
 	end
 end
 
+function Macros:GetMacroByIndex(index)
+	if(self.macros) then
+		return self.macros[index];
+	end
+end
+
+-- @param fromIndex: if nil, default to 1
+-- @return macro, index:   index of the next macro of name from fromIndex. return nil if not found
+function Macros:FindNextMacro(name, fromIndex)
+	fromIndex = fromIndex or 1;
+	while(true) do
+		local macro = self:GetMacroByIndex(fromIndex)
+		if(macro) then
+			if(macro.name == name) then
+				
+				return macro, fromIndex;
+			end
+		else
+			break;
+		end
+		fromIndex = fromIndex + 1;
+	end
+end
+
 -- @param fromLine: optional
 function Macros:PlayMacros(macros, fromLine, speed)
 	fromLine = fromLine or 1
