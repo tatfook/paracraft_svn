@@ -128,12 +128,12 @@ function QuestCoursePage.Show(is_make_up)
 								local hour = next_time_data.begain_time.hour >= 10 and next_time_data.begain_time.hour or "0" .. next_time_data.begain_time.hour
 								local min = next_time_data.begain_time.min >= 10 and next_time_data.begain_time.min or "0" .. next_time_data.begain_time.min
 								local next_time = string.format("%s:%s", hour, min)
-								local desc = string.format(L"你已迟到十五分钟，请下一堂课(%s)再来，切记不可再迟到了哟！", next_time)
+								local desc = string.format(L"您已迟到，请下一堂课(%s)再来，切记不可再迟到了哟！", next_time)
 								GameLogic.QuestAction.ShowDialogPage(desc)
 							else
-								GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+								GameLogic.QuestAction.ShowDialogPage(L"您已迟到，请下一堂课再来，切记不可再迟到了哟！")
 							end
-							-- GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+							-- GameLogic.QuestAction.ShowDialogPage(L"您已迟到，请下一堂课再来，切记不可再迟到了哟！")
 						elseif course_time_state == QuestCoursePage.ToCourseState.before then
 							local first_time_data = QuestCoursePage.CourseTimeLimit[1]
 							local hour = first_time_data.begain_time.hour >= 10 and first_time_data.begain_time.hour or "0" .. first_time_data.begain_time.hour
@@ -647,7 +647,7 @@ function QuestCoursePage.Goto(task_id)
 				local course_time_state = QuestCoursePage.CheckCourseTimeState()
 				if course_time_state ~= QuestCoursePage.ToCourseState.in_time then
 					if course_time_state == QuestCoursePage.ToCourseState.late then
-						GameLogic.AddBBS(nil, L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！");
+						GameLogic.AddBBS(nil, L"您已迟到，请下一堂课再来，切记不可再迟到了哟！");
 					else
 						GameLogic.AddBBS(nil, L"请在门口课程表上指定的时间段内前来上课哟！");
 					end
