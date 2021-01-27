@@ -574,7 +574,7 @@ function QuestAction.OpenCampCourseView()
     keepwork.user.server_time({
     },function(err, msg, data)
         if(err == 200)then
-            local server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+            local server_time_stamp = commonlib.timehelp.GetTimeStampByDateTime(data.now, true)
             QuestProvider:GetInstance():SetServerTime(server_time_stamp)
 			local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
             if server_time_stamp < begain_day_weehours then

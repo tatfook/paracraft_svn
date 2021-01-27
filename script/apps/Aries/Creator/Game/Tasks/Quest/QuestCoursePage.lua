@@ -89,7 +89,7 @@ function QuestCoursePage.Show(is_make_up)
     end
 	keepwork.user.server_time({}, function(err, msg, data)
 		if err == 200 then
-			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now, true)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 			QuestAction.SetServerTime(server_time)
 
@@ -151,7 +151,7 @@ function QuestCoursePage.RefreshData()
 				return
 			end
 
-			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now, true)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 
 			QuestCoursePage.HandleTaskData()
@@ -345,7 +345,7 @@ function QuestCoursePage.HandleTaskData(data)
 			task_data.is_main_task = task_data.task_type == "main"
 			task_data.goto_world = v.goto_world
 			task_data.click = v.click
-			task_data.task_pro_desc = ""
+			task_data.task_pro_desc = QuestCoursePage.GetTaskProDescByQuest(v)
 			task_data.task_state = QuestCoursePage.GetTaskStateByQuest(task_data)
 			task_data.order = QuestCoursePage.GetTaskOrder(v)
 			task_data.bg_img = QuestCoursePage.GetBgImg(task_data)
@@ -419,6 +419,14 @@ function QuestCoursePage.GetTaskProDesc(task_id)
 	local complete_times = task_data.complete_times or 0
 
 	return "进度： "  .. complete_times .. "/" .. task_data.max_times
+end
+
+function QuestCoursePage.GetTaskProDescByQuest(data)
+	local value = QuestAction.GetValue(data.id) or 0
+	local finish_value = data.finished_value
+	local desc = string.format("进度：%s/%s", value, finish_value)
+
+	return desc
 end
 
 function QuestCoursePage.GetTaskOrder(data)
@@ -573,7 +581,7 @@ end
 function QuestCoursePage.Goto(task_id)
 	keepwork.user.server_time({}, function(err, msg, data)
 		if err == 200 then
-			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now)
+			server_time = commonlib.timehelp.GetTimeStampByDateTime(data.now, true)
 			today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time)
 			local task_data = QuestCoursePage.GetQuestData(task_id)
 			if task_data == nil then
