@@ -121,11 +121,27 @@ function QuestCoursePage.Show(is_make_up)
 						end
 					end
 				else
-					local course_time_state = QuestCoursePage.CheckCourseTimeState()
+					local course_time_state, next_time_data = QuestCoursePage.CheckCourseTimeState()
 					if course_time_state ~= QuestCoursePage.ToCourseState.in_time then
 						if course_time_state == QuestCoursePage.ToCourseState.late then
-							-- GameLogic.AddBBS(nil, L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！");
-							GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+							if next_time_data then
+								local hour = next_time_data.begain_time.hour >= 10 and next_time_data.begain_time.hour or "0" .. next_time_data.begain_time.hour
+								local min = next_time_data.begain_time.min >= 10 and next_time_data.begain_time.min or "0" .. next_time_data.begain_time.min
+								local next_time = string.format("%s:%s", hour, min)
+								local desc = string.format(L"你已迟到十五分钟，请下一堂课(%s)再来，切记不可再迟到了哟！", next_time)
+								GameLogic.QuestAction.ShowDialogPage(desc)
+							else
+								GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+							end
+							-- GameLogic.QuestAction.ShowDialogPage(L"你已迟到十五分钟，请下一堂课再来，切记不可再迟到了哟！")
+						elseif course_time_state == QuestCoursePage.ToCourseState.before then
+							local first_time_data = QuestCoursePage.CourseTimeLimit[1]
+							local hour = first_time_data.begain_time.hour >= 10 and first_time_data.begain_time.hour or "0" .. first_time_data.begain_time.hour
+							local min = first_time_data.begain_time.min >= 10 and first_time_data.begain_time.min or "0" .. first_time_data.begain_time.min
+							local next_time = string.format("%s:%s", hour, min)
+							GameLogic.QuestAction.ShowDialogPage(string.format("今日课程还未开始，请在门口课程表上指定的开始时间(%s)来上课哟！", next_time))
+						elseif course_time_state == QuestCoursePage.ToCourseState.finish then
+							GameLogic.QuestAction.ShowDialogPage(L"今日课程已经结束，请在门口课程表上指定的时间段内前来上课哟！")
 						else
 							GameLogic.QuestAction.ShowDialogPage(L"请在门口课程表上指定的时间段内前来上课哟！")
 						end
@@ -843,6 +859,15 @@ function QuestCoursePage.CheckCourseTimeState()
 
 		if i == #QuestCoursePage.CourseTimeLimit and server_time > begain_time_stamp then
 			return QuestCoursePage.ToCourseState.finish
+		end
+	end
+
+	for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
+		local begain_time_stamp = today_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600
+		local end_time_stamp = today_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
+
+		if server_time < begain_time_stamp then
+			return QuestCoursePage.ToCourseState.late, v
 		end
 	end
 
