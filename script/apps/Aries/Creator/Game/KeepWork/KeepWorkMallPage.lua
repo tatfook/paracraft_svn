@@ -454,14 +454,16 @@ function KeepWorkMallPage.OnClickBuy(item_data)
 
 	if item_data.enabled == false then
 		if item_data.vip_enabled and not item_data.is_has then
-			GameLogic.GetFilters():apply_filters("VipNotice", true, "vip_goods",function()
-				if (KeepWorkItemManager.IsVip()) then
-					local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
-					KeepWorkMallPage.HandleDataSources()
-					KeepWorkMallPage.FlushView()
+			GameLogic.IsVip("VipGoods", true, function(result)
+				if result then
+					if (KeepWorkItemManager.IsVip()) then
+						local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
+						KeepWorkMallPage.HandleDataSources()
+						KeepWorkMallPage.FlushView()
+					end
 				end
-			end);
-			
+			end)
+
 			-- System.User.isVip = true
 			-- if (KeepWorkItemManager.IsVip()) then
 			-- 	local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
