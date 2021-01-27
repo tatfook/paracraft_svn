@@ -1,25 +1,37 @@
 --[[
-    NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampMiniPro.lua");
-    local MacroCodeCampMiniPro = commonlib.gettable("WinterCamp.MacroCodeCamp")
-    MacroCodeCampMiniPro.ShowView()
-
     local MacroCodeCampMiniPro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampMiniPro.lua");
     MacroCodeCampMiniPro.ShowView()
 ]]
 local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
+local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/QRCodeWnd.lua");
+NPL.load("(gl)script/ide/System/Encoding/base64.lua");
+NPL.load("(gl)script/ide/Json.lua");
+local Encoding = commonlib.gettable("System.Encoding");
 local QRCodeWnd = commonlib.gettable("MyCompany.Aries.Creator.Game.Tasks.MacroCodeCamp.QRCodeWnd");
 local MacroCodeCampMiniPro = NPL.export()--commonlib.gettable("WinterCamp.MacroCodeCamp")
-
+MacroCodeCampMiniPro.schoolNum = 0
+MacroCodeCampMiniPro.learnTime = 0
+MacroCodeCampMiniPro.projectNum = 0
+MacroCodeCampMiniPro.userName = ""
 local page 
+
+function MacroCodeCampMiniPro.WordsLimit(str)
+    if (_guihelper.GetTextWidth(str, "System;16") > 132) then
+        local text = commonlib.utf8.sub(str, 1, 8) .. "..";
+        return text
+    end
+    return str
+end
 
 function MacroCodeCampMiniPro.OnInit()
 	page = document:GetPageCtrl();
 end
 
 function MacroCodeCampMiniPro.ShowView()
-    local view_width = 450
-	local view_height = 410
+    MacroCodeCampMiniPro.GetContentData()
+    local view_width = 660
+	local view_height = 610
     local params = {
         url = "script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampMiniPro.html",
         name = "MacroCodeCampMiniPro.ShowView", 
@@ -38,4 +50,59 @@ function MacroCodeCampMiniPro.ShowView()
             height = view_height,
     };
     System.App.Commands.Call("File.MCMLWindowFrame", params);   
+end
+
+function MacroCodeCampMiniPro.GetContentData()
+    MacroCodeCampMiniPro.userName = commonlib.getfield("System.User.username")
+    local id = "kp" .. Encoding.base64(commonlib.Json.Encode({username=MacroCodeCampMiniPro.userName}));
+    keepwork.user.getinfo({
+        cache_policy = System.localserver.CachePolicy:new("access plus 1 hour"),
+        router_params = {
+            id = id,
+        }
+    },function(err, msg, data)
+        -- print("zzzzzzzzzzzzz")
+        -- echo(err)
+        -- echo(msg)
+        -- echo(data)
+        MacroCodeCampMiniPro.learnTime = (os.time() - MacroCodeCampMiniPro.GetTimeStamp(data.createdAt)) / (24*3600)
+        MacroCodeCampMiniPro.projectNum = data.rank and data.rank.project or 0
+        MacroCodeCampMiniPro.RefreshPage()
+    end)
+
+    keepwork.user.total_orgs({},function(err,msg,data)
+        -- print("aaaaaaaaaaaaaaaazzzzzzzzzzzzzz")
+        -- echo(err)
+        -- echo(msg)
+        -- echo(data)
+        if(err ~= 200)then
+            return
+        end
+        -- print("data========================2")
+        MacroCodeCampMiniPro.schoolNum = data.data and data.data.count or 0
+        MacroCodeCampMiniPro.RefreshPage()
+    end)
+    
+end
+
+function MacroCodeCampMiniPro.RefreshPage()
+    if page then
+        page:Refresh(0.01)
+    end
+end
+
+function MacroCodeCampMiniPro.GetContent(index)
+    if index == 1 then
+        return string.format("%d所学校,机构正在使用帕拉卡学习！",MacroCodeCampMiniPro.schoolNum)
+    elseif index == 2 then
+        return string.format("%s同学已学习%d天动画编程，拥有%d部作品",MacroCodeCampMiniPro.userName,MacroCodeCampMiniPro.learnTime,MacroCodeCampMiniPro.projectNum)
+    end
+end
+
+function MacroCodeCampMiniPro.GetTimeStamp(strTime)
+    strTime = strTime or "";
+    local year, month, day, hour, min, sec = strTime:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)"); 
+    local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}); -- 这个时间是带时区的 要加8小时
+    time_stamp = time_stamp + min * 60 + sec;
+    return time_stamp;
 end
