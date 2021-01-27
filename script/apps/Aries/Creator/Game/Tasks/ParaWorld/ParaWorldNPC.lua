@@ -75,8 +75,8 @@ function ParaWorldNPC.CreateNPCImp(npc)
 	local x, y, z = BlockEngine:ConvertToRealPosition_float(npc.x, npc.y, npc.z);
 	local entity = EntityManager.EntityNPC:Create({x=x,y=y-0.5,z=z, item_id = block_types.names["villager"]});
 	local assetfile = EntityManager.PlayerAssetFile:GetValidAssetByString(npc.npcModel);
-	if (npc.f) then
-		entity:SetFacing(npc.f % math.pi);
+	if (npc.f and tonumber(npc.f)) then
+		entity:SetFacing(tonumber(npc.f));
 	end
 	entity:SetPersistent(false);
 	entity:SetServerEntity(false);
