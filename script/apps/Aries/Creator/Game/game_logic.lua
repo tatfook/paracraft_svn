@@ -413,11 +413,16 @@ function GameLogic.OnLoadBlockRegion(bContinue, region_x, region_y)
 	if(not GameLogic.IsRegionLoadedFired) then
 		GameLogic.loadWorldTimer = GameLogic.loadWorldTimer or commonlib.Timer:new({callbackFunc = function(timer)
 			if(not GameLogic.IsRegionLoadedFired) then
-				GameLogic.IsRegionLoadedFired = true
-				GameLogic.GetFilters():apply_filters("OnWorldInitialRegionsLoaded", true);
+				if(GameLogic.GetTickCount() > 30) then
+					GameLogic.IsRegionLoadedFired = true
+					LOG.std(nil, "system", "GameLogic", "OnWorldInitialRegionsLoaded");
+					GameLogic.GetFilters():apply_filters("OnWorldInitialRegionsLoaded", true);
+				else
+					timer:Change(500);
+				end
 			end
 		end})
-		GameLogic.loadWorldTimer:Change(2000);
+		GameLogic.loadWorldTimer:Change(500);
 	end
 	return bContinue;
 end
@@ -598,6 +603,7 @@ function GameLogic.LoadGame()
 	Files:ClearFindFileCache();
 	Files:UnloadAllWorldAssets();
 	GameLogic.IsRegionLoadedFired = nil;
+	GameLogic.tickCount = 0;
 
 	System.os.options.DisableInput(true);
 
@@ -1002,6 +1008,11 @@ function GameLogic:IsTick(deltaTime)
 	return self.ticks:IsTick(deltaTime)
 end
 
+-- the number of frame moves that has been called. 
+function GameLogic.GetTickCount()
+	return GameLogic.tickCount or 0;
+end
+
 -- called 30 FPS framemove.
 function GameLogic.FrameMove(timer)
 	if(GameLogic.IsPaused()) then
@@ -1020,7 +1031,8 @@ function GameLogic.FrameMove(timer)
 	end
 
 	GameLogic.lastGameTime = GameLogic.gameFRC:GetField("Time", 0);
-
+	GameLogic.tickCount = (GameLogic.tickCount or 0) + 1;
+	
 	local simDeltaTime = math.min(100,deltaTime);
 	-- 20FPS simulation tick
 	local bIsTick = GameLogic:IsTick(deltaTime);
