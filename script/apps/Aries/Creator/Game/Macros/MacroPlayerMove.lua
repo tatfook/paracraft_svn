@@ -84,6 +84,10 @@ function Macros.PlayerMove(bx, by, bz, facing)
 
 						callback.OnFinish();
 					end
+				else
+					if(not bIsControlled) then
+						player:SetControlledExternally(false)
+					end
 				end
 				
 			end})
@@ -161,8 +165,11 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 					end
 					callback.OnFinish();
 				end
+			else
+				if(not bIsControlled) then
+					player:SetControlledExternally(false)
+				end
 			end
-				
 		end})
 		mytimer:Change(30);
 		return callback;
