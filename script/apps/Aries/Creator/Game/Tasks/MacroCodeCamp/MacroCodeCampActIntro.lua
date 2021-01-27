@@ -236,36 +236,43 @@ function MacroCodeCampActIntro.OnClick(index)
         GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
         return
     end
+    
+    print("OnClick data========",index,world_id)
+    local campId = MacroCodeCampActIntro.campIds[httpwrapper_version]
+    if tonumber(world_id) == campId then
+        MacroCodeCampActIntro.DoWinterCampEvent(index)
+    else
+        GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
+    end
+    GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
+end
+
+function MacroCodeCampActIntro.DoWinterCampEvent(index)
     local pos = {
         {19236,12,19250},
         {19200,12,19323},
         {19265,11,19147},
     }
-    print("OnClick data========",index,world_id)
-    local campId = MacroCodeCampActIntro.campIds[httpwrapper_version]
-    if tonumber(world_id) == campId then
-        if index == 2 then
-            GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
-                MacroCodeCampActIntro.ClosePage()
+   
+    if index == 1 then        
+        --GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
+        MacroCodeCampActIntro.ClosePage()
+        commonlib.TimerManager.SetTimeout(function()             
+            GameLogic.GetCodeGlobal():BroadcastTextEvent("PlayGuideMovies", {}, function()
+                
             end);
-        else
-            GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
-            commonlib.TimerManager.SetTimeout(function()
-                MacroCodeCampActIntro.ClosePage()
-                if index == 1 then
-                    local block = BlockEngine:GetBlock(19328,10,19465);
-                    if(block) then
-                        block:OnActivated(19328,10,19465, nil);
-                    end
-                elseif index == 3 then                                
-                    GameLogic.QuestAction.OpenCampCourseView()
-                end 
-            end,500)                       
-        end
-    else
-        GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
+        end,500)
+    elseif index == 2 then
+        GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
+            MacroCodeCampActIntro.ClosePage()
+        end);
+    elseif index == 3 then 
+        GameLogic.RunCommand(string.format("/goto  %d %d %d", pos[index][1],pos[index][2],pos[index][3]));
+        MacroCodeCampActIntro.ClosePage()
+        commonlib.TimerManager.SetTimeout(function()            
+            GameLogic.QuestAction.OpenCampCourseView()
+        end,500)                       
     end
-    GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.promotion.winter_camp.first_page', { from = "wintercamp_act"..index })
 end
 
 function MacroCodeCampActIntro.OnMouseEnter(index)
