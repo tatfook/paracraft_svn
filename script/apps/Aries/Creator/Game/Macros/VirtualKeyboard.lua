@@ -61,7 +61,7 @@ function VirtualKeyboard:ctor()
 			{name="0", char="0",col=1, name2 = ")", char2 = ")", vKey = DIK_SCANCODE.DIK_0},
 			{name="-", char="-",col=1, name2 = "_", char2 = "_", vKey = DIK_SCANCODE.DIK_MINUS},
 			{name="=", char="=",col=1, name2 = "+", char2 = "+", vKey = DIK_SCANCODE.DIK_EQUALS},
-			{name="Backspace", col=2, colorid=2, vKey = DIK_SCANCODE.DIK_BACK},
+			{name="Backspace", col=2, colorid=2, vKey = DIK_SCANCODE.DIK_BACKSPACE},
 			{name="Del", col=1, colorid=2, vKey = DIK_SCANCODE.DIK_DELETE},
 		},
 		{
