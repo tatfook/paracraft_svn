@@ -311,7 +311,7 @@ function MacroPlayer.ShowKeyboard(bShow, button)
 		if(not page.keyboardWnd) then
 			NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/VirtualKeyboard.lua");
 			local VirtualKeyboard = commonlib.gettable("MyCompany.Aries.Game.GUI.VirtualKeyboard");
-			page.keyboardWnd = VirtualKeyboard:new():Init("MacroVirtualKeyboard", nil, 150);
+			page.keyboardWnd = VirtualKeyboard:new():Init("MacroVirtualKeyboard", nil, 400, 1024);
 		end
 		page.keyboardWnd:Show(bShow);
 		

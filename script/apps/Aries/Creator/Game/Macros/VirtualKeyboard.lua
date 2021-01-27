@@ -242,8 +242,13 @@ end
 -- @param left, top: left, top position where to show. 
 -- @param width: if width is not specified, it will use all the screen space left from x. 
 function VirtualKeyboard:SetPosition(left, top, width)
-	self.left = left or math.floor(Screen:GetWidth()/18);
-	width = width or math.floor((Screen:GetWidth() - self.left)*16/17);
+	local maxWidth = math.floor(Screen:GetWidth()*16/17);
+	width = math.min(maxWidth, width or maxWidth);
+	if(not left) then
+		left = math.floor((Screen:GetWidth() - width) / 2 + 0.5)
+	end
+	self.left = left;
+
 	self.width = width;
 	self.button_width = math.floor(self.width / 16);
 	-- button_height is same as self.button_width, but will not be more than half of the screen height. 
@@ -251,6 +256,10 @@ function VirtualKeyboard:SetPosition(left, top, width)
 	self.height = self.button_height * 6;
 
 	self.top = top or self.button_height;
+
+	if((self.top+self.height) > (Screen:GetHeight() - self.button_width)) then
+		self.top = math.max(0, Screen:GetHeight() - self.button_width - self.height);
+	end
 
 	-- 50% padding between keys
 	self.key_margin = math.floor(math.min(self.finger_size, self.button_width*0.15) * 0.5); 
