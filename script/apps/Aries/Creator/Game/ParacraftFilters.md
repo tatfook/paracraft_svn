@@ -85,6 +85,7 @@ This gives an overview of filters in paracraft. Please search the source code of
   - "cellar.vip_notice.close": Close vip notice page
 
 - world:
+  - "OnWorldInitialRegionsLoaded": called only once after the first world regions are loaded. 
   - "PlayerHasLoginPosition", nil, x,y,z: called whenever the player is at its spawn position in both local or remote world.
   - "BeforeSetSpawnPoint", {x,y,z}: before player spawn point is set
   - "SetSpawnPoint", nil, x,y,z: whenever the player spawn point is set. 
