@@ -237,7 +237,7 @@ function MacroCodeCampActIntro.OnClick(index)
         return
     end
     
-    print("OnClick data========",index,world_id)
+    -- print("OnClick data========",index,world_id)
     local campId = MacroCodeCampActIntro.campIds[httpwrapper_version]
     if tonumber(world_id) == campId then
         MacroCodeCampActIntro.DoWinterCampEvent(index)
@@ -259,9 +259,9 @@ function MacroCodeCampActIntro.DoWinterCampEvent(index)
         MacroCodeCampActIntro.ClosePage()
         commonlib.TimerManager.SetTimeout(function()             
             GameLogic.GetCodeGlobal():BroadcastTextEvent("PlayGuideMovies", {}, function()
-                
+                -- print("asddasdasdasdasdasdasdasdasd")
             end);
-        end,500)
+        end,1000)
     elseif index == 2 then
         GameLogic.GetCodeGlobal():BroadcastTextEvent("openUI", {name = "taskMain"}, function()
             MacroCodeCampActIntro.ClosePage()
@@ -283,7 +283,7 @@ function MacroCodeCampActIntro.OnMouseEnter(index)
         "Texture/Aries/Creator/keepwork/WinterCamp/3.png",
         "Texture/Aries/Creator/keepwork/WinterCamp/4.png",
     }
-    print("OnMouseEnter data========",index)
+    -- print("OnMouseEnter data========",index)
 
     --ParaUI.GetUIObject(names[index]).background = bgs[index];
     
@@ -297,7 +297,7 @@ function MacroCodeCampActIntro.OnMouseLeave(index)
         "Texture/Aries/Creator/keepwork/WinterCamp/bc.png",
         "Texture/Aries/Creator/keepwork/WinterCamp/bb.png",     
     }
-    print("OnMouseLeave data========",index)
+    -- print("OnMouseLeave data========",index)
 
     --ParaUI.GetUIObject(names[index]).background = bgs[index];
 end
