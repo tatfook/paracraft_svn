@@ -804,7 +804,7 @@ function QuestCoursePage.ToGraduate(task_data)
 	end
 
 	local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
-	local codeEntity = BlockEngine:GetBlockEntity(19210, 1, 19189)
+	local codeEntity = BlockEngine:GetBlockEntity(19211, 1, 19189)
 	if codeEntity then
 		GameLogic.QuestAction.SetValue(task_data.id, 1);
 		QuestCoursePage.Close()
