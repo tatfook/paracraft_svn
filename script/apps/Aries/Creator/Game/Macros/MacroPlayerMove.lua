@@ -53,6 +53,11 @@ function Macros.PlayerMove(bx, by, bz, facing)
 			if(interval == 0) then
 				interval = 500
 			end
+			local bIsControlled = player:IsControlledExternally()
+			if(not bIsControlled) then
+				player:SetControlledExternally(true)
+			end
+
 			local callback = {};
 			local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 				if(Macros:IsPlaying() and callback.OnFinish) then
@@ -72,6 +77,11 @@ function Macros.PlayerMove(bx, by, bz, facing)
 						if(facing) then
 							player:SetFacing(facing);
 						end
+
+						if(not bIsControlled) then
+							player:SetControlledExternally(false)
+						end
+
 						callback.OnFinish();
 					end
 				end
@@ -113,6 +123,12 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 	
 	local isFirstCameraMove = Macros:FindNextMacro("CameraMove") == Macros:PeekNextMacro(0);
 	if(Macros.AnimateCameraMove and not isFirstCameraMove) then
+		local player = EntityManager.GetPlayer();
+		local bIsControlled = player:IsControlledExternally()
+		if(not bIsControlled) then
+			player:SetControlledExternally(true)
+		end
+
 		local callback = {};
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			if(Macros:IsPlaying() and callback.OnFinish) then
@@ -140,7 +156,9 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 					if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
 						focusEntity:FaceTarget(nil)
 					end
-
+					if(not bIsControlled) then
+						player:SetControlledExternally(false)
+					end
 					callback.OnFinish();
 				end
 			end
@@ -170,12 +188,49 @@ function Macros.CameraLookat(x, y, z)
 	end
 	if(x) then
 		x, y, z = Macros.ComputePosition(x, y, z)
-		ParaCamera.SetLookAtPos(x, y, z);
-
+		
 		local focusEntity = EntityManager.GetFocus();
 		if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
-			-- TODO: animate this
-			focusEntity:SetPosition(x, y, z);
+			-- animate this
+			if(Macros.AnimateCameraMove) then
+				-- play animation and smoothly move to target location. 
+
+				local obj = focusEntity:GetInnerObject();
+				if(obj and obj.ToCharacter) then
+					obj:ToCharacter():SetFocus();
+				end
+
+				local callback = {};
+				local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+					if(Macros:IsPlaying() and callback.OnFinish) then
+						local x1, y1, z1 = focusEntity:GetPosition()
+						local x2, y2, z2 = x, y, z;
+						local dist = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2);
+						local speed = 0.3;
+						if(dist > speed) then
+							local r = speed / dist;
+							local x3 = x2 * r + x1 * (1-r);
+							local y3 = y2 * r + y1 * (1-r);
+							local z3 = z2 * r + z1 * (1-r);
+							focusEntity:SetPosition(x3, y3, z3)
+							timer:Change(30);
+						else
+							ParaCamera.SetLookAtPos(x, y, z);
+							focusEntity:SetPosition(x, y, z)
+							callback.OnFinish();
+						end
+					end
+				
+				end})
+				mytimer:Change(30);
+				return callback;
+			else
+				ParaCamera.SetLookAtPos(x, y, z);
+				focusEntity:SetPosition(x, y, z);
+				return Macros.Idle(1);
+			end
+		else
+			ParaCamera.SetLookAtPos(x, y, z);
 		end
 
 		return Macros.Idle(1);

@@ -26,6 +26,7 @@ function Macros.Idle(timeMs, bForceWait)
 		local nextNextMacro = Macros:PeekNextMacro(2)
 		-- also merge CameraLookat and Trigger. 
 		if(nextMacro and nextMacro:IsTrigger() or 
+			(nextMacro.name == "CameraMove") or (nextMacro.name == "PlayerMove") or 
 			(nextNextMacro and nextNextMacro:IsTrigger() and nextMacro.name == "CameraLookat")) then
 			return Macros.Idle(DefaultTriggerInterval, true);
 		end
