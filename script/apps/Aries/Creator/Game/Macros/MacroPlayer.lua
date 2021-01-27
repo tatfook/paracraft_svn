@@ -12,6 +12,8 @@ MacroPlayer.ShowPage();
 MacroPlayer.ShowController(false);
 -------------------------------------------------------
 ]]
+NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/MovieUISound.lua");
+local MovieUISound = commonlib.gettable("MyCompany.Aries.Game.Movie.MovieUISound");
 local ViewportManager = commonlib.gettable("System.Scene.Viewports.ViewportManager");
 local Screen = commonlib.gettable("System.Windows.Screen");
 local KeyEvent = commonlib.gettable("System.Windows.KeyEvent");
@@ -579,6 +581,7 @@ function MacroPlayer.OnKeyDown(event)
 		if(MacroPlayer.expectedEditBoxText) then
 			MacroPlayer.expectedEditBoxText = nil;
 		end
+		MovieUISound.PlayAddKey();
 		MacroPlayer.ShowEditBox(false)
 		MacroPlayer.expectedKeyButton = nil;
 		MacroPlayer.ShowKeyPress(false)
