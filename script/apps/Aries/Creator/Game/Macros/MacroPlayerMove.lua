@@ -203,12 +203,6 @@ function Macros.CameraLookat(x, y, z)
 			-- animate this
 			if(Macros.AnimateCameraMove) then
 				-- play animation and smoothly move to target location. 
-
-				local obj = focusEntity:GetInnerObject();
-				if(obj and obj.ToCharacter) then
-					obj:ToCharacter():SetFocus();
-				end
-
 				local x1, y1, z1 = focusEntity:GetPosition()
 				local x2, y2, z2 = x, y, z;
 						
@@ -222,6 +216,7 @@ function Macros.CameraLookat(x, y, z)
 							x1 = x2 * r + x1 * (1-r);
 							y1 = y2 * r + y1 * (1-r);
 							z1 = z2 * r + z1 * (1-r);
+							ParaCamera.SetLookAtPos(x1, y1, z1);
 							focusEntity:SetPosition(x1, y1, z1)
 							timer:Change(30);
 						else
