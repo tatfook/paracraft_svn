@@ -58,19 +58,25 @@ function Macros.PlayerMove(bx, by, bz, facing)
 				player:SetControlledExternally(true)
 			end
 
+			local function RestorePlayerControl_()
+				if(not bIsControlled) then
+					player:SetControlledExternally(false)
+				end
+			end
+			local x1, y1, z1 = player:GetPosition()
+			local x2, y2, z2 = BlockEngine:real_bottom(bx, by, bz);
+					
 			local callback = {};
 			local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 				if(Macros:IsPlaying() and callback.OnFinish) then
-					local x1, y1, z1 = player:GetPosition()
-					local x2, y2, z2 = BlockEngine:real_bottom(bx, by, bz);
 					local dist = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2);
 					local speed = 0.3;
 					if(dist > speed) then
 						local r = speed / dist;
-						local x = x2 * r + x1 * (1-r);
-						local y = y2 * r + y1 * (1-r);
-						local z = z2 * r + z1 * (1-r);
-						player:SetPosition(x, y, z)
+						x1 = x2 * r + x1 * (1-r);
+						y1 = y2 * r + y1 * (1-r);
+						z1 = z2 * r + z1 * (1-r);
+						player:SetPosition(x1, y1, z1)
 						timer:Change(30);
 					else
 						player:SetBlockPos(bx, by, bz)
@@ -78,18 +84,13 @@ function Macros.PlayerMove(bx, by, bz, facing)
 							player:SetFacing(facing);
 						end
 
-						if(not bIsControlled) then
-							player:SetControlledExternally(false)
-						end
+						RestorePlayerControl_();
 
 						callback.OnFinish();
 					end
 				else
-					if(not bIsControlled) then
-						player:SetControlledExternally(false)
-					end
+					RestorePlayerControl_();
 				end
-				
 			end})
 			mytimer:Change(30);
 			return callback;
@@ -134,10 +135,11 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 		end
 
 		local callback = {};
+		local x1, y1, z1 = ParaCamera.GetEyePos()
+		local x2, y2, z2 = camobjDist, LiftupAngle, CameraRotY;
+				
 		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 			if(Macros:IsPlaying() and callback.OnFinish) then
-				local x1, y1, z1 = ParaCamera.GetEyePos()
-				local x2, y2, z2 = camobjDist, LiftupAngle, CameraRotY;
 				local fDif = mathlib.ToStandardAngle(y2-y1);
 				y1 = y2 - fDif;
 				local fDif = mathlib.ToStandardAngle(z2-z1);
@@ -148,10 +150,10 @@ function Macros.CameraMove(camobjDist, LiftupAngle, CameraRotY)
 				local speed = 0.5;
 				if(dist > speed) then
 					local r = speed / dist;
-					local x = x2 * r + x1 * (1-r);
-					local y = y2 * r + y1 * (1-r);
-					local z = z2 * r + z1 * (1-r);
-					ParaCamera.SetEyePos(x, y, z)
+					x1 = x2 * r + x1 * (1-r);
+					y1 = y2 * r + y1 * (1-r);
+					z1 = z2 * r + z1 * (1-r);
+					ParaCamera.SetEyePos(x1, y1, z1)
 					timer:Change(30);
 				else
 					ParaCamera.SetEyePos(camobjDist, LiftupAngle, CameraRotY)
@@ -207,19 +209,20 @@ function Macros.CameraLookat(x, y, z)
 					obj:ToCharacter():SetFocus();
 				end
 
+				local x1, y1, z1 = focusEntity:GetPosition()
+				local x2, y2, z2 = x, y, z;
+						
 				local callback = {};
 				local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
 					if(Macros:IsPlaying() and callback.OnFinish) then
-						local x1, y1, z1 = focusEntity:GetPosition()
-						local x2, y2, z2 = x, y, z;
 						local dist = math.sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2);
 						local speed = 0.3;
 						if(dist > speed) then
 							local r = speed / dist;
-							local x3 = x2 * r + x1 * (1-r);
-							local y3 = y2 * r + y1 * (1-r);
-							local z3 = z2 * r + z1 * (1-r);
-							focusEntity:SetPosition(x3, y3, z3)
+							x1 = x2 * r + x1 * (1-r);
+							y1 = y2 * r + y1 * (1-r);
+							z1 = z2 * r + z1 * (1-r);
+							focusEntity:SetPosition(x1, y1, z1)
 							timer:Change(30);
 						else
 							ParaCamera.SetLookAtPos(x, y, z);
