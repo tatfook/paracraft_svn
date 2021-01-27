@@ -108,7 +108,7 @@ function QuestAction.SetValue(id,value)
     if(not id)then
         return
     end
-    
+    -- print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrQuestAction.SetValue", id,value)
     QuestProvider:GetInstance():SetValue(id,value);
 end
 
@@ -496,10 +496,12 @@ end
 function QuestAction.CanAccept(quest_gsid)
     -- 九天课程判断 需要判断是否五校用户 是否vip 是否到达时间
     if quest_gsid >= QuestAction.camp_beagin_gsid and quest_gsid <= QuestAction.camp_end_gsid then
+        local server_time_stamp = QuestAction.GetServerTime() or 0
         -- 判断九天课程开启时间
-        local today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(QuestAction.server_time_stamp)
+        local today_weehours = commonlib.timehelp.GetWeeHoursTimeStamp(server_time_stamp)
         local begain_day_weehours = os.time(QuestCoursePage.begain_time_t)
-        if QuestAction.server_time_stamp < begain_day_weehours then
+        if server_time_stamp < begain_day_weehours then
+            -- print("aaaaaaaaaaaaaaaaaaaaaaa未到达九天课程开启时间")
             return false
         end
 
@@ -509,7 +511,8 @@ function QuestAction.CanAccept(quest_gsid)
         date_t.day = date_t.day + second_day - 1
         local day_weehours = os.time(date_t)
     
-        if QuestAction.server_time_stamp < day_weehours then
+        if server_time_stamp < day_weehours then
+            -- print("aaaaaaaaaaaaaaaaaaaaaaa未到达对应课程日期")
             return false
         end
 
@@ -525,6 +528,7 @@ function QuestAction.CanAccept(quest_gsid)
             if value == 0 then
                 return true
             end
+            -- print("bbbbbbbbbbbbbbbbbbbbbbbbbbb五校用户 第二次允许进入")
             return false
         end
 
