@@ -114,6 +114,16 @@ function QuestProvider:OnInit()
                     certificateGsId=gsid,
                 },function(err, msg, data)
                 end)
+
+                if exid == GameLogic.QuestAction.end_exid then
+                    _guihelper.MessageBox("恭喜您顺利结业，证书已发放，点击确定前往查看", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
+                    _guihelper.MsgBoxClick_CallBack = function(res)
+                        if(res == _guihelper.DialogResult.OK) then
+                            local user_page = NPL.load("(gl)Mod/GeneralGameServerMod/App/ui/page.lua");
+                            user_page.ShowUserInfoPage({username=System.User.keepworkUsername, HeaderTabIndex="honor"});
+                        end
+                    end
+                end
             end
             
             -- body
