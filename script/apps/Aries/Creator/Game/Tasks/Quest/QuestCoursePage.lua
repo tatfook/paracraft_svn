@@ -44,11 +44,11 @@ QuestCoursePage.TaskState = {
 QuestCoursePage.CourseData = {}
 
 QuestCoursePage.CourseTimeLimit = {
-	{begain_time = {hour=10,min=30}, end_time = {hour=10,min=45}},
-	{begain_time = {hour=13,min=30}, end_time = {hour=13,min=45}},
-	{begain_time = {hour=16,min=0}, end_time = {hour=16,min=15}},
-	{begain_time = {hour=18,min=0}, end_time = {hour=18,min=15}},
-	{begain_time = {hour=19,min=0}, end_time = {hour=19,min=15}},
+	{begain_time = {hour=0,min=0}, end_time = {hour=24,min=0}},
+	-- {begain_time = {hour=13,min=30}, end_time = {hour=13,min=45}},
+	-- {begain_time = {hour=16,min=0}, end_time = {hour=16,min=15}},
+	-- {begain_time = {hour=18,min=0}, end_time = {hour=18,min=15}},
+	-- {begain_time = {hour=19,min=0}, end_time = {hour=19,min=15}},
 }
 
 QuestCoursePage.ToCourseState = {
@@ -122,14 +122,33 @@ function QuestCoursePage.Show(is_make_up)
 						end
 					end
 				else
-					local course_time_state, next_time_data = QuestCoursePage.CheckCourseTimeState(server_time)
+					local course_time_state, next_time_index = QuestCoursePage.CheckCourseTimeState(server_time)
 					if course_time_state ~= QuestCoursePage.ToCourseState.in_time then
 						if course_time_state == QuestCoursePage.ToCourseState.late then
-							if next_time_data then
+							next_time_index = next_time_index or 0
+							local next_time_data = QuestCoursePage.CourseTimeLimit[next_time_index]
+							local cur_time_data = QuestCoursePage.CourseTimeLimit[next_time_index - 1]
+							if next_time_data and cur_time_data then
 								local hour = next_time_data.begain_time.hour >= 10 and next_time_data.begain_time.hour or "0" .. next_time_data.begain_time.hour
 								local min = next_time_data.begain_time.min >= 10 and next_time_data.begain_time.min or "0" .. next_time_data.begain_time.min
 								local next_time = string.format("%s:%s", hour, min)
-								local desc = string.format(L"您已迟到，请下一堂课(%s)再来，切记不可再迟到了哟！", next_time)
+
+								local next_time_stamp = today_weehours + next_time_data.begain_time.min * 60 + next_time_data.begain_time.hour * 3600
+								
+								local second_limit = 10 * 60
+								local left_time = next_time_stamp - server_time
+								local pre_desc = "您已迟到"
+								if left_time < second_limit then
+									local min = math.ceil( left_time / 60 )  -- 取整数
+									-- local sec = math.fmod( left_time, 60 )    -- 取余数
+									pre_desc = string.format("课程%s分钟后开始", min)
+								else
+									local cur_hour = cur_time_data.begain_time.hour >= 10 and cur_time_data.begain_time.hour or "0" .. cur_time_data.begain_time.hour
+									local cur_min = cur_time_data.begain_time.min >= 10 and cur_time_data.begain_time.min or "0" .. cur_time_data.begain_time.min
+									pre_desc = string.format("您已错过本堂课(%s:%s)", cur_hour, cur_min)
+								end
+								
+								local desc = string.format(L"%s，请下一堂课(%s)再来，切记不可再迟到了哟！", pre_desc, next_time)
 								GameLogic.QuestAction.ShowDialogPage(desc)
 							else
 								GameLogic.QuestAction.ShowDialogPage(L"您已迟到，请下一堂课再来，切记不可再迟到了哟！")
@@ -871,7 +890,7 @@ function QuestCoursePage.CheckCourseTimeState(cur_time_stamp)
 		local end_time_stamp = day_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
 
 		if cur_time_stamp < begain_time_stamp then
-			return QuestCoursePage.ToCourseState.late, v
+			return QuestCoursePage.ToCourseState.late, i
 		end
 	end
 

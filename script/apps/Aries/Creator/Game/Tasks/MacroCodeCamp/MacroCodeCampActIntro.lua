@@ -15,6 +15,8 @@ local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
 local MacroCodeCampActIntro = NPL.export()--commonlib.gettable("WinterCamp.MacroCodeCamp")
 
 local page 
+local parent_root
+local strPath = ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua")'
 MacroCodeCampActIntro.isEnterJoin = false
 local httpwrapper_version = HttpWrapper.GetDevVersion();
 local projectId = GameLogic.options:GetProjectId();
@@ -32,27 +34,12 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
-    -- if System.options.isDevMode then
-    --     return true
-    -- else 
-    --     return false
-    -- end
-    -- local start_time = 2021-1-25 
-    -- local end_time = 2021-2-21
-    -- local year = 2021
-    -- local month = 2
-    -- local day = 7
-    -- local end_time_stamp = os.time({day=day, month=month, year=year, hour=0}); 
-    -- local cur_time_stamp = os.time()
-    -- if cur_time_stamp >= end_time_stamp then
-    --     return false
-    -- end
-    -- return true
     return true
 end
 
 function MacroCodeCampActIntro.OnInit()
-	page = document:GetPageCtrl();
+    page = document:GetPageCtrl();
+    parent_root  = page:GetParentUIObject()   
 end
 
 function MacroCodeCampActIntro.ShowView(isShowVip)
@@ -92,7 +79,7 @@ end
 
 function MacroCodeCampActIntro.ShowQRCode()  
     if QRCodeWnd then
-        QRCodeWnd:Show(page:GetParentUIObject());        
+        QRCodeWnd:Show(parent_root);        
     end
 end
 
@@ -117,28 +104,27 @@ function MacroCodeCampActIntro.OnRefreshPage(delaytime)
     end
     MacroCodeCampActIntro.RegisterButton()
     MacroCodeCampActIntro.GetVipRestNum()
+    MacroCodeCampActIntro.InitSkinIcon()
+    MacroCodeCampActIntro.InitMouseTip()
 end
 
-function MacroCodeCampActIntro.RegisterButton()    
-    local parent  = page:GetParentUIObject()
-    local strPath = ';NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua")'
-
+function MacroCodeCampActIntro.RegisterButton() 
     local detail_btn = ParaUI.CreateUIObject("button", "ShowDetail", "_lt", 760, 80, 108, 42);
     detail_btn.visible = true
     detail_btn.onclick = string.format([[%s.OnBtnDetailClick();]],strPath)
     detail_btn.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn3_108X42_32bits.png;0 0 108 42";
-    parent:AddChild(detail_btn);
+    parent_root:AddChild(detail_btn);
 
     if (not System.User.isVip and not System.User.isVipSchool) or MacroCodeCampActIntro.isShowVipBtn then
         local join_bt = ParaUI.CreateUIObject("button", "JoinAct", "_lt", 390, 500, 223, 80);
         join_bt.visible = true
         join_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn_223X80_32bits.png;0 0 223 80";
-        parent:AddChild(join_bt);
+        parent_root:AddChild(join_bt);
 
         local scancode_bt = ParaUI.CreateUIObject("button", "ScanCode", "_lt", 390, 500, 223, 80);
         scancode_bt.visible = false
         scancode_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/btn2_223X80_32bits.png;0 0 223 80";
-        parent:AddChild(scancode_bt);
+        parent_root:AddChild(scancode_bt);
 
         local textVipRest = ParaUI.CreateUIObject("button", "vip_rest", "_lt", 410, 446, 200, 80);
         textVipRest.enabled = false;
@@ -147,7 +133,7 @@ function MacroCodeCampActIntro.RegisterButton()
         textVipRest.font = "System;16;bold";
         textVipRest.visible = false
         _guihelper.SetButtonFontColor(textVipRest, "#072D4B", "#072D4B");
-        parent:AddChild(textVipRest);
+        parent_root:AddChild(textVipRest);
 
         join_bt.onmouseenter =  string.format([[%s.BtnJoinOnMouseEnter();]],strPath) 
         scancode_bt.onmouseleave = string.format([[%s.BtnScanCodeOnMouseLeave();]],strPath)
@@ -157,28 +143,28 @@ function MacroCodeCampActIntro.RegisterButton()
     visitor_bt.onclick = string.format([[%s.OnClick(1);]],strPath)           
     visitor_bt.onmouseenter = string.format([[%s.OnMouseEnter(1);]],strPath) 
     visitor_bt.onmouseleave = string.format([[%s.OnMouseLeave(1);]],strPath)
-    parent:AddChild(visitor_bt)
+    parent_root:AddChild(visitor_bt)
 
     local protect_bt = ParaUI.CreateUIObject("button", "ProtectSelf", "_lt", 748, 162, 208, 149);
     protect_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/tu7_208X149_32bits.png;0 0 208 149";
     protect_bt.onclick = string.format([[%s.OnClick(2);]],strPath)           
     protect_bt.onmouseenter = string.format([[%s.OnMouseEnter(2);]],strPath) 
     protect_bt.onmouseleave = string.format([[%s.OnMouseLeave(2);]],strPath)
-    parent:AddChild(protect_bt)
+    parent_root:AddChild(protect_bt)
 
     local programer_bt = ParaUI.CreateUIObject("button", "Programer", "_lt", 42, 386, 208, 149);
     programer_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/tu6_208X149_32bits.png;0 0 208 149";
     programer_bt.onclick = string.format([[%s.OnClick(3);]],strPath)           
     programer_bt.onmouseenter = string.format([[%s.OnMouseEnter(3);]],strPath) 
     programer_bt.onmouseleave = string.format([[%s.OnMouseLeave(3);]],strPath)
-    parent:AddChild(programer_bt)
+    parent_root:AddChild(programer_bt)
 
     local programerf_bt = ParaUI.CreateUIObject("button", "Programerf", "_lt", 748, 386, 208, 149);
     programerf_bt.background = "Texture/Aries/Creator/keepwork/WinterCamp/tu8_208X149_32bits.png;0 0 208 149";
     programerf_bt.onclick = string.format([[%s.OnClick(4);]],strPath)           
     programerf_bt.onmouseenter = string.format([[%s.OnMouseEnter(4);]],strPath) 
     programerf_bt.onmouseleave = string.format([[%s.OnMouseLeave(4);]],strPath)
-    parent:AddChild(programerf_bt)    
+    parent_root:AddChild(programerf_bt)    
 end
 
 function MacroCodeCampActIntro.OnBtnDetailClick()
@@ -338,3 +324,119 @@ function MacroCodeCampActIntro.CheckNeedRealName()
     end
     return false
 end
+
+
+function MacroCodeCampActIntro.InitSkinIcon()
+    local skin1 = ParaUI.CreateUIObject("button", "skin1", "_lt", 290, 322, 81, 90);
+    skin1.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/2_81X90_32bits.png;0 0 81 90";
+    skin1.onmouseenter = string.format([[%s.OnSkinEnter(1);]],strPath) 
+    skin1.onmouseleave = string.format([[%s.OnSkinLeave(1);]],strPath)
+    parent_root:AddChild(skin1)
+
+    local skin2 = ParaUI.CreateUIObject("button", "skin2", "_lt", 290, 420, 81, 90);
+    skin2.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/1_81X90_32bits.png;0 0 81 90";
+    skin2.onmouseenter = string.format([[%s.OnSkinEnter(2);]],strPath) 
+    skin2.onmouseleave = string.format([[%s.OnSkinLeave(2);]],strPath)
+    parent_root:AddChild(skin2)    
+
+    local skin3 = ParaUI.CreateUIObject("button", "skin3", "_lt", 625, 322, 81, 90);
+    skin3.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/3_81X90_32bits.png;0 0 81 90";
+    skin3.onmouseenter = string.format([[%s.OnSkinEnter(4);]],strPath) 
+    skin3.onmouseleave = string.format([[%s.OnSkinLeave(4);]],strPath)
+    parent_root:AddChild(skin3)
+
+    local skin4 = ParaUI.CreateUIObject("button", "skin4", "_lt", 625, 432, 81, 90);
+    skin4.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/4_81X90_32bits.png;0 0 81 90";
+    skin4.onmouseenter = string.format([[%s.OnSkinEnter(3);]],strPath) 
+    skin4.onmouseleave = string.format([[%s.OnSkinLeave(3);]],strPath)
+    parent_root:AddChild(skin4)
+end
+
+function MacroCodeCampActIntro.OnSkinEnter(index)
+    MacroCodeCampActIntro.ShowMouseTip(index)
+end
+
+function MacroCodeCampActIntro.OnSkinLeave(index)
+    ParaUI.GetUIObject("tipBg").visible = false
+end
+
+function MacroCodeCampActIntro.InitMouseTip()
+    local tipBg = ParaUI.CreateUIObject("container", "tipBg", "_lt", 400, 200, 130, 140);
+    tipBg.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/bjk_32bits.png;0 0 32 32:12 12 14 14"; 
+    tipBg.visible = false  
+    parent_root:AddChild(tipBg)
+
+    local textName = ParaUI.CreateUIObject("button", "textName", "_lt", 0, 8, 130, 14);
+    textName.enabled = false;
+    textName.text = "吉祥如意套装(男)";
+    textName.background = "";
+    textName.font = "System;12;norm";
+    _guihelper.SetButtonFontColor(textName, "#ffffff", "#ffffff");
+    tipBg:AddChild(textName);
+
+    local skinIcon = ParaUI.CreateUIObject("container", "skinIcon", "_lt", 40, 24, 53, 77);
+    skinIcon.background = "Texture/Aries/Creator/keepwork/WinterCamp/mousetip/3_53X77_32bits.png;0 0 53 77";   
+    tipBg:AddChild(skinIcon)
+
+    local textDesc = ParaUI.CreateUIObject("button", "textDesc", "_lt", 0, 102, 130, 14);
+    textDesc.enabled = false;
+    textDesc.text = "用户完成填写反馈表";
+    textDesc.background = "";
+    textDesc.font = "System;12;norm";
+    _guihelper.SetButtonFontColor(textDesc, "#ffffff", "#ffffff");
+    tipBg:AddChild(textDesc);
+
+    local textDesc1 = ParaUI.CreateUIObject("button", "textDesc1", "_lt", 0, 118, 130, 14);
+    textDesc1.enabled = false;
+    textDesc1.text = "获得亲子证书时发放";
+    textDesc1.background = "";
+    textDesc1.font = "System;12;norm";
+    _guihelper.SetButtonFontColor(textDesc1, "#ffffff", "#ffffff");
+    tipBg:AddChild(textDesc1);
+end
+
+local skin_config = {
+    {
+        url = "3_53X77_32bits.png",
+        name = "幻想星球套装(男)",
+        desc = "用户完成填写反馈表",
+        desc1 = "获得亲子证书时发放",
+    },
+    {
+        url = "5_53X77_32bits.png",
+        name = "吉祥如意套装(男)",
+        desc = "用户获得防疫证书",
+        desc1 = "同时添加到他的背包",
+    }, 
+    {
+        url = "6_53X77_32bits.png",
+        name = "吉祥如意套装(女)",
+        desc = "用户获得防疫证书",
+        desc1 = "同时添加到他的背包",
+    },   
+    {
+        url = "4_53X77_32bits.png",
+        name = "幻想星球套装(女)",
+        desc = "用户完成填写反馈表",
+        desc1 = "获得亲子证书时发放",
+    },               
+    
+}
+
+local pos_config = {
+    {x = 160,y = 220},
+    {x = 160,y = 420},
+    {x = 706,y = 420},
+    {x = 706,y = 220},    
+}
+
+function MacroCodeCampActIntro.ShowMouseTip(index)
+    ParaUI.GetUIObject("tipBg").visible = true
+    ParaUI.GetUIObject("tipBg").x = pos_config[index].x
+    ParaUI.GetUIObject("tipBg").y = pos_config[index].y
+    ParaUI.GetUIObject("textName").text = skin_config[index].name
+    ParaUI.GetUIObject("skinIcon").background = string.format("Texture/Aries/Creator/keepwork/WinterCamp/mousetip/%s;0 0 53 77",skin_config[index].url)
+    ParaUI.GetUIObject("textDesc").text = skin_config[index].desc
+    ParaUI.GetUIObject("textDesc1").text = skin_config[index].desc1
+end
+
