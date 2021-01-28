@@ -11,9 +11,8 @@ VipToolNew.Show()
 ------------------------------------------------------------
 ]]
 -- service
-local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+
 local QREncode = NPL.load("(gl)script/apps/Aries/Creator/Game/Movie/QREncode.lua");
-local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
 local Encoding = commonlib.gettable("System.Encoding");
 local KeepWorkItemManager = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/KeepWorkItemManager.lua");
 
@@ -28,9 +27,9 @@ function VipToolNew.OnInit()
     page.OnCreate = VipToolNew.OnCreate
 end
 
-function VipToolNew.Show(bEnable, callback)
-    VipToolNew.callback = callback
-    if not KeepworkService:IsSignedIn() then
+function VipToolNew.Show(from)
+    VipToolNew.from = from or "main_icon"
+    if not GameLogic.GetFilters():apply_filters('is_signed_in') then
         return
     end
     local username = commonlib.getfield("System.User.username")
@@ -113,7 +112,8 @@ function VipToolNew.OnCreate()
 end
 
 function VipToolNew.InitData()
-    local qrcode = string.format("%s/p/qr/purchase?userId=%s&from=%s",KeepworkService:GetKeepworkUrl(), Mod.WorldShare.Store:Get('user/userId'), "main_icon");
+    local KeepworkService = NPL.load("(gl)Mod/WorldShare/service/KeepworkService.lua")
+    local qrcode = string.format("%s/p/qr/purchase?userId=%s&from=%s",KeepworkService:GetKeepworkUrl(), Mod.WorldShare.Store:Get('user/userId'), VipToolNew.from);
     local ret;
     ret, VipToolNew.qrcode = QREncode.qrcode(qrcode)
 end

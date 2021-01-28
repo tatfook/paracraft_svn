@@ -20,6 +20,7 @@ local DailyTaskManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dail
 local TaskIdList = DailyTaskManager.GetTaskIdList()
 local QuestAction = commonlib.gettable("MyCompany.Aries.Game.Tasks.Quest.QuestAction");
 local QuestRewardPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestRewardPage.lua");
+local VipToolNew = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipToolNew.lua")
 
 commonlib.setfield("MyCompany.Aries.Creator.Game.Task.Quest.QuestCoursePage", QuestCoursePage);
 local page;
@@ -616,8 +617,10 @@ function QuestCoursePage.Goto(task_id)
 						-- GameLogic.GetFilters():apply_filters("VipNotice", true, form,function()
 						-- 	QuestCoursePage.Goto(task_id)
 						-- end);
-						local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
-						MacroCodeCampActIntro.ShowView(true)
+						-- local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
+						-- MacroCodeCampActIntro.ShowView(true)
+						
+						VipToolNew.Show(form)
 						GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.vip.funnel.open', { from = form })
 					else
 					end
