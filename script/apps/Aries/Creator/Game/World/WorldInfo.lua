@@ -66,6 +66,7 @@ function WorldInfo:SaveToXMLNode(node, bSort)
 		isVipWorld = self.isVipWorld,
 		hasCopyright = self.hasCopyright,
 		selectWater = self.selectWater,
+		extra = tostring(self.extra),
 	};
 
 	GameLogic.GetFilters():apply_filters("save_world_info", self, node);
