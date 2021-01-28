@@ -37,16 +37,17 @@ function MacroCodeCampActIntro.CheckCanShow()
     -- else 
     --     return false
     -- end
-    local start_time = 2021-1-25 
-    local end_time = 2021-2-7
-    local year = 2021
-    local month = 2
-    local day = 7
-    local end_time_stamp = os.time({day=day, month=month, year=year, hour=0}); 
-    local cur_time_stamp = os.time()
-    if cur_time_stamp >= end_time_stamp then
-        return false
-    end
+    -- local start_time = 2021-1-25 
+    -- local end_time = 2021-2-21
+    -- local year = 2021
+    -- local month = 2
+    -- local day = 7
+    -- local end_time_stamp = os.time({day=day, month=month, year=year, hour=0}); 
+    -- local cur_time_stamp = os.time()
+    -- if cur_time_stamp >= end_time_stamp then
+    --     return false
+    -- end
+    -- return true
     return true
 end
 

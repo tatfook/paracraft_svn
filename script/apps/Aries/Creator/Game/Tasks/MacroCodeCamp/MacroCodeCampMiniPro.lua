@@ -61,24 +61,15 @@ function MacroCodeCampMiniPro.GetContentData()
             id = id,
         }
     },function(err, msg, data)
-        -- print("zzzzzzzzzzzzz")
-        -- echo(err)
-        -- echo(msg)
-        -- echo(data)
-        MacroCodeCampMiniPro.learnTime = (os.time() - MacroCodeCampMiniPro.GetTimeStamp(data.createdAt)) / (24*3600)
+        MacroCodeCampMiniPro.learnTime = (os.time() - commonlib.timehelp.GetTimeStampByDateTime(data.createdAt)) / (24*3600)
         MacroCodeCampMiniPro.projectNum = data.rank and data.rank.project or 0
         MacroCodeCampMiniPro.RefreshPage()
     end)
 
     keepwork.user.total_orgs({},function(err,msg,data)
-        -- print("aaaaaaaaaaaaaaaazzzzzzzzzzzzzz")
-        -- echo(err)
-        -- echo(msg)
-        -- echo(data)
         if(err ~= 200)then
             return
         end
-        -- print("data========================2")
         MacroCodeCampMiniPro.schoolNum = data.data and data.data.count or 0
         MacroCodeCampMiniPro.RefreshPage()
     end)
@@ -97,12 +88,4 @@ function MacroCodeCampMiniPro.GetContent(index)
     elseif index == 2 then
         return string.format("%s同学已学习%d天动画编程，拥有%d部作品",MacroCodeCampMiniPro.userName,MacroCodeCampMiniPro.learnTime,MacroCodeCampMiniPro.projectNum)
     end
-end
-
-function MacroCodeCampMiniPro.GetTimeStamp(strTime)
-    strTime = strTime or "";
-    local year, month, day, hour, min, sec = strTime:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)"); 
-    local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}); -- 这个时间是带时区的 要加8小时
-    time_stamp = time_stamp + min * 60 + sec;
-    return time_stamp;
 end
