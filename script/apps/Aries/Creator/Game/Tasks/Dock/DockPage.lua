@@ -101,7 +101,7 @@ function DockPage.Show()
 
     DockPage.CheckIsTaskCompelete()
 
-    DockPage.ShowCampIcon()
+    -- DockPage.ShowCampIcon()
     -- ActWeek.GetServerTime(function()
     --     DockPage.page:Refresh(1)
     -- end)        
@@ -739,9 +739,9 @@ function DockPage.CheckIsTaskCompelete()
 end
 
 function DockPage.ShowCampIcon()
-    if not System.options.isDevMode then
-        return
-    end
+    -- if not System.options.isDevMode then
+    --     return
+    -- end
 
     local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
     local world_id = WorldCommon.GetWorldTag("kpProjectId");
