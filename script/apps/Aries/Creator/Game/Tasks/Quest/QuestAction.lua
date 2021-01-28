@@ -525,7 +525,7 @@ function QuestAction.CanAccept(quest_gsid)
             -- 五校用户 第一次允许进入
             local id = QuestAction.GetIdByGsid(quest_gsid) or 0
             local value = QuestAction.GetValue(id) or 0
-            if value == 0 then
+            if not QuestAction.IsFinish(quest_gsid) then
                 return true
             end
             -- print("bbbbbbbbbbbbbbbbbbbbbbbbbbb五校用户 第二次允许进入")
