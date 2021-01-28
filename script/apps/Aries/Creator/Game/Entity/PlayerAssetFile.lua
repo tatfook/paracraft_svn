@@ -142,7 +142,7 @@ function PlayerAssetFile:IsCustomModel(filename)
 end
 
 function PlayerAssetFile:HasCustomGeosets(filename)
-	return string.find(filename, "CustomGeoset") ~= nil;
+	return filename ~= nil and string.find(filename, "CustomGeoset") ~= nil;
 end
 
 -- mostly for haqi character
