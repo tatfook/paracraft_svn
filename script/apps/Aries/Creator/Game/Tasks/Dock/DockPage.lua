@@ -498,6 +498,9 @@ function DockPage.RenderButton_3(index)
     if(id == "wintercamp") then
         if MacroCodeCampActIntro.CheckCanShow() then
             return string.format([[
+                <div style="position:relative;">
+                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -8px;margin-left: 0px;" width="80" height="84"/>
+                </div>
                 <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
                 %s
             ]],node.id,node.bg,tip_str);
