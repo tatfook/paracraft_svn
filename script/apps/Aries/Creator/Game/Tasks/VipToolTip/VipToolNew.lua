@@ -124,5 +124,5 @@ end
 
 function VipToolNew.GetDesc2()
     local nickname = KeepWorkItemManager.GetProfile().nickname or ""
-    return string.format('<div style="color: #ffff00;float: left;">%s</div>已学习了<div style="color: #ffff00;float: left;">%s</div>天动画变成，拥有<div style="color: #ffff00;float: left;">%s</div>部作品', nickname, VipToolNew.learn_day, VipToolNew.project_num)
+    return string.format('<div style="color: #ffff00;float: left;">%s</div>已学习了<div style="color: #ffff00;float: left;">%s</div>天动画编程，拥有<div style="color: #ffff00;float: left;">%s</div>部作品', nickname, VipToolNew.learn_day, VipToolNew.project_num)
 end
