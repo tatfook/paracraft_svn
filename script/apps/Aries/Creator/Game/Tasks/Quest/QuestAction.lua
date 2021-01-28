@@ -563,7 +563,9 @@ function QuestAction.GetServerTime()
 end
 
 function QuestAction.ShowSpeciapTask()
-    QuestPage.Show({begain_exid = 40028, end_exid = 40030});
+    local QuestSpecialCourse = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestSpecialCourse.lua");
+    QuestSpecialCourse.Show();
+    
 end
 
 function QuestAction.SetServerTime(server_time_stamp)

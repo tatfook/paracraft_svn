@@ -101,6 +101,7 @@ function DockPage.Show()
 
     DockPage.CheckIsTaskCompelete()
 
+    DockPage.ShowCampIcon()
     -- ActWeek.GetServerTime(function()
     --     DockPage.page:Refresh(1)
     -- end)        
@@ -735,4 +736,24 @@ function DockPage.CheckIsTaskCompelete()
 
        GameLogic.QuestAction.SetDailyTaskValue("40008_1",1)
     end, 1000)
+end
+
+function DockPage.ShowCampIcon()
+    if not System.options.isDevMode then
+        return
+    end
+
+    local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
+    local world_id = WorldCommon.GetWorldTag("kpProjectId");
+    local camp_id_list = {
+        ONLINE = 41570,
+        RELEASE = 1471,
+    }
+    local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
+    local httpwrapper_version = HttpWrapper.GetDevVersion();
+    local camp_id = camp_id_list[httpwrapper_version]
+    if tonumber(world_id) == camp_id then
+        local DockCampIcon = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockCampIcon.lua");
+        DockCampIcon.Show();
+    end
 end
