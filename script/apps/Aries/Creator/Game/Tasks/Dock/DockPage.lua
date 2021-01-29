@@ -286,8 +286,15 @@ function DockPage.OnClick(id)
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.mall");
         return
     elseif id == "vip_make_up" then
-        local VipMakeUp = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipMakeUp.lua")
-        VipMakeUp.Show()
+        if System.User.isVip then
+            GameLogic.RunCommand(string.format("/goto  %d %d %d", 19258,16,19134));
+            local QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
+            QuestCoursePage.Show(true)
+            page:CloseWindow()
+        else
+            local VipMakeUp = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipMakeUp.lua")
+            VipMakeUp.Show()
+        end
     else
         --_guihelper.MessageBox(id);
     end
