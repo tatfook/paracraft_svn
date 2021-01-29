@@ -1201,6 +1201,14 @@ function options:SetHasCopyright(bValue)
 	WorldCommon.SetWorldTag("hasCopyright", bValue);
 end
 
+function options:IsCommunityWorld()
+	return GameLogic.GetFilters():apply_filters('service.local_service_word.is_community_world', false)
+end
+
+function options:SetCommunityWorld(bValue)
+	GameLogic.GetFilters():apply_filters('service.local_service_world.set_community_world', bValue)
+end
+
 -- "teacher", "vip"
 function options:GetUserType()
 	return self.userType;
