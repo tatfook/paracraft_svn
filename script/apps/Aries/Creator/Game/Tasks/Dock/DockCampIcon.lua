@@ -16,7 +16,7 @@ local page;
 DockCampIcon.leftMin = 10;
 DockCampIcon.leftMax = 128;
 DockCampIcon.left = DockCampIcon.leftMin;
-DockCampIcon.top = -100;
+DockCampIcon.top = -120;
 DockCampIcon.width = 400;
 DockCampIcon.height = 200;
 
