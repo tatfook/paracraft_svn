@@ -61,7 +61,7 @@ function DockCampIcon.ShowView()
 		bShow = bShow,
 		zorder = -1,
 		ClickThrough = true,
-		enable_esc_key = true,
+		enable_esc_key = false,
 		cancelShowAnimation = true,
 		directPosition = true,
 			align = "_ctl",
