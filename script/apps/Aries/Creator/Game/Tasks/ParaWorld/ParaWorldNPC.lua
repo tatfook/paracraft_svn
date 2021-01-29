@@ -201,6 +201,10 @@ function ParaWorldNPC.CreateTeacherNPC(entity, npcName, npcType)
 			return;
 		end
 		entity.OnClick = function(entity, x, y, z, mouse_button)
+			if (data.npcName) then
+				GameLogic.GetFilters():apply_filters('user_behavior', 1, 'click.world.npc', { npcName = data.npcName })
+			end
+
 			if (data.npcScript) then
 				runExternalFunc(data.npcScript);
 			end
