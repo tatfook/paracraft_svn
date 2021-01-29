@@ -889,6 +889,7 @@ end
 -- @param window: attach a mcml v2 window object to it, usually from CodeBlock's window() function
 function MacroPlayer.AttachWindow(window)
 	if(window) then
+		MacroPlayer.ShowController(false);
 		local parent = MacroPlayer.GetRootUIObject()
 		if(parent) then
 			local win = window:GetNativeWindow()

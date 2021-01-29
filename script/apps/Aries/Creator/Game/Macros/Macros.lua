@@ -238,11 +238,11 @@ function Macros.OnDropdownListboxEvent(dropdownCtl, eventName, dx, dy)
 		if(eventName == "OnClickDropDownButton") then
 			Macros:AddMacro("DropdownClickDropDownButton", uiname)
 		elseif(eventName == "OnTextChange") then
-			Macros:AddMacro("DropdownTextChange", uiname, dropdownCtl:GetText())
+			Macros:AddMacro("DropdownTextChange", uiname, dropdownCtl:GetValue())
 		elseif(eventName == "OnMouseUpListBoxCont") then
-			Macros:AddMacro("DropdownListBoxCont", uiname, dropdownCtl:GetText())
+			Macros:AddMacro("DropdownListBoxCont", uiname, dropdownCtl:GetValue())
 		elseif(eventName == "OnSelectListBox") then
-			Macros:AddMacro("DropdownSelect", uiname, dropdownCtl:GetText())
+			Macros:AddMacro("DropdownSelect", uiname, dropdownCtl:GetValue())
 		elseif(eventName == "OnMouseUpClose") then
 			Macros:AddMacro("DropdownMouseUpClose", uiname)
 		end
@@ -508,13 +508,16 @@ function Macros:BeginPlay()
 end
 
 function Macros.OnShowExitDialog(p1)
+	if(p1 == false) then
+		return
+	end
 	if(Macros:IsPlaying()) then
 		_guihelper.MessageBox(L"是否退出示教系统?", function(res)
 			if(res and res == _guihelper.DialogResult.Yes) then
 				Macros:Stop();
 			end
 		end, _guihelper.MessageBoxButtons.YesNo);
-		return;
+		return false;
 	end
 	return p1;
 end

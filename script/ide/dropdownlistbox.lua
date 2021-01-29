@@ -267,20 +267,27 @@ end
 function dropdownlistbox:RefreshListBox()
 end
 
--- refill the listbox content using the items.
-function dropdownlistbox:RefillListBox(width, height)
-	local _this
+function dropdownlistbox:GetListBoxContainerOverlay()
+	return ParaUI.GetUIObject(self.listbox_cont_id);
+end
 
+function dropdownlistbox:GetListBoxContainer()
+	local _this
 	if self.onremove then
 		_this = ParaUI.GetUIObject(self.listbox_cont_id);
 	else
 		_this = ParaUI.GetUIObject(self.listbox_id);
 	end
+	return _this;
+end
+
+-- refill the listbox content using the items.
+function dropdownlistbox:RefillListBox(width, height)
+	local _this = self:GetListBoxContainer();
 
 	if(_this:IsValid())then 
 		_this:RemoveAll();
 		if(self.items) then
-			local index,value;
 			for index, value in ipairs(self.items) do
 				if self.onremove then
 					local buttonHeight = 25;
@@ -395,7 +402,7 @@ function dropdownlistbox.OnClickDropDownButton(self)
 		local _parent;
 
 		-- create the list box and its container if it has not yet been created before.
-		_this = ParaUI.CreateUIObject("container", "s", "_lt", left, top, width, height);
+		_this = ParaUI.CreateUIObject("container", "c", "_lt", left, top, width, height);
 		_this.background = self.listbox_container_bg;
 		_this.zorder = 10000;
 		_this:AttachToRoot();
@@ -409,7 +416,7 @@ function dropdownlistbox.OnClickDropDownButton(self)
 		_parent = _this;
 
 		if not self.onremove then
-			_this = ParaUI.CreateUIObject("listbox","s","_fi",0,0,0,0);
+			_this = ParaUI.CreateUIObject("listbox","l","_fi",0,0,0,0);
 			
 			if(self.listbox_bg~=nil) then
 				_this.background=self.listbox_bg;
@@ -481,6 +488,7 @@ function dropdownlistbox.OnTextChange(self)
 	--end	
 end
 
+
 -- called when the user select a list box item
 function dropdownlistbox.OnSelectListBox(self)
 	local listbox = ParaUI.GetUIObject(self.listbox_id);
@@ -518,16 +526,26 @@ end
 function dropdownlistbox:InsertItem(item, bNoUpdate)
 	if(type(item)~="string") then return end
 	
-	local i, v;
 	for i, v in ipairs(self.items) do
 		if (v == item) then
 			return i;
 		end
 	end
 	
-	i = commonlib.insertArrayItem(self.items, nil, item);
+	local i = commonlib.insertArrayItem(self.items, nil, item);
 	if(not bNoUpdate) then
 		--self:RefreshListBox();
 	end
 	return i;
+end
+
+function dropdownlistbox:GetItemIndexByValue(value)
+	if(self.items) then
+		local valueMap = self.items.values;
+		for i, v in ipairs(self.items) do
+			if (v == value or (valueMap and valueMap[v] == value)) then
+				return i;
+			end
+		end
+	end
 end
