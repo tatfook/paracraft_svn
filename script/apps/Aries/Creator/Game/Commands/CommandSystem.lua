@@ -55,7 +55,7 @@ Commands["texture"] = {
 	]], 
 	handler = function(cmd_name, cmd_text, cmd_params)
 		if(cmd_text) then
-			local texture_type = tonumber(cmd_text:match("([%d%.]+)") or 0);
+			local texture_type = tonumber(cmd_text:match("([%d%.]+)") or 1);
 			if (texture_type < 0 or texture_type > 6) then
 				return;
 			end
