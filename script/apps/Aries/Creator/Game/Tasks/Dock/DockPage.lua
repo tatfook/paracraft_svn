@@ -101,7 +101,7 @@ function DockPage.Show()
 
     DockPage.CheckIsTaskCompelete()
 
-    -- DockPage.ShowCampIcon()
+    DockPage.ShowCampIcon()
     -- ActWeek.GetServerTime(function()
     --     DockPage.page:Refresh(1)
     -- end)        
