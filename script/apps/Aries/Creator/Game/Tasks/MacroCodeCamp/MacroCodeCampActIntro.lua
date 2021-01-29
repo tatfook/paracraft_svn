@@ -308,18 +308,20 @@ end
 
 function MacroCodeCampActIntro.CheckNeedRealName()
     if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
-        GameLogic.GetFilters():apply_filters(
-            'show_certificate',
-            function(result)
-                if (result) then
-                    -- GameLogic.AddBBS(nil, L'领取成功', 5000, '0 255 0');
-                    -------------------------------------------------------
-                    local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
-                    DockPage.page:Refresh(0.01)
-                    GameLogic.QuestAction.AchieveTask("40006_1", 1, true)
-                end
-            end
-        );
+        _guihelper.MessageBox("亲爱的同学，冬令营活动需要实名才能参与，快去实名吧。", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
+                _guihelper.MsgBoxClick_CallBack = function(res)
+                    if(res == _guihelper.DialogResult.OK) then
+                        GameLogic.GetFilters():apply_filters(
+                        'show_certificate',
+                        function(result)
+                            if (result) then
+                                local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
+                                DockPage.page:Refresh(0.01)
+                                GameLogic.QuestAction.AchieveTask("40006_1", 1, true)
+                            end
+                        end)
+                    end
+                end     
         return true
     end
     return false
