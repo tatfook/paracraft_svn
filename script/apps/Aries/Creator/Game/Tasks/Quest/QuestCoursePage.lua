@@ -115,9 +115,10 @@ function QuestCoursePage.Show(is_make_up)
 							-- 	end
 							-- end
 
-							GameLogic.QuestAction.ShowDialogPage(L"现在补课可能会耽误新课程的正常学习，请稍后再来", function()
-								QuestCoursePage.ShowView()
-							end)
+							-- GameLogic.QuestAction.ShowDialogPage(L"现在补课可能会耽误新课程的正常学习，请稍后再来", function()
+							-- 	QuestCoursePage.ShowView()
+							-- end)
+							QuestCoursePage.ShowView()
 							return
 						end
 					end

@@ -104,7 +104,7 @@ function DockPage.Show()
     DockPage.ShowCampIcon()
     -- ActWeek.GetServerTime(function()
     --     DockPage.page:Refresh(1)
-    -- end)        
+    -- end)    
 end
 function DockPage.Hide()
     DockPage.is_show = false;
@@ -285,6 +285,9 @@ function DockPage.OnClick(id)
         KeepWorkMallPage.Show();
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.mall");
         return
+    elseif id == "vip_make_up" then
+        local VipMakeUp = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipMakeUp.lua")
+        VipMakeUp.Show()
     else
         --_guihelper.MessageBox(id);
     end
@@ -756,4 +759,21 @@ function DockPage.ShowCampIcon()
         local DockCampIcon = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockCampIcon.lua");
         DockCampIcon.Show();
     end
+end
+
+function DockPage.CanShowCampVip()
+    local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
+    local world_id = WorldCommon.GetWorldTag("kpProjectId");
+    local camp_id_list = {
+        ONLINE = 41570,
+        RELEASE = 1471,
+    }
+    local HttpWrapper = NPL.load("(gl)script/apps/Aries/Creator/HttpAPI/HttpWrapper.lua");
+    local httpwrapper_version = HttpWrapper.GetDevVersion();
+    local camp_id = camp_id_list[httpwrapper_version]
+    if tonumber(world_id) == camp_id then
+        return true
+    end
+
+    return false
 end
