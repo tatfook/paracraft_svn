@@ -836,11 +836,15 @@ function MacroPlayer.OnMouseWheel()
 	end
 end
 
-function MacroPlayer.ShowMouseWheel(bShow)
+function MacroPlayer.ShowMouseWheel(bShow, mouseX, mouseY)
 	if(page) then
 		local mouseWheel = page:FindControl("mouseWheel");
 		if(mouseWheel) then
 			mouseWheel.visible = (bShow == true);
+			if(bShow) then
+				mouseWheel.x = mouseX or 300;
+				mouseWheel.y = mouseY or 50;
+			end
 		end
 	end	
 end
@@ -876,7 +880,7 @@ function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callb
 		MacroPlayer.expectedMouseWheelDelta = mouseWheelDelta;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		if(Macros.IsShowButtonTip()) then
-			MacroPlayer.ShowMouseWheel(true)
+			MacroPlayer.ShowMouseWheel(true, mouseX, mouseY)
 		end
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, "")
 	end
