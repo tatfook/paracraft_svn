@@ -290,7 +290,6 @@ function DockPage.OnClick(id)
             GameLogic.RunCommand(string.format("/goto  %d %d %d", 19258,16,19134));
             local QuestCoursePage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestCoursePage.lua");
             QuestCoursePage.Show(true)
-            page:CloseWindow()
         else
             local VipMakeUp = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipMakeUp.lua")
             VipMakeUp.Show()
