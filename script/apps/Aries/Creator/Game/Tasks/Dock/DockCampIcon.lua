@@ -111,13 +111,13 @@ function DockCampIcon.CheckCourseTimeState(cur_time_stamp)
 		if i == 1 and cur_time_stamp < begain_time_stamp then
 			return QuestCoursePage.ToCourseState.before
 		end
-		-- print("saaaaaaaaaaaaaa", i, #QuestCoursePage.CourseTimeLimit, cur_time_stamp, begain_time_stamp, cur_time_stamp > begain_time_stamp)
-		if i == #QuestCoursePage.CourseTimeLimit and cur_time_stamp > begain_time_stamp then
+		-- print("saaaaaaaaaaaaaa", i, #DockCampIcon.CourseTimeLimit, cur_time_stamp, begain_time_stamp, cur_time_stamp > begain_time_stamp)
+		if i == #DockCampIcon.CourseTimeLimit and cur_time_stamp > begain_time_stamp then
 			return QuestCoursePage.ToCourseState.finish
 		end
 	end
 
-	for i, v in ipairs(QuestCoursePage.CourseTimeLimit) do
+	for i, v in ipairs(DockCampIcon.CourseTimeLimit) do
 		local begain_time_stamp = day_weehours + v.begain_time.min * 60 + v.begain_time.hour * 3600
 		local end_time_stamp = day_weehours + v.end_time.min * 60 + v.end_time.hour * 3600
 
