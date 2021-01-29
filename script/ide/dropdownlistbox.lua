@@ -113,11 +113,11 @@ function dropdownlistbox:Show(bShow)
 		else
 			self.parent:AddChild(_this);
 		end
-		CommonCtrl.AddControl(self.name, self);
+		CommonCtrl.AddControl(self.uiname or self.name, self);
 
 		-- create the editbox
 		local left, top, width, height = 0, 0, self.buttonwidth or 124, self.height or 32;
-		_this = ParaUI.CreateUIObject("imeeditbox", "s", "_mt", 0, 0, width, height);
+		_this = ParaUI.CreateUIObject("imeeditbox", "e", "_mt", 0, 0, width, height);
 		_this:GetAttributeObject():SetField("EmptyText", self.emptyText);
 		_parent:AddChild(_this);
 
@@ -129,7 +129,7 @@ function dropdownlistbox:Show(bShow)
 		end
 
 		_this:SetScript("onchange", function()
-			dropdownlistbox.OnTextChange(self);
+			self:handleEvent("OnTextChange");
 		end)
 
 		if self.editbox_bg~=nil then
@@ -139,7 +139,7 @@ function dropdownlistbox:Show(bShow)
 		-- create the dropdown button
 		_this = ParaUI.CreateUIObject(
 			"button",
-			"s",
+			"b",
 			"_rt",
 			-width + (width - (self.dropdownbutton_width or width)) * 0.5,
 			(height - (self.dropdownbutton_height or height)) * 0.5,
@@ -151,7 +151,7 @@ function dropdownlistbox:Show(bShow)
 		self.button_id = _this.id;
 
 		_this:SetScript("onclick", function()
-			dropdownlistbox.OnClickDropDownButton(self);
+			self:handleEvent("OnClickDropDownButton");
 		end);
 
 		local dropdownbutton_bg = self.dropdownbutton_bg_filter(self.dropdownbutton_bg, self.dropdownbutton_width or width, self.dropdownbutton_height or height);
@@ -182,6 +182,18 @@ function dropdownlistbox:Show(bShow)
 		end
 	end	
 end
+
+-- @param eventName: "OnClickDropDownButton", "OnTextChange", "OnMouseUpListBoxCont", "OnMouseUpClose" and like virtual event
+function dropdownlistbox:handleEvent(eventName, ...)
+	local func = self[eventName];
+	if(func) then
+		func(self, ...);
+	end
+	if(dropdownlistbox.__onuievent__) then
+		dropdownlistbox.__onuievent__(self, eventName, ...);
+	end
+end
+
 
 --returns the text of the selected item, return "" if nothing is selected.
 function dropdownlistbox:GetText()
@@ -343,6 +355,15 @@ function dropdownlistbox:RefillListBox(width, height)
 	end
 end
 
+function dropdownlistbox:GetParentUIObject()
+	if(self.id) then
+		local _this = ParaUI.GetUIObject(self.id);
+		if(_this:IsValid()) then
+			return _this;
+		end
+	end
+end
+
 -- called when the drop down button is clicked.
 function dropdownlistbox.OnClickDropDownButton(self)
 	-- calculate the position of drop down list box from the current position of the control
@@ -382,7 +403,7 @@ function dropdownlistbox.OnClickDropDownButton(self)
 		self.listbox_cont_id = _this.id;
 
 		_this:SetScript("onmouseup", function()
-			dropdownlistbox.OnMouseUpListBoxCont(self);
+			self:handleEvent("OnMouseUpListBoxCont");
 		end);
 		_this.visible = false;
 		_parent = _this;
@@ -398,7 +419,7 @@ function dropdownlistbox.OnClickDropDownButton(self)
 			self.listbox_id = _this.id;
 
 			_this:SetScript("onselect", function()
-				dropdownlistbox.OnSelectListBox(self);
+				self:handleEvent("OnSelectListBox");
 			end)
 		end
 

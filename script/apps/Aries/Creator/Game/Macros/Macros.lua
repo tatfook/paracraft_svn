@@ -127,6 +127,7 @@ function Macros:Init()
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroSliderBar.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroKeyFrameCtrl.lua");
 	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroMCSlot.lua");
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroDropdownListbox.lua");
 	-- TODO: add more here
 end
 
@@ -165,6 +166,7 @@ function Macros:BeginRecord()
 	commonlib.__onuievent__ = Macros.OnGUIEvent;
 	System.Windows.Window.__onuievent__ = Macros.OnWindowGUIEvent;
 	CommonCtrl.SliderBar.__onuievent__ = Macros.OnSliderbarEvent;
+	CommonCtrl.dropdownlistbox.__onuievent__ = Macros.OnDropdownListboxEvent;
 	KeyFrameCtrl.__onuievent__ = Macros.OnKeyFrameCtrlEvent;
 
 	self.tickTimer = self.tickTimer or commonlib.Timer:new({callbackFunc = function(timer)
@@ -225,6 +227,24 @@ function Macros.OnWindowGUIEvent(window, event)
 					Macros:AddMacro("WindowInputMethod", name, event:commitString())
 				end
 			end
+		end
+	end
+end
+
+-- only for CommonCtrl.OnDropdownListboxEvent exclusively
+function Macros.OnDropdownListboxEvent(dropdownCtl, eventName, dx, dy)
+	local uiname = dropdownCtl.uiname;
+	if(uiname) then
+		if(eventName == "OnClickDropDownButton") then
+			Macros:AddMacro("DropdownClickDropDownButton", uiname)
+		elseif(eventName == "OnTextChange") then
+			Macros:AddMacro("DropdownTextChange", uiname, dropdownCtl:GetText())
+		elseif(eventName == "OnMouseUpListBoxCont") then
+			Macros:AddMacro("DropdownListBoxCont", uiname, dropdownCtl:GetText())
+		elseif(eventName == "OnSelectListBox") then
+			Macros:AddMacro("DropdownSelect", uiname, dropdownCtl:GetText())
+		elseif(eventName == "OnMouseUpClose") then
+			Macros:AddMacro("DropdownMouseUpClose", uiname)
 		end
 	end
 end
@@ -412,6 +432,7 @@ function Macros:EndRecord()
 	commonlib.__onuievent__ = nil;
 	System.Windows.Window.__onuievent__ = nil;
 	CommonCtrl.SliderBar.__onuievent__ = nil;
+	CommonCtrl.dropdownlistbox.__onuievent__ = nil;
 	KeyFrameCtrl.__onuievent__ = nil;
 	if(self.tickTimer) then
 		self.tickTimer:Change();
