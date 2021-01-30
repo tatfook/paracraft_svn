@@ -121,7 +121,7 @@ end
 
 function VipMakeUp.MakeUp()
     if System.User.isVip then
-        GameLogic.RunCommand(string.format("/goto  %d %d %d", 19258,16,19134));
+        GameLogic.RunCommand(string.format("/goto  %d %d %d", 19258,14,19134));
         QuestCoursePage.Show(true)
         page:CloseWindow()
     else
