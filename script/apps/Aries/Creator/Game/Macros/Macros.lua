@@ -486,6 +486,43 @@ function Macros:LoadMacrosFromText(text)
 	return macros;
 end
 
+
+-- @param cx, cy, cz: if nil, we will not play using absolute position. otherwise, we will play relatively. 
+function Macros:PrepareDefaultPlayMode(cx, cy, cz, isAutoPlay, bNoHelp, nSpeed)
+	Macros.SetPlayOrigin(cx, cy, cz)
+    Macros.SetAutoPlay(isAutoPlay);
+    Macros.SetHelpLevel(bNoHelp and 0 or 1);
+    Macros.SetPlaySpeed(nSpeed or 1);
+end
+	
+
+function Macros:PrepareInitialBuildState()
+    GameLogic.RunCommand("/mode edit");
+    GameLogic.RunCommand("/clearbag");
+    GameLogic.RunCommand("/camerayaw 3.14");
+    local player = GameLogic.EntityManager.GetPlayer()
+    player:ToggleFly(false)
+    lastPlayerX, lastPlayerY, lastPlayerZ = player:GetBlockPos();
+    player:SetHandToolIndex(1);
+    local BuilderFramePage = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.BuilderFramePage");
+    BuilderFramePage.OnChangeCategory(1, false)
+    local CreatorDesktop = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.CreatorDesktop");
+    CreatorDesktop.OnChangeTabview(1)
+    CreatorDesktop.ShowNewPage(false)
+    
+    NPL.load("(gl)script/apps/Aries/Creator/Game/GUI/OpenAssetFileDialog.lua");
+    local OpenAssetFileDialog = commonlib.gettable("MyCompany.Aries.Game.GUI.OpenAssetFileDialog");
+    OpenAssetFileDialog.OnChangeCategory(2);
+    
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Code/CodeHelpWindow.lua");
+    local CodeHelpWindow = commonlib.gettable("MyCompany.Aries.Game.Code.CodeHelpWindow");
+    CodeHelpWindow.OnChangeCategory(1)
+    
+    NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/ChatSystem/ChatEdit.lua");
+    local ChatEdit = commonlib.gettable("MyCompany.Aries.ChatSystem.ChatEdit");
+    ChatEdit.LostFocus()
+end
+
 -- @param text: text lines of macros. if nil, it will play from clipboard
 function Macros:Play(text, speed)
 	text = text or ParaMisc.GetTextFromClipboard() or "";
