@@ -24,7 +24,7 @@ local ParacraftLearningRoomDailyPage = NPL.export()
 local page;
 ParacraftLearningRoomDailyPage.exid = 10001;
 ParacraftLearningRoomDailyPage.gsid = 30102;
-ParacraftLearningRoomDailyPage.max_cnt_preset = 133;
+ParacraftLearningRoomDailyPage.max_cnt_preset = 141;
 ParacraftLearningRoomDailyPage.max_cnt = 0;
 ParacraftLearningRoomDailyPage.copies = 0;
 ParacraftLearningRoomDailyPage.lessons = [[关于移动
@@ -160,6 +160,14 @@ Paracraft由多少行代码构成的
 内置函数 while for
 学习NPL语言的总结
 学习编程的建议
+打字练习1
+打字练习2
+打字练习3
+打字练习4
+打字练习5
+打字练习6
+跟随我
+示教系统（上）
 ]]
 ParacraftLearningRoomDailyPage.Current_Item_DS = {
 
