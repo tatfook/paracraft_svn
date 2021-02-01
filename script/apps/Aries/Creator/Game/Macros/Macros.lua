@@ -424,6 +424,8 @@ function Macros:AddMacro(text, ...)
 	end
 end
 
+local MaxNonVIPMacroAllowed = 30;
+
 function Macros:EndRecord()
 	if(not self.isRecording) then
 		return;
@@ -443,6 +445,14 @@ function Macros:EndRecord()
 			out[#out+1] = m:ToString();
 		end
 		out[#out+1] = "Broadcast(\"macroFinished\")";
+		if(#out > MaxNonVIPMacroAllowed) then
+			if(not GameLogic.IsVip()) then
+				_guihelper.MessageBox(format(L"非会员用户只能录制%d个示教宏命令,你录制了%d。是否要开通会员?", MaxNonVIPMacroAllowed, #(self.macros)), function()
+					-- TODO: 开通VIP
+
+				end)
+			end
+		end
 		local text = table.concat(out, "\n");
 		ParaMisc.CopyTextToClipboard(text);
 		GameLogic.AddBBS(nil, format(L"%d个示教宏命令已经复制到裁剪版", #(self.macros)), 5000, "0 255 0")
