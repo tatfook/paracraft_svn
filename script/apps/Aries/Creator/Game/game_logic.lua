@@ -828,6 +828,8 @@ function GameLogic.BeforeRestart(appName)
 end
 
 function GameLogic.Exit()
+	ModManager:OnWillLeaveWorld();
+
 	GameLogic.IsStarted = false;
 	GameLogic.SetTipText(nil);
 	local playerController = GameLogic.GetPlayerController();
