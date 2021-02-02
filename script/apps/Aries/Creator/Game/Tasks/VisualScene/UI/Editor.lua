@@ -51,8 +51,14 @@ function Editor:select(node)
 end
 function Editor:createOrGetFollowTeacher(codes)
     codes = codes or [[
+local words = {
+    "好好学习，天天向上。",
+    "你的作品是最棒的！",
+}
 registerClickEvent(function()
-    say("hello!", 2)
+    local index = math.random(#words)
+    local word = words[index]
+    say(word, 2)
 end)
 
 local p_x,p_y,p_z = getPos("@p");
