@@ -78,15 +78,17 @@ function MacroCodeCampActIntro.GetQRCodeUrl()
 end
 
 function MacroCodeCampActIntro.ShowQRCode()  
-    if QRCodeWnd then
-        QRCodeWnd:Show(parent_root);        
-    end
+    -- if QRCodeWnd then
+    --     QRCodeWnd:Show(parent_root);        
+    -- end
+    ParaUI.GetUIObject("miniCode").visible = true
 end
 
 function MacroCodeCampActIntro.HideQRCode()  
-    if QRCodeWnd then
-        QRCodeWnd:Hide()
-    end
+    -- if QRCodeWnd then
+    --     QRCodeWnd:Hide()
+    -- end
+    ParaUI.GetUIObject("miniCode").visible = false
 end
 
 function MacroCodeCampActIntro.ClosePage()
@@ -106,6 +108,7 @@ function MacroCodeCampActIntro.OnRefreshPage(delaytime)
     MacroCodeCampActIntro.GetVipRestNum()
     MacroCodeCampActIntro.InitSkinIcon()
     MacroCodeCampActIntro.InitMouseTip()
+    MacroCodeCampActIntro.InitMiniCode()
 end
 
 function MacroCodeCampActIntro.RegisterButton() 
@@ -327,6 +330,12 @@ function MacroCodeCampActIntro.CheckNeedRealName()
     return false
 end
 
+function MacroCodeCampActIntro.InitMiniCode()
+    local miniCode = ParaUI.CreateUIObject("container", "miniCode", "_lt", 404, 174, 192, 192);
+    miniCode.background = "Texture/Aries/Creator/keepwork/WinterCamp/minipro_photo_32bits.png"; 
+    miniCode.visible = false  
+    parent_root:AddChild(miniCode)
+end
 
 function MacroCodeCampActIntro.InitSkinIcon()
     local skin1 = ParaUI.CreateUIObject("button", "skin1", "_lt", 290, 322, 81, 90);

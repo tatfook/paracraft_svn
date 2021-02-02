@@ -362,7 +362,7 @@ function ParacraftLearningRoomDailyPage.OnOpenWeb(index,bCheckVip)
 	index = tonumber(index)
 	if(bCheckVip and not ParacraftLearningRoomDailyPage.IsVip())then
 		if(ParacraftLearningRoomDailyPage.IsFuture(index))then
-			ParacraftLearningRoomDailyPage.OnVIP("daily_note");
+			ParacraftLearningRoomDailyPage.OnVIP("DailyNote");
 			--[[
             _guihelper.MessageBox(L"非VIP用户仅可观看已签到视频，是否开通VIP观看此视频？", function(res)
                 if(res == _guihelper.DialogResult.OK) then
@@ -448,7 +448,7 @@ function ParacraftLearningRoomDailyPage:Refresh()
     page:Refresh(0);
 end
 function ParacraftLearningRoomDailyPage.OnVIP(from)
-	GameLogic.IsVip("VipGoods", true, function(result)
+	GameLogic.IsVip(from, true, function(result)
 		if result then
 			ParacraftLearningRoomDailyPage:Refresh();
 		end
