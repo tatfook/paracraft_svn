@@ -424,7 +424,7 @@ function Macros:AddMacro(text, ...)
 	end
 end
 
-local MaxNonVIPMacroAllowed = 30;
+local MaxNonVIPMacroAllowed = 3000;
 
 function Macros:EndRecord()
 	if(not self.isRecording) then
@@ -510,6 +510,7 @@ function Macros:PrepareInitialBuildState()
     GameLogic.RunCommand("/mode edit");
     GameLogic.RunCommand("/clearbag");
     GameLogic.RunCommand("/camerayaw 3.14");
+	GameLogic.RunCommand("/hide info");
     local player = GameLogic.EntityManager.GetPlayer()
     player:ToggleFly(false)
     lastPlayerX, lastPlayerY, lastPlayerZ = player:GetBlockPos();

@@ -1012,6 +1012,10 @@ function BaseContext:HandleGlobalKey(event)
 			-- ctrl + Keys
 			if(ctrl_pressed) then
 				if(dik_key == "DIK_T") then
+					if(GameLogic.Macros:IsRecording()) then
+						local angleX, angleY = GameLogic.Macros.GetSceneClickParams();
+						GameLogic.Macros:AddMacro("NextKeyPressWithMouseMove", angleX, angleY);
+					end
 					NPL.load("(gl)script/apps/Aries/Creator/Game/Areas/InfoWindow.lua");
 					local InfoWindow = commonlib.gettable("MyCompany.Aries.Creator.Game.Desktop.InfoWindow");
 					InfoWindow.CopyToClipboard("mousepos")
