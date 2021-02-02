@@ -756,6 +756,12 @@ function Macros:CheckAddCameraView()
 	end
 end
 
+function Macros.AutoCompleteTrigger()
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Macros/MacroPlayer.lua");
+	local MacroPlayer = commonlib.gettable("MyCompany.Aries.Game.Tasks.MacroPlayer");
+	MacroPlayer.AutoCompleteTrigger();
+end
+
 function Macros:OnTimer()
 	if(self:IsRecording() and not self:IsPlaying()) then
 		self:Tick_RecordPlayerMove()

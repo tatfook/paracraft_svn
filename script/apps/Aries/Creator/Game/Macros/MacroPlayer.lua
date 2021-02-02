@@ -872,12 +872,18 @@ function MacroPlayer.DoAutoPlay()
 		MacroPlayer.autoPlayTimer:Change()
 	end
 	if(Macros.IsAutoPlay()) then
-		if(MacroPlayer.triggerCallbackFunc) then
-			MacroPlayer.HideAll()
-			MacroPlayer.InvokeTriggerCallback();
-		end
+		MacroPlayer.AutoCompleteTrigger()
 	end
 end
+
+-- auto finish current trigger and play the next macro
+function MacroPlayer.AutoCompleteTrigger()
+	if(MacroPlayer.triggerCallbackFunc) then
+		MacroPlayer.HideAll()
+		MacroPlayer.InvokeTriggerCallback();
+	end
+end
+
 
 function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callbackFunc)
 	if(page) then
