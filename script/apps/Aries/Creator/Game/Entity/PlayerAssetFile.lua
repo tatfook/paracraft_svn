@@ -198,7 +198,12 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	if (attachments) then
 		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
 			id = tonumber(id);
-			local meshModel = ParaAsset.LoadStaticMesh("", filename);
+			local meshModel;
+			if (string.find(filename, "anim.x")) then
+				meshModel = ParaAsset.LoadParaX("", filename);
+			else
+				meshModel = ParaAsset.LoadStaticMesh("", filename);
+			end
 			if (meshModel) then
 				charater:AddAttachment(meshModel, id);
 			end
