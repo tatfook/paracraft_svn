@@ -80,6 +80,9 @@ function CustomCharItems:Init()
 					local item = {};
 					item.id = node.attr.id;
 					item.gsid = node.attr.gsid;
+					item.icon1 = node.attr.icon1;
+					item.icon2 = node.attr.icon1;
+					item.name = node.attr.name;
 					groups[#groups+1] = item;
 				end
 				category_items[name] = groups;
