@@ -14,7 +14,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Files.lua");
 local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
 local CustomCharItems = commonlib.gettable("MyCompany.Aries.Game.EntityManager.CustomCharItems")
 
-local defaultModelFile = "character/CC/02human/CustomGeoset/actor.x";
+CustomCharItems.defaultModelFile = "character/CC/02human/CustomGeoset/actor.x";
 
 local models = {};
 local items = {};
@@ -85,29 +85,43 @@ function CustomCharItems:Init()
 				category_items[name] = groups;
 			end
 		end
+
 	else
 		LOG.std(nil, "error", "CustomCharItems", "can not find file at %s", filename);
 	end
 end
 
-function CustomCharItems:GetModelItems(filename, category)
+function CustomCharItems:GetModelItems(filename, category, skin)
 	for type, names in pairs(models) do
 		for _, name in ipairs(names) do
 			if (name == filename) then
-				return self:GetItemsByCategory(category, type);
+				return self:GetItemsByCategory(category, type, skin);
 			end
 		end
 	end
 end
 
-function CustomCharItems:GetItemsByCategory(category, modelType)
+function CustomCharItems:GetItemsByCategory(category, modelType, skin)
+	local checkGeoset = 0;
+	if (category == "shirt") then
+		if (string.find(skin, "901#") ~= nil and string.find(skin, "Avatar_boy_leg_default") == nil) then
+			checkGeoset = 801;
+		end
+	elseif (category == "pants") then
+		if (string.find(skin, "801#") ~= nil and string.find(skin, "Avatar_boy_body_default") == nil) then
+			checkGeoset = 901;
+		end
+	end
+
 	local groups = category_items[category];
 	if (groups) then
 		local itemList = {};
 		for _, item in ipairs(groups) do
 			local data = self:GetItemById(item.id, modelType);
-			if (data) then
-				data.gsid = item.gsid;
+			if (data and (checkGeoset == 0 or checkGeoset == data.geoset)) then
+				data.icon1 = item.icon1;
+				data.icon2 = item.icon2;
+				data.name = item.name;
 				itemList[#itemList+1] = data;
 			end
 		end
@@ -125,4 +139,63 @@ function CustomCharItems:GetItemById(id, modelType)
 			end
 		end
 	end
+end
+
+CustomCharItems.defaultSkinTable = {
+	geosets = {1, 0, 1, 1, 1, 1, 0, 0, 1, 1},
+	textures = {"Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png",
+				"Texture/blocks/CustomGeoset/body/Avatar_boy_body_default.png",
+				"Texture/blocks/Paperman/eye/eye1.png",
+				"Texture/blocks/Paperman/mouth/mouth_01.png",
+				"Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_default.png"},
+	attachments = {}
+}
+
+CustomCharItems.defaultSkinString = "1#201#301#401#501#801#901#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_default.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_default.png";
+
+function CustomCharItems:SkinTableToString(skin)
+	local customGeosets = "";
+	for id, geoset in pairs(skin.geosets) do
+		customGeosets = customGeosets..format("%d#", (id-1) * 100 + geoset);
+	end
+	customGeosets = customGeosets.."@";
+	for i = 1, #skin.textures do
+		customGeosets = customGeosets..format("%d:%s;", i, skin.textures[i]);
+	end
+	customGeosets = customGeosets.."@";
+	for id, filename in pairs(skin.attachments) do
+		customGeosets = customGeosets..format("%d:%s;", id, filename);
+	end
+
+	return customGeosets;
+end
+
+function CustomCharItems:SkinStringToTable(skin)
+	local skinTable = {};
+	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
+	if (geosets) then
+		skinTable.geosets = {};
+		for geoset in string.gfind(geosets, "([^#]+)") do
+			local id = tonumber(geoset);
+			skinTable.geosets[math.floor(id/100 + 1)] = id % 100;
+		end
+	end
+
+	if (textures) then
+		skinTable.textures = {};
+		for id, filename in textures:gmatch("(%d+):([^;]+)") do
+			id = tonumber(id)
+			skinTable.textures[id] = filename;
+		end
+	end
+
+	if (attachments) then
+		skinTable.attachments = {};
+		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
+			id = tonumber(id)
+			skinTable.attachments[id] = filename;
+		end
+	end
+
+	return skinTable;
 end
