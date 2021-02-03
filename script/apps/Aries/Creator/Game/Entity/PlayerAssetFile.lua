@@ -205,7 +205,7 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 				meshModel = ParaAsset.LoadStaticMesh("", filename);
 			end
 			if (meshModel) then
-				charater:AddAttachment(meshModel, id);
+				charater:AddAttachment(meshModel, id, id);
 			end
 		end
 	end
