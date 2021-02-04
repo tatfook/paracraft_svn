@@ -315,8 +315,12 @@ function QuestProvider:FillQuestItemTemplateBy_Virtual_Condition(exid)
                     quest_template.task_type = v.task_type;
                     quest_template.custom_show = v.custom_show;
                     quest_template.exp = v.exp;
-                    quest_template.order = v.order;
+                    quest_template.order = v.order
                     quest_template.visible = v.visible
+                    quest_template.belong = v.belong
+                    quest_template.course_level = v.course_level
+                    quest_template.command = v.command
+                    quest_template.level_name = v.level_name
                     self:AddQuestItemTemplate(quest_template);
                 end
             end

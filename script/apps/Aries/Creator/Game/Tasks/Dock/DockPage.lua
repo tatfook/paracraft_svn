@@ -47,6 +47,17 @@ DockPage.top_line_2 = {
     { label = L"实战提升", id = "week_quest", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_shizhan_32bits.png#0 0 85 75", },
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
 }
+
+if System.options.isDevMode then
+    DockPage.top_line_2 = {
+        { label = L"", },
+        { label = L"", },
+        { label = L"活动公告", id = "notice", enabled2 = true, bg ="Texture/Aries/Creator/keepwork/dock/btn2_gonggao_32bits.png#0 0 85 75"},
+        { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_chengzhangriji_32bits.png#0 0 85 75", },
+        { label = L"智能课", id = "ai_course", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_zhinengke_32bits.png#0 0 85 75", },
+        { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn2_ketang_32bits.png#0 0 85 75", },
+    }
+end
 DockPage.top_line_3 = {
     { label = L"", },
     { label = L"", },
@@ -151,6 +162,9 @@ function DockPage.OnClickTop(id)
     elseif(id == "week_quest")then
         local TeachingQuestLinkPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/TeachingQuestLinkPage.lua");
         TeachingQuestLinkPage.ShowPage();
+        GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.week_quest");
+    elseif(id == "ai_course")then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAllCourse.lua").Show();
         GameLogic.GetFilters():apply_filters("user_behavior", 1, "click.dock.week_quest");
     elseif(id == "codewar")then
         local StudyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/User/StudyPage.lua");
