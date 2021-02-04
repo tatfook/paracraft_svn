@@ -153,11 +153,9 @@ end
 
 function CustomSkinPage.UpdateCustomGeosets(index)
 	local item = CustomSkinPage.Current_Item_DS[index];
-	--[[
 	if (CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].id == item.id) then
 		return;
 	end
-	]]
 
 	local skinTable = CustomCharItems:SkinStringToTable(currentSkin);
 	if (item.geoset) then
@@ -217,4 +215,17 @@ function CustomSkinPage.OnClose()
 	currentModelFile = nil;
 	currentSkin = nil;
 	page:CloseWindow();
+end
+
+function CustomSkinPage.RenameModel(name)
+	local model = CustomSkinPage.Current_Model_DS[CustomSkinPage.model_index];
+	if (model) then
+		local equipment = {asset = model.asset, skin = model.skin, alias = name};
+		keepwork.actors.modify({router_params = {id = model.id}, name = model.name, equipment = equipment}, function(err, msg, data)
+			if (err == 200) then
+				model.alias = name;
+				CustomSkinPage.Refresh();
+			end
+		end);
+	end
 end
