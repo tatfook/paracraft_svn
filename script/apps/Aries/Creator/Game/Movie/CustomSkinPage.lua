@@ -59,6 +59,9 @@ function CustomSkinPage.ShowPage(OnClose)
 	CustomSkinPage.Current_Item_DS = {};
 	CustomSkinPage.Current_Model_DS = {};
 	CustomSkinPage.Current_Icon_DS = {};
+	for i = 1, #CustomSkinPage.category_ds do
+		CustomSkinPage.Current_Icon_DS[i] = {}; 
+	end
 
 	local params = {
 			url = "script/apps/Aries/Creator/Game/Movie/CustomSkinPage.html", 
@@ -87,10 +90,8 @@ function CustomSkinPage.ShowPage(OnClose)
 	end;
 
 	keepwork.actors.list(nil, function(err, msg, data)
-		commonlib.echo("actors_list--------------------------");
-		commonlib.echo(err);
-		commonlib.echo(data);
 		if (err == 200 and data and data.count > 0) then
+			CustomSkinPage.model_index = 1;
 			for i = 1, data.count do
 				local actor = data.rows[i];
 				CustomSkinPage.Current_Model_DS[i] = {asset = actor.equipment.asset, skin = actor.equipment.skin, id = actor.id, name = actor.name};
@@ -116,11 +117,8 @@ function CustomSkinPage.SelectModel(index)
 end
 
 function CustomSkinPage.DeleteModel(index)
-	local model = CustomSkinPage.Current_Model_DS[CustomSkinPage.model_index];
+	local model = CustomSkinPage.Current_Model_DS[index];
 	keepwork.actors.delete({router_params = {id = model.id}}, function(err, msg, data)
-		commonlib.echo("actors_delete--------------------------");
-		commonlib.echo(err);
-		commonlib.echo(data);
 		if (err == 200) then
 			for i = index, #CustomSkinPage.Current_Model_DS-1 do
 				CustomSkinPage.Current_Model_DS[index] = CustomSkinPage.Current_Model_DS[index + 1];
@@ -154,8 +152,16 @@ function CustomSkinPage.OnChangeCategory(index)
 end
 
 function CustomSkinPage.UpdateCustomGeosets(index)
-	local skinTable = CustomCharItems:SkinStringToTable(currentSkin);
 	local item = CustomSkinPage.Current_Item_DS[index];
+	commonlib.echo(item);
+	commonlib.echo(CustomSkinPage.Current_Icon_DS);
+	--[[
+	if (CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].id == item.id) then
+		return;
+	end
+	]]
+
+	local skinTable = CustomCharItems:SkinStringToTable(currentSkin);
 	if (item.geoset) then
 		skinTable.geosets[math.floor(item.geoset/100) + 1] = item.geoset % 100;
 	end
@@ -168,18 +174,17 @@ function CustomSkinPage.UpdateCustomGeosets(index)
 		skinTable.attachments[tonumber(id)] = filename;
 	end
 
-	--CustomSkinPage.Current_Icon_DS
+	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].id = item.id;
+	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].name= item.name;
+	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].icon = item.icon;
 	currentSkin = CustomCharItems:SkinTableToString(skinTable);
-	page:CallMethod("MyPlayer", "SetCustomGeosets", currentSkin);
+	CustomSkinPage.Refresh();
 end
 
 function CustomSkinPage.CreateNewActor()
 	local index = #CustomSkinPage.Current_Model_DS+1;
 	local model = {asset = CustomCharItems.defaultModelFile, skin = PlayerAssetFile:GetDefaultCustomGeosets()};
 	keepwork.actors.add({name = guid.uuid(), equipment = model}, function(err, msg, data)
-		commonlib.echo("actors_add--------------------------");
-		commonlib.echo(err);
-		commonlib.echo(data);
 		if (err == 200) then
 			model.id = data.id;
 			model.name = data.name;
@@ -191,15 +196,14 @@ end
 
 function CustomSkinPage.OnClickSave()
 	local model = CustomSkinPage.Current_Model_DS[CustomSkinPage.model_index];
-	local equipment = {asset = currentModelFile, skin = currentSkin};
-	keepwork.actors.modify({router_params = {id = model.id}, name = model.name, equipment = equipment}, function(err, msg, data)
-		commonlib.echo("actors_modify--------------------------");
-		commonlib.echo(err);
-		commonlib.echo(data);
-		if (err == 200) then
-			model.skin = currentSkin;
-		end
-	end);
+	if (model) then
+		local equipment = {asset = currentModelFile, skin = currentSkin};
+		keepwork.actors.modify({router_params = {id = model.id}, name = model.name, equipment = equipment}, function(err, msg, data)
+			if (err == 200) then
+				model.skin = currentSkin;
+			end
+		end);
+	end
 end
 
 function CustomSkinPage.OnClickOK()
