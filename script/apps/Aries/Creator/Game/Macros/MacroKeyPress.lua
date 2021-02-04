@@ -93,7 +93,7 @@ function Macros.KeyPress(button)
 	local event = KeyEvent:init("keyPressEvent")
 	SetKeyEventFromButtonText(event, button)
 	local ctx = GameLogic.GetSceneContext()
-	ctx:keyPressEvent(event);
+	ctx:handleKeyEvent(event);
 
 	MacroPlayer.Focus();
 end
