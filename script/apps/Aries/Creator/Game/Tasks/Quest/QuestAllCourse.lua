@@ -402,6 +402,9 @@ function QuestAllCourse.RunCommand(index)
     if data and data.command then
         local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
         if System.User.isVip then
+            page:CloseWindow()
+            QuestAllCourse.CloseView()
+
             CommandManager:RunCommand(data.command)
         else
             local client_data = QuestAction.GetClientData()
@@ -411,9 +414,12 @@ function QuestAllCourse.RunCommand(index)
 
             if client_data.play_course_times <= 0 then
                 local function sure_callback()
+                    page:CloseWindow()
+                    QuestAllCourse.CloseView()
+
                     local client_data = QuestAction.GetClientData()
                     client_data.play_course_times = client_data.play_course_times + 1
-                    KeepWorkItemManager.SetClientData(QuestAction.task_gsid, clientData)
+                    KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
                     CommandManager:RunCommand(data.command)
                 end
 
@@ -429,8 +435,6 @@ function QuestAllCourse.RunCommand(index)
                 QuestMessageBox.Show(desc, sure_callback)
             end
         end
-        
-        
     end
 end
 
