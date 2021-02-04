@@ -104,14 +104,16 @@ function CustomCharItems:GetModelItems(filename, category, skin)
 end
 
 function CustomCharItems:GetItemsByCategory(category, modelType, skin)
-	local checkGeoset = 0;
+	local checkGeoset = {0, 0};
 	if (category == "shirt") then
-		if (string.find(skin, "901#") ~= nil and string.find(skin, "Avatar_boy_leg_default") == nil) then
-			checkGeoset = 801;
+		if ((string.find(skin, "901#") ~= nil and string.find(skin, "Avatar_boy_leg_default") == nil) or string.find(skin, "903")) then
+			checkGeoset[1] = 801;
+			checkGeoset[2] = 801;
 		end
 	elseif (category == "pants") then
 		if (string.find(skin, "801#") ~= nil and string.find(skin, "Avatar_boy_body_default") == nil) then
-			checkGeoset = 901;
+			checkGeoset[1] = 901;
+			checkGeoset[2] = 903;
 		end
 	end
 
@@ -120,7 +122,7 @@ function CustomCharItems:GetItemsByCategory(category, modelType, skin)
 		local itemList = {};
 		for _, item in ipairs(groups) do
 			local data = self:GetItemById(item.id, modelType);
-			if (data and (checkGeoset == 0 or checkGeoset == data.geoset)) then
+			if (data and (checkGeoset[1] == 0 or checkGeoset[1] == data.geoset or checkGeoset[2] == data.geoset)) then
 				data.id = item.id;
 				data.icon = item.icon;
 				data.name = item.name;
