@@ -136,10 +136,14 @@ end
 function CustomCharItems:GetItemById(id, modelType)
 	for _, item in ipairs(items) do
 		if (item.id == id) then
-			for _, model in ipairs(item.model) do
-				if (model == modelType) then
-					return item.data;
+			if (modelType) then
+				for _, model in ipairs(item.model) do
+					if (model == modelType) then
+						return item.data;
+					end
 				end
+			else
+				return item.data;
 			end
 		end
 	end
@@ -149,7 +153,7 @@ CustomCharItems.defaultSkinTable = {
 	geosets = {1, 0, 1, 1, 1, 1, 0, 0, 1, 1},
 	textures = {"Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png",
 				"Texture/blocks/CustomGeoset/body/Avatar_boy_body_default.png",
-				"Texture/blocks/Paperman/eye/eye1.png",
+				"Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png",
 				"Texture/blocks/Paperman/mouth/mouth_01.png",
 				"Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_default.png"},
 	attachments = {}

@@ -33,13 +33,13 @@ local currentSkin;
 
 CustomSkinPage.category_ds = {
 	{tex1 = "zi_toubu2_28X14_32bits", tex2 = "zi_toubu1_28X14_32bits", name = "head"},
-	{tex1 = "zi_yanjing2_28X14_32bits", tex2 = "zi_yanjing1_28X14_32bits", name = "eye"},
 	{tex1 = "zi_toushi1_28X14_32bits", tex2 = "zi_toushi2_28X14_32bits", name = "hair"},
+	{tex1 = "zi_yanjing2_28X14_32bits", tex2 = "zi_yanjing1_28X14_32bits", name = "eye"},
 	{tex1 = "zi_zuiba1_28X14_32bits", tex2 = "zi_zuiba2_28X14_32bits", name = "mouth"},
 	{tex1 = "zi_yifu1_28X14_32bits", tex2 = "zi_yifu2_28X14_32bits", name = "shirt"},
 	{tex1 = "zi_kuzi1_28X14_32bits", tex2 = "zi_kuzi2_28X14_32bits", name = "pants"},
-	{tex1 = "zi_shouchi1_28X14_32bits", tex2 = "zi_shouchi2_28X14_32bits", name = "right_hand_equipment"},
 	{tex1 = "zi_beibu1_28X14_32bits", tex2 = "zi_beibu2_28X14_32bits", name = "back"},
+	{tex1 = "zi_shouchi1_28X14_32bits", tex2 = "zi_shouchi2_28X14_32bits", name = "right_hand_equipment"},
 };
 CustomSkinPage.category_index = 1;
 CustomSkinPage.model_index = 1;
@@ -54,7 +54,7 @@ end
 function CustomSkinPage.ShowPage(OnClose)
 	currentModelFile = CustomCharItems.defaultModelFile;
 	currentSkin = PlayerAssetFile:GetDefaultCustomGeosets();
-	CustomSkinPage.category_index = 1;
+	CustomSkinPage.category_index = 2;
 	CustomSkinPage.model_index = 1;
 	CustomSkinPage.Current_Item_DS = {};
 	CustomSkinPage.Current_Model_DS = {};
@@ -175,6 +175,55 @@ function CustomSkinPage.UpdateCustomGeosets(index)
 	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].name= item.name;
 	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].icon = item.icon;
 	CustomSkinPage.Refresh();
+end
+
+function CustomSkinPage.RemoveSkin(index)
+	local iconItem = CustomSkinPage.Current_Icon_DS[index];
+	if (iconItem and iconItem.id and iconItem.id ~= "") then
+		local item = CustomCharItems:GetItemById(iconItem.id);
+		if (item) then
+			if (item.geoset) then
+				local str = tostring(item.geoset);
+				if (item.geoset < 100) then
+					currentSkin = string.gsub(currentSkin, str.."#", "1#");
+				elseif (item.geoset < 200) then
+				elseif (item.geoset < 300) then
+					currentSkin = string.gsub(currentSkin, str, "201");
+				elseif (item.geoset < 400) then
+					currentSkin = string.gsub(currentSkin, str, "301");
+				elseif (item.geoset < 500) then
+					currentSkin = string.gsub(currentSkin, str, "401");
+				elseif (item.geoset < 600) then
+					currentSkin = string.gsub(currentSkin, str, "501");
+				elseif (item.geoset < 700) then
+				elseif (item.geoset < 800) then
+				elseif (item.geoset < 900) then
+					currentSkin = string.gsub(currentSkin, str, "801");
+				elseif (item.geoset < 1000) then
+					currentSkin = string.gsub(currentSkin, str, "901");
+				else
+				end
+			end
+			if (item.texture) then
+				local id, tex = string.match(item.texture, "(%d+):([^;]+)");
+				id = tonumber(id);
+				currentSkin = string.gsub(currentSkin, tex, CustomCharItems.defaultSkinTable.textures[id]);
+			end
+			if (item.attachment) then
+				local id, tex = string.match(item.attachment, "(%d+):([^;]+)");
+				id = tonumber(id);
+				if (id == 11) then
+					currentSkin = string.gsub(currentSkin, "0#", "1#");
+				end
+				currentSkin = string.gsub(currentSkin, item.attachment..";", "");
+			end
+
+			iconItem.id = "";
+			iconItem.name = "";
+			iconItem.icon = "";
+			CustomSkinPage.Refresh();
+		end
+	end
 end
 
 function CustomSkinPage.CreateNewActor()
