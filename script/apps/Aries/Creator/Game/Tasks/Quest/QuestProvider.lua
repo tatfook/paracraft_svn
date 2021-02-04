@@ -126,7 +126,24 @@ function QuestProvider:OnInit()
                 end
             end
             
-            -- body
+            -- 探索力处理
+            for i, quest_item in ipairs(event.quest_item_container.children) do
+                if quest_item.template and quest_item.template.exp then
+                    GameLogic.QuestAction.AddExp(quest_item.template.exp, function()
+                        if i == #event.quest_item_container.children then
+                            local QuestPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestPage.lua");
+                            if QuestPage and QuestPage.IsOpen() then
+                                local exp = GameLogic.QuestAction.GetExp()
+                                QuestPage.ProgressToExp(true, exp)
+                                QuestPage.HandleGiftData()
+                                QuestPage.OnRefreshGiftGridView()
+                            end
+                        end
+                    end)
+                end
+            end
+
+
         end
     end, nil, "QuestProvider_OnFinished")
 
