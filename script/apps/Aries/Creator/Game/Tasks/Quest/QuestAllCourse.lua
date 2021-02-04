@@ -38,10 +38,10 @@ QuestAllCourse.SelectLevelIndex = 1
 QuestAllCourse.SelectCourseIndex = 0
 
 QuestAllCourse.TeacherListData = {
-    {belong_name="teacher_fang", name="方老师", desc="冬令营导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren1_46X50_32bits.png#0 0 55 55"},
-    {belong_name="papa", name="帕帕", desc="编程导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren2_55X55_32bits.png#0 0 55 55"},
-    {belong_name="lala", name="拉拉", desc="建筑导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren3_55X55_32bits.png#0 0 55 55"},
-    {belong_name="kaka", name="卡卡", desc="卡卡动画", icon="Texture/Aries/Creator/keepwork/AiCourse/ren4_55X55_32bits.png#0 0 55 55"},
+    {belong_name="teacher_fang", name="方老师", desc="冬令营导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren1_46X50_32bits.png#0 0 55 55", order = -1,},
+    {belong_name="papa", name="帕帕", desc="编程导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren2_55X55_32bits.png#0 0 55 55", order = -1},
+    {belong_name="lala", name="拉拉", desc="建筑导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren3_55X55_32bits.png#0 0 55 55", order = -1},
+    {belong_name="kaka", name="卡卡", desc="卡卡动画", icon="Texture/Aries/Creator/keepwork/AiCourse/ren4_55X55_32bits.png#0 0 55 55", order = -1},
 }
 
 QuestAllCourse.NpcData = {
@@ -107,19 +107,20 @@ function QuestAllCourse.ShowView()
     end
 
     QuestAllCourse.RefreshAllData(open_callback)
-    if QuestAllCourse.target_page then
-        commonlib.TimerManager.SetTimeout(function()
-            if page and page:IsVisible() then
+    
+    commonlib.TimerManager.SetTimeout(function()
+
+        if page and page:IsVisible() then
+            if QuestAllCourse.target_page then
                 local node = page:GetNode("course_list");
                 pe_gridview.GotoPage(node, "course_list", QuestAllCourse.target_page);
                 QuestAllCourse.target_page = nil
-
-                QuestAllCourse.CreateTeacherNpc()
             end
-        end, 100); 
-    else
-        QuestAllCourse.CreateTeacherNpc()
-    end
+
+            QuestAllCourse.CreateTeacherNpc()
+        end
+    end, 100); 
+
 end
 
 function QuestAllCourse.FreshView()
@@ -184,15 +185,14 @@ function QuestAllCourse.RefreshAllData(callback)
 
             local teacher_data = QuestAllCourse.TeacherTableData[v.belong]
             teacher_data.all_course_data[#teacher_data.all_course_data + 1] = v
+            
             if teacher_data.order == nil then
                 teacher_data.order = v.order or 0
             end
-            
             if v.course_level then
                 if teacher_data[v.course_level] == nil then
                     teacher_data[v.course_level] = {}
                 end
-                -- print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", v.course_level, v.belong, v.exid, #teacher_data[v.course_level])
                 table.insert(teacher_data[v.course_level], v)
             end
             
@@ -233,10 +233,15 @@ end
 function QuestAllCourse.RefreshTeacherListData()
     -- QuestAllCourse.TeacherListData = {}
     -- QuestAllCourse.SelectTeacherIndex = 0
-    if QuestAllCourse.TeacherListData[1].order == nil then
-        for k, v in pairs(QuestAllCourse.TeacherListData) do
-            if QuestAllCourse.TeacherTableData[v.belong_name] then
-                v.order = QuestAllCourse.TeacherTableData[v.belong_name].order or 0
+    if QuestAllCourse.TeacherListData[1].order == -1 then
+        for index = #QuestAllCourse.TeacherListData, 1, -1 do
+            local data = QuestAllCourse.TeacherListData[index]
+            
+            if QuestAllCourse.TeacherTableData[data.belong_name] == nil then
+                
+                table.remove(QuestAllCourse.TeacherListData, index)
+            else
+                data.order = QuestAllCourse.TeacherTableData[data.belong_name].order or 0
             end
         end
     
@@ -266,15 +271,25 @@ function QuestAllCourse.RefreshLevelListData()
     -- 预定5个
     for level = 1, 5 do
         if teacher_data[level] then
-            local level_name = teacher_data[level][1].level_name or "二级"
-            -- local data = {name = string.format("%s级", course_level), type_index = course_level, belong_name = select_teacher_data.belong_name}
-            local data = {name = level_name, type_index = course_level, belong_name = select_teacher_data.belong_name}
+            local level_name = "二级"
+            for i, v in ipairs(teacher_data[level]) do
+                if v.level_name then
+                    level_name = v.level_name
+                    break
+                end
+            end
+            
+            -- local data = {name = string.format("%s级", level), type_index = level, belong_name = select_teacher_data.belong_name}
+            local data = {name = level_name, type_index = level, belong_name = select_teacher_data.belong_name}
             QuestAllCourse.LevelListData[#QuestAllCourse.LevelListData + 1] = data
         end
     end
+
+
 end
 
 function QuestAllCourse.RefreshCourseListData()
+    
     local select_level_data = QuestAllCourse.LevelListData[QuestAllCourse.SelectLevelIndex]
     if select_level_data == nil then
         return
@@ -298,7 +313,6 @@ function QuestAllCourse.RefreshCourseListData()
         local data = {}
         local world_id = QuestAllCourse.ExidToWorldId[v.exid]
         world_id = world_id and tonumber(world_id) or 0
-        -- print("bbbbbbbbbbbbb", world_id)
         data.imageUrl = ""
         if QuestAllCourse.CourseWorldData[world_id] then
             data.imageUrl = QuestAllCourse.CourseWorldData[world_id].imageUrl
@@ -312,6 +326,9 @@ function QuestAllCourse.RefreshCourseListData()
 
         QuestAllCourse.CourseListData[#QuestAllCourse.CourseListData + 1] = data
     end
+
+    
+    -- echo(QuestAllCourse.CourseListData, true)
     -- QuestAllCourse.CourseListData = course_data
 end
 ----------------------------------------------------------数据处理/end----------------------------------------------------------
@@ -432,8 +449,6 @@ function QuestAllCourse.SelectTargetWorld()
                     QuestAllCourse.TargetCourseIndex = k2
 
                     QuestAllCourse.target_page = math.ceil(QuestAllCourse.TargetCourseIndex / 1)
-
-                    print("tttttttttttttttt", v.belong_name, QuestAllCourse.SelectTeacherIndex, QuestAllCourse.TargetCourseIndex)
                     break
                 end
             end
