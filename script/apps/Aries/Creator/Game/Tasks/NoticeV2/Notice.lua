@@ -198,8 +198,8 @@ function Notice.OnImageBgClick(data)
     end
     if string.find(name, "人工智能") and string.find(name, "人工智能") > 0 then
         Notice.CloseView()
-        -- NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAllCourse.lua").Show();
-        -- GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAllCourse.lua").Show();
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
         return
     end
     if string.find(name, "换装系统") and string.find(name, "换装系统") > 0 then
