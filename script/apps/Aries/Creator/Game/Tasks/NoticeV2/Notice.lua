@@ -204,6 +204,8 @@ function Notice.OnImageBgClick(data)
     end
     if string.find(name, "换装系统") and string.find(name, "换装系统") > 0 then
         Notice.CloseView()
+        local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
+        last_page_ctrl = page.ShowUserInfoPage({username = System.User.keepworkUsername});
         return
     end
     if string.find(name, "新年资源库") and string.find(name, "新年资源库") > 0 then
