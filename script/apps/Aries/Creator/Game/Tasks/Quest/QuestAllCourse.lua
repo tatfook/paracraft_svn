@@ -632,6 +632,10 @@ end
 function QuestAllCourse.GetNpcDataByKey(key)
     key = key or "word"
     local select_teacher_data = QuestAllCourse.TeacherListData[QuestAllCourse.SelectTeacherIndex]
+    if select_teacher_data == nil or select_teacher_data.belong_name == nil then
+        return
+    end
+
     local select_teacher_name = select_teacher_data.belong_name
     local show_npc_data = QuestAllCourse.NpcData[select_teacher_name]
     return show_npc_data[key]
