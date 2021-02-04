@@ -206,7 +206,11 @@ function CustomSkinPage.OnClickSave()
 end
 
 function CustomSkinPage.OnClickOK()
-	page:CloseWindow();
+	GameLogic.IsVip("ChangeAvatarSkin", true, function(isVip) 
+		if(isVip) then
+			page:CloseWindow();
+		end
+	end)
 end
 
 function CustomSkinPage.OnClose()
