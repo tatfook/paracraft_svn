@@ -82,6 +82,14 @@ function CustomCharItems:Init()
 					item.gsid = node.attr.gsid;
 					item.icon = node.attr.icon;
 					item.name = node.attr.name;
+					local data = self:GetItemById(item.id, modelType);
+					if (data) then
+						data.id = item.id;
+						data.gsid = item.gsid;
+						data.icon = item.icon;
+						data.name = item.name;
+						data.category = name;
+					end
 					groups[#groups+1] = item;
 				end
 				category_items[name] = groups;
@@ -206,4 +214,41 @@ function CustomCharItems:SkinStringToTable(skin)
 	end
 
 	return skinTable;
+end
+
+function CustomCharItems:GetItemsBySkin(skin)
+	local skinTable = CustomCharItems:SkinStringToTable(skin);
+	for i = 1, 5 do
+		if (skinTable.textures[i] ~= CustomCharItems.defaultSkinTable.textures[i]) then
+		end
+	end
+end
+
+
+function CustomCharItems:GetUsedItemsBySkin(skin)
+	local usedItems = {};
+	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
+	if (textures) then
+		for tex in textures:gmatch("([^;]+)") do
+			if (string.find(CustomCharItems.defaultSkinString, tex) == nil) then
+				for _, item in ipairs(items) do
+					if (item.data.texture == tex) then
+						usedItems[#usedItems+1] = {id = item.data.id, name = item.data.category, icon = item.data.icon};
+						break;
+					end
+				end
+			end
+		end
+	end
+
+	if (attachments) then
+		for att in attachments:gmatch("([^;]+)") do
+			for _, item in ipairs(items) do
+				if (item.data.attachment == att) then
+					usedItems[#usedItems+1] = {id = item.data.id, name = item.data.category, icon = item.data.icon};
+				end
+			end
+		end
+	end
+	return usedItems;
 end

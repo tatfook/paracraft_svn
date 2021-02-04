@@ -101,6 +101,17 @@ function CustomSkinPage.ShowPage(OnClose)
 				page:CallMethod("MyPlayer", "SetAssetFile", currentModelFile);
 			end
 			currentSkin = CustomSkinPage.Current_Model_DS[1].skin;
+
+			local items = CustomCharItems:GetUsedItemsBySkin(currentSkin);
+			for _, item in ipairs(items) do
+				local index = CustomSkinPage.GetIconIndexFromName(item.name);
+				if (index > 0) then
+					CustomSkinPage.Current_Icon_DS[index].id = item.id;
+					CustomSkinPage.Current_Icon_DS[index].name = item.name;
+					CustomSkinPage.Current_Icon_DS[index].icon = item.icon;
+				end
+			end
+
 		--else
 			--CustomSkinPage.Current_Model_DS[1] = {asset = currentModelFile, skin = currentSkin};
 		end
@@ -108,11 +119,20 @@ function CustomSkinPage.ShowPage(OnClose)
 	end);
 end
 
+function CustomSkinPage.GetIconIndexFromName(name)
+	for i = 1, #CustomSkinPage.category_ds do
+		if (CustomSkinPage.category_ds[i].name == name) then
+			return i;
+		end
+	end
+	return -1;
+end
+
 function CustomSkinPage.SelectModel(index)
 	if (CustomSkinPage.model_index ~= index) then
 		CustomSkinPage.model_index = index;
 		CustomSkinPage.UpdateModel(CustomSkinPage.Current_Model_DS[index])
-		CustomSkinPage.OnChangeCategory(1);
+		CustomSkinPage.OnChangeCategory(2);
 	end
 end
 
@@ -132,6 +152,20 @@ end
 function CustomSkinPage.UpdateModel(model)
 	currentModelFile = model.asset;
 	currentSkin = model.skin;
+	for i = 1, #CustomSkinPage.category_ds do
+		CustomSkinPage.Current_Icon_DS[i].id = "";
+		CustomSkinPage.Current_Icon_DS[i].name = "";
+		CustomSkinPage.Current_Icon_DS[i].icon = "";
+	end
+	local items = CustomCharItems:GetUsedItemsBySkin(currentSkin);
+	for _, item in ipairs(items) do
+		local index = CustomSkinPage.GetIconIndexFromName(item.name);
+		if (index > 0) then
+			CustomSkinPage.Current_Icon_DS[index].id = item.id;
+			CustomSkinPage.Current_Icon_DS[index].name = item.name;
+			CustomSkinPage.Current_Icon_DS[index].icon = item.icon;
+		end
+	end
 end
 
 function CustomSkinPage.Refresh()
