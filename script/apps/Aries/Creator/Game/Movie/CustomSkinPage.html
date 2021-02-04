@@ -41,27 +41,30 @@
             end
 
             function GetBigIconStyle(tex)
-                return string.format("margin-left:41px;margin-top:24px;width:64px;height:64px;background:url(%s);", tex);
+                return string.format("margin-left:41px;margin-top:24px;width:64px;height:64px;background:url(%s);", tex or "");
             end
 
             function GetSmallIconStyle1(tex)
-                return string.format("float:left;margin-left:0px;width:40px;height:40px;background:url(%s);", tex);
+                return string.format("float:left;margin-left:0px;width:40px;height:40px;background:url(%s);", tex or "");
             end
 
             function GetSmallIconStyle2(tex)
-                return string.format("float:left;margin-left:218px;width:40px;height:40px;background:url(%s);", tex);
+                return string.format("float:left;margin-left:218px;width:40px;height:40px;background:url(%s);", tex or "");
             end
 
             function GetModelName(index)
                 if (index > 0) then
-                    return string.format(L"套装%d", index)
+                    local model = CustomSkinPage.Current_Model_DS[CustomSkinPage.model_index];
+                    if (model) then
+                        return model.alias;
+                    else
+                        return L"新建套装";
+                    end
                 else
-                    return L"新建套装";
                 end
             end
 
             function IsOdd(index)
-                commonlib.echo(index);
                 return (index % 2) ~= 0;
             end
 
@@ -79,7 +82,7 @@
                                         <%=Eval("index")%>
                                     </div>
                                     <div name='<%=Eval("index")%>' onclick="CustomSkinPage.SelectModel" style="float:left;margin-left:2px;margin-top:8px;width:124px;text-align:center;font-size:18px;base-font-size:18px;color:#ffffff;">
-                                        <%=GetModelName(Eval("index"))%>
+                                        <%=Eval("alias")%>
                                     </div>
                                     <div name='<%=Eval("index")%>' onclick="CustomSkinPage.DeleteModel" style="float:left;margin-left:2px;margin-top:5px;width:36px;height:36px;background:url(Texture/Aries/Creator/keepwork/Avatar/btn_shanchu_36X36_32bits.png#0 0 36 36);"></div>
                                 </div>
@@ -151,7 +154,7 @@
                             <pe:mc_player name="MyPlayer" miniscenegraphname="AvatarCharacter" style="width:256px;height:256px;" NoFrameMove="true" DefaultCameraObjectDist="4" LookAtHeight="0.9" DefaultLiftupAngle="0.1"/>
                         </div>
                     </div>
-                    <input type="button" align="center" style="margin-top:10px;min-width:160px;height:50px;font-size:20px;base-font-size:20px;" class="kp_yellow_button" onclick="CustomSkinPage.OnClickOK()" value='<%=L"保存"%>' />
+                    <input type="button" align="center" style="margin-top:10px;min-width:160px;height:50px;font-size:20px;base-font-size:20px;" class="kp_yellow_button" onclick="CustomSkinPage.OnClickSave()" value='<%=L"保存"%>' />
                     <input type="button" align="center" style="margin-top:10px;min-width:160px;height:50px;font-size:20px;base-font-size:20px;" class="kp_gray_button" onclick="CustomSkinPage.OnClose()" value='<%=L"取消"%>' />
                 </div>
                 <div style="float:left;margin-left:4px;margin-top:12px;width:590px;height:512px;background:url(Texture/Aries/Creator/keepwork/Avatar/dikuang_32X32_32bits.png#0 0 32 32:8 8 8 8);">
@@ -172,7 +175,7 @@
                         </pe:repeat>
                     </div>
                     <div style="width:620px;height:466px;">
-                        <pe:gridview style="margin-left:1px;" name="item_gridview" CellPadding="1" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="18" AllowPaging="false" ItemsPerLine="4" DefaultNodeHeight="140" RememberScrollPos="true" RememberLastPage="true"
+                        <pe:gridview style="margin-left:1px;" name="item_gridview" CellPadding="1" VerticalScrollBarStep="36" VerticalScrollBarOffsetX="18" AllowPaging="false" ItemsPerLine="4" DefaultNodeHeight="140" 
                                      DataSource='<%=DS_Items%>'>
                             <Columns>
                                 <div style="float:left;width:146px;height:140px;background:url(Texture/Aries/Creator/keepwork/ggs/user/renwuqiehuan/wupingbj_146X140_32bits.png#0 0 146 140);">

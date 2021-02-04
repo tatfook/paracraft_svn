@@ -196,6 +196,9 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	end
 
 	if (attachments) then
+		charater:RemoveAttachment(1);
+		charater:RemoveAttachment(11);
+		charater:RemoveAttachment(15);
 		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
 			id = tonumber(id);
 			local meshModel;

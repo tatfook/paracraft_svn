@@ -60,7 +60,7 @@ function CustomSkinPage.ShowPage(OnClose)
 	CustomSkinPage.Current_Model_DS = {};
 	CustomSkinPage.Current_Icon_DS = {};
 	for i = 1, #CustomSkinPage.category_ds do
-		CustomSkinPage.Current_Icon_DS[i] = {}; 
+		CustomSkinPage.Current_Icon_DS[i] = {id = "", icon = "", name = ""}; 
 	end
 
 	local params = {
@@ -94,7 +94,7 @@ function CustomSkinPage.ShowPage(OnClose)
 			CustomSkinPage.model_index = 1;
 			for i = 1, data.count do
 				local actor = data.rows[i];
-				CustomSkinPage.Current_Model_DS[i] = {asset = actor.equipment.asset, skin = actor.equipment.skin, id = actor.id, name = actor.name};
+				CustomSkinPage.Current_Model_DS[i] = {asset = actor.equipment.asset, skin = actor.equipment.skin, id = actor.id, name = actor.name, alias = actor.equipment.alias or string.format(L"新建模型%d", actor.id)};
 			end
 			if (CustomSkinPage.Current_Model_DS[1].asset ~= currentModelFile) then
 				currentModelFile = CustomSkinPage.Current_Model_DS[1].asset;
@@ -153,8 +153,6 @@ end
 
 function CustomSkinPage.UpdateCustomGeosets(index)
 	local item = CustomSkinPage.Current_Item_DS[index];
-	commonlib.echo(item);
-	commonlib.echo(CustomSkinPage.Current_Icon_DS);
 	--[[
 	if (CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].id == item.id) then
 		return;
@@ -173,11 +171,11 @@ function CustomSkinPage.UpdateCustomGeosets(index)
 		local id, filename = string.match(item.attachment, "(%d+):(.*)");
 		skinTable.attachments[tonumber(id)] = filename;
 	end
+	currentSkin = CustomCharItems:SkinTableToString(skinTable);
 
 	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].id = item.id;
 	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].name= item.name;
 	CustomSkinPage.Current_Icon_DS[CustomSkinPage.category_index].icon = item.icon;
-	currentSkin = CustomCharItems:SkinTableToString(skinTable);
 	CustomSkinPage.Refresh();
 end
 
@@ -188,6 +186,7 @@ function CustomSkinPage.CreateNewActor()
 		if (err == 200) then
 			model.id = data.id;
 			model.name = data.name;
+			model.alias = string.format(L"新建模型%d", model.id);
 			CustomSkinPage.Current_Model_DS[index] = model;
 			CustomSkinPage.Refresh();
 		end
@@ -197,7 +196,7 @@ end
 function CustomSkinPage.OnClickSave()
 	local model = CustomSkinPage.Current_Model_DS[CustomSkinPage.model_index];
 	if (model) then
-		local equipment = {asset = currentModelFile, skin = currentSkin};
+		local equipment = {asset = currentModelFile, skin = currentSkin, alias = model.alias};
 		keepwork.actors.modify({router_params = {id = model.id}, name = model.name, equipment = equipment}, function(err, msg, data)
 			if (err == 200) then
 				model.skin = currentSkin;

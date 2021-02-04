@@ -121,6 +121,7 @@ function CustomCharItems:GetItemsByCategory(category, modelType, skin)
 		for _, item in ipairs(groups) do
 			local data = self:GetItemById(item.id, modelType);
 			if (data and (checkGeoset == 0 or checkGeoset == data.geoset)) then
+				data.id = item.id;
 				data.icon = item.icon;
 				data.name = item.name;
 				itemList[#itemList+1] = data;
