@@ -89,11 +89,11 @@ function DockPage.Show()
     end)
 
     -- 每次登陆判断是否弹出活动框
-    if Notice and Notice.CheckCanShow() then
+    if Notice and Notice.CheckCanShow() and not MacroCodeCampActIntro.CheckIsInWinCamp() then
         Notice.Show(0)
     end
 
-    if MacroCodeCampActIntro.CheckCanShow() then
+    if MacroCodeCampActIntro.CheckCanShow() and MacroCodeCampActIntro.CheckIsInWinCamp() then
         MacroCodeCampActIntro.ShowView()
     end
 
