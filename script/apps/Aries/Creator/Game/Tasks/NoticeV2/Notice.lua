@@ -226,6 +226,8 @@ function Notice.OnImageBgClick(data)
                         GameLogic.QuestAction.AchieveTask("40006_1", 1, true)
                     end
                 end)
+        else
+           _guihelper.MessageBox("您已经完成了实名认证~") 
         end
         return
     end
