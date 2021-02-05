@@ -61,10 +61,10 @@ function QuestAllCourse.OnInit()
 end
 
 function QuestAllCourse.Show(target_world_id)
-    if not System.options.isDevMode then
-        _guihelper.MessageBox("人工智能课程即日开启，敬请期待", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
-        return
-    end
+    -- if not System.options.isDevMode then
+    --     _guihelper.MessageBox("人工智能课程即日开启，敬请期待", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
+    --     return
+    -- end
     QuestAllCourse.target_world_id = target_world_id
 
     keepwork.user.server_time({}, function(err, msg, data)
