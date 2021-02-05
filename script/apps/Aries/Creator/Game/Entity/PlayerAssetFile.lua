@@ -200,13 +200,13 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	end
 
 	if (attachments) then
-		charater:RemoveAttachment(1);
-		charater:RemoveAttachment(11);
-		charater:RemoveAttachment(15);
+		charater:RemoveAttachment(1, 1);
+		charater:RemoveAttachment(11, 11);
+		charater:RemoveAttachment(15, 15);
 		for id, filename in attachments:gmatch("(%d+):([^;]+)") do
 			id = tonumber(id);
 			if (use_hair and id == 11) then
-				charater:RemoveAttachment(11);
+				charater:RemoveAttachment(11, 11);
 			else
 				local meshModel;
 				if (string.find(filename, "anim.x")) then
