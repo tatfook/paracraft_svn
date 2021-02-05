@@ -223,6 +223,8 @@ function QuestAction.OpenPage(name)
     elseif name == 'growth_diary' then
         local ParacraftLearningRoomDailyPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ParacraftLearningRoom/ParacraftLearningRoomDailyPage.lua");
         ParacraftLearningRoomDailyPage.DoCheckin();     
+    elseif name == 'ai_course' then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAllCourse.lua").Show();
     end
 end
 
