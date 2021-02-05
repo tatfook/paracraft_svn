@@ -192,33 +192,33 @@ function Notice.OnImageBgClick(data)
         local campId = campIds[httpwrapper_version]
         if tonumber(world_id) ~= campId then
             GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
-            GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from = 'go_to_camp' });
+            GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board1', fromName = 'go_to_camp' });
         end        
         return
     end
     if string.find(name, "人工智能") and string.find(name, "人工智能") > 0 then
         Notice.CloseView()
         NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestAllCourse.lua").Show();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from = 'AI_class' });
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board2', fromName = 'AI_class' });
         return
     end
     if string.find(name, "换装系统") and string.find(name, "换装系统") > 0 then
         Notice.CloseView()
         local page = NPL.load("Mod/GeneralGameServerMod/App/ui/page.lua");
         last_page_ctrl = page.ShowUserInfoPage({username = System.User.keepworkUsername});
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from = 'clothes_sys' });
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board3', fromName = 'clothes_sys' });
         return
     end
     if string.find(name, "新年资源库") and string.find(name, "新年资源库") > 0 then
         Notice.CloseView()
         local KeepWorkMallPage = NPL.load("(gl)script/apps/Aries/Creator/Game/KeepWork/KeepWorkMallPage.lua");
         KeepWorkMallPage.Show();
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from = 'sf_res' });
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board4', fromName = 'sf_res' });
         return
     end
     if string.find(name, "实名认证奖励") and string.find(name, "实名认证奖励") > 0 then
         Notice.CloseView()
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from = 'realname' });
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board5', fromName = 'realname' });
         if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
             GameLogic.GetFilters():apply_filters(
                 'show_certificate',
