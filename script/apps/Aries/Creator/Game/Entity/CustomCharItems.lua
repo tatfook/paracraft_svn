@@ -82,6 +82,7 @@ function CustomCharItems:Init()
 					item.gsid = node.attr.gsid;
 					item.icon = node.attr.icon;
 					item.name = node.attr.name;
+					item.avatarMode = node.attr.avatarMode;
 					local data = self:GetItemById(item.id, modelType);
 					if (data) then
 						data.id = item.id;
@@ -101,17 +102,17 @@ function CustomCharItems:Init()
 	end
 end
 
-function CustomCharItems:GetModelItems(filename, category, skin)
+function CustomCharItems:GetModelItems(filename, category, skin, avatar)
 	for type, names in pairs(models) do
 		for _, name in ipairs(names) do
 			if (name == filename) then
-				return self:GetItemsByCategory(category, type, skin);
+				return self:GetItemsByCategory(category, type, skin, avatar);
 			end
 		end
 	end
 end
 
-function CustomCharItems:GetItemsByCategory(category, modelType, skin)
+function CustomCharItems:GetItemsByCategory(category, modelType, skin, avatar)
 	local checkGeoset = {0, 0};
 	if (category == "shirt") then
 		if ((string.find(skin, "901#") ~= nil and string.find(skin, "Avatar_boy_leg_default") == nil) or string.find(skin, "903")) then
@@ -129,12 +130,14 @@ function CustomCharItems:GetItemsByCategory(category, modelType, skin)
 	if (groups) then
 		local itemList = {};
 		for _, item in ipairs(groups) do
-			local data = self:GetItemById(item.id, modelType);
-			if (data and (checkGeoset[1] == 0 or checkGeoset[1] == data.geoset or checkGeoset[2] == data.geoset)) then
-				data.id = item.id;
-				data.icon = item.icon;
-				data.name = item.name;
-				itemList[#itemList+1] = data;
+			if ((avatar and item.avatarMode) or (not avatar)) then
+				local data = self:GetItemById(item.id, modelType);
+				if (data and (checkGeoset[1] == 0 or checkGeoset[1] == data.geoset or checkGeoset[2] == data.geoset)) then
+					data.id = item.id;
+					data.icon = item.icon;
+					data.name = item.name;
+					itemList[#itemList+1] = data;
+				end
 			end
 		end
 		return itemList;
@@ -251,4 +254,22 @@ function CustomCharItems:GetUsedItemsBySkin(skin)
 		end
 	end
 	return usedItems;
+end
+
+CustomCharItems.ExistAvatars = {
+	"1#201#301#401#501#802#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_graduation.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_graduation.png",
+	"1#201#301#401#501#802#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_party.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_party.png",
+	"1#201#301#401#501#802#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_activity.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_activity.png",
+	"2#201#301#401#501#803#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_girl_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_girl_body_graduation.png;3:Texture/blocks/Paperman/eye/eye_girl_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_girl_01_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_girl_leg_default.png",
+	"2#201#301#401#501#803#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_girl_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_girl_body_party.png;3:Texture/blocks/Paperman/eye/eye_girl_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_girl_01_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_girl_leg_default.png",
+	"2#201#301#401#501#803#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_girl_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_girl_body_activity.png;3:Texture/blocks/Paperman/eye/eye_girl_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_girl_01_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_girl_leg_default.png",
+}
+
+function CustomCharItems:CheckAvatarExist(skin)
+	for i = 1, #CustomCharItems.ExistAvatars do
+		if (CustomCharItems.ExistAvatars[i] == skin) then
+			return true;
+		end
+	end
+	return false;
 end
