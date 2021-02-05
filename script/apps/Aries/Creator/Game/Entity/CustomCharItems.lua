@@ -257,6 +257,48 @@ function CustomCharItems:GetUsedItemsBySkin(skin)
 	return usedItems;
 end
 
+function CustomCharItems:RemoveItemInSkin(skin, item)
+	local currentSkin = skin;
+	if (item) then
+		if (item.geoset) then
+			local str = tostring(item.geoset);
+			if (item.geoset < 100) then
+				currentSkin = string.gsub(currentSkin, str.."#", "1#");
+			elseif (item.geoset < 200) then
+			elseif (item.geoset < 300) then
+				currentSkin = string.gsub(currentSkin, str, "201");
+			elseif (item.geoset < 400) then
+				currentSkin = string.gsub(currentSkin, str, "301");
+			elseif (item.geoset < 500) then
+				currentSkin = string.gsub(currentSkin, str, "401");
+			elseif (item.geoset < 600) then
+				currentSkin = string.gsub(currentSkin, str, "501");
+			elseif (item.geoset < 700) then
+			elseif (item.geoset < 800) then
+			elseif (item.geoset < 900) then
+				currentSkin = string.gsub(currentSkin, str, "801");
+			elseif (item.geoset < 1000) then
+				currentSkin = string.gsub(currentSkin, str, "901");
+			else
+			end
+		end
+		if (item.texture) then
+			local id, tex = string.match(item.texture, "(%d+):([^;]+)");
+			id = tonumber(id);
+			currentSkin = string.gsub(currentSkin, tex, CustomCharItems.defaultSkinTable.textures[id]);
+		end
+		if (item.attachment) then
+			local id, tex = string.match(item.attachment, "(%d+):([^;]+)");
+			id = tonumber(id);
+			if (id == 11) then
+				currentSkin = string.gsub(currentSkin, "0#", "1#");
+			end
+			currentSkin = string.gsub(currentSkin, item.attachment..";", "");
+		end
+	end
+	return currentSkin;
+end
+
 CustomCharItems.ExistAvatars = {
 	"1#201#301#401#501#802#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_graduation.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_graduation.png",
 	"1#201#301#401#501#802#902#@1:Texture/blocks/CustomGeoset/hair/Avatar_boy_hair_01.png;2:Texture/blocks/CustomGeoset/body/Avatar_boy_body_party.png;3:Texture/blocks/Paperman/eye/eye_boy_fps10_a001.png;4:Texture/blocks/Paperman/mouth/mouth_01.png;5:Texture/blocks/CustomGeoset/leg/Avatar_boy_leg_party.png",

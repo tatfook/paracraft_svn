@@ -215,43 +215,9 @@ function CustomSkinPage.RemoveSkin(index)
 	local iconItem = CustomSkinPage.Current_Icon_DS[index];
 	if (iconItem and iconItem.id and iconItem.id ~= "") then
 		local item = CustomCharItems:GetItemById(iconItem.id);
-		if (item) then
-			if (item.geoset) then
-				local str = tostring(item.geoset);
-				if (item.geoset < 100) then
-					currentSkin = string.gsub(currentSkin, str.."#", "1#");
-				elseif (item.geoset < 200) then
-				elseif (item.geoset < 300) then
-					currentSkin = string.gsub(currentSkin, str, "201");
-				elseif (item.geoset < 400) then
-					currentSkin = string.gsub(currentSkin, str, "301");
-				elseif (item.geoset < 500) then
-					currentSkin = string.gsub(currentSkin, str, "401");
-				elseif (item.geoset < 600) then
-					currentSkin = string.gsub(currentSkin, str, "501");
-				elseif (item.geoset < 700) then
-				elseif (item.geoset < 800) then
-				elseif (item.geoset < 900) then
-					currentSkin = string.gsub(currentSkin, str, "801");
-				elseif (item.geoset < 1000) then
-					currentSkin = string.gsub(currentSkin, str, "901");
-				else
-				end
-			end
-			if (item.texture) then
-				local id, tex = string.match(item.texture, "(%d+):([^;]+)");
-				id = tonumber(id);
-				currentSkin = string.gsub(currentSkin, tex, CustomCharItems.defaultSkinTable.textures[id]);
-			end
-			if (item.attachment) then
-				local id, tex = string.match(item.attachment, "(%d+):([^;]+)");
-				id = tonumber(id);
-				if (id == 11) then
-					currentSkin = string.gsub(currentSkin, "0#", "1#");
-				end
-				currentSkin = string.gsub(currentSkin, item.attachment..";", "");
-			end
-
+		local skin = CustomCharItems:RemoveItemInSkin(currentSkin, item);
+		if (currentSkin ~= skin) then
+			currentSkin = skin;
 			iconItem.id = "";
 			iconItem.name = "";
 			iconItem.icon = "";
