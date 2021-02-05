@@ -130,7 +130,7 @@ function CustomCharItems:GetItemsByCategory(category, modelType, skin, avatar)
 	if (groups) then
 		local itemList = {};
 		for _, item in ipairs(groups) do
-			if ((avatar and item.avatarMode) or (not avatar)) then
+			if ((avatar and item.avatarMode ~= "false") or (not avatar)) then
 				local data = self:GetItemById(item.id, modelType);
 				if (data and (checkGeoset[1] == 0 or checkGeoset[1] == data.geoset or checkGeoset[2] == data.geoset)) then
 					data.id = item.id;
@@ -230,6 +230,7 @@ end
 
 function CustomCharItems:GetUsedItemsBySkin(skin)
 	local usedItems = {};
+	if (not skin) then return usedItems end;
 	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
 	if (textures) then
 		for tex in textures:gmatch("([^;]+)") do
