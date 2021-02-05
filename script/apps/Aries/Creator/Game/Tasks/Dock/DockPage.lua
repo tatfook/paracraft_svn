@@ -18,6 +18,7 @@ NPL.load("(gl)script/kids/3DMapSystemApp/mcml/PageCtrl.lua");
 local FriendManager = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Friend/FriendManager.lua");
 local Notice = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/NoticeV2/Notice.lua");
 local MacroCodeCampActIntro = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampActIntro.lua");
+local MacroCodeCampAward = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/MacroCodeCamp/MacroCodeCampAward.lua");
 local ActRedhatExchange = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActRedhat/ActRedhatExchange.lua")
 local ActWeek = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/ActWeek/ActWeek.lua")
 local DockPage = NPL.export();
@@ -104,9 +105,14 @@ function DockPage.Show()
         Notice.Show(0)
     end
 
-    if MacroCodeCampActIntro.CheckCanShow() and MacroCodeCampActIntro.CheckIsInWinCamp() then
+    --冬令营弹框判断
+    if MacroCodeCampActIntro.CheckCanShow() and MacroCodeCampActIntro.CheckIsInWinCamp() and not MacroCodeCampAward.CheckCanShow() then
         MacroCodeCampActIntro.ShowView()
     end
+    if (MacroCodeCampActIntro.CheckIsInWinCamp()) then        
+        MacroCodeCampAward.ShowView()
+    end
+    
 
     DockPage.isShowTaskIconEffect = true
 

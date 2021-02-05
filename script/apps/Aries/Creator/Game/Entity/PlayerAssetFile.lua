@@ -185,7 +185,7 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 		local geoset;
 		for geoset in string.gfind(geosets, "([^#]+)") do
 			local id = tonumber(geoset);
-			if (id > 0 and id < 10) then
+			if (id > 0 and id < 100) then
 				use_hair = true;
 			end
 			charater:SetCharacterSlot(math.floor(id / 100), id % 100);
