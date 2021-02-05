@@ -20,10 +20,10 @@ function MacroCodeCampAward.CheckCanShow()
     -- if not System.options.isDevMode then
     --     return false
     -- end
-    local school = KeepWorkItemManager.GetSchool()
-    if (string.find(name, "柴桑小学") and string.find(name, "柴桑小学") > 0) or school.id == 133053 then
-        return true
-    end
+--    local school = KeepWorkItemManager.GetSchool()
+--    if (string.find(name, "柴桑小学") and string.find(name, "柴桑小学") > 0) or school.id == 133053 then
+--        return true
+--    end
     return false
 end
 
