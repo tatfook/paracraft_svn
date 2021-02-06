@@ -171,9 +171,12 @@ function PlayerAssetFile:GetDefaultCustomGeosets()
 end
 
 function PlayerAssetFile:RefreshCustomGeosets(player, skin)
-	if (not skin or (not skin:match("^%d+#"))) then
+	if (not skin or skin == "") then
 		skin = self:GetDefaultCustomGeosets();
+	elseif (not skin:match("^%d+#")) then
+		skin = CustomCharItems:ItemIdsToSkinString(skin);
 	end
+
 	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
 	if (not geosets) then
 		geosets = skin;

@@ -83,7 +83,7 @@ function CustomCharItems:Init()
 					item.icon = node.attr.icon;
 					item.name = node.attr.name;
 					item.avatarMode = node.attr.avatarMode;
-					local data = self:GetItemById(item.id, modelType);
+					local data = self:GetItemById(item.id);
 					if (data) then
 						data.id = item.id;
 						data.gsid = item.gsid;
@@ -219,12 +219,47 @@ function CustomCharItems:SkinStringToTable(skin)
 	return skinTable;
 end
 
-function CustomCharItems:GetItemsBySkin(skin)
-	local skinTable = CustomCharItems:SkinStringToTable(skin);
-	for i = 1, 5 do
-		if (skinTable.textures[i] ~= CustomCharItems.defaultSkinTable.textures[i]) then
+-- id:810001;82001;
+function CustomCharItems:SkinStringToItemIds(skin)
+	if (not skin) then return "" end;
+	local idString = "80001;";
+	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
+	if (textures) then
+		for tex in textures:gmatch("([^;]+)") do
+			for _, item in ipairs(items) do
+				if (item.data.texture == tex) then
+					idString = idString..item.data.id..";";
+					break;
+				end
+			end
 		end
 	end
+
+	if (attachments) then
+		for att in attachments:gmatch("([^;]+)") do
+			for _, item in ipairs(items) do
+				if (item.data.attachment == att) then
+					idString = idString..item.data.id..";";
+				end
+			end
+		end
+	end
+	return idString;
+end
+
+function CustomCharItems:ItemIdsToSkinString(idString)
+	local skinTable = CustomCharItems:SkinStringToTable(CustomCharItems.defaultSkinString);
+	local itemIds = commonlib.split(idString, ";");
+	if (itemIds and #itemIds > 0) then
+		for _, id in ipairs(itemIds) do
+			local data = self:GetItemById(id);
+			if (data) then
+				CustomCharItems:AddItemToSkinTable(skinTable, data);
+			end
+		end
+	end
+	local skin = CustomCharItems:SkinTableToString(skinTable);
+	return skin;
 end
 
 
@@ -255,6 +290,23 @@ function CustomCharItems:GetUsedItemsBySkin(skin)
 		end
 	end
 	return usedItems;
+end
+
+function CustomCharItems:AddItemToSkinTable(skinTable, item)
+	if (not skinTable or not item) then
+		return;
+	end
+	if (item.geoset) then
+		skinTable.geosets[math.floor(item.geoset/100) + 1] = item.geoset % 100;
+	end
+	if (item.texture) then
+		local id, filename = string.match(item.texture, "(%d+):(.*)");
+		skinTable.textures[tonumber(id)] = filename;
+	end
+	if (item.attachment) then
+		local id, filename = string.match(item.attachment, "(%d+):(.*)");
+		skinTable.attachments[tonumber(id)] = filename;
+	end
 end
 
 function CustomCharItems:RemoveItemInSkin(skin, item)

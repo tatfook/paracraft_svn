@@ -255,6 +255,7 @@ end
 function CustomSkinPage.OnClickOK()
 	GameLogic.IsVip("ChangeAvatarSkin", true, function(isVip) 
 		if(isVip) then
+			currentSkin = CustomCharItems:SkinStringToItemIds(currentSkin);
 			page:CloseWindow();
 		end
 	end)
