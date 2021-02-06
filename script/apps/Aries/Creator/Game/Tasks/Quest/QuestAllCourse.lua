@@ -415,6 +415,9 @@ function QuestAllCourse.RunCommand(index)
         if System.User.isVip then
             page:CloseWindow()
             QuestAllCourse.CloseView()
+            local client_data = QuestAction.GetClientData()
+            client_data.course_world_id = data.world_id
+            KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
 
             CommandManager:RunCommand(data.command)
         else
