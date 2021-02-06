@@ -606,6 +606,6 @@ function QuestAction.OpenCampCourseView()
     end)
 end
 
-function QuestAction.CanFinish()
-    -- body
+function QuestAction.CanFinishCampCourse()
+    return QuestCoursePage.CheckIsAllCourseFinish()
 end
