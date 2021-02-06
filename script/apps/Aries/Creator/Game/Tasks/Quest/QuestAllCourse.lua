@@ -65,6 +65,15 @@ function QuestAllCourse.Show(target_world_id)
     --     _guihelper.MessageBox("人工智能课程即日开启，敬请期待", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});
     --     return
     -- end
+    if target_world_id == nil then
+        local client_data = QuestAction.GetClientData()
+        local course_world_id = client_data.course_world_id or 0
+        course_world_id = tonumber(course_world_id)
+        if course_world_id > 0 then
+            target_world_id = course_world_id
+        end
+    end
+
     QuestAllCourse.target_world_id = target_world_id
 
     keepwork.user.server_time({}, function(err, msg, data)
@@ -321,6 +330,7 @@ function QuestAllCourse.RefreshCourseListData()
         local exchange_data = KeepWorkItemManager.GetExtendedCostTemplate(v.exid)
         data.name = exchange_data.name
         data.desc = exchange_data.desc
+        data.world_id = world_id
         if v.command and #v.command > 0 then
             data.command = v.command[target_index]
         end
@@ -399,6 +409,7 @@ end
 
 function QuestAllCourse.RunCommand(index)
     local data = QuestAllCourse.CourseListData[index]
+
     if data and data.command then
         local CommandManager = commonlib.gettable("MyCompany.Aries.Game.CommandManager")
         if System.User.isVip then
@@ -419,6 +430,7 @@ function QuestAllCourse.RunCommand(index)
 
                     local client_data = QuestAction.GetClientData()
                     client_data.play_course_times = client_data.play_course_times + 1
+                    client_data.course_world_id = data.world_id
                     KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
                     CommandManager:RunCommand(data.command)
                 end
@@ -426,13 +438,28 @@ function QuestAllCourse.RunCommand(index)
                 local desc = string.format('您要消耗今天的次数，学习<div style="float: left; color: #ff0000;">%s</div>？', data.name)
                 QuestMessageBox.Show(desc, sure_callback)
             else
-                local function sure_callback()
-                    local VipToolNew = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipToolNew.lua")
-                    VipToolNew.Show("AI_lesson")
-                end
+                local client_data = QuestAction.GetClientData()
+                local course_world_id = client_data.course_world_id or 0
+                course_world_id = tonumber(course_world_id)
+                -- 使用过之后 如果id相同 则可进入
+                if course_world_id == 0 or course_world_id == tonumber(data.world_id) then
+                    if course_world_id == 0 then
+                        client_data.course_world_id = data.world_id
+                        KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
+                    end
 
-                local desc = "您已消耗今天的次数。是否开通会员学习？"
-                QuestMessageBox.Show(desc, sure_callback)
+                    page:CloseWindow()
+                    QuestAllCourse.CloseView()
+                    CommandManager:RunCommand(data.command)
+                else
+                    local function sure_callback()
+                        local VipToolNew = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/VipToolTip/VipToolNew.lua")
+                        VipToolNew.Show("AI_lesson")
+                    end
+    
+                    local desc = "您已消耗今天的次数。是否开通会员学习？"
+                    QuestMessageBox.Show(desc, sure_callback)
+                end
             end
         end
     end

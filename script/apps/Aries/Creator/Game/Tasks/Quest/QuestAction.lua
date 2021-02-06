@@ -74,6 +74,7 @@ QuestAction.DailyTaskData = {
     visit_paraworld_list = {},
     visit_world_list = {},
     play_course_times = 0,
+    course_world_id = 0,
 }
 QuestAction.task_gsid = 40003
 
@@ -378,12 +379,15 @@ end
 function QuestAction.GetClientData()
 	local clientData = KeepWorkItemManager.GetClientData(QuestAction.task_gsid) or {};
     local is_new_day, time_stamp = QuestAction.CheckIsNewDay(clientData)
-	if is_new_day then
+    if is_new_day then
+        course_world_id = clientData.course_world_id
+
 		clientData = QuestAction.DailyTaskData
 		clientData.time_stamp = time_stamp
         clientData.is_auto_open_view = false
         clientData.exp = 0
         clientData.play_course_times = 0
+        clientData.course_world_id = course_world_id
     end
 	return clientData
 end
