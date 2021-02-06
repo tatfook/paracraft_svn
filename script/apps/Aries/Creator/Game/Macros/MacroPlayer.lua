@@ -796,7 +796,8 @@ end
 
 -- @param text: text.  if nil, we will hide it. 
 -- @param duration: the max duration
-function MacroPlayer.ShowText(text, duration)
+-- @param position: nil default to "bottom", can also be "center", "top"
+function MacroPlayer.ShowText(text, duration, position)
 	if(page) then
 		local textWnd = page:FindControl("textWnd");
 		if(text and text~="") then
@@ -813,6 +814,14 @@ function MacroPlayer.ShowText(text, duration)
 			MacroPlayer.textTimer:Change(duration);
 		elseif(MacroPlayer.textTimer) then
 			MacroPlayer.textTimer:Change();
+		end
+		position = position or "bottom"
+		if(position == "bottom") then
+			textWnd:Reposition("_mb", 0, 80, 0, 60);
+		elseif(position == "center") then
+			textWnd:Reposition("_mb", 0, 400, 0, 60);
+		elseif(position == "top") then
+			textWnd:Reposition("_mt", 0, 120, 0, 60);
 		end
 	end	
 end
