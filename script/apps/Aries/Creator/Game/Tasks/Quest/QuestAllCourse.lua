@@ -331,6 +331,7 @@ function QuestAllCourse.RefreshCourseListData()
         data.name = exchange_data.name
         data.desc = exchange_data.desc
         data.world_id = world_id
+        data.exid = v.exid
         if v.command and #v.command > 0 then
             data.command = v.command[target_index]
         end
@@ -418,7 +419,8 @@ function QuestAllCourse.RunCommand(index)
             local client_data = QuestAction.GetClientData()
             client_data.course_world_id = data.world_id
             KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
-
+            
+            GameLogic.QuestAction.SetDailyTaskValue("40044_60047_1",1) 
             CommandManager:RunCommand(data.command)
         else
             local client_data = QuestAction.GetClientData()
@@ -435,6 +437,8 @@ function QuestAllCourse.RunCommand(index)
                     client_data.play_course_times = client_data.play_course_times + 1
                     client_data.course_world_id = data.world_id
                     KeepWorkItemManager.SetClientData(QuestAction.task_gsid, client_data)
+
+                    GameLogic.QuestAction.SetDailyTaskValue("40044_60047_1",1)
                     CommandManager:RunCommand(data.command)
                 end
 
@@ -453,6 +457,8 @@ function QuestAllCourse.RunCommand(index)
 
                     page:CloseWindow()
                     QuestAllCourse.CloseView()
+
+                    GameLogic.QuestAction.SetDailyTaskValue("40044_60047_1",1)
                     CommandManager:RunCommand(data.command)
                 else
                     local function sure_callback()
