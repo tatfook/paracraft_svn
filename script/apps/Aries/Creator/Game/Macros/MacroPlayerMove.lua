@@ -196,10 +196,10 @@ function Macros.PrepareLastCameraView()
 		if(diff > 0.001) then
 			ParaCamera.SetEyePos(lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY)
 		end
-		local diff = math.abs(lastCamera.lookatX - lookatX) + math.abs(lastCamera.lookatY - lookatY) + math.abs(lastCamera.lookatZ - lookatZ);
+		local x, y, z = lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ;
+		x, y, z = Macros.ComputePosition(x, y, z)
+		local diff = math.abs(x - lookatX) + math.abs(y - lookatY) + math.abs(z - lookatZ);
 		if(diff > 0.001) then
-			local x, y, z = lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ;
-			x, y, z = Macros.ComputePosition(x, y, z)
 			ParaCamera.SetLookAtPos(x, y, z);
 			local focusEntity = EntityManager.GetFocus();
 			if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
