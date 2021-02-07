@@ -197,13 +197,15 @@ function Macros.PrepareLastCameraView()
 			ParaCamera.SetEyePos(lastCamera.camobjDist, lastCamera.LiftupAngle, lastCamera.CameraRotY)
 		end
 		local x, y, z = lastCamera.lookatX, lastCamera.lookatY, lastCamera.lookatZ;
-		x, y, z = Macros.ComputePosition(x, y, z)
-		local diff = math.abs(x - lookatX) + math.abs(y - lookatY) + math.abs(z - lookatZ);
-		if(diff > 0.001) then
-			ParaCamera.SetLookAtPos(x, y, z);
-			local focusEntity = EntityManager.GetFocus();
-			if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
-				focusEntity:SetPosition(x, y, z);
+		if(x and y and z) then
+			x, y, z = Macros.ComputePosition(x, y, z)
+			local diff = math.abs(x - lookatX) + math.abs(y - lookatY) + math.abs(z - lookatZ);
+			if(diff > 0.001) then
+				ParaCamera.SetLookAtPos(x, y, z);
+				local focusEntity = EntityManager.GetFocus();
+				if(focusEntity and focusEntity:isa(EntityManager.EntityCamera) and not focusEntity:IsControlledExternally()) then
+					focusEntity:SetPosition(x, y, z);
+				end
 			end
 		end
 	end
