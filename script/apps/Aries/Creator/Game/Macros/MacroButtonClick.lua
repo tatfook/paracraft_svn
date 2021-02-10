@@ -63,6 +63,12 @@ function Macros.ButtonClick(btnName, button, eventname)
 		__onuievent__(id, eventname or "onclick");
 
 		SetKeyboardFromButtonText(emulatedKeys, "")
+
+		-- tricky: we will wait 1.5 seconds to proceed to next command for some special controls
+		-- TODO: shall we do this for all non-existent buttons?
+		if(btnName:match("^EnterTextDialog%.")) then
+			return Macros.Wait(1500);
+		end
 	end
 end
 

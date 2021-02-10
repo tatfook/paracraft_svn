@@ -141,7 +141,16 @@ function Macros:GetElapsedTime()
 	return commonlib.TimerManager.GetCurrentTime() - startTime;
 end
 
+local originalCopyTextToClipboard = ParaMisc.CopyTextToClipboard;
+
+local function TrackedCopyTextToClipboard(text)
+	Macros.lastCopyTextToClipboard = text;
+	originalCopyTextToClipboard(text);
+end
+
 function Macros:BeginRecord()
+	Macros.lastCopyTextToClipboard = nil;
+	ParaMisc.CopyTextToClipboard = TrackedCopyTextToClipboard
 	self:Init()
 	self.isRecording = true;
 	self.macros = {};
@@ -217,6 +226,20 @@ function Macros.OnWindowGUIEvent(window, event)
 				local name = focusCtrl:GetUIName(true);
 				if(name and not ignoreBtnList[name]) then
 					if(not event:IsShiftCtrlAltKey()) then
+						if(event:IsKeySequence("Paste")) then
+							local text = ParaMisc.GetTextFromClipboard();
+							if(Macros.lastCopyTextToClipboard ~= text) then
+								-- tricky: if we are pasting from external apps, we need to save the clipboard content
+								Macros:AddMacro("SetClipboard", text);
+								if(Macros.IsInteractiveMode()) then
+									-- also ignore the Ctrl+V trigger, if pasting from external app
+									Macros.SetInteractiveMode(false)
+									Macros:AddMacro("WindowKeyPress", name, Macros.GetButtonTextFromKeyEvent(event))
+									Macros.SetInteractiveMode(true)
+									return
+								end
+							end
+						end
 						Macros:AddMacro("WindowKeyPress", name, Macros.GetButtonTextFromKeyEvent(event))
 					end
 				end
@@ -433,6 +456,7 @@ function Macros:EndRecord()
 		return;
 	end
 	self.isRecording = false;
+	ParaMisc.CopyTextToClipboard = originalCopyTextToClipboard
 	commonlib.__onuievent__ = nil;
 	System.Windows.Window.__onuievent__ = nil;
 	CommonCtrl.SliderBar.__onuievent__ = nil;
