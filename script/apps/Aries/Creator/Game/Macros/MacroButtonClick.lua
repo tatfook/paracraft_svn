@@ -28,7 +28,7 @@ end
 --@param btnName: button name
 --@param button: "left", "right", "shift+left"
 --@param eventname: nil or "onmouseup" or "onclick"
-function Macros.ButtonClick(btnName, button, eventname)
+function Macros.ButtonClickNoWait(btnName, button, eventname)
 	local obj = ParaUI.GetUIObject(btnName)
 	if(obj and obj:IsValid()) then
 		if(button:match("left")) then
@@ -63,15 +63,18 @@ function Macros.ButtonClick(btnName, button, eventname)
 		__onuievent__(id, eventname or "onclick");
 
 		SetKeyboardFromButtonText(emulatedKeys, "")
-
-		-- tricky: we will wait 1.5 seconds to proceed to next command for some special controls
-		-- TODO: shall we do this for all non-existent buttons?
-		if(btnName:match("^EnterTextDialog%.")) then
-			return Macros.Wait(1500);
-		end
+		return true;
 	end
 end
 
+-- native ParaUIObject's onclick event
+--@param btnName: button name
+--@param button: "left", "right", "shift+left"
+--@param eventname: nil or "onmouseup" or "onclick"
+function Macros.ButtonClick(btnName, button, eventname)
+	local callback = Macros.TryMacroWithTimeout(1500, Macros.ButtonClickNoWait, btnName, button, eventName)
+	return callback;
+end
 
 function Macros.ContainerDragEnd(btnName, offsetX, offsetY)
 	local obj = ParaUI.GetUIObject(btnName)
@@ -158,10 +161,7 @@ function Macros.WindowClick(btnName, button, localX, localY)
 	end
 end
 
--- native ParaUIObject's onclick event
---@param btnName: button name
---@param button: "left", "right", default to "left"
-function Macros.ButtonClickTrigger(btnName, button, eventName)
+function Macros.ButtonClickTriggerNoWait(btnName, button, eventName)
 	local obj = ParaUI.GetUIObject(btnName)
 	if(obj and obj:IsValid()) then
 		local x, y, width, height = obj:GetAbsPosition();
@@ -175,6 +175,51 @@ function Macros.ButtonClickTrigger(btnName, button, eventName)
 		end);
 		return callback;
 	end
+end
+
+-- wait at most maxTimeout milliseconds to locate the button, just in case is not created in time under special conditions.  
+-- @param maxTimeout: default to 1500
+function Macros.TryMacroWithTimeout(maxTimeout, func, ...)
+	maxTimeout = maxTimeout or 1500;
+	local callback = func(...)
+	if(not callback) then
+		local args = {...}
+		callback = {};
+		local count = 0;
+		local interval = 100;
+		local mytimer = commonlib.Timer:new({callbackFunc = function(timer)
+			if(Macros:IsPlaying()) then
+				count = count + interval;
+				local callback_ = func(unpack(args))
+				if(callback_) then
+					if(type(callback_) == "table") then
+						callback_.OnFinish = callback.OnFinish
+					else
+						if(callback.OnFinish) then
+							callback.OnFinish();
+						end
+					end
+				elseif(count >= maxTimeout) then 
+					-- wait at most 1500 ms, before we skip the trigger.  
+					if(callback.OnFinish) then
+						callback.OnFinish();
+					end
+				else
+					timer:Change(interval);
+				end
+			end
+		end})
+		mytimer:Change(interval);
+	end
+	return callback;
+end
+
+-- native ParaUIObject's onclick event
+--@param btnName: button name
+--@param button: "left", "right", default to "left"
+function Macros.ButtonClickTrigger(btnName, button, eventName)
+	local callback = Macros.TryMacroWithTimeout(1500, Macros.ButtonClickTriggerNoWait, btnName, button, eventName)
+	return callback;
 end
 
 function Macros.ContainerDragEndTrigger(btnName, offsetX, offsetY)
