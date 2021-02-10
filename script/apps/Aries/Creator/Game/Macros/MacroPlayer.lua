@@ -193,7 +193,7 @@ MacroPlayer.ShowTipTime = 5000;
 function MacroPlayer.SetTriggerCallback(callback)
 	if(callback) then
 		GameLogic.AddBBS("Macro", nil);
-		if(Macros.IsShowButtonTip()) then
+		if(Macros.IsShowButtonTip() and not Macros.IsAutoPlay()) then
 			nStartTime = commonlib.TimerManager.GetCurrentTime();
 			MacroPlayer.waitActionTimer = MacroPlayer.waitActionTimer or commonlib.Timer:new({callbackFunc = function(timer)
 				if(page and MacroPlayer.triggerCallbackFunc) then
