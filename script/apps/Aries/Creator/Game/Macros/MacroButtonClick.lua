@@ -336,3 +336,21 @@ end
 
 
 
+function Macros.WindowTextControlClickTrigger(btnName, button, localX, localY, line, pos)
+	local callback = Macros.WindowClickTrigger(btnName, button, localX, localY)	
+	return callback;
+end
+
+-- System.Window's click event
+-- @param localX, localY: local mouse click position relative to the control
+function Macros.WindowTextControlClick(btnName, button, localX, localY, line, pos)
+	local callback = Macros.WindowClick(btnName, button, localX, localY)
+	if(Application.lastMouseReceiver) then
+		local controlName = Application.lastMouseReceiver.Name;
+		if(controlName == "TextControl") then
+			local textCtrl = Application.lastMouseReceiver
+			textCtrl:moveCursor(line, pos, false, true);
+		end
+	end
+	return callback;
+end

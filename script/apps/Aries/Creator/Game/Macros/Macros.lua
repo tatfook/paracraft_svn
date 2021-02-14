@@ -216,7 +216,14 @@ function Macros.OnWindowGUIEvent(window, event)
 					local obj = Application.GetUIObject(name);
 					if(obj) then
 						local x, y, width, height = obj:GetAbsPosition()
-						Macros:AddMacro("WindowClick", name, event:button(), event.x - x, event.y - y)
+						local controlName = Application.lastMouseReceiver.Name;
+						if(controlName == "TextControl") then
+							local textCtrl = Application.lastMouseReceiver
+							local curPos = textCtrl:CursorPos()
+							Macros:AddMacro("WindowTextControlClick", name, event:button(), event.x - x, event.y - y, curPos.line, curPos.pos)
+						else
+							Macros:AddMacro("WindowClick", name, event:button(), event.x - x, event.y - y)
+						end
 					end
 				end
 			end
