@@ -96,6 +96,8 @@ function MacroPlayer.OnPageClosed()
 	if(MacroPlayer.textTimer) then
 		MacroPlayer.textTimer:Change();
 	end
+	MacroPlayer.lastSavedTextPosition = nil;
+	MacroPlayer.lastSavedTipPos = nil;
 end
 
 function MacroPlayer.OnViewportChange()
@@ -141,7 +143,7 @@ function MacroPlayer.ShowPage()
 	end;
 end
 
-function MacroPlayer.HideAll()
+function MacroPlayer.HideAll(bSkipTips)
 	MacroPlayer.expectedButton = nil;
 	MacroPlayer.expectedKeyButton = nil;
 	MacroPlayer.expectedDragButton = nil;
@@ -150,8 +152,10 @@ function MacroPlayer.HideAll()
 	MacroPlayer.ShowCursor(false);
 	MacroPlayer.ShowKeyPress(false);
 	MacroPlayer.ShowDrag(false);
-	MacroPlayer.ShowTip()
-	MacroPlayer.ShowText()
+	if(not bSkipTips) then
+		MacroPlayer.ShowTip()
+		MacroPlayer.ShowText()
+	end
 	MacroPlayer.ShowEditBox(false);
 	MacroPlayer.ShowMouseWheel(false);
 	MacroPlayer.ShowKeyboard(false);
@@ -830,15 +834,22 @@ function MacroPlayer.ShowText(text, duration, position)
 			MacroPlayer.textTimer:Change();
 		end
 		position = position or "bottom"
-		if(position == "bottom") then
-			textWnd:Reposition("_mb", 0, 80, 0, 60);
-		elseif(position == "center") then
-			textWnd:Reposition("_mb", 0, 400, 0, 60);
-		elseif(position == "top") then
-			textWnd:Reposition("_mt", 0, 120, 0, 60);
-		end
+		MacroPlayer.SetShowTextPosition(textWnd, position);
+		MacroPlayer.lastTextPosition = position;
 	end	
 end
+
+function MacroPlayer.SetShowTextPosition(textWnd, position)
+	position = position or "bottom"
+	if(position == "bottom") then
+		textWnd:Reposition("_mb", 0, 80, 0, 60);
+	elseif(position == "center") then
+		textWnd:Reposition("_mb", 0, 400, 0, 60);
+	elseif(position == "top") then
+		textWnd:Reposition("_mt", 0, 120, 0, 60);
+	end
+end
+
 
 function MacroPlayer.ShowEditBox(bShow, text, textDiff)
 	if(page) then
@@ -902,7 +913,7 @@ end
 -- auto finish current trigger and play the next macro
 function MacroPlayer.AutoCompleteTrigger()
 	if(MacroPlayer.triggerCallbackFunc) then
-		MacroPlayer.HideAll()
+		MacroPlayer.HideAll(true)
 		MacroPlayer.InvokeTriggerCallback();
 	end
 end
@@ -976,6 +987,39 @@ function MacroPlayer.AutoAdjustControlPosition(x1, y1, x2, y2)
 			end
 		elseif(wnd.lastPos) then
 			wnd:setGeometry(wnd.lastPos.x, wnd.lastPos.y, wnd.lastPos.width, wnd.lastPos.height);
+		end
+	end
+	if(page) then
+		local textWnd = page:FindControl("textWnd");
+		if(textWnd and textWnd.visible) then
+			if(x1 and y1) then
+				if(MacroPlayer.lastTextPosition == "bottom") then
+					local x, y, width, height = textWnd:GetAbsPosition();
+					y2 = y2 or y1;
+					if((y+height+16) > math.max(y1, y2) and (y-32) < math.min(y1, y2)) then
+						MacroPlayer.lastSavedTextPosition = MacroPlayer.lastTextPosition;
+						MacroPlayer.SetShowTextPosition(textWnd, "center");
+					end
+				end
+			elseif(MacroPlayer.lastSavedTextPosition) then
+				MacroPlayer.lastSavedTextPosition = nil;
+				MacroPlayer.SetShowTextPosition(textWnd, MacroPlayer.lastSavedTextPosition);
+			end
+		end	
+		local tipWnd = page:FindControl("tipWnd");
+		if(tipWnd and tipWnd.visible) then
+			if(x1 and y1) then
+				local x, y, width, height = tipWnd:GetAbsPosition();
+
+				local newX, newY = MoveRectDownOutOfRect(x, y, width, height, x1, y1, x2, y2, 32) 
+				if(newX and newY) then
+					MacroPlayer.lastSavedTipPos = {x=x, y=y, width=width, height=height};
+					tipWnd:Reposition("_lt", newX, newY, width, height);
+				end
+			elseif(MacroPlayer.lastSavedTipPos) then
+				tipWnd:Reposition("_lt", MacroPlayer.lastSavedTipPos.x, MacroPlayer.lastSavedTipPos.y, MacroPlayer.lastSavedTipPos.width, MacroPlayer.lastSavedTipPos.height);
+				MacroPlayer.lastSavedTipPos = nil;
+			end
 		end
 	end
 end
