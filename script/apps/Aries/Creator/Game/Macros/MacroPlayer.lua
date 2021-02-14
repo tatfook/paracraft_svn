@@ -946,7 +946,7 @@ local function MoveRectDownOutOfRect(x, y, width, height, x1, y1, x2, y2, margin
 	margin = margin or 32;
 	if((x+width+margin) < math.min(x1, x2)) then
 		return;
-	elseif((y+width+margin) < math.min(y1, y2)) then
+	elseif((y+height+margin) < math.min(y1, y2)) then
 		return
 	else
 		return x, math.max(y1, y2)+margin;
