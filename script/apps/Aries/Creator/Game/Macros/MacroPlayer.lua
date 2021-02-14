@@ -185,6 +185,7 @@ function MacroPlayer.InvokeTriggerCallback()
 	if(callback) then
 		MacroPlayer.triggerCallbackFunc = nil;
 		callback();
+		MacroPlayer.AutoAdjustControlPosition()
 	end
 end
 
@@ -611,6 +612,7 @@ function MacroPlayer.SetClickTrigger(mouseX, mouseY, button, callbackFunc)
 		MacroPlayer.expectedButton = button;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, button)
+		MacroPlayer.AutoAdjustControlPosition(mouseX, mouseY)
 	end
 end
 
@@ -620,7 +622,8 @@ function MacroPlayer.SetKeyPressTrigger(button, targetText, callbackFunc)
 		MacroPlayer.expectedKeyButton = button;
 		local mouseX, mouseY = GameLogic.Macros.GetNextKeyPressWithMouseMove()
 		if(mouseX and mouseY) then
-			MacroPlayer.ShowCursor(true, mouseX, mouseY)	
+			MacroPlayer.ShowCursor(true, mouseX, mouseY)
+			MacroPlayer.AutoAdjustControlPosition(mouseX, mouseY)
 		end
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		
@@ -658,6 +661,7 @@ function MacroPlayer.SetEditBoxTrigger(mouseX, mouseY, text, textDiff, callbackF
 			MacroPlayer.expectedButton = "left";
 			MacroPlayer.ShowCursor(true, mouseX, mouseY, "left");
 		end
+		MacroPlayer.AutoAdjustControlPosition(mouseX, mouseY)
 	end
 end
 
@@ -736,6 +740,7 @@ function MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, callback
 		MacroPlayer.SetTriggerCallback(callbackFunc)
 		MacroPlayer.ShowDrag(true, startX, startY, endX, endY, button)
 		MacroPlayer.ShowCursor(true, startX, startY, button)
+		MacroPlayer.AutoAdjustControlPosition(startX, startY, endX, endY)
 	end
 end
 
@@ -912,6 +917,7 @@ function MacroPlayer.SetMouseWheelTrigger(mouseWheelDelta, mouseX, mouseY, callb
 			MacroPlayer.ShowMouseWheel(true, mouseX, mouseY)
 		end
 		MacroPlayer.ShowCursor(true, mouseX, mouseY, "")
+		MacroPlayer.AutoAdjustControlPosition(mouseX, mouseY)
 	end
 end
 
@@ -933,3 +939,43 @@ function MacroPlayer.AttachWindow(window)
 	return false
 end
 
+-- @return nil if no movement is required, or x, y if moved. 
+local function MoveRectDownOutOfRect(x, y, width, height, x1, y1, x2, y2, margin) 
+	x2 = x2 or x1;
+	y2 = y2 or y1;
+	margin = margin or 32;
+	if((x+width+margin) < math.min(x1, x2)) then
+		return;
+	elseif((y+width+margin) < math.min(y1, y2)) then
+		return
+	else
+		return x, math.max(y1, y2)+margin;
+	end
+end
+
+--@param x1, y1, x2, y2: screen position that should not be covered by a control window. 
+-- if all are nil, we will restore all controls to their default position. 
+function MacroPlayer.AutoAdjustControlPosition(x1, y1, x2, y2)
+	if(MacroPlayer.attachedWnd) then
+		local wnd = MacroPlayer.attachedWnd
+		if(x1 and y1) then
+			local x, y = wnd:GetScreenPos()
+			local width = wnd:width();
+			local height = wnd:height();
+			local layout = wnd:GetLayout();
+			if(layout and layout.GetUsedSize) then
+				width, height = layout:GetUsedSize();
+			end
+
+			local newX, newY = MoveRectDownOutOfRect(x, y, width, height, x1, y1, x2, y2, 32) 
+			if(newX and newY) then
+				if(not wnd.lastPos) then
+					wnd.lastPos = {x = x, y=y, width=width, height = height};
+				end
+				wnd:setGeometry(newX, newY, width, height);
+			end
+		elseif(wnd.lastPos) then
+			wnd:setGeometry(wnd.lastPos.x, wnd.lastPos.y, wnd.lastPos.width, wnd.lastPos.height);
+		end
+	end
+end
