@@ -30,22 +30,10 @@ local Packets = commonlib.gettable("MyCompany.Aries.Game.Network.Packets");
 
 local Entity = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntitySign"), commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntityAgentSign"));
 Entity:Property({"languageConfigFile", "mcml", "GetLanguageConfigFile", "SetLanguageConfigFile"})
-Entity:Property({"isAllowClientExecution", false, "IsAllowClientExecution", "SetAllowClientExecution"})
-Entity:Property({"isAllowFastMode", false, "IsAllowFastMode", "SetAllowFastMode"})
-
-Entity:Signal("beforeRemoved")
-Entity:Signal("editModeChanged")
-Entity:Signal("remotelyUpdated")
-Entity:Signal("inventoryChanged", function(slotIndex) end)
 
 -- class name
 Entity.class_name = "EntityAgentSign";
 EntityManager.RegisterEntityClass(Entity.class_name, Entity);
-Entity.is_persistent = true;
--- always serialize to 512*512 regional entity file
-Entity.is_regional = true;
-Entity.text_color = "0 0 0";
-Entity.text_offset = {x=0,y=0.42,z=0.37};
 
 function Entity:ctor()
 end
