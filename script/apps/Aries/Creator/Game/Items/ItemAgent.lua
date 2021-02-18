@@ -12,6 +12,8 @@ local ItemAgent = commonlib.gettable("MyCompany.Aries.Game.Items.ItemAgent");
 local item = ItemAgent:new({icon,});
 -------------------------------------------------------
 ]]
+NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Files.lua");
+local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
@@ -67,11 +69,11 @@ function ItemAgent:OnOpenEditAgentNameDialog(itemStack)
 end
 
 function ItemAgent:OnItemRightClick(itemStack, entityPlayer)
-	if(itemStack) then
-		itemStack.icon_ = nil;
-		self:OnOpenEditAgentNameDialog(itemStack)
+	if(self:TryInitAgent(itemStack)) then
+		return itemStack, false;	
+	else
+		return itemStack, true;	
 	end
-	return itemStack, true;	
 end
 
 function ItemAgent:GetIcon(itemStack)
@@ -81,9 +83,10 @@ function ItemAgent:GetIcon(itemStack)
 			local icon = itemStack.icon_;
 			if(not icon) then
 				icon = GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".GetIcon")
-				itemStack.icon_ = icon or "";
-				if(icon and icon ~= "") then
-					return icon;
+				if(icon) then
+					icon = Files.GetWorldFilePath(icon)
+					itemStack.icon_ = icon;
+					return icon
 				end
 			elseif(icon ~= "") then
 				return icon;
@@ -119,10 +122,46 @@ end
 -- virtual function: when selected in right hand
 function ItemAgent:OnSelect(itemStack)
 	if(self:TryInitAgent(itemStack)) then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			self.curItemStack = itemStack;
+			GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".OnSelect")
+		end
 	end
 end
 
 -- virtual function: when deselected in right hand
 function ItemAgent:OnDeSelect()
-	
+	local itemStack = self.curItemStack;
+	self.curItemStack = nil;
+	if(self:TryInitAgent(itemStack)) then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".OnDeSelect")
+		end
+	end
+end
+
+function ItemAgent:OnClickInHand(itemStack, entityPlayer)
+	if(self:TryInitAgent(itemStack)) then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".OnClickInHand")
+		end
+	end
+end
+
+-- Right clicking in 3d world with the block in hand will trigger this function. 
+-- Alias: OnUseItem;
+-- @param itemStack: can be nil
+-- @param entityPlayer: can be nil
+-- @param side: this is OPPOSITE of the touching side
+-- @return isUsed, entityCreated: isUsed is true if something happens.
+function ItemAgent:TryCreate(itemStack, entityPlayer, x,y,z, side, data, side_region)
+	if(self:TryInitAgent(itemStack)) then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".TryCreate", {x=x,y=y,z=z, side=side, data=data, side_region=side_region})
+		end
+	end
 end
