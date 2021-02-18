@@ -13,18 +13,7 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityAgentSign.lua");
 local EntityAgentSign = commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntityAgentSign")
 -------------------------------------------------------
 ]]
-NPL.load("(gl)script/apps/Aries/Creator/Game/Items/ItemClient.lua");
-NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Direction.lua");
-NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityBlockBase.lua");
-NPL.load("(gl)script/apps/Aries/Creator/Game/Effects/Text3DDisplay.lua");
-local Text3DDisplay = commonlib.gettable("MyCompany.Aries.Game.Effects.Text3DDisplay");
-local Direction = commonlib.gettable("MyCompany.Aries.Game.Common.Direction")
-local ItemClient = commonlib.gettable("MyCompany.Aries.Game.Items.ItemClient");
-local PhysicsWorld = commonlib.gettable("MyCompany.Aries.Game.PhysicsWorld");
-local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
-local TaskManager = commonlib.gettable("MyCompany.Aries.Game.TaskManager")
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
-local GameLogic = commonlib.gettable("MyCompany.Aries.Game.GameLogic")
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Packets = commonlib.gettable("MyCompany.Aries.Game.Network.Packets");
 
@@ -36,6 +25,7 @@ Entity.class_name = "EntityAgentSign";
 EntityManager.RegisterEntityClass(Entity.class_name, Entity);
 
 function Entity:ctor()
+	self:SetBagSize(16);
 end
 
 function Entity:OnBlockAdded(x,y,z, data)
@@ -64,3 +54,45 @@ function Entity:LoadFromXMLNode(node)
 	Entity._super.LoadFromXMLNode(self, node);
 end
 
+local EditorAgentMCML
+-- the title text to display (can be mcml)
+function Entity:GetCommandTitle()
+	EditorAgentMCML = EditorAgentMCML or string.format([[
+		<div style="float:left;margin-left:5px;margin-top:7px;">
+			<input type="button" uiname="EditEntityPage.OpenAgentEditor" value='<%%="%s"%%>' onclick="MyCompany.Aries.Game.EntityManager.EntityAgentSign.OnClickAgentEditor" style="min-width:80px;color:#ffffff;font-size:12px;height:25px;background:url(Texture/Aries/Creator/Theme/GameCommonIcon_32bits.png#179 89 21 21:8 8 8 8)" />
+		</div>
+	]], L"Agent编辑器...");
+	return EditorAgentMCML;
+end
+
+function Entity.OnClickAgentEditor()
+	NPL.load("(gl)script/apps/Aries/Creator/Game/GUI/EditEntityPage.lua");
+	local EditEntityPage = commonlib.gettable("MyCompany.Aries.Game.GUI.EditEntityPage");
+	local self = EditEntityPage.GetEntity()
+	if(self and self:isa(Entity)) then
+		EditEntityPage.CloseWindow();
+		self:OpenAgentEditor();
+	end
+end
+
+function Entity:OpenAgentEditor()
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Agent/AgentEditorPage.lua");
+	local AgentEditorPage = commonlib.gettable("MyCompany.Aries.Game.Agent.AgentEditorPage");
+	AgentEditorPage.ShowPage(self);
+end
+
+-- bool: whether show the bag panel
+function Entity:HasBag()
+	return true;
+end
+
+-- virtual function: get array of item stacks that will be displayed to the user when user try to create a new item. 
+-- @return nil or array of item stack.
+function Entity:GetNewItemsList()
+	local itemStackArray = Entity._super.GetNewItemsList(self) or {};
+	local ItemStack = commonlib.gettable("MyCompany.Aries.Game.Items.ItemStack");
+	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.CommandLine,1);
+	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.Code,1);
+	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.Book,1);
+	return itemStackArray;
+end
