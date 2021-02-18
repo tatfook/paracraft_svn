@@ -591,7 +591,7 @@ end)
 		{
 			name = "msg",
 			type = "input_value",
-			shadow = { type = "agentEventTypes", value = "GetIcon",},
+			shadow = { type = "agentEventTypes", value = "TryCreate",},
 			text = "GetIcon", 
 		},
 		{
@@ -626,8 +626,20 @@ end)
 		return string.format('registerAgentEvent("%s", function(msg)\n    %s\nend)\n', self:getFieldAsString('msg'), self:getFieldAsString('input'));
 	end,
 	examples = {{desc = "", canRun = false, code = [[
+registerAgentEvent("TryCreate", function(msg)
+    setBlock(msg.x, msg.y, msg.z, 62)
+end)
+registerAgentEvent("OnSelect", function(msg)
+    tip("you selected agent item")
+end)
+registerAgentEvent("OnDeSelect", function(msg)
+    tip("you de-selected agent item")
+end)
 registerAgentEvent("GetIcon", function()
-    return "Texture/blocks/items/1000_Tomato.png"
+    return "Texture/blocks/items/apple.png"
+end)
+registerAgentEvent("OnClickInHand", function(msg)
+    tip("you clicked me!")
 end)
 ]]}},
 },
@@ -640,9 +652,11 @@ end)
 			name = "value",
 			type = "field_dropdown",
 			options = {
-				{ L"GetIcon", "GetIcon" },
+				{ L"TryCreate", "TryCreate" },
 				{ L"OnSelect", "OnSelect" },
-				{ L"OnCreate", "OnCreate" },
+				{ L"OnDeSelect", "OnDeSelect" },
+				{ L"GetIcon", "GetIcon" },
+				{ L"OnClickInHand", "OnClickInHand" },
 			},
 		},
 	},

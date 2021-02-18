@@ -13,6 +13,8 @@ local item = ItemAgent:new({icon,});
 -------------------------------------------------------
 ]]
 NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Files.lua");
+NPL.load("(gl)script/ide/System/Windows/Controls/Identicon.lua");
+local Identicon = commonlib.gettable("System.Windows.Controls.Identicon");
 local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
@@ -33,7 +35,9 @@ function ItemAgent:GetAgentName(itemStack)
 end
 
 function ItemAgent:SetAgentName(itemStack, name)
-	itemStack:SetDataField("tooltip", name);
+	if(itemStack) then
+		itemStack:SetDataField("tooltip", name);
+	end
 end
 
 function ItemAgent:IsInited(itemStack)
@@ -50,7 +54,7 @@ function ItemAgent:TryInitAgent(itemStack)
 	if(itemStack) then
 		local name = self:GetAgentName(itemStack)
 		if(not name or name == "") then
-			self:OnOpenEditAgentNameDialog()
+			self:OnOpenEditAgentNameDialog(itemStack)
 			return;
 		else
 			return true
@@ -103,6 +107,18 @@ end
 function ItemAgent:DrawIcon(painter, width, height, itemStack)
 	painter:SetPen(self:GetIconColor());
 	painter:DrawRectTexture(0, 0, width, height, self:GetIcon(itemStack));
+	if(itemStack and not itemStack.icon_) then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			-- render identi-icon
+			local size = width;
+			local hash = ParaMisc.md5(name);
+			local margin = 4
+			painter:SetPen("#000000");
+			painter:DrawRect(0, 0, width, height);
+			Identicon.drawIdentiIcon(painter, hash, size, margin)
+		end
+	end
 
 	if(itemStack) then
 		if(itemStack.count>1) then
@@ -165,3 +181,4 @@ function ItemAgent:TryCreate(itemStack, entityPlayer, x,y,z, side, data, side_re
 		end
 	end
 end
+
