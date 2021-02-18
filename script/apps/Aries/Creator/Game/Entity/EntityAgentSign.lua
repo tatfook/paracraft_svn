@@ -91,8 +91,7 @@ end
 function Entity:GetNewItemsList()
 	local itemStackArray = Entity._super.GetNewItemsList(self) or {};
 	local ItemStack = commonlib.gettable("MyCompany.Aries.Game.Items.ItemStack");
-	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.CommandLine,1);
-	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.Code,1);
+	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.AgentItem,1);
 	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.Book,1);
 	return itemStackArray;
 end

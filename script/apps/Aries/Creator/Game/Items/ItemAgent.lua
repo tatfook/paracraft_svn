@@ -22,3 +22,107 @@ local ItemAgent = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.Ite
 
 block_types.RegisterItemClass("ItemAgent", ItemAgent);
 
+function ItemAgent:ctor()
+	self.m_bIsOwnerDrawIcon = true;
+end
+ 
+function ItemAgent:GetAgentName(itemStack)
+	return itemStack and itemStack:GetDataField("tooltip");
+end
+
+function ItemAgent:SetAgentName(itemStack, name)
+	itemStack:SetDataField("tooltip", name);
+end
+
+function ItemAgent:IsInited(itemStack)
+	if(itemStack) then
+		local name = self:GetAgentName(itemStack)
+		if(not name or name == "") then
+			return true
+		end
+	end
+end
+
+-- @return true if agent item has a name and initialized. 
+function ItemAgent:TryInitAgent(itemStack)
+	if(itemStack) then
+		local name = self:GetAgentName(itemStack)
+		if(not name or name == "") then
+			self:OnOpenEditAgentNameDialog()
+			return;
+		else
+			return true
+		end
+	end
+end
+
+function ItemAgent:OnOpenEditAgentNameDialog(itemStack)
+	NPL.load("(gl)script/apps/Aries/Creator/Game/GUI/EnterTextDialog.lua");
+	local EnterTextDialog = commonlib.gettable("MyCompany.Aries.Game.GUI.EnterTextDialog");
+	EnterTextDialog.ShowPage(L"请输入智能人物的名字", function(result)
+		if(result and result~="") then
+			self:SetAgentName(itemStack, result)
+		end
+	end, self:GetAgentName(itemStack))
+end
+
+function ItemAgent:OnItemRightClick(itemStack, entityPlayer)
+	if(itemStack) then
+		itemStack.icon_ = nil;
+		self:OnOpenEditAgentNameDialog(itemStack)
+	end
+	return itemStack, true;	
+end
+
+function ItemAgent:GetIcon(itemStack)
+	if(itemStack and type(itemStack) == "table") then
+		local name = self:GetAgentName(itemStack)
+		if(name and name~="") then
+			local icon = itemStack.icon_;
+			if(not icon) then
+				icon = GameLogic.GetCodeGlobal():BroadcastTextEvent(name..".GetIcon")
+				itemStack.icon_ = icon or "";
+				if(icon and icon ~= "") then
+					return icon;
+				end
+			elseif(icon ~= "") then
+				return icon;
+			end
+		end
+	end
+	return ItemAgent._super.GetIcon(self)
+end
+
+-- virtual: draw icon with given size at current position (0,0)
+-- this function is only called when IsOwnerDrawIcon property is true. 
+-- @param width, height: size of the icon
+-- @param itemStack: this may be nil. or itemStack instance. 
+function ItemAgent:DrawIcon(painter, width, height, itemStack)
+	painter:SetPen(self:GetIconColor());
+	painter:DrawRectTexture(0, 0, width, height, self:GetIcon(itemStack));
+
+	if(itemStack) then
+		if(itemStack.count>1) then
+			-- draw count at the corner: no clipping, right aligned, single line
+			painter:SetPen("#000000");	
+			painter:DrawText(0, height-15+1, width, 15, tostring(itemStack.count), 0x122);
+			painter:SetPen("#ffffff");	
+			painter:DrawText(0, height-15, width-1, 15, tostring(itemStack.count), 0x122);
+		end
+	end
+end
+
+-- virtual function: use the item. 
+function ItemAgent:OnUse()
+end
+
+-- virtual function: when selected in right hand
+function ItemAgent:OnSelect(itemStack)
+	if(self:TryInitAgent(itemStack)) then
+	end
+end
+
+-- virtual function: when deselected in right hand
+function ItemAgent:OnDeSelect()
+	
+end
