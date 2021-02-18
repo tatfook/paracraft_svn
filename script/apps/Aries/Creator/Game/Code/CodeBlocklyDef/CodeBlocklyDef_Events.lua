@@ -626,7 +626,7 @@ end)
 		return string.format('registerAgentEvent("%s", function(msg)\n    %s\nend)\n', self:getFieldAsString('msg'), self:getFieldAsString('input'));
 	end,
 	examples = {{desc = "", canRun = false, code = [[
-registerAgentEvent("macroplatform.GetIcon", function()
+registerAgentEvent("GetIcon", function()
     return "Texture/blocks/items/1000_Tomato.png"
 end)
 ]]}},

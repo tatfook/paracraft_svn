@@ -921,6 +921,14 @@ end
 function CodeBlock:RegisterAgentEvent(text, callbackFunc)
 	-- tricky: since we need to return value immediately, like GetIcon, we will disable auto wait feature in agent callback functions.
 	self:SetAutoWait(false);
+
+	if(self.entityCode) then
+		local filename = self.entityCode:GetFilename();
+		if(filename and filename ~= "") then
+			text = format("%s.%s", filename, text);
+		end
+	end
+
 	local event = self:CreateEvent("onAgent"..text);
 	if(not event) then
 		return
