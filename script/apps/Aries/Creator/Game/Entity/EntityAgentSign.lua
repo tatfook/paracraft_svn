@@ -13,6 +13,8 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityAgentSign.lua");
 local EntityAgentSign = commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntityAgentSign")
 -------------------------------------------------------
 ]]
+local BlockEngine = commonlib.gettable("MyCompany.Aries.Game.BlockEngine")
+local Direction = commonlib.gettable("MyCompany.Aries.Game.Common.Direction")
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Packets = commonlib.gettable("MyCompany.Aries.Game.Network.Packets");
@@ -95,3 +97,108 @@ function Entity:GetNewItemsList()
 	itemStackArray[#itemStackArray+1] = ItemStack:new():Init(block_types.names.Book,1);
 	return itemStackArray;
 end
+
+-- get all connected blocks containing at least one code block. It will search for all blocks above the current block.
+-- if no code block is found, it will search for one layer below the current block. 
+-- @param bCodeBlockOnly: if true we will only return code blocks
+-- @param max_new_count: max number of blocks to be added. default to 1000
+-- @return table of blocks. it will return nil, if no code blocks is found
+function Entity:GetConnectedBlocks(bCodeBlockOnly, max_new_count)
+	max_new_count = max_new_count or 1000;
+	
+	local blocks = {};
+	local codeblocks = {};
+	local blockIndices = {}; -- mapping from block index to true for processed bones
+	local cx, cy, cz = self:GetBlockPos();
+	local min_y = cy;
+	local max_y = 255;
+	
+	local function IsBlockProcessed(x, y, z)
+		local boneIndex = BlockEngine:GetSparseIndex(x-cx,y-cy,z-cz);
+		return blockIndices[boneIndex];
+	end
+	local newlyAddedCount = 0;
+	local function AddBlock(x, y, z)
+		local boneIndex = BlockEngine:GetSparseIndex(x-cx,y-cy,z-cz)
+		if(not blockIndices[boneIndex]) then
+			blockIndices[boneIndex] = true;
+			local block_id = ParaTerrain.GetBlockTemplateByIdx(x,y,z);
+			if(block_id > 0) then
+				local block = block_types.get(block_id);
+				if(block) then
+					local block_data = ParaTerrain.GetBlockUserDataByIdx(x,y,z);
+					local block = {x,y,z, block_id, block_data}
+					blocks[#blocks+1] = block;
+					if(block_id == block_types.names.CodeBlock ) then
+						codeblocks[#codeblocks+1] = block;
+					end
+					newlyAddedCount = newlyAddedCount + 1;
+					return true;
+				end
+			end
+		end
+	end
+
+	local breadthFirstQueue = commonlib.Queue:new();
+	local function AddConnectedBlockRecursive(cx,cy,cz)
+		if(newlyAddedCount < max_new_count) then
+			for side=0,5 do
+				local dx, dy, dz = Direction.GetOffsetBySide(side);
+				local x, y, z = cx+dx, cy+dy, cz+dz;
+				if(y >= min_y and y<=max_y and AddBlock(x, y, z)) then
+					breadthFirstQueue:pushright({x,y,z});
+				end
+			end
+		end
+	end
+	
+	local function AddAllBlocksAbove()
+		local baseBlockCount = #blocks;
+		for i = 1, baseBlockCount do
+			local block = blocks[i];
+			local x, y, z = block[1], block[2], block[3];
+			AddConnectedBlockRecursive(x,y,z);
+		end
+
+		while (not breadthFirstQueue:empty()) do
+			local block = breadthFirstQueue:popleft();
+			AddConnectedBlockRecursive(block[1], block[2], block[3]);
+		end		
+	end
+
+	-- add this block
+	AddBlock(cx, cy, cz);
+	AddAllBlocksAbove();
+	
+	
+	if(#codeblocks == 0) then
+		-- tricky: if no code block is found, we will also search for the layer below the current block. 
+		min_y = min_y - 1;
+		max_y = min_y;
+		AddAllBlocksAbove()
+	end
+	if(#codeblocks ~= 0) then
+		if(bCodeBlockOnly) then
+			return codeblocks;
+		else
+			return blocks;
+		end
+	end
+end
+
+-- @param bHighlight: false to un-highlight all.
+-- @return all blocks
+function Entity:HighlightConnectedBlocks(bHighlight)
+	if(bHighlight~=false) then
+		local blocks = self:GetConnectedBlocks();
+		if(blocks) then
+			for _, b in ipairs(blocks) do
+				ParaTerrain.SelectBlock(b[1], b[2], b[3], true);
+			end
+		end
+		return blocks
+	else
+		ParaTerrain.DeselectAllBlock();
+	end
+end
+

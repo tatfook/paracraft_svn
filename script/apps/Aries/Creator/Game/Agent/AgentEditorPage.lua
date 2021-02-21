@@ -18,6 +18,14 @@ local page;
 
 function AgentEditorPage.OnInit()
 	page = document:GetPageCtrl();
+
+	if(cur_entity) then
+		local blocks = cur_entity:HighlightConnectedBlocks();
+		if(blocks) then
+			page:SetValue("blockCount", tostring(#blocks))
+		end
+	end
+	page:SetValue("updateMethod", "manual")
 end
 
 function AgentEditorPage.GetEntity()
@@ -35,6 +43,7 @@ function AgentEditorPage.ShowPage(entity)
 		end
 		cur_entity = entity;
 	end
+
 	local params = {
 		url = "script/apps/Aries/Creator/Game/Agent/AgentEditorPage.html", 
 		name = "AgentEditorPage.ShowPage", 
@@ -46,19 +55,20 @@ function AgentEditorPage.ShowPage(entity)
 		enable_esc_key = true,
 		bShow = true,
 		app_key = MyCompany.Aries.Creator.Game.Desktop.App.app_key, 
-		bAutoSize = true,
-		bAutoHeight = true,
-		-- cancelShowAnimation = true,
 		directPosition = true,
-			align = "_ct",
-			x = -200,
-			y = -250,
-			width = 400,
-			height = 560,
+			align = "_lt",
+			x = 0,
+			y = 160,
+			width = 200,
+			height = 500,
 	};
 	
 	System.App.Commands.Call("File.MCMLWindowFrame", params);
 	params._page.OnClose = function()
+		if(cur_entity) then
+			cur_entity:HighlightConnectedBlocks(false);
+		end
+		cur_entity = nil;
 		page = nil;
 	end
 end
