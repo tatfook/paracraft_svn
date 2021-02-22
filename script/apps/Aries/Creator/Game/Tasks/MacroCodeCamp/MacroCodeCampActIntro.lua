@@ -34,7 +34,7 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
-    return true
+    return false
 end
 
 function MacroCodeCampActIntro.OnInit()
