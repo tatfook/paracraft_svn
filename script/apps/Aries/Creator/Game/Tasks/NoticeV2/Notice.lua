@@ -192,7 +192,7 @@ function Notice.OnImageBgClick(data)
         local campId = campIds[httpwrapper_version]
         if tonumber(world_id) ~= campId then
             GameLogic.RunCommand(string.format("/loadworld -force -s %d", campId));
-            GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board1', fromName = 'go_to_camp' });
+            GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board5', fromName = 'go_to_camp' });
         end        
         return
     end
@@ -218,7 +218,7 @@ function Notice.OnImageBgClick(data)
     end
     if string.find(name, "实名认证奖励") and string.find(name, "实名认证奖励") > 0 then
         Notice.CloseView()
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board5', fromName = 'realname' });
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement", { from='board1', fromName = 'realname' });
         if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
             GameLogic.GetFilters():apply_filters(
                 'show_certificate',
@@ -238,7 +238,7 @@ function Notice.OnImageBgClick(data)
     local url = data.url;
     if(url and #url ~= 0 and Notice.IsValidUrl(url)) then 
         ParaGlobal.ShellExecute("open",url, "","", 1);
-        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
+        GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement" ,{ from='board6', fromName = 'act_url_'..url});
     else
         return 
     end    
