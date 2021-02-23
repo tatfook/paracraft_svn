@@ -332,14 +332,14 @@ end
 
 function CustomCharItems:AddItemToSkin(skin, item)
 	local currentSkin = skin;
-	if (skin:match("^%d+#")) then
-		local skinTable = CustomCharItems:SkinStringToTable(currentSkin);
-		CustomCharItems:AddItemToSkinTable(skinTable, item);
-		currentSkin = CustomCharItems:SkinTableToString(skinTable);
-	else
-		if (item and item.id) then
-			currentSkin = currentSkin..item.id..";";
-		end
+	if (not skin:match("^%d+#")) then
+		currentSkin = CustomCharItems:ItemIdsToSkinString(skin);
+	end
+	local skinTable = CustomCharItems:SkinStringToTable(currentSkin);
+	CustomCharItems:AddItemToSkinTable(skinTable, item);
+	currentSkin = CustomCharItems:SkinTableToString(skinTable);
+	if (not skin:match("^%d+#")) then
+		currentSkin = CustomCharItems:SkinStringToItemIds(currentSkin);
 	end
 	return currentSkin;
 end
