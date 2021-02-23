@@ -185,7 +185,7 @@ function Notice.OnImageBgClick(data)
         GameLogic.GetFilters():apply_filters("user_behavior", 1 ,"click.promotion.announcement");
         return
     end
-    if string.find(name, "冬令营活动") and string.find(name, "冬令营活动") > 0 then
+    if string.find(name, "冬令营") and string.find(name, "冬令营") > 0 then
         Notice.CloseView()
         local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
         local world_id = WorldCommon.GetWorldTag("kpProjectId");  
