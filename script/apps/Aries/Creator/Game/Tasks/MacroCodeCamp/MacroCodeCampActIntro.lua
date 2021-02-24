@@ -34,6 +34,9 @@ MacroCodeCampActIntro.keepworkList = {
 }
 
 function MacroCodeCampActIntro.CheckCanShow()
+    if MacroCodeCampActIntro.CheckIsInWinCamp() then
+        return true
+    end
     return false
 end
 

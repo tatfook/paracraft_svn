@@ -96,12 +96,9 @@ function DockPage.Show()
     end
 
     --冬令营弹框判断 活动下线
-    -- if MacroCodeCampActIntro.CheckCanShow() and MacroCodeCampActIntro.CheckIsInWinCamp() and not MacroCodeCampAward.CheckCanShow() then
-    --     MacroCodeCampActIntro.ShowView()
-    -- end
-    -- if (MacroCodeCampActIntro.CheckIsInWinCamp()) then        
-    --     MacroCodeCampAward.ShowView()
-    -- end
+    if MacroCodeCampActIntro.CheckCanShow() then
+        MacroCodeCampActIntro.ShowView()
+    end
     
 
     DockPage.isShowTaskIconEffect = true
