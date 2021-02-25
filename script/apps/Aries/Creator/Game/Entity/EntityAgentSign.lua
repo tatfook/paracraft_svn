@@ -18,9 +18,17 @@ local Direction = commonlib.gettable("MyCompany.Aries.Game.Common.Direction")
 local block_types = commonlib.gettable("MyCompany.Aries.Game.block_types")
 local EntityManager = commonlib.gettable("MyCompany.Aries.Game.EntityManager");
 local Packets = commonlib.gettable("MyCompany.Aries.Game.Network.Packets");
+local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
 
 local Entity = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntitySign"), commonlib.gettable("MyCompany.Aries.Game.EntityManager.EntityAgentSign"));
 Entity:Property({"languageConfigFile", "mcml", "GetLanguageConfigFile", "SetLanguageConfigFile"})
+Entity:Property({"version", "1.0", "GetVersion", "SetVersion", auto=true})
+Entity:Property({"agentName", nil, "GetAgentName", "SetAgentName", auto=true})
+Entity:Property({"agentDependencies", nil, "GetAgentDependencies", "SetAgentDependencies", auto=true})
+Entity:Property({"agentExternalFiles", nil, "GetAgentExternalFiles", "SetAgentExternalFiles", auto=true})
+Entity:Property({"agentUrl", nil, "GetAgentUrl", "SetAgentUrl", auto=true})
+Entity:Property({"isGlobal", false, "IsGlobal", "SetGlobal", auto=true})
+Entity:Property({"updateMethod", "manual", "GetUpdateMethod", "SetUpdateMethod", auto=true})
 
 -- class name
 Entity.class_name = "EntityAgentSign";
@@ -202,3 +210,55 @@ function Entity:HighlightConnectedBlocks(bHighlight)
 	end
 end
 
+function Entity:SaveToXMLNode(node, bSort)
+	node = Entity._super.SaveToXMLNode(self, node, bSort);
+	node.attr.version = self:GetVersion();
+	node.attr.agentName = self:GetAgentName();
+	node.attr.agentDependencies = self:GetAgentDependencies();
+	node.attr.agentExternalFiles = self:GetAgentExternalFiles();
+	node.attr.agentUrl = self:GetAgentUrl();
+	node.attr.isGlobal = self:IsGlobal();
+	node.attr.updateMethod = self:GetUpdateMethod();
+
+	return node;
+end
+
+function Entity:LoadFromXMLNode(node)
+	Entity._super.LoadFromXMLNode(self, node);
+	self:SetVersion(node.attr.version);
+	self:SetAgentName(node.attr.agentName);
+	self:SetAgentDependencies(node.attr.agentDependencies);
+	self:SetAgentExternalFiles(node.attr.agentExternalFiles);
+	self:SetAgentUrl(node.attr.agentUrl);
+	self:SetUpdateMethod(node.attr.updateMethod);
+end
+
+
+function Entity:SaveToAgentFile(filename)
+	if(not filename) then
+		local name = self:GetAgentName();
+		if(name and name~="") then
+			filename = Files.WorldPathToFullPath("agents/"..name..".xml");
+		end
+	end
+	if(filename) then
+		-- save to local agent file
+		local blocks = self:GetConnectedBlocks()
+		if(blocks and #blocks>=1) then
+			NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
+			local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
+			
+			local pivot_x, pivot_y, pivot_z = self:GetBlockPos();
+			local params = {relative_motion = true, pivot = string.format("%d,%d,%d", pivot_x, pivot_y, pivot_z)};
+			for i = 1, #(blocks) do
+				-- x,y,z,block_id, data, serverdata
+				local b = blocks[i];
+				b[6] = BlockEngine:GetBlockEntityData(b[1], b[2], b[3]);
+				blocks[i] = {b[1]-pivot_x, b[2]-pivot_y, b[3]- pivot_z, b[4], if_else(b[5] == 0, nil, b[5]), b[6]};
+			end
+
+			local task = BlockTemplate:new({operation = BlockTemplate.Operations.Save, filename = filename, params = params, blocks = blocks})
+			task:Run();
+		end
+	end
+end
