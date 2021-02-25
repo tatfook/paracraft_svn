@@ -33,19 +33,19 @@ DockPage.hide_vip_world_ids = {
 DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
-    { label = L"", },   
-    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 85 75"},   
+    { label = L"", },    
+    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 85 75", }, 
+    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 85 75", },    
     { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_xiaoxi_32bits.png#0 0 85 75", }, 
-    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 85 75", },      
-    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 85 75", },  
+    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 85 75"},    
 }
 DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
     { label = L"", },    
-    { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 85 75", },
     { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 85 75", },
+    { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 85 75", },
 }
 
 DockPage.show_friend_red_tip = false
@@ -55,7 +55,7 @@ function DockPage.Show(bCommand)
     if(not KeepWorkItemManager.GetToken())then
         return
     end
-    DockPage.InitTopIconData(bCommand)
+    DockPage.InitTopIconData()
     if(not DockPage._root)then
         DockPage.page = Map3DSystem.mcml.PageCtrl:new({ 
             url = "script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.html" ,
@@ -101,7 +101,7 @@ end
 function DockPage.RefreshPage(time)
     local time = time or 0.01
     if DockPage.page then
-        DockPage.InitTopIconData(true)
+        DockPage.InitTopIconData()
         DockPage.page:Refresh(time)
         commonlib.TimerManager.SetTimeout(function()  
             DockPage.InitButton()
@@ -118,60 +118,34 @@ function DockPage.RereshTopData()
     end
 end
 
-function DockPage.InitTopIconData(isRefresh)
+function DockPage.InitTopIconData()
     DockPage.RereshTopData()
-    local dataNum = 6
     local maxIndex = 6
     local minIndex = 1
     local temp_top1 = {}
     local temp_top2 = {}
-    if isRefresh then
-        for k,v in pairs(DockPage.top_line_1) do
-            if v.enabled == true then
-                temp_top1[minIndex] = v
-                minIndex = minIndex + 1
-            end        
-        end
-        local needNum = maxIndex - minIndex + 1
-        for i = 1,needNum do
-            local temp =  { label = L"", }
-            table.insert(temp_top1,1,temp)
-        end  
-        minIndex = 1
-        for k,v in pairs(DockPage.top_line_2) do
-            if v.enabled2 == true then
-                temp_top2[minIndex] = v
-                minIndex = minIndex + 1
-            end    
-        end
-        local needNum = maxIndex - minIndex + 1
-        for i = 1,needNum do
-            local temp =  { label = L"", }
-            table.insert(temp_top2,1,temp)
-        end 
-    else
-        for k,v in pairs(DockPage.top_line_1) do
-            if v.enabled == true then
-                dataNum = dataNum - 1
-                temp_top1[maxIndex] = v
-                maxIndex = maxIndex - 1
-            end        
-        end
-        for i = 1,dataNum do
-            temp_top1[i] =  { label = L"", }
-        end
-        maxIndex = 6
-        dataNum = 6   
-        for k,v in pairs(DockPage.top_line_2) do
-            if v.enabled2 == true then
-                dataNum = dataNum - 1
-                temp_top2[maxIndex] = v
-                maxIndex = maxIndex - 1
-            end    
-        end
-        for i = 1,dataNum do
-            temp_top2[i] =  { label = L"", }
-        end
+    for k,v in pairs(DockPage.top_line_1) do
+        if v.enabled == true then
+            temp_top1[minIndex] = v
+            minIndex = minIndex + 1
+        end        
+    end
+    local needNum = maxIndex - minIndex + 1
+    for i = 1,needNum do
+        local temp =  { label = L"", }
+        table.insert(temp_top1,1,temp)
+    end  
+    minIndex = 1
+    for k,v in pairs(DockPage.top_line_2) do
+        if v.enabled2 == true then
+            temp_top2[minIndex] = v
+            minIndex = minIndex + 1
+        end    
+    end
+    local needNum = maxIndex - minIndex + 1
+    for i = 1,needNum do
+        local temp =  { label = L"", }
+        table.insert(temp_top2,1,temp)
     end
     DockPage.top_line_1 = temp_top1
     DockPage.top_line_2 = temp_top2
