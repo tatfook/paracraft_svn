@@ -90,6 +90,7 @@ function CustomCharItems:Init()
 						data.icon = item.icon;
 						data.name = item.name;
 						data.category = name;
+						data.wing = node.attr.wing;
 					end
 					groups[#groups+1] = item;
 				end
@@ -270,6 +271,15 @@ function CustomCharItems:ChangeSkinStringToItems(skin)
 		skin = CustomCharItems:SkinStringToItemIds(skin);
 	end
 	return skin;
+end
+
+function CustomCharItems:IsWing(attachment)
+	for _, item in ipairs(items) do
+		if (item.data and item.data.wing == "true" and string.find(item.data.attachment, attachment)) then
+			return true;
+		end
+	end
+	return false;
 end
 
 function CustomCharItems:GetUsedItemsBySkin(skin)

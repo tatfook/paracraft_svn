@@ -22,6 +22,8 @@ NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/PlayerHeadController.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Common/Direction.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/PlayerSkins.lua");
 NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/EntityMovable.lua");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Entity/PlayerAssetFile.lua");
+local PlayerAssetFile = commonlib.gettable("MyCompany.Aries.Game.EntityManager.PlayerAssetFile")
 local PlayerSkins = commonlib.gettable("MyCompany.Aries.Game.EntityManager.PlayerSkins")
 local Direction = commonlib.gettable("MyCompany.Aries.Game.Common.Direction")
 local PlayerHeadController = commonlib.gettable("MyCompany.Aries.Game.EntityManager.PlayerHeadController");
@@ -510,6 +512,8 @@ function Entity:MoveEntity(deltaTime)
 	end
 	deltaTime = math.min(0.3, deltaTime);
 	self:CheckCollision(deltaTime);
+	local player = self:GetInnerObject();
+	PlayerAssetFile:ShowWingAttachment(player, self:GetSkinId(), GameLogic.GetPlayerController():IsInAir());
 end
 
 -- called every framemove by the ridden entity, instead of framemove.
