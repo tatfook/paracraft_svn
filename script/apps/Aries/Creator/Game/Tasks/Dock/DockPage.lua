@@ -55,7 +55,7 @@ function DockPage.Show(bCommand)
     if(not KeepWorkItemManager.GetToken())then
         return
     end
-    DockPage.InitTopIconData()
+    DockPage.InitTopIconData(bCommand)
     if(not DockPage._root)then
         DockPage.page = Map3DSystem.mcml.PageCtrl:new({ 
             url = "script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.html" ,
