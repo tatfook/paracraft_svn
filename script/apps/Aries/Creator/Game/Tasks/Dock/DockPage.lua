@@ -34,18 +34,18 @@ DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },    
-    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 85 75", }, 
-    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 85 75", },    
-    { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_xiaoxi_32bits.png#0 0 85 75", }, 
-    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 85 75"},    
+    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 100 80", }, 
+    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 100 80", },    
+    { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_xiaoxi_32bits.png#0 0 100 80", }, 
+    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 100 80"},    
 }
 DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
     { label = L"", },    
-    { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 85 75", },
-    { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 85 75", },
+    { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 100 80", },
+    { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 100 80", },
 }
 
 DockPage.show_friend_red_tip = false
@@ -417,8 +417,8 @@ function DockPage.RenderButton_1(index)
             if not is_all_task_complete and not quest_page_open then
                 bg = ""
                 tip_str = [[
-                    <div style="position:relative;margin-left:0px;margin-top:-75px;width:85px;height:75px;background: Texture/Aries/Creator/keepwork/dock/btn3_renwu_32bits.png#0 0 85 75" ></div>                
-                    <div style="position:relative;margin-left:-2px;margin-top:-80px;width:64px;height:64px;background:" >
+                    <div style="position:relative;margin-left:0px;margin-top:-80px;width:100px;height:80px;background: Texture/Aries/Creator/keepwork/dock/btn3_renwu_32bits.png#0 0 100 80" ></div>                
+                    <div style="position:relative;margin-left:18px;margin-top:-80px;width:64px;height:64px;background:" >
                         <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_task_icon_overlay" width="64" height="64"/>
                     </div>
                     ]]
@@ -427,11 +427,8 @@ function DockPage.RenderButton_1(index)
 
     elseif (id == "present") then
         if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
-            return string.format([[
-                <div style="position:relative;">
-                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -6px;margin-left: -2px;" width="80" height="80"/>
-                </div>
-                <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
+            return string.format([[                
+                <input type="button" name='%s' onclick="OnClickTop" style="width:100px;height:80px;background:url(%s)"/>
             ]],node.id,node.bg);
         else
             return ''
@@ -439,7 +436,7 @@ function DockPage.RenderButton_1(index)
     end
 
     local s = string.format([[
-        <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
+        <input type="button" name='%s' onclick="OnClickTop" style="width:100px;height:80px;background:url(%s)"/>
         %s
     ]],node.id,bg,tip_str);
     return s;
@@ -451,7 +448,7 @@ function DockPage.RenderButton_2(index)
     local id = node.id;   
     
     local s = string.format([[
-        <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
+        <input type="button" name='%s' onclick="OnClickTop" style="width:100px;height:80px;background:url(%s)"/>
         %s
     ]],node.id,node.bg,tip_str);
     return s;
