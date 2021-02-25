@@ -34,18 +34,18 @@ DockPage.is_show = true;
 DockPage.top_line_1 = {
     { label = L"", },
     { label = L"", },   
-    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 85 75"},    
-    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 85 75", },  
-    { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_xiaoxi_32bits.png#0 0 85 75", },
-    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 104 108", },  
+    { label = L"活动公告", id = "notice", enabled = true, bg ="Texture/Aries/Creator/keepwork/dock/btn3_gonggao_32bits.png#0 0 85 75"},   
+    { label = L"消息中心", id = "msg_center", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_xiaoxi_32bits.png#0 0 85 75", }, 
+    { label = L"成长任务", id = "user_tip", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_renwu1_32bits.png#0 0 85 75", },      
+    { label = L"实名礼包", id = "present", enabled = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_libao_32bits.png#0 0 85 75", },  
 }
 DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"", },
-    { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 85 75", },
+    { label = L"", },    
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 85 75", },
+    { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 85 75", },
 }
 
 DockPage.show_friend_red_tip = false
@@ -456,9 +456,9 @@ function DockPage.RenderButton_1(index)
         if not GameLogic.GetFilters():apply_filters('service.session.is_real_name') then
             return string.format([[
                 <div style="position:relative;">
-                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -5px;margin-left: -5px;" width="80" height="80"/>
+                    <img uiname="checkin_animator" zorder="100" enabled="false" class="animated_btn_overlay" style="margin-top: -6px;margin-left: -2px;" width="80" height="80"/>
                 </div>
-                <input type="button" name='%s' onclick="OnClickTop" style="width:75px;height:75px;background:url(%s)"/>
+                <input type="button" name='%s' onclick="OnClickTop" style="width:85px;height:75px;background:url(%s)"/>
             ]],node.id,node.bg);
         else
             return ''
