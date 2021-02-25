@@ -784,7 +784,7 @@ function Entity:ToggleFly(bFly)
 		
 		player:SetField("CanFly",true);
 		player:SetField("AlwaysFlying",true);
-		player:ToCharacter():SetSpeedScale(GameLogic.options.FlySpeedScale * (self.speedscale or 1));
+		player:ToCharacter():SetSpeedScale(self:GetCurrentSpeedScale());
 		--tricky: this prevent switching back to walking immediately
 		player:SetField("VerticalSpeed", self:GetSpeedScale());
 
@@ -864,6 +864,11 @@ function Entity:GetCurrentSpeedScale()
 	local speed;
 	if(self:IsFlying()) then
 		speed = GameLogic.options.FlySpeedScale;
+		if (System.User.isVip) then
+			speed = speed * 1.2;
+		else
+			speed = speed * 0.8;
+		end
 	elseif(GameLogic.IsRunning) then
 		speed = GameLogic.options.RunSpeedScale;
 	else
