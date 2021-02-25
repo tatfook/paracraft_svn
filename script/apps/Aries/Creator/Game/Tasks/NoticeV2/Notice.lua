@@ -225,7 +225,7 @@ function Notice.OnImageBgClick(data)
                 function(result)
                     if (result) then
                         local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
-                        DockPage.page:Refresh(0.01)
+                        DockPage.RefreshPage(0.01)
                         GameLogic.QuestAction.AchieveTask("40006_1", 1, true)
                     end
                 end)

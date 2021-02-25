@@ -60,6 +60,10 @@ function QuestAllCourse.OnInit()
     page.OnClose = QuestAllCourse.CloseView
 end
 
+function QuestAllCourse.GetPageCtrl()
+    return page
+end
+
 function QuestAllCourse.Show(target_world_id)
     -- if not System.options.isDevMode then
     --     _guihelper.MessageBox("人工智能课程即日开启，敬请期待", nil, nil,nil,nil,nil,nil,{ ok = L"确定"});

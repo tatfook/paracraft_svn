@@ -631,7 +631,7 @@ function QuestPage.GetReward(task_id)
 			quest_data.questItemContainer:DoFinish()
 		end
 		-- local DockPage = NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Dock/DockPage.lua");
-		-- DockPage.page:Refresh(0.01)
+		-- DockPage.RefreshPage(0.01)
 	end
 
 	-- local quest_data = QuestPage.GetQuestData(task_id)
