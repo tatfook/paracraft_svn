@@ -41,7 +41,7 @@ QuestAllCourse.TeacherListData = {
     {belong_name="teacher_fang", name="方老师", desc="冬令营导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren1_46X50_32bits.png#0 0 55 55", order = -1,},
     {belong_name="papa", name="帕帕", desc="编程导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren2_55X55_32bits.png#0 0 55 55", order = -1},
     {belong_name="lala", name="拉拉", desc="建筑导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren3_55X55_32bits.png#0 0 55 55", order = -1},
-    {belong_name="kaka", name="卡卡", desc="卡卡动画", icon="Texture/Aries/Creator/keepwork/AiCourse/ren4_55X55_32bits.png#0 0 55 55", order = -1},
+    {belong_name="kaka", name="卡卡", desc="动画导师", icon="Texture/Aries/Creator/keepwork/AiCourse/ren4_55X55_32bits.png#0 0 55 55", order = -1},
 }
 
 QuestAllCourse.NpcData = {
