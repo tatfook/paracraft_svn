@@ -63,20 +63,13 @@ function KpChatChannel.OnWorldLoaded()
 	LOG.std(nil, "info", "KpChatChannel", "OnWorldLoaded: %s",tostring(id));
     TipRoadManager:Clear();
     if(id)then
-        id = tonumber(id);
-        KpChatChannel.worldId_pending = id;
-        -- connect chat channel
-        KpChatChannel.OnKeepWorkLogin_Callback();
+        KpChatChannel.TryToConnect();
     else
         KpChatChannel.Clear();
     end
 end
 function KpChatChannel.OnKeepWorkLogin_Callback()
-    if(KpChatChannel.worldId_pending)then
-        KpChatChannel.Connect(nil,nil,function()
-            KpChatChannel.JoinWorld(KpChatChannel.worldId_pending);
-        end);
-    end        
+    KpChatChannel.TryToConnect();
 end
 function KpChatChannel.OnKeepWorkLogout_Callback()
     KpChatChannel.LeaveWorld(KpChatChannel.worldId_pending);
@@ -112,8 +105,7 @@ function KpChatChannel.GetRoom()
         return room
     end
 end
-function KpChatChannel.Connect(url,options,onopen_callback)
-end
+
 function KpChatChannel.Connect(url,options,onopen_callback)
     if(not KeepWorkItemManager.GetToken())then
         return
@@ -140,8 +132,7 @@ function KpChatChannel.ClearReconnectAction()
         KpChatChannel.reconnect_timer:Change();
     end
 end
-function KpChatChannel.OnConnectionLost()
-	LOG.std("", "info", "KpChatChannel", "ConnectionLost");
+function KpChatChannel.TryToConnect()
     if(not KpChatChannel.reconnect_timer)then
         KpChatChannel.reconnect_timer = commonlib.Timer:new({callbackFunc = function(timer)
             if(KpChatChannel.IsConnected())then
@@ -203,7 +194,7 @@ function KpChatChannel.OnClose(self, msg)
     msg = msg or {};
 	LOG.std("", "info", "KpChatChannel", "Connection is closed, from = %s", msg.from);
     if(msg.from == "ping")then
-        KpChatChannel.OnConnectionLost();
+        KpChatChannel.TryToConnect();
         return
     end
     KpChatChannel.Clear();
