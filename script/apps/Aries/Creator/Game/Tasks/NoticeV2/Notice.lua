@@ -41,7 +41,7 @@ function Notice.GetPageData(data)
                 if a.priority < b.priority then
                     return true;
                 elseif a.priority == b.priority then
-                    if Notice.GetTimeStamp(a.createdAt) < Notice.GetTimeStamp(b.createdAt) then
+                    if commonlib.timehelp.GetTimeStampByDateTime(a.createdAt) < commonlib.timehelp.GetTimeStampByDateTime(b.createdAt) then
                         return true;
                     end
                     return false;
@@ -80,14 +80,6 @@ function Notice.GetPageData(data)
     end
     --commonlib.echo(Notice.tblNoticeDt,true)
     --commonlib.echo(data,true)
-end
-
-function Notice.GetTimeStamp(strTime)
-    strTime = strTime or "";
-    local year, month, day, hour, min, sec = strTime:match("^(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)%D(%d+)"); 
-    local time_stamp = os.time({day=tonumber(day), month=tonumber(month), year=tonumber(year), hour=tonumber(hour) + 8}); -- 这个时间是带时区的 要加8小时
-    time_stamp = time_stamp + min * 60 + sec;
-    return time_stamp;
 end
 
 function Notice.Show(nType)
