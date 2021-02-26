@@ -22,7 +22,7 @@ local options = commonlib.createtable("MyCompany.Aries.Game.GameLogic.options", 
 	jump_up_speed = 5,
 	jump_up_speed_big = 30,
 	-- whether double click to fly
-	double_click_flying = true,
+	double_click_flying = false,
 	player_height = 1.67;
 	Gravity = 9.81,
 	BlockLightColor = {1.35, 1.15, 1.15},

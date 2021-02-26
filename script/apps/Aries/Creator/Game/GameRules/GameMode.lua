@@ -125,8 +125,7 @@ function GameMode:HasJumpRestriction()
 end
 
 function GameMode:AllowDoubleClickJump()
-	--return (self.bIsEditor);
-	return true;
+	return (self.bIsEditor);
 end
 
 -- E key to use creator bag instead of player's inventory
