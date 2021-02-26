@@ -234,6 +234,15 @@ function Entity:LoadFromXMLNode(node)
 end
 
 
+function Entity:GetDisplayName()
+	local agentName = self:GetAgentName();
+	if(agentName and agentName~="") then
+		return agentName.."\n"..(self.cmd or "");
+	else
+		return self.cmd or "";
+	end
+end
+
 function Entity:SaveToAgentFile(filename)
 	if(not filename) then
 		local name = self:GetAgentName();
@@ -261,4 +270,5 @@ function Entity:SaveToAgentFile(filename)
 			task:Run();
 		end
 	end
-end
+	self:Refresh()
+end	

@@ -122,6 +122,7 @@ function Entity:Refresh()
 				end
 			else
 				self:SetHeadOnDisplay(nil)
+				text = self:GetDisplayName() or text;
 				Text3DDisplay.ShowText3DDisplay(true, obj, text, self.text_color, self.text_offset, -1.57);
 			end
 		else
