@@ -228,6 +228,15 @@ function CustomCharItems:SkinStringToItemIds(skin)
 	if (not skin) then return "" end;
 	local idString = "80001;";
 	local geosets, textures, attachments =  string.match(skin, "([^@]+)@([^@]+)@?(.*)");
+	local use_hair = false;
+	if (geosets) then
+		for geoset in string.gfind(geosets, "([^#]+)") do
+			local id = tonumber(geoset);
+			if (id > 0 and id < 100) then
+				use_hair = true;
+			end
+		end
+	end
 	if (textures) then
 		for tex in textures:gmatch("([^;]+)") do
 			for _, item in ipairs(items) do
@@ -243,7 +252,11 @@ function CustomCharItems:SkinStringToItemIds(skin)
 		for att in attachments:gmatch("([^;]+)") do
 			for _, item in ipairs(items) do
 				if (item.data.attachment == att) then
-					idString = idString..item.data.id..";";
+					local id, filename = string.match(item.data.attachment, "(%d+):(.*)");
+					id = tonumber(id);
+					if (not use_hair or id ~= 11) then
+						idString = idString..item.data.id..";";
+					end
 				end
 			end
 		end

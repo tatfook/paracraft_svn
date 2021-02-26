@@ -185,7 +185,6 @@ function PlayerAssetFile:RefreshCustomGeosets(player, skin)
 	local use_hair = false;
 	local charater = player:ToCharacter();
 	if (geosets) then
-		local geoset;
 		for geoset in string.gfind(geosets, "([^#]+)") do
 			local id = tonumber(geoset);
 			if (id > 0 and id < 100) then
