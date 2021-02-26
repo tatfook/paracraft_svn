@@ -654,6 +654,8 @@ function DockPage.CheckIsTaskCompelete()
             GameLogic.QuestAction.SetValue("40004_1",1);
        end
        DockPage.RefreshPage(0.01)
+
+       GameLogic.QuestAction.SetDailyTaskValue("40008_1",1)
     end, 1000)
 end
 
