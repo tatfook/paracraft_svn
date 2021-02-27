@@ -36,9 +36,16 @@ function AgentEditorPage.OnInit()
 		page:SetValue("agentExternalFiles", cur_entity:GetAgentExternalFiles())
 		page:SetValue("agentUrl", cur_entity:GetAgentUrl())
 		page:SetValue("isGlobal", cur_entity:IsGlobal() == true)
-		page:SetValue("updateMethod", cur_entity:GetUpdateMethod())
+
+		local updateMethod = cur_entity:GetUpdateMethod();
+		for i, item in ipairs(AgentEditorPage.updateMethods) do
+			if(item.value == updateMethod) then
+				item.selected = true;
+			else
+				item.selected = nil;
+			end
+		end
 	end
-	
 end
 
 function AgentEditorPage.GetEntity()

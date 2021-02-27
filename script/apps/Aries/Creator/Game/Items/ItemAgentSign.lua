@@ -30,6 +30,12 @@ function ItemAgentSign:PickItemFromPosition(x,y,z)
 			local itemStack = ItemStack:new():Init(self.id, 1);
 			-- transfer filename from entity to item stack. 
 			itemStack:SetTooltip(entity.cmd);
+			itemStack:SetDataField("agentPackageName", entity:GetAgentName());
+			itemStack:SetDataField("agentPackageVersion", entity:GetVersion());
+			itemStack:SetDataField("agentDependencies", entity:GetAgentDependencies());
+			itemStack:SetDataField("agentExternalFiles", entity:GetAgentExternalFiles());
+			itemStack:SetDataField("agentUrl", entity:GetAgentUrl());
+			itemStack:SetDataField("isGlobal", entity:IsGlobal());
 			return itemStack;
 		end
 	end
@@ -40,7 +46,7 @@ end
 -- @param left, right: type of ItemStack or nil. 
 function ItemAgentSign:CompareItems(left, right)
 	if(ItemAgentSign._super.CompareItems(self, left, right)) then
-		if(left and right and left:GetTooltip() == right:GetTooltip()) then
+		if(left and right and left:GetAgentName() == right:GetAgentName()) then
 			return true;
 		end
 	end
@@ -55,7 +61,16 @@ function ItemAgentSign:TryCreate(itemStack, entityPlayer, x,y,z, side, data, sid
 		local entity = self:GetBlock():GetBlockEntity(x,y,z);
 		if(entity and entity:GetBlockId() == self.id) then
 			entity.cmd = text;
+			entity:SetAgentName(itemStack:GetDataField("agentPackageName"))
+			entity:SetVersion(itemStack:GetDataField("agentPackageVersion"))
+			entity:SetAgentDependencies(itemStack:GetDataField("agentDependencies"))
+			entity:SetAgentExternalFiles(itemStack:GetDataField("agentExternalFiles"))
+			entity:SetAgentUrl(itemStack:GetDataField("agentUrl"))
+			entity:SetGlobal(itemStack:GetDataField("isGlobal"))
 			entity:Refresh();
+			commonlib.TimerManager.SetTimeout(function()  
+				entity:LoadFromAgentFile();
+			end, 10)
 		end
 	end
 	return res;

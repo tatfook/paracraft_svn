@@ -243,13 +243,16 @@ function Entity:GetDisplayName()
 	end
 end
 
-function Entity:SaveToAgentFile(filename)
-	if(not filename) then
-		local name = self:GetAgentName();
-		if(name and name~="") then
-			filename = Files.WorldPathToFullPath("agents/"..name..".xml");
-		end
+function Entity:GetAgentFilename()
+	local name = self:GetAgentName();
+	if(name and name~="") then
+		return Files.WorldPathToFullPath("agents/"..name..".xml");
 	end
+end
+
+function Entity:SaveToAgentFile(filename)
+	filename = filename or self:GetAgentFilename()
+	
 	if(filename) then
 		-- save to local agent file
 		local blocks = self:GetConnectedBlocks()
@@ -272,3 +275,15 @@ function Entity:SaveToAgentFile(filename)
 	end
 	self:Refresh()
 end	
+
+function Entity:LoadFromAgentFile(filename)
+	filename = filename or self:GetAgentFilename()
+	if(filename and ParaIO.DoesFileExist(filename)) then
+		local bx, by, bz = self:GetBlockPos();
+		NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/BlockTemplateTask.lua");
+		local BlockTemplate = commonlib.gettable("MyCompany.Aries.Game.Tasks.BlockTemplate");
+		local task = BlockTemplate:new({operation = BlockTemplate.Operations.Load, filename = filename,
+			blockX = bx,blockY = by, blockZ = bz, bSelect=false, UseAbsolutePos = false, TeleportPlayer = false})
+		task:Run();
+	end
+end
