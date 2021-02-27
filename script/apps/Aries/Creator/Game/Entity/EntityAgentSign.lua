@@ -287,3 +287,40 @@ function Entity:LoadFromAgentFile(filename)
 		task:Run();
 	end
 end
+
+function Entity:ComputeAgentUrl()
+	local remoteFolderName = GameLogic.options:GetRemoteWorldFolder();
+	if(remoteFolderName) then
+		local url = format("%sagents/%s.xml", remoteFolderName, self:GetAgentName());
+		return url;
+	end
+end
+
+-- agent url is [username]/[worldname]/agents/[agentfilename]
+function Entity:ResetAgentUrl()
+	local url = self:ComputeAgentUrl();
+	if(url) then
+		if(self:GetAgentUrl() ~= url) then
+			self:SetAgentUrl(url);
+			self:Refresh()
+		end
+	end
+end
+
+-- check if this agent belongs to the current world
+function Entity:IsInCurrentWorld()
+	local url = self:GetAgentUrl()
+	if((not url or url== "") or url == self:ComputeAgentUrl()) then
+		return true
+	end
+end
+
+function Entity:Refresh()
+	if(self:IsInCurrentWorld()) then
+		self.text_color = "128 0 0";
+	else
+		self.text_color = "0 0 128";
+	end
+
+	return Entity._super.Refresh(self);
+end

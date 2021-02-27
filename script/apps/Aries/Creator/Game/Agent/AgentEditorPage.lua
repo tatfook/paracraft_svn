@@ -110,15 +110,27 @@ function AgentEditorPage.OnClickOK()
 		local isGlobal = page:GetValue("isGlobal");
 		local updateMethod = page:GetValue("updateMethod");
 		entity:SetVersion(version);
-		entity:SetAgentName(agentName);
+		if(agentName and agentName~="" and agentName~=entity:GetAgentName()) then
+			entity:SetAgentName(agentName);
+			entity:ResetAgentUrl()
+		else
+			if(not agentUrl or agentUrl == "") then
+				entity:ResetAgentUrl()
+			else
+				entity:SetAgentUrl(agentUrl);	
+			end
+		end
+		
 		entity:SetAgentDependencies(agentDependencies);
 		entity:SetAgentExternalFiles(agentExternalFiles);
-		entity:SetAgentUrl(agentUrl);
+		
 		entity:SetGlobal(isGlobal);
 		entity:SetUpdateMethod(updateMethod);
 
 		-- finally save to agent file
-		entity:SaveToAgentFile();
+		if(entity:IsInCurrentWorld()) then
+			entity:SaveToAgentFile();
+		end
 	end
 	page:CloseWindow();
 end
