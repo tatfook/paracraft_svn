@@ -110,28 +110,45 @@ function AgentEditorPage.OnClickOK()
 		local isGlobal = page:GetValue("isGlobal");
 		local updateMethod = page:GetValue("updateMethod");
 		entity:SetVersion(version);
-		if(agentName and agentName~="" and agentName~=entity:GetAgentName()) then
+		entity:SetGlobal(isGlobal);
+		if(agentName~=entity:GetAgentName()) then
 			entity:SetAgentName(agentName);
-			entity:ResetAgentUrl()
-		else
-			if(not agentUrl or agentUrl == "") then
-				entity:ResetAgentUrl()
-			else
-				entity:SetAgentUrl(agentUrl);	
-			end
 		end
+		entity:ResetAgentUrl()
 		
 		entity:SetAgentDependencies(agentDependencies);
 		entity:SetAgentExternalFiles(agentExternalFiles);
 		
-		entity:SetGlobal(isGlobal);
+		
 		entity:SetUpdateMethod(updateMethod);
 
 		-- finally save to agent file
-		if(entity:IsInCurrentWorld()) then
-			entity:SaveToAgentFile();
+		if(entity:IsInCurrentWorld() or entity:IsOfficialModAgents()) then
+			if(entity:SaveToAgentFile()) then
+				GameLogic.AddBBS(nil, format(L"智能模块保存成功"), 5000, "0 255 00");
+			end
 		end
+		entity:Refresh()
 	end
 	page:CloseWindow();
 end
 
+function AgentEditorPage.OnChangeGlobal()
+	local entity = AgentEditorPage.GetEntity();
+	if(entity and page) then
+		entity:SetGlobal(page:GetValue("isGlobal") == true);
+		entity:ResetAgentUrl()
+		page:SetValue("agentUrl", entity:GetAgentUrl())
+	end
+end
+
+function AgentEditorPage.OnClickOpenFolder()
+	local entity = AgentEditorPage.GetEntity();
+	if(entity) then
+		local filename = entity:GetAgentFilename()
+		if(filename) then
+			filename = filename:gsub("[^/\\]*$","")
+			System.App.Commands.Call("File.WinExplorer", filename);
+		end
+	end
+end

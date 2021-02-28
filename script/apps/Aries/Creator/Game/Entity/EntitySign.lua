@@ -79,7 +79,7 @@ function Entity:GetDisplayName()
 end
 
 function Entity:Refresh()
-	local hasText = self.cmd and self.cmd~=""
+	local hasText = self:GetDisplayName() ~= ""
 	if(hasText and not self.wasDeleted) then
 		-- only create C++ object when cmd is not empty
 		if(not self.obj) then

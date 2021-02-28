@@ -30,6 +30,12 @@ end
             <div><input name="agentPackageVersion" uiname="AgentEditorPage.agentPackageVersion" style="height:24px" EmptyText="1.0"/></div>
         </div>
         <div style="margin:3px;">
+            <div style="float:left"><%=L"更新方式:"%></div>
+            <div style="float:left">
+                <select uiname="AgentEditorPage.updateMethod" name="updateMethod" style="margin-top:0px;height:22px" AllowUserEdit="false" DataSource="<%=GetUpdateMethodDS()%>"></select>
+            </div>
+        </div>
+        <div style="margin:3px;">
             <div><%=L"依赖:"%></div>
             <div><input name="agentDependencies" uiname="AgentEditorPage.agentDependencies" style="height:24px" /></div>
         </div>
@@ -40,20 +46,14 @@ end
             </div>
         </div>
         <div style="margin:3px;">
-            <div><%=L"url地址:"%></div>
-            <div><input name="agentUrl" uiname="AgentEditorPage.agentUrl" style="height:24px" /></div>
-        </div>
-        <div style="margin:3px;">
             <div>
-                <input name="isGlobal" uiname="AgentEditorPage.isGlobal" type="checkbox" style="margin-top:2px"/>
+                <input name="isGlobal" uiname="AgentEditorPage.isGlobal" onclick="AgentEditorPage.OnChangeGlobal" type="checkbox" style="margin-top:2px"/>
                 <div style="float:left;margin-left:5px;" for="isGlobal" uiname="AgentEditorPage.isGlobalFor"><%=L"是否全局"%></div>
             </div>
         </div>
         <div style="margin:3px;">
-            <div style="float:left"><%=L"更新方式:"%></div>
-            <div style="float:left">
-                <select uiname="AgentEditorPage.updateMethod" name="updateMethod" style="margin-top:0px;height:22px" AllowUserEdit="false" DataSource="<%=GetUpdateMethodDS()%>"></select>
-            </div>
+            <div><%=L"url地址:"%><input type="button" class="button" name="OK" uiname="AgentEditorPage.OnClickOpenFolder" value='...' style="margin-left:5px;" onclick="AgentEditorPage.OnClickOpenFolder"/></div>
+            <div><pe:label name="agentUrl" uiname="AgentEditorPage.agentUrl" style="height:36px;color:#808080;font-size:10px" /></div>
         </div>
         <hr />
         <div style="margin-top:3px;">

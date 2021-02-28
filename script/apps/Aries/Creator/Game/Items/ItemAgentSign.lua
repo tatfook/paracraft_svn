@@ -46,7 +46,7 @@ end
 -- @param left, right: type of ItemStack or nil. 
 function ItemAgentSign:CompareItems(left, right)
 	if(ItemAgentSign._super.CompareItems(self, left, right)) then
-		if(left and right and left:GetAgentName() == right:GetAgentName()) then
+		if(left and right and left:GetDataField("agentPackageName") == right:GetDataField("agentPackageName")) then
 			return true;
 		end
 	end

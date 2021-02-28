@@ -26,8 +26,10 @@ Entity:Property({"version", "1.0", "GetVersion", "SetVersion", auto=true})
 Entity:Property({"agentName", nil, "GetAgentName", "SetAgentName", auto=true})
 Entity:Property({"agentDependencies", nil, "GetAgentDependencies", "SetAgentDependencies", auto=true})
 Entity:Property({"agentExternalFiles", nil, "GetAgentExternalFiles", "SetAgentExternalFiles", auto=true})
+-- agent url is [username]/[worldname]/agents/[agentfilename]
 Entity:Property({"agentUrl", nil, "GetAgentUrl", "SetAgentUrl", auto=true})
 Entity:Property({"isGlobal", false, "IsGlobal", "SetGlobal", auto=true})
+-- value in "always", "manual", "auto"
 Entity:Property({"updateMethod", "manual", "GetUpdateMethod", "SetUpdateMethod", auto=true})
 
 -- class name
@@ -39,10 +41,12 @@ function Entity:ctor()
 end
 
 function Entity:OnBlockAdded(x,y,z, data)
+	self:CheckUpdateAgent();
 	Entity._super.OnBlockAdded(self, x,y,z, data)
 end
 
 function Entity:OnBlockLoaded(x,y,z, data)
+	self:CheckUpdateAgent();
 	Entity._super.OnBlockLoaded(self, x,y,z, data)
 end
 
@@ -225,12 +229,14 @@ end
 
 function Entity:LoadFromXMLNode(node)
 	Entity._super.LoadFromXMLNode(self, node);
-	self:SetVersion(node.attr.version);
-	self:SetAgentName(node.attr.agentName);
-	self:SetAgentDependencies(node.attr.agentDependencies);
-	self:SetAgentExternalFiles(node.attr.agentExternalFiles);
-	self:SetAgentUrl(node.attr.agentUrl);
-	self:SetUpdateMethod(node.attr.updateMethod);
+	local attr = node.attr;
+	self:SetVersion(attr.version);
+	self:SetAgentName(attr.agentName);
+	self:SetAgentDependencies(attr.agentDependencies);
+	self:SetAgentExternalFiles(attr.agentExternalFiles);
+	self:SetAgentUrl(attr.agentUrl);
+	self:SetUpdateMethod(attr.updateMethod);
+	self:SetGlobal(attr.isGlobal == "true" or attr.isGlobal == true);
 end
 
 
@@ -246,7 +252,12 @@ end
 function Entity:GetAgentFilename()
 	local name = self:GetAgentName();
 	if(name and name~="") then
-		return Files.WorldPathToFullPath("agents/"..name..".xml");
+		local url = self:GetAgentUrl()
+		if(url and url:match("^Mod/Agents/")) then
+			return ParaIO.GetWritablePath().."npl_packages/Agents/"..url;
+		else
+			return Files.WorldPathToFullPath("agents/"..name..".xml");
+		end
 	end
 end
 
@@ -271,9 +282,9 @@ function Entity:SaveToAgentFile(filename)
 
 			local task = BlockTemplate:new({operation = BlockTemplate.Operations.Save, filename = filename, params = params, blocks = blocks})
 			task:Run();
+			return true;
 		end
 	end
-	self:Refresh()
 end	
 
 function Entity:LoadFromAgentFile(filename)
@@ -289,10 +300,15 @@ function Entity:LoadFromAgentFile(filename)
 end
 
 function Entity:ComputeAgentUrl()
-	local remoteFolderName = GameLogic.options:GetRemoteWorldFolder();
-	if(remoteFolderName) then
-		local url = format("%sagents/%s.xml", remoteFolderName, self:GetAgentName());
+	if(self:IsGlobal()) then
+		local url = format("Mod/Agents/%s.xml", self:GetAgentName());
 		return url;
+	else
+		local remoteFolderName = GameLogic.options:GetRemoteWorldFolder();
+		if(remoteFolderName) then
+			local url = format("%sagents/%s.xml", remoteFolderName, self:GetAgentName());
+			return url;
+		end
 	end
 end
 
@@ -316,11 +332,53 @@ function Entity:IsInCurrentWorld()
 end
 
 function Entity:Refresh()
-	if(self:IsInCurrentWorld()) then
+	-- local and remote agent are displayed with different colors
+	if(self:IsGlobal()) then
+		self.text_color = "0 64 64";
+	elseif(self:IsInCurrentWorld()) then
 		self.text_color = "128 0 0";
 	else
 		self.text_color = "0 0 128";
 	end
 
 	return Entity._super.Refresh(self);
+end
+
+function Entity:CheckUpdateAgent()
+	if(self:GetUpdateMethod() == "always") then
+		self:UpdateAgent()
+	end
+end
+
+function Entity:IsOfficialModAgents()
+	local url = self:GetAgentUrl()
+	if(url) then
+		if(url:match("^Mod/Agents/")) then
+			return true;
+		end
+	end
+end
+
+function Entity:UpdateAgent()
+	if(Entity.isUpdating) then
+		return
+	end
+	if(self:IsOfficialModAgents()) then
+		local filename = self:GetAgentFilename()
+		self:UpdateAgentFromDiskFile(filename)
+	end
+end
+
+function Entity:UpdateAgentFromDiskFile(filename)
+	if(ParaIO.DoesFileExist(filename)) then
+		commonlib.TimerManager.SetTimeout(function()  
+			Entity.isUpdating = true;
+			local x, y, z = self:GetBlockPos();
+			LOG.std(nil, "info", "Agent", "update agent(%d,%d,%d) from file: %s", x, y, z, filename);
+			self:LoadFromAgentFile(filename);
+			Entity.isUpdating = nil;
+		end, 100)
+	else
+		LOG.std(nil, "warn", "Agent", "official mod agent file not found: %s", filename);
+	end
 end
