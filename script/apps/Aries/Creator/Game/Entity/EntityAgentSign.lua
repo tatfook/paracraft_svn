@@ -306,7 +306,7 @@ function Entity:ComputeAgentUrl()
 	else
 		local remoteFolderName = GameLogic.options:GetRemoteWorldFolder();
 		if(remoteFolderName) then
-			local url = format("%sagents/%s.xml", remoteFolderName, self:GetAgentName());
+			local url = format("@%s:%sagents/%s.xml", GameLogic.options:GetProjectId(), remoteFolderName, self:GetAgentName());
 			return url;
 		end
 	end
