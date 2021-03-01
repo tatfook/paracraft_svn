@@ -154,7 +154,7 @@ end
 function ParacraftCI.GetBuildInMod()
 	local cmd = [[
 		@echo off 
-		CALL :InstallPackage ParacraftBuildinMod https://github.com/tatfook/ParacraftBuildinMod
+		CALL :InstallPackage ParacraftBuildinMod git@github.com:tatfook/ParacraftBuildinMod.git
 		EXIT /B %ERRORLEVEL%
 
 		:InstallPackage
@@ -184,43 +184,53 @@ function ParacraftCI.GetAllMode()
 
 		pushd "npl_packages"
 
-		CALL :InstallPackage STLExporter https://github.com/LiXizhi/STLExporter
-		CALL :InstallPackage BMaxToParaXExporter https://github.com/tatfook/BMaxToParaXExporter
+		REM set GitURL=https://github.com/
+		set GitURL=git@github.com:
+		 
+		CALL :InstallPackage AutoUpdater NPLPackages/AutoUpdater
+		CALL :InstallPackage STLExporter LiXizhi/STLExporter
+		CALL :InstallPackage BMaxToParaXExporter tatfook/BMaxToParaXExporter
 
-		CALL :InstallPackage NPLCAD https://github.com/tatfook/NPLCAD
-		CALL :InstallPackage NplCadLibrary https://github.com/NPLPackages/NplCadLibrary
-		CALL :InstallPackage ModelVoxelizer https://github.com/NPLPackages/ModelVoxelizer
+		CALL :InstallPackage NPLCAD tatfook/NPLCAD
+		CALL :InstallPackage NplCadLibrary NPLPackages/NplCadLibrary
+		CALL :InstallPackage ModelVoxelizer NPLPackages/ModelVoxelizer
 
-		CALL :InstallPackage NplCad2 https://github.com/tatfook/NplCad2
+		CALL :InstallPackage NplCad2 tatfook/NplCad2
 
-		CALL :InstallPackage WorldShare https://github.com/tatfook/WorldShare
-		CALL :InstallPackage ExplorerApp https://github.com/tatfook/ExplorerApp
-		CALL :InstallPackage EMapMod https://github.com/tatfook/EMapMod
-		CALL :InstallPackage CodeBlockEditor https://github.com/tatfook/CodeBlockEditor
-		CALL :InstallPackage PluginBlueTooth https://github.com/NPLPackages/PluginBlueTooth
-		CALL :InstallPackage GoogleAnalytics https://github.com/NPLPackages/GoogleAnalytics
-		CALL :InstallPackage ParaWorldClient https://github.com/tatfook/ParaworldClient
+		CALL :InstallPackage WorldShare tatfook/WorldShare
+		CALL :InstallPackage ExplorerApp tatfook/ExplorerApp
+		CALL :InstallPackage EMapMod tatfook/EMapMod
+		CALL :InstallPackage CodeBlockEditor tatfook/CodeBlockEditor
+		CALL :InstallPackage PluginBlueTooth NPLPackages/PluginBlueTooth
+		CALL :InstallPackage GoogleAnalytics NPLPackages/GoogleAnalytics
+		CALL :InstallPackage ParaWorldClient tatfook/ParaworldClient
+		CALL :InstallPackage Agents NPLPackages/Agents
 
-		CALL :InstallPackage PyRuntime https://github.com/tatfook/PyRuntime
+		CALL :InstallPackage PyRuntime tatfook/PyRuntime
 
-		CALL :InstallPackage NplMicroRobot https://github.com/tatfook/NplMicroRobot
-		CALL :InstallPackage HaqiMod https://github.com/tatfook/HaqiMod
-		CALL :InstallPackage GeneralGameServerMod https://github.com/tatfook/GeneralGameServerMod
+		CALL :InstallPackage NplMicroRobot tatfook/NplMicroRobot
+		CALL :InstallPackage HaqiMod tatfook/HaqiMod
+		CALL :InstallPackage GeneralGameServerMod tatfook/GeneralGameServerMod
+
+		CALL :InstallPackage CodePkuCommon tatfook/CodePkuCommon.git
+		CALL :InstallPackage CodePku tatfook/CodePku.git
 
 		popd
 		popd
 
 		EXIT /B %ERRORLEVEL%
 
+		rem install function here
 		:InstallPackage
 		if exist "%1\README.md" (
 			pushd %1
+			git remote set-url origin %GitURL%%2
 			git reset --hard
 			git pull
 			popd
 		) else (
 			rmdir /s /q "%CD%\%1"
-			git clone %2
+			git clone %GitURL%%2
 		)
 		EXIT /B 0
 	]]
@@ -387,12 +397,16 @@ function ParacraftCI.BuildMod()
 			CALL :BuddlePackage PluginBlueTooth
 			CALL :BuddlePackage GoogleAnalytics
 			CALL :BuddlePackage ParaWorldClient
+			CALL :BuddlePackage Agents
 
 			CALL :BuddlePackage PyRuntime
 
 			CALL :BuddlePackage NplMicroRobot
 			CALL :BuddlePackage HaqiMod
 			CALL :BuddlePackage GeneralGameServerMod
+
+			CALL :BuddlePackage CodePkuCommon
+			CALL :BuddlePackage CodePku
 
 			popd
 
