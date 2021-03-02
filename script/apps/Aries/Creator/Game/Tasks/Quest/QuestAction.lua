@@ -360,7 +360,7 @@ function QuestAction.DailyWorldTask()
                 QuestAction.SetDailyTaskValue("40011_1", nil, 1)
             end
         end
-    end, 1500)
+    end, 2500)
 end
 -- 结束某个任务
 function QuestAction.FinishDailyTask(task_id)
