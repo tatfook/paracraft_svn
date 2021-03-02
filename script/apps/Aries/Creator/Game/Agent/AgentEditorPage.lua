@@ -109,9 +109,13 @@ function AgentEditorPage.OnClickOK()
 		local agentUrl = page:GetValue("agentUrl");
 		local isGlobal = page:GetValue("isGlobal");
 		local updateMethod = page:GetValue("updateMethod");
+		local bAgentChanged = false;
+		bAgentChanged = bAgentChanged or (entity:GetVersion() ~= version);
 		entity:SetVersion(version);
+		bAgentChanged = bAgentChanged or (entity:IsGlobal() ~= isGlobal);
 		entity:SetGlobal(isGlobal);
 		if(agentName~=entity:GetAgentName()) then
+			bAgentChanged = true;
 			entity:SetAgentName(agentName);
 		end
 		entity:ResetAgentUrl()
@@ -145,7 +149,7 @@ end
 function AgentEditorPage.OnClickOpenFolder()
 	local entity = AgentEditorPage.GetEntity();
 	if(entity) then
-		local filename = entity:GetAgentFilename()
+		local filename = entity:GetAgentFilename(true)
 		if(filename) then
 			filename = filename:gsub("[^/\\]*$","")
 			System.App.Commands.Call("File.WinExplorer", filename);
