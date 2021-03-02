@@ -283,6 +283,12 @@ function QuestAction.SetDailyTaskValue(task_id, value, change_value)
         return
     end
 
+    -- 没拿到数据的话后面的不处理
+    local quest_datas = QuestProvider:GetInstance().templates_map
+    if quest_datas == nil or next(quest_datas) == nil then
+        return
+    end
+
 	if QuestAction.CheckTaskCompelete(task_id) then
 		return
 	end
