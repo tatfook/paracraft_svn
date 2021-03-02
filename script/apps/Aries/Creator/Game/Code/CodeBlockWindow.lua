@@ -304,6 +304,10 @@ function CodeBlockWindow.SetCodeEntity(entity, bNoCodeUpdate)
 			end
 		end
 		self.entity = entity;
+
+		-- 切换实体, 若为blockly编辑模式则重新打开 (npl blocly 已经存在就继续存在)
+		if (CodeBlockWindow.IsBlocklyEditMode() and NplBlocklyEditorPage) then CodeBlockWindow.ShowNplBlocklyEditorPage() end
+
 		if(page) then
 			page:Refresh(0.01);
 		end
@@ -1258,9 +1262,13 @@ function CodeBlockWindow.UpdateNplBlocklyCode()
 end
 
 function CodeBlockWindow.ShowNplBlocklyEditorPage()
+	if (NplBlocklyEditorPage) then 
+		NplBlocklyEditorPage:CloseWindow();
+		NplBlocklyEditorPage = nil;
+	end
+
 	local entity = CodeBlockWindow.GetCodeEntity();
 	if (not CodeBlockWindow.IsSupportNplBlockly()) then return end
-	if (NplBlocklyEditorPage) then NplBlocklyEditorPage:CloseWindow() end
 
 	local Page = NPL.load("Mod/GeneralGameServerMod/UI/Page.lua", IsDevEnv);
 	local width, height = self:CalculateMargins();
