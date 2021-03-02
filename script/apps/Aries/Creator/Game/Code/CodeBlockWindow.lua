@@ -347,6 +347,8 @@ function CodeBlockWindow:OnMessage(msg)
 end
 
 function CodeBlockWindow.GetCodeFromEntity()
+	if (self.IsSupportNplBlockly()) then return self.entity:GetNPLBlocklyNPLCode() end
+
 	if(self.entity) then
 		return self.entity:GetCommand();
 	end
@@ -1069,7 +1071,7 @@ function CodeBlockWindow.OpenBlocklyEditor(bForceRefresh)
         codeLanguageType = entity:GetCodeLanguageType();
 	end
 	
-	if (entity and entity:IsUseNplBlockly()) then
+	if (CodeBlockWindow.IsSupportNplBlockly()) then
 		return CodeBlockWindow.ShowNplBlocklyEditorPage();
 	end
 
@@ -1238,10 +1240,15 @@ function CodeBlockWindow:OnUserTypedCode(textCtrl, newChar)
 	CodeBlockWindow.updateCodeTimer:Change(1000, nil);
 end
 
+function CodeBlockWindow.IsSupportNplBlockly()
+	local entity = CodeBlockWindow.GetCodeEntity();
+	return entity and entity.class_name == "EntityCode" and entity:IsBlocklyEditMode() and entity:IsUseNplBlockly();
+end
+
 function CodeBlockWindow.UpdateNplBlocklyCode()
 	local codeEntity = CodeBlockWindow.GetCodeEntity();
 	if (not NplBlocklyEditorPage or not codeEntity) then return end
-	if (not codeEntity:IsBlocklyEditMode() or not codeEntity:IsUseNplBlockly()) then return end
+	if (not CodeBlockWindow.IsSupportNplBlockly()) then return end
 
 	local G = NplBlocklyEditorPage:GetG();
 	local code = type(G.GetCode) == "function" and G.GetCode() or "";
@@ -1252,8 +1259,9 @@ end
 
 function CodeBlockWindow.ShowNplBlocklyEditorPage()
 	local entity = CodeBlockWindow.GetCodeEntity();
-	if (not entity or not entity:IsBlocklyEditMode() or not entity:IsUseNplBlockly()) then return end
+	if (not CodeBlockWindow.IsSupportNplBlockly()) then return end
 	if (NplBlocklyEditorPage) then NplBlocklyEditorPage:CloseWindow() end
+
 	local Page = NPL.load("Mod/GeneralGameServerMod/UI/Page.lua", IsDevEnv);
 	local width, height = self:CalculateMargins();
 	NplBlocklyEditorPage = Page.ShowVueTestPage({
