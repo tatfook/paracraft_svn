@@ -48,6 +48,7 @@ local page;
 local groupindex_hint = 3; 
 -- this is singleton class
 local self = CodeBlockWindow;
+local NplBlocklyEditorPage = nil;
 
 CodeBlockWindow.defaultCodeUIUrl = "script/apps/Aries/Creator/Game/Code/CodeBlockWindow.html";
 
@@ -209,6 +210,8 @@ function CodeBlockWindow:OnViewportChange()
 				CodeBlockWindow.RestoreCursorPosition()
 				GameLogic.GetEvents():DispatchEvent({type = "CodeBlockWindowShow" , bShow = true, width = self.width});	
 			end
+
+			CodeBlockWindow.ShowNplBlocklyEditorPage();
 		end
 		if(sceneMarginBottom ~= viewport:GetMarginBottom())then
 			if(viewport:GetMarginBottomHandler() == nil or viewport:GetMarginBottomHandler() == self) then
@@ -216,6 +219,7 @@ function CodeBlockWindow:OnViewportChange()
 				viewport:SetMarginBottomHandler(self);
 			end
 		end
+
 	end
 end
 
@@ -225,6 +229,7 @@ end
 
 function CodeBlockWindow.OnWorldSave()
 	CodeBlockWindow.UpdateCodeToEntity();
+	CodeBlockWindow.UpdateNplBlocklyCode();
 end
 
 function CodeBlockWindow.HighlightCodeEntity(entity)
@@ -295,6 +300,7 @@ function CodeBlockWindow.SetCodeEntity(entity, bNoCodeUpdate)
 			self.entity:Disconnect("remotelyUpdated", self, self.OnCodeChange);
 			if(not bNoCodeUpdate) then
 				CodeBlockWindow.UpdateCodeToEntity();
+				CodeBlockWindow.UpdateNplBlocklyCode();
 			end
 		end
 		self.entity = entity;
@@ -382,6 +388,7 @@ function CodeBlockWindow.Close()
 	GameLogic.GetCodeGlobal():Disconnect("logAdded", CodeBlockWindow, CodeBlockWindow.AddConsoleText);
 	CodeBlockWindow:UnloadSceneContext();
 	CodeBlockWindow.CloseEditorWindow();
+	CodeBlockWindow.CloseNplBlocklyEditorPage();
 	CodeBlockWindow.lastBlocklyUrl = nil;
 	EntityManager.SetLastTriggerEntity(nil);
 	CodeIntelliSense.Close()
@@ -520,6 +527,7 @@ function CodeBlockWindow.OnClickCompileAndRun()
 		else
 			-- GameLogic.GetFilters():apply_filters("user_event_stat", "code", "execute", nil, nil);
 			CodeBlockWindow.UpdateCodeToEntity();
+			CodeBlockWindow.UpdateNplBlocklyCode();
 			codeEntity:Restart();
 		end
 	end
@@ -911,7 +919,8 @@ function CodeBlockWindow.OnClickEditMode(name,bForceRefresh)
 	if(CodeBlockWindow.IsBlocklyEditMode()) then
 		if(name == "codeMode") then
 			entity:SetBlocklyEditMode(false);
-			CodeBlockWindow.UpdateCodeEditorStatus()
+			CodeBlockWindow.UpdateCodeEditorStatus();
+			CodeBlockWindow.CloseNplBlocklyEditorPage();
 		end
 	else
 		if(name == "blockMode") then
@@ -927,6 +936,7 @@ function CodeBlockWindow.OnClickEditMode(name,bForceRefresh)
 		CodeBlockWindow.OpenBlocklyEditor(bForceRefresh);
 	end
 end
+
 
 function CodeBlockWindow.UpdateEditModeUI()
 	local textCtrl, multiLineCtrl = CodeBlockWindow.GetTextControl();
@@ -1057,6 +1067,10 @@ function CodeBlockWindow.OpenBlocklyEditor(bForceRefresh)
 		end
 
         codeLanguageType = entity:GetCodeLanguageType();
+	end
+	
+	if (entity and entity:IsUseNplBlockly()) then
+		return CodeBlockWindow.ShowNplBlocklyEditorPage();
 	end
 
 	local request_url = "npl://blockeditor"
@@ -1222,6 +1236,42 @@ function CodeBlockWindow:OnUserTypedCode(textCtrl, newChar)
 		CodeBlockWindow.UpdateCodeToEntity();
 	end})
 	CodeBlockWindow.updateCodeTimer:Change(1000, nil);
+end
+
+function CodeBlockWindow.UpdateNplBlocklyCode()
+	local codeEntity = CodeBlockWindow.GetCodeEntity();
+	if (not NplBlocklyEditorPage or not codeEntity) then return end
+	if (not codeEntity:IsBlocklyEditMode() or not codeEntity:IsUseNplBlockly()) then return end
+
+	local G = NplBlocklyEditorPage:GetG();
+	local code = type(G.GetCode) == "function" and G.GetCode() or "";
+	local xml = type(G.GetXml) == "function" and G.GetXml() or "";
+	codeEntity:SetNPLBlocklyXMLCode(xml);
+	codeEntity:SetNPLBlocklyNPLCode(code);
+end
+
+function CodeBlockWindow.ShowNplBlocklyEditorPage()
+	local entity = CodeBlockWindow.GetCodeEntity();
+	if (not entity or not entity:IsBlocklyEditMode() or not entity:IsUseNplBlockly()) then return end
+	if (NplBlocklyEditorPage) then NplBlocklyEditorPage:CloseWindow() end
+	local Page = NPL.load("Mod/GeneralGameServerMod/UI/Page.lua", IsDevEnv);
+	local width, height = self:CalculateMargins();
+	NplBlocklyEditorPage = Page.ShowVueTestPage({
+		xmltext = entity:GetNPLBlocklyXMLCode() or "",
+	}, { 
+		url = "%ui%/Blockly/Pages/NplBlockly.html",
+		alignment="_rt",
+		x = 0, y = 45,
+		height = height - 45 - 54,
+		width = width,
+	});
+end
+
+function CodeBlockWindow.CloseNplBlocklyEditorPage()
+	if (not NplBlocklyEditorPage) then return end
+	CodeBlockWindow.UpdateNplBlocklyCode();
+	NplBlocklyEditorPage:CloseWindow();
+	NplBlocklyEditorPage = nil;
 end
 
 CodeBlockWindow:InitSingleton();
