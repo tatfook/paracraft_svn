@@ -1076,7 +1076,13 @@ function CodeBlockWindow.OpenBlocklyEditor(bForceRefresh)
 	end
 	
 	if (CodeBlockWindow.IsSupportNplBlockly()) then
-		return CodeBlockWindow.ShowNplBlocklyEditorPage();
+		if (NplBlocklyEditorPage) then
+			CodeBlockWindow.CloseNplBlocklyEditorPage();
+			if(page) then page:Refresh(0.01); end
+		else
+			CodeBlockWindow.ShowNplBlocklyEditorPage();
+		end
+		return ;
 	end
 
 	local request_url = "npl://blockeditor"
