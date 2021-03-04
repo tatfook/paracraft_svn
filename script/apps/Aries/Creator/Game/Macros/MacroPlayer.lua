@@ -403,6 +403,7 @@ function MacroPlayer.ShowCursor(bShow, x, y, button)
 	if(page) then
 		local cursor = page:FindControl("cursorClick");
 		if(cursor) then
+			cursor.candrag = false;
 			cursor.visible = bShow;
 			if(bShow) then
 				MacroPlayer.SetTopLevel();
@@ -716,6 +717,9 @@ function MacroPlayer.ShowDrag(bShow, startX, startY, endX, endY, button)
 		if(dragPoints) then
 			dragPoints.visible = bShow;
 			if(bShow) then
+				local curPoint = page:FindControl("cursorClick");
+				curPoint.candrag = true;
+
 				local startPoint = page:FindControl("startPoint")
 				local width = 24;
 				startPoint.x = startX - width;
@@ -742,8 +746,8 @@ function MacroPlayer.SetDragTrigger(startX, startY, endX, endY, button, callback
 		end
 		MacroPlayer.expectedDragButton = button;
 		MacroPlayer.SetTriggerCallback(callbackFunc)
-		MacroPlayer.ShowDrag(true, startX, startY, endX, endY, button)
 		MacroPlayer.ShowCursor(true, startX, startY, button)
+		MacroPlayer.ShowDrag(true, startX, startY, endX, endY, button)
 		MacroPlayer.AutoAdjustControlPosition(startX, startY, endX, endY)
 	end
 end
