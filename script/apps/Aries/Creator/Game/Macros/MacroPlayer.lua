@@ -263,12 +263,20 @@ function MacroPlayer.AnimCursorBtn(bRestart)
 			local mouseX, mouseY = ParaUI.GetMousePosition();
 			
 			local totalTicks = 30;
+			local stopTicks = 10;
 			cursorTick = bRestart and 0 or (cursorTick + 1);
-			local progress = (totalTicks - cursorTick) / totalTicks;
-			if(cursorTick >= totalTicks) then
+			local progress = (totalTicks - math.min(totalTicks, cursorTick)) / totalTicks;
+			if(cursorTick >= (totalTicks+stopTicks)) then
 				cursorTick = 0;
 			end
 			local diffDistance = math.sqrt((mouseX - x)^2 + (mouseY - y)^2)
+
+			local maxDistance = 32
+			if( diffDistance > maxDistance) then
+				-- if too far away, we will begin from maxDistance
+				progress = progress * (maxDistance / diffDistance);
+			end
+
 			if( diffDistance > 16 ) then
 				cursorBtn.visible = true;
 				cursorBtn.translationx = math.floor((mouseX - x) * progress + 0.5);
