@@ -496,15 +496,15 @@ function MacroPlayer.CheckButton(button)
 		-- since, some mouse does not have a middle button, we will pass anyway, but tell the user about it. 
 		GameLogic.AddBBS("Macro", L"按鼠标中键", 5000, "255 0 0");
 	end
-	if(button:match("ctrl") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RCONTROL))) then
+	if((not button:match("ctrl")) == (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LCONTROL) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RCONTROL))) then
 		isOK = false
 		reason = "keyboardButtonWrong"
 	end
-	if(button:match("shift") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LSHIFT) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RSHIFT))) then
+	if((not button:match("shift")) == (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LSHIFT) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RSHIFT))) then
 		isOK = false
 		reason = "keyboardButtonWrong"
 	end
-	if(button:match("alt") and not (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU))) then
+	if((not button:match("alt")) == (ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_LMENU) or ParaUI.IsKeyPressed(DIK_SCANCODE.DIK_RMENU))) then
 		isOK = false
 		reason = "keyboardButtonWrong"
 	end
@@ -562,13 +562,13 @@ function MacroPlayer.OnKeyDown(event)
 		return
 	end
 	local isOK = true;
-	if(button:match("ctrl") and not event.ctrl_pressed) then
+	if((not button:match("ctrl")) ~= (not event.ctrl_pressed)) then
 		isOK = false
 	end
-	if(button:match("shift") and not event.shift_pressed) then
+	if((not button:match("shift")) ~= (not event.shift_pressed)) then
 		isOK = false
 	end
-	if(button:match("alt") and not event.alt_pressed) then
+	if((not button:match("alt")) ~= (not event.alt_pressed)) then
 		isOK = false
 	end
 	local keyname = button:match("(DIK_[%w_]+)");
