@@ -156,3 +156,16 @@ function AgentEditorPage.OnClickOpenFolder()
 		end
 	end
 end
+
+function AgentEditorPage.OnClickUpdateFromRemote()
+	local entity = AgentEditorPage.GetEntity();
+	if(entity) then
+		local filename = entity:GetAgentFilename(true)
+		if(filename) then
+			_guihelper.MessageBox(format(L"你确定要用远程文件%s 更新本地数据么?", filename), function()
+				AgentEditorPage.CloseWindow()
+				entity:LoadFromAgentFile(filename)
+			end)
+		end
+	end
+end
