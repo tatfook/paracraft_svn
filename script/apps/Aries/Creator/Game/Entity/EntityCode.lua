@@ -218,7 +218,8 @@ function Entity:SaveToXMLNode(node, bSort)
 	if(self:GetCodeLanguageType() ~= "" and self:GetCodeLanguageType() ~= nil) then
 		node.attr.codeLanguageType = self:GetCodeLanguageType();
 	end
-	if(self:GetBlocklyXMLCode() and self:GetBlocklyXMLCode()~="") then
+
+	if((self:GetBlocklyXMLCode() and self:GetBlocklyXMLCode()~="") or self:GetNPLBlocklyXMLCode()~="") then
 		local blocklyNode = {name="blockly", };
 		node[#node+1] = blocklyNode;
 		blocklyNode[#blocklyNode+1] = {name="xmlcode", self:TextToXmlInnerNode(self:GetBlocklyXMLCode())}
