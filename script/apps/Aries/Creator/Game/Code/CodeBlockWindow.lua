@@ -1286,8 +1286,8 @@ function CodeBlockWindow.ShowNplBlocklyEditorPage()
 		x = 0, y = 45,
 		height = height - 45 - 54,
 		width = width,
-		minScreenWidth = 1920, --1600 
-		minScreenHeight = 1080, -- 900
+		minScreenWidth = 1600, --1600  1920
+		minScreenHeight = 900, -- 900 1080
 	});
 end
 
