@@ -5,8 +5,8 @@ Date: 2021/2/17
 Desc: it defines properties of agent package
 use the lib:
 ------------------------------------------------------------
-NPL.load("(gl)script/apps/Aries/Creator/Game/GUI/AgentEditorPage.lua");
-local AgentEditorPage = commonlib.gettable("MyCompany.Aries.Game.GUI.AgentEditorPage");
+NPL.load("(gl)script/apps/Aries/Creator/Game/Agent/AgentEditorPage.lua");
+local AgentEditorPage = commonlib.gettable("MyCompany.Aries.Game.Agent.AgentEditorPage");
 AgentEditorPage.ShowPage();
 -------------------------------------------------------
 ]]
