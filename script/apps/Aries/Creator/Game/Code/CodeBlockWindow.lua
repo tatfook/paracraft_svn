@@ -1278,7 +1278,7 @@ function CodeBlockWindow.ShowNplBlocklyEditorPage()
 
 	local Page = NPL.load("Mod/GeneralGameServerMod/UI/Page.lua", IsDevEnv);
 	local width, height = self:CalculateMargins();
-	NplBlocklyEditorPage = Page.ShowVueTestPage({
+	NplBlocklyEditorPage = Page.Show({
 		xmltext = entity:GetNPLBlocklyXMLCode() or "",
 	}, { 
 		url = "%ui%/Blockly/Pages/NplBlockly.html",
@@ -1286,6 +1286,8 @@ function CodeBlockWindow.ShowNplBlocklyEditorPage()
 		x = 0, y = 45,
 		height = height - 45 - 54,
 		width = width,
+		minScreenWidth = 1920, --1600 
+		minScreenHeight = 1080, -- 900
 	});
 end
 
