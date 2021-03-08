@@ -240,7 +240,7 @@ function PlayerAssetFile:ShowWingAttachment(player, skin, show)
 	if (itemIds and #itemIds > 0) then
 		for i = 1, #itemIds do
 			local item = CustomCharItems:GetItemById(itemIds[i]);
-			if (item.wing == "true") then
+			if (item and item.wing == "true") then
 				if (show) then
 					if (item.attachment) then
 						local id, filename = string.match(item.attachment, "(%d+):(.*)");
