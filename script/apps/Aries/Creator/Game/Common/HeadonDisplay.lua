@@ -17,6 +17,8 @@ local Files = commonlib.gettable("MyCompany.Aries.Game.Common.Files");
 local PainterContext = commonlib.gettable("System.Core.PainterContext");
 local HeadonDisplay = commonlib.inherit(commonlib.gettable("System.Windows.Window"), commonlib.gettable("MyCompany.Aries.Game.Common.HeadonDisplay"));
 HeadonDisplay:Property({"bIsBillBoard", false, "IsBillBoarded", "SetBillBoarded", auto=true});
+-- default to 0, it can also be 1 or 2. so that multiple headon display can be shown at the same time.  
+HeadonDisplay:Property({"headonIndex", 0, "GetHeadonIndex", "SetHeadonIndex", auto=true});
 
 local template_name = "HeadonDisplay_mcmlv2"
 local template_3d_name = "HeadonDisplay_3d_mcmlv2"
@@ -41,7 +43,7 @@ function DummyObject:Destroy()
 	if(parent) then
 		local obj = parent:GetInnerObject()
 		if(obj) then
-			obj:ShowHeadOnDisplay(false,0);
+			obj:ShowHeadOnDisplay(false, self.obj:GetHeadonIndex());
 		end
 	end
 	return DummyObject._super.Destroy(self)
@@ -49,16 +51,19 @@ end
 
 
 -- @param parentEntity: should be an entity
-function HeadonDisplay:Init(parentEntity)
-	if(parentEntity.headonEntity) then
-		parentEntity.headonEntity:Destroy();
+-- @param headonIndex: default to 0, it can also be 1 or 2. so that multiple headon display can be shown at the same time.  
+function HeadonDisplay:Init(parentEntity, headonIndex)
+	headonIndex = headonIndex or 0;
+	local lastEntity = parentEntity:GetHeadonEntity(headonIndex)
+	if(lastEntity) then
+		lastEntity:Destroy();
 	end
 	self.painter = System.Core.PainterContext:new();
-
+	self:SetHeadonIndex(headonIndex);
 	local dummyObj = DummyObject:new():Init(self)
 	dummyObj:SetParent(parentEntity)
 	self.dummyObj = dummyObj;
-	parentEntity.headonEntity = dummyObj;
+	parentEntity:SetHeadonEntity(headonIndex, dummyObj);
 	return self;
 end
 
@@ -113,28 +118,33 @@ function HeadonDisplay:ShowWithParams(params)
 	end
 	local obj = parentEntity:GetInnerObject()
 	if(obj) then
-		obj:ShowHeadOnDisplay(true,0);
+		local headonIndex = self:GetHeadonIndex();
+		obj:ShowHeadOnDisplay(true, headonIndex);
 		if(self:Is3DUI())  then
 			HeadonDisplay.InitHeadonTemplate3D();
-			obj:SetHeadOnUITemplateName(template_3d_name,0);
+			obj:SetHeadOnUITemplateName(template_3d_name, headonIndex);
 			local offset = params.offset;
 			if(offset) then
-				obj:SetHeadOnOffset(offset.x or 0, offset.y or 0, offset.z or 0, 0);
+				obj:SetHeadOnOffset(offset.x or 0, offset.y or 0, offset.z or 0, headonIndex);
 			end
 			-- setting 3d facing will automatically make the text control to render in 3d. 
 			obj:SetField("HeadOn3DFacing", params.facing or 0);
 		else
 			HeadonDisplay.InitHeadonTemplate();
-			obj:SetHeadOnUITemplateName(template_name,0);
+			obj:SetHeadOnUITemplateName(template_name, headonIndex);
 		end
-		obj:SetHeadOnText(self.id, 0);
+		obj:SetHeadOnText(self.id, headonIndex);
 	end
 
 	-- load component if url has changed
 	if(self.url ~= params.url) then
 		self.url = params.url;
 		if(params.url) then
-			self:LoadComponent(params.url);
+			self:setGeometry(0, 0, 1000, 1000);
+			local page = self:LoadComponent(params.url);
+			if(page) then
+				self.pageWidth, self.pageHeight = page:GetUsedSize();
+			end
 			self:urlChanged(self.url);
 		end
 	end

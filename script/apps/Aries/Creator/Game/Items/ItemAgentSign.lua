@@ -34,6 +34,7 @@ function ItemAgentSign:PickItemFromPosition(x,y,z)
 			itemStack:SetDataField("agentPackageVersion", entity:GetVersion());
 			itemStack:SetDataField("agentDependencies", entity:GetAgentDependencies());
 			itemStack:SetDataField("agentExternalFiles", entity:GetAgentExternalFiles());
+			itemStack:SetDataField("updateMethod", entity:GetUpdateMethod());
 			itemStack:SetDataField("agentUrl", entity:GetAgentUrl());
 			itemStack:SetDataField("isGlobal", entity:IsGlobal());
 			return itemStack;
@@ -57,7 +58,7 @@ function ItemAgentSign:TryCreate(itemStack, entityPlayer, x,y,z, side, data, sid
 	local text = itemStack:GetDataField("tooltip");
 
 	local res = ItemAgentSign._super.TryCreate(self, itemStack, entityPlayer, x,y,z, side, data, side_region);
-	if(res and text and text~="") then
+	if(res) then
 		local entity = self:GetBlock():GetBlockEntity(x,y,z);
 		if(entity and entity:GetBlockId() == self.id) then
 			entity.cmd = text;
@@ -65,6 +66,7 @@ function ItemAgentSign:TryCreate(itemStack, entityPlayer, x,y,z, side, data, sid
 			entity:SetVersion(itemStack:GetDataField("agentPackageVersion"))
 			entity:SetAgentDependencies(itemStack:GetDataField("agentDependencies"))
 			entity:SetAgentExternalFiles(itemStack:GetDataField("agentExternalFiles"))
+			entity:SetUpdateMethod(itemStack:GetDataField("updateMethod"))
 			entity:SetAgentUrl(itemStack:GetDataField("agentUrl"))
 			entity:SetGlobal(itemStack:GetDataField("isGlobal"))
 			entity:Refresh();
