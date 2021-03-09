@@ -1293,7 +1293,7 @@ function CodeBlock:RunCommand(cmd_name, cmd_text)
 		if (GameLogic.GameMode:CanUseCommand() or GameLogic.GetMode() == "editor") then
 			return GameLogic.RunCommand(cmd_name, cmd_text, self:GetEntity());
 		else
-			GameLogic.AddBBS(nil, L"当前模式不允许使用命令", 3000, "255 0 0");
+			--GameLogic.AddBBS(nil, L"当前模式不允许使用命令", 3000, "255 0 0");
 		end
 	end
 end
