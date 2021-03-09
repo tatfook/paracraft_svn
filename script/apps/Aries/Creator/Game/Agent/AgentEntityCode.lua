@@ -17,3 +17,35 @@ local Entity = commonlib.inherit(commonlib.gettable("MyCompany.Aries.Game.Entity
 function Entity:ctor()
 end
 
+function Entity:ScheduleRefresh(x,y,z)
+	
+end
+
+function Entity:updateTick(x,y,z)
+end
+
+function Entity:FindNearByMovieEntity()
+end
+
+function Entity:GetNearByMovieEntity()
+end
+
+function Entity:GetAllNearbyCodeEntities()
+end
+
+function Entity:Restart()
+	self:Stop();
+	local codeBlock = self:GetCodeBlock(true)
+	if(codeBlock) then
+		self:OnBeforeRunThisBlock()
+		codeBlock:Run(function()
+			self:OnAfterRunThisBlock();
+		end);
+	end
+end
+
+function Entity:SetLastCommandResult(last_result)
+end
+
+function Entity:UpdateBlockColor()
+end

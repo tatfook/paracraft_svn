@@ -26,6 +26,7 @@ AgentWorld:Property({"centerPos", {0,0,0}, "GetCenterPosition", "SetCenterPositi
 function AgentWorld:ctor()
 	self.blocks = {};
 	self.codeblocks = {};
+	self.codeEntities = {};
 end
 
 function AgentWorld:Init(filename)
@@ -70,12 +71,19 @@ function AgentWorld:LoadFromAgentFile(filename, cx, cy, cz)
 						local blockId = b[4];
 						blocks[GetSparseIndex(b[1], b[2], b[3])] = b;
 						if(blockId == block_types.names.CodeBlock) then
-							self.codeblocks[#(self.codeblocks) + 1] = b;
+							local attr = b[6] and b[6].attr;
+							if(attr) then
+								if(attr.isPowered == true or attr.isPowered == "true") then
+									self.codeblocks[#(self.codeblocks) + 1] = b;
+								end
+							end
 						end
 					end
 				end
 			end
 		end
+	else
+		LOG.std(nil, "warn", "AgentWorld", "failed to load template from file: %s", filename or "");
 	end
 end
 
@@ -84,7 +92,15 @@ end
 
 -- run all code blocks in the agent world
 function AgentWorld:Run()
-	-- TODO:
+	NPL.load("(gl)script/apps/Aries/Creator/Game/Agent/AgentEntityCode.lua");
+	local AgentEntityCode = commonlib.gettable("MyCompany.Aries.Game.EntityManager.AgentEntityCode");
+
+	for _, b in ipairs(self.codeblocks) do
+		local entityCode = AgentEntityCode:new();
+		entityCode:LoadFromXMLNode(b[6])
+		entityCode:SetPowered(true);
+		self.codeEntities[#(self.codeEntities)+1] = entityCode
+	end
 end
 
 function AgentWorld:OnWorldUnload()
