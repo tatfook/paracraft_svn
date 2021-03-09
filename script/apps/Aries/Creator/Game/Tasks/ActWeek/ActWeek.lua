@@ -178,12 +178,15 @@ function ActWeek.GetServerTime(callback)
     end)
 end
 
--- 完成活动目标
+-- 完成活动目标 上传世界
 function ActWeek.AchieveActTarget()
     -- 得先判断有没登录
     if(not GameLogic.GetFilters():apply_filters('is_signed_in'))then
         return
 	end
+
+    GameLogic.QuestAction.CompleteAiHomeWork()
+
 
     -- 判断任务状态
     local client_data = KeepWorkItemManager.GetClientData(ActWeek.act_gisd);

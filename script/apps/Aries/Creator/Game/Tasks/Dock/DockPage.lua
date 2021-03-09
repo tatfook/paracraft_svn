@@ -43,7 +43,7 @@ DockPage.top_line_2 = {
     { label = L"", },
     { label = L"", },
     { label = L"", },
-    { label = L"", },    
+    { label = L"作业", id = "homework", enabled2 = false, bg="Texture/Aries/Creator/keepwork/dock/btn3_zuoye_32bits.png#0 0 100 80", },
     { label = L"成长日记", id = "checkin", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_riji_32bits.png#0 0 100 80", },
     { label = L"玩学课堂", id = "codewar", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_ketang_32bits.png#0 0 100 80", },
 }
@@ -96,6 +96,7 @@ function DockPage.Show(bCommand)
     -- ActWeek.GetServerTime(function()
     --     DockPage.RefreshPage(0.01)
     -- end)
+    GameLogic.QuestAction.RequestAiHomeWork(DockPage.FreshHomeWorkIcon)
 end
 
 function DockPage.RefreshPage(time)
@@ -268,6 +269,8 @@ function DockPage.OnClickTop(id)
         end
     elseif (id == 'act_week') then
         ActWeek.ShowView()
+    elseif (id == 'homework') then
+        NPL.load("(gl)script/apps/Aries/Creator/Game/Tasks/Quest/QuestWork.lua").Show();
     end
 end
 function DockPage.OnClick(id)
@@ -704,4 +707,31 @@ function DockPage.CanShowCampVip()
     end
 
     return false
+end
+
+function DockPage.FreshHomeWorkIcon()
+    local ai_homework = GameLogic.QuestAction.GetAiHomeWork()
+    if #ai_homework > 0 then
+        local has_icon = false
+        for key, v in pairs(DockPage.top_line_2) do
+            if v.id == "homework" then
+                has_icon = true
+                v.enabled2 = true
+            end
+        end
+
+        if not has_icon then
+            table.insert(DockPage.top_line_2, 1, { label = L"作业", id = "homework", enabled2 = true, bg="Texture/Aries/Creator/keepwork/dock/btn3_zuoye_32bits.png#0 0 100 80", })
+        end
+        
+        DockPage.RefreshPage()
+    else
+        for key, v in pairs(DockPage.top_line_2) do
+            if v.id == "homework" then
+                v.enabled2 = false
+            end
+        end
+
+        DockPage.RefreshPage()
+    end
 end

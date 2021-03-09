@@ -145,8 +145,9 @@ e.g.
 		local WorldCommon = commonlib.gettable("MyCompany.Aries.Creator.WorldCommon")
 
 		local options;
+		print("aaaaaaaaaaaaaaaaa", cmd_text)
 		options, cmd_text = CmdParser.ParseOptions(cmd_text);
-
+print("ssssssssssssssssssssssssssssssss", cmd_text)
 
 		cmd_text = GameLogic.GetFilters():apply_filters("cmd_loadworld", cmd_text, options);
 
