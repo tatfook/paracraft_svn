@@ -45,11 +45,14 @@ function MakeApp:Run()
 		_guihelper.MessageBox(L"此功能需要使用Windows操作系统");
 		return
 	end
+	--[[
 	GameLogic.IsVip("MakeApp", true, function(result) 
 		if(result) then  
 			self:RunImp()
 		end
 	end)
+	]]
+	self:RunImp();
 end
 
 function MakeApp:MakeApp()
